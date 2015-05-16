@@ -95,7 +95,7 @@ namespace aly{
 	};
 
 	template<class T, int C> void Transform(Image<T,C>& im1,Image<T,C>& im2,const std::function<void(vec<T,C>&,vec<T,C>&)>& func){
-			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<" "<<im2.dimensions());
+			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 	#pragma omp parallel for
 				for(size_t offset=0;offset<sz;offset++){
@@ -103,7 +103,7 @@ namespace aly{
 				}
 			}
 	template<class T, int C> void Transform(Image<T,C>& im1,const Image<T,C>& im2,const std::function<void(vec<T,C>&,const vec<T,C>&)>& func){
-			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<" "<<im2.dimensions());
+			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 	#pragma omp parallel for
 				for(size_t offset=0;offset<sz;offset++){
@@ -111,7 +111,7 @@ namespace aly{
 				}
 			}
 	template<class T, int C> void Transform(Image<T,C>& im1,const Image<T,C>& im2,const Image<T,C>& im3,const std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)>& func){
-			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<" "<<im2.dimensions());
+			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 	#pragma omp parallel for
 				for(size_t offset=0;offset<sz;offset++){
@@ -119,7 +119,7 @@ namespace aly{
 				}
 			}
 	template<class T, int C> void Transform(Image<T,C>& im1,Image<T,C>& im2,const std::function<void(int i,int j,vec<T,C>& val1,vec<T,C>& val2)>& func){
-		if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<" "<<im2.dimensions());
+		if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 		#pragma omp parallel for
 				for(int j=0;j<im1.height;j++){
 					for(int i=0;i<im1.width;i++){
@@ -129,7 +129,7 @@ namespace aly{
 				}
 			}
 	template<class T, int C> void Transform(Image<T,C>& im1,Image<T,C>& im2,const std::function<void(size_t offset,vec<T,C>& val1,vec<T,C>& val2)>& func){
-			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<" "<<im2.dimensions());
+			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 		#pragma omp parallel for
 				for(size_t offset=0;offset<sz;offset++){
