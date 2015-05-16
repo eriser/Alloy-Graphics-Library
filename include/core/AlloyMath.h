@@ -21,6 +21,9 @@ bool SANITY_CHECK_MATH();
     /////////////////////
     // Data structures //
     /////////////////////
+template<typename T> T clamp(T val, T min, T max) {
+	return std::min(std::max(val, min), max);
+}
 template<class T, int M> struct vec;
 template<class T> struct vec<T,1>
 {
@@ -298,11 +301,13 @@ template<class T> struct vec<T,1>
     template<class T,int M> vec<T,M> exp(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::exp(v[m]);return result;}
     template<class T,int M> vec<T,M> log(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::log(v[m]);return result;}
     template<class T,int M> vec<T,M> sqrt(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::sqrt(v[m]);return result;}
+    template<class T,int M> vec<T,M> clamp(const vec<T,M> & v,const T& mn,const T& mx) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=clamp(v[m],mn,mx);return result; }
 
     // Form a vector or matrix by taking the componentwise max/min of two vectors or matrices
     template<class T,int M> vec<T,M> max(const vec<T,M> & l, const vec<T,M> & r) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::max(l[m],r[m]);return result; }
     template<class T,int M> vec<T,M> min(const vec<T,M> & l, const vec<T,M> & r) {vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::min(l[m],r[m]);return result; }
-    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,T t) {return (a*(1-t) + b*t); }
+
+    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,const T& t) {return (a*(1-t) + b*t); }
     template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,const vec<T,M>& t) {return (a*(vec<T,M>(1)-t) + b*t); }
 
     //////////////////////////////
