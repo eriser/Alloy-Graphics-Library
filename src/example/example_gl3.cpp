@@ -24,12 +24,13 @@
 #	define GLFW_INCLUDE_GLCOREARB
 #endif
 #include <GLFW/glfw3.h>
+
+#include "../../include/core/AlloyMath.h"
 #include "../../include/core/nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
 #include "../../include/example/demo.h"
 #include "../../include/example/perf.h"
-
 
 void errorcb(int error, const char* desc)
 {
@@ -56,6 +57,7 @@ static void key(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 int main()
 {
+	aly::SANITY_CHECK_MATH();
 	GLFWwindow* window;
 	DemoData data;
 	NVGcontext* vg = NULL;
