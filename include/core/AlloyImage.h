@@ -170,55 +170,60 @@ namespace aly{
 	    	return ss;
 	    }
 		template<class T, int C> Image<T, C> operator+(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar+val2;};
 			Transform(out,img,f);
 			return out;
 		}
 
 		template<class T, int C> Image<T, C> operator-(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar-val2;};
 			Transform(out,img,f);
 			return out;
 		}
 		template<class T, int C> Image<T, C> operator*(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar*val2;};
 			Transform(out,img,f);
 			return out;
 		}
 		template<class T, int C> Image<T, C> operator/(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar/val2;};
 			Transform(out,img,f);
 			return out;
 		}
 		template<class T, int C> Image<T, C> operator+(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2+scalar;};
 			Transform(out,img,f);
 			return out;
 		}
 		template<class T, int C> Image<T, C> operator-(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2-scalar;};
 			Transform(out,img,f);
 			return out;
 		}
 		template<class T, int C> Image<T, C> operator*(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2*scalar;};
 			Transform(out,img,f);
 			return out;
 		}
 		template<class T, int C> Image<T, C> operator/(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height);
+			Image<T, C> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2/scalar;};
 			Transform(out,img,f);
 			return out;
 		}
-
+		template<class T, int C> Image<T, C> operator-(const Image<T, C>& img) {
+			Image<T, C> out(img.width, img.height,img.x,img.y);
+			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=-val2;};
+			Transform(out,img,f);
+			return out;
+		}
 		template<class T, int C> Image<T, C> operator+=(Image<T, C>& out,const Image<T, C>& img) {
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1+=val2;};
 			Transform(out,img,f);

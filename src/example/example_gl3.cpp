@@ -27,7 +27,7 @@
 
 #include "../../include/core/AlloyImage.h"
 
-#include "../../include/core/AlloyLinearAlgebra.h"
+#include "../../include/core/AlloyVector.h"
 #include "../../include/core/nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"

@@ -6,7 +6,7 @@
  */
 #include "../../include/core/AlloyMath.h"
 #include "../../include/core/AlloyImage.h"
-#include "../../include/core/AlloyLinearAlgebra.h"
+#include "../../include/core/AlloyVector.h"
 #include <iostream>
 namespace aly{
 
@@ -77,7 +77,7 @@ namespace aly{
 			std::cout<<im1<<std::endl;
 			std::cout<<im2<<std::endl;
 			Image4f out=float4(1,2,3,1)+im2;
-
+			Image4f im3=-out;
 			std::cout<<out<<std::endl;
 			out+=im1;
 			std::cout<<out<<std::endl;
@@ -97,10 +97,14 @@ namespace aly{
 			Vector4f im2;
 			im2.resize(32);
 			im2.apply([](size_t offset,float4& val){val=float4(offset%8,0,-offset,1);});
+			im1.apply([](size_t offset,float4& val){val=float4(offset%8,(offset+7)%5,offset%3,1);});
 			std::cout<<im1<<std::endl;
 			std::cout<<im2<<std::endl;
+			Vector4f im3=-im1;
+			float d1=dot(im1,im2)+length(im1)+lengthL1(im2)+max(im1)-min(im1);
+			float4 d2=dotVec(im1,im2)+lengthVec(im2)+lengthVecL1(im1)+maxVec(im1)-minVec(im1);
 			Vector4f out=float4(1,2,3,1)+im2;
-
+			std::cout<<"Dots "<<d1<<" "<<d2<<std::endl;
 			std::cout<<out<<std::endl;
 			out+=im1;
 			std::cout<<out<<std::endl;
