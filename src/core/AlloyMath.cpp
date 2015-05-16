@@ -19,9 +19,14 @@ namespace aly{
 			M1=ALY_PI*M1;
 			pt=M2*pt;
 			M2*=1.0f/16.0f;
+
 			M2+=transpose(M2);
+
 			M2+=float4x4::identity()-float4x4::zero();
+
+			return true;
 			float det=determinant(M2);
+
 			M2=inverse(M2);
 			pt=pt.xyz().xy().xyz().xyzw();
 			float3 pt2(0.1,0.4,0.3);
@@ -29,6 +34,7 @@ namespace aly{
 			float4x3 M3c=SubColMatrix(M3);
 			float3x3 M3rc=SubMatrix(M3);
 			float2x2 M2rc=SubMatrix(M3rc);
+
 			float4x4 Zr=inverse(M2)*M2-Identity<float,4,4>();
 
 			float3 v=pt*M3c*pt2;
@@ -40,8 +46,7 @@ namespace aly{
 			float4x4 T=MakeTranslation(float3(1,2,3));
 			float4x4 S=MakeScale(float3(0.1,0.2,0.3));
 			float4x4 S2=MakeScale(0.1f);
-			std::cout<<T<<std::endl;
-			std::cout<<S<<std::endl;
+
 			float3 neg=-float3(0.1,0.2,0.3);
 			float single=float1(0.7);
 			float4x4 RX=MakeRotationX(0.3f);

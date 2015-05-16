@@ -11,6 +11,7 @@
 #include <tuple>
 #include <iomanip>
 #include <iostream>
+#include "AlloyCommon.h"
 //#include "cereal/cereal.hpp"
 #define ALY_PI float(3.1415926535897932384626433832795)
 #define ALY_PI_2 float(0.5f*ALY_PI)
@@ -39,6 +40,7 @@ template<class T> struct vec<T,1>
     operator    				T () const 							{ return x; }
 
    	bool        				operator == (const vec & r) const           { return (x == r.x); }
+   	bool        				operator != (const vec & r) const           { return (x!=r.x); }
    	bool        				operator < (const vec & r) const            { return (x < r.x); }
    	bool        				operator > (const vec & r) const            { return (x > r.x); }
 	template<class Archive>		void serialize(Archive & archive){			archive(x); }
@@ -61,6 +63,7 @@ template<class T> struct vec<T,1>
         vec<T,3>					xyz() const;
 
         bool        operator == (const vec & r) const           { return (x==r.x && y==r.y); }
+        bool        operator != (const vec & r) const           { return (x!=r.x || y!=r.y); }
  		bool        operator < (const vec & r) const            { return (std::make_tuple(x, y) < std::make_tuple(r.x, r.y)); }
  		bool        operator > (const vec & r) const            { return (std::make_tuple(x, y) < std::make_tuple(r.x, r.y)); }
  		template<class Archive>		void serialize(Archive & archive){			archive(x, y); }
@@ -82,6 +85,7 @@ template<class T> struct vec<T,1>
         vec<T,4>					xyzw()const;
 
         bool        operator == (const vec & r) const           { return (x==r.x && y==r.y && z==r.z); }
+        bool        operator != (const vec & r) const           { return (x!=r.x || y!=r.y || z!=r.z); }
  		bool        operator < (const vec & r) const            { return (std::make_tuple(x, y, z) < std::make_tuple(r.x, r.y, r.z)); }
  		bool        operator > (const vec & r) const            { return (std::make_tuple(x, y, z) < std::make_tuple(r.x, r.y, r.z)); }
  		template<class Archive>		void serialize(Archive & archive){			archive(x, y, z); }
@@ -103,7 +107,8 @@ template<class T> struct vec<T,1>
         vec<T,3>					xyz() const							{return vec<T,3>(x,y,z);}
 
         bool        operator == (const vec & r) const           { return (x==r.x && y==r.y && z==r.z && w==r.w); }
- 		bool        operator < (const vec & r) const            { return (std::make_tuple(x, y, z, w) < std::make_tuple(r.x, r.y, r.z, r.w)); }
+        bool        operator != (const vec & r) const           { return (x!=r.x || y!=r.y || z!=r.z || w!=r.w); }
+        bool        operator < (const vec & r) const            { return (std::make_tuple(x, y, z, w) < std::make_tuple(r.x, r.y, r.z, r.w)); }
  		bool        operator > (const vec & r) const            { return (std::make_tuple(x, y, z, w) < std::make_tuple(r.x, r.y, r.z, r.w)); }
  		template<class Archive>		void serialize(Archive & archive){			archive(x, y, z, w); }
 
@@ -187,7 +192,8 @@ template<class T> struct vec<T,1>
                                     matrix(C x, C y)                       : x(x), y(y) {}
         explicit                    matrix(T s)                            : x(s), y(s) {}
         template<class U> explicit  matrix(const matrix<U,M,2> & r)           : x(C(r.x)), y(C(r.y)) {}
-
+        T*							ptr()								{ return &(x[0][0]);}
+        vec<T,M>*					vecPtr()							{ return &x[0];}
         vec<T,2>                    row(int i) const                    { return {x[i], y[i]}; } 
         const C &                   operator [] (int j) const           { return (&x)[j]; }
         const T &                   operator () (int i, int j) const    { return (*this)[j][i]; }
@@ -214,7 +220,8 @@ template<class T> struct vec<T,1>
                                     matrix(C x, C y, C z)                  : x(x), y(y), z(z) {}
         explicit                    matrix(T s)                            : x(s), y(s), z(s) {}
         template<class U> explicit  matrix(const matrix<U,M,3> & r)           : x(C(r.x)), y(C(r.y)), z(C(r.z)) {}
-
+        T*							ptr()								{ return &(x[0][0]);}
+        vec<T,M>*					vecPtr()							{ return &x[0];}
         vec<T,3>                    row(int i) const                    { return {x[i], y[i], z[i]}; }
         const C &                   operator [] (int j) const           { return (&x)[j]; }
         const T &                   operator () (int i, int j) const    { return (*this)[j][i]; }
@@ -242,7 +249,8 @@ template<class T> struct vec<T,1>
                                     matrix(C x, C y, C z, C w)             : x(x), y(y), z(z), w(w) {}
         explicit                    matrix(T s)                            : x(s), y(s), z(s), w(s) {}
         template<class U> explicit  matrix(const matrix<U,M,4> & r)           : x(C(r.x)), y(C(r.y)), z(C(r.z)), w(C(r.w)) {}
-
+        T*							ptr()								{ return &(x[0][0]);}
+        vec<T,M>*					vecPtr()							{ return &x[0];}
         vec<T,4>                    row(int i) const                    { return {x[i], y[i], z[i], w[i]}; }
         const C &                   operator [] (int j) const           { return (&x)[j]; }
         const T &                   operator () (int i, int j) const    { return (*this)[j][i]; }
@@ -396,8 +404,6 @@ template<class T> struct vec<T,1>
     template<class T> vec<T,3> qrotate_z(const vec<T,4> & q) { return {(q.z*q.x+q.y*q.w)*2, (q.y*q.z-q.x*q.w)*2, q.w*q.w-q.x*q.x-q.y*q.y+q.z*q.z}; } // q [0,0,1,0] q*
     template<class T> vec<T,3> qrotate(const vec<T,4> & q, const vec<T,3> & v) { return qrotate_x(q)*v.x + qrotate_y(q)*v.y + qrotate_z(q)*v.z; } // q [x,y,z,0] q*
 
-	template<class T, int M> bool        operator != (const vec<T, M> & a, const vec<T, M> & b)   { return !(a == b); }
-
 	template<class T, int M> vec<T, M>   operator - (const vec<T, M> & a)                         { vec<T,M> result;for(int m=0;m<M;m++){ result[m]=-a[m];};return result; }
 	template<class T, int M> vec<T, M>   operator + (const vec<T, M> & a, const vec<T, M> & b)    { vec<T,M> result;for(int m=0;m<M;m++){ result[m]=a[m]+b[m];};return result;}
 	template<class T, int M> vec<T, M>   operator - (const vec<T, M> & a, const vec<T, M> & b)    { vec<T,M> result;for(int m=0;m<M;m++){ result[m]=a[m]-b[m];};return result;}
@@ -424,18 +430,17 @@ template<class T> struct vec<T,1>
 	template<class T, int M> vec<T, M> & operator /= (vec<T, M> & a, const T & b)                 { return a = a / b; }
 
 
-	template<class T, int M, int N> matrix<T,M,N> operator - (const matrix<T,M,N> & a)                       {  matrix<T,M,N> result;int sz=M*N;for(int i=0;i<sz;i++){ result[i]=-a[i];};return result;  }
-	template<class T, int M, int N> matrix<T,M,N> operator + (const matrix<T,M,N> & a, const matrix<T,M,N> & b) { matrix<T,M,N> result;int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a[i]+b[i];};return result;  }
-
-	template<class T, int M, int N> matrix<T,M,N> operator - (const matrix<T,M,N> & a, const matrix<T,M,N> & b) { matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a[i]-b[i];};return result;}
-	template<class T, int M, int N> matrix<T,M,N> operator + (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a[i]+b;};return result; }
-	template<class T, int M, int N> matrix<T,M,N> operator - (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a[i]-b;};return result; }
-	template<class T, int M, int N> matrix<T,M,N> operator * (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a[i]*b;};return result; }
-	template<class T, int M, int N> matrix<T,M,N> operator / (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a[i]/b;};return result;}
-	template<class T, int M, int N> matrix<T,M,N> operator * (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a*b[i];};return result; }
-	template<class T, int M, int N> matrix<T,M,N> operator / (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a/b[i];};return result;}
-	template<class T, int M, int N> matrix<T,M,N> operator + (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a+b[i];};return result; }
-	template<class T, int M, int N> matrix<T,M,N> operator - (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;const int sz=M*N;for(int i=0;i<sz;i++){ result[i]=a-b[i];};return result;}
+	template<class T, int M, int N> matrix<T,M,N> operator - (const matrix<T,M,N> & a)                       {  matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=-a[i];};return result;  }
+	template<class T, int M, int N> matrix<T,M,N> operator + (const matrix<T,M,N> & a, const matrix<T,M,N> & b) { matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a[i]+b[i];};return result;  }
+	template<class T, int M, int N> matrix<T,M,N> operator - (const matrix<T,M,N> & a, const matrix<T,M,N> & b) { matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a[i]-b[i];};return result;}
+	template<class T, int M, int N> matrix<T,M,N> operator + (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a[i]+b;};return result; }
+	template<class T, int M, int N> matrix<T,M,N> operator - (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a[i]-b;};return result; }
+	template<class T, int M, int N> matrix<T,M,N> operator * (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a[i]*b;};return result; }
+	template<class T, int M, int N> matrix<T,M,N> operator / (const matrix<T,M,N> & a, T b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a[i]/b;};return result;}
+	template<class T, int M, int N> matrix<T,M,N> operator * (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a*b[i];};return result; }
+	template<class T, int M, int N> matrix<T,M,N> operator / (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a/b[i];};return result;}
+	template<class T, int M, int N> matrix<T,M,N> operator + (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a+b[i];};return result; }
+	template<class T, int M, int N> matrix<T,M,N> operator - (T a,const matrix<T,M,N> & b)                  	{ matrix<T,M,N> result;for(int i=0;i<N;i++){ result[i]=a-b[i];};return result;}
 
 	template<class T, int M, int N> matrix<T,M,N> & operator += (matrix<T,M,N> & a, const matrix<T,M,N> & b)    { return a=a+b; }
 	template<class T, int M, int N> matrix<T,M,N> & operator -= (matrix<T,M,N> & a, const matrix<T,M,N> & b)    { return a=a-b; }
@@ -453,9 +458,9 @@ template<class T> struct vec<T,1>
 
 
     template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,1> & v) { return ss << v.x; }
-    template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,2> & v) { return ss << '(' << v.x << ' ' << v.y << ')'; }
-    template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,3> & v) { return ss << '(' << v.x << ' ' << v.y << ' ' << v.z << ')'; }
-    template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,4> & v) { return ss << '(' << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w << ')'; }
+    template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,2> & v) { return ss << '(' << v.x << ',' << v.y << ')'; }
+    template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,3> & v) { return ss << '(' << v.x << ',' << v.y << ',' << v.z << ')'; }
+    template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,4> & v) { return ss << '(' << v.x << ',' << v.y << ',' << v.z << ',' << v.w << ')'; }
     template<class C, class R, class T,int M, int N> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const matrix<T,M,N> & A) {
     	ss<<"\n";
     	for(int n=0;n<N;n++){

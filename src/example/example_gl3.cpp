@@ -25,7 +25,7 @@
 #endif
 #include <GLFW/glfw3.h>
 
-#include "../../include/core/AlloyMath.h"
+#include "../../include/core/AlloyImage2D.h"
 #include "../../include/core/nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
@@ -58,6 +58,7 @@ static void key(GLFWwindow* window, int key, int scancode, int action, int mods)
 int main()
 {
 	aly::SANITY_CHECK_MATH();
+	aly::SANITY_CHECK_IMAGE();
 	GLFWwindow* window;
 	DemoData data;
 	NVGcontext* vg = NULL;
