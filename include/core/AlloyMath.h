@@ -507,10 +507,10 @@ template<class T> struct vec<T,1>
     	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
     }
     template <class T> matrix<T,4,4> MakeRotationY(vec<T,3> axis, T angle){
-    	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
+    	return MakeRotationMatrix(vec<T,3>(0,1,0),angle);
     }
     template <class T> matrix<T,4,4> MakeRotationZ(vec<T,3> axis, T angle){
-    	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
+    	return MakeRotationMatrix(vec<T,3>(0,0,1),angle);
     }
     template <class T> T Angle(const vec<T,3>& v0, const vec<T,3>& v1, const vec<T,3>& v2){
     	vec<T,3> v = v0 - v1;
