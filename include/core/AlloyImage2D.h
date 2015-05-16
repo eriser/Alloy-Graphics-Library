@@ -191,7 +191,6 @@ namespace aly{
 		}
 
 		template<class T, int C> Image<T, C> operator+=(Image<T, C>& out,const Image<T, C>& img) {
-			std::cout<<"+= "<<out.dimensions()<<" "<<img.dimensions()<<std::endl;
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1+=val2;};
 			Transform(out,img,f);
 			return out;
