@@ -261,9 +261,6 @@ template<class T> struct vec<T,1>
     template<class T, int M, int N> struct elem_type<matrix<T,M,N>> { typedef T type; };
     template<class T> using elem_t = typename elem_type<T>::type;
 
-    // Form a vector or matrix by applying function f to each element of vector or matrix v
-    template<class T, class F> T map(const T & v, F f) { return zip(v, elem_t<T>(), [f](elem_t<T> a, elem_t<T>) { return f(a); }); }
-
     // Form a scalar by applying function f to adjacent components of vector or matrix v
     template<class T, class F> T reduce(const vec<T,2> & v, F f) { return f(v.x, v.y); }
     template<class T, class F> T reduce(const vec<T,3> & v, F f) { return f(f(v.x, v.y), v.z); }
@@ -272,67 +269,13 @@ template<class T> struct vec<T,1>
     template<class T, int M, class F> T reduce(const matrix<T,M,3> & m, F f) { return f(f(reduce(m.x, f), reduce(m.y, f)), reduce(m.z, f)); }
     template<class T, int M, class F> T reduce(const matrix<T,M,4> & m, F f) { return f(f(f(reduce(m.x, f), reduce(m.y, f)), reduce(m.z, f)), reduce(m.w, f)); }
 
-    // Form a vector or matrix by applying function f to corresponding pairs of components from l and r
-
-    template<class T, class F> auto zip(const vec<T,2> & l, const vec<T,2> & r, F f) -> vec<decltype(f(T(),T())),2> { return {f(l.x,r.x), f(l.y,r.y)}; }
-    template<class T, class F> auto zip(const vec<T,3> & l, const vec<T,3> & r, F f) -> vec<decltype(f(T(),T())),3> { return {f(l.x,r.x), f(l.y,r.y), f(l.z,r.z)}; }
-    template<class T, class F> auto zip(const vec<T,4> & l, const vec<T,4> & r, F f) -> vec<decltype(f(T(),T())),4> { return {f(l.x,r.x), f(l.y,r.y), f(l.z,r.z), f(l.w,r.w)}; }
-    template<class T, class F> auto zip(const vec<T,2> & l, const T & r, F f) -> vec<decltype(f(T(),r)),2> { return {f(l.x,r), f(l.y,r)}; }
-    template<class T, class F> auto zip(const vec<T,3> & l, const T & r, F f) -> vec<decltype(f(T(),r)),3> { return {f(l.x,r), f(l.y,r), f(l.z,r)}; }
-    template<class T, class F> auto zip(const vec<T,4> & l, const T & r, F f) -> vec<decltype(f(T(),r)),4> { return {f(l.x,r), f(l.y,r), f(l.z,r), f(l.w,r)}; }
-    template<class T, class F> auto zip(const T & l, const vec<T,2> & r, F f) -> vec<decltype(f(l,T())),2> { return {f(l,r.x), f(l,r.y)}; }
-    template<class T, class F> auto zip(const T & l, const vec<T,3> & r, F f) -> vec<decltype(f(l,T())),3> { return {f(l,r.x), f(l,r.y), f(l,r.z)}; }
-    template<class T, class F> auto zip(const T & l, const vec<T,4> & r, F f) -> vec<decltype(f(l,T())),4> { return {f(l,r.x), f(l,r.y), f(l,r.z), f(l,r.w)}; }
-    template<class T, int M, class F> auto zip(const matrix<T,M,2> & l, const matrix<T,M,2> & r, F f) -> matrix<decltype(f(T(),T())),M,2> { return {zip(l.x,r.x,f), zip(l.y,r.y,f)}; }
-    template<class T, int M, class F> auto zip(const matrix<T,M,3> & l, const matrix<T,M,3> & r, F f) -> matrix<decltype(f(T(),T())),M,3> { return {zip(l.x,r.x,f), zip(l.y,r.y,f), zip(l.z,r.z,f)}; }
-    template<class T, int M, class F> auto zip(const matrix<T,M,4> & l, const matrix<T,M,4> & r, F f) -> matrix<decltype(f(T(),T())),M,4> { return {zip(l.x,r.x,f), zip(l.y,r.y,f), zip(l.z,r.z,f), zip(l.w,r.w,f)}; }
-    template<class T, int M, class F> auto zip(const matrix<T,M,2> & l, const T & r, F f) -> matrix<decltype(f(T(),r)),M,2> { return {zip(l.x,r,f), zip(l.y,r,f)}; }
-    template<class T, int M, class F> auto zip(const matrix<T,M,3> & l, const T & r, F f) -> matrix<decltype(f(T(),r)),M,3> { return {zip(l.x,r,f), zip(l.y,r,f), zip(l.z,r,f)}; }
-    template<class T, int M, class F> auto zip(const matrix<T,M,4> & l, const T & r, F f) -> matrix<decltype(f(T(),r)),M,4> { return {zip(l.x,r,f), zip(l.y,r,f), zip(l.z,r,f), zip(l.w,r,f)}; }
-    template<class T, int M, class F> auto zip(const T & l, const matrix<T,M,2> & r, F f) -> matrix<decltype(f(l,T())),M,2> { return {zip(l,r.x,f), zip(l,r.y,f)}; }
-    template<class T, int M, class F> auto zip(const T & l, const matrix<T,M,3> & r, F f) -> matrix<decltype(f(l,T())),M,3> { return {zip(l,r.x,f), zip(l,r.y,f), zip(l,r.z,f)}; }
-    template<class T, int M, class F> auto zip(const T & l, const matrix<T,M,4> & r, F f) -> matrix<decltype(f(l,T())),M,4> { return {zip(l,r.x,f), zip(l,r.y,f), zip(l,r.z,f), zip(l,r.w,f)}; }
-
     ////////////////////////
     // Operator overloads //
     ////////////////////////
 
     // Unary operators return a vector or matrix of the original type, by applying the operator to each element
-    //template<class T> T operator + (const T & v) { return map(v, [](elem_t<T> a) { return +a; }); }
-    //template<class T> T operator - (const T & v) { return map(v, [](elem_t<T> a) { return -a; }); }
     template<class T> T operator ! (const T & v) { return map(v, [](elem_t<T> a) { return !a; }); }
     template<class T> T operator ~ (const T & v) { return map(v, [](elem_t<T> a) { return ~a; }); }
-
-    // Equality operators return a bool indicating exact equality or inequality of two values
-    template<class T> bool operator == (const T & l, const T & r) { return all(zip(l, r, [](elem_t<T> a, elem_t<T> b) { return a == b; })); }
-    template<class T> bool operator != (const T & l, const T & r) { return any(zip(l, r, [](elem_t<T> a, elem_t<T> b) { return a != b; })); }
-
-    // Ordering operators return a vector or matrix of bools, by comparing componentwise pairs
-    template<class L, class R> auto operator <  (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a <  b; }); }
-    template<class L, class R> auto operator <= (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a <= b; }); }
-    template<class L, class R> auto operator >  (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a >  b; }); }
-    template<class L, class R> auto operator >= (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a >= b; }); }
-
-    // Arithmetic and bitwise binary operators return a vector or matrix of the original type, by applying the operator to componentwise pairs
-    //template<class L, class R> auto operator + (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a+b; }); }
-    //template<class L, class R> auto operator - (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a-b; }); }
-    //template<class L, class R> auto operator * (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a*b; }); }
-    //template<class L, class R> auto operator / (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a/b; }); }
-    template<class L, class R> auto operator % (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a%b; }); }
-    template<class L, class R> auto operator | (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a|b; }); }
-    template<class L, class R> auto operator & (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a&b; }); }
-    template<class L, class R> auto operator ^ (const L & l, const R & r) { return zip(l, r, [](elem_t<L> a, elem_t<R> b) { return a^b; }); }
-
-    // Assignment operators are defined trivially
-    //template<class L, class R> L & operator += (L & l, const R & r) { return l=l+r; }
-    //template<class L, class R> L & operator -= (L & l, const R & r) { return l=l-r; }
-    //template<class L, class R> L & operator *= (L & l, const R & r) { return l=l*r; }
-    //template<class L, class R> L & operator /= (L & l, const R & r) { return l=l/r; }
-    template<class L, class R> L & operator %= (L & l, const R & r) { return l=l%r; }
-    template<class L, class R> L & operator |= (L & l, const R & r) { return l=l|r; }
-    template<class L, class R> L & operator &= (L & l, const R & r) { return l=l&r; }
-    template<class L, class R> L & operator ^= (L & l, const R & r) { return l=l^r; }
-
 
 
     /////////////////////////////////
@@ -348,9 +291,13 @@ template<class T> struct vec<T,1>
     template<class T> elem_t<T> product(const T & v) { return reduce(v, [](elem_t<T> a, elem_t<T> b) { return a * b; }); }
 
     // Form a vector or matrix by applying std::abs/ceil/floor/round to each component of vector or matrix v
-    template<class T> T abs(const T & v) { return map(v, [](elem_t<T> a) { return std::abs(a); }); }
-    template<class T> T ceil(const T & v) { return map(v, [](elem_t<T> a) { return std::ceil(a); }); }
-    template<class T> T floor(const T & v) { return map(v, [](elem_t<T> a) { return std::floor(a); }); }
+    template<class T,int M> vec<T,M> abs(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::abs(v[m]);return result; }
+    template<class T,int M> vec<T,M> ceil(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::ceil(v[m]);return result; }
+    template<class T,int M> vec<T,M> floor(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::floor(v[m]);return result;}
+    template<class T,int M> vec<T,M> round(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::floor(v[m]+0.5);return result;}
+    template<class T,int M> vec<T,M> exp(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::exp(v[m]);return result;}
+    template<class T,int M> vec<T,M> log(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::log(v[m]);return result;}
+    template<class T,int M> vec<T,M> sqrt(const vec<T,M> & v) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::sqrt(v[m]);return result;}
 
     // Form a vector or matrix by taking the componentwise max/min of two vectors or matrices
     template<class T,int M> vec<T,M> max(const vec<T,M> & l, const vec<T,M> & r) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::max(l[m],r[m]);return result; }
@@ -505,16 +452,25 @@ template<class T> struct vec<T,1>
     template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,3> & v) { return ss << '(' << v.x << ' ' << v.y << ' ' << v.z << ')'; }
     template<class C, class R, class T> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<T,4> & v) { return ss << '(' << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w << ')'; }
     template<class C, class R, class T,int M, int N> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const matrix<T,M,N> & A) {
-
+    	ss<<"\n";
     	for(int n=0;n<N;n++){
     		ss<<"[";
     		for(int m=0;m<M;m++){
-    			ss<<std::setprecision(12)<<std::setw(12)<<A(n,m)<<((m<M-1)?",":"]\n");
+    			ss<<std::setprecision(10)<<std::setw(16)<<A(n,m)<<((m<M-1)?",":"]\n");
     		}
     	}
     	return ss;
     }
-
+    template <class T> matrix<T,4,4> MakeRotationMatrix(vec<T,3> axis, T angle);
+    template <class T> matrix<T,4,4> MakeRotationX(vec<T,3> axis, T angle){
+    	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
+    }
+    template <class T> matrix<T,4,4> MakeRotationY(vec<T,3> axis, T angle){
+    	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
+    }
+    template <class T> matrix<T,4,4> MakeRotationZ(vec<T,3> axis, T angle){
+    	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
+    }
     // Geometric Tools LLC, Redmond WA 98052
     // Copyright (c) 1998-2015
     // Distributed under the Boost Software License, Version 1.0.
