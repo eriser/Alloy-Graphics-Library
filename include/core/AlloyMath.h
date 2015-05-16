@@ -10,6 +10,7 @@
 #include <cmath>
 #include <tuple>
 #include <iomanip>
+#include <iostream>
 //#include "cereal/cereal.hpp"
 #define ALY_PI float(3.1415926535897932384626433832795)
 #define ALY_PI_2 float(0.5f*ALY_PI)
@@ -548,7 +549,7 @@ template<class T> struct vec<T,1>
 	    T c00 = M(1, 1)*M(2, 2) - M(1, 2)*M(2, 1);
 	    T c10 = M(1, 2)*M(2, 0) - M(1, 0)*M(2, 2);
 	    T c20 = M(1, 0)*M(2, 1) - M(1, 1)*M(2, 0);
-	    T det = M(0, 0)*c00 + M(0, 1)*c10 + M(0, 2)*c20;
+	    T det = determinant(M);
 	    if (det != (T)0)
 	    {
 	        T invDet = ((T)1) / det;
@@ -616,6 +617,7 @@ template<class T> struct vec<T,1>
 	        result=Zero<T,4,4>();
 	        throw std::runtime_error("Could not invert matrix.");
 	    }
+	    return result;
 	}
 
     /////////////////////////
