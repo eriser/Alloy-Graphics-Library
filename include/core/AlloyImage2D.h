@@ -6,7 +6,10 @@
 namespace aly{
 	bool SANITY_CHECK_IMAGE();
 	template<class T,int C> struct Image{
-		std::vector<vec<T,C>> data;
+	private:
+		std::vector<vec<T,C>> storage;
+	public:
+		std::vector<vec<T,C>>& data;
 		int width;
 		int height;
 		int x,y;
@@ -36,17 +39,25 @@ namespace aly{
 				x=val[offset++];
 			}
 		}
-		Image(int w,int h):width(w),height(h),x(0),y(0),id(0){
+		aly::Image<T, C> operator=(Image<T, C>& img){
+			return Image<T, C>(&data[0],width,height,x,y,id);
+		}
+		aly::Image<T, C> operator=(const Image<T, C>& img){
+			return Image<T, C>(&data[0],width,height,x,y,id);
+		}
+		Image(int w,int h,int x=0,int y=0,int id=0):width(w),height(h),x(x),y(x),id(id),data(storage){
 			data.resize(w*h);
 			data.shrink_to_fit();
 		}
-		Image(int w,int h,T* ptr):Image(w,h){
+		Image(T* ptr,int w,int h,int x=0,int y=0,int id=0):Image(w,h,x,y,id){
 			set(ptr);
 		}
-		Image(int w,int h,vec<T,C>* ptr):Image(w,h){
+		Image(vec<T,C>* ptr,int w,int h,int x=0,int y=0,int id=0):Image(w,h,x,y,id){
 			set(ptr);
 		}
-		Image():width(0),height(0),x(0),y(0),id(0){
+		Image(std::vector<vec<T,C>>& ref,int w,int h,int x=0,int y=0,int id=0):width(w),height(h),x(x),y(y),id(id),data(ref){
+		}
+		Image():width(0),height(0),x(0),y(0),id(0),data(storage){
 		}
 		int2 dimensions() const {
 			return int2(width,height);
@@ -77,7 +88,10 @@ namespace aly{
 		void setZero(){
 			memset(this->data(),0,sizeof(vec<T,C>)*data.size());
 		}
-		const vec<T, C>& operator[](const int i) const {
+		const vec<T, C>& operator[](const size_t i) const {
+			return data[i];
+		}
+		vec<T, C>& operator[](const size_t i) {
 			return data[i];
 		}
 		vec<T, C>& operator()(const int i, const int j) {

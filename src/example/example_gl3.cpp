@@ -26,6 +26,8 @@
 #include <GLFW/glfw3.h>
 
 #include "../../include/core/AlloyImage2D.h"
+
+#include "../../include/core/AlloyLinearAlgebra.h"
 #include "../../include/core/nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
@@ -59,6 +61,8 @@ int main()
 {
 	aly::SANITY_CHECK_MATH();
 	aly::SANITY_CHECK_IMAGE();
+	aly::SANITY_CHECK_LINALG();
+
 	GLFWwindow* window;
 	DemoData data;
 	NVGcontext* vg = NULL;
