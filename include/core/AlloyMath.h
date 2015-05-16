@@ -461,7 +461,48 @@ template<class T> struct vec<T,1>
     	}
     	return ss;
     }
-    template <class T> matrix<T,4,4> MakeRotationMatrix(vec<T,3> axis, T angle);
+    template <class T> matrix<T,4,4> MakeRotationMatrix(vec<T,3> axis, T angle){
+    	matrix<T,4,4> M;
+    	T mag = length(axis);
+    	if (mag < 1E-6f) {
+    		M(0,0) = 1.0f;
+    		M(0,1) = 0.0f;
+    		M(0,2) = 0.0f;
+
+    		M(1,0) = 0.0f;
+    		M(1,1) = 1.0f;
+    		M(1,2) = 0.0f;
+
+    		M(2,0) = 0.0f;
+    		M(2,1) = 0.0f;
+    		M(2,2) = 1.0f;
+    	} else {
+    		mag = 1.0 / mag;
+    		T ax = axis[0] * mag;
+    		T ay = axis[1] * mag;
+    		T az = axis[2] * mag;
+    		T sinTheta = (T) sin(angle);
+    		T cosTheta = (T) cos(angle);
+    		T t = 1.0 - cosTheta;
+
+    		T xz = ax * az;
+    		T xy = ax * ay;
+    		T yz = ay * az;
+
+    		M(0,0) = t * ax * ax + cosTheta;
+    		M(0,1) = t * xy - sinTheta * az;
+    		M(0,2) = t * xz + sinTheta * ay;
+
+    		M(1,0) = t * xy + sinTheta * az;
+    		M(1,1) = t * ay * ay + cosTheta;
+    		M(1,2) = t * yz - sinTheta * ax;
+
+    		M(2,0) = t * xz - sinTheta * ay;
+    		M(2,1) = t * yz + sinTheta * ax;
+    		M(2,2) = t * az * az + cosTheta;
+    	}
+    	return M;
+    }
     template <class T> matrix<T,4,4> MakeRotationX(vec<T,3> axis, T angle){
     	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
     }
@@ -470,6 +511,13 @@ template<class T> struct vec<T,1>
     }
     template <class T> matrix<T,4,4> MakeRotationZ(vec<T,3> axis, T angle){
     	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
+    }
+    template <class T> T Angle(const vec<T,3>& v0, const vec<T,3>& v1, const vec<T,3>& v2){
+    	vec<T,3> v = v0 - v1;
+    	vec<T,3> w = v2 - v1;
+    	float len1 = length(v);
+    	float len2 = length(w);
+    	return std::acos(dot(v,w) / std::max(1E-8f, len1 * len2));
     }
     // Geometric Tools LLC, Redmond WA 98052
     // Copyright (c) 1998-2015
