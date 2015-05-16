@@ -22,6 +22,9 @@ namespace aly{
 			std::cout<<out<<std::endl;
 			out+=im1;
 			std::cout<<out<<std::endl;
+			out/=float4(0.3f);
+			out+=float4(1.0f);
+			out=im2-im1;
 			return true;
 		} catch(std::exception& e){
 			std::cout<<e.what()<<std::endl;

@@ -102,6 +102,13 @@ namespace aly{
 					func(im1.data[offset],im2.data[offset]);
 				}
 			}
+	template<class T, int C> void Transform(Image<T,C>& im1,const std::function<void(vec<T,C>&)>& func){
+			size_t sz=im1.size();
+	#pragma omp parallel for
+				for(size_t offset=0;offset<sz;offset++){
+					func(im1.data[offset]);
+				}
+			}
 	template<class T, int C> void Transform(Image<T,C>& im1,const Image<T,C>& im2,const std::function<void(vec<T,C>&,const vec<T,C>&)>& func){
 			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
@@ -208,6 +215,27 @@ namespace aly{
 		template<class T, int C> Image<T, C> operator/=(Image<T, C>& out,const Image<T, C>& img) {
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1/=val2;};
 			Transform(out,img,f);
+			return out;
+		}
+
+		template<class T, int C> Image<T, C> operator+=(Image<T, C>& out,const vec<T, C>& scalar) {
+			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1+=scalar;};
+			Transform(out,f);
+			return out;
+		}
+		template<class T, int C> Image<T, C> operator-=(Image<T, C>& out,const vec<T, C>& scalar) {
+			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1-=scalar;};
+			Transform(out,f);
+			return out;
+		}
+		template<class T, int C> Image<T, C> operator*=(Image<T, C>& out,const vec<T, C>& scalar) {
+			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1*=scalar;};
+			Transform(out,f);
+			return out;
+		}
+		template<class T, int C> Image<T, C> operator/=(Image<T, C>& out,const vec<T, C>& scalar) {
+			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1/=scalar;};
+			Transform(out,f);
 			return out;
 		}
 
