@@ -5,7 +5,7 @@
  *      Author: blake
  */
 #include "../../include/core/AlloyMath.h"
-#include "../../include/core/AlloyImage2D.h"
+#include "../../include/core/AlloyImage.h"
 #include "../../include/core/AlloyLinearAlgebra.h"
 #include <iostream>
 namespace aly{
@@ -93,10 +93,10 @@ namespace aly{
 	bool SANITY_CHECK_LINALG(){
 		try{
 			std::cout<<"Sanity check vector ..."<<std::endl;
-			Vector4f im1(320);
+			Vector4f im1(32);
 			Vector4f im2;
-			im2.resize(320);
-
+			im2.resize(32);
+			im2.apply([](size_t offset,float4& val){val=float4(offset%8,0,-offset,1);});
 			std::cout<<im1<<std::endl;
 			std::cout<<im2<<std::endl;
 			Vector4f out=float4(1,2,3,1)+im2;

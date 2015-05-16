@@ -59,6 +59,7 @@ namespace aly{
 		}
 		Image():width(0),height(0),x(0),y(0),id(0),data(storage){
 		}
+
 		int2 dimensions() const {
 			return int2(width,height);
 		}
@@ -105,6 +106,13 @@ namespace aly{
 		}
 		const vec<T, C>& operator()(const int2 ij) const {
 			return data[clamp(ij.x, 0, width - 1) + clamp(ij.y, 0, height - 1)*width];
+		}
+		template<class F> void apply(F f){
+			size_t sz=size();
+	#pragma omp parallel for
+			for(size_t offset=0;offset<sz;offset++){
+				f(offset,data[offset]);
+			}
 		}
 	};
 

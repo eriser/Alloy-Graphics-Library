@@ -25,7 +25,7 @@
 #endif
 #include <GLFW/glfw3.h>
 
-#include "../../include/core/AlloyImage2D.h"
+#include "../../include/core/AlloyImage.h"
 
 #include "../../include/core/AlloyLinearAlgebra.h"
 #include "../../include/core/nanovg.h"
