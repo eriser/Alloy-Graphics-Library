@@ -44,6 +44,9 @@ namespace aly{
 			std::cout<<S<<std::endl;
 			float3 neg=-float3(0.1,0.2,0.3);
 			float single=float1(0.7);
+			float4x4 RX=MakeRotationX(0.3f);
+			float4x4 RY=MakeRotationY(0.7f);
+			float4x4 RZ=MakeRotationZ(0.5f);
 			float4x4 R=MakeRotationMatrix(normalize(float3(1,1,0)),0.3333f*ALY_PI_2);
 			float angle=Angle(float3(0.1,0.6,0.2),float3(0,0,0),SubMatrix(R)*float3(0.1,0.6,0.2));
 			v=aly::max(v,pt.xyz());

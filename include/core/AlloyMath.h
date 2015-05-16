@@ -491,13 +491,13 @@ template<class T> struct vec<T,1>
     	}
     	return M;
     }
-    template <class T> matrix<T,4,4> MakeRotationX(const vec<T,3>& axis, T angle){
+    template <class T> matrix<T,4,4> MakeRotationX(T angle){
     	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
     }
-    template <class T> matrix<T,4,4> MakeRotationY(const vec<T,3>& axis, T angle){
+    template <class T> matrix<T,4,4> MakeRotationY(T angle){
     	return MakeRotationMatrix(vec<T,3>(0,1,0),angle);
     }
-    template <class T> matrix<T,4,4> MakeRotationZ(const vec<T,3>& axis, T angle){
+    template <class T> matrix<T,4,4> MakeRotationZ(T angle){
     	return MakeRotationMatrix(vec<T,3>(0,0,1),angle);
     }
     template <class T> matrix<T,4,4> MakeTranslation(const vec<T,3>& translation){
