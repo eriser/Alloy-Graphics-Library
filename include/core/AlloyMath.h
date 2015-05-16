@@ -55,7 +55,7 @@ template<class T> struct vec<T,1>
 
         const T &                   operator [] (int i) const           { return (&x)[i]; }
         T &                         operator [] (int i)                 { return (&x)[i]; }
-        vec<T,3>					xyz();
+        vec<T,3>					xyz() const;
 
         bool        operator == (const vec & r) const           { return (x==r.x && y==r.y); }
  		bool        operator < (const vec & r) const            { return (std::make_tuple(x, y) < std::make_tuple(r.x, r.y)); }
@@ -75,8 +75,8 @@ template<class T> struct vec<T,1>
         template<class U> explicit  vec(const vec<U,3> & r)             : x(T(r.x)), y(T(r.y)), z(T(r.z)) {}
         const T &                   operator [] (int i) const           { return (&x)[i]; }
         T &                         operator [] (int i)                 { return (&x)[i]; }
-        vec<T,2>					xy()								{return vec<T,2>(x,y);}
-        vec<T,4>					xyzw();
+        vec<T,2>					xy() const							{ return vec<T,2>(x,y);}
+        vec<T,4>					xyzw()const;
 
         bool        operator == (const vec & r) const           { return (x==r.x && y==r.y && z==r.z); }
  		bool        operator < (const vec & r) const            { return (std::make_tuple(x, y, z) < std::make_tuple(r.x, r.y, r.z)); }
@@ -97,7 +97,7 @@ template<class T> struct vec<T,1>
 
         const T &                   operator [] (int i) const           { return (&x)[i]; }
         T &                         operator [] (int i)                 { return (&x)[i]; }
-        vec<T,3>					xyz()								{return vec<T,3>(x,y,z);}
+        vec<T,3>					xyz() const							{return vec<T,3>(x,y,z);}
 
         bool        operator == (const vec & r) const           { return (x==r.x && y==r.y && z==r.z && w==r.w); }
  		bool        operator < (const vec & r) const            { return (std::make_tuple(x, y, z, w) < std::make_tuple(r.x, r.y, r.z, r.w)); }
@@ -105,10 +105,10 @@ template<class T> struct vec<T,1>
  		template<class Archive>		void serialize(Archive & archive){			archive(x, y, z, w); }
 
     };
-    template <class T> vec<T,3> vec<T,2>::xyz(){
+    template <class T> vec<T,3> vec<T,2>::xyz() const {
     	return vec<T,3>(x,y,1);
     }
-    template <class T> vec<T,4> vec<T,3>::xyzw(){
+    template <class T> vec<T,4> vec<T,3>::xyzw() const {
       return vec<T,4>(x,y,z,1);
     }
 
@@ -461,22 +461,10 @@ template<class T> struct vec<T,1>
     	}
     	return ss;
     }
-    template <class T> matrix<T,4,4> MakeRotationMatrix(vec<T,3> axis, T angle){
-    	matrix<T,4,4> M;
+    template <class T> matrix<T,4,4> MakeRotationMatrix(const vec<T,3>& axis, T angle){
+    	matrix<T,4,4> M=Identity<T,4,4>();
     	T mag = length(axis);
-    	if (mag < 1E-6f) {
-    		M(0,0) = 1.0f;
-    		M(0,1) = 0.0f;
-    		M(0,2) = 0.0f;
-
-    		M(1,0) = 0.0f;
-    		M(1,1) = 1.0f;
-    		M(1,2) = 0.0f;
-
-    		M(2,0) = 0.0f;
-    		M(2,1) = 0.0f;
-    		M(2,2) = 1.0f;
-    	} else {
+    	if (mag >= 1E-6f) {
     		mag = 1.0 / mag;
     		T ax = axis[0] * mag;
     		T ay = axis[1] * mag;
@@ -503,14 +491,31 @@ template<class T> struct vec<T,1>
     	}
     	return M;
     }
-    template <class T> matrix<T,4,4> MakeRotationX(vec<T,3> axis, T angle){
+    template <class T> matrix<T,4,4> MakeRotationX(const vec<T,3>& axis, T angle){
     	return MakeRotationMatrix(vec<T,3>(1,0,0),angle);
     }
-    template <class T> matrix<T,4,4> MakeRotationY(vec<T,3> axis, T angle){
+    template <class T> matrix<T,4,4> MakeRotationY(const vec<T,3>& axis, T angle){
     	return MakeRotationMatrix(vec<T,3>(0,1,0),angle);
     }
-    template <class T> matrix<T,4,4> MakeRotationZ(vec<T,3> axis, T angle){
+    template <class T> matrix<T,4,4> MakeRotationZ(const vec<T,3>& axis, T angle){
     	return MakeRotationMatrix(vec<T,3>(0,0,1),angle);
+    }
+    template <class T> matrix<T,4,4> MakeTranslation(const vec<T,3>& translation){
+    	return matrix<T,4,4>(vec<T,4>((T)0),vec<T,4>((T)0),vec<T,4>((T)0),translation.xyzw());
+    }
+    template <class T> matrix<T,4,4> MakeScale(const vec<T,3>& scale){
+    	return matrix<T,4,4>(
+    			vec<T,4>(scale.x,0,0,0),
+    			vec<T,4>(0,scale.y,0,0),
+    			vec<T,4>(0,0,scale.z,0),
+    			vec<T,4>(0,0,0,1));
+    }
+    template <class T> matrix<T,4,4> MakeScale(T scale){
+    	return matrix<T,4,4>(
+    			vec<T,4>(scale,0,0,0),
+    			vec<T,4>(0,scale,0,0),
+    			vec<T,4>(0,0,scale,0),
+    			vec<T,4>(0,0,0,1));
     }
     template <class T> T Angle(const vec<T,3>& v0, const vec<T,3>& v1, const vec<T,3>& v2){
     	vec<T,3> v = v0 - v1;

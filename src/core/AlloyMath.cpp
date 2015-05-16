@@ -37,7 +37,11 @@ namespace aly{
 			v=floor(v+0.1f);
 			v=ceil(v-0.2f);
 			v=abs(-v);
-
+			float4x4 T=MakeTranslation(float3(1,2,3));
+			float4x4 S=MakeScale(float3(0.1,0.2,0.3));
+			float4x4 S2=MakeScale(0.1f);
+			std::cout<<T<<std::endl;
+			std::cout<<S<<std::endl;
 			float3 neg=-float3(0.1,0.2,0.3);
 			float single=float1(0.7);
 			float4x4 R=MakeRotationMatrix(normalize(float3(1,1,0)),0.3333f*ALY_PI_2);
