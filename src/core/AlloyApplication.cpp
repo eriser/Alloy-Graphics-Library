@@ -65,10 +65,24 @@ void Application::drawUI(){
 
 }
 void Application::run(int swapInterval) {
-	context->MakeCurrent();
+	context->makeCurrent();
 	glfwSwapInterval(swapInterval);
+	double prevt = 0, cpuTime = 0;
+	glfwSetTime(0);
+	double lastCpuTime;
+	uint64_t frameCounter=0;
+	lastCpuTime = glfwGetTime();
 	do {
 		draw();
+		double t = glfwGetTime();
+		double dt=(t - lastCpuTime);
+		frameCounter++;
+		if(dt>0.5f){//Poll every 0.5 seconds
+			frameRate=(float)(frameCounter/(t - lastCpuTime));
+			lastCpuTime = t;
+			//std::cout<<"FRAME RATE "<<frameRate<<std::endl;
+			frameCounter=0;
+		}
 		glfwSwapBuffers(context->window);
 		glfwPollEvents();
 	} while (!glfwWindowShouldClose(context->window));

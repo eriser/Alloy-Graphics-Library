@@ -67,7 +67,7 @@ namespace aly{
 				return true;
 			} else return false;
 		}
-		void AlloyContext::MakeCurrent(){
+		void AlloyContext::makeCurrent(){
 			std::lock_guard<std::mutex> lock(contextLock);
 			glfwMakeContextCurrent(window);
 		}
@@ -76,7 +76,7 @@ namespace aly{
 			GLFWwindow* current=glfwGetCurrentContext();
 			glfwMakeContextCurrent(window);
 			nvgDeleteGL3(nvgContext);
-			glfwMakeContextCurrent(current);
+			glfwDestroyWindow(window);
 			glfwTerminate();
 		}
 }

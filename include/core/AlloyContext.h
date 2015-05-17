@@ -37,7 +37,7 @@ namespace aly{
 			AlloyContext(int width,int height,const std::string& title);
 			bool begin();
 			bool end();
-			void MakeCurrent();
+			void makeCurrent();
 			~AlloyContext();
 	};
 }

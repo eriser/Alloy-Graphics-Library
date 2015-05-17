@@ -30,6 +30,7 @@
 namespace aly{
 	class Application{
 	private:
+		float frameRate=0.0f;
 		static std::unique_ptr<AlloyContext> context;
 		void drawUI();
 		void draw();
@@ -49,6 +50,7 @@ namespace aly{
 			caughtExceptions.push_back(e);
 		}
 		Application(int w,int h,const std::string& title="");
+		float getFrameRate()const {return frameRate;}
 		virtual void draw(const DrawEvent3D& event){}
 		virtual void draw(const DrawEvent2D& event){}
 		virtual bool init(){return true;};
