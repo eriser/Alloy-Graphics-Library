@@ -129,6 +129,11 @@ namespace aly{
 		ImageRGBA im2;
 		for(std::string f:files){
 			std::cout<<f<<std::endl;
+			GetFileExtension(f);
+			GetFileNameWithoutExtension(f);
+			GetFileWithoutExtension(f);
+			GetFileName(f);
+			ConcatPath(GetFileDirectoryPath(f),GetFileName(f));
 			ReadImageFromFile(f,im1);
 			ReadImageFromFile(f,im2);
 			WriteImageToFile("/home/blake/"+GetFileName(f)+"_copy_rgb.png",im1);
