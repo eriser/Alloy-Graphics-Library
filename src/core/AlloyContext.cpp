@@ -19,8 +19,8 @@
  * THE SOFTWARE.
  */
 
+
 #include "../../include/core/AlloyContext.h"
-#include "../../include/core/nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
 #include <iostream>
@@ -31,28 +31,25 @@ namespace aly{
 			if (glfwInit() != GL_TRUE) {
 				throw std::runtime_error("Could not initialize GLFW.");
 			}
+			glfwSetErrorCallback([](int error, const char* desc){std::cout<<"GLFW Error ["<<error<<"] "<<desc<<std::endl;});
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
-			glfwWindowHint(GLFW_SAMPLES, 8);
-			glfwWindowHint(GLFW_DEPTH_BITS, 32);
-			if ((window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL))
-					== NULL)    // Window mode
-			{
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+			window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+			if (!window) {
 				glfwTerminate();
+
 				throw std::runtime_error("Could not create window.");
 			}
 			glfwMakeContextCurrent(window);
-			glfwSwapBuffers(window);
-			if (glewInit() != GLEW_OK) {
+			glewExperimental = GL_TRUE;
+			if(glewInit() != GLEW_OK) {
 				throw std::runtime_error("Could not initialize GLEW.");
 			}
 			glGetError();
 			nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-			if(nvgContext==nullptr) throw std::runtime_error("Could not initialize NanoVG.");
 		}
 		bool AlloyContext::begin(){
 			if(current==nullptr){
@@ -65,10 +62,14 @@ namespace aly{
 		bool AlloyContext::end(){
 			if(current!=nullptr){
 				glfwMakeContextCurrent(current);
-				contextLock.unlock();
 				current=nullptr;
+				contextLock.unlock();
 				return true;
 			} else return false;
+		}
+		void AlloyContext::MakeCurrent(){
+			std::lock_guard<std::mutex> lock(contextLock);
+			glfwMakeContextCurrent(window);
 		}
 		AlloyContext::~AlloyContext(){
 			std::lock_guard<std::mutex> lock(contextLock);
@@ -76,6 +77,7 @@ namespace aly{
 			glfwMakeContextCurrent(window);
 			nvgDeleteGL3(nvgContext);
 			glfwMakeContextCurrent(current);
+			glfwTerminate();
 		}
 }
 

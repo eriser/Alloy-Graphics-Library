@@ -41,8 +41,37 @@ void Application::initInternal() {
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 }
-void run(int swapInterval) {
+Application::Application(int w, int h, const std::string& title) {
+	if (context.get() == nullptr) {
+		context = std::unique_ptr<AlloyContext>(new AlloyContext(w, h, title));
+	} else {
+		throw std::runtime_error(
+				"Cannot instantiate more than one application.");
+	}
+	initInternal();
+	if (!init()) {
+		throw std::runtime_error("Error occurred in application init()");
+	}
+}
+void Application::draw(){
+	DrawEvent3D e3d;
+	DrawEvent2D e2d;
+	draw(e3d);
+	draw(e2d);
+	drawUI();
+
+}
+void Application::drawUI(){
+
+}
+void Application::run(int swapInterval) {
+	context->MakeCurrent();
 	glfwSwapInterval(swapInterval);
+	do {
+		draw();
+		glfwSwapBuffers(context->window);
+		glfwPollEvents();
+	} while (!glfwWindowShouldClose(context->window));
 }
 }
 

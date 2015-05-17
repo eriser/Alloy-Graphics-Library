@@ -48,18 +48,7 @@ namespace aly{
 		inline void throwException(std::exception_ptr e){
 			caughtExceptions.push_back(e);
 		}
-		Application(int w,int h,const std::string& title=""){
-			if(context.get()==nullptr){
-				context=std::unique_ptr<AlloyContext>(new AlloyContext(w,h,title));
-
-			} else {
-				throw std::runtime_error("Cannot instantiate more than one application.");
-			}
-			initInternal();
-			if(!init()){
-				throw std::runtime_error("Error occurred in application init()");
-			}
-		}
+		Application(int w,int h,const std::string& title="");
 		virtual void draw(const DrawEvent3D& event){}
 		virtual void draw(const DrawEvent2D& event){}
 		virtual bool init(){return true;};

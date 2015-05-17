@@ -23,10 +23,9 @@
 #define ALLOYCONTEXT_H_
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 #include <mutex>
 #include <memory>
-struct NVGcontext;
+#include "../../include/core/nanovg.h"
 namespace aly{
 	struct AlloyContext {
 		private:
@@ -38,6 +37,7 @@ namespace aly{
 			AlloyContext(int width,int height,const std::string& title);
 			bool begin();
 			bool end();
+			void MakeCurrent();
 			~AlloyContext();
 	};
 }
