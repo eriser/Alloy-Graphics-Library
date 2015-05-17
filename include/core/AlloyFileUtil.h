@@ -18,7 +18,7 @@
 #define PATH_SEPARATOR std::string("/")
 #endif
 namespace aly{
-	bool SANITY_CHECK_FILEIO();
+	bool SANITY_CHECK_FILE_IO();
 	std::string GetFileWithoutExtension(const std::string& file);
 	std::string GetFileNameWithoutExtension(const std::string& file);
 	std::string GetFileDirectoryPath(const std::string& file);
