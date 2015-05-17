@@ -19,23 +19,26 @@
  * THE SOFTWARE.
  */
 
-#ifndef ALLOYCOMMON_H_
-#define ALLOYCOMMON_H_
-#include <iostream>
-#include <string>
-#include <sstream>
+#ifndef ALLOYCONTEXT_H_
+#define ALLOYCONTEXT_H_
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <mutex>
+#include <memory>
+struct NVGcontext;
 namespace aly{
-	struct MakeString{
-		std::ostringstream ss;
-		operator std::string() const { return ss.str(); }
-		template<class T> MakeString & operator << (const T & val) { ss << val; return *this; }
-	};
-	struct DrawEvent3D{
-
-	};
-	struct DrawEvent2D{
-
+	struct AlloyContext {
+		private:
+			static std::mutex contextLock;
+			GLFWwindow* current;
+		public:
+			NVGcontext* nvgContext;
+			GLFWwindow* window;
+			AlloyContext(int width,int height,const std::string& title);
+			bool begin();
+			bool end();
+			~AlloyContext();
 	};
 }
-
-#endif /* ALLOYCOMMON_H_ */
+#endif /* ALLOYCONTEXT_H_ */

@@ -15,7 +15,7 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-
+/*
 #include <stdio.h>
 #ifdef NANOVG_GLEW
 #	include <GL/glew.h>
@@ -59,10 +59,10 @@ static void key(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 int main()
 {
-	aly::SANITY_CHECK_MATH();
-	aly::SANITY_CHECK_IMAGE();
-	aly::SANITY_CHECK_LINALG();
-	aly::SANITY_CHECK_FILE_IO();
+	//aly::SANITY_CHECK_MATH();
+	//aly::SANITY_CHECK_IMAGE();
+	//aly::SANITY_CHECK_LINALG();
+	//aly::SANITY_CHECK_FILE_IO();
 	GLFWwindow* window;
 	DemoData data;
 	NVGcontext* vg = NULL;
@@ -202,3 +202,4 @@ int main()
 	glfwTerminate();
 	return 0;
 }
+*/

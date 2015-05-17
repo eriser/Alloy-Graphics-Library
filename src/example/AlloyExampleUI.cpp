@@ -18,24 +18,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#ifndef ALLOYCOMMON_H_
-#define ALLOYCOMMON_H_
-#include <iostream>
-#include <string>
-#include <sstream>
-namespace aly{
-	struct MakeString{
-		std::ostringstream ss;
-		operator std::string() const { return ss.str(); }
-		template<class T> MakeString & operator << (const T & val) { ss << val; return *this; }
-	};
-	struct DrawEvent3D{
-
-	};
-	struct DrawEvent2D{
-
-	};
+#include "../../include/core/AlloyApplication.h"
+using namespace aly;
+int main()
+{
+	try {
+		Application app(1600,800);
+		return 0;
+	} catch(std::exception& e){
+		std::cout<<e.what()<<std::endl;
+		std::cout<<"Hit any key ..."<<std::endl;
+		getchar();
+		return 1;
+	}
 }
 
-#endif /* ALLOYCOMMON_H_ */
+

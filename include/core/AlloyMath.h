@@ -1,6 +1,24 @@
-// This is free and unencumbered software released into the public domain.
-// Yay! Thanks Sterling!
-// For more information, please refer to <http://unlicense.org/>
+/*
+ * Copyright(C) 2015, Blake C. Lucas, Ph.D. (img.science@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 
 #ifndef ALLOYMATH_H_INCLUDE_GUARD
 #define ALLOYMATH_H_INCLUDE_GUARD
@@ -25,6 +43,10 @@ bool SANITY_CHECK_MATH();
 template<typename T> T clamp(T val, T min, T max) {
 	return std::min(std::max(val, min), max);
 }
+
+// This is free and unencumbered software released into the public domain.
+// For more information, please refer to <http://unlicense.org/>
+
 template<class T, int M> struct vec;
 template<class T> struct vec<T,1>
 {
