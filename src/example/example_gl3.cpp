@@ -62,7 +62,7 @@ int main()
 	aly::SANITY_CHECK_MATH();
 	aly::SANITY_CHECK_IMAGE();
 	aly::SANITY_CHECK_LINALG();
-	aly::SANITY_CHECK_FILEIO();
+	aly::SANITY_CHECK_FILE_IO();
 	GLFWwindow* window;
 	DemoData data;
 	NVGcontext* vg = NULL;

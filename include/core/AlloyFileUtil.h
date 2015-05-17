@@ -25,7 +25,8 @@ namespace aly{
 	std::string GetFileName(const std::string& file);
 	std::string RemoveTrailingSlash(const std::string& file);
 	std::string ConcatPath(const std::string& dir,const std::string& file);
-	std::vector<std::string> GetDirectoryListing(const std::string& dirName,const std::string& mask,const std::string& ext);
+	std::vector<std::string> GetDirectoryListing(const std::string& dirName,const std::string& ext="",const std::string& mask="");
+
 	void WriteImageToFile(const std::string& file,const ImageRGBA& img);
 	void WriteImageToFile(const std::string& file,const ImageRGB& img);
 	void ReadImageFromFile(const std::string& file,ImageRGBA& img);

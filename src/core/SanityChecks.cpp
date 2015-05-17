@@ -121,10 +121,10 @@ namespace aly{
 			return false;
 		}
 	}
-	bool SANITY_CHECK_FILEIO(){
+	bool SANITY_CHECK_FILE_IO(){
 		try {
 		std::cout<<RemoveTrailingSlash("/usr/local/bin/")<<"::"<<RemoveTrailingSlash("/usr/local/bin/")<<std::endl;
-		std::vector<std::string> files=GetDirectoryListing("./images/","","png");
+		std::vector<std::string> files=GetDirectoryListing("./images/","png");
 		ImageRGB im1;
 		ImageRGBA im2;
 		for(std::string f:files){

@@ -58,8 +58,7 @@ std::string GetDirectoryPath(string fileName) {
 }
 
 //Only works on Linux for NOW!
-std::vector<std::string> GetDirectoryListing(const std::string& dirName,
-		const std::string& mask, const std::string& ext) {
+std::vector<std::string> GetDirectoryListing(const std::string& dirName, const std::string& ext, const std::string& mask) {
 	std::vector<std::string> files;
 	dirent* dp;
 	std::string cleanPath = RemoveTrailingSlash(dirName) + PATH_SEPARATOR;
