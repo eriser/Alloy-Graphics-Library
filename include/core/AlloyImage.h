@@ -28,8 +28,10 @@ namespace aly{
 		void set(T* val){
 			if(val==nullptr)return;
 			size_t offset=0;
-			for(T& x:data){
-				x=vec<T,C>(val[offset]);
+			for(vec<T,C>& x:data){
+				for(int c=0;c<C;c++){
+					x[c]=val[offset++];
+				}
 			}
 		}
 		void set(vec<T,C>* val){
@@ -39,12 +41,14 @@ namespace aly{
 				x=val[offset++];
 			}
 		}
-		aly::Image<T, C> operator=(Image<T, C>& img){
-			return Image<T, C>(&data[0],width,height,x,y,id);
+		const Image<T, C>& operator=(Image<T, C>& img) const{
+			return Image<T, C>(&data[0],img.width,img.height,img.x,img.y,img.id);
 		}
-		aly::Image<T, C> operator=(const Image<T, C>& img){
-			return Image<T, C>(&data[0],width,height,x,y,id);
+
+		const Image<T, C>& operator=(const Image<T, C>& img) const {
+			return Image<T, C>(&data[0],img.width,img.height,img.x,img.y,img.id);
 		}
+
 		Image(int w,int h,int x=0,int y=0,int id=0):width(w),height(h),x(x),y(x),id(id),data(storage){
 			data.resize(w*h);
 			data.shrink_to_fit();

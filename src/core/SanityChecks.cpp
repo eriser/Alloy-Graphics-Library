@@ -124,10 +124,11 @@ namespace aly{
 	bool SANITY_CHECK_FILE_IO(){
 		try {
 		std::cout<<RemoveTrailingSlash("/usr/local/bin/")<<"::"<<RemoveTrailingSlash("/usr/local/bin/")<<std::endl;
-		std::vector<std::string> files=GetDirectoryListing("./images/","png");
-		ImageRGB im1;
-		ImageRGBA im2;
+		std::vector<std::string> files=GetDirectoryListing("./images/");
+
 		for(std::string f:files){
+			ImageRGB im1;
+			ImageRGBA im2;
 			std::cout<<f<<std::endl;
 			GetFileExtension(f);
 			GetFileNameWithoutExtension(f);

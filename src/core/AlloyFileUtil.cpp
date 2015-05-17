@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <png.h>
 #include "../../include/core/AlloyFileUtil.h"
+#include "../../include/core/stb_image.h"
 using namespace std;
 
 namespace aly {
@@ -250,6 +251,22 @@ void WriteImageToFile(const std::string& _file, const ImageRGBA& image) {
 	fclose(fp);
 }
 void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
+	std::string ext=GetFileExtension(file);
+	if(ext=="jpg"||ext=="jpeg"){
+		unsigned char* img;
+		stbi_set_unpremultiply_on_load(1);
+		stbi_convert_iphone_png_to_rgb(1);
+		int w,h,n;
+		img = stbi_load(file.c_str(), &w, &h, &n, 4);
+		if (img == NULL) {
+			throw std::runtime_error(
+					MakeString() << "[read_jpg_file] File " << file << " is not recognized as a JPG file");
+		}
+		image.resize(w,h);
+		image.set(img);
+		stbi_image_free(img);
+		return;
+	}
 	int x, y;
 	int width, height;
 	png_byte color_type;
@@ -359,6 +376,22 @@ void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 
 }
 void ReadImageFromFile(const std::string& file, ImageRGB& image) {
+	std::string ext=GetFileExtension(file);
+	if(ext=="jpg"||ext=="jpeg"){
+		unsigned char* img;
+		stbi_set_unpremultiply_on_load(1);
+		stbi_convert_iphone_png_to_rgb(1);
+		int w,h,n;
+		img = stbi_load(file.c_str(), &w, &h, &n, 3);
+		if (img == NULL) {
+			throw std::runtime_error(
+					MakeString() << "[read_jpg_file] File " << file << " is not recognized as a JPG file");
+		}
+		image.resize(w,h);
+		image.set(img);
+		stbi_image_free(img);
+		return;
+	}
 	int x, y;
 	int width, height;
 	png_byte color_type;

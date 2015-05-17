@@ -35,8 +35,10 @@ namespace aly{
 		void set(T* val){
 			if(val==nullptr)return;
 			size_t offset=0;
-			for(T& x:data){
-				x=vec<T,C>(val[offset]);
+			for(vec<T,C>& x:data){
+				for(int c=0;c<C;c++){
+					x[c]=val[offset++];
+				}
 			}
 		}
 		void set(vec<T,C>* val){
@@ -53,11 +55,12 @@ namespace aly{
 				f(offset,data[offset]);
 			}
 		}
-		aly::Vector<T, C> operator=(Vector<T, C>& img){
-			return Vector<T, C>(&data[0],data.size());
+		const Vector<T, C>& operator=(Vector<T, C>& img) const{
+			return Vector<T, C>(&img.data[0],img.size());
 		}
-		aly::Vector<T, C> operator=(const Vector<T, C>& img){
-			return Vector<T, C>(&data[0],data.size());
+
+		const Vector<T, C>& operator=(const Vector<T, C>& img) const {
+			return Vector<T, C>(&img.data[0],img.size());
 		}
 		Vector(size_t sz):data(storage){
 			data.resize(sz);
