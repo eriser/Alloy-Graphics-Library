@@ -114,15 +114,28 @@ namespace aly{
 			out/=float4(0.3f);
 			out+=float4(1.0f);
 			out=im2-im1;
-			std::cout<<RemoveTrailingSlash("/usr/local/bin/")<<"::"<<RemoveTrailingSlash("/usr/local/bin/")<<std::endl;
 
-			std::vector<std::string> files=GetDirectoryListing("/home/blake/","","");
-			for(std::string f:files){
-				std::cout<<f<<std::endl;
-			}
 			return true;
 		} catch(std::exception& e){
 			std::cout<<e.what()<<std::endl;
+			return false;
+		}
+	}
+	bool SANITY_CHECK_FILEIO(){
+		try {
+		std::cout<<RemoveTrailingSlash("/usr/local/bin/")<<"::"<<RemoveTrailingSlash("/usr/local/bin/")<<std::endl;
+		std::vector<std::string> files=GetDirectoryListing("./images/","","png");
+		ImageRGB im1;
+		ImageRGBA im2;
+		for(std::string f:files){
+			std::cout<<f<<std::endl;
+			ReadImageFromFile(f,im1);
+			ReadImageFromFile(f,im2);
+			WriteImageToFile("/home/blake/"+GetFileName(f)+"_copy_rgb.png",im1);
+			WriteImageToFile("/home/blake/"+GetFileName(f)+"_copy_rgba.png",im2);
+		}
+		return true;
+		}catch(std::exception& e){
 			return false;
 		}
 	}

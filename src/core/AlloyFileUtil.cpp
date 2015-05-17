@@ -17,7 +17,7 @@ std::string GetFileExtension(const string &fileName) {
 	return string("");
 }
 
-std::string GetFileName(string fileName) {
+std::string GetFileName(const std::string& fileName) {
 	if (fileName.find_last_of(PATH_SEPARATOR) != string::npos)return fileName.substr(fileName.find_last_of(PATH_SEPARATOR) + 1);
 	return fileName;
 }
@@ -79,7 +79,7 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
-bool WriteImageToFile(const std::string& file, const ImageRGB& image) {
+void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	int width = image.width;
 	int height = image.height;
 	const char* file_name = file.c_str();
@@ -107,18 +107,15 @@ bool WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	if (!png_ptr) {
 		throw std::runtime_error(
 				"[write_png_file] png_create_write_struct failed");
-		return false;
 	}
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		throw std::runtime_error(
 				"[write_png_file] png_create_info_struct failed");
-		return false;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[write_png_file] Error during init_io");
-		return false;
 	}
 
 	png_init_io(png_ptr, fp);
@@ -127,7 +124,6 @@ bool WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error(
 				"[write_png_file] Error during writing header");
-		return false;
 	}
 	png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type,
 	PNG_INTERLACE_NONE,
@@ -150,14 +146,12 @@ bool WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	/* write bytes */
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[write_png_file] Error during writing bytes");
-		return false;
 	}
 	png_write_image(png_ptr, row_pointers);
 
 	/* end write */
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[write_png_file] Error during end of write");
-		return false;
 	}
 	png_write_end(png_ptr, NULL);
 
@@ -167,9 +161,8 @@ bool WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	free(row_pointers);
 
 	fclose(fp);
-	return true;
 }
-bool WriteImageToFile(const std::string& file, const ImageRGBA& image) {
+void WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	int width = image.width;
 	int height = image.height;
 	const char* file_name = file.c_str();
@@ -197,18 +190,15 @@ bool WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	if (!png_ptr) {
 		throw std::runtime_error(
 				"[write_png_file] png_create_write_struct failed");
-		return false;
 	}
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		throw std::runtime_error(
 				"[write_png_file] png_create_info_struct failed");
-		return false;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[write_png_file] Error during init_io");
-		return false;
 	}
 
 	png_init_io(png_ptr, fp);
@@ -217,7 +207,6 @@ bool WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error(
 				"[write_png_file] Error during writing header");
-		return false;
 	}
 	png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type,
 	PNG_INTERLACE_NONE,
@@ -241,14 +230,12 @@ bool WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	/* write bytes */
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[write_png_file] Error during writing bytes");
-		return false;
 	}
 	png_write_image(png_ptr, row_pointers);
 
 	/* end write */
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[write_png_file] Error during end of write");
-		return false;
 	}
 	png_write_end(png_ptr, NULL);
 
@@ -258,9 +245,8 @@ bool WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	free(row_pointers);
 
 	fclose(fp);
-	return true;
 }
-bool ReadImageFromFile(const std::string& file, ImageRGBA& image) {
+void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 	int x, y;
 	int width, height;
 	png_byte color_type;
@@ -293,19 +279,19 @@ bool ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 	if (!png_ptr) {
 		throw std::runtime_error(
 				"[read_png_file] png_create_read_struct failed");
-		return false;
+
 	}
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		throw std::runtime_error(
 				"[read_png_file] png_create_info_struct failed");
-		return false;
+
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[read_png_file] Error during init_io");
-		return false;
+
 	}
 
 	png_init_io(png_ptr, fp);
@@ -324,7 +310,7 @@ bool ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 	/* read file */
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[read_png_file] Error during read_image");
-		return false;
+
 	}
 
 	row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * height);
@@ -359,7 +345,7 @@ bool ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 		for (y = 0; y < height; y++)
 			free(row_pointers[y]);
 		free(row_pointers);
-		return false;
+
 	}
 	image.width = width;
 	image.height = height;
@@ -368,9 +354,8 @@ bool ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 		free(row_pointers[y]);
 	free(row_pointers);
 
-	return true;
 }
-bool ReadImageFromFile(const std::string& file, ImageRGB& image) {
+void ReadImageFromFile(const std::string& file, ImageRGB& image) {
 	int x, y;
 	int width, height;
 	png_byte color_type;
@@ -403,19 +388,19 @@ bool ReadImageFromFile(const std::string& file, ImageRGB& image) {
 	if (!png_ptr) {
 		throw std::runtime_error(
 				"[read_png_file] png_create_read_struct failed");
-		return false;
+
 	}
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		throw std::runtime_error(
 				"[read_png_file] png_create_info_struct failed");
-		return false;
+
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[read_png_file] Error during init_io");
-		return false;
+
 	}
 
 	png_init_io(png_ptr, fp);
@@ -434,7 +419,7 @@ bool ReadImageFromFile(const std::string& file, ImageRGB& image) {
 	/* read file */
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		throw std::runtime_error("[read_png_file] Error during read_image");
-		return false;
+
 	}
 
 	row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * height);
@@ -469,7 +454,7 @@ bool ReadImageFromFile(const std::string& file, ImageRGB& image) {
 		for (y = 0; y < height; y++)
 			free(row_pointers[y]);
 		free(row_pointers);
-		return false;
+
 	}
 	image.width = width;
 	image.height = height;
@@ -478,7 +463,6 @@ bool ReadImageFromFile(const std::string& file, ImageRGB& image) {
 		free(row_pointers[y]);
 	free(row_pointers);
 
-	return true;
 }
 }
 
