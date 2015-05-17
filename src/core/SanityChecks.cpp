@@ -7,6 +7,7 @@
 #include "../../include/core/AlloyMath.h"
 #include "../../include/core/AlloyImage.h"
 #include "../../include/core/AlloyVector.h"
+#include "../../include/core/AlloyFileUtil.h"
 #include <iostream>
 namespace aly{
 
@@ -84,6 +85,9 @@ namespace aly{
 			out/=float4(0.3f);
 			out+=float4(1.0f);
 			out=im2-im1;
+			float4 val2=im1(37.1f,32.2f)+im2(float2(21.4f,56.2f));
+
+			float4 val3=im1(37,32)+im2(float2(21,56));
 			return true;
 		} catch(std::exception& e){
 			std::cout<<e.what()<<std::endl;
@@ -105,12 +109,17 @@ namespace aly{
 			float4 d2=dotVec(im1,im2)+lengthVec(im2)+lengthVecL1(im1)+maxVec(im1)-minVec(im1);
 			Vector4f out=float4(1,2,3,1)+im2;
 			std::cout<<"Dots "<<d1<<" "<<d2<<std::endl;
-			std::cout<<out<<std::endl;
+
 			out+=im1;
-			std::cout<<out<<std::endl;
 			out/=float4(0.3f);
 			out+=float4(1.0f);
 			out=im2-im1;
+			std::cout<<RemoveTrailingSlash("/usr/local/bin/")<<"::"<<RemoveTrailingSlash("/usr/local/bin/")<<std::endl;
+
+			std::vector<std::string> files=GetDirectoryListing("/home/blake/","","");
+			for(std::string f:files){
+				std::cout<<f<<std::endl;
+			}
 			return true;
 		} catch(std::exception& e){
 			std::cout<<e.what()<<std::endl;

@@ -534,6 +534,16 @@ template<class T> struct vec<T,1>
     	float len2 = length(w);
     	return std::acos(dot(v,w) / std::max(1E-8f, len1 * len2));
     }
+	template<class K,class T, int C> void ConvertType(vec<T, C> in,vec<K, C>& out){
+		for (int c = 0; c < C; c++){
+			out[c] = static_cast<K>(in[c]);
+		}
+	}
+	template<class K,class T, int C> vec<K, C> ConvertType(vec<T, C> in){
+		vec<K, C> out;
+		ConvertType(in,out);
+		return out;
+	}
     // Geometric Tools LLC, Redmond WA 98052
     // Copyright (c) 1998-2015
     // Distributed under the Boost Software License, Version 1.0.
