@@ -21,6 +21,7 @@ namespace aly{
 	bool SANITY_CHECK_FILE_IO();
 	std::string GetFileWithoutExtension(const std::string& file);
 	std::string GetFileNameWithoutExtension(const std::string& file);
+	std::string ReplaceFileExtension(const std::string& file,const std::string& ext);
 	std::string GetFileDirectoryPath(const std::string& file);
 	std::string GetFileName(const std::string& file);
 	std::string RemoveTrailingSlash(const std::string& file);

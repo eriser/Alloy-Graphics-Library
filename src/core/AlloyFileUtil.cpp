@@ -11,7 +11,7 @@
 using namespace std;
 
 namespace aly {
-std::string GetFileExtension(const string &fileName) {
+std::string GetFileExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos)
 		return fileName.substr(fileName.find_last_of(".") + 1);
 	return string("");
@@ -31,7 +31,7 @@ std::string RemoveTrailingSlash(const std::string& file) {
 std::string ConcatPath(const std::string& dir, const std::string& file) {
 	return RemoveTrailingSlash(dir) + PATH_SEPARATOR+file;
 }
-std::string GetFileNameWithoutExtension(string fileName) {
+std::string GetFileNameWithoutExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos
 			&& fileName.find_last_of(PATH_SEPARATOR) != string::npos) {
 		size_t start = fileName.find_last_of(PATH_SEPARATOR) + 1;
@@ -41,15 +41,17 @@ std::string GetFileNameWithoutExtension(string fileName) {
 	return fileName;
 }
 
-std::string GetFileWithoutExtension(string fileName) {
+std::string GetFileWithoutExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos) {
 		size_t end = fileName.find_last_of(".");
 		return fileName.substr(0, end);
 	}
 	return fileName;
 }
-
-std::string GetDirectoryPath(string fileName) {
+std::string ReplaceFileExtension(const std::string& file,const std::string& ext){
+	return GetFileWithoutExtension(file)+"."+ext;
+}
+std::string GetDirectoryPath(const std::string& fileName) {
 	if (fileName.find_last_of(PATH_SEPARATOR) != string::npos) {
 		size_t end = fileName.find_last_of(PATH_SEPARATOR);
 		return fileName.substr(0, end);
@@ -78,7 +80,8 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName, const s
 	std::sort(files.begin(), files.end());
 	return files;
 }
-void WriteImageToFile(const std::string& file, const ImageRGB& image) {
+void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
+	std::string file=ReplaceFileExtension(_file,"png");
 	int width = image.width;
 	int height = image.height;
 	const char* file_name = file.c_str();
@@ -161,7 +164,8 @@ void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 
 	fclose(fp);
 }
-void WriteImageToFile(const std::string& file, const ImageRGBA& image) {
+void WriteImageToFile(const std::string& _file, const ImageRGBA& image) {
+	std::string file=ReplaceFileExtension(_file,"png");
 	int width = image.width;
 	int height = image.height;
 	const char* file_name = file.c_str();
