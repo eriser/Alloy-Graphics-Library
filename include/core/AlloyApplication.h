@@ -23,6 +23,7 @@
 #define ALLOYAPPLICATION_H_
 
 #include "AlloyContext.h"
+
 #include "AlloyCommon.h"
 
 #include <memory>
@@ -43,7 +44,10 @@ namespace aly{
 		}
 		virtual void onWindowRefresh(){};
 		virtual void onWindowFocus(int focused){};
-		virtual void onWindowSize(int width,int height){};
+		virtual void onWindowSize(int width,int height){
+			glViewport(0,0,width,height);
+			context->viewport=box2i(int2(0,0),int2(width,height));
+		};
 		virtual void onChar(unsigned int codepoint){};
 		virtual void onKey(int key, int scancode, int action, int mods){};
 		virtual void onMouseButton(int button, int action, int    mods){};

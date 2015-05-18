@@ -30,6 +30,7 @@
 #include <mutex>
 #include <memory>
 #include "nanovg.h"
+#include "AlloyMath.h"
 namespace aly{
 	struct AlloyContext {
 		private:
@@ -38,6 +39,11 @@ namespace aly{
 		public:
 			NVGcontext* nvgContext;
 			GLFWwindow* window;
+			box2i viewport;
+
+			inline int width(){return viewport.dims.x;}
+			inline int height(){return viewport.dims.y;}
+
 			AlloyContext(int width,int height,const std::string& title);
 			bool begin();
 			bool end();

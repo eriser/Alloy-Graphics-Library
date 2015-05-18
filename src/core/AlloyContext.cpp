@@ -48,6 +48,8 @@ namespace aly{
 				throw std::runtime_error("Could not initialize GLEW.");
 			}
 			glGetError();
+			glViewport(0,0,width,height);
+			viewport=box2i(int2(0,0),int2(width,height));
 			nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 		}
 		bool AlloyContext::begin(){

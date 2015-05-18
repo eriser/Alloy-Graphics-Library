@@ -20,7 +20,7 @@
  */
 #ifndef GLFRAMEBUFFER_H_
 #define GLFRAMEBUFFER_H_
-#include "GLImage.h"
+#include "GLTexture.h"
 namespace aly {
 /*
 class GLFrameBuffer {

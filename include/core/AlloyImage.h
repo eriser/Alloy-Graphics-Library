@@ -63,7 +63,7 @@ namespace aly{
 				x=val[offset++];
 			}
 		}
-		std::string getTypeName(){
+		std::string getTypeName() const {
 			std::string tName;
 			switch(type){
 				case ImageType::BYTE: tName="byte";break;
@@ -219,7 +219,8 @@ namespace aly{
 					func(offset,im1.data[offset],im2.data[offset]);
 				}
 			}
-	   template<class T,class L,class R,int C,ImageType I> std::basic_ostream<L,R> & operator << (std::basic_ostream<L,R> & ss, const Image<T,C,I> & A) {
+	   template<class T,class L,class R,int C,ImageType I> std::basic_ostream<L,R> & operator << (
+			   std::basic_ostream<L,R> & ss, const Image<T,C,I> & A) {
 	    	ss<<"Image ("<<A.getTypeName()<<"): "<<A.id<<" Position: ("<<A.x<<","<<A.y<<") Dimensions: ["<<A.width<<","<<A.height<<"]\n";
 	    	return ss;
 	    }

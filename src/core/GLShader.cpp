@@ -18,8 +18,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "AlloyContext.h"
 #include "GLShader.h"
-#include "../ImageSciUtil.h"
 #include <iostream>
 
 
