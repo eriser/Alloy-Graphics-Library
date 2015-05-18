@@ -52,10 +52,9 @@ template<class T> struct vec<T,1>
 {
     T                           x;
 
-                                vec()                               : x() {}
                                 vec(T x, T y)                       : x(x) {}
                                 vec(T* ptr)							: x(*ptr){}
-    explicit                    vec(T s)                            : x(s) {}
+    explicit                    vec(T s=(T)0)                       : x(s) {}
     template<class U> explicit  vec(const vec<U,2> & r)             : x(T(r.x)) {}
     const T &                   operator [] (int i) const           { return &x; }
     T &                         operator [] (int i)                 { return &x; }
@@ -73,11 +72,9 @@ template<class T> struct vec<T,1>
     {
         T                           x, y;
 
-                                    vec()                               : x(), y() {}
                                     vec(T x, T y)                       : x(x), y(y) {}
                                     vec(T* ptr)							: x(ptr[0]),y(ptr[1]){}
-
-        explicit                    vec(T s)                            : x(s), y(s) {}
+        explicit                    vec(T s=(T)0)                       : x(s), y(s) {}
         template<class U> explicit  vec(const vec<U,2> & r)             : x(T(r.x)), y(T(r.y)) {}
 
         const T &                   operator [] (int i) const           { return (&x)[i]; }
@@ -95,11 +92,10 @@ template<class T> struct vec<T,1>
     {
         T                           x, y, z;
 
-                                    vec()                               : x(), y(), z() {}
                                     vec(T x, T y, T z)                  : x(x), y(y), z(z) {}
                                     vec(T* ptr)							: x(ptr[0]),y(ptr[1]),z(ptr[2]){}
                                     vec(vec<T,2> xy, T z)               : x(xy.x), y(xy.y), z(z) {}
-        explicit                    vec(T s)                            : x(s), y(s), z(s) {}
+        explicit                   	vec(T s=(T)0)                  		: x(s), y(s), z(s) {}
         template<class U> explicit  vec(const vec<U,3> & r)             : x(T(r.x)), y(T(r.y)), z(T(r.z)) {}
         const T &                   operator [] (int i) const           { return (&x)[i]; }
         T &                         operator [] (int i)                 { return (&x)[i]; }
@@ -117,11 +113,10 @@ template<class T> struct vec<T,1>
     {
         T                           x, y, z, w;
 
-                                    vec()                               : x(), y(), z(), w() {}
                                     vec(T x, T y, T z, T w)             : x(x), y(y), z(z), w(w) {}
                                     vec(T* ptr)							: x(ptr[0]),y(ptr[1]),z(ptr[2]),w(ptr[3]){}
                                     vec(vec<T,3> xyz, T w)              : x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
-        explicit                    vec(T s)                            : x(s), y(s), z(s), w(s) {}
+        explicit                    vec(T s=(T)0)                       : x(s), y(s), z(s), w(s) {}
         template<class U> explicit  vec(const vec<U,4> & r)             : x(T(r.x)), y(T(r.y)), z(T(r.z)), w(T(r.w)) {}
 
         const T &                   operator [] (int i) const           { return (&x)[i]; }
@@ -670,7 +665,22 @@ template<class T> struct vec<T,1>
 	    }
 	    return result;
 	}
+    template<class T,int M> struct box{
+    	vec<T,M> pt;
+    	vec<T,M> dims;
+    	box():pt((T)0),dims((T)0){
+    	}
+       	box(vec<T,M> pt,vec<T,M> dims):pt(pt),dims(dims){
+        }
+    	bool contains(const vec<T,M>& qt){
+    		for(int m=0;m<M;m++)if(qt[m]<pt[m]||qt[m]>=pt[m]+dims[m])return false;
+    		return true;
+    	}
+    };
 
+    template<class T,int M> box<T,M> MakeBox(const vec<T,M>& min,const vec<T,M>& dims){
+    	return box<T,M>(min,min+dims);
+    }
     /////////////////////////
     // Convenience aliases //
     /////////////////////////
@@ -685,6 +695,20 @@ template<class T> struct vec<T,1>
         typedef matrix<double,2,2> double2x2; typedef matrix<double,2,3> double2x3; typedef matrix<double,2,4> double2x4;
         typedef matrix<double,3,2> double3x2; typedef matrix<double,3,3> double3x3; typedef matrix<double,3,4> double3x4;
         typedef matrix<double,4,2> double4x2; typedef matrix<double,4,3> double4x3; typedef matrix<double,4,4> double4x4;
+        typedef float4 RGBAf;
+        typedef float3 RGBf;
+        typedef ubyte4 RGBA;
+        typedef ubyte3 RGB;
+
+        typedef box<float,1> box1f;
+        typedef box<float,2> box2f;
+        typedef box<float,3> box3f;
+        typedef box<float,4> box4f;
+
+        typedef box<int,1> box1i;
+        typedef box<int,2> box2i;
+        typedef box<int,3> box3i;
+        typedef box<int,4> box4i;
 };
 
 #endif

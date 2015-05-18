@@ -19,8 +19,7 @@
  * THE SOFTWARE.
  */
 
-
-#include "../../include/core/AlloyContext.h"
+#include "AlloyContext.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
 #include <iostream>
@@ -33,7 +32,7 @@ namespace aly{
 			}
 			glfwSetErrorCallback([](int error, const char* desc){std::cout<<"GLFW Error ["<<error<<"] "<<desc<<std::endl;});
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
@@ -49,7 +48,7 @@ namespace aly{
 				throw std::runtime_error("Could not initialize GLEW.");
 			}
 			glGetError();
-			nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+			nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 		}
 		bool AlloyContext::begin(){
 			if(current==nullptr){

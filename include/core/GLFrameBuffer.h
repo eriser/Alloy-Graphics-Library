@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2015, Blake C. Lucas, Ph.D. (img.science@gmail.com)
+ * Copyright(C) 2014, Blake C. Lucas, Ph.D. (img.science@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,31 +18,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef GLFRAMEBUFFER_H_
+#define GLFRAMEBUFFER_H_
+#include "GLImage.h"
+namespace aly {
+/*
+class GLFrameBuffer {
+protected:
+	unsigned int mFrameBufferId;
+	unsigned int mDepthBufferId;
+public:
+	GLFrameBuffer(int _x,int _y,int _width,int _height,int _imageWidth,int _imageHeight);
+	GLFrameBuffer(){};
+	virtual void updateGL();
+	void begin();
+	void end();
+	virtual ~GLFrameBuffer();
 
-#ifndef ALLOYCONTEXT_H_
-#define ALLOYCONTEXT_H_
-#define GLFW_INCLUDE_GLU
+};
+*/
 
-#include <GL/glew.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#include <GLFW/glfw3.h>
-#include <mutex>
-#include <memory>
-#include "nanovg.h"
-namespace aly{
-	struct AlloyContext {
-		private:
-			static std::mutex contextLock;
-			GLFWwindow* current;
-		public:
-			NVGcontext* nvgContext;
-			GLFWwindow* window;
-			AlloyContext(int width,int height,const std::string& title);
-			bool begin();
-			bool end();
-			void makeCurrent();
-			~AlloyContext();
-	};
-}
-#endif /* ALLOYCONTEXT_H_ */
+} /* namespace imagesci */
+
+#endif /* GLFRAMEBUFFER_H_ */

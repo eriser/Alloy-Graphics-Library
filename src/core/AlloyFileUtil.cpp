@@ -7,11 +7,28 @@
 #include <iostream>
 #include <algorithm>
 #include <png.h>
+#include <fstream>
 #include "../../include/core/AlloyFileUtil.h"
 #include "../../include/core/stb_image.h"
 using namespace std;
 
 namespace aly {
+
+std::string ReadTextFile(const std::string& str){
+	std::ifstream myfile;
+	myfile.open(str);
+	if(myfile.is_open()){
+		std::stringstream buffer;
+		std::string line;
+		while(getline(myfile,line)){
+			buffer<<line<<std::endl;
+		}
+		return buffer.str();
+	} else {
+		throw std::runtime_error(MakeString()<<"Could not open "<<str);
+	}
+}
+
 std::string GetFileExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos)
 		return fileName.substr(fileName.find_last_of(".") + 1);

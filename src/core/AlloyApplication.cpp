@@ -80,11 +80,14 @@ void Application::run(int swapInterval) {
 		if(dt>0.5f){//Poll every 0.5 seconds
 			frameRate=(float)(frameCounter/(t - lastCpuTime));
 			lastCpuTime = t;
-			//std::cout<<"FRAME RATE "<<frameRate<<std::endl;
+			//std::cout<<"FRAME RATE "<<frameRate<<stxd::endl;
 			frameCounter=0;
 		}
 		glfwSwapBuffers(context->window);
 		glfwPollEvents();
+		for(std::exception_ptr e:caughtExceptions){
+			throw e;
+		}
 	} while (!glfwWindowShouldClose(context->window));
 }
 }

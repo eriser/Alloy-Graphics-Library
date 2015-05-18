@@ -25,7 +25,8 @@
 #include <functional>
 namespace aly{
 	bool SANITY_CHECK_IMAGE();
-	template<class T,int C> struct Image{
+	enum class ImageType{BYTE,UBYTE,SHORT,USHORT,INT,UINT,FLOAT,DOUBLE};
+	template<class T,int C,ImageType I> struct Image{
 	private:
 		std::vector<vec<T,C>> storage;
 	public:
@@ -35,6 +36,7 @@ namespace aly{
 		int x,y;
 		uint64_t id;
 		static const int channels = C;
+		static const ImageType type = I;
 		void set(const T& val){
 			for(T& x:data){
 				x=vec<T,C>(val);
@@ -61,12 +63,26 @@ namespace aly{
 				x=val[offset++];
 			}
 		}
-		const Image<T, C>& operator=(Image<T, C>& img) const{
-			return Image<T, C>(&data[0],img.width,img.height,img.x,img.y,img.id);
+		std::string getTypeName(){
+			std::string tName;
+			switch(type){
+				case ImageType::BYTE: tName="byte";break;
+				case ImageType::UBYTE: tName="ubyte";break;
+				case ImageType::SHORT: tName="short";break;
+				case ImageType::USHORT: tName="ushort";break;
+				case ImageType::INT: tName="int";break;
+				case ImageType::UINT: tName="uint";break;
+				case ImageType::FLOAT: tName="float";break;
+				case ImageType::DOUBLE: tName="double";break;
+			}
+			return MakeString()<<tName<<channels;
+		}
+		const Image<T, C, I>& operator=(Image<T, C, I>& img) const{
+			return Image<T, C, I>(&data[0],img.width,img.height,img.x,img.y,img.id);
 		}
 
-		const Image<T, C>& operator=(const Image<T, C>& img) const {
-			return Image<T, C>(&data[0],img.width,img.height,img.x,img.y,img.id);
+		const Image<T, C, I>& operator=(const Image<T, C, I>& img) const {
+			return Image<T, C, I>(&data[0],img.width,img.height,img.x,img.y,img.id);
 		}
 
 		Image(int w,int h,int x=0,int y=0,int id=0):width(w),height(h),x(x),y(x),id(id),data(storage){
@@ -154,7 +170,7 @@ namespace aly{
 		}
 	};
 
-	template<class T, int C> void Transform(Image<T,C>& im1,Image<T,C>& im2,const std::function<void(vec<T,C>&,vec<T,C>&)>& func){
+	template<class T, int C,ImageType I> void Transform(Image<T,C,I>& im1,Image<T,C,I>& im2,const std::function<void(vec<T,C>&,vec<T,C>&)>& func){
 			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 	#pragma omp parallel for
@@ -162,14 +178,14 @@ namespace aly{
 					func(im1.data[offset],im2.data[offset]);
 				}
 			}
-	template<class T, int C> void Transform(Image<T,C>& im1,const std::function<void(vec<T,C>&)>& func){
+	template<class T, int C,ImageType I> void Transform(Image<T,C,I>& im1,const std::function<void(vec<T,C>&)>& func){
 			size_t sz=im1.size();
 	#pragma omp parallel for
 				for(size_t offset=0;offset<sz;offset++){
 					func(im1.data[offset]);
 				}
 			}
-	template<class T, int C> void Transform(Image<T,C>& im1,const Image<T,C>& im2,const std::function<void(vec<T,C>&,const vec<T,C>&)>& func){
+	template<class T, int C,ImageType I> void Transform(Image<T,C,I>& im1,const Image<T,C,I>& im2,const std::function<void(vec<T,C>&,const vec<T,C>&)>& func){
 			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 	#pragma omp parallel for
@@ -177,7 +193,7 @@ namespace aly{
 					func(im1.data[offset],im2.data[offset]);
 				}
 			}
-	template<class T, int C> void Transform(Image<T,C>& im1,const Image<T,C>& im2,const Image<T,C>& im3,const std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)>& func){
+	template<class T, int C,ImageType I> void Transform(Image<T,C,I>& im1,const Image<T,C,I>& im2,const Image<T,C,I>& im3,const std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)>& func){
 			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 	#pragma omp parallel for
@@ -185,7 +201,7 @@ namespace aly{
 					func(im1.data[offset],im2.data[offset],im3.data[offset]);
 				}
 			}
-	template<class T, int C> void Transform(Image<T,C>& im1,Image<T,C>& im2,const std::function<void(int i,int j,vec<T,C>& val1,vec<T,C>& val2)>& func){
+	template<class T, int C,ImageType I> void Transform(Image<T,C,I>& im1,Image<T,C,I>& im2,const std::function<void(int i,int j,vec<T,C>& val1,vec<T,C>& val2)>& func){
 		if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 		#pragma omp parallel for
 				for(int j=0;j<im1.height;j++){
@@ -195,7 +211,7 @@ namespace aly{
 					}
 				}
 			}
-	template<class T, int C> void Transform(Image<T,C>& im1,Image<T,C>& im2,const std::function<void(size_t offset,vec<T,C>& val1,vec<T,C>& val2)>& func){
+	template<class T, int C,ImageType I> void Transform(Image<T,C,I>& im1,Image<T,C,I>& im2,const std::function<void(size_t offset,vec<T,C>& val1,vec<T,C>& val2)>& func){
 			if(im1.dimensions()!=im2.dimensions())throw std::runtime_error(MakeString()<<"Image dimensions do not match. "<<im1.dimensions()<<"!="<<im2.dimensions());
 			size_t sz=im1.size();
 		#pragma omp parallel for
@@ -203,173 +219,174 @@ namespace aly{
 					func(offset,im1.data[offset],im2.data[offset]);
 				}
 			}
-	   template<class T,class L,class R,int C> std::basic_ostream<L,R> & operator << (std::basic_ostream<L,R> & ss, const Image<T,C> & A) {
-	    	ss<<"Image: "<<A.id<<" Position: ("<<A.x<<","<<A.y<<") Dimensions: ["<<A.width<<","<<A.height<<"]\n";
+	   template<class T,class L,class R,int C,ImageType I> std::basic_ostream<L,R> & operator << (std::basic_ostream<L,R> & ss, const Image<T,C,I> & A) {
+	    	ss<<"Image ("<<A.getTypeName()<<"): "<<A.id<<" Position: ("<<A.x<<","<<A.y<<") Dimensions: ["<<A.width<<","<<A.height<<"]\n";
 	    	return ss;
 	    }
-		template<class T, int C> Image<T, C> operator+(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator+(const vec<T,C>& scalar,const Image<T, C, I>& img) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar+val2;};
 			Transform(out,img,f);
 			return out;
 		}
 
-		template<class T, int C> Image<T, C> operator-(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator-(const vec<T,C>& scalar,const Image<T, C, I>& img) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar-val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator*(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator*(const vec<T,C>& scalar,const Image<T, C, I>& img) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar*val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator/(const vec<T,C>& scalar,const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator/(const vec<T,C>& scalar,const Image<T, C, I>& img) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=scalar/val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator+(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator+(const Image<T, C, I>& img,const vec<T,C>& scalar) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2+scalar;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator-(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator-(const Image<T, C, I>& img,const vec<T,C>& scalar) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2-scalar;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator*(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator*(const Image<T, C, I>& img,const vec<T,C>& scalar) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2*scalar;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator/(const Image<T, C>& img,const vec<T,C>& scalar) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator/(const Image<T, C, I>& img,const vec<T,C>& scalar) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=val2/scalar;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator-(const Image<T, C>& img) {
-			Image<T, C> out(img.width, img.height,img.x,img.y);
+		template<class T, int C,ImageType I> Image<T, C, I> operator-(const Image<T, C, I>& img) {
+			Image<T, C, I> out(img.width, img.height,img.x,img.y);
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1=-val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator+=(Image<T, C>& out,const Image<T, C>& img) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator+=(Image<T, C, I>& out,const Image<T, C, I>& img) {
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1+=val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator-=(Image<T, C>& out,const Image<T, C>& img) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator-=(Image<T, C, I>& out,const Image<T, C, I>& img) {
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1-=val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator*=(Image<T, C>& out,const Image<T, C>& img) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator*=(Image<T, C, I>& out,const Image<T, C, I>& img) {
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1*=val2;};
 			Transform(out,img,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator/=(Image<T, C>& out,const Image<T, C>& img) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator/=(Image<T, C, I>& out,const Image<T, C, I>& img) {
 			std::function<void(vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2){val1/=val2;};
 			Transform(out,img,f);
 			return out;
 		}
 
-		template<class T, int C> Image<T, C> operator+=(Image<T, C>& out,const vec<T, C>& scalar) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator+=(Image<T, C, I>& out,const vec<T, C>& scalar) {
 			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1+=scalar;};
 			Transform(out,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator-=(Image<T, C>& out,const vec<T, C>& scalar) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator-=(Image<T, C, I>& out,const vec<T, C>& scalar) {
 			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1-=scalar;};
 			Transform(out,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator*=(Image<T, C>& out,const vec<T, C>& scalar) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator*=(Image<T, C, I>& out,const vec<T, C>& scalar) {
 			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1*=scalar;};
 			Transform(out,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator/=(Image<T, C>& out,const vec<T, C>& scalar) {
+		template<class T, int C,ImageType I> Image<T, C, I> operator/=(Image<T, C, I>& out,const vec<T, C>& scalar) {
 			std::function<void(vec<T,C>&)> f=[=](vec<T,C>& val1){val1/=scalar;};
 			Transform(out,f);
 			return out;
 		}
 
-		template<class T, int C> Image<T, C> operator+(const Image<T, C>& img1,const Image<T, C>& img2) {
-			Image<T, C> out(img1.width, img1.height);
+		template<class T, int C,ImageType I> Image<T, C, I> operator+(const Image<T, C, I>& img1,const Image<T, C, I>& img2) {
+			Image<T, C, I> out(img1.width, img1.height);
 			std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)> f=[=](vec<T,C>& val1,const vec<T,C>& val2,const vec<T,C>& val3){val1=val2+val3;};
 			Transform(out,img1,img2,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator-(const Image<T, C>& img1,const Image<T, C>& img2) {
-			Image<T, C> out(img1.width, img1.height);
+		template<class T, int C,ImageType I> Image<T, C, I> operator-(const Image<T, C, I>& img1,const Image<T, C, I>& img2) {
+			Image<T, C, I> out(img1.width, img1.height);
 			std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)> f=
 					[=](vec<T,C>& val1,const vec<T,C>& val2,const vec<T,C>& val3){val1=val2-val3;};
 			Transform(out,img1,img2,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator*(const Image<T, C>& img1,const Image<T, C>& img2) {
-			Image<T, C> out(img1.width, img1.height);
+		template<class T, int C,ImageType I> Image<T, C, I> operator*(const Image<T, C, I>& img1,const Image<T, C, I>& img2) {
+			Image<T, C, I> out(img1.width, img1.height);
 			std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)> f=
 					[=](vec<T,C>& val1,const vec<T,C>& val2,const vec<T,C>& val3){val1=val2*val3;};
 			Transform(out,img1,img2,f);
 			return out;
 		}
-		template<class T, int C> Image<T, C> operator/(const Image<T, C>& img1,const Image<T, C>& img2) {
-			Image<T, C> out(img1.width, img1.height);
+		template<class T, int C,ImageType I> Image<T, C, I> operator/(const Image<T, C, I>& img1,const Image<T, C, I>& img2) {
+			Image<T, C, I> out(img1.width, img1.height);
 			std::function<void(vec<T,C>&,const vec<T,C>&,const vec<T,C>&)> f=
 					[=](vec<T,C>& val1,const vec<T,C>& val2,const vec<T,C>& val3){val1=val2/val3;};
 			Transform(out,img1,img2,f);
 			return out;
 		}
-	typedef Image<uint8_t, 4> ImageRGBA;
-	typedef Image<int, 4> ImageRGBAi;
-	typedef Image<float, 4> ImageRGBAf;
+	typedef Image<uint8_t, 4,ImageType::UBYTE> ImageRGBA;
+	typedef Image<int, 4,ImageType::INT> ImageRGBAi;
+	typedef Image<float, 4,ImageType::FLOAT> ImageRGBAf;
 
-	typedef Image<uint8_t, 3> ImageRGB;
-	typedef Image<int, 3> ImageRGBi;
-	typedef Image<float, 3> ImageRGBf;
+	typedef Image<uint8_t, 3,ImageType::UBYTE> ImageRGB;
+	typedef Image<int, 3,ImageType::INT> ImageRGBi;
+	typedef Image<float, 3,ImageType::FLOAT> ImageRGBf;
 
-	typedef Image<uint8_t, 1> ImageA;
-	typedef Image<int, 1> ImageAi;
-	typedef Image<float, 1> ImageAf;
+	typedef Image<uint8_t, 1,ImageType::UBYTE> ImageA;
+	typedef Image<int, 1,ImageType::INT> ImageAi;
+	typedef Image<float, 1,ImageType::FLOAT> ImageAf;
 
-	typedef Image<uint8_t, 4> Image4b;
-	typedef Image<uint16_t, 4> Image4us;
-	typedef Image<int16_t, 4> Image4s;
-	typedef Image<int, 4> Image4i;
-	typedef Image<uint32_t, 4> Image4ui;
-	typedef Image<float, 4> Image4f;
+	typedef Image<uint8_t, 4,ImageType::UBYTE> Image4b;
+	typedef Image<uint16_t, 4,ImageType::USHORT> Image4us;
+	typedef Image<int16_t, 4,ImageType::SHORT> Image4s;
+	typedef Image<int, 4,ImageType::INT> Image4i;
+	typedef Image<uint32_t, 4,ImageType::UINT> Image4ui;
+	typedef Image<float, 4,ImageType::FLOAT> Image4f;
 
-	typedef Image<uint8_t, 3> Image3b;
-	typedef Image<uint16_t, 3> Image3us;
-	typedef Image<int16_t, 3> Image3s;
-	typedef Image<int, 3> Image3i;
-	typedef Image<uint32_t, 3> Image3ui;
-	typedef Image<float, 3> Image3f;
+	typedef Image<uint8_t, 3,ImageType::UBYTE> Image3b;
+	typedef Image<uint16_t, 3,ImageType::USHORT> Image3us;
+	typedef Image<int16_t, 3,ImageType::SHORT> Image3s;
+	typedef Image<int, 3,ImageType::INT> Image3i;
+	typedef Image<uint32_t, 3,ImageType::UINT> Image3ui;
+	typedef Image<float, 3,ImageType::FLOAT> Image3f;
 
-	typedef Image<uint8_t, 2> Image2b;
-	typedef Image<uint16_t, 2> Image2us;
-	typedef Image<int16_t, 2> Image2s;
-	typedef Image<int, 2> Image2i;
-	typedef Image<uint32_t, 2> Image2ui;
-	typedef Image<float, 2> Image2f;
+	typedef Image<uint8_t, 2,ImageType::UBYTE> Image2b;
+	typedef Image<uint16_t, 2,ImageType::USHORT> Image2us;
+	typedef Image<int16_t, 2,ImageType::SHORT> Image2s;
+	typedef Image<int, 2,ImageType::INT> Image2i;
+	typedef Image<uint32_t, 2,ImageType::UINT> Image2ui;
+	typedef Image<float, 2,ImageType::FLOAT> Image2f;
 
-	typedef Image<uint8_t, 1> Image1b;
-	typedef Image<uint16_t, 1> Image1us;
-	typedef Image<int16_t, 1> Image1s;
-	typedef Image<int, 1> Image1i;
-	typedef Image<uint32_t, 1> Image1ui;
-	typedef Image<float, 1> Image1f;
+	typedef Image<uint8_t, 1,ImageType::UBYTE> Image1b;
+	typedef Image<uint16_t, 1,ImageType::USHORT> Image1us;
+	typedef Image<int16_t, 1,ImageType::SHORT> Image1s;
+
+	typedef Image<int, 1,ImageType::INT> Image1i;
+	typedef Image<uint32_t, 1,ImageType::UINT> Image1ui;
+	typedef Image<float, 1,ImageType::FLOAT> Image1f;
 };
 
 

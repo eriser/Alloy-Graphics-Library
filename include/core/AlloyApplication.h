@@ -37,6 +37,10 @@ namespace aly{
 		std::list<std::exception_ptr> caughtExceptions;
 		void initInternal();
 	public:
+		static inline AlloyContext* getContext(){
+			if(context.get()==nullptr)throw std::runtime_error("Cannot get GLFW / NanoVG context.");
+			return context.get();
+		}
 		virtual void onWindowRefresh(){};
 		virtual void onWindowFocus(int focused){};
 		virtual void onWindowSize(int width,int height){};
