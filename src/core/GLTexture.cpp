@@ -24,12 +24,12 @@
 #include "GLTexture.h"
 
 namespace aly {
-template<class T,int C,ImageType I> GLuint GLImage<T,C,I>::vao=0;
-template<class T,int C,ImageType I> GLuint GLImage<T,C,I>::mPositionBuffer=0;
-template<class T,int C,ImageType I> GLuint GLImage<T,C,I>::mUVBuffer=0;
-template<class T,int C,ImageType I> std::unique_ptr<GLShader> GLImage<T,C,I>::defaultShader;
+template<class T,int C,ImageType I> GLuint GLTexture<T,C,I>::vao=0;
+template<class T,int C,ImageType I> GLuint GLTexture<T,C,I>::mPositionBuffer=0;
+template<class T,int C,ImageType I> GLuint GLTexture<T,C,I>::mUVBuffer=0;
+template<class T,int C,ImageType I> std::unique_ptr<GLShader> GLTexture<T,C,I>::defaultShader;
 
-template<class T,int C,ImageType I> const float2 GLImage<T,C,I>::TextureCoords[4]={float2(1.0f,1.0f),float2(0.0f,1.0f),float2(0.0f,0.0f),float2(1.0f,0.0f)};
-template<class T,int C,ImageType I> const float3 GLImage<T,C,I>::PositionCoords[4]={float3(1.0f,1.0f,0.0f),float3(0.0f,1.0f,0.0f),float3(0.0f,0.0f,0.0f),float3(1.0f,0.0f,0.0f)};
+template<class T,int C,ImageType I> const float2 GLTexture<T,C,I>::TextureCoords[4]={float2(1.0f,1.0f),float2(0.0f,1.0f),float2(0.0f,0.0f),float2(1.0f,0.0f)};
+template<class T,int C,ImageType I> const float3 GLTexture<T,C,I>::PositionCoords[4]={float3(1.0f,1.0f,0.0f),float3(0.0f,1.0f,0.0f),float3(0.0f,0.0f,0.0f),float3(1.0f,0.0f,0.0f)};
 
 } /* namespace imagesci */

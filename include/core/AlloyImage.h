@@ -37,6 +37,7 @@ namespace aly{
 		uint64_t id;
 		static const int channels = C;
 		static const ImageType type = I;
+
 		void set(const T& val){
 			for(T& x:data){
 				x=vec<T,C>(val);
@@ -47,6 +48,7 @@ namespace aly{
 				x=val;
 			}
 		}
+
 		void set(T* val){
 			if(val==nullptr)return;
 			size_t offset=0;
@@ -62,6 +64,13 @@ namespace aly{
 			for(vec<T,C>& x:data){
 				x=val[offset++];
 			}
+		}
+		void set(const Image<T,C,I>& other){
+			resize(other.width,other.height);
+			id=other.id;
+			x=other.x;
+			y=other.y;
+			set(&other.data[0]);
 		}
 		std::string getTypeName() const {
 			std::string tName;

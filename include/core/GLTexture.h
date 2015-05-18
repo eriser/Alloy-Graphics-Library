@@ -27,7 +27,7 @@
 #include "GLComponent.h"
 #include "GLShader.h"
 namespace aly {
-template<class T,int C,ImageType I> class GLImage:public GLComponent {
+template<class T,int C,ImageType I> class GLTexture:public GLComponent {
 protected:
 	Image<T,C,I> mData;
 	static std::unique_ptr<GLShader> defaultShader;
@@ -229,9 +229,6 @@ void main() {
 
 	static const float2 TextureCoords[4];
 	static const float3 PositionCoords[4];
-	std::vector<RGBA>& data(){
-		return mData;
-	}
 	inline void setShadeEnabled(bool shade){
 		mShadeEnabled=shade;
 	}
@@ -244,17 +241,17 @@ void main() {
 	vec<T,C>& operator()(const int i,const int j){
 		return mData(i,j);
 	}
-	GLImage():GLComponent(),imageShader(NULL),mTextureId(0),mShadeEnabled(true){
+	GLTexture():GLComponent(),imageShader(NULL),mTextureId(0),mShadeEnabled(true){
 	}
-	GLImage(int x,int y,int width,int height,int imageWidth,int imageHeight):GLComponent(),imageShader(NULL),mTextureId(0),mShadeEnabled(true){
+	GLTexture(int x,int y,int width,int height,int imageWidth,int imageHeight):GLComponent(),imageShader(NULL),mTextureId(0),mShadeEnabled(true){
 		mData.resize(imageWidth,imageHeight);
 		bounds=box2i({x,y},{width,height});
 	}
-	GLImage(const Image<T,C,I>& image);
-	static GLImage* read(const std::string& file);
-	bool write(const std::string& file);
-	bool writeTexture(const std::string& file);
-	virtual ~GLImage();
+	GLTexture(const Image<T,C,I>& image):GLComponent(),imageShader(NULL),mTextureId(0),mShadeEnabled(true){
+		mData.set(image);
+		bounds=box2i(0,0,mData.width,mData.height);
+	}
+	virtual ~GLTexture();
 };
 
 }
