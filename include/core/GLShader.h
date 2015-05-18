@@ -21,11 +21,8 @@
 #ifndef GLSHADER_H_
 #define GLSHADER_H_
 
-
-#define GLFW_INCLUDE_GLU
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#include <GLFW/glfw3.h>
+#include "AlloyContext.h"
+#include "AlloyMath.h"
 #include <string>
 #include <vector>
 
@@ -55,7 +52,6 @@ public:
 			std::vector<std::string>& attributes):GLShader(){
 		Initialize(pVertexShaderString,pFragmentShaderString,pGeomShaderString,attributes);
 	}
-	// Uninitialization function.
 	void Uninitialize();
 	virtual void begin();
 	virtual void end();

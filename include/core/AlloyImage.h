@@ -20,7 +20,9 @@
  */
 #ifndef ALLOYIMAGE2D_H_INCLUDE_GUARD
 #define ALLOYIMAGE2D_H_INCLUDE_GUARD
+#include "AlloyCommon.h"
 #include "AlloyMath.h"
+
 #include <vector>
 #include <functional>
 namespace aly{
@@ -35,8 +37,8 @@ namespace aly{
 		int height;
 		int x,y;
 		uint64_t id;
-		static const int channels = C;
-		static const ImageType type = I;
+		const int channels = C;
+		const ImageType type = I;
 
 		void set(const T& val){
 			for(T& x:data){
