@@ -31,8 +31,9 @@ GLShader::GLShader() :
 		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(0),mProgramHandle(0) {
 
 }
-void GLShader::begin(){
+GLShader& GLShader::begin(){
 	glUseProgram(GetProgramHandle());
+	return *this;
 }
 void GLShader::end(){
 	glUseProgram((GLuint)NULL);

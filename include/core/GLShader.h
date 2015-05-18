@@ -129,7 +129,7 @@ public:
 		glActiveTexture(GL_TEXTURE0+id);
 		glBindTexture(GL_TEXTURE_2D,value.handle);
 	}
-	virtual void begin();
+	virtual GLShader& begin();
 	virtual void end();
 	inline GLuint GetProgramHandle() const {
 		return mProgramHandle;
