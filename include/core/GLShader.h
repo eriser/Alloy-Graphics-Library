@@ -126,6 +126,7 @@ public:
 		return *this;
 	}
 	template<class T,int C,ImageType I> void set(const std::string& variable,const GLTexture<T,C,I>& value,int id){
+		glUniform1i(glGetUniformLocation(mProgramHandle,variable.c_str()),id);
 		glActiveTexture(GL_TEXTURE0+id);
 		glBindTexture(GL_TEXTURE_2D,value.handle);
 	}
