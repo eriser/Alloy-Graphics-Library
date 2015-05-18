@@ -32,11 +32,17 @@
 #include "nanovg.h"
 #include "AlloyMath.h"
 namespace aly{
+	struct GLGlobalImage{
+		GLuint vao=0;
+		GLuint positionBuffer=0;
+		GLuint uvBuffer=0;
+	};
 	struct AlloyContext {
 		private:
 			static std::mutex contextLock;
 			GLFWwindow* current;
 		public:
+			GLGlobalImage globalImage;
 			NVGcontext* nvgContext;
 			GLFWwindow* window;
 			box2i viewport;

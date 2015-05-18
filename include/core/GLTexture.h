@@ -33,12 +33,12 @@ protected:
 	static std::unique_ptr<GLShader> defaultShader;
 	GLShader* imageShader=false;
 	bool enableShader=true;
-	GLuint vao=0;
-	GLuint positionBuffer=0;
-	GLuint uvBuffer=0;
 	GLuint textureId=0;
 	GLuint internalFormat = GL_DEPTH_COMPONENT;
 	virtual void update(AlloyContext* context) override{
+		GLuint& vao=context->globalImage.vao;
+		GLuint& positionBuffer=context->globalImage.positionBuffer;
+		GLuint& uvBuffer=context->globalImage.uvBuffer;
 		if(textureId==0){
 			glGenTextures( 1,&textureId);
 		}
@@ -129,22 +129,7 @@ protected:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture( GL_TEXTURE_2D, 0);
-		if(vao==0){
-			glGenVertexArrays (1, &vao);
-			if(positionBuffer==0){
-				glGenBuffers(1, &positionBuffer);
-				glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) *3* 4,PositionCoords, GL_STATIC_DRAW);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				glBindTexture( GL_TEXTURE_2D, 0);
-			}
-			if(uvBuffer==0){
-				glGenBuffers(1, &uvBuffer);
-				glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2* 4,TextureCoords, GL_STATIC_DRAW);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-			}
-		}
+
 	}
 	Image<T,C,I>& read(){
 		Application::getContext()->begin();
@@ -166,6 +151,9 @@ protected:
 		return textureImage;
 	}
 	virtual void draw(AlloyContext* context) override{
+		GLuint& vao=context->globalImage.vao;
+		GLuint& positionBuffer=context->globalImage.positionBuffer;
+		GLuint& uvBuffer=context->globalImage.uvBuffer;
 		glBindVertexArray (vao);
 		GLShader* shader=NULL;
 		if(enableShader){
@@ -230,9 +218,6 @@ void main() {
 		}
 		return imageShader;
 	}
-
-	static const float2 TextureCoords[4];
-	static const float3 PositionCoords[4];
 	inline void setShadeEnabled(bool shade){
 		enableShader=shade;
 	}
@@ -260,15 +245,7 @@ void main() {
 			glDeleteTextures(1,&textureId);
 			textureId=0;
 		}
-		if(vao){
-			glDeleteVertexArrays(1,&vao);
-		}
-		if(uvBuffer){
-			glDeleteBuffers(1,&uvBuffer);
-		}
-		if(positionBuffer){
-			glDeleteBuffers(1,&positionBuffer);
-		}
+
 		Application::getContext()->end();
 	}
 };

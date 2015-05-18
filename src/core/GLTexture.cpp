@@ -25,7 +25,5 @@
 
 namespace aly {
 template<class T,int C,ImageType I> std::unique_ptr<GLShader> GLTexture<T,C,I>::defaultShader;
-template<class T,int C,ImageType I> const float2 GLTexture<T,C,I>::TextureCoords[4]={float2(1.0f,1.0f),float2(0.0f,1.0f),float2(0.0f,0.0f),float2(1.0f,0.0f)};
-template<class T,int C,ImageType I> const float3 GLTexture<T,C,I>::PositionCoords[4]={float3(1.0f,1.0f,0.0f),float3(0.0f,1.0f,0.0f),float3(0.0f,0.0f,0.0f),float3(1.0f,0.0f,0.0f)};
 
 }
