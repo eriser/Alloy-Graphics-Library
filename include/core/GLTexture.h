@@ -25,15 +25,17 @@
 #include "AlloyMath.h"
 #include "AlloyImage.h"
 #include "GLComponent.h"
-#include "GLShader.h"
+
 namespace aly {
-template<class T,int C,ImageType I> class GLTexture:public GLComponent {
+class GLShader;
+template<class T,int C,ImageType I> class GLTexture: public GLComponent {
+public:
+	GLuint textureId=0;
 protected:
 	Image<T,C,I> textureImage;
 	static std::unique_ptr<GLShader> defaultShader;
 	GLShader* imageShader=false;
 	bool enableShader=true;
-	GLuint textureId=0;
 	GLuint internalFormat = GL_DEPTH_COMPONENT;
 	virtual void update(AlloyContext* context) override{
 		GLuint& vao=context->globalImage.vao;
@@ -150,74 +152,9 @@ protected:
 		}
 		return textureImage;
 	}
-	virtual void draw(AlloyContext* context) override{
-		GLuint& vao=context->globalImage.vao;
-		GLuint& positionBuffer=context->globalImage.positionBuffer;
-		GLuint& uvBuffer=context->globalImage.uvBuffer;
-		glBindVertexArray (vao);
-		GLShader* shader=NULL;
-		if(enableShader){
-			shader=getShader();
-			shader->begin();
-			glEnable(GL_BLEND);
-			glActiveTexture(GL_TEXTURE0);
-			glUniform1i(glGetUniformLocation(shader->GetProgramHandle(),"textureImage"),0);;
-			glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_POS"),bounds.pt.x,bounds.pt.y);
-			glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_DIMS"),bounds.dims.x,bounds.dims.y);
-			glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"SCREEN_DIMS"),context->width(),context->height());
-			glUniform1i(glGetUniformLocation(shader->GetProgramHandle(),"showBackground"),0);
-			glBindTexture(GL_TEXTURE_2D,textureId);
-		}
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		if(enableShader){
-			glEnableVertexAttribArray(1);
-			glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		}
-		glDrawArrays(GL_QUADS,0,4);
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER,0);
-		if(enableShader){
-			glBindTexture(GL_TEXTURE_2D, 0);
-			shader->end();
-		}
-	}
+	virtual void draw(AlloyContext* context) override;
 public:
-	GLShader* getShader(){
-		if(imageShader==NULL){
-			if(defaultShader.get()==nullptr){
-				std::vector<std::string> attrib={"vp","uv"};
-				defaultShader=std::unique_ptr<GLShader>(new GLShader(
-R"(
-#version 330
-in vec3 vp; 
-uniform vec2 IMG_POS;
-uniform vec2 IMG_DIMS;
-uniform vec2 SCREEN_DIMS;
-out vec3 pos3d;
-void main() {
-	pos3d=vp;
-	vec2 pos=(vp.xy*IMG_DIMS+IMG_POS);
-	pos.x=2*pos.x/SCREEN_DIMS.x-1.0;
-	pos.y=1.0-2*pos.y/SCREEN_DIMS.y;
-  gl_Position = vec4(pos.x,pos.y,0,1);
-})",
-R"(
-#version 330
-in vec3 pos3d;
-uniform sampler2D textureImage;
-uniform vec2 IMG_DIMS;
-void main() {
-	vec4 rgba=texture2D(textureImage,pos3d.xy);
-	gl_FragColor=rgba;
-})","",attrib));
-			}
-			imageShader=defaultShader.get();
-		}
-		return imageShader;
-	}
+	GLShader* getShader();
 	inline void setShadeEnabled(bool shade){
 		enableShader=shade;
 	}

@@ -31,6 +31,10 @@
 #include <memory>
 #include "nanovg.h"
 #include "AlloyMath.h"
+int printOglError(const char *file, int line);
+#define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
+
+
 namespace aly{
 	struct GLGlobalImage{
 		GLuint vao=0;

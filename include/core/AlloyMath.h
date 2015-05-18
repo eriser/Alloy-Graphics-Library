@@ -209,7 +209,8 @@ template<class T> struct vec<T,1>
                                     matrix(C x, C y)                       : x(x), y(y) {}
         explicit                    matrix(T s)                            : x(s), y(s) {}
         template<class U> explicit  matrix(const matrix<U,M,2> & r)           : x(C(r.x)), y(C(r.y)) {}
-        T*							ptr()								{ return &(x[0][0]);}
+        T*							ptr()								{ return &(x.x);}
+        const T*					ptr() const							{ return &(x.x);}
         vec<T,M>*					vecPtr()							{ return &x[0];}
         vec<T,2>                    row(int i) const                    { return {x[i], y[i]}; } 
         const C &                   operator [] (int j) const           { return (&x)[j]; }
@@ -237,7 +238,8 @@ template<class T> struct vec<T,1>
                                     matrix(C x, C y, C z)                  : x(x), y(y), z(z) {}
         explicit                    matrix(T s)                            : x(s), y(s), z(s) {}
         template<class U> explicit  matrix(const matrix<U,M,3> & r)           : x(C(r.x)), y(C(r.y)), z(C(r.z)) {}
-        T*							ptr()								{ return &(x[0][0]);}
+        T*							ptr()								{ return &(x.x);}
+        const T*					ptr() const							{ return &(x.x);}
         vec<T,M>*					vecPtr()							{ return &x[0];}
         vec<T,3>                    row(int i) const                    { return {x[i], y[i], z[i]}; }
         const C &                   operator [] (int j) const           { return (&x)[j]; }
@@ -266,7 +268,8 @@ template<class T> struct vec<T,1>
                                     matrix(C x, C y, C z, C w)             : x(x), y(y), z(z), w(w) {}
         explicit                    matrix(T s)                            : x(s), y(s), z(s), w(s) {}
         template<class U> explicit  matrix(const matrix<U,M,4> & r)           : x(C(r.x)), y(C(r.y)), z(C(r.z)), w(C(r.w)) {}
-        T*							ptr()								{ return &(x[0][0]);}
+        T*							ptr()								{ return &(x.x);}
+        const T*					ptr() const							{ return &(x.x);}
         vec<T,M>*					vecPtr()							{ return &x[0];}
         vec<T,4>                    row(int i) const                    { return {x[i], y[i], z[i], w[i]}; }
         const C &                   operator [] (int j) const           { return (&x)[j]; }

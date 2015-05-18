@@ -20,58 +20,103 @@
  */
 #ifndef GLSHADER_H_
 #define GLSHADER_H_
-
 #include "AlloyContext.h"
-#include "AlloyMath.h"
-#include <string>
+#include "GLTexture.h"
 #include <vector>
-
-int printOglError(const char *file, int line);
-#define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
-
-
-namespace aly{
-
-// Shader helper structure.
-//
-// It simply handles shader compilation and linking.
+#include <string>
+namespace aly {
 class GLShader {
+private:
+	GLuint mVertexShaderHandle;
+	GLuint mFragmentShaderHandle;
+	GLuint mGeometryShaderHandle;
+	GLuint mProgramHandle;
+
 public:
 	// Default constructor.
 	GLShader();
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
-	bool Initialize(const std::string& pVertexShaderString,
+	void initialize(
+			std::vector<std::string>& attributes,
+			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
-			const std::string& pGeomShaderString,
-			std::vector<std::string>& attributes);
+			const std::string& pGeomShaderString="");
 
-	GLShader(const std::string& pVertexShaderString,
+	GLShader(
+			std::vector<std::string>& attributes,
+			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
-			const std::string& pGeomShaderString,
-			std::vector<std::string>& attributes):GLShader(){
-		Initialize(pVertexShaderString,pFragmentShaderString,pGeomShaderString,attributes);
+			const std::string& pGeomShaderString=""):GLShader(){
+		initialize(attributes,pVertexShaderString,pFragmentShaderString,pGeomShaderString);
 	}
-	void Uninitialize();
+	inline void set(const std::string& variable,float value){
+		glUniform1f(glGetUniformLocation(mProgramHandle,variable.c_str()),value);
+	}
+	inline void set(const std::string& variable,int value){
+		glUniform1i(glGetUniformLocation(mProgramHandle,variable.c_str()),value);
+	}
+	inline void set(const std::string& variable,uint32_t value){
+		glUniform1ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value);
+	}
+	inline void set(const std::string& variable,float1 value){
+		glUniform1f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x);
+	}
+	inline void set(const std::string& variable,int1 value){
+		glUniform1i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x);
+	}
+	inline void set(const std::string& variable,uint1 value){
+		glUniform1ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x);
+	}
+	inline void set(const std::string& variable,float2 value){
+		glUniform2f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y);
+	}
+	inline void set(const std::string& variable,int2 value){
+		glUniform2i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y);
+	}
+	inline void set(const std::string& variable,uint2 value){
+		glUniform2ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y);
+	}
+
+	inline void set(const std::string& variable,float3 value){
+		glUniform3f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z);
+	}
+	inline void set(const std::string& variable,int3 value){
+		glUniform3i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z);
+	}
+	inline void set(const std::string& variable,uint3 value){
+		glUniform3ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z);
+	}
+
+	inline void set(const std::string& variable,float4 value){
+		glUniform4f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z,value.w);
+	}
+	inline void set(const std::string& variable,int4 value){
+		glUniform4i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z,value.w);
+	}
+	inline void set(const std::string& variable,uint4 value){
+		glUniform4ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z,value.w);
+	}
+
+	inline void set(const std::string& variable,const float4x4& value){
+		glUniformMatrix4fv(glGetUniformLocation(mProgramHandle,variable.c_str()),1,false,value.ptr());
+	}
+	inline void set(const std::string& variable,const float3x3& value){
+		glUniformMatrix3fv(glGetUniformLocation(mProgramHandle,variable.c_str()),1,false,value.ptr());
+	}
+	inline void set(const std::string& variable,const float2x2& value){
+		glUniformMatrix2fv(glGetUniformLocation(mProgramHandle,variable.c_str()),1,false,value.ptr());
+	}
+	template<class T,int C,ImageType I> void set(const std::string& variable,const GLTexture<T,C,I>& value,int id){
+		glActiveTexture(GL_TEXTURE0+id);
+		glBindTexture(GL_TEXTURE_2D,value.handle);
+	}
 	virtual void begin();
 	virtual void end();
-	// Returns the program handle.
-	inline GLuint GetProgramHandle() const;
-
-private:
-	// Vertex shader handle.
-	GLuint mVertexShaderHandle;
-	// Fragment shader handle.
-	GLuint mFragmentShaderHandle;
-	// Fragment shader handle.
-	GLuint mGeometryShaderHandle;
-	// Program handle.
-	GLuint mProgramHandle;
-
+	inline GLuint GetProgramHandle() const {
+		return mProgramHandle;
+	}
 };
 
-inline GLuint GLShader::GetProgramHandle() const {
-	return mProgramHandle;
-}
 }
 #endif /* SHADER_H_ */

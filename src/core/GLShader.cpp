@@ -19,25 +19,12 @@
  * THE SOFTWARE.
  */
 #include "AlloyContext.h"
+#include "AlloyApplication.h"
 #include "GLShader.h"
 #include <iostream>
 
 
-int printOglError(const char *file, int line)
-{
 
-    GLenum glErr;
-    int    retCode = 0;
-
-    glErr = glGetError();
-    if (glErr != GL_NO_ERROR)
-    {
-        printf("glError in file %s @ line %d: %s\n",
-			     file, line, gluErrorString(glErr));
-        retCode = 1;
-    }
-    return retCode;
-}
 namespace aly{
 
 GLShader::GLShader() :
@@ -50,131 +37,69 @@ void GLShader::begin(){
 void GLShader::end(){
 	glUseProgram((GLuint)NULL);
 }
-GLShader::~GLShader(){
-	Uninitialize();
-}
-bool GLShader::Initialize(
+void GLShader::initialize(
+		std::vector<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
-		const std::string& pGeometryShaderString,
-		std::vector<std::string>& pAttributeLocations) {
-	if(pVertexShaderString.size()==0||pFragmentShaderString.size()==0)return false;
+		const std::string& pGeometryShaderString) {
+	if(pVertexShaderString.size()==0||pFragmentShaderString.size()==0)return throw std::runtime_error("No shader program specified.");
 	GLint lStatus;
 	char message[4096]="";
-	// Compile vertex shader.
 	mVertexShaderHandle = glCreateShader( GL_VERTEX_SHADER);
 	const char* code= pVertexShaderString.c_str();
 	glShaderSource(mVertexShaderHandle, 1,&code, 0);
 	glCompileShader(mVertexShaderHandle);
-
-	// Verify that shader compiled correctly.
 	glGetShaderiv(mVertexShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
-		// FIXME: We could add code to check why the shader didn't compile.
-		std::cerr << "Unable to compile vertex shader properly..." << std::endl;
 		glGetInfoLogARB(mVertexShaderHandle,sizeof(message),NULL,message);
-		std::cerr<<message<<std::endl;
-
-		glDeleteShader(mVertexShaderHandle);
-		mVertexShaderHandle = 0;
-		glDeleteShader(mFragmentShaderHandle);
-		mGeometryShaderHandle = 0;
-		glDeleteShader(mGeometryShaderHandle);
-		mGeometryShaderHandle = 0;
-		return false;
+		throw std::runtime_error(MakeString()<<"Unable to compile vertex shader ...\n"<<message);
 	}
-
-	// Compile fragment shader.
 	mFragmentShaderHandle = glCreateShader( GL_FRAGMENT_SHADER);
 	code= pFragmentShaderString.c_str();
 	glShaderSource(mFragmentShaderHandle, 1, &code, 0);
 	glCompileShader(mFragmentShaderHandle);
-
-	// Verify that shader compiled correctly.
 	glGetShaderiv(mFragmentShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
-		// FIXME: We could add code to check why the shader didn't compile.
-		std::cerr << "Unable to compile fragment shader properly..."
-				<< std::endl;
 		glGetInfoLogARB(mFragmentShaderHandle,sizeof(message),NULL,message);
-		std::cerr<<message<<std::endl;
-
-		glDeleteShader(mVertexShaderHandle);
-		mVertexShaderHandle = 0;
-		glDeleteShader(mFragmentShaderHandle);
-		mGeometryShaderHandle = 0;
-		glDeleteShader(mGeometryShaderHandle);
-		mGeometryShaderHandle = 0;
-		return false;
+		throw std::runtime_error(MakeString()<<"Unable to compile fragment shader ...\n"<<message);
 	}
-
-
 	if(pGeometryShaderString.length()>0){
-
-		// Compile Geometry shader.
 		mGeometryShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
 		code= pGeometryShaderString.c_str();
 		glShaderSource(mGeometryShaderHandle, 1,&code, 0);
 		glCompileShader(mGeometryShaderHandle);
-		// Verify that shader compiled correctly.
 		glGetShaderiv(mGeometryShaderHandle, GL_COMPILE_STATUS, &lStatus);
 		if (lStatus != GL_TRUE) {
-			std::cerr << "Unable to compile Geometry shader properly..."
-					<< std::endl;
 			glGetInfoLogARB(mGeometryShaderHandle,sizeof(message),NULL,message);
-			std::cerr<<message<<std::endl;
-
-			glDeleteShader(mVertexShaderHandle);
-			mVertexShaderHandle = 0;
-			glDeleteShader(mFragmentShaderHandle);
-			mGeometryShaderHandle = 0;
-			glDeleteShader(mGeometryShaderHandle);
-			mGeometryShaderHandle = 0;
-			return false;
+			throw std::runtime_error(MakeString()<<"Unable to compile geometry shader ...\n"<<message);
 		}
-
 	}
-	// Link shaders.
 	mProgramHandle = glCreateProgram();
 	glAttachShader(mProgramHandle, mVertexShaderHandle);
 	glAttachShader(mProgramHandle, mFragmentShaderHandle);
 	if(mGeometryShaderHandle>0)glAttachShader(mProgramHandle, mGeometryShaderHandle);
-
-	// Bind the attribute location for all vertices.
 	int lIndex = 0;
 	for(std::string str:pAttributeLocations) {
 		glBindAttribLocation(mProgramHandle, lIndex,str.c_str());
 		++lIndex;
 	}
 	glLinkProgram(mProgramHandle);
-
-	// Verify that program linked correctly.
 	glGetProgramiv(mProgramHandle, GL_LINK_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
-
-		// FIXME: We could add code to check why the shader didn't link.
-		std::cerr << "Unable to link shaders properly..." << std::endl;
 		glGetInfoLogARB(mProgramHandle,sizeof(message),NULL,message);
-		std::cerr<<message<<std::endl;
-		Uninitialize();
-		return false;
+		throw std::runtime_error(MakeString()<<"Unable to link shaders ...\n"<<message);
 	}
-	return true;
 }
 
-void GLShader::Uninitialize() {
+GLShader::~GLShader() {
+	Application::getContext()->begin();
 	glDetachShader(mProgramHandle, mFragmentShaderHandle);
 	glDeleteShader(mFragmentShaderHandle);
-	mFragmentShaderHandle = 0;
-
 	glDetachShader(mProgramHandle, mVertexShaderHandle);
 	glDeleteShader(mVertexShaderHandle);
-	mVertexShaderHandle = 0;
-
 	glDetachShader(mProgramHandle, mGeometryShaderHandle);
 	glDeleteShader(mGeometryShaderHandle);
-	mGeometryShaderHandle = 0;
 	glDeleteProgram(mProgramHandle);
-	mProgramHandle = 0;
+	Application::getContext()->end();
 }
-} /* namespace imagesci */
+}
