@@ -44,6 +44,7 @@ void GLShader::initialize(
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {
 	if(pVertexShaderString.size()==0||pFragmentShaderString.size()==0)return throw std::runtime_error("No shader program specified.");
+	Application::getContext()->begin();
 	GLint lStatus;
 	char message[4096]="";
 	mVertexShaderHandle = glCreateShader( GL_VERTEX_SHADER);
@@ -53,6 +54,7 @@ void GLShader::initialize(
 	glGetShaderiv(mVertexShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mVertexShaderHandle,sizeof(message),NULL,message);
+		Application::getContext()->end();
 		throw std::runtime_error(MakeString()<<"Unable to compile vertex shader ...\n"<<message);
 	}
 	mFragmentShaderHandle = glCreateShader( GL_FRAGMENT_SHADER);
@@ -62,6 +64,7 @@ void GLShader::initialize(
 	glGetShaderiv(mFragmentShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mFragmentShaderHandle,sizeof(message),NULL,message);
+		Application::getContext()->end();
 		throw std::runtime_error(MakeString()<<"Unable to compile fragment shader ...\n"<<message);
 	}
 	if(pGeometryShaderString.length()>0){
@@ -72,6 +75,7 @@ void GLShader::initialize(
 		glGetShaderiv(mGeometryShaderHandle, GL_COMPILE_STATUS, &lStatus);
 		if (lStatus != GL_TRUE) {
 			glGetInfoLogARB(mGeometryShaderHandle,sizeof(message),NULL,message);
+			Application::getContext()->end();
 			throw std::runtime_error(MakeString()<<"Unable to compile geometry shader ...\n"<<message);
 		}
 	}
@@ -88,8 +92,10 @@ void GLShader::initialize(
 	glGetProgramiv(mProgramHandle, GL_LINK_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mProgramHandle,sizeof(message),NULL,message);
+		Application::getContext()->end();
 		throw std::runtime_error(MakeString()<<"Unable to link shaders ...\n"<<message);
 	}
+	Application::getContext()->end();
 }
 
 GLShader::~GLShader() {
