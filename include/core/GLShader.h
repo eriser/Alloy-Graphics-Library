@@ -50,62 +50,80 @@ public:
 			const std::string& pGeomShaderString=""):GLShader(){
 		initialize(attributes,pVertexShaderString,pFragmentShaderString,pGeomShaderString);
 	}
-	inline void set(const std::string& variable,float value){
+	inline GLShader& set(const std::string& variable,float value){
 		glUniform1f(glGetUniformLocation(mProgramHandle,variable.c_str()),value);
+		return *this;
 	}
-	inline void set(const std::string& variable,int value){
+	inline GLShader& set(const std::string& variable,int value){
 		glUniform1i(glGetUniformLocation(mProgramHandle,variable.c_str()),value);
+		return *this;
 	}
-	inline void set(const std::string& variable,uint32_t value){
+	inline GLShader& set(const std::string& variable,uint32_t value){
 		glUniform1ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value);
+		return *this;
 	}
-	inline void set(const std::string& variable,float1 value){
+	inline GLShader& set(const std::string& variable,float1 value){
 		glUniform1f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x);
+		return *this;
 	}
-	inline void set(const std::string& variable,int1 value){
+	inline GLShader& set(const std::string& variable,int1 value){
 		glUniform1i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x);
+		return *this;
 	}
-	inline void set(const std::string& variable,uint1 value){
+	inline GLShader& set(const std::string& variable,uint1 value){
 		glUniform1ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x);
+		return *this;
 	}
-	inline void set(const std::string& variable,float2 value){
+	inline GLShader& set(const std::string& variable,float2 value){
 		glUniform2f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y);
+		return *this;
 	}
-	inline void set(const std::string& variable,int2 value){
+	inline GLShader& set(const std::string& variable,int2 value){
 		glUniform2i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y);
+		return *this;
 	}
-	inline void set(const std::string& variable,uint2 value){
+	inline GLShader& set(const std::string& variable,uint2 value){
 		glUniform2ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y);
+		return *this;
 	}
 
-	inline void set(const std::string& variable,float3 value){
+	inline GLShader& set(const std::string& variable,float3 value){
 		glUniform3f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z);
+		return *this;
 	}
-	inline void set(const std::string& variable,int3 value){
+	inline GLShader& set(const std::string& variable,int3 value){
 		glUniform3i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z);
+		return *this;
 	}
-	inline void set(const std::string& variable,uint3 value){
+	inline GLShader& set(const std::string& variable,uint3 value){
 		glUniform3ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z);
+		return *this;
 	}
 
-	inline void set(const std::string& variable,float4 value){
+	inline GLShader& set(const std::string& variable,float4 value){
 		glUniform4f(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z,value.w);
+		return *this;
 	}
-	inline void set(const std::string& variable,int4 value){
+	inline GLShader& set(const std::string& variable,int4 value){
 		glUniform4i(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z,value.w);
+		return *this;
 	}
-	inline void set(const std::string& variable,uint4 value){
+	inline GLShader& set(const std::string& variable,uint4 value){
 		glUniform4ui(glGetUniformLocation(mProgramHandle,variable.c_str()),value.x,value.y,value.z,value.w);
+		return *this;
 	}
 
-	inline void set(const std::string& variable,const float4x4& value){
+	inline GLShader& set(const std::string& variable,const float4x4& value){
 		glUniformMatrix4fv(glGetUniformLocation(mProgramHandle,variable.c_str()),1,false,value.ptr());
+		return *this;
 	}
-	inline void set(const std::string& variable,const float3x3& value){
+	inline GLShader& set(const std::string& variable,const float3x3& value){
 		glUniformMatrix3fv(glGetUniformLocation(mProgramHandle,variable.c_str()),1,false,value.ptr());
+		return *this;
 	}
-	inline void set(const std::string& variable,const float2x2& value){
+	inline GLShader& set(const std::string& variable,const float2x2& value){
 		glUniformMatrix2fv(glGetUniformLocation(mProgramHandle,variable.c_str()),1,false,value.ptr());
+		return *this;
 	}
 	template<class T,int C,ImageType I> void set(const std::string& variable,const GLTexture<T,C,I>& value,int id){
 		glActiveTexture(GL_TEXTURE0+id);
