@@ -130,6 +130,8 @@ namespace aly{
 		std::cout<<abs<<std::endl;
 
 		std::cout<<pt<<std::endl;
+		Region r1;
+		Region r2("region 2");
 	}
 	bool SANITY_CHECK_FILE_IO(){
 		try {

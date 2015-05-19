@@ -20,7 +20,8 @@
  */
 #include "AlloyUI.h"
 namespace aly{
-	Region::Region():position(coord_px(0,0)),dimensions(percent(1,1)){
+	uint64_t Region::REGION_COUNTER=0;
+	Region::Region(const std::string& name):position(coord_px(0,0)),dimensions(percent(1,1)),name(name){
 
 	}
 	void Region::pack(const int2& dims,const double2& dpmm){

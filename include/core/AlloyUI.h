@@ -99,12 +99,18 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_px & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_mm & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
 
+
     struct Region {
+    private:
+    	static uint64_t REGION_COUNTER;
+
+    public:
     	box2i bounds;
     	placement position;
     	placement dimensions;
+    	const std::string name;
     	std::list<std::shared_ptr<Region>> children;
-    	Region();
+    	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
     	void pack(const int2& dims,const double2& dpmm);
     	void pack(AlloyContext* context);
     	void pack();
