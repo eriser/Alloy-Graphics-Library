@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <png.h>
 #include <fstream>
-#include "../../include/core/AlloyFileUtil.h"
-#include "../../include/core/stb_image.h"
+#include "AlloyFileUtil.h"
+#include "stb_image.h"
 using namespace std;
 
 namespace aly {

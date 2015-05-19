@@ -38,12 +38,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "../../include/core/AlloyApplication.h"
+#include "AlloyApplication.h"
+
 using namespace aly;
 
 int main()
 {
 	try{
+		SANITY_CHECK_UI();
 		Application(640,480).run();
 		return 0;
 	} catch(std::exception& e){

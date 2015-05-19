@@ -4,10 +4,11 @@
  *  Created on: May 15, 2015
  *      Author: blake
  */
-#include "../../include/core/AlloyMath.h"
-#include "../../include/core/AlloyImage.h"
-#include "../../include/core/AlloyVector.h"
-#include "../../include/core/AlloyFileUtil.h"
+#include "AlloyMath.h"
+#include "AlloyImage.h"
+#include "AlloyVector.h"
+#include "AlloyFileUtil.h"
+#include "AlloyUI.h"
 #include <iostream>
 namespace aly{
 
@@ -120,6 +121,15 @@ namespace aly{
 			std::cout<<e.what()<<std::endl;
 			return false;
 		}
+	}
+	bool SANITY_CHECK_UI(){
+		percent rel(float2(0.5f,0.75f));
+		coord_dp abs(int2(40,30));
+		percent_dp pt(float2(0.5f,0.75f),int2(40,20));
+		std::cout<<rel<<std::endl;
+		std::cout<<abs<<std::endl;
+
+		std::cout<<pt<<std::endl;
 	}
 	bool SANITY_CHECK_FILE_IO(){
 		try {

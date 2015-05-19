@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-#include "../../include/core/AlloyApplication.h"
+#include "AlloyApplication.h"
 namespace aly {
 std::unique_ptr<AlloyContext> Application::context;
 void Application::initInternal() {

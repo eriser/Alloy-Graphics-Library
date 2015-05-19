@@ -23,7 +23,7 @@
 #define ALLOYAPPLICATION_H_
 
 #include "AlloyContext.h"
-
+#include "AlloyUI.h"
 #include "AlloyCommon.h"
 
 #include <memory>

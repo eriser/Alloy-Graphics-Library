@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-#include "../../include/core/AlloySimulation.h"
+#include "AlloySimulation.h"
 #include <sstream>
 #include <iostream>
 namespace aly {
