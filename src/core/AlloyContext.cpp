@@ -51,8 +51,7 @@ namespace aly{
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-			GLFWmonitor* monitor=glfwGetPrimaryMonitor();
-			window = glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
+			window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 			if (!window) {
 				glfwTerminate();
 
@@ -84,6 +83,8 @@ namespace aly{
 			glBindVertexArray(0);
 
 			int widthMM, heightMM;
+
+			GLFWmonitor* monitor=glfwGetWindowMonitor(window);
 			const GLFWvidmode* mode =glfwGetVideoMode(monitor);
 			glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
 			dpmm = double2(mode->width / (double)widthMM ,mode->height / (double)heightMM );
