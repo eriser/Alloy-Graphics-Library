@@ -70,8 +70,8 @@ template<class T,int C,ImageType I> void GLTexture<T,C,I>::draw(AlloyContext* co
 		glEnable(GL_BLEND);
 		glActiveTexture(GL_TEXTURE0);
 		glUniform1i(glGetUniformLocation(shader->GetProgramHandle(),"textureImage"),0);;
-		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_POS"),bounds.pt.x,bounds.pt.y);
-		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_DIMS"),bounds.dims.x,bounds.dims.y);
+		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_POS"),bounds.position.x,bounds.position.y);
+		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_DIMS"),bounds.dimensions.x,bounds.dimensions.y);
 		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"SCREEN_DIMS"),context->width(),context->height());
 		glUniform1i(glGetUniformLocation(shader->GetProgramHandle(),"showBackground"),0);
 		glBindTexture(GL_TEXTURE_2D,textureId);

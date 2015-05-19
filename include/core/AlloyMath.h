@@ -669,21 +669,19 @@ template<class T> struct vec<T,1>
 	    return result;
 	}
     template<class T,int M> struct box{
-    	vec<T,M> pt;
-    	vec<T,M> dims;
-    	box():pt((T)0),dims((T)0){
+    	vec<T,M> position;
+    	vec<T,M> dimensions;
+    	box():position((T)0),dimensions((T)0){
     	}
-       	box(vec<T,M> pt,vec<T,M> dims):pt(pt),dims(dims){
+
+       	box(vec<T,M> pt,vec<T,M> dims):position(pt),dimensions(dims){
         }
     	bool contains(const vec<T,M>& qt){
-    		for(int m=0;m<M;m++)if(qt[m]<pt[m]||qt[m]>=pt[m]+dims[m])return false;
+    		for(int m=0;m<M;m++)if(qt[m]<position[m]||qt[m]>=position[m]+dimensions[m])return false;
     		return true;
     	}
     };
-
-    template<class T,int M> box<T,M> MakeBox(const vec<T,M>& min,const vec<T,M>& dims){
-    	return box<T,M>(min,min+dims);
-    }
+    template<class C, class R,class T,int M> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const box<T,M> & v) { return ss << "[min: "<<v.pt<<",max: "<<v.pt+v.dims<<",dimensions: ",v.dims<<"]"; }
     /////////////////////////
     // Convenience aliases //
     /////////////////////////

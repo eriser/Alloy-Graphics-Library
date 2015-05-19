@@ -47,10 +47,10 @@ public:
 	}
 
 	inline void setBounds(int x,int y,int w,int h){
-		bounds.pt.x=x;
-		bounds.pt.y=y;
-		bounds.dims.x=w;
-		bounds.dims.y=h;
+		bounds.position.x=x;
+		bounds.position.y=y;
+		bounds.dimensions.x=w;
+		bounds.dimensions.y=h;
 	}
 };
 

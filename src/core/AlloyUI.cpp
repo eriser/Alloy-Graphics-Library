@@ -18,47 +18,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#ifndef ALLOYCONTEXT_H_
-#define ALLOYCONTEXT_H_
-#define GLFW_INCLUDE_GLU
-
-#include <GL/glew.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#include <GLFW/glfw3.h>
-#include <mutex>
-#include <memory>
-#include "nanovg.h"
-#include "AlloyMath.h"
-int printOglError(const char *file, int line);
-#define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
-
-
+#include "AlloyUI.h"
 namespace aly{
-	struct GLGlobalImage{
-		GLuint vao=0;
-		GLuint positionBuffer=0;
-		GLuint uvBuffer=0;
-	};
-	struct AlloyContext {
-		private:
-			static std::mutex contextLock;
-			GLFWwindow* current;
-		public:
-			GLGlobalImage globalImage;
-			NVGcontext* nvgContext;
-			GLFWwindow* window;
-			box2i viewport;
-			double2 dpmm;
-			inline int width(){return viewport.dimensions.x;}
-			inline int height(){return viewport.dimensions.y;}
+	Region::Region():position(coord_px(0,0)),dimensions(percent(1,1)){
 
-			AlloyContext(int width,int height,const std::string& title);
-			bool begin();
-			bool end();
-			void makeCurrent();
-			~AlloyContext();
-	};
-}
-#endif /* ALLOYCONTEXT_H_ */
+	}
+	void Region::pack(const int2& dims,const double2& dpmm){
+		bounds.position=position.toPixles(dims,dpmm);
+		bounds.dimensions=dimensions.toPixles(dims,dpmm);
+		for(std::shared_ptr<Region>& region:children){
+			region->pack(dims,dpmm);
+		}
+	}
+	void Region::pack(AlloyContext* context){
+		bounds.position=position.toPixles(context->viewport.dimensions,context->dpmm);
+		bounds.dimensions=dimensions.toPixles(context->viewport.dimensions,context->dpmm);
+		for(std::shared_ptr<Region>& region:children){
+			region->pack(bounds.dimensions,context->dpmm);
+		}
+	}
+	void Region::pack(){
+		pack(Application::getContext());
+	}
+};
+
+
+

@@ -22,74 +22,92 @@
 #ifndef ALLOYUI_H_
 #define ALLOYUI_H_
 #include "AlloyMath.h"
+#include "AlloyContext.h"
+#include "AlloyApplication.h"
 #include <iostream>
+#include <memory>
+#include <list>
 namespace aly{
 	bool SANITY_CHECK_UI();
-	template<class T> struct screen_unit{
-		T position;
-		screen_unit(const T& t):position(t){}
-		virtual int2 toPixles(int screenWidth,int screenHeight,double dpi)=0;
-		virtual inline ~screen_unit(){};
+	const double MM_TO_PIX=1.0;
+	const double DP_TO_PIX=1.0/160.0;
+
+	struct placement{
+		virtual int2 toPixles(int2 screenSize,double2 dpmm){return int2();};
+		virtual inline ~placement(){};
 	};
-	struct coord_dp : public screen_unit<int2>{
-		coord_dp(const int x,const int y):screen_unit(int2(x,y)){}
-		coord_dp(const int2& t):screen_unit(t){}
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+	template<class T> struct placement_t : public placement{
+		T value;
+		placement_t(const T& t):value(t){}
+	};
+	struct coord_dp : public placement_t<int2>{
+		coord_dp(const int x,const int y):placement_t(int2(x,y)){}
+		coord_dp(const int2& t):placement_t(t){}
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return int2(std::floor(DP_TO_PIX*dpmm.x*value.x),std::floor(DP_TO_PIX*dpmm.y*value.y));
 		}
 	};
 
-	struct coord_px : public screen_unit<int2>{
-		coord_px(const int x,const int y):screen_unit(int2(x,y)){}
-		coord_px(const int2& t):screen_unit(t){}
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+	struct coord_px : public placement_t<int2>{
+		coord_px(const int x,const int y):placement_t(int2(x,y)){}
+		coord_px(const int2& t):placement_t(t){}
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return value;
 		}
 	};
-	struct coord_mm : public screen_unit<float2>{
-		coord_mm(const float x,const float y):screen_unit(float2(x,y)){}
-		coord_mm(const float2& t):screen_unit(t){}
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+	struct coord_mm : public placement_t<float2>{
+		coord_mm(const float x,const float y):placement_t(float2(x,y)){}
+		coord_mm(const float2& t):placement_t(t){}
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return int2(std::floor(MM_TO_PIX*dpmm.x*value.x),std::floor(MM_TO_PIX*dpmm.y*value.y));
 		}
 	};
-	struct percent: public screen_unit<float2>{
-		percent(const float x,const float y):screen_unit(float2(x,y)){}
-		percent(const float2& t):screen_unit(t){}
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+	struct percent: public placement_t<float2>{
+		percent(const float x,const float y):placement_t(float2(x,y)){}
+		percent(const float2& t):placement_t(t){}
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return int2(std::floor(screenSize.x*value.x),std::floor(screenSize.y*value.y));
 		}
 	};
-	struct percent_dp : public screen_unit<std::pair<percent,coord_dp>>{
-		percent_dp(const float2& t,const int2& v):screen_unit(std::pair<percent,coord_dp>(t,v)){}
+	struct percent_dp : public placement_t<std::pair<percent,coord_dp>>{
+		percent_dp(const float2& t,const int2& v):placement_t(std::pair<percent,coord_dp>(t,v)){}
 		percent_dp(const float px,const float py,const int dx,const int dy):percent_dp(float2(px,py),int2(dx,dy)){}
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return value.first.toPixles(screenSize,dpmm)+value.second.toPixles(screenSize,dpmm);
 		}
 	};
-	struct percent_px : public screen_unit<std::pair<percent,coord_px>>{
-		percent_px(const float2& t,const int2& v):screen_unit(std::pair<percent,coord_px>(t,v)){}
+	struct percent_px : public placement_t<std::pair<percent,coord_px>>{
+		percent_px(const float2& t,const int2& v):placement_t(std::pair<percent,coord_px>(t,v)){}
 		percent_px(const float px,const float py,const int dx,const int dy):percent_px(float2(px,py),int2(dx,dy)){}
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return value.first.toPixles(screenSize,dpmm)+value.second.toPixles(screenSize,dpmm);
 		}
 	};
-	struct percent_mm : public screen_unit<std::pair<percent,coord_mm>>{
-		percent_mm(const float2& t,const float2& v):screen_unit(std::pair<percent,coord_mm>(t,v)){}
+	struct percent_mm : public placement_t<std::pair<percent,coord_mm>>{
+		percent_mm(const float2& t,const float2& v):placement_t(std::pair<percent,coord_mm>(t,v)){}
 		percent_mm(const float px,const float py,const float dx,const float dy):percent_mm(float2(px,py),float2(dx,dy)){}
-
-		int2 toPixles(int screenWidth,int screenHeight,double dpi){
-			return int2();
+		int2 toPixles(int2 screenSize,double2 dpmm){
+			return value.first.toPixles(screenSize,dpmm)+value.second.toPixles(screenSize,dpmm);
 		}
 	};
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_dp & v) { return ss << v.position; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_px & v) { return ss << v.position; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_mm & v) { return ss << v.position; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent & v) { return ss << v.position; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_dp & v) { return ss << v.value; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_px & v) { return ss << v.value; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_mm & v) { return ss << v.value; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent & v) { return ss << v.value; }
 
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_dp & v) { return ss <<"["<< v.position.first<<","<<v.position.second<<"]"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_px & v) { return ss <<"["<< v.position.first<<","<<v.position.second<<"]"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_mm & v) { return ss <<"["<< v.position.first<<","<<v.position.second<<"]"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_dp & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_px & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_mm & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
 
+    struct Region {
+    	box2i bounds;
+    	placement position;
+    	placement dimensions;
+    	std::list<std::shared_ptr<Region>> children;
+    	Region();
+    	void pack(const int2& dims,const double2& dpmm);
+    	void pack(AlloyContext* context);
+    	void pack();
+    };
 }
 #endif /* ALLOYUI_H_ */

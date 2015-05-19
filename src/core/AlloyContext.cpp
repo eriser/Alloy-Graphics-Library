@@ -51,7 +51,8 @@ namespace aly{
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-			window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+			GLFWmonitor* monitor=glfwGetPrimaryMonitor();
+			window = glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
 			if (!window) {
 				glfwTerminate();
 
@@ -81,6 +82,11 @@ namespace aly{
 				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2* 4,TextureCoords, GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
+
+			int widthMM, heightMM;
+			const GLFWvidmode* mode =glfwGetVideoMode(monitor);
+			glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
+			dpmm = double2(mode->width / (double)widthMM ,mode->height / (double)heightMM );
 		}
 		bool AlloyContext::begin(){
 			if(current==nullptr){
