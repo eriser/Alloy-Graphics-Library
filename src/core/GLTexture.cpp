@@ -21,10 +21,11 @@
 
 #include "AlloyContext.h"
 #include "AlloyMath.h"
+#include "AlloyApplication.h"
 #include "GLShader.h"
 
 namespace aly {
-template<class T,int C,ImageType I> std::unique_ptr<GLShader> GLTexture<T,C,I>::defaultShader;
+/*
 template<class T,int C,ImageType I> GLShader* GLTexture<T,C,I>::getShader(){
 	if(imageShader==NULL){
 		if(defaultShader.get()==nullptr){
@@ -58,38 +59,11 @@ gl_FragColor=rgba;
 	}
 	return imageShader;
 }
-template<class T,int C,ImageType I> void GLTexture<T,C,I>::draw(AlloyContext* context){
-	GLuint& vao=context->globalImage.vao;
-	GLuint& positionBuffer=context->globalImage.positionBuffer;
-	GLuint& uvBuffer=context->globalImage.uvBuffer;
-	glBindVertexArray (vao);
-	GLShader* shader=NULL;
-	if(enableShader){
-		shader=getShader();
-		shader->begin();
-		glEnable(GL_BLEND);
-		glActiveTexture(GL_TEXTURE0);
-		glUniform1i(glGetUniformLocation(shader->GetProgramHandle(),"textureImage"),0);;
-		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_POS"),bounds.position.x,bounds.position.y);
-		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"IMG_DIMS"),bounds.dimensions.x,bounds.dimensions.y);
-		glUniform2f(glGetUniformLocation(shader->GetProgramHandle(),"SCREEN_DIMS"),context->width(),context->height());
-		glUniform1i(glGetUniformLocation(shader->GetProgramHandle(),"showBackground"),0);
-		glBindTexture(GL_TEXTURE_2D,textureId);
-	}
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	if(enableShader){
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-	glDrawArrays(GL_QUADS,0,4);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER,0);
-	if(enableShader){
-		glBindTexture(GL_TEXTURE_2D, 0);
-		shader->end();
-	}
+*/
+template<class T,int C,ImageType I> GLTexture<T,C,I>::GLTexture(int x,int y,int width,int height,int imageWidth,int imageHeight):
+		GLTexture<T,C,I>(x,y,width,height,imageWidth,imageHeight,Application::getContext()){
+}
+template<class T,int C,ImageType I> GLTexture<T,C,I>::GLTexture(const Image<T,C,I>& image):
+		GLTexture<T,C,I>(image,Application::getContext()){
 }
 }

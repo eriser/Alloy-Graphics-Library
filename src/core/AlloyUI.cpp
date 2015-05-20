@@ -34,10 +34,10 @@ namespace aly{
 		}
 	}
 	void Composite::pack(){
-		pack(Application::getContext());
+		pack(Application::getContext().get());
 	}
 	void Composite::draw(){
-		draw(Application::getContext());
+		draw(Application::getContext().get());
 	}
 	void Composite::pack(const int2& dims,const double2& dpmm){
 		bounds.position=position.toPixles(dims,dpmm);

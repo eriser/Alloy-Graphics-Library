@@ -38,7 +38,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "AlloyApplication.h"
+#include "Alloy.h"
 
 using namespace aly;
 
@@ -46,7 +46,9 @@ int main()
 {
 	try{
 		SANITY_CHECK_UI();
-		Application(640,480).run();
+		Application app(640,480);
+		std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
+		app.run();
 		return 0;
 	} catch(std::exception& e){
 		std::cout<<e.what()<<std::endl;

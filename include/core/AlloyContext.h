@@ -47,7 +47,7 @@ namespace aly{
 	enum class VerticalAlignment { Top=NVG_ALIGN_TOP, Middle=NVG_ALIGN_MIDDLE, Bottom=NVG_ALIGN_BOTTOM, Baseline=NVG_ALIGN_BASELINE };
     enum class Shape { Rectangle, Ellipse};
     enum class Orientation { Horizontal, Vertical };
-	enum class FontType {Bold,Italic,Normal,Icon};
+	enum class FontType {Normal=0,Bold=1,Italic=2,Icon=3};
     class AlloyContext;
 	struct Font{
 		int handle;
@@ -55,12 +55,12 @@ namespace aly{
 		const std::string file;
 		Font(const std::string& name,const std::string& file,AlloyContext* context);
 	};
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss << v.name<<" ["<<v.handle<<"] ["<<v.file<<"]"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
 
 	struct AlloyContext {
 		private:
 			std::list<std::string> assetDirectories;
-			std::map<FontType,std::shared_ptr<Font>> fonts;
+			std::shared_ptr<Font> fonts[4];
 			static std::mutex contextLock;
 			GLFWwindow* current;
 		public:
@@ -69,16 +69,22 @@ namespace aly{
 			GLFWwindow* window;
 			box2i viewport;
 			double2 dpmm;
+			std::list<std::string>& getAssetDirectories(){return assetDirectories;}
 			void addAssetDirectory(const std::string& dir);
-			std::shared_ptr<Font>& loadFont(FontType type,const std::string& name,const std::string& file);
+			std::shared_ptr<Font>& loadFont(FontType type,const std::string& name,const std::string& partialFile);
 			std::string getFullPath(const std::string& partialFile);
 			inline int width(){return viewport.dimensions.x;}
 			inline int height(){return viewport.dimensions.y;}
 			inline const char* getFontName(FontType type){
-				return fonts[type]->name.c_str();
+				if(fonts[static_cast<int>(type)].get()==nullptr)throw std::runtime_error("Font type not found.");
+				return fonts[static_cast<int>(type)]->name.c_str();
 			}
 			inline int getFontHandle(FontType type){
-				return fonts[type]->handle;
+				if(fonts[static_cast<int>(type)].get()==nullptr)throw std::runtime_error("Font type not found.");
+				return fonts[static_cast<int>(type)]->handle;
+			}
+			inline std::shared_ptr<Font>& getFont(FontType type){
+				return fonts[static_cast<int>(type)];
 			}
 			AlloyContext(int width,int height,const std::string& title);
 			bool begin();

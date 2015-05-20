@@ -48,8 +48,8 @@ namespace aly{
 		assetDirectories.push_back(dir);
 	}
 	std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,const std::string& name,const std::string& file){
-		fonts[type]=std::shared_ptr<Font>(new Font(name,getFullPath(file),this));
-		return fonts[type];
+		fonts[static_cast<int>(type)]=std::shared_ptr<Font>(new Font(name,getFullPath(file),this));
+		return fonts[static_cast<int>(type)];
 	}
 	std::string AlloyContext::getFullPath(const std::string& partialFile){
 		for (std::string& dir : assetDirectories)
@@ -138,6 +138,7 @@ namespace aly{
 			std::lock_guard<std::mutex> lock(contextLock);
 			glfwMakeContextCurrent(window);
 		}
+
 		AlloyContext::~AlloyContext(){
 			std::lock_guard<std::mutex> lock(contextLock);
 			GLFWwindow* current=glfwGetCurrentContext();

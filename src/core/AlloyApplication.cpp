@@ -20,8 +20,9 @@
  */
 
 #include "AlloyApplication.h"
+#include "AlloyFileUtil.h"
 namespace aly {
-std::unique_ptr<AlloyContext> Application::context;
+std::shared_ptr<AlloyContext> Application::context;
 void Application::initInternal() {
 	glfwSetWindowUserPointer(context->window, this);
 	glfwSetWindowRefreshCallback(context->window,
@@ -41,9 +42,22 @@ void Application::initInternal() {
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 }
+std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(const std::string& partialFile){
+	ImageRGBA image;
+	ReadImageFromFile(context->getFullPath(partialFile),image);
+	return std::shared_ptr<GLTextureRGBA>(new GLTextureRGBA(image,context));
+}
+std::shared_ptr<GLTextureRGB> Application::loadTextureRGB(const std::string& partialFile){
+	ImageRGB image;
+	ReadImageFromFile(context->getFullPath(partialFile),image);
+	return std::shared_ptr<GLTextureRGB>(new GLTextureRGB(image,context));
+}
+std::shared_ptr<Font> Application::loadFont(FontType type,const std::string& name,const std::string& file){
+	return std::shared_ptr<Font>(new Font(name,context->getFullPath(file),context.get()));
+}
 Application::Application(int w, int h, const std::string& title) {
 	if (context.get() == nullptr) {
-		context = std::unique_ptr<AlloyContext>(new AlloyContext(w, h, title));
+		context = std::shared_ptr<AlloyContext>(new AlloyContext(w, h, title));
 	} else {
 		throw std::runtime_error(
 				"Cannot instantiate more than one application.");

@@ -25,6 +25,8 @@
 #include "AlloyContext.h"
 #include "AlloyUI.h"
 #include "AlloyCommon.h"
+#include "GLShader.h"
+#include "GLFrameBuffer.h"
 
 #include <memory>
 #include <list>
@@ -32,15 +34,15 @@ namespace aly{
 	class Application{
 	private:
 		float frameRate=0.0f;
-		static std::unique_ptr<AlloyContext> context;
+		static std::shared_ptr<AlloyContext> context;
 		void drawUI();
 		void draw();
 		std::list<std::exception_ptr> caughtExceptions;
 		void initInternal();
 	public:
-		static inline AlloyContext* getContext(){
+		static inline std::shared_ptr<AlloyContext>& getContext(){
 			if(context.get()==nullptr)throw std::runtime_error("Cannot get GLFW / NanoVG context.");
-			return context.get();
+			return context;
 		}
 		virtual void onWindowRefresh(){};
 		virtual void onWindowFocus(int focused){};
@@ -59,6 +61,10 @@ namespace aly{
 		}
 		Application(int w,int h,const std::string& title="");
 		float getFrameRate()const {return frameRate;}
+		std::shared_ptr<GLTextureRGB> loadTextureRGB(const std::string& partialFile);
+		std::shared_ptr<GLTextureRGBA> loadTextureRGBA(const std::string& partialFile);
+		std::shared_ptr<Font> loadFont(FontType type,const std::string& name,const std::string& partialFile);
+
 		virtual void draw(const DrawEvent3D& event){}
 		virtual void draw(const DrawEvent2D& event){}
 		virtual bool init(){return true;};

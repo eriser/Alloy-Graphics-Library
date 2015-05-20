@@ -25,26 +25,21 @@
 #include <list>
 #include <memory>
 #include "AlloyContext.h"
-#include "AlloyApplication.h"
 #include "AlloyMath.h"
 namespace aly {
 class GLComponentGroup;
 class GLComponent {
 protected:
-	virtual void draw(AlloyContext* context)=0;
-	virtual void update(AlloyContext* context)=0;
+	std::shared_ptr<AlloyContext> context=nullptr;
+
 public:
 	friend class GLComponentGroup;
 	box2i bounds;
-	virtual ~GLComponent()=0;
-	GLComponent(){}
-	GLComponent(const box2i& b):bounds(b){}
-	void draw(){
-		draw(Application::getContext());
-	}
-	void update(){
-		update(Application::getContext());
-	}
+	virtual void draw()=0;
+	virtual void update()=0;
+	virtual inline ~GLComponent(){};
+	GLComponent(std::shared_ptr<AlloyContext>& context):context(context){}
+	GLComponent(const box2i& b,AlloyContext* context):bounds(b),context(context){}
 
 	inline void setBounds(int x,int y,int w,int h){
 		bounds.position.x=x;
@@ -57,19 +52,18 @@ public:
 class GLComponentGroup: protected GLComponent {
 protected:
 	std::list<std::unique_ptr<GLComponent>> components;
-	virtual void draw(AlloyContext* context) {
+	virtual void draw() {
 		for (std::unique_ptr<GLComponent>& comp : components) {
-			comp->draw(context);
+			comp->draw();
 		}
 	}
-	virtual void update(AlloyContext* context) {
+	virtual void update() {
 		for (std::unique_ptr<GLComponent>& comp : components) {
-			comp->update(context);
+			comp->update();
 		}
 	}
 public:
-	GLComponentGroup() :
-			GLComponent() {
+	GLComponentGroup(std::shared_ptr<AlloyContext>& context) :GLComponent(context) {
 
 	}
 	virtual ~GLComponentGroup()=0;

@@ -300,15 +300,6 @@ template<class T> struct vec<T,1>
     template<class T, int M, class F> T reduce(const matrix<T,M,3> & m, F f) { return f(f(reduce(m.x, f), reduce(m.y, f)), reduce(m.z, f)); }
     template<class T, int M, class F> T reduce(const matrix<T,M,4> & m, F f) { return f(f(f(reduce(m.x, f), reduce(m.y, f)), reduce(m.z, f)), reduce(m.w, f)); }
 
-    ////////////////////////
-    // Operator overloads //
-    ////////////////////////
-
-    // Unary operators return a vector or matrix of the original type, by applying the operator to each element
-    template<class T> T operator ! (const T & v) { return map(v, [](elem_t<T> a) { return !a; }); }
-    template<class T> T operator ~ (const T & v) { return map(v, [](elem_t<T> a) { return ~a; }); }
-
-
     /////////////////////////////////
     // General aggregate functions //
     /////////////////////////////////
