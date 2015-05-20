@@ -74,6 +74,12 @@ namespace aly{
 			std::string getFullPath(const std::string& partialFile);
 			inline int width(){return viewport.dimensions.x;}
 			inline int height(){return viewport.dimensions.y;}
+			inline const char* getFontName(FontType type){
+				return fonts[type]->name.c_str();
+			}
+			inline int getFontHandle(FontType type){
+				return fonts[type]->handle;
+			}
 			AlloyContext(int width,int height,const std::string& title);
 			bool begin();
 			bool end();

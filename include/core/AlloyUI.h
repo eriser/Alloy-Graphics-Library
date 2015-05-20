@@ -169,15 +169,20 @@ namespace aly{
     struct Label : public Region{
         HorizontalAlignment horizontalAlignment;
     	VerticalAlignment verticalAlignment;
-    	std::shared_ptr<Font> font;
-    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top){};
+    	FontType fontType;
+    	float fontSize;
+    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),fontType(FontType::Normal),fontSize(12.0f),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top){};
     	void draw(AlloyContext* context);
     };
 
-    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const placement& position,const placement& dimensions){
+    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const placement& position,const placement& dimensions,FontType fontType=FontType::Normal,float fontSize=12.0f,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
     	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
     	label->position=position;
     	label->dimensions=dimensions;
+    	label->fontType=fontType;
+    	label->fontSize=fontSize;
+    	label->horizontalAlignment=halign;
+    	label->verticalAlignment=valign;
     	return label;
     }
 

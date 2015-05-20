@@ -64,6 +64,10 @@ namespace aly{
 
 	void Label::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
+		nvgFontSize(nvg, fontSize);
+		nvgFontFaceId(nvg,context->getFontHandle(fontType));
+		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
+		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 		nvgStrokeColor(nvg, Color(255, 255, 255, 127));
