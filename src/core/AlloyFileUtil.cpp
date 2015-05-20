@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <png.h>
 #include <fstream>
+#include <vector>
+#include "stdint.h"
 #include "AlloyFileUtil.h"
 #include "stb_image.h"
 using namespace std;
@@ -27,6 +29,26 @@ std::string ReadTextFile(const std::string& str){
 	} else {
 		throw std::runtime_error(MakeString()<<"Could not open "<<str);
 	}
+}
+std::vector<char> ReadBinaryFile(const std::string& str){
+	streampos size;
+	  ifstream file (str, ios::in|ios::binary|ios::ate);
+	  if (file.is_open())
+	  {
+	    size = file.tellg();
+	    std::vector<char> memblock(size);
+	    file.seekg (0, ios::beg);
+	    file.read(memblock.data(), size);
+	    file.close();
+	    return memblock;
+	} else throw std::runtime_error(MakeString()<<"Could not open "<<str);
+}
+bool FileExists(const std::string& name){
+	std::ifstream file(name,ios::in|ios::binary);
+	if(file.is_open()){
+		file.close();
+		return true;
+	} return false;
 }
 
 std::string GetFileExtension(const std::string& fileName) {

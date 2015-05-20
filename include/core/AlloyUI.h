@@ -165,19 +165,22 @@ namespace aly{
 			void pack();
 	    	void draw();
     };
+
     struct Label : public Region{
         HorizontalAlignment horizontalAlignment;
     	VerticalAlignment verticalAlignment;
     	std::shared_ptr<Font> font;
-    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Label(name){};
+    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top){};
     	void draw(AlloyContext* context);
     };
+
     inline std::shared_ptr<Label> MakeLabel(const std::string& name,const placement& position,const placement& dimensions){
     	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
     	label->position=position;
     	label->dimensions=dimensions;
     	return label;
     }
+
     inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const placement& position,const placement& dimensions){
     	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
         composite->position=position;

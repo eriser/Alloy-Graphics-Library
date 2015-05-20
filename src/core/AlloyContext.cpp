@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 
+#include "AlloyFileUtil.h"
 #include "AlloyContext.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
@@ -42,6 +43,29 @@ namespace aly{
 	std::mutex AlloyContext::contextLock;
 	Font::Font(const std::string& name,const std::string& file,AlloyContext* context):name(name),file(file){
 		handle=nvgCreateFont(context->nvgContext,name.c_str(),file.c_str());
+	}
+	void AlloyContext::addAssetDirectory(const std::string& dir){
+		assetDirectories.push_back(dir);
+	}
+	std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,const std::string& name,const std::string& file){
+		fonts[type]=std::shared_ptr<Font>(new Font(name,getFullPath(file),this));
+		return fonts[type];
+	}
+	std::string AlloyContext::getFullPath(const std::string& partialFile){
+		for (std::string& dir : assetDirectories)
+		{
+			std::string fullPath=RemoveTrailingSlash(dir) +PATH_SEPARATOR +partialFile;
+			if (FileExists(fullPath)) {
+				return fullPath;
+			}
+		}
+		std::cout<<"Could not find \""<<partialFile<<"\"\nThis is where I looked:"<<std::endl;
+		for (std::string& dir : assetDirectories){
+			std::string fullPath=RemoveTrailingSlash(dir) +PATH_SEPARATOR +partialFile;
+			std::cout<<"\""<<fullPath<<"\""<<std::endl;
+		}
+		throw std::runtime_error(MakeString()<<"Could not find \""<<partialFile<<"\"");
+		return std::string("");
 	}
 	AlloyContext::AlloyContext(int width,int height,const std::string& title):window(nullptr),nvgContext(nullptr),current(nullptr){
 			std::lock_guard<std::mutex> lock(contextLock);
@@ -87,8 +111,10 @@ namespace aly{
 
 			int widthMM, heightMM;
 
-			GLFWmonitor* monitor=glfwGetWindowMonitor(window);
+			GLFWmonitor* monitor=glfwGetPrimaryMonitor();
+			if(monitor==nullptr)throw std::runtime_error("Could not find monitor.");
 			const GLFWvidmode* mode =glfwGetVideoMode(monitor);
+			if(mode==nullptr)throw std::runtime_error("Could not find video monitor.");
 			glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
 			dpmm = double2(mode->width / (double)widthMM ,mode->height / (double)heightMM );
 		}

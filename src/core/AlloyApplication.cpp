@@ -48,6 +48,15 @@ Application::Application(int w, int h, const std::string& title) {
 		throw std::runtime_error(
 				"Cannot instantiate more than one application.");
 	}
+
+	context->addAssetDirectory("assets/");
+	context->addAssetDirectory("../assets/");
+	context->addAssetDirectory("../../assets/");
+	context->loadFont(FontType::Normal,"sans", "fonts/Roboto-Regular.ttf");
+	context->loadFont(FontType::Bold,"sans-bold", "fonts/Roboto-Bold.ttf");
+	context->loadFont(FontType::Italic,"sans-italic", "fonts/Roboto-Italic.ttf");
+	context->loadFont(FontType::Icon,"icons", "fonts/fontawesome.ttf");
+
 	initInternal();
 	if (!init()) {
 		throw std::runtime_error("Error occurred in application init()");

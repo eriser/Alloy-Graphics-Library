@@ -29,7 +29,7 @@
 #include <GLFW/glfw3.h>
 #include <mutex>
 #include <memory>
-
+#include <list>
 #include <map>
 #include "nanovg.h"
 #include "AlloyMath.h"
@@ -54,19 +54,13 @@ namespace aly{
 		const std::string name;
 		const std::string file;
 		Font(const std::string& name,const std::string& file,AlloyContext* context);
-		Font(const std::string& name,const std::string& file);
 	};
-	struct Assets{
-	private:
-		std::map<FontType,std::shared_ptr<Font>> fontAssets;
-	public:
-		Assets(const std::string& assetDirectory);
-		std::shared_ptr<Font> getFont(FontType type){
-				return fontAssets[type];
-		}
-	};
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss << v.name<<" ["<<v.handle<<"] ["<<v.file<<"]"; }
+
 	struct AlloyContext {
 		private:
+			std::list<std::string> assetDirectories;
+			std::map<FontType,std::shared_ptr<Font>> fonts;
 			static std::mutex contextLock;
 			GLFWwindow* current;
 		public:
@@ -75,9 +69,11 @@ namespace aly{
 			GLFWwindow* window;
 			box2i viewport;
 			double2 dpmm;
+			void addAssetDirectory(const std::string& dir);
+			std::shared_ptr<Font>& loadFont(FontType type,const std::string& name,const std::string& file);
+			std::string getFullPath(const std::string& partialFile);
 			inline int width(){return viewport.dimensions.x;}
 			inline int height(){return viewport.dimensions.y;}
-
 			AlloyContext(int width,int height,const std::string& title);
 			bool begin();
 			bool end();
