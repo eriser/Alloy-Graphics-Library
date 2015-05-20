@@ -19,28 +19,58 @@
  * THE SOFTWARE.
  */
 #include "AlloyUI.h"
+#include "nanovg.h"
+#include "nanovg_gl.h"
 namespace aly{
 	uint64_t Region::REGION_COUNTER=0;
+
 	Region::Region(const std::string& name):position(coord_px(0,0)),dimensions(percent(1,1)),name(name){
 
 	}
-	void Region::pack(const int2& dims,const double2& dpmm){
+
+	void Composite::draw(AlloyContext* context){
+		for(std::shared_ptr<Region>& region:children){
+			region->draw(context);
+		}
+	}
+	void Composite::pack(){
+		pack(Application::getContext());
+	}
+	void Composite::draw(){
+		draw(Application::getContext());
+	}
+	void Composite::pack(const int2& dims,const double2& dpmm){
 		bounds.position=position.toPixles(dims,dpmm);
 		bounds.dimensions=dimensions.toPixles(dims,dpmm);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(dims,dpmm);
 		}
 	}
-	void Region::pack(AlloyContext* context){
+	void Composite::pack(AlloyContext* context){
 		bounds.position=position.toPixles(context->viewport.dimensions,context->dpmm);
 		bounds.dimensions=dimensions.toPixles(context->viewport.dimensions,context->dpmm);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(bounds.dimensions,context->dpmm);
 		}
 	}
-	void Region::pack(){
-		pack(Application::getContext());
+	Composite& Composite::add(const std::shared_ptr<Region>& region){
+		children.push_back(region);
+		return *this;
 	}
+	Composite& Composite::add(Region* region){
+		children.push_back(std::shared_ptr<Region>(region));
+		return *this;
+	}
+
+	void Label::draw(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgStrokeColor(nvg, Color(255, 255, 255, 127));
+		nvgStrokeWidth(nvg, 2.0f);
+		nvgStroke(nvg);
+	}
+
 };
 
 

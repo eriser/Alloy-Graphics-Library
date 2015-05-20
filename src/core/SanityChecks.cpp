@@ -130,8 +130,10 @@ namespace aly{
 		std::cout<<abs<<std::endl;
 
 		std::cout<<pt<<std::endl;
-		Region r1;
-		Region r2("region 2");
+		Label* r1=new Label();
+		Label* r2=new Label("region 2");
+		Composite comp;
+		comp.add(r1).add(r2);
 	}
 	bool SANITY_CHECK_FILE_IO(){
 		try {

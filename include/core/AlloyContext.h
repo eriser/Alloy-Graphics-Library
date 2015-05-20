@@ -29,6 +29,8 @@
 #include <GLFW/glfw3.h>
 #include <mutex>
 #include <memory>
+
+#include <map>
 #include "nanovg.h"
 #include "AlloyMath.h"
 int printOglError(const char *file, int line);
@@ -40,6 +42,28 @@ namespace aly{
 		GLuint vao=0;
 		GLuint positionBuffer=0;
 		GLuint uvBuffer=0;
+	};
+    enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
+	enum class VerticalAlignment { Top=NVG_ALIGN_TOP, Middle=NVG_ALIGN_MIDDLE, Bottom=NVG_ALIGN_BOTTOM, Baseline=NVG_ALIGN_BASELINE };
+    enum class Shape { Rectangle, Ellipse};
+    enum class Orientation { Horizontal, Vertical };
+	enum class FontType {Bold,Italic,Normal,Icon};
+    class AlloyContext;
+	struct Font{
+		int handle;
+		const std::string name;
+		const std::string file;
+		Font(const std::string& name,const std::string& file,AlloyContext* context);
+		Font(const std::string& name,const std::string& file);
+	};
+	struct Assets{
+	private:
+		std::map<FontType,std::shared_ptr<Font>> fontAssets;
+	public:
+		Assets(const std::string& assetDirectory);
+		std::shared_ptr<Font> getFont(FontType type){
+				return fontAssets[type];
+		}
 	};
 	struct AlloyContext {
 		private:

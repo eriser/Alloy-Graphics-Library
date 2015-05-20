@@ -24,6 +24,7 @@
 #include "AlloyMath.h"
 #include "AlloyContext.h"
 #include "AlloyApplication.h"
+#include "nanovg.h"
 #include <iostream>
 #include <memory>
 #include <list>
@@ -31,6 +32,43 @@ namespace aly{
 	bool SANITY_CHECK_UI();
 	const double MM_TO_PIX=1.0;
 	const double DP_TO_PIX=1.0/160.0;
+
+	inline NVGcolor Color(RGB color){
+		return nvgRGB(color.x,color.y,color.z);
+	}
+	inline NVGcolor Color(RGBA color){
+		return nvgRGBA(color.x,color.y,color.z,color.w);
+	}
+	inline NVGcolor Color(RGBi color){
+		return nvgRGB(color.x,color.y,color.z);
+	}
+	inline NVGcolor Color(RGBAi color){
+		return nvgRGBA(color.x,color.y,color.z,color.w);
+	}
+	inline NVGcolor Color(RGBAf color){
+		return nvgRGBAf(color.x,color.y,color.z,color.w);
+	}
+	inline NVGcolor Color(RGBf color){
+		return nvgRGBf(color.x,color.y,color.z);
+	}
+	inline NVGcolor Color(float r,float g,float b,float a){
+		return nvgRGBAf(r,g,b,a);
+	}
+	inline NVGcolor Color(float r,float g,float b){
+		return nvgRGBf(r,g,b);
+	}
+	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a){
+		return nvgRGBA(r,g,b,a);
+	}
+	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b){
+		return nvgRGB(r,g,b);
+	}
+	inline NVGcolor Color(int r,int g,int b,int a){
+		return nvgRGBA(r,g,b,a);
+	}
+	inline NVGcolor Color(int r,int g,int b){
+		return nvgRGB(r,g,b);
+	}
 
 	struct placement{
 		virtual int2 toPixles(int2 screenSize,double2 dpmm){return int2();};
@@ -101,19 +139,50 @@ namespace aly{
 
 
     struct Region {
-    private:
+    protected:
     	static uint64_t REGION_COUNTER;
-
     public:
     	box2i bounds;
     	placement position;
     	placement dimensions;
     	const std::string name;
-    	std::list<std::shared_ptr<Region>> children;
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
-    	void pack(const int2& dims,const double2& dpmm);
-    	void pack(AlloyContext* context);
-    	void pack();
+    	virtual void pack(const int2& dims,const double2& dpmm){};
+    	virtual void pack(AlloyContext* context){};
+    	virtual void draw(AlloyContext* context)=0;
+    	virtual inline ~Region(){};
     };
+    struct Composite : public Region{
+		protected:
+			std::list<std::shared_ptr<Region>> children;
+		public:
+	    	Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
+			virtual void draw(AlloyContext* context);
+			virtual void pack(const int2& dims,const double2& dpmm);
+			virtual void pack(AlloyContext* context);
+			Composite& add(const std::shared_ptr<Region>& region);
+			Composite& add(Region* region);//After add(), composite will own region and be responsible for destroying it.
+			void pack();
+	    	void draw();
+    };
+    struct Label : public Region{
+        HorizontalAlignment horizontalAlignment;
+    	VerticalAlignment verticalAlignment;
+    	std::shared_ptr<Font> font;
+    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Label(name){};
+    	void draw(AlloyContext* context);
+    };
+    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const placement& position,const placement& dimensions){
+    	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
+    	label->position=position;
+    	label->dimensions=dimensions;
+    	return label;
+    }
+    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const placement& position,const placement& dimensions){
+    	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
+        composite->position=position;
+        composite->dimensions=dimensions;
+        return composite;
+    }
 }
 #endif /* ALLOYUI_H_ */

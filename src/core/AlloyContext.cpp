@@ -40,6 +40,9 @@ int printOglError(const char *file, int line)
 }
 namespace aly{
 	std::mutex AlloyContext::contextLock;
+	Font::Font(const std::string& name,const std::string& file,AlloyContext* context):name(name),file(file){
+		handle=nvgCreateFont(context->nvgContext,name.c_str(),file.c_str());
+	}
 	AlloyContext::AlloyContext(int width,int height,const std::string& title):window(nullptr),nvgContext(nullptr),current(nullptr){
 			std::lock_guard<std::mutex> lock(contextLock);
 			if (glfwInit() != GL_TRUE) {
