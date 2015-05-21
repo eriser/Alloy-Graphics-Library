@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2014, Blake C. Lucas, Ph.D. (img.science@gmail.com)
+ * Copyright(C) 2015, Blake C. Lucas, Ph.D. (img.science@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,37 +25,33 @@
 #include "AlloyMath.h"
 #include "AlloyImage.h"
 #include "GLComponent.h"
-#include "GLShader.h"
 namespace aly {
 template<class T,int C,ImageType I> class GLTexture: public GLComponent {
 protected:
 	Image<T,C,I> textureImage;
-	bool enableShader=true;
 	GLuint internalFormat = GL_DEPTH_COMPONENT;
 public:
 	GLuint textureId=0;
 	virtual void draw() override{
-		GLuint& vao=context->globalImage.vao;
-		GLuint& positionBuffer=context->globalImage.positionBuffer;
-		GLuint& uvBuffer=context->globalImage.uvBuffer;
+		GLuint& vao=context->vaoImage.vao;
+		GLuint& positionBuffer=context->vaoImage.positionBuffer;
+		GLuint& uvBuffer=context->vaoImage.uvBuffer;
 		glBindVertexArray (vao);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		if(enableShader){
-			glEnableVertexAttribArray(1);
-			glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		}
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glDrawArrays(GL_QUADS,0,4);
-		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
+		glBindVertexArray(0);
 	}
 
 	virtual void update() override{
-		GLuint& vao=context->globalImage.vao;
-		GLuint& positionBuffer=context->globalImage.positionBuffer;
-		GLuint& uvBuffer=context->globalImage.uvBuffer;
+		GLuint& vao=context->vaoImage.vao;
+		GLuint& positionBuffer=context->vaoImage.positionBuffer;
+		GLuint& uvBuffer=context->vaoImage.uvBuffer;
 		if(textureId==0){
 			glGenTextures( 1,&textureId);
 		}
@@ -63,11 +59,11 @@ public:
 		switch(textureImage.type){
 			case ImageType::FLOAT:
 				if(textureImage.channels==4){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA32F, textureImage.width, textureImage.height, 0,GL_RGBA,GL_FLOAT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA32F, textureImage.width, textureImage.height, 0,GL_RGBA32F,GL_FLOAT, &textureImage[0]);
 				} else if(textureImage.channels==3){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB32F, textureImage.width, textureImage.height, 0,GL_RGB,GL_FLOAT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB32F, textureImage.width, textureImage.height, 0,GL_RGB32F,GL_FLOAT, &textureImage[0]);
 				} else if(textureImage.channels==1){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R32F, textureImage.width, textureImage.height, 0,GL_R,GL_FLOAT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R32F, textureImage.width, textureImage.height, 0,GL_R32F,GL_FLOAT, &textureImage[0]);
 				} else {
 					throw std::runtime_error(MakeString()<<"Texture format not supported "<<textureImage.getTypeName());
 				}
@@ -85,22 +81,22 @@ public:
 				break;
 			case ImageType::USHORT:
 				if(textureImage.channels==4){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA16UI, textureImage.width, textureImage.height, 0,GL_RGBA,GL_UNSIGNED_SHORT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA16UI, textureImage.width, textureImage.height, 0,GL_RGBA16UI,GL_UNSIGNED_SHORT, &textureImage[0]);
 				} else if(textureImage.channels==3){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB16UI, textureImage.width, textureImage.height, 0,GL_RGB,GL_UNSIGNED_SHORT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB16UI, textureImage.width, textureImage.height, 0,GL_RGB16UI,GL_UNSIGNED_SHORT, &textureImage[0]);
 				} else if(textureImage.channels==1){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R16UI, textureImage.width, textureImage.height, 0,GL_R,GL_UNSIGNED_SHORT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R16UI, textureImage.width, textureImage.height, 0,GL_R16UI,GL_UNSIGNED_SHORT, &textureImage[0]);
 				} else {
 					throw std::runtime_error(MakeString()<<"Texture format not supported "<<textureImage.getTypeName());
 				}
 				break;
 			case ImageType::UINT:
 				if(textureImage.channels==4){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA32UI, textureImage.width, textureImage.height, 0,GL_RGBA,GL_UNSIGNED_INT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA32UI, textureImage.width, textureImage.height, 0,GL_RGBA32UI,GL_UNSIGNED_INT, &textureImage[0]);
 				} else if(textureImage.channels==3){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB32UI, textureImage.width, textureImage.height, 0,GL_RGB,GL_UNSIGNED_INT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB32UI, textureImage.width, textureImage.height, 0,GL_RGB32UI,GL_UNSIGNED_INT, &textureImage[0]);
 				} else if(textureImage.channels==1){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R32UI, textureImage.width, textureImage.height, 0,GL_R,GL_UNSIGNED_INT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R32UI, textureImage.width, textureImage.height, 0,GL_R32UI,GL_UNSIGNED_INT, &textureImage[0]);
 				} else {
 					throw std::runtime_error(MakeString()<<"Texture format not supported "<<textureImage.getTypeName());
 				}
@@ -118,22 +114,22 @@ public:
 				break;
 			case ImageType::SHORT:
 				if(textureImage.channels==4){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA16UI, textureImage.width, textureImage.height, 0,GL_RGBA,GL_SHORT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA16I, textureImage.width, textureImage.height, 0,GL_RGBA16I,GL_SHORT, &textureImage[0]);
 				} else if(textureImage.channels==3){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB16UI, textureImage.width, textureImage.height, 0,GL_RGB,GL_SHORT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB16I, textureImage.width, textureImage.height, 0,GL_RGB16I,GL_SHORT, &textureImage[0]);
 				} else if(textureImage.channels==1){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R16UI, textureImage.width, textureImage.height, 0,GL_R,GL_SHORT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R16I, textureImage.width, textureImage.height, 0,GL_R16I,GL_SHORT, &textureImage[0]);
 				} else {
 					throw std::runtime_error(MakeString()<<"Texture format not supported "<<textureImage.getTypeName());
 				}
 				break;
 			case ImageType::INT:
 				if(textureImage.channels==4){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA32UI, textureImage.width, textureImage.height, 0,GL_RGBA,GL_INT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGBA32I, textureImage.width, textureImage.height, 0,GL_RGBA32I,GL_INT, &textureImage[0]);
 				} else if(textureImage.channels==3){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB32UI, textureImage.width, textureImage.height, 0,GL_RGB,GL_INT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_RGB32I, textureImage.width, textureImage.height, 0,GL_RGB32I,GL_INT, &textureImage[0]);
 				} else if(textureImage.channels==1){
-					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R32UI, textureImage.width, textureImage.height, 0,GL_R,GL_INT, &textureImage[0]);
+					glTexImage2D( GL_TEXTURE_2D, 0, internalFormat=GL_R32I, textureImage.width, textureImage.height, 0,GL_R32I,GL_INT, &textureImage[0]);
 				} else {
 					throw std::runtime_error(MakeString()<<"Texture format not supported "<<textureImage.getTypeName());
 				}
@@ -197,8 +193,15 @@ public:
 };
 	typedef GLTexture<uint8_t,4,ImageType::UBYTE> GLTextureRGBA;
 	typedef GLTexture<uint8_t,3,ImageType::UBYTE> GLTextureRGB;
+	typedef GLTexture<uint8_t,1,ImageType::UBYTE> GLTextureLUM;
+
 	typedef GLTexture<float,4,ImageType::FLOAT> GLTextureRGBAf;
 	typedef GLTexture<float,3,ImageType::FLOAT> GLTextureRGBf;
+	typedef GLTexture<float,1,ImageType::FLOAT> GLTextureLUMf;
+
+	typedef GLTexture<int,4,ImageType::INT> GLTextureRGBAi;
+	typedef GLTexture<int,3,ImageType::INT> GLTextureRGBi;
+	typedef GLTexture<int,1,ImageType::INT> GLTextureLUMi;
 
 }
 

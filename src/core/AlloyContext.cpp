@@ -96,15 +96,15 @@ namespace aly{
 			float2 TextureCoords[4]={float2(1.0f,1.0f),float2(0.0f,1.0f),float2(0.0f,0.0f),float2(1.0f,0.0f)};
 			float3 PositionCoords[4]={float3(1.0f,1.0f,0.0f),float3(0.0f,1.0f,0.0f),float3(0.0f,0.0f,0.0f),float3(1.0f,0.0f,0.0f)};
 
-			glGenVertexArrays (1, &globalImage.vao);
-			glBindVertexArray (globalImage.vao);
-				glGenBuffers(1, &globalImage.positionBuffer);
-				glBindBuffer(GL_ARRAY_BUFFER, globalImage.positionBuffer);
+			glGenVertexArrays (1, &vaoImage.vao);
+			glBindVertexArray (vaoImage.vao);
+				glGenBuffers(1, &vaoImage.positionBuffer);
+				glBindBuffer(GL_ARRAY_BUFFER, vaoImage.positionBuffer);
 				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) *3* 4,PositionCoords, GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-				glGenBuffers(1, &globalImage.uvBuffer);
-				glBindBuffer(GL_ARRAY_BUFFER, globalImage.uvBuffer);
+				glGenBuffers(1, &vaoImage.uvBuffer);
+				glBindBuffer(GL_ARRAY_BUFFER, vaoImage.uvBuffer);
 				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2* 4,TextureCoords, GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
@@ -143,14 +143,14 @@ namespace aly{
 			std::lock_guard<std::mutex> lock(contextLock);
 			GLFWwindow* current=glfwGetCurrentContext();
 			glfwMakeContextCurrent(window);
-			if(globalImage.vao){
-				glDeleteVertexArrays(1,&globalImage.vao);
+			if(vaoImage.vao){
+				glDeleteVertexArrays(1,&vaoImage.vao);
 			}
-			if(globalImage.uvBuffer){
-				glDeleteBuffers(1,&globalImage.uvBuffer);
+			if(vaoImage.uvBuffer){
+				glDeleteBuffers(1,&vaoImage.uvBuffer);
 			}
-			if(globalImage.positionBuffer){
-				glDeleteBuffers(1,&globalImage.positionBuffer);
+			if(vaoImage.positionBuffer){
+				glDeleteBuffers(1,&vaoImage.positionBuffer);
 			}
 			nvgDeleteGL3(nvgContext);
 			glfwDestroyWindow(window);

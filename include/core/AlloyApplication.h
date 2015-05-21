@@ -63,7 +63,7 @@ namespace aly{
 		float getFrameRate()const {return frameRate;}
 		std::shared_ptr<GLTextureRGB> loadTextureRGB(const std::string& partialFile);
 		std::shared_ptr<GLTextureRGBA> loadTextureRGBA(const std::string& partialFile);
-		std::shared_ptr<Font> loadFont(FontType type,const std::string& name,const std::string& partialFile);
+		std::shared_ptr<Font> loadFont(const std::string& name,const std::string& partialFile);
 
 		virtual void draw(const DrawEvent3D& event){}
 		virtual void draw(const DrawEvent2D& event){}

@@ -64,7 +64,7 @@ namespace aly{
 			static std::mutex contextLock;
 			GLFWwindow* current;
 		public:
-			GLGlobalImage globalImage;
+			GLGlobalImage vaoImage;
 			NVGcontext* nvgContext;
 			GLFWwindow* window;
 			box2i viewport;

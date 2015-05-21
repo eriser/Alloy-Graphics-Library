@@ -52,7 +52,7 @@ std::shared_ptr<GLTextureRGB> Application::loadTextureRGB(const std::string& par
 	ReadImageFromFile(context->getFullPath(partialFile),image);
 	return std::shared_ptr<GLTextureRGB>(new GLTextureRGB(image,context));
 }
-std::shared_ptr<Font> Application::loadFont(FontType type,const std::string& name,const std::string& file){
+std::shared_ptr<Font> Application::loadFont(const std::string& name,const std::string& file){
 	return std::shared_ptr<Font>(new Font(name,context->getFullPath(file),context.get()));
 }
 Application::Application(int w, int h, const std::string& title) {
