@@ -28,6 +28,7 @@ namespace aly{
 	const double MM_TO_PIX=1.0;
 	const double DP_TO_PIX=1.0/160.0;
 	const double IN_TO_PIX=25.4;
+	const double PT_TO_PIX=1.333333f;
 	class AUnit1D{
 		struct Interface
 		{
@@ -108,7 +109,7 @@ namespace aly{
 		float value;
 		UnitPT(float x):value(x){}
 		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
-			return (int)std::floor(value*pixelRatio);
+			return (int)std::floor(PT_TO_PIX*value*pixelRatio);
 		}
 	};
 	struct UnitMM{
@@ -158,7 +159,7 @@ namespace aly{
 		float2 value;
 		CoordPT(float x,float y):value(x,y){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
-			return int2(std::floor(pixelRatio*value.x),std::floor(pixelRatio*value.y));
+			return int2(std::floor(PT_TO_PIX*pixelRatio*value.x),std::floor(PT_TO_PIX*pixelRatio*value.y));
 		}
 	};
 	struct CoordIN{
