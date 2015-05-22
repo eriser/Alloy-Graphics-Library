@@ -44,20 +44,20 @@ using namespace aly;
 ExampleUI::ExampleUI():Application(640,480,"ExampleUI"){
 }
 bool ExampleUI::init(Composite& rootNode) {
-	UnitPT pt(16.0f);
 	LabelPtr label=MakeLabel(
 			"label1",
 			Percent(0.5f,0.5f),
 			Percent(0.5f,0.5f),
 			FontType::Normal,
+			UnitPT(16.0f),
 			RGBA(255,255,255,255),
 			HorizontalAlignment::Center,
 			VerticalAlignment::Middle);
 	CompositePtr comp=MakeComposite("rect1",CoordPX(100,100),CoordPX(400,300),RGBA(128,32,32,255));
-	//comp->add(label);
+	comp->add(label);
 	rootNode.add(comp);
 	rootNode.pack();
-	//std::cout<<*label<<std::endl;
+	std::cout<<*label<<std::endl;
 	std::cout<<*comp<<std::endl;
 	std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;

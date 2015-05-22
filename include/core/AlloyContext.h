@@ -31,6 +31,7 @@
 #include <memory>
 #include <list>
 #include <map>
+#include <string>
 #include "nanovg.h"
 #include "AlloyMath.h"
 int printOglError(const char *file, int line);
@@ -48,6 +49,16 @@ namespace aly{
 	enum class Shape { Rectangle, Ellipse};
     enum class Orientation {Unspecified=0, Horizontal=1, Vertical=2 };
 	enum class FontType {Normal=0,Bold=1,Italic=2,Icon=3};
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const FontType& type) {
+		switch(type){
+			case FontType::Normal: return ss<<"Normal";
+			case FontType::Bold: return ss<<"Bold";
+			case FontType::Italic: return ss<<"Italic";
+			case FontType::Icon: return ss<<"Icon";
+		}
+		return ss;
+    }
+
     class AlloyContext;
 	struct Font{
 		int handle;
