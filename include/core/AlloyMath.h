@@ -672,7 +672,8 @@ template<class T> struct vec<T,1>
     		return true;
     	}
     };
-    template<class C, class R,class T,int M> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const box<T,M> & v) { return ss << "[min: "<<v.position<<",max: "<<v.position+v.dimensions<<",dimensions: "<<v.dimensions<<"]"; }
+    template<class C, class R,class T,int M> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const box<T,M> & v) {
+    	return ss << "{min: "<<v.position<<", max: "<<v.position+v.dimensions<<", dimensions: "<<v.dimensions<<"}"; }
     /////////////////////////
     // Convenience aliases //
     /////////////////////////

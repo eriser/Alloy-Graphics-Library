@@ -30,6 +30,13 @@ namespace aly{
 	}
 
 	void Composite::draw(AlloyContext* context){
+		if(bgColor.w>0){
+			NVGcontext* nvg=context->nvgContext;
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+			nvgFillColor(nvg, Color(bgColor));
+			nvgFill(nvg);
+		}
 		for(std::shared_ptr<Region>& region:children){
 			region->draw(context);
 		}
@@ -40,28 +47,30 @@ namespace aly{
 	void Composite::draw(){
 		draw(Application::getContext().get());
 	}
-	void Composite::pack(const int2& dims,const double2& dpmm){
+	void Composite::pack(const int2& pos,const int2& dims,const double2& dpmm){
 		bounds.position=position.toPixels(dims,dpmm);
 		bounds.dimensions=dimensions.toPixels(dims,dpmm);
 		for(std::shared_ptr<Region>& region:children){
-			region->pack(dims,dpmm);
+			region->pack(bounds.position,bounds.dimensions,dpmm);
 		}
 	}
-	void Region::pack(const int2& dims,const double2& dpmm){
-		bounds.position=position.toPixels(dims,dpmm);
+	void Region::pack(const int2& pos,const int2& dims,const double2& dpmm){
+		bounds.position=pos+position.toPixels(dims,dpmm);
 		bounds.dimensions=dimensions.toPixels(dims,dpmm);
 	}
 	void Region::pack(AlloyContext* context){
 		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm);
 		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm);
 	}
+
 	void Composite::pack(AlloyContext* context){
 		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm);
 		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm);
 		for(std::shared_ptr<Region>& region:children){
-			region->pack(bounds.dimensions,context->dpmm);
+			region->pack(bounds.position,bounds.dimensions,context->dpmm);
 		}
 	}
+
 	Composite& Composite::add(const std::shared_ptr<Region>& region){
 		children.push_back(region);
 		if(region->parent!=nullptr)throw std::runtime_error("Cannot add child node because it already has a parent.");
@@ -75,19 +84,11 @@ namespace aly{
 
 	void Label::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
-
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
-		nvgStrokeColor(nvg, Color(255, 255, 255, 127));
-		nvgStrokeWidth(nvg, 2.0f);
-		nvgStroke(nvg);
-
 		nvgFontSize(nvg, fontSize);
-		nvgFillColor(nvg,Color(255,255,255));
+		nvgFillColor(nvg,Color(fontColor));
 		nvgFontFaceId(nvg,context->getFontHandle(fontType));
 		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
-		nvgBeginPath(nvg);
-
 	}
 
 

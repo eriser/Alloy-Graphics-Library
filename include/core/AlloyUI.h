@@ -27,6 +27,7 @@
 #include <iostream>
 #include <memory>
 #include <list>
+#include <vector>
 namespace aly{
 	bool SANITY_CHECK_UI();
 	const double MM_TO_PIX=1.0;
@@ -73,12 +74,16 @@ namespace aly{
 		struct Interface
 		{
 			virtual int2 toPixels(int2 screenSize,double2 dpmm) const =0;
+			virtual std::string toString() const = 0;
 		};
 		template<class T> struct Impl : public Interface{
 			T value;
 			Impl(const T& value):value(value){};
 			virtual int2 toPixels(int2 screenSize,double2 dpmm) const {
 				return value.toPixels(screenSize,dpmm);
+			}
+			virtual std::string toString() const {
+				return MakeString()<<value;
 			}
 		};
 		std::shared_ptr<Interface> impl;
@@ -92,6 +97,7 @@ namespace aly{
 		    template<class T> Placement & operator = (const T & value) { return *this = Placement(value); }
 		    // Implicit interface
 		    int2 toPixels(int2 screenSize,double2 dpmm) const { return impl->toPixels(screenSize,dpmm); }
+		    std::string toString() const {return impl->toString(); }
 	};
 	struct CoordDP{
 		int2 value;
@@ -162,6 +168,7 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordMM & v) { return ss <<"("<<v.value.x<<" mm, "<<v.value.y<<" mm)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordIN & v) { return ss << "("<<v.value.x<<" in, "<<v.value.y<<" in)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Percent & v) { return ss << "("<<v.value.x<<", "<<v.value.y<<")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Placement& v) { return ss <<v.toString(); }
 
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentDP & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentPX & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
@@ -175,44 +182,79 @@ namespace aly{
     public:
     	Placement position;
     	Placement dimensions;
-
     	box2i bounds;
     	const std::string name;
     	Region* parent=nullptr;
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
-    	virtual void pack(const int2& dims,const double2& dpmm);
+    	virtual void pack(const int2& pos,const int2& dims,const double2& dpmm);
     	virtual void pack(AlloyContext* context);
     	virtual void draw(AlloyContext* context)=0;
     	virtual inline ~Region(){};
     };
+
+
     struct Composite : public Region{
-		protected:
-			std::list<std::shared_ptr<Region>> children;
-		public:
-	    	Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
-			virtual void draw(AlloyContext* context);
-			virtual void pack(const int2& dims,const double2& dpmm);
-			virtual void pack(AlloyContext* context);
-			Composite& add(const std::shared_ptr<Region>& region);
-			Composite& add(Region* region);//After add(), composite will own region and be responsible for destroying it.
-			void pack();
-	    	void draw();
+    	std::vector<std::shared_ptr<Region>> children;
+    	Orientation orientation;
+		RGBA bgColor;
+	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),bgColor(0,0,0,0),orientation(Orientation::Unspecified){};
+		virtual void draw(AlloyContext* context) override;
+		virtual void pack(const int2& pos,const int2& dims,const double2& dpmm) override;
+		virtual void pack(AlloyContext* context) override;
+		Composite& add(const std::shared_ptr<Region>& region);
+		Composite& add(Region* region);//After add(), composite will own region and be responsible for destroying it.
+		void pack();
+	    void draw();
     };
+
+
 
     struct Label : public Region{
         HorizontalAlignment horizontalAlignment;
     	VerticalAlignment verticalAlignment;
     	FontType fontType;
     	float fontSize;
-    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),fontType(FontType::Normal),fontSize(12.0f),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top){};
+    	RGBA fontColor;
+    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),fontType(FontType::Normal),fontSize(12.0f),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top),fontColor(255,255,255,255){};
     	void draw(AlloyContext* context);
     };
 
-    template<class T,class D> inline std::shared_ptr<Label> MakeLabel(const std::string& name,const T& position,const D& dimensions,FontType fontType=FontType::Normal,float fontSize=12.0f,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Region & region) {
+        	ss<<"Region: "<<region.name<<std::endl;
+        	ss<<"\tRelative Position: "<<region.position<<std::endl;
+        	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
+        	ss<<"\tBounds "<<region.bounds<<std::endl;
+        	if(region.parent!=nullptr)ss<<"\tParent "<<region.parent->name<<std::endl;
+        	return ss;
+        }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Label & region) {
+    	ss<<"Label: "<<region.name<<std::endl;
+    	ss<<"\tRelative Position: "<<region.position<<std::endl;
+    	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
+    	ss<<"\tBounds "<<region.bounds<<std::endl;
+    	if(region.parent!=nullptr)ss<<"\tParent "<<region.parent->name<<std::endl;
+    	return ss;
+    }
+
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss,const Composite& region) {
+    	ss<<"Composite: "<<region.name<<std::endl;
+    	ss<<"\tRelative Position: "<<region.position<<std::endl;
+    	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
+    	ss<<"\tBounds: "<<region.bounds<<std::endl;
+    	int counter=0;
+    	for(const std::shared_ptr<Region>& child:region.children){
+    		ss<<"\tChild["<<counter<<"]: "<<child->name<<" "<<child->bounds<<std::endl;
+    	}
+    	return ss;
+    }
+    typedef std::shared_ptr<Label> LabelPtr;
+    typedef std::shared_ptr<Composite> CompositePtr;
+    typedef std::shared_ptr<Region> RegionPtr;
+    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const Placement& position,const Placement& dimensions,FontType fontType=FontType::Normal,float fontSize=12.0f,RGBA fontColor=RGBA(255,255,255,255),HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
     	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
     	label->position=position;
     	label->dimensions=dimensions;
-
+    	label->fontColor=fontColor;
     	label->fontType=fontType;
     	label->fontSize=fontSize;
     	label->horizontalAlignment=halign;
@@ -220,10 +262,12 @@ namespace aly{
     	return label;
     }
 
-    template<class T,class D> inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const T& position,const D& dimensions){
+    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const Placement& position,const Placement& dimensions,RGBA bgColor=RGBA(0,0,0,0),Orientation orientation=Orientation::Unspecified){
     	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
     	composite->position=position;
+    	composite->bgColor=bgColor;
     	composite->dimensions=dimensions;
+    	composite->orientation=orientation;
         return composite;
     }
 }

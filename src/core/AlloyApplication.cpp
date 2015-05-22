@@ -89,10 +89,6 @@ void Application::drawUI(){
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 	NVGcontext* nvg=context->nvgContext;
 	nvgBeginFrame(nvg,context->width(),context->height(),context->pixelRatio);
-	nvgBeginPath(nvg);
-	nvgRect(nvg,100,100,300,300);
-	nvgFillColor(nvg,Color(64,64,64));
-	nvgFill(nvg);
 	rootNode.draw(context.get());
 	nvgEndFrame(nvg);
 }

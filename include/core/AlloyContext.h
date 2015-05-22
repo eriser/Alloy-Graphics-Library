@@ -45,8 +45,8 @@ namespace aly{
 	};
     enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
 	enum class VerticalAlignment { Top=NVG_ALIGN_TOP, Middle=NVG_ALIGN_MIDDLE, Bottom=NVG_ALIGN_BOTTOM, Baseline=NVG_ALIGN_BASELINE };
-    enum class Shape { Rectangle, Ellipse};
-    enum class Orientation { Horizontal, Vertical };
+	enum class Shape { Rectangle, Ellipse};
+    enum class Orientation {Unspecified=0, Horizontal=1, Vertical=2 };
 	enum class FontType {Normal=0,Bold=1,Italic=2,Icon=3};
     class AlloyContext;
 	struct Font{
