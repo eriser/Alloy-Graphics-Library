@@ -58,7 +58,38 @@ namespace aly{
 		}
 		return ss;
     }
-
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const HorizontalAlignment& type) {
+		switch(type){
+			case HorizontalAlignment::Left: return ss<<"Left";
+			case HorizontalAlignment::Center: return ss<<"Center";
+			case HorizontalAlignment::Right: return ss<<"Right";
+		}
+		return ss;
+    }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const VerticalAlignment& type) {
+		switch(type){
+			case VerticalAlignment::Top: return ss<<"Top";
+			case VerticalAlignment::Middle: return ss<<"Middle";
+			case VerticalAlignment::Bottom: return ss<<"Bottom";
+			case VerticalAlignment::Baseline: return ss<<"Baseline";
+		}
+		return ss;
+    }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Orientation& type) {
+		switch(type){
+			case Orientation::Unspecified: return ss<<"Unspecified";
+			case Orientation::Horizontal: return ss<<"Horizontal";
+			case Orientation::Vertical: return ss<<"Vertical";
+		}
+		return ss;
+    }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Shape& type) {
+		switch(type){
+			case Shape::Rectangle: return ss<<"Rectangle";
+			case Shape::Ellipse: return ss<<"Ellipse";
+		}
+		return ss;
+    }
     class AlloyContext;
 	struct Font{
 		int handle;
