@@ -139,6 +139,7 @@ namespace aly{
     	ss<<"Composite: "<<region.name<<std::endl;
     	ss<<"\tRelative Position: "<<region.position<<std::endl;
     	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
+    	ss<<"\tBackground Color: "<<region.bgColor<<std::endl;
     	ss<<"\tBounds: "<<region.bounds<<std::endl;
     	ss<<"\tOrientation: "<<region.orientation<<std::endl;
     	int counter=0;

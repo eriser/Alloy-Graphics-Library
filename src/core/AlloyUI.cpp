@@ -25,7 +25,7 @@
 namespace aly{
 	uint64_t Region::REGION_COUNTER=0;
 
-	Region::Region(const std::string& name):position(CoordPX(0,0)),dimensions(Percent(1,1)),name(name){
+	Region::Region(const std::string& name):position(CoordPX(0,0)),dimensions(CoordPercent(1,1)),name(name){
 
 	}
 

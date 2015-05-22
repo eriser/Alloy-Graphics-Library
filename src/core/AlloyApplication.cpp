@@ -25,8 +25,8 @@ namespace aly {
 
 std::shared_ptr<AlloyContext> Application::context;
 void Application::initInternal() {
-	rootNode.position=Percent(0.0f,0.0f);
-	rootNode.dimensions=Percent(1.0f,1.0f);
+	rootNode.position=CoordPercent(0.0f,0.0f);
+	rootNode.dimensions=CoordPercent(1.0f,1.0f);
 	context->addAssetDirectory("assets/");
 	context->addAssetDirectory("../assets/");
 	context->addAssetDirectory("../../assets/");

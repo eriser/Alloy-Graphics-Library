@@ -168,44 +168,44 @@ namespace aly{
 			return int2(std::floor(IN_TO_PIX*dpmm.x*value.x),std::floor(IN_TO_PIX*dpmm.y*value.y));
 		}
 	};
-	struct Percent{
+	struct CoordPercent{
 		float2 value;
-		Percent(float x,float y):value(x,y){}
+		CoordPercent(float x,float y):value(x,y){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return int2(std::floor(screenSize.x*value.x),std::floor(screenSize.y*value.y));
 		}
 	};
-	struct PercentDP{
-		std::pair<Percent,CoordDP> value;
-		PercentDP(float px,float py,int x,int y):value(Percent(px,py),CoordDP(x,y)){}
+	struct CoordPerDP{
+		std::pair<CoordPercent,CoordDP> value;
+		CoordPerDP(float px,float py,int x,int y):value(CoordPercent(px,py),CoordDP(x,y)){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
-	struct PercentPX{
-		std::pair<Percent,CoordPX> value;
-		PercentPX(float px,float py,int x,int y):value(Percent(px,py),CoordPX(x,y)){}
+	struct CoordPerPX{
+		std::pair<CoordPercent,CoordPX> value;
+		CoordPerPX(float px,float py,int x,int y):value(CoordPercent(px,py),CoordPX(x,y)){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
-	struct PercentPT{
-		std::pair<Percent,CoordPT> value;
-		PercentPT(float px,float py,float x,float y):value(Percent(px,py),CoordPT(x,y)){}
+	struct CoordPerPT{
+		std::pair<CoordPercent,CoordPT> value;
+		CoordPerPT(float px,float py,float x,float y):value(CoordPercent(px,py),CoordPT(x,y)){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
-	struct PercentMM{
-		std::pair<Percent,CoordMM> value;
-		PercentMM(float px,float py,float x,float y):value(Percent(px,py),CoordMM(x,y)){}
+	struct CoordPerMM{
+		std::pair<CoordPercent,CoordMM> value;
+		CoordPerMM(float px,float py,float x,float y):value(CoordPercent(px,py),CoordMM(x,y)){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
-	struct PercentIN{
-		std::pair<Percent,CoordIN> value;
-		PercentIN(float px,float py,float x,float y):value(Percent(px,py),CoordIN(x,y)){}
+	struct CoordPerIN{
+		std::pair<CoordPercent,CoordIN> value;
+		CoordPerIN(float px,float py,float x,float y):value(CoordPercent(px,py),CoordIN(x,y)){}
 		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
@@ -223,17 +223,13 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPT & v) { return ss <<"("<<v.value.x<<" pt, "<<v.value.y<<" pt)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordMM & v) { return ss <<"("<<v.value.x<<" mm, "<<v.value.y<<" mm)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordIN & v) { return ss << "("<<v.value.x<<" in, "<<v.value.y<<" in)"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Percent & v) { return ss << "("<<v.value.x*100<<"%, "<<v.value.y*100<<"%)"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPercent & v) { return ss << "("<<v.value.x*100<<"%, "<<v.value.y*100<<"%)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AUnit2D& v) { return ss <<v.toString(); }
 
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentDP & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentPX & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentPT & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentMM & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentIN & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
-    }
-
-
-
-
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerDP & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerPX & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerPT & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerMM & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerIN & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+}
 #endif /* ALLOYUNITS_H_ */

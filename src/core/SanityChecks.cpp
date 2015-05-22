@@ -123,10 +123,10 @@ namespace aly{
 		}
 	}
 	bool SANITY_CHECK_UI(){
-		Percent rel(0.5f,0.75f);
+		CoordPercent rel(0.5f,0.75f);
 		CoordDP abs(40,30);
 		CoordIN in(1,1);
-		PercentDP pt(0.5f,0.75f,40,20);
+		CoordPerDP pt(0.5f,0.75f,40,20);
 		std::cout<<rel<<std::endl;
 		std::cout<<abs<<std::endl;
 		std::cout<<in<<std::endl;

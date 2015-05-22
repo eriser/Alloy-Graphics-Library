@@ -46,8 +46,8 @@ ExampleUI::ExampleUI():Application(640,480,"ExampleUI"){
 bool ExampleUI::init(Composite& rootNode) {
 	LabelPtr label=MakeLabel(
 			"label1",
-			Percent(0.5f,0.5f),
-			Percent(0.5f,0.5f),
+			CoordPercent(0.5f,0.5f),
+			CoordPercent(0.5f,0.5f),
 			FontType::Normal,
 			UnitPT(16.0f),
 			RGBA(255,255,255,255),
