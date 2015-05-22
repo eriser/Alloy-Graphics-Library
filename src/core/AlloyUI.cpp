@@ -47,27 +47,27 @@ namespace aly{
 	void Composite::draw(){
 		draw(Application::getContext().get());
 	}
-	void Composite::pack(const int2& pos,const int2& dims,const double2& dpmm){
-		bounds.position=position.toPixels(dims,dpmm);
-		bounds.dimensions=dimensions.toPixels(dims,dpmm);
+	void Composite::pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio){
+		bounds.position=position.toPixels(dims,dpmm,pixelRatio);
+		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
 		for(std::shared_ptr<Region>& region:children){
-			region->pack(bounds.position,bounds.dimensions,dpmm);
+			region->pack(bounds.position,bounds.dimensions,dpmm,pixelRatio);
 		}
 	}
-	void Region::pack(const int2& pos,const int2& dims,const double2& dpmm){
-		bounds.position=pos+position.toPixels(dims,dpmm);
-		bounds.dimensions=dimensions.toPixels(dims,dpmm);
+	void Region::pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio){
+		bounds.position=pos+position.toPixels(dims,dpmm,pixelRatio);
+		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
 	}
 	void Region::pack(AlloyContext* context){
-		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm);
-		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm);
+		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
+		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
 	}
 
 	void Composite::pack(AlloyContext* context){
-		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm);
-		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm);
+		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
+		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
 		for(std::shared_ptr<Region>& region:children){
-			region->pack(bounds.position,bounds.dimensions,context->dpmm);
+			region->pack(bounds.position,bounds.dimensions,context->dpmm,context->pixelRatio);
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace aly{
 
 	void Label::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
-		nvgFontSize(nvg, fontSize);
+		nvgFontSize(nvg, fontSize.toPixels(context->height(),context->dpmm.y,context->pixelRatio));
 		nvgFillColor(nvg,Color(fontColor));
 		nvgFontFaceId(nvg,context->getFontHandle(fontType));
 		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));

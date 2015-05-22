@@ -70,97 +70,172 @@ namespace aly{
 	inline NVGcolor Color(int r,int g,int b){
 		return nvgRGB(r,g,b);
 	}
-	class Placement{
-		struct Interface
+	class AUnit{
+		struct Interface1
 		{
-			virtual int2 toPixels(int2 screenSize,double2 dpmm) const =0;
+			virtual int toPixels(int screenSize,double dpmm,double pixelRatio) const =0;
 			virtual std::string toString() const = 0;
 		};
-		template<class T> struct Impl : public Interface{
+	public:
+		template<class T> struct Impl1 : public Interface1{
 			T value;
-			Impl(const T& value):value(value){};
-			virtual int2 toPixels(int2 screenSize,double2 dpmm) const {
-				return value.toPixels(screenSize,dpmm);
+			Impl1(const T& value):value(value){};
+			virtual int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+				return value.toPixels(screenSize,dpmm,pixelRatio);
 			}
 			virtual std::string toString() const {
 				return MakeString()<<value;
 			}
 		};
-		std::shared_ptr<Interface> impl;
-		public:
+		std::shared_ptr<Interface1> impl;
+
 		    // Can construct or assign any type that implements the implicit interface (According to Sterling)
-		    Placement() {}
-		    Placement(const Placement & r) : impl(r.impl) {}
-		    virtual inline ~Placement(){}
-		    template<class T> Placement(const T & value) : impl(new Impl<T>{value}) {}
-		    Placement & operator = (const Placement & r) { impl = r.impl; return *this; }
-		    template<class T> Placement & operator = (const T & value) { return *this = Placement(value); }
+		    AUnit() {}
+		    AUnit(const AUnit & r) : impl(r.impl) {}
+		    virtual inline ~AUnit(){}
+		    template<class T> AUnit(const T & value) : impl(new Impl1<T>{value}) {}
+		    AUnit & operator = (const AUnit & r) { impl = r.impl; return *this; }
+		    template<class T> AUnit & operator = (const T & value) { return *this = AUnit(value); }
 		    // Implicit interface
-		    int2 toPixels(int2 screenSize,double2 dpmm) const { return impl->toPixels(screenSize,dpmm); }
+		    int toPixels(int screenSize,double dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
 		    std::string toString() const {return impl->toString(); }
 	};
-	struct CoordDP{
-		int2 value;
-		CoordDP(int x,int y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
-			return int2(std::floor(DP_TO_PIX*dpmm.x*value.x),std::floor(DP_TO_PIX*dpmm.y*value.y));
+
+	class AUnit2D{
+		struct Interface2
+		{
+			virtual int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const =0;
+			virtual std::string toString() const = 0;
+		};
+		template<class T> struct Impl2 : public Interface2{
+			T value;
+			Impl2(const T& value):value(value){};
+			virtual int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+				return value.toPixels(screenSize,dpmm,pixelRatio);
+			}
+			virtual std::string toString() const {
+				return MakeString()<<value;
+			}
+		};
+		std::shared_ptr<Interface2> impl;
+		public:
+		    // Can construct or assign any type that implements the implicit interface (According to Sterling)
+		    AUnit2D() {}
+		    AUnit2D(const AUnit2D & r) : impl(r.impl) {}
+		    virtual inline ~AUnit2D(){}
+		    template<class T> AUnit2D(const T & value) : impl(new Impl2<T>{value}) {}
+		    AUnit2D & operator = (const AUnit2D & r) { impl = r.impl; return *this; }
+		    template<class T> AUnit2D & operator = (const T & value) { return *this = AUnit2D(value); }
+		    // Implicit interface
+		    int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
+		    std::string toString() const {return impl->toString(); }
+	};
+	struct UnitDP{
+		int value;
+		UnitDP(int x):value(x){}
+		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			return std::floor(DP_TO_PIX*dpmm*value);
 		}
 	};
 
+	struct UnitPX{
+		int value;
+		UnitPX(int x):value(x){}
+		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			return value;
+		}
+	};
+
+	struct UnitPT{
+		float value;
+		UnitPT(float x):value(x){}
+		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			return (int)std::floor(value*pixelRatio);
+		}
+	};
+	struct UnitMM{
+		float value;
+		UnitMM(float x):value(x){}
+		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			return std::floor(MM_TO_PIX*dpmm*value);
+		}
+	};
+	struct UnitIN{
+		float value;
+		UnitIN(float x):value(x){}
+		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			return std::floor(IN_TO_PIX*dpmm*value);
+		}
+	};
+	struct PercentUnits{
+		float value;
+		PercentUnits(float x):value(x){}
+		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			return std::floor(screenSize*value);
+		}
+	};
+
+	struct CoordDP{
+		int2 value;
+		CoordDP(int x,int y):value(x,y){}
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+			return int2(std::floor(DP_TO_PIX*dpmm.x*value.x),std::floor(DP_TO_PIX*dpmm.y*value.y));
+		}
+	};
 	struct CoordPX{
 		int2 value;
 		CoordPX(int x,int y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value;
 		}
 	};
 	struct CoordMM{
 		float2 value;
 		CoordMM(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return int2(std::floor(MM_TO_PIX*dpmm.x*value.x),std::floor(MM_TO_PIX*dpmm.y*value.y));
 		}
 	};
 	struct CoordIN{
 		float2 value;
 		CoordIN(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return int2(std::floor(IN_TO_PIX*dpmm.x*value.x),std::floor(IN_TO_PIX*dpmm.y*value.y));
 		}
 	};
 	struct Percent{
 		float2 value;
 		Percent(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
 			return int2(std::floor(screenSize.x*value.x),std::floor(screenSize.y*value.y));
 		}
 	};
 	struct PercentDP{
 		std::pair<Percent,CoordDP> value;
 		PercentDP(float px,float py,int x,int y):value(Percent(px,py),CoordDP(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
-			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct PercentPX{
 		std::pair<Percent,CoordPX> value;
 		PercentPX(float px,float py,int x,int y):value(Percent(px,py),CoordPX(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
-			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct PercentMM{
 		std::pair<Percent,CoordMM> value;
 		PercentMM(float px,float py,float x,float y):value(Percent(px,py),CoordMM(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
-			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct PercentIN{
 		std::pair<Percent,CoordIN> value;
 		PercentIN(float px,float py,float x,float y):value(Percent(px,py),CoordIN(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm) const {
-			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
+		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordDP & v) { return ss <<"("<<v.value.x<<" dp, "<<v.value.y<<" dp)"; }
@@ -168,7 +243,7 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordMM & v) { return ss <<"("<<v.value.x<<" mm, "<<v.value.y<<" mm)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordIN & v) { return ss << "("<<v.value.x<<" in, "<<v.value.y<<" in)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Percent & v) { return ss << "("<<v.value.x*100<<"%, "<<v.value.y*100<<"%)"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Placement& v) { return ss <<v.toString(); }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AUnit2D& v) { return ss <<v.toString(); }
 
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentDP & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentPX & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
@@ -180,13 +255,13 @@ namespace aly{
     protected:
     	static uint64_t REGION_COUNTER;
     public:
-    	Placement position;
-    	Placement dimensions;
+    	AUnit2D position;
+    	AUnit2D dimensions;
     	box2i bounds;
     	const std::string name;
     	Region* parent=nullptr;
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
-    	virtual void pack(const int2& pos,const int2& dims,const double2& dpmm);
+    	virtual void pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio);
     	virtual void pack(AlloyContext* context);
     	virtual void draw(AlloyContext* context)=0;
     	virtual inline ~Region(){};
@@ -199,7 +274,7 @@ namespace aly{
 		RGBA bgColor;
 	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),bgColor(0,0,0,0),orientation(Orientation::Unspecified){};
 		virtual void draw(AlloyContext* context) override;
-		virtual void pack(const int2& pos,const int2& dims,const double2& dpmm) override;
+		virtual void pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio) override;
 		virtual void pack(AlloyContext* context) override;
 		Composite& add(const std::shared_ptr<Region>& region);
 		Composite& add(Region* region);//After add(), composite will own region and be responsible for destroying it.
@@ -213,9 +288,9 @@ namespace aly{
         HorizontalAlignment horizontalAlignment;
     	VerticalAlignment verticalAlignment;
     	FontType fontType;
-    	float fontSize;
+    	AUnit fontSize;
     	RGBA fontColor;
-    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),fontType(FontType::Normal),fontSize(12.0f),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top),fontColor(255,255,255,255){};
+    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),fontType(FontType::Normal),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top),fontColor(255,255,255,255){};
     	void draw(AlloyContext* context);
     };
 
@@ -250,19 +325,19 @@ namespace aly{
     typedef std::shared_ptr<Label> LabelPtr;
     typedef std::shared_ptr<Composite> CompositePtr;
     typedef std::shared_ptr<Region> RegionPtr;
-    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const Placement& position,const Placement& dimensions,FontType fontType=FontType::Normal,float fontSize=12.0f,RGBA fontColor=RGBA(255,255,255,255),HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
+    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,FontType fontType,RGBA fontColor=RGBA(255,255,255,255),HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
     	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
     	label->position=position;
     	label->dimensions=dimensions;
     	label->fontColor=fontColor;
     	label->fontType=fontType;
-    	label->fontSize=fontSize;
+    	label->fontSize=AUnit::Impl1<UnitPT>(UnitPT(14.0f));
     	label->horizontalAlignment=halign;
     	label->verticalAlignment=valign;
     	return label;
     }
 
-    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const Placement& position,const Placement& dimensions,RGBA bgColor=RGBA(0,0,0,0),Orientation orientation=Orientation::Unspecified){
+    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,RGBA bgColor=RGBA(0,0,0,0),Orientation orientation=Orientation::Unspecified){
     	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
     	composite->position=position;
     	composite->bgColor=bgColor;
