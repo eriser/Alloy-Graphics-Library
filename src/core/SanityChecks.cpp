@@ -123,12 +123,13 @@ namespace aly{
 		}
 	}
 	bool SANITY_CHECK_UI(){
-		percent rel(float2(0.5f,0.75f));
-		coord_dp abs(int2(40,30));
-		percent_dp pt(float2(0.5f,0.75f),int2(40,20));
+		Percent rel(0.5f,0.75f);
+		CoordDP abs(40,30);
+		CoordIN in(1,1);
+		PercentDP pt(0.5f,0.75f,40,20);
 		std::cout<<rel<<std::endl;
 		std::cout<<abs<<std::endl;
-
+		std::cout<<in<<std::endl;
 		std::cout<<pt<<std::endl;
 		Label* r1=new Label();
 		Label* r2=new Label("region 2");

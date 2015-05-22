@@ -58,6 +58,7 @@ static char* cpToUTF8(int cp, char* str)
 	case 1: str[0] = cp;
 	}
 	return str;
+
 }
 
 

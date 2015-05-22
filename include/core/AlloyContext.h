@@ -69,6 +69,7 @@ namespace aly{
 			GLFWwindow* window;
 			box2i viewport;
 			double2 dpmm;
+			float pixelRatio;
 			std::list<std::string>& getAssetDirectories(){return assetDirectories;}
 			void addAssetDirectory(const std::string& dir);
 			std::shared_ptr<Font>& loadFont(FontType type,const std::string& name,const std::string& partialFile);

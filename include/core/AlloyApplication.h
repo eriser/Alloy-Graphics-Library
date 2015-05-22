@@ -23,10 +23,10 @@
 #define ALLOYAPPLICATION_H_
 
 #include "AlloyContext.h"
-#include "AlloyUI.h"
 #include "AlloyCommon.h"
 #include "GLShader.h"
 #include "GLFrameBuffer.h"
+#include "AlloyUI.h"
 
 #include <memory>
 #include <list>
@@ -37,6 +37,7 @@ namespace aly{
 		static std::shared_ptr<AlloyContext> context;
 		void drawUI();
 		void draw();
+		Composite rootNode;
 		std::list<std::exception_ptr> caughtExceptions;
 		void initInternal();
 	public:
@@ -67,7 +68,7 @@ namespace aly{
 
 		virtual void draw(const DrawEvent3D& event){}
 		virtual void draw(const DrawEvent2D& event){}
-		virtual bool init(){return true;};
+		virtual bool init(Composite& rootNode)=0;
 		void run(int swapInterval=0);//no vsync by default
 		virtual inline ~Application(){
 			context.reset();

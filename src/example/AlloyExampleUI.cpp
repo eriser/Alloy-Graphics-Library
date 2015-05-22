@@ -39,21 +39,29 @@
 //
 
 #include "Alloy.h"
-
+#include "../../include/example/AlloyExampleUI.h"
 using namespace aly;
+ExampleUI::ExampleUI():Application(640,480,"ExampleUI"){
+}
+bool ExampleUI::init(Composite& rootNode) {
+	rootNode.add(MakeLabel("New Label",CoordPX(100,100),CoordPX(300,300)));
+	return true;
+}
 
 int main()
 {
 	try{
 		SANITY_CHECK_UI();
-		Application app(640,480);
+		ExampleUI app;
 		std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
 		app.run();
 		return 0;
 	} catch(std::exception& e){
-		std::cout<<e.what()<<std::endl;
-		std::cout<<"Hit any key ..."<<std::endl;
-		getchar();
+		std::cout<<"Error: "<<e.what()<<std::endl;
+		std::flush(std::cout);
+		std::cout<<"Exiting ..."<<std::endl;
+		//std::cout<<"Hit any key ..."<<std::endl;
+		//getchar();
 		return 1;
 	}
 }

@@ -23,7 +23,6 @@
 #define ALLOYUI_H_
 #include "AlloyMath.h"
 #include "AlloyContext.h"
-#include "AlloyApplication.h"
 #include "nanovg.h"
 #include <iostream>
 #include <memory>
@@ -32,6 +31,7 @@ namespace aly{
 	bool SANITY_CHECK_UI();
 	const double MM_TO_PIX=1.0;
 	const double DP_TO_PIX=1.0/160.0;
+	const double IN_TO_PIX=25.4;
 
 	inline NVGcolor Color(RGB color){
 		return nvgRGB(color.x,color.y,color.z);
@@ -69,86 +69,119 @@ namespace aly{
 	inline NVGcolor Color(int r,int g,int b){
 		return nvgRGB(r,g,b);
 	}
-
-	struct placement{
-		virtual int2 toPixles(int2 screenSize,double2 dpmm){return int2();};
-		virtual inline ~placement(){};
+	class Placement{
+		struct Interface
+		{
+			virtual int2 toPixels(int2 screenSize,double2 dpmm) const =0;
+		};
+		template<class T> struct Impl : public Interface{
+			T value;
+			Impl(const T& value):value(value){};
+			virtual int2 toPixels(int2 screenSize,double2 dpmm) const {
+				return value.toPixels(screenSize,dpmm);
+			}
+		};
+		std::shared_ptr<Interface> impl;
+		public:
+		    // Can construct or assign any type that implements the implicit interface (According to Sterling)
+		    Placement() {}
+		    Placement(const Placement & r) : impl(r.impl) {}
+		    virtual inline ~Placement(){}
+		    template<class T> Placement(const T & value) : impl(new Impl<T>{value}) {}
+		    Placement & operator = (const Placement & r) { impl = r.impl; return *this; }
+		    template<class T> Placement & operator = (const T & value) { return *this = Placement(value); }
+		    // Implicit interface
+		    int2 toPixels(int2 screenSize,double2 dpmm) const { return impl->toPixels(screenSize,dpmm); }
 	};
-	template<class T> struct placement_t : public placement{
-		T value;
-		placement_t(const T& t):value(t){}
-	};
-	struct coord_dp : public placement_t<int2>{
-		coord_dp(const int x,const int y):placement_t(int2(x,y)){}
-		coord_dp(const int2& t):placement_t(t){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
+	struct CoordDP{
+		int2 value;
+		CoordDP(int x,int y):value(x,y){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
 			return int2(std::floor(DP_TO_PIX*dpmm.x*value.x),std::floor(DP_TO_PIX*dpmm.y*value.y));
 		}
 	};
 
-	struct coord_px : public placement_t<int2>{
-		coord_px(const int x,const int y):placement_t(int2(x,y)){}
-		coord_px(const int2& t):placement_t(t){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
+	struct CoordPX{
+		int2 value;
+		CoordPX(int x,int y):value(x,y){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
 			return value;
 		}
 	};
-	struct coord_mm : public placement_t<float2>{
-		coord_mm(const float x,const float y):placement_t(float2(x,y)){}
-		coord_mm(const float2& t):placement_t(t){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
+	struct CoordMM{
+		float2 value;
+		CoordMM(float x,float y):value(x,y){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
 			return int2(std::floor(MM_TO_PIX*dpmm.x*value.x),std::floor(MM_TO_PIX*dpmm.y*value.y));
 		}
 	};
-	struct percent: public placement_t<float2>{
-		percent(const float x,const float y):placement_t(float2(x,y)){}
-		percent(const float2& t):placement_t(t){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
+	struct CoordIN{
+		float2 value;
+		CoordIN(float x,float y):value(x,y){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
+			return int2(std::floor(IN_TO_PIX*dpmm.x*value.x),std::floor(IN_TO_PIX*dpmm.y*value.y));
+		}
+	};
+	struct Percent{
+		float2 value;
+		Percent(float x,float y):value(x,y){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
 			return int2(std::floor(screenSize.x*value.x),std::floor(screenSize.y*value.y));
 		}
 	};
-	struct percent_dp : public placement_t<std::pair<percent,coord_dp>>{
-		percent_dp(const float2& t,const int2& v):placement_t(std::pair<percent,coord_dp>(t,v)){}
-		percent_dp(const float px,const float py,const int dx,const int dy):percent_dp(float2(px,py),int2(dx,dy)){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
-			return value.first.toPixles(screenSize,dpmm)+value.second.toPixles(screenSize,dpmm);
+	struct PercentDP{
+		std::pair<Percent,CoordDP> value;
+		PercentDP(float px,float py,int x,int y):value(Percent(px,py),CoordDP(x,y)){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
+			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
 		}
 	};
-	struct percent_px : public placement_t<std::pair<percent,coord_px>>{
-		percent_px(const float2& t,const int2& v):placement_t(std::pair<percent,coord_px>(t,v)){}
-		percent_px(const float px,const float py,const int dx,const int dy):percent_px(float2(px,py),int2(dx,dy)){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
-			return value.first.toPixles(screenSize,dpmm)+value.second.toPixles(screenSize,dpmm);
+	struct PercentPX{
+		std::pair<Percent,CoordPX> value;
+		PercentPX(float px,float py,int x,int y):value(Percent(px,py),CoordPX(x,y)){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
+			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
 		}
 	};
-	struct percent_mm : public placement_t<std::pair<percent,coord_mm>>{
-		percent_mm(const float2& t,const float2& v):placement_t(std::pair<percent,coord_mm>(t,v)){}
-		percent_mm(const float px,const float py,const float dx,const float dy):percent_mm(float2(px,py),float2(dx,dy)){}
-		int2 toPixles(int2 screenSize,double2 dpmm){
-			return value.first.toPixles(screenSize,dpmm)+value.second.toPixles(screenSize,dpmm);
+	struct PercentMM{
+		std::pair<Percent,CoordMM> value;
+		PercentMM(float px,float py,float x,float y):value(Percent(px,py),CoordMM(x,y)){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
+			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
 		}
 	};
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_dp & v) { return ss << v.value; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_px & v) { return ss << v.value; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const coord_mm & v) { return ss << v.value; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent & v) { return ss << v.value; }
+	struct PercentIN{
+		std::pair<Percent,CoordIN> value;
+		PercentIN(float px,float py,float x,float y):value(Percent(px,py),CoordIN(x,y)){}
+		int2 toPixels(int2 screenSize,double2 dpmm) const {
+			return value.first.toPixels(screenSize,dpmm)+value.second.toPixels(screenSize,dpmm);
+		}
+	};
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordDP & v) { return ss <<"("<<v.value.x<<" dp, "<<v.value.y<<" dp)"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPX & v) { return ss <<"("<<v.value.x<<" px, "<<v.value.y<<" px)"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordMM & v) { return ss <<"("<<v.value.x<<" mm, "<<v.value.y<<" mm)"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordIN & v) { return ss << "("<<v.value.x<<" in, "<<v.value.y<<" in)"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Percent & v) { return ss << "("<<v.value.x<<", "<<v.value.y<<")"; }
 
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_dp & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_px & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const percent_mm & v) { return ss <<"["<< v.value.first<<","<<v.value.second<<"]"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentDP & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentPX & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentMM & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const PercentIN & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
 
 
     struct Region {
     protected:
     	static uint64_t REGION_COUNTER;
     public:
+    	Placement position;
+    	Placement dimensions;
+
     	box2i bounds;
-    	placement position;
-    	placement dimensions;
     	const std::string name;
+    	Region* parent=nullptr;
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
-    	virtual void pack(const int2& dims,const double2& dpmm){};
-    	virtual void pack(AlloyContext* context){};
+    	virtual void pack(const int2& dims,const double2& dpmm);
+    	virtual void pack(AlloyContext* context);
     	virtual void draw(AlloyContext* context)=0;
     	virtual inline ~Region(){};
     };
@@ -175,10 +208,11 @@ namespace aly{
     	void draw(AlloyContext* context);
     };
 
-    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const placement& position,const placement& dimensions,FontType fontType=FontType::Normal,float fontSize=12.0f,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
+    template<class T,class D> inline std::shared_ptr<Label> MakeLabel(const std::string& name,const T& position,const D& dimensions,FontType fontType=FontType::Normal,float fontSize=12.0f,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
     	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
     	label->position=position;
     	label->dimensions=dimensions;
+
     	label->fontType=fontType;
     	label->fontSize=fontSize;
     	label->horizontalAlignment=halign;
@@ -186,10 +220,10 @@ namespace aly{
     	return label;
     }
 
-    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const placement& position,const placement& dimensions){
+    template<class T,class D> inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const T& position,const D& dimensions){
     	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
-        composite->position=position;
-        composite->dimensions=dimensions;
+    	composite->position=position;
+    	composite->dimensions=dimensions;
         return composite;
     }
 }

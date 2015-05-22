@@ -22,8 +22,18 @@
 #include "AlloyApplication.h"
 #include "AlloyFileUtil.h"
 namespace aly {
+
 std::shared_ptr<AlloyContext> Application::context;
 void Application::initInternal() {
+	rootNode.position=Percent(0.0f,0.0f);
+	rootNode.dimensions=Percent(1.0f,1.0f);
+	context->addAssetDirectory("assets/");
+	context->addAssetDirectory("../assets/");
+	context->addAssetDirectory("../../assets/");
+	context->loadFont(FontType::Normal,"sans", "fonts/Roboto-Regular.ttf");
+	context->loadFont(FontType::Bold,"sans-bold", "fonts/Roboto-Bold.ttf");
+	context->loadFont(FontType::Italic,"sans-italic", "fonts/Roboto-Italic.ttf");
+	context->loadFont(FontType::Icon,"icons", "fonts/fontawesome.ttf");
 	glfwSetWindowUserPointer(context->window, this);
 	glfwSetWindowRefreshCallback(context->window,
 			[](GLFWwindow * window ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onWindowRefresh();} catch(...) {app->throwException(std::current_exception());}});
@@ -41,6 +51,7 @@ void Application::initInternal() {
 			[](GLFWwindow * window, double xpos, double ypos ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onCursorPos(xpos, ypos);} catch(...) {app->throwException(std::current_exception());}});
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
+
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(const std::string& partialFile){
 	ImageRGBA image;
@@ -55,26 +66,14 @@ std::shared_ptr<GLTextureRGB> Application::loadTextureRGB(const std::string& par
 std::shared_ptr<Font> Application::loadFont(const std::string& name,const std::string& file){
 	return std::shared_ptr<Font>(new Font(name,context->getFullPath(file),context.get()));
 }
-Application::Application(int w, int h, const std::string& title) {
+Application::Application(int w, int h, const std::string& title):rootNode("Root") {
 	if (context.get() == nullptr) {
 		context = std::shared_ptr<AlloyContext>(new AlloyContext(w, h, title));
 	} else {
 		throw std::runtime_error(
 				"Cannot instantiate more than one application.");
 	}
-
-	context->addAssetDirectory("assets/");
-	context->addAssetDirectory("../assets/");
-	context->addAssetDirectory("../../assets/");
-	context->loadFont(FontType::Normal,"sans", "fonts/Roboto-Regular.ttf");
-	context->loadFont(FontType::Bold,"sans-bold", "fonts/Roboto-Bold.ttf");
-	context->loadFont(FontType::Italic,"sans-italic", "fonts/Roboto-Italic.ttf");
-	context->loadFont(FontType::Icon,"icons", "fonts/fontawesome.ttf");
-
 	initInternal();
-	if (!init()) {
-		throw std::runtime_error("Error occurred in application init()");
-	}
 }
 void Application::draw(){
 	DrawEvent3D e3d;
@@ -85,10 +84,25 @@ void Application::draw(){
 
 }
 void Application::drawUI(){
-
+	box2i& view=context->viewport;
+	glViewport(view.position.x,view.position.y,view.dimensions.x,view.dimensions.y);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+	NVGcontext* nvg=context->nvgContext;
+	nvgBeginFrame(nvg,context->width(),context->height(),context->pixelRatio);
+	nvgBeginPath(nvg);
+	nvgRect(nvg,100,100,300,300);
+	nvgFillColor(nvg,Color(64,64,64));
+	nvgFill(nvg);
+	rootNode.draw(context.get());
+	nvgEndFrame(nvg);
 }
 void Application::run(int swapInterval) {
 	context->makeCurrent();
+	rootNode.pack(context.get());
+	if (!init(rootNode)) {
+		throw std::runtime_error("Error occurred in application init()");
+	}
+	rootNode.pack(context.get());
 	glfwSwapInterval(swapInterval);
 	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);

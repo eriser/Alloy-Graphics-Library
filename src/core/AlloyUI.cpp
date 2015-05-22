@@ -21,10 +21,11 @@
 #include "AlloyUI.h"
 #include "nanovg.h"
 #include "nanovg_gl.h"
+#include "AlloyApplication.h"
 namespace aly{
 	uint64_t Region::REGION_COUNTER=0;
 
-	Region::Region(const std::string& name):position(coord_px(0,0)),dimensions(percent(1,1)),name(name){
+	Region::Region(const std::string& name):position(CoordPX(0,0)),dimensions(Percent(1,1)),name(name){
 
 	}
 
@@ -40,21 +41,31 @@ namespace aly{
 		draw(Application::getContext().get());
 	}
 	void Composite::pack(const int2& dims,const double2& dpmm){
-		bounds.position=position.toPixles(dims,dpmm);
-		bounds.dimensions=dimensions.toPixles(dims,dpmm);
+		bounds.position=position.toPixels(dims,dpmm);
+		bounds.dimensions=dimensions.toPixels(dims,dpmm);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(dims,dpmm);
 		}
 	}
+	void Region::pack(const int2& dims,const double2& dpmm){
+		bounds.position=position.toPixels(dims,dpmm);
+		bounds.dimensions=dimensions.toPixels(dims,dpmm);
+	}
+	void Region::pack(AlloyContext* context){
+		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm);
+		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm);
+	}
 	void Composite::pack(AlloyContext* context){
-		bounds.position=position.toPixles(context->viewport.dimensions,context->dpmm);
-		bounds.dimensions=dimensions.toPixles(context->viewport.dimensions,context->dpmm);
+		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm);
+		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(bounds.dimensions,context->dpmm);
 		}
 	}
 	Composite& Composite::add(const std::shared_ptr<Region>& region){
 		children.push_back(region);
+		if(region->parent!=nullptr)throw std::runtime_error("Cannot add child node because it already has a parent.");
+		region->parent=this;
 		return *this;
 	}
 	Composite& Composite::add(Region* region){
@@ -64,15 +75,19 @@ namespace aly{
 
 	void Label::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
-		nvgFontSize(nvg, fontSize);
-		nvgFontFaceId(nvg,context->getFontHandle(fontType));
-		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
-		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
-		nvgBeginPath(nvg);
+
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 		nvgStrokeColor(nvg, Color(255, 255, 255, 127));
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgStroke(nvg);
+
+		nvgFontSize(nvg, fontSize);
+		nvgFillColor(nvg,Color(255,255,255));
+		nvgFontFaceId(nvg,context->getFontHandle(fontType));
+		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
+		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
+		nvgBeginPath(nvg);
+
 	}
 
 

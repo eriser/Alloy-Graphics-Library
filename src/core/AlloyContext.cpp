@@ -117,6 +117,12 @@ namespace aly{
 			if(mode==nullptr)throw std::runtime_error("Could not find video monitor.");
 			glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
 			dpmm = double2(mode->width / (double)widthMM ,mode->height / (double)heightMM );
+			int winWidth,winHeight,fbWidth,fbHeight;
+			glfwGetWindowSize(window, &winWidth, &winHeight);
+			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+			// Calculate pixel ration for hi-dpi devices.
+			pixelRatio = (float)fbWidth / (float)winWidth;
+
 		}
 		bool AlloyContext::begin(){
 			if(current==nullptr){
