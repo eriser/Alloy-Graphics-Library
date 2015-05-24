@@ -67,6 +67,7 @@ namespace aly{
 		void onCursorPos(double xpos, double ypos);
 		void onScroll(double xoffset, double yoffset);
 		void onCursorEnter(int enter);
+		void fireEvent(const InputEvent& event);
 		inline void throwException(std::exception_ptr e){
 			caughtExceptions.push_back(e);
 		}
