@@ -478,6 +478,11 @@ template<class T> struct vec<T,1>
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<uint8_t,3> & v) { return ss << "(" << (int)v.x << ", " << (int)v.y << ", " << (int)v.z << ")"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<uint8_t,4> & v) { return ss << "(" << (int)v.x << ", " << (int)v.y << ", " << (int)v.z << ", " << (int)v.w << ")"; }
 
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<int8_t,1> & v) { return ss << (int)v.x; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<int8_t,2> & v) { return ss << "(" << (int)v.x << ", " << (int)v.y << ")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<int8_t,3> & v) { return ss << "(" << (int)v.x << ", " << (int)v.y << ", " << (int)v.z << ")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const vec<int8_t,4> & v) { return ss << "(" << (int)v.x << ", " << (int)v.y << ", " << (int)v.z << ", " << (int)v.w << ")"; }
+
     template<class C, class R, class T,int M, int N> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const matrix<T,M,N> & A) {
     	ss<<"\n";
     	for(int n=0;n<N;n++){
@@ -710,6 +715,7 @@ template<class T> struct vec<T,1>
         typedef box<int,2> box2i;
         typedef box<int,3> box3i;
         typedef box<int,4> box4i;
+
 };
 
 #endif

@@ -33,9 +33,11 @@ protected:
 public:
 	GLuint textureId=0;
 	virtual void draw() override{
+		std::cout<<"Start Image Draw "<<std::endl;
 		GLuint& vao=context->vaoImage.vao;
 		GLuint& positionBuffer=context->vaoImage.positionBuffer;
 		GLuint& uvBuffer=context->vaoImage.uvBuffer;
+		CHECK_GL_ERROR();
 		glBindVertexArray (vao);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -43,15 +45,13 @@ public:
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glDrawArrays(GL_QUADS,0,4);
+		glDrawArrays(GL_TRIANGLES,0,6);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
 		glBindVertexArray(0);
+		CHECK_GL_ERROR();
 	}
 
 	virtual void update() override{
-		GLuint& vao=context->vaoImage.vao;
-		GLuint& positionBuffer=context->vaoImage.positionBuffer;
-		GLuint& uvBuffer=context->vaoImage.uvBuffer;
 		if(textureId==0){
 			glGenTextures( 1,&textureId);
 		}
@@ -179,8 +179,7 @@ public:
 		textureImage.set(image);
 		bounds=box2i({0,0},{textureImage.width,textureImage.height});
 	}
-	GLTexture(int x,int y,int width,int height,int imageWidth,int imageHeight);
-	GLTexture(const Image<T,C,I>& image);
+
 	virtual ~GLTexture(){
 		context->begin();
 		if(textureId){

@@ -47,28 +47,38 @@ namespace aly{
 	void Composite::draw(){
 		draw(Application::getContext().get());
 	}
-	void Composite::pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio){
+	void Composite::pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio){
 		bounds.position=position.toPixels(dims,dpmm,pixelRatio);
 		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(bounds.position,bounds.dimensions,dpmm,pixelRatio);
 		}
 	}
-	void Region::pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio){
+	void Region::pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio){
 		bounds.position=pos+position.toPixels(dims,dpmm,pixelRatio);
-		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
+		pixel2 d=dimensions.toPixels(dims,dpmm,pixelRatio);
+		if(aspect<0){
+			aspect=dims.x/std::max((float)dims.y,0.0f);
+		}
+
+		switch(aspectRatio){
+			case AspectRatio::FixedWidth:
+				bounds.dimensions=pixel2(d.x,d.x/aspect);
+				break;
+			case AspectRatio::FixedHeight:
+				bounds.dimensions=pixel2(d.x*aspect,d.y);
+				break;
+			case AspectRatio::Unspecified:
+			default:
+				bounds.dimensions=d;
+		}
 	}
 	void Region::pack(AlloyContext* context){
-		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
-		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
+		pack(context->viewport.position,context->viewport.dimensions,context->dpmm,context->pixelRatio);
 	}
 
 	void Composite::pack(AlloyContext* context){
-		bounds.position=position.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
-		bounds.dimensions=dimensions.toPixels(context->viewport.dimensions,context->dpmm,context->pixelRatio);
-		for(std::shared_ptr<Region>& region:children){
-			region->pack(bounds.position,bounds.dimensions,context->dpmm,context->pixelRatio);
-		}
+		pack(context->viewport.position,context->viewport.dimensions,context->dpmm,context->pixelRatio);
 	}
 
 	Composite& Composite::add(const std::shared_ptr<Region>& region){
@@ -90,7 +100,36 @@ namespace aly{
 		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
 	}
+	void ImageRegion::draw(AlloyContext* context){
 
+		NVGcontext* nvg=context->nvgContext;
+		if(bgColor.w>0){
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+			nvgFillColor(nvg, Color(bgColor));
+			nvgFill(nvg);
+		}
+		if(fgColor.w>0){
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+			nvgFillColor(nvg, Color(fgColor));
+			nvgFill(nvg);
+		}
+		if(glyph.get()!=nullptr){
+			NVGpaint imgPaint = nvgImagePattern(context->nvgContext, 0,0,bounds.dimensions.x,bounds.dimensions.y,0,glyph->handle,1.0f);
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+			nvgFillPaint(nvg, imgPaint);
+			nvgFill(nvg);
+		}
+		if(borderColor.w>0){
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+			nvgStrokeColor(nvg, Color(borderColor));
+			nvgStrokeWidth(nvg,borderWidth.toPixels(context->height(),context->dpmm.y,context->pixelRatio));
+			nvgStroke(nvg);
+		}
+	}
 
 };
 

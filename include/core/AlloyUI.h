@@ -25,12 +25,16 @@
 #include "AlloyContext.h"
 #include "AlloyUnits.h"
 #include "nanovg.h"
+#include  "GLTexture.h"
 #include <iostream>
 #include <memory>
 #include <list>
 #include <vector>
 namespace aly{
 	bool SANITY_CHECK_UI();
+	const RGBA COLOR_NONE(0,0,0,0);
+	const RGBA COLOR_BLACK(0,0,0,255);
+	const RGBA COLOR_WHITE(255,255,255,255);
 
 	inline NVGcolor Color(RGB color){
 		return nvgRGB(color.x,color.y,color.z);
@@ -76,11 +80,14 @@ namespace aly{
     public:
     	AUnit2D position;
     	AUnit2D dimensions;
-    	box2i bounds;
+    	box2px bounds;
     	const std::string name;
+    	AspectRatio aspectRatio=AspectRatio::Unspecified;
+    	float aspect=-1.0f;
     	Region* parent=nullptr;
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
-    	virtual void pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio);
+    	virtual void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio);
+
     	virtual void pack(AlloyContext* context);
     	virtual void draw(AlloyContext* context)=0;
     	virtual inline ~Region(){};
@@ -89,30 +96,84 @@ namespace aly{
 
     struct Composite : public Region{
     	std::vector<std::shared_ptr<Region>> children;
-    	Orientation orientation;
-		RGBA bgColor;
-	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),bgColor(0,0,0,0),orientation(Orientation::Unspecified){};
+    	Orientation orientation=Orientation::Unspecified;
+		RGBA bgColor=COLOR_NONE;
+	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
 		virtual void draw(AlloyContext* context) override;
-		virtual void pack(const int2& pos,const int2& dims,const double2& dpmm,double pixelRatio) override;
+		virtual void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio) override;
+
 		virtual void pack(AlloyContext* context) override;
 		Composite& add(const std::shared_ptr<Region>& region);
 		Composite& add(Region* region);//After add(), composite will own region and be responsible for destroying it.
 		void pack();
 	    void draw();
     };
-
-
-
-    struct Label : public Region{
-        HorizontalAlignment horizontalAlignment;
-    	VerticalAlignment verticalAlignment;
-    	FontType fontType;
-    	AUnit1D fontSize;
-    	RGBA fontColor;
-    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name),fontType(FontType::Normal),horizontalAlignment(HorizontalAlignment::Left),verticalAlignment(VerticalAlignment::Top),fontColor(255,255,255,255){};
+    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,
+    		RGBA bgColor=COLOR_NONE,Orientation orientation=Orientation::Unspecified){
+    	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
+    	composite->position=position;
+    	composite->bgColor=bgColor;
+    	composite->dimensions=dimensions;
+    	composite->orientation=orientation;
+        return composite;
+    }
+    struct ImageRegion : public Region{
+    	RGBA bgColor=COLOR_NONE;
+    	RGBA fgColor=COLOR_NONE;
+    	RGBA borderColor=COLOR_NONE;
+    	AUnit1D borderWidth=UnitPX(2);
+    	std::shared_ptr<ImageGlyph> glyph;
+    	ImageRegion(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
+    		Region(name)
+    	{
+    		aspectRatio=AspectRatio::FixedHeight;
+    	};
     	void draw(AlloyContext* context);
     };
+    inline std::shared_ptr<ImageRegion> MakeImageRegion(
+    		const std::shared_ptr<ImageGlyph>& glyph,
+    		const AUnit2D& position,
+    		const AUnit2D& dimensions,
+    		RGBA bgColor=COLOR_NONE,
+    		RGBA fgColor=COLOR_NONE,
+    		RGBA borderColor=COLOR_NONE,
+    		const AUnit1D& borderWidth=UnitPX(2)
+    		){
+    	std::shared_ptr<ImageRegion> label=std::shared_ptr<ImageRegion>(new ImageRegion(glyph->name));
+    	label->glyph=glyph;
+    	label->position=position;
+    	label->dimensions=dimensions;
+    	label->bgColor=bgColor;
+    	label->fgColor=fgColor;
+    	label->borderColor=borderColor;
+    	label->borderWidth=borderWidth;
+    	label->aspect=glyph->width/(float)glyph->height;
+    	return label;
+    }
+    struct Label : public Region{
+        HorizontalAlignment horizontalAlignment=HorizontalAlignment::Left;
+    	VerticalAlignment verticalAlignment=VerticalAlignment::Top;
 
+    	FontType fontType=FontType::Normal;
+    	AUnit1D fontSize=UnitPT(14);
+    	RGBA fontColor=COLOR_WHITE;
+    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
+    		Region(name){};
+    	void draw(AlloyContext* context);
+    };
+    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,
+    		FontType fontType,const AUnit1D& fontSize=UnitPT(14.0f),
+    		RGBA fontColor=COLOR_WHITE,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
+    	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
+    	label->position=position;
+    	label->dimensions=dimensions;
+    	label->fontColor=fontColor;
+    	label->fontType=fontType;
+    	label->fontSize=fontSize;
+    	label->horizontalAlignment=halign;
+    	label->verticalAlignment=valign;
+    	return label;
+    }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Region & region) {
         	ss<<"Region: "<<region.name<<std::endl;
         	ss<<"\tRelative Position: "<<region.position<<std::endl;
@@ -150,26 +211,7 @@ namespace aly{
     }
     typedef std::shared_ptr<Label> LabelPtr;
     typedef std::shared_ptr<Composite> CompositePtr;
+    typedef std::shared_ptr<ImageRegion> ImageRegionPtr;
     typedef std::shared_ptr<Region> RegionPtr;
-    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,FontType fontType,const AUnit1D& fontSize=UnitPT(14.0f),RGBA fontColor=RGBA(255,255,255,255),HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
-    	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
-    	label->position=position;
-    	label->dimensions=dimensions;
-    	label->fontColor=fontColor;
-    	label->fontType=fontType;
-    	label->fontSize=fontSize;
-    	label->horizontalAlignment=halign;
-    	label->verticalAlignment=valign;
-    	return label;
-    }
-
-    inline std::shared_ptr<Composite> MakeComposite(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,RGBA bgColor=RGBA(0,0,0,0),Orientation orientation=Orientation::Unspecified){
-    	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
-    	composite->position=position;
-    	composite->bgColor=bgColor;
-    	composite->dimensions=dimensions;
-    	composite->orientation=orientation;
-        return composite;
-    }
 }
 #endif /* ALLOYUI_H_ */

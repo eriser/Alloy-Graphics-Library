@@ -45,6 +45,15 @@ namespace aly{
 			if(context.get()==nullptr)throw std::runtime_error("Cannot get GLFW / NanoVG context.");
 			return context;
 		}
+		std::string getFullPath(const std::string& partialFile){
+			return context->getFullPath(partialFile);
+		}
+		inline std::shared_ptr<ImageGlyph> createImageGlyph(const std::string& fileName,bool mipmap=false){
+			return context->createImageGlyph(fileName);
+		}
+		inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,bool mipmap=false){
+			return context->createImageGlyph(img);
+		}
 		virtual void onWindowRefresh(){};
 		virtual void onWindowFocus(int focused){};
 		virtual void onWindowSize(int width,int height){

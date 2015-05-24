@@ -60,10 +60,5 @@ gl_FragColor=rgba;
 	return imageShader;
 }
 */
-template<class T,int C,ImageType I> GLTexture<T,C,I>::GLTexture(int x,int y,int width,int height,int imageWidth,int imageHeight):
-		GLTexture<T,C,I>(x,y,width,height,imageWidth,imageHeight,Application::getContext()){
-}
-template<class T,int C,ImageType I> GLTexture<T,C,I>::GLTexture(const Image<T,C,I>& image):
-		GLTexture<T,C,I>(image,Application::getContext()){
-}
+
 }

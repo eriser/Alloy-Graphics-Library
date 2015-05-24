@@ -135,6 +135,7 @@ namespace aly{
 		Label* r2=new Label("region 2");
 		Composite comp;
 		comp.add(r1).add(r2);
+		return true;
 	}
 	bool SANITY_CHECK_FILE_IO(){
 		try {

@@ -21,6 +21,7 @@
 
 #include "AlloyFileUtil.h"
 #include "AlloyContext.h"
+
 #define NANOVG_GL3_IMPLEMENTATION
 #include "../../include/core/nanovg_gl.h"
 #include <iostream>
@@ -33,9 +34,8 @@ int printOglError(const char *file, int line)
     glErr = glGetError();
     if (glErr != GL_NO_ERROR)
     {
-        printf("glError in file %s @ line %d: %s\n",
-			     file, line, gluErrorString(glErr));
-        retCode = 1;
+    	throw std::runtime_error(aly::MakeString()<<"GL error occurred in \""<<file<<"\" on line "<<line<<": "<<gluErrorString(glErr));
+    	return 1;
     }
     return retCode;
 }
@@ -44,6 +44,16 @@ namespace aly{
 	Font::Font(const std::string& name,const std::string& file,AlloyContext* context):name(name),file(file){
 		handle=nvgCreateFont(context->nvgContext,name.c_str(),file.c_str());
 	}
+	ImageGlyph::ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap):file(file),name(GetFileNameWithoutExtension(file)){
+		handle=nvgCreateImage(context->nvgContext,file.c_str(),(mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0);
+		nvgImageSize(context->nvgContext,handle,&width,&height);
+	}
+	ImageGlyph::ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap){
+		handle = nvgCreateImageRGBA(context->nvgContext, rgba.width, rgba.height, (mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0, rgba.ptr());
+		width=rgba.width;
+		height=rgba.height;
+	}
+
 	void AlloyContext::addAssetDirectory(const std::string& dir){
 		assetDirectories.push_back(dir);
 	}
@@ -93,9 +103,12 @@ namespace aly{
 			glViewport(0,0,width,height);
 			viewport=box2i(int2(0,0),int2(width,height));
 			nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-			float2 TextureCoords[4]={float2(1.0f,1.0f),float2(0.0f,1.0f),float2(0.0f,0.0f),float2(1.0f,0.0f)};
-			float3 PositionCoords[4]={float3(1.0f,1.0f,0.0f),float3(0.0f,1.0f,0.0f),float3(0.0f,0.0f,0.0f),float3(1.0f,0.0f,0.0f)};
-
+			const float2 TextureCoords[6]={
+					float2(1.0f,1.0f),float2(0.0f,1.0f),float2(0.0f,0.0f),
+					float2(0.0f,0.0f),float2(1.0f,0.0f),float2(1.0f,1.0f)};
+			const float3 PositionCoords[6]={
+					float3(1.0f,1.0f,0.0f),float3(0.0f,1.0f,0.0f),float3(0.0f,0.0f,0.0f),
+					float3(0.0f,0.0f,0.0f),float3(1.0f,0.0f,0.0f),float3(1.0f,1.0f,0.0f)};
 			glGenVertexArrays (1, &vaoImage.vao);
 			glBindVertexArray (vaoImage.vao);
 				glGenBuffers(1, &vaoImage.positionBuffer);
@@ -105,7 +118,7 @@ namespace aly{
 
 				glGenBuffers(1, &vaoImage.uvBuffer);
 				glBindBuffer(GL_ARRAY_BUFFER, vaoImage.uvBuffer);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2* 4,TextureCoords, GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2* 6,TextureCoords, GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 

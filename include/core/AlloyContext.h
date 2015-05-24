@@ -34,18 +34,20 @@
 #include <string>
 #include "nanovg.h"
 #include "AlloyMath.h"
+#include "AlloyImage.h"
 int printOglError(const char *file, int line);
 #define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
 
 
 namespace aly{
-	struct GLGlobalImage{
+	struct ImageVAO{
 		GLuint vao=0;
 		GLuint positionBuffer=0;
 		GLuint uvBuffer=0;
 	};
     enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
 	enum class VerticalAlignment { Top=NVG_ALIGN_TOP, Middle=NVG_ALIGN_MIDDLE, Bottom=NVG_ALIGN_BOTTOM, Baseline=NVG_ALIGN_BASELINE };
+	enum class AspectRatio { Unspecified, FixedWidth, FixedHeight };
 	enum class Shape { Rectangle, Ellipse};
     enum class Orientation {Unspecified=0, Horizontal=1, Vertical=2 };
 	enum class FontType {Normal=0,Bold=1,Italic=2,Icon=3};
@@ -83,6 +85,14 @@ namespace aly{
 		}
 		return ss;
     }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AspectRatio& type) {
+		switch(type){
+			case AspectRatio::Unspecified: return ss<<"Unspecified";
+			case AspectRatio::FixedWidth: return ss<<"Fixed Width";
+			case AspectRatio::FixedHeight: return ss<<"Fixed Height";
+		}
+		return ss;
+    }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Shape& type) {
 		switch(type){
 			case Shape::Rectangle: return ss<<"Rectangle";
@@ -97,7 +107,18 @@ namespace aly{
 		const std::string file;
 		Font(const std::string& name,const std::string& file,AlloyContext* context);
 	};
+	struct ImageGlyph{
+		int handle;
+		const std::string file;
+		const std::string name;
+		int width;
+		int height;
+		ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap=false);
+		ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap=false);
+
+	};
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"Image "<<v.name<<"["<<v.handle<<"]: dimensions={"<<v.width<<","<<v.height<<"}"; }
 
 	struct AlloyContext {
 		private:
@@ -106,7 +127,7 @@ namespace aly{
 			static std::mutex contextLock;
 			GLFWwindow* current;
 		public:
-			GLGlobalImage vaoImage;
+			ImageVAO vaoImage;
 			NVGcontext* nvgContext;
 			GLFWwindow* window;
 			box2i viewport;
@@ -125,6 +146,12 @@ namespace aly{
 			inline int getFontHandle(FontType type){
 				if(fonts[static_cast<int>(type)].get()==nullptr)throw std::runtime_error("Font type not found.");
 				return fonts[static_cast<int>(type)]->handle;
+			}
+			inline std::shared_ptr<ImageGlyph> createImageGlyph(const std::string& fileName,bool mipmap=false){
+				return std::shared_ptr<ImageGlyph>(new ImageGlyph(getFullPath("images/robot.png"),this));
+			}
+			inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,bool mipmap=false){
+				return std::shared_ptr<ImageGlyph>(new ImageGlyph(img,this));
 			}
 			inline std::shared_ptr<Font>& getFont(FontType type){
 				return fonts[static_cast<int>(type)];

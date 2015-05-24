@@ -25,21 +25,24 @@
 #include <string>
 #include <iostream>
 namespace aly{
-	const double MM_TO_PIX=1.0;
-	const double DP_TO_PIX=1.0/160.0;
-	const double IN_TO_PIX=25.4;
-	const double PT_TO_PIX=1.333333f;
+	const float MM_TO_PIX=1.0;
+	const float DP_TO_PIX=1.0/160.0;
+	const float IN_TO_PIX=25.4;
+	const float PT_TO_PIX=1.333333f;
+	typedef int pixel;
+	typedef vec<pixel,2> pixel2;
+	typedef box<pixel,2> box2px;
 	class AUnit1D{
 		struct Interface
 		{
-			virtual int toPixels(int screenSize,double dpmm,double pixelRatio) const =0;
+			virtual pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const =0;
 			virtual std::string toString() const = 0;
 		};
 	public:
 		template<class T> struct Impl : public Interface{
 			T value;
 			Impl(const T& value):value(value){};
-			virtual int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+			virtual pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
 				return value.toPixels(screenSize,dpmm,pixelRatio);
 			}
 			virtual std::string toString() const {
@@ -56,20 +59,20 @@ namespace aly{
 		    AUnit1D & operator = (const AUnit1D & r) { impl = r.impl; return *this; }
 		    template<class T> AUnit1D & operator = (const T & value) { return *this = AUnit1D(value); }
 		    // Implicit interface
-		    int toPixels(int screenSize,double dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
+		    pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
 		    std::string toString() const {return impl->toString(); }
 	};
 
 	class AUnit2D{
 		struct Interface
 		{
-			virtual int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const =0;
+			virtual pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const =0;
 			virtual std::string toString() const = 0;
 		};
 		template<class T> struct Impl : public Interface{
 			T value;
 			Impl(const T& value):value(value){};
-			virtual int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+			virtual pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 				return value.toPixels(screenSize,dpmm,pixelRatio);
 			}
 			virtual std::string toString() const {
@@ -86,21 +89,22 @@ namespace aly{
 		    AUnit2D & operator = (const AUnit2D & r) { impl = r.impl; return *this; }
 		    template<class T> AUnit2D & operator = (const T & value) { return *this = AUnit2D(value); }
 		    // Implicit interface
-		    int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
+		    pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
 		    std::string toString() const {return impl->toString(); }
 	};
 	struct UnitDP{
 		int value;
 		UnitDP(int x):value(x){}
-		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
-			return std::floor(DP_TO_PIX*dpmm*value);
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+			return (float)(DP_TO_PIX*dpmm*value);
 		}
 	};
 
 	struct UnitPX{
-		int value;
-		UnitPX(int x):value(x){}
-		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
+		pixel value;
+		UnitPX(float x):value((pixel)x){}
+		UnitPX(int x):value((pixel)x){}
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
 			return value;
 		}
 	};
@@ -108,106 +112,107 @@ namespace aly{
 	struct UnitPT{
 		float value;
 		UnitPT(float x):value(x){}
-		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
-			return (int)std::floor(PT_TO_PIX*value*pixelRatio);
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+			return (float)(PT_TO_PIX*value*pixelRatio);
 		}
 	};
 	struct UnitMM{
 		float value;
 		UnitMM(float x):value(x){}
-		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
-			return std::floor(MM_TO_PIX*dpmm*value);
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+			return (float)(MM_TO_PIX*dpmm*value);
 		}
 	};
 	struct UnitIN{
 		float value;
 		UnitIN(float x):value(x){}
-		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
-			return std::floor(IN_TO_PIX*dpmm*value);
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+			return (float)(IN_TO_PIX*dpmm*value);
 		}
 	};
 	struct UnitPercent{
 		float value;
 		UnitPercent(float x):value(x){}
-		int toPixels(int screenSize,double dpmm,double pixelRatio) const {
-			return std::floor(screenSize*value);
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+			return (float)(screenSize*value);
 		}
 	};
 
 	struct CoordDP{
 		int2 value;
 		CoordDP(int x,int y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
-			return int2(std::floor(DP_TO_PIX*dpmm.x*value.x),std::floor(DP_TO_PIX*dpmm.y*value.y));
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
+			return  pixel2((pixel)(DP_TO_PIX*dpmm.x*value.x),(pixel)(DP_TO_PIX*dpmm.y*value.y));
 		}
 	};
 	struct CoordPX{
-		int2 value;
-		CoordPX(int x,int y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+		pixel2 value;
+		CoordPX(float x,float y):value((pixel)x,(pixel)y){}
+		CoordPX(int x,int y):value((pixel)x,(pixel)y){}
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value;
 		}
 	};
 	struct CoordMM{
 		float2 value;
 		CoordMM(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
-			return int2(std::floor(MM_TO_PIX*dpmm.x*value.x),std::floor(MM_TO_PIX*dpmm.y*value.y));
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
+			return  pixel2((pixel)(MM_TO_PIX*dpmm.x*value.x),(pixel)(MM_TO_PIX*dpmm.y*value.y));
 		}
 	};
 	struct CoordPT{
 		float2 value;
 		CoordPT(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
-			return int2(std::floor(PT_TO_PIX*pixelRatio*value.x),std::floor(PT_TO_PIX*pixelRatio*value.y));
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
+			return  pixel2((pixel)(PT_TO_PIX*pixelRatio*value.x),(pixel)(PT_TO_PIX*pixelRatio*value.y));
 		}
 	};
 	struct CoordIN{
 		float2 value;
 		CoordIN(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
-			return int2(std::floor(IN_TO_PIX*dpmm.x*value.x),std::floor(IN_TO_PIX*dpmm.y*value.y));
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
+			return  pixel2((pixel)(IN_TO_PIX*dpmm.x*value.x),(pixel)(IN_TO_PIX*dpmm.y*value.y));
 		}
 	};
 	struct CoordPercent{
 		float2 value;
 		CoordPercent(float x,float y):value(x,y){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
-			return int2(std::floor(screenSize.x*value.x),std::floor(screenSize.y*value.y));
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
+			return  pixel2((pixel)(screenSize.x*value.x),(pixel)(screenSize.y*value.y));
 		}
 	};
 	struct CoordPerDP{
 		std::pair<CoordPercent,CoordDP> value;
 		CoordPerDP(float px,float py,int x,int y):value(CoordPercent(px,py),CoordDP(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct CoordPerPX{
 		std::pair<CoordPercent,CoordPX> value;
 		CoordPerPX(float px,float py,int x,int y):value(CoordPercent(px,py),CoordPX(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct CoordPerPT{
 		std::pair<CoordPercent,CoordPT> value;
 		CoordPerPT(float px,float py,float x,float y):value(CoordPercent(px,py),CoordPT(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct CoordPerMM{
 		std::pair<CoordPercent,CoordMM> value;
 		CoordPerMM(float px,float py,float x,float y):value(CoordPercent(px,py),CoordMM(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
 	struct CoordPerIN{
 		std::pair<CoordPercent,CoordIN> value;
 		CoordPerIN(float px,float py,float x,float y):value(CoordPercent(px,py),CoordIN(x,y)){}
-		int2 toPixels(int2 screenSize,double2 dpmm,double pixelRatio) const {
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};

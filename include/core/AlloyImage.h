@@ -133,9 +133,17 @@ namespace aly{
 			if(data.size()==0)return nullptr;
 			return data.data();
 		}
+		const vec<T,C>* vecPtr() const {
+			if(data.size()==0)return nullptr;
+			return data.data();
+		}
 		T* ptr(){
 			if(data.size()==0)return nullptr;
-			return &(data.data[0][0]);
+			return &(data.front()[0]);
+		}
+		const T* ptr() const {
+			if(data.size()==0)return nullptr;
+			return &(data.front()[0]);
 		}
 		void setZero(){
 			memset(this->data(),0,sizeof(vec<T,C>)*data.size());
