@@ -74,11 +74,11 @@ namespace aly{
 		}
 	}
 	void Region::pack(AlloyContext* context){
-		pack(context->viewport.position,context->viewport.dimensions,context->dpmm,context->pixelRatio);
+		pack(pixel2(context->viewport.position),pixel2(context->viewport.dimensions),context->dpmm,context->pixelRatio);
 	}
 
 	void Composite::pack(AlloyContext* context){
-		pack(context->viewport.position,context->viewport.dimensions,context->dpmm,context->pixelRatio);
+		pack(pixel2(context->viewport.position),pixel2(context->viewport.dimensions),context->dpmm,context->pixelRatio);
 	}
 
 	Composite& Composite::add(const std::shared_ptr<Region>& region){

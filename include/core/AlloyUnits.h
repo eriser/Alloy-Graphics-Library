@@ -29,7 +29,7 @@ namespace aly{
 	const float DP_TO_PIX=1.0/160.0;
 	const float IN_TO_PIX=25.4;
 	const float PT_TO_PIX=1.333333f;
-	typedef int pixel;
+	typedef float pixel;
 	typedef vec<pixel,2> pixel2;
 	typedef box<pixel,2> box2px;
 	class AUnit1D{
