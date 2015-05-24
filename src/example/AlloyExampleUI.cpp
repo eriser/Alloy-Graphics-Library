@@ -53,21 +53,22 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(255,255,255,255),
 			HorizontalAlignment::Center,
 			VerticalAlignment::Middle);
-
 	ImageRGBA robotImg;
 	//ReadImageFromFile(getFullPath("images/robot.png"),robotImg);
 	//std::shared_ptr<GLComponent> tex=std::shared_ptr<GLComponent>(new GLTextureRGBA(robotImg,getContext()));
 	std::shared_ptr<ImageGlyph> img=getContext()->createImageGlyph(getFullPath("images/robot.png"));
 	ImageRegionPtr imgr=MakeImageRegion(img,
-			CoordPX(10,10),
+			CoordPX(30,20),
 			CoordPX(200,200),
-			RGBA(32,64,128,255));
+			RGBA(32,64,128,255),
+			RGBA(32,128,32,128),
+			RGBA(128,128,128,255));
 	CompositePtr comp=MakeComposite("Rect 1",CoordPX(100,100),CoordPX(400,300),RGBA(128,32,32,255));
 	comp->add(label);
 	rootNode.add(comp);
 	rootNode.add(imgr);
 	rootNode.pack();
-	std::cout<<"Image "<<*imgr<<std::endl;
+	std::cout<<*imgr<<std::endl;
 	std::cout<<*label<<std::endl;
 	std::cout<<*comp<<std::endl;
 	std::cout<<rootNode<<std::endl;

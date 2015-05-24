@@ -73,9 +73,6 @@ namespace aly{
 				bounds.dimensions=d;
 		}
 	}
-	void Region::pack(AlloyContext* context){
-		pack(pixel2(context->viewport.position),pixel2(context->viewport.dimensions),context->dpmm,context->pixelRatio);
-	}
 
 	void Composite::pack(AlloyContext* context){
 		pack(pixel2(context->viewport.position),pixel2(context->viewport.dimensions),context->dpmm,context->pixelRatio);
@@ -109,17 +106,21 @@ namespace aly{
 			nvgFillColor(nvg, Color(bgColor));
 			nvgFill(nvg);
 		}
+		if(glyph.get()!=nullptr){
+			NVGpaint imgPaint = nvgImagePattern(context->nvgContext, bounds.position.x,bounds.position.y,
+					bounds.dimensions.x,bounds.dimensions.y,
+					0.f,glyph->handle,1.0f);
+			nvgBeginPath(nvg);
+			nvgFillColor(nvg,Color(COLOR_WHITE));
+			nvgRect(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+			nvgFillPaint(nvg, imgPaint);
+			nvgFill(nvg);
+		}
+
 		if(fgColor.w>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 			nvgFillColor(nvg, Color(fgColor));
-			nvgFill(nvg);
-		}
-		if(glyph.get()!=nullptr){
-			NVGpaint imgPaint = nvgImagePattern(context->nvgContext, 0,0,bounds.dimensions.x,bounds.dimensions.y,0,glyph->handle,1.0f);
-			nvgBeginPath(nvg);
-			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
-			nvgFillPaint(nvg, imgPaint);
 			nvgFill(nvg);
 		}
 		if(borderColor.w>0){

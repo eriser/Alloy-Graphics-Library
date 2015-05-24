@@ -83,12 +83,10 @@ namespace aly{
     	box2px bounds;
     	const std::string name;
     	AspectRatio aspectRatio=AspectRatio::Unspecified;
-    	float aspect=-1.0f;
+    	double aspect=-1.0;//Less than zero indicates undetermined. Will be computed at next pack() event.
     	Region* parent=nullptr;
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
     	virtual void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio);
-
-    	virtual void pack(AlloyContext* context);
     	virtual void draw(AlloyContext* context)=0;
     	virtual inline ~Region(){};
     };
@@ -100,9 +98,8 @@ namespace aly{
 		RGBA bgColor=COLOR_NONE;
 	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
 		virtual void draw(AlloyContext* context) override;
-		virtual void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio) override;
-
-		virtual void pack(AlloyContext* context) override;
+		void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio) override;
+		void pack(AlloyContext* context);
 		Composite& add(const std::shared_ptr<Region>& region);
 		Composite& add(Region* region);//After add(), composite will own region and be responsible for destroying it.
 		void pack();
@@ -179,9 +176,20 @@ namespace aly{
         	ss<<"\tRelative Position: "<<region.position<<std::endl;
         	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
         	ss<<"\tBounds: "<<region.bounds<<std::endl;
+        	ss<<"\tAspect Ratio: "<<region.aspectRatio<<std::endl;
         	if(region.parent!=nullptr)ss<<"\tParent: "<<region.parent->name<<std::endl;
         	return ss;
-        }
+    }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageRegion & region) {
+        	ss<<"Image Region: "<<region.name<<std::endl;
+        	if(region.glyph.get()!=nullptr)ss<<"\t"<<*region.glyph<<std::endl;
+        	ss<<"\tRelative Position: "<<region.position<<std::endl;
+        	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
+        	ss<<"\tBounds: "<<region.bounds<<std::endl;
+        	ss<<"\tAspect Ratio: "<<region.aspectRatio<<std::endl;
+        	if(region.parent!=nullptr)ss<<"\tParent: "<<region.parent->name<<std::endl;
+        	return ss;
+    }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Label & region) {
     	ss<<"Label: "<<region.name<<std::endl;
     	ss<<"\tRelative Position: "<<region.position<<std::endl;

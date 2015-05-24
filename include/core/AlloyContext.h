@@ -117,8 +117,8 @@ namespace aly{
 		ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap=false);
 
 	};
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"Image "<<v.name<<"["<<v.handle<<"]: dimensions={"<<v.width<<","<<v.height<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font: "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"Image: "<<v.name<<"["<<v.handle<<"] dimensions= ("<<v.width<<", "<<v.height<<")"; }
 
 	struct AlloyContext {
 		private:
@@ -148,7 +148,7 @@ namespace aly{
 				return fonts[static_cast<int>(type)]->handle;
 			}
 			inline std::shared_ptr<ImageGlyph> createImageGlyph(const std::string& fileName,bool mipmap=false){
-				return std::shared_ptr<ImageGlyph>(new ImageGlyph(getFullPath("images/robot.png"),this));
+				return std::shared_ptr<ImageGlyph>(new ImageGlyph(fileName,this));
 			}
 			inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,bool mipmap=false){
 				return std::shared_ptr<ImageGlyph>(new ImageGlyph(img,this));
