@@ -57,10 +57,12 @@ bool ExampleUI::init(Composite& rootNode) {
 	std::shared_ptr<ImageGlyph> img=createImageGlyph(getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr=MakeGlyphRegion(img,
 			CoordPX(30,20),
-			CoordPX(200,200),
+			CoordPX(100,300),
+			AspectRatio::FixedHeight,
 			RGBA(32,64,128,255),
-			RGBA(128,128,32,128),
+			RGBA(128,128,128,128),
 			RGBA(32,128,32,255),UnitPX(4.0f));
+
 	GlyphRegionPtr iconr=MakeGlyphRegion(createAwesomeGlyph(0xf188),
 			CoordPX(300,20),
 			CoordPX(50,100),
@@ -86,9 +88,9 @@ bool ExampleUI::init(Composite& rootNode) {
 int main()
 {
 	try{
-		SANITY_CHECK_UI();
+		//SANITY_CHECK_UI();
 		ExampleUI app;
-		std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
+		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
 		app.run();
 		return 0;
 	} catch(std::exception& e){

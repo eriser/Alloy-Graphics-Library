@@ -88,7 +88,29 @@ namespace aly{
     	void draw(AlloyContext* context);
     };
     inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
-    		const std::shared_ptr<Glyph>& glyph,
+    		const std::shared_ptr<ImageGlyph>& glyph,
+    		const AUnit2D& position,
+    		const AUnit2D& dimensions,
+    		AspectRatio aspectRatio=AspectRatio::Unspecified,
+    		RGBA bgColor=COLOR_NONE,
+    		RGBA fgColor=COLOR_NONE,
+    		RGBA borderColor=COLOR_NONE,
+    		const AUnit1D& borderWidth=UnitPX(2)
+    		){
+    	std::shared_ptr<GlyphRegion> label=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
+    	label->glyph=glyph;
+    	label->position=position;
+    	label->dimensions=dimensions;
+    	label->bgColor=bgColor;
+    	label->fgColor=fgColor;
+    	label->borderColor=borderColor;
+    	label->borderWidth=borderWidth;
+    	label->aspectRatio=aspectRatio;
+    	label->aspect=glyph->width/(float)glyph->height;
+    	return label;
+    }
+    inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+    		const std::shared_ptr<AwesomeGlyph>& glyph,
     		const AUnit2D& position,
     		const AUnit2D& dimensions,
     		RGBA bgColor=COLOR_NONE,
@@ -108,6 +130,7 @@ namespace aly{
     	label->aspect=glyph->width/(float)glyph->height;
     	return label;
     }
+
     struct TextLabel : public Region{
         HorizontalAlignment horizontalAlignment=HorizontalAlignment::Left;
     	VerticalAlignment verticalAlignment=VerticalAlignment::Top;
