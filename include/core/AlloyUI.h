@@ -104,6 +104,7 @@ namespace aly{
     	label->fgColor=fgColor;
     	label->borderColor=borderColor;
     	label->borderWidth=borderWidth;
+    	label->aspectRatio=AspectRatio::FixedHeight;
     	label->aspect=glyph->width/(float)glyph->height;
     	return label;
     }
@@ -141,17 +142,17 @@ namespace aly{
         	return ss;
     }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const GlyphRegion & region) {
-        	ss<<"Image Region: "<<region.name<<std::endl;
+        	ss<<"Glyph Region: "<<region.name<<std::endl;
         	if(region.glyph.get()!=nullptr)ss<<"\t"<<*region.glyph<<std::endl;
         	ss<<"\tRelative Position: "<<region.position<<std::endl;
         	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
         	ss<<"\tBounds: "<<region.bounds<<std::endl;
-        	ss<<"\tAspect Ratio: "<<region.aspectRatio<<std::endl;
+        	ss<<"\tAspect Ratio: "<<region.aspectRatio<<" ("<<region.aspect<<")"<<std::endl;
         	if(region.parent!=nullptr)ss<<"\tParent: "<<region.parent->name<<std::endl;
         	return ss;
     }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const TextLabel & region) {
-    	ss<<"Label: "<<region.name<<std::endl;
+    	ss<<"Text Label: "<<region.name<<std::endl;
     	ss<<"\tRelative Position: "<<region.position<<std::endl;
     	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
     	ss<<"\tBounds: "<<region.bounds<<std::endl;

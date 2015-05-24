@@ -60,13 +60,12 @@ namespace aly{
 		if(aspect<0){
 			aspect=dims.x/std::max((float)dims.y,0.0f);
 		}
-
 		switch(aspectRatio){
 			case AspectRatio::FixedWidth:
 				bounds.dimensions=pixel2(d.x,d.x/aspect);
 				break;
 			case AspectRatio::FixedHeight:
-				bounds.dimensions=pixel2(d.x*aspect,d.y);
+				bounds.dimensions=pixel2(d.y*aspect,d.y);
 				break;
 			case AspectRatio::Unspecified:
 			default:
@@ -98,7 +97,6 @@ namespace aly{
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
 	}
 	void GlyphRegion::draw(AlloyContext* context){
-
 		NVGcontext* nvg=context->nvgContext;
 		if(bgColor.w>0){
 			nvgBeginPath(nvg);
@@ -109,7 +107,6 @@ namespace aly{
 		if(glyph.get()!=nullptr){
 			glyph->draw(bounds,fgColor,context);
 		}
-
 		if(borderColor.w>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);

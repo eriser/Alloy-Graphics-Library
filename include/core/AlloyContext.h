@@ -155,6 +155,7 @@ namespace aly{
 		Glyph(const std::string& name,pixel w=0,pixel h=0):name(name),width(w),height(h){
 
 		}
+		virtual inline ~Glyph(){};
 		virtual void draw(const box2px& bounds,const RGBA& color,AlloyContext* context)=0;
 	};
 	struct ImageGlyph: public Glyph{
