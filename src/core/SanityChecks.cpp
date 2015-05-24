@@ -131,8 +131,8 @@ namespace aly{
 		std::cout<<abs<<std::endl;
 		std::cout<<in<<std::endl;
 		std::cout<<pt<<std::endl;
-		Label* r1=new Label();
-		Label* r2=new Label("region 2");
+		TextLabel* r1=new TextLabel();
+		TextLabel* r2=new TextLabel("region 2");
 		Composite comp;
 		comp.add(r1).add(r2);
 		return true;

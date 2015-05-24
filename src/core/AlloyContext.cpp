@@ -21,9 +21,9 @@
 
 #include "AlloyFileUtil.h"
 #include "AlloyContext.h"
-
+#include "nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
-#include "../../include/core/nanovg_gl.h"
+#include "nanovg_gl.h"
 #include <iostream>
 int printOglError(const char *file, int line)
 {
@@ -44,16 +44,51 @@ namespace aly{
 	Font::Font(const std::string& name,const std::string& file,AlloyContext* context):name(name),file(file){
 		handle=nvgCreateFont(context->nvgContext,name.c_str(),file.c_str());
 	}
-	ImageGlyph::ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap):file(file),name(GetFileNameWithoutExtension(file)){
-		handle=nvgCreateImage(context->nvgContext,file.c_str(),(mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0);
-		nvgImageSize(context->nvgContext,handle,&width,&height);
-	}
-	ImageGlyph::ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap){
-		handle = nvgCreateImageRGBA(context->nvgContext, rgba.width, rgba.height, (mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0, rgba.ptr());
-		width=rgba.width;
-		height=rgba.height;
-	}
+	AwesomeGlyph::AwesomeGlyph(int codePoint,AlloyContext* context,pixel height):Glyph(CodePointToUTF8(codePoint),0,height),codePoint(codePoint){
+		NVGcontext* nvg=context->nvgContext;
+		nvgFontSize(nvg, height);
+		nvgFontFaceId(nvg,context->getFontHandle(FontType::Icon));
+		width=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
 
+	}
+	void AwesomeGlyph::draw(const box2px& bounds,const RGBA& color, AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		nvgFontSize(nvg, bounds.dimensions.y);
+		nvgFillColor(nvg,Color(color));
+		nvgFontFaceId(nvg,context->getFontHandle(FontType::Icon));
+		nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_TOP);
+		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
+	}
+	ImageGlyph::ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap):Glyph(GetFileNameWithoutExtension(file),0,0),file(file){
+		handle=nvgCreateImage(context->nvgContext,file.c_str(),(mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0);
+		int w,h;
+		nvgImageSize(context->nvgContext,handle,&w,&h);
+		width=w;
+		height=h;
+	}
+	ImageGlyph::ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap):Glyph("image_rgba",0,0){
+		handle = nvgCreateImageRGBA(context->nvgContext, rgba.width, rgba.height, (mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0, rgba.ptr());
+		width=(pixel)rgba.width;
+		height=(pixel)rgba.height;
+	}
+	void ImageGlyph::draw(const box2px& bounds,const RGBA& color,AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,bounds.position.y,
+				bounds.dimensions.x,bounds.dimensions.y,
+				0.f,handle,1.0f);
+		nvgBeginPath(nvg);
+		nvgFillColor(nvg,Color(COLOR_WHITE));
+		nvgRect(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+		nvgFillPaint(nvg, imgPaint);
+		nvgFill(nvg);
+		if(color.w>0){
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+			nvgFillColor(nvg, Color(color));
+			nvgFill(nvg);
+		}
+
+	}
 	void AlloyContext::addAssetDirectory(const std::string& dir){
 		assetDirectories.push_back(dir);
 	}

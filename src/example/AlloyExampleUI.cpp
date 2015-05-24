@@ -56,17 +56,24 @@ bool ExampleUI::init(Composite& rootNode) {
 	ImageRGBA robotImg;
 	//ReadImageFromFile(getFullPath("images/robot.png"),robotImg);
 	//std::shared_ptr<GLComponent> tex=std::shared_ptr<GLComponent>(new GLTextureRGBA(robotImg,getContext()));
-	std::shared_ptr<ImageGlyph> img=getContext()->createImageGlyph(getFullPath("images/robot.png"));
-	ImageRegionPtr imgr=MakeImageRegion(img,
+	std::shared_ptr<ImageGlyph> img=createImageGlyph(getFullPath("images/robot.png"));
+	GlyphRegionPtr imgr=MakeGlyphRegion(img,
 			CoordPX(30,20),
 			CoordPX(200,200),
 			RGBA(32,64,128,255),
-			RGBA(32,128,32,128),
-			RGBA(128,128,128,255));
+			RGBA(128,128,32,128),
+			RGBA(32,128,32,255),UnitPX(4.0f));
+	GlyphRegionPtr iconr=MakeGlyphRegion(createAwesomeGlyph(0xf188),
+			CoordPX(300,20),
+			CoordPX(40,40),
+			RGBA(32,64,128,255),
+			RGBA(255,255,255,255));
+
 	CompositePtr comp=MakeComposite("Rect 1",CoordPX(100,100),CoordPX(400,300),RGBA(128,32,32,255));
 	comp->add(label);
 	rootNode.add(comp);
 	rootNode.add(imgr);
+	rootNode.add(iconr);
 	rootNode.pack();
 	std::cout<<*imgr<<std::endl;
 	std::cout<<*label<<std::endl;

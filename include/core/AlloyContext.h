@@ -34,6 +34,7 @@
 #include <string>
 #include "nanovg.h"
 #include "AlloyMath.h"
+#include "AlloyUnits.h"
 #include "AlloyImage.h"
 int printOglError(const char *file, int line);
 #define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
@@ -45,6 +46,46 @@ namespace aly{
 		GLuint positionBuffer=0;
 		GLuint uvBuffer=0;
 	};
+	const RGBA COLOR_NONE(0,0,0,0);
+	const RGBA COLOR_BLACK(0,0,0,255);
+	const RGBA COLOR_WHITE(255,255,255,255);
+	inline NVGcolor Color(RGB color){
+		return nvgRGB(color.x,color.y,color.z);
+	}
+	inline NVGcolor Color(RGBA color){
+		return nvgRGBA(color.x,color.y,color.z,color.w);
+	}
+	inline NVGcolor Color(RGBi color){
+		return nvgRGB(color.x,color.y,color.z);
+	}
+	inline NVGcolor Color(RGBAi color){
+		return nvgRGBA(color.x,color.y,color.z,color.w);
+	}
+	inline NVGcolor Color(RGBAf color){
+		return nvgRGBAf(color.x,color.y,color.z,color.w);
+	}
+	inline NVGcolor Color(RGBf color){
+		return nvgRGBf(color.x,color.y,color.z);
+	}
+	inline NVGcolor Color(float r,float g,float b,float a){
+		return nvgRGBAf(r,g,b,a);
+	}
+	inline NVGcolor Color(float r,float g,float b){
+		return nvgRGBf(r,g,b);
+	}
+	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a){
+		return nvgRGBA(r,g,b,a);
+	}
+	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b){
+		return nvgRGB(r,g,b);
+	}
+	inline NVGcolor Color(int r,int g,int b,int a){
+		return nvgRGBA(r,g,b,a);
+	}
+	inline NVGcolor Color(int r,int g,int b){
+		return nvgRGB(r,g,b);
+	}
+
     enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
 	enum class VerticalAlignment { Top=NVG_ALIGN_TOP, Middle=NVG_ALIGN_MIDDLE, Bottom=NVG_ALIGN_BOTTOM, Baseline=NVG_ALIGN_BASELINE };
 	enum class AspectRatio { Unspecified, FixedWidth, FixedHeight };
@@ -107,18 +148,31 @@ namespace aly{
 		const std::string file;
 		Font(const std::string& name,const std::string& file,AlloyContext* context);
 	};
-	struct ImageGlyph{
+	struct Glyph{
+		const std::string name;
+		pixel width;
+		pixel height;
+		Glyph(const std::string& name,pixel w=0,pixel h=0):name(name),width(w),height(h){
+
+		}
+		virtual void draw(const box2px& bounds,const RGBA& color,AlloyContext* context)=0;
+	};
+	struct ImageGlyph: public Glyph{
 		int handle;
 		const std::string file;
-		const std::string name;
-		int width;
-		int height;
 		ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap=false);
 		ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap=false);
-
+		void draw(const box2px& bounds,const RGBA& color,AlloyContext* context) override;
+	};
+	struct AwesomeGlyph: public Glyph{
+		const int codePoint;
+		AwesomeGlyph(int codePoint,AlloyContext* context,pixel fontHeight=32);
+		void draw(const box2px& bounds,const RGBA& color,AlloyContext* context) override;
 	};
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font: "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"Image: "<<v.name<<"["<<v.handle<<"] dimensions= ("<<v.width<<", "<<v.height<<")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"ImageGlyph: "<<v.name<<"["<<v.handle<<"]: dimensions= ("<<v.width<<", "<<v.height<<")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AwesomeGlyph & v) { return ss <<"Awesome Glyph: "<<v.name<<"["<<v.codePoint<<"]: dimensions= ("<<v.width<<", "<<v.height<<")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Glyph & v) { return ss <<"Glyph: "<<v.name<<": dimensions= ("<<v.width<<", "<<v.height<<")"; }
 
 	struct AlloyContext {
 		private:
@@ -152,6 +206,9 @@ namespace aly{
 			}
 			inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,bool mipmap=false){
 				return std::shared_ptr<ImageGlyph>(new ImageGlyph(img,this));
+			}
+			inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint){
+				return std::shared_ptr<AwesomeGlyph>(new AwesomeGlyph(codePoint,this));
 			}
 			inline std::shared_ptr<Font>& getFont(FontType type){
 				return fonts[static_cast<int>(type)];

@@ -32,46 +32,6 @@
 #include <vector>
 namespace aly{
 	bool SANITY_CHECK_UI();
-	const RGBA COLOR_NONE(0,0,0,0);
-	const RGBA COLOR_BLACK(0,0,0,255);
-	const RGBA COLOR_WHITE(255,255,255,255);
-
-	inline NVGcolor Color(RGB color){
-		return nvgRGB(color.x,color.y,color.z);
-	}
-	inline NVGcolor Color(RGBA color){
-		return nvgRGBA(color.x,color.y,color.z,color.w);
-	}
-	inline NVGcolor Color(RGBi color){
-		return nvgRGB(color.x,color.y,color.z);
-	}
-	inline NVGcolor Color(RGBAi color){
-		return nvgRGBA(color.x,color.y,color.z,color.w);
-	}
-	inline NVGcolor Color(RGBAf color){
-		return nvgRGBAf(color.x,color.y,color.z,color.w);
-	}
-	inline NVGcolor Color(RGBf color){
-		return nvgRGBf(color.x,color.y,color.z);
-	}
-	inline NVGcolor Color(float r,float g,float b,float a){
-		return nvgRGBAf(r,g,b,a);
-	}
-	inline NVGcolor Color(float r,float g,float b){
-		return nvgRGBf(r,g,b);
-	}
-	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a){
-		return nvgRGBA(r,g,b,a);
-	}
-	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b){
-		return nvgRGB(r,g,b);
-	}
-	inline NVGcolor Color(int r,int g,int b,int a){
-		return nvgRGBA(r,g,b,a);
-	}
-	inline NVGcolor Color(int r,int g,int b){
-		return nvgRGB(r,g,b);
-	}
 
 
     struct Region {
@@ -114,21 +74,21 @@ namespace aly{
     	composite->orientation=orientation;
         return composite;
     }
-    struct ImageRegion : public Region{
+    struct GlyphRegion : public Region{
     	RGBA bgColor=COLOR_NONE;
     	RGBA fgColor=COLOR_NONE;
     	RGBA borderColor=COLOR_NONE;
     	AUnit1D borderWidth=UnitPX(2);
-    	std::shared_ptr<ImageGlyph> glyph;
-    	ImageRegion(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
+    	std::shared_ptr<Glyph> glyph;
+    	GlyphRegion(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
     		Region(name)
     	{
     		aspectRatio=AspectRatio::FixedHeight;
     	};
     	void draw(AlloyContext* context);
     };
-    inline std::shared_ptr<ImageRegion> MakeImageRegion(
-    		const std::shared_ptr<ImageGlyph>& glyph,
+    inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+    		const std::shared_ptr<Glyph>& glyph,
     		const AUnit2D& position,
     		const AUnit2D& dimensions,
     		RGBA bgColor=COLOR_NONE,
@@ -136,7 +96,7 @@ namespace aly{
     		RGBA borderColor=COLOR_NONE,
     		const AUnit1D& borderWidth=UnitPX(2)
     		){
-    	std::shared_ptr<ImageRegion> label=std::shared_ptr<ImageRegion>(new ImageRegion(glyph->name));
+    	std::shared_ptr<GlyphRegion> label=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
     	label->glyph=glyph;
     	label->position=position;
     	label->dimensions=dimensions;
@@ -147,21 +107,21 @@ namespace aly{
     	label->aspect=glyph->width/(float)glyph->height;
     	return label;
     }
-    struct Label : public Region{
+    struct TextLabel : public Region{
         HorizontalAlignment horizontalAlignment=HorizontalAlignment::Left;
     	VerticalAlignment verticalAlignment=VerticalAlignment::Top;
 
     	FontType fontType=FontType::Normal;
     	AUnit1D fontSize=UnitPT(14);
     	RGBA fontColor=COLOR_WHITE;
-    	Label(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
+    	TextLabel(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
     		Region(name){};
     	void draw(AlloyContext* context);
     };
-    inline std::shared_ptr<Label> MakeLabel(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,
+    inline std::shared_ptr<TextLabel> MakeLabel(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,
     		FontType fontType,const AUnit1D& fontSize=UnitPT(14.0f),
     		RGBA fontColor=COLOR_WHITE,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
-    	std::shared_ptr<Label> label=std::shared_ptr<Label>(new Label(name));
+    	std::shared_ptr<TextLabel> label=std::shared_ptr<TextLabel>(new TextLabel(name));
     	label->position=position;
     	label->dimensions=dimensions;
     	label->fontColor=fontColor;
@@ -180,7 +140,7 @@ namespace aly{
         	if(region.parent!=nullptr)ss<<"\tParent: "<<region.parent->name<<std::endl;
         	return ss;
     }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageRegion & region) {
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const GlyphRegion & region) {
         	ss<<"Image Region: "<<region.name<<std::endl;
         	if(region.glyph.get()!=nullptr)ss<<"\t"<<*region.glyph<<std::endl;
         	ss<<"\tRelative Position: "<<region.position<<std::endl;
@@ -190,7 +150,7 @@ namespace aly{
         	if(region.parent!=nullptr)ss<<"\tParent: "<<region.parent->name<<std::endl;
         	return ss;
     }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Label & region) {
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const TextLabel & region) {
     	ss<<"Label: "<<region.name<<std::endl;
     	ss<<"\tRelative Position: "<<region.position<<std::endl;
     	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
@@ -217,9 +177,9 @@ namespace aly{
     	}
     	return ss;
     }
-    typedef std::shared_ptr<Label> LabelPtr;
+    typedef std::shared_ptr<TextLabel> LabelPtr;
     typedef std::shared_ptr<Composite> CompositePtr;
-    typedef std::shared_ptr<ImageRegion> ImageRegionPtr;
+    typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
     typedef std::shared_ptr<Region> RegionPtr;
 }
 #endif /* ALLOYUI_H_ */

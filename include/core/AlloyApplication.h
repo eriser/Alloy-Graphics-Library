@@ -54,6 +54,9 @@ namespace aly{
 		inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,bool mipmap=false){
 			return context->createImageGlyph(img);
 		}
+		inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint){
+			return context->createAwesomeGlyph(codePoint);
+		}
 		virtual void onWindowRefresh(){};
 		virtual void onWindowFocus(int focused){};
 		virtual void onWindowSize(int width,int height){

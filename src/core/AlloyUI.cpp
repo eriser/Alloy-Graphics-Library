@@ -89,7 +89,7 @@ namespace aly{
 		return *this;
 	}
 
-	void Label::draw(AlloyContext* context){
+	void TextLabel::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
 		nvgFontSize(nvg, fontSize.toPixels(context->height(),context->dpmm.y,context->pixelRatio));
 		nvgFillColor(nvg,Color(fontColor));
@@ -97,7 +97,7 @@ namespace aly{
 		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
 	}
-	void ImageRegion::draw(AlloyContext* context){
+	void GlyphRegion::draw(AlloyContext* context){
 
 		NVGcontext* nvg=context->nvgContext;
 		if(bgColor.w>0){
@@ -107,22 +107,9 @@ namespace aly{
 			nvgFill(nvg);
 		}
 		if(glyph.get()!=nullptr){
-			NVGpaint imgPaint = nvgImagePattern(context->nvgContext, bounds.position.x,bounds.position.y,
-					bounds.dimensions.x,bounds.dimensions.y,
-					0.f,glyph->handle,1.0f);
-			nvgBeginPath(nvg);
-			nvgFillColor(nvg,Color(COLOR_WHITE));
-			nvgRect(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
-			nvgFillPaint(nvg, imgPaint);
-			nvgFill(nvg);
+			glyph->draw(bounds,fgColor,context);
 		}
 
-		if(fgColor.w>0){
-			nvgBeginPath(nvg);
-			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
-			nvgFillColor(nvg, Color(fgColor));
-			nvgFill(nvg);
-		}
 		if(borderColor.w>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
