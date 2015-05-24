@@ -82,7 +82,7 @@ namespace aly{
     	RGBA borderColor=COLOR_NONE;
     	AUnit1D borderWidth=UnitPX(2);
     	std::shared_ptr<Glyph> glyph;
-    	GlyphRegion(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
+    	GlyphRegion(const std::string& name=MakeString()<<"g"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
     		Region(name)
     	{
     		aspectRatio=AspectRatio::FixedHeight;
@@ -100,7 +100,7 @@ namespace aly{
     		RGBA borderColor=COLOR_NONE,
     		const AUnit1D& borderWidth=UnitPX(2)
     		){
-    	std::shared_ptr<GlyphRegion> region=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
+    	std::shared_ptr<GlyphRegion> region=std::shared_ptr<GlyphRegion>((glyph->name.length()>0)?new GlyphRegion(glyph->name):new GlyphRegion());
     	region->glyph=glyph;
     	region->position=position;
     	region->dimensions=dimensions;
@@ -141,7 +141,7 @@ namespace aly{
     	FontType fontType=FontType::Normal;
     	AUnit1D fontSize=UnitPT(14);
     	RGBA fontColor=COLOR_WHITE;
-    	TextLabel(const std::string& name=MakeString()<<"l"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
+    	TextLabel(const std::string& name=MakeString()<<"t"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
     		Region(name){};
     	void draw(AlloyContext* context);
     };

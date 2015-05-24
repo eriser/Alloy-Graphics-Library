@@ -132,7 +132,9 @@ namespace aly{
 	}
 	void Region::pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio){
 		bounds.position=pos+position.toPixels(dims,dpmm,pixelRatio);
-		pixel2 d=dimensions.toPixels(dims,dpmm,pixelRatio);
+		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
+		if(parent!=nullptr)bounds.clamp(parent->bounds);
+		pixel2 d=bounds.dimensions;
 		if(aspect<0){
 			aspect=dims.x/std::max((float)dims.y,0.0f);
 		}
@@ -147,7 +149,6 @@ namespace aly{
 			default:
 				bounds.dimensions=d;
 		}
-		if(parent!=nullptr)bounds.clamp(parent->bounds);
 	}
 
 	void Composite::pack(AlloyContext* context){
