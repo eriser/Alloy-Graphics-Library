@@ -44,7 +44,7 @@ namespace aly{
 	Font::Font(const std::string& name,const std::string& file,AlloyContext* context):name(name),file(file){
 		handle=nvgCreateFont(context->nvgContext,name.c_str(),file.c_str());
 	}
-	AwesomeGlyph::AwesomeGlyph(int codePoint,AlloyContext* context,pixel height):Glyph(CodePointToUTF8(codePoint),0,height),codePoint(codePoint){
+	AwesomeGlyph::AwesomeGlyph(int codePoint,AlloyContext* context,pixel height):Glyph(CodePointToUTF8(codePoint),GlyphType::Awesome,0,height),codePoint(codePoint){
 		NVGcontext* nvg=context->nvgContext;
 		nvgFontSize(nvg, height);
 		nvgFontFaceId(nvg,context->getFontHandle(FontType::Icon));
@@ -59,14 +59,14 @@ namespace aly{
 		nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_TOP);
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
 	}
-	ImageGlyph::ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap):Glyph(GetFileNameWithoutExtension(file),0,0),file(file){
+	ImageGlyph::ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap):Glyph(GetFileNameWithoutExtension(file),GlyphType::Image,0,0),file(file){
 		handle=nvgCreateImage(context->nvgContext,file.c_str(),(mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0);
 		int w,h;
 		nvgImageSize(context->nvgContext,handle,&w,&h);
 		width=w;
 		height=h;
 	}
-	ImageGlyph::ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap):Glyph("image_rgba",0,0){
+	ImageGlyph::ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap):Glyph("image_rgba",GlyphType::Image,0,0){
 		handle = nvgCreateImageRGBA(context->nvgContext, rgba.width, rgba.height, (mipmap)?NVG_IMAGE_GENERATE_MIPMAPS:0, rgba.ptr());
 		width=(pixel)rgba.width;
 		height=(pixel)rgba.height;

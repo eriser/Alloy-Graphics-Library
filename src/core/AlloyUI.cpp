@@ -28,10 +28,41 @@ namespace aly{
 	Region::Region(const std::string& name):position(CoordPX(0,0)),dimensions(CoordPercent(1,1)),name(name){
 
 	}
+	void Region::drawDebug(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
+
+		const int FONT_PADDING=2;
+		const int FONT_SIZE_PX=16;
+		const RGBA DEBUG_STROKE_COLOR=RGBA(255,64,32,255);
+		nvgFontSize(nvg, FONT_SIZE_PX);
+		nvgFontFaceId(nvg,context->getFontHandle(FontType::Bold));
+		nvgTextAlign(nvg,NVG_ALIGN_TOP|NVG_ALIGN_LEFT);
+		float twidth=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
+		float xoffset=(bounds.dimensions.x-twidth-2*FONT_PADDING)*0.5f;
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgFillColor(nvg, Color(128,128,128,128));
+		nvgFill(nvg);
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x+xoffset, bounds.position.y, twidth+2*FONT_PADDING,FONT_SIZE_PX+FONT_PADDING);
+		nvgFillColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgFill(nvg);
+		nvgFillColor(nvg,Color(COLOR_WHITE));
+		nvgText(nvg,bounds.position.x+FONT_PADDING+xoffset, bounds.position.y+FONT_PADDING,name.c_str(),nullptr);
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgStrokeColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgStrokeWidth(nvg,2.0f);
+		nvgStroke(nvg);
+	}
 
 	void Composite::draw(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
 		if(bgColor.w>0){
-			NVGcontext* nvg=context->nvgContext;
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 			nvgFillColor(nvg, Color(bgColor));
@@ -41,6 +72,50 @@ namespace aly{
 			region->draw(context);
 		}
 	}
+	void Composite::drawDebug(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgFillColor(nvg, Color(128,128,128,128));
+		nvgFill(nvg);
+
+		for(std::shared_ptr<Region>& region:children){
+			region->drawDebug(context);
+		}
+		const int FONT_PADDING=2;
+		const int FONT_SIZE_PX=16;
+		const RGBA DEBUG_STROKE_COLOR=RGBA(32,64,255,255);
+		nvgFontSize(nvg, FONT_SIZE_PX);
+		nvgFontFaceId(nvg,context->getFontHandle(FontType::Bold));
+		nvgTextAlign(nvg,NVG_ALIGN_TOP|NVG_ALIGN_LEFT);
+		float twidth=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
+		float xoffset=(bounds.dimensions.x-twidth-2*FONT_PADDING)*0.5f;
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x+xoffset, bounds.position.y, twidth+2*FONT_PADDING,FONT_SIZE_PX+FONT_PADDING);
+		nvgFillColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgFill(nvg);
+		nvgFillColor(nvg,Color(COLOR_WHITE));
+		nvgText(nvg,bounds.position.x+FONT_PADDING+xoffset, bounds.position.y+FONT_PADDING,name.c_str(),nullptr);
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgStrokeColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgStrokeWidth(nvg,2.0f);
+		nvgStroke(nvg);
+
+
+
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgStrokeColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgStrokeWidth(nvg,2.0f);
+		nvgStroke(nvg);
+
+	}
+
 	void Composite::pack(){
 		pack(Application::getContext().get());
 	}
@@ -50,6 +125,7 @@ namespace aly{
 	void Composite::pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio){
 		bounds.position=position.toPixels(dims,dpmm,pixelRatio);
 		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
+		if(parent!=nullptr)bounds.clamp(parent->bounds);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(bounds.position,bounds.dimensions,dpmm,pixelRatio);
 		}
@@ -71,6 +147,7 @@ namespace aly{
 			default:
 				bounds.dimensions=d;
 		}
+		if(parent!=nullptr)bounds.clamp(parent->bounds);
 	}
 
 	void Composite::pack(AlloyContext* context){
@@ -90,14 +167,46 @@ namespace aly{
 
 	void TextLabel::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
+		nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
 		nvgFontSize(nvg, fontSize.toPixels(context->height(),context->dpmm.y,context->pixelRatio));
 		nvgFillColor(nvg,Color(fontColor));
 		nvgFontFaceId(nvg,context->getFontHandle(fontType));
 		nvgTextAlign(nvg,static_cast<int>(horizontalAlignment)|static_cast<int>(verticalAlignment));
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
 	}
+	void GlyphRegion::drawDebug(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
+		const int FONT_PADDING=2;
+		const int FONT_SIZE_PX=16;
+		nvgFontSize(nvg, FONT_SIZE_PX);
+		const RGBA DEBUG_STROKE_COLOR=RGBA(255,64,32,255);
+		nvgFontFaceId(nvg,(glyph->type==GlyphType::Awesome)?context->getFontHandle(FontType::Icon):context->getFontHandle(FontType::Bold));
+		nvgTextAlign(nvg,NVG_ALIGN_TOP|NVG_ALIGN_LEFT);
+		float twidth=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
+		float xoffset=(bounds.dimensions.x-twidth-2*FONT_PADDING)*0.5f;
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgFillColor(nvg, Color(128,128,128,128));
+		nvgFill(nvg);
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x+xoffset, bounds.position.y, twidth+2*FONT_PADDING,FONT_SIZE_PX+FONT_PADDING);
+		nvgFillColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgFill(nvg);
+		nvgFillColor(nvg,Color(COLOR_WHITE));
+		nvgText(nvg,bounds.position.x+FONT_PADDING+xoffset, bounds.position.y+FONT_PADDING,name.c_str(),nullptr);
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
+		nvgStrokeColor(nvg, Color(DEBUG_STROKE_COLOR));
+		nvgStrokeWidth(nvg,2.0f);
+		nvgStroke(nvg);
+	}
+
 	void GlyphRegion::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
+		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
 		if(bgColor.w>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);

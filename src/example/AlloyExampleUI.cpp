@@ -44,7 +44,7 @@ using namespace aly;
 ExampleUI::ExampleUI():Application(640,480,"ExampleUI"){
 }
 bool ExampleUI::init(Composite& rootNode) {
-	LabelPtr label=MakeLabel(
+	TextLabelPtr label=MakeLabel(
 			"Hello Blake",
 			CoordPercent(0.5f,0.5f),
 			CoordPercent(0.5f,0.5f),
@@ -69,12 +69,13 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(32,64,128,255),
 			RGBA(255,255,255,255));
 
-	CompositePtr comp=MakeComposite("Rect 1",CoordPX(100,100),CoordPX(400,300),RGBA(128,32,32,255));
+	CompositePtr comp=MakeComposite("Rect 1",CoordPercent(0.2,0.3),CoordPX(400,300),RGBA(128,32,32,255));
 	comp->add(label);
 	rootNode.add(comp);
 	rootNode.add(imgr);
 	rootNode.add(iconr);
 	rootNode.pack();
+	getContext()->toggleDebug();
 	//std::cout<<*imgr<<std::endl;
 	//std::cout<<*label<<std::endl;
 	//std::cout<<*comp<<std::endl;

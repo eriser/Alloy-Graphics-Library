@@ -52,19 +52,19 @@ namespace aly{
 	inline NVGcolor Color(RGB color){
 		return nvgRGB(color.x,color.y,color.z);
 	}
-	inline NVGcolor Color(RGBA color){
+	inline NVGcolor Color(const RGBA& color){
 		return nvgRGBA(color.x,color.y,color.z,color.w);
 	}
-	inline NVGcolor Color(RGBi color){
+	inline NVGcolor Color(const RGBi& color){
 		return nvgRGB(color.x,color.y,color.z);
 	}
-	inline NVGcolor Color(RGBAi color){
+	inline NVGcolor Color(const RGBAi& color){
 		return nvgRGBA(color.x,color.y,color.z,color.w);
 	}
-	inline NVGcolor Color(RGBAf color){
+	inline NVGcolor Color(const RGBAf& color){
 		return nvgRGBAf(color.x,color.y,color.z,color.w);
 	}
-	inline NVGcolor Color(RGBf color){
+	inline NVGcolor Color(const RGBf& color){
 		return nvgRGBf(color.x,color.y,color.z);
 	}
 	inline NVGcolor Color(float r,float g,float b,float a){
@@ -85,19 +85,39 @@ namespace aly{
 	inline NVGcolor Color(int r,int g,int b){
 		return nvgRGB(r,g,b);
 	}
-
+	enum class GlyphType{Image, Awesome};
+    enum class InputType {Unspecified,Cursor,MouseButton,Key,Character,Scroll};
     enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
 	enum class VerticalAlignment { Top=NVG_ALIGN_TOP, Middle=NVG_ALIGN_MIDDLE, Bottom=NVG_ALIGN_BOTTOM, Baseline=NVG_ALIGN_BASELINE };
 	enum class AspectRatio { Unspecified, FixedWidth, FixedHeight };
 	enum class Shape { Rectangle, Ellipse};
     enum class Orientation {Unspecified=0, Horizontal=1, Vertical=2 };
 	enum class FontType {Normal=0,Bold=1,Italic=2,Icon=3};
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const FontType& type) {
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const GlyphType& type) {
+		switch(type){
+			case GlyphType::Image: return ss<<"Image";
+			case GlyphType::Awesome: return ss<<"Awesome";
+		}
+		return ss;
+    }
+
+	template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const FontType& type) {
 		switch(type){
 			case FontType::Normal: return ss<<"Normal";
 			case FontType::Bold: return ss<<"Bold";
 			case FontType::Italic: return ss<<"Italic";
 			case FontType::Icon: return ss<<"Icon";
+		}
+		return ss;
+    }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const InputType& type) {
+		switch(type){
+			case InputType::Unspecified: return ss<<"Unspecified";
+			case InputType::Cursor: return ss<<"Cursor";
+			case InputType::MouseButton: return ss<<"Mouse";
+			case InputType::Key: return ss<<"Key";
+			case InputType::Character: return ss<<"Character";
+			case InputType::Scroll: return ss<<"Scroll";
 		}
 		return ss;
     }
@@ -152,7 +172,8 @@ namespace aly{
 		const std::string name;
 		pixel width;
 		pixel height;
-		Glyph(const std::string& name,pixel w=0,pixel h=0):name(name),width(w),height(h){
+		const GlyphType type;
+		Glyph(const std::string& name,GlyphType type,pixel w,pixel h):name(name),type(type),width(w),height(h){
 
 		}
 		virtual inline ~Glyph(){};
@@ -175,19 +196,65 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AwesomeGlyph & v) { return ss <<"Awesome Glyph: "<<v.name<<"["<<v.codePoint<<"]: dimensions= ("<<v.width<<", "<<v.height<<")"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Glyph & v) { return ss <<"Glyph: "<<v.name<<": dimensions= ("<<v.width<<", "<<v.height<<")"; }
 
+    struct InputEvent
+    {
+        InputType type=InputType::Unspecified;
+        pixel2 cursor=pixel2(-1,-1);
+        pixel2 scroll=pixel2(0,0);
+        uint32_t codepoint=0;
+        int action=0;
+        int mods=0;
+        int scancode=0;
+        int key=0;
+        int button=0;
+        bool isMouseDown() const { return (action != GLFW_RELEASE); }
+        bool isMouseUp() const { return (action == GLFW_RELEASE); }
+        bool isShiftDown() const { return ((mods & GLFW_MOD_SHIFT)!=0); }
+	    bool isControlDown() const { return ((mods & GLFW_MOD_CONTROL)!=0); }
+	    bool isAltDown() const { return ((mods & GLFW_MOD_ALT)!=0); }
+    };
+
+    /*
+    static InputEvent MakeInputEvent(GLFWwindow * window, InputEvent::Type type, const float2 & cursor, int action)
+    {
+        InputEvent e;
+        e.window = window;
+        e.type = type;
+        e.cursor = cursor;
+        e.action = action;
+        e.mods = 0;
+        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) | glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) e.mods |= GLFW_MOD_SHIFT;
+        if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) | glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) e.mods |= GLFW_MOD_CONTROL;
+        if(glfwGetKey(window, GLFW_KEY_LEFT_ALT) | glfwGetKey(window, GLFW_KEY_RIGHT_ALT)) e.mods |= GLFW_MOD_ALT;
+        if(glfwGetKey(window, GLFW_KEY_LEFT_SUPER) | glfwGetKey(window, GLFW_KEY_RIGHT_SUPER)) e.mods |= GLFW_MOD_SUPER;
+        return e;
+    }
+    */
+
 	struct AlloyContext {
 		private:
 			std::list<std::string> assetDirectories;
 			std::shared_ptr<Font> fonts[4];
 			static std::mutex contextLock;
 			GLFWwindow* current;
+			bool enableDebugInterface=false;
 		public:
 			ImageVAO vaoImage;
 			NVGcontext* nvgContext;
 			GLFWwindow* window;
 			box2i viewport;
+			pixel2 cursor=pixel2(-1,-1);
 			double2 dpmm;
 			double pixelRatio;
+			inline void setDebug(bool enabled){
+				enableDebugInterface=enabled;
+			}
+			inline bool toggleDebug(){
+				return enableDebugInterface=!enableDebugInterface;
+			}
+			inline bool isDebugEnabled(){
+				return enableDebugInterface;
+			}
 			std::list<std::string>& getAssetDirectories(){return assetDirectories;}
 			void addAssetDirectory(const std::string& dir);
 			std::shared_ptr<Font>& loadFont(FontType type,const std::string& name,const std::string& partialFile);

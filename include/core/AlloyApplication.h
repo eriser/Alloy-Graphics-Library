@@ -36,6 +36,7 @@ namespace aly{
 		float frameRate=0.0f;
 		static std::shared_ptr<AlloyContext> context;
 		void drawUI();
+		void drawDebugUI();
 		void draw();
 		Composite rootNode;
 		std::list<std::exception_ptr> caughtExceptions;
@@ -59,16 +60,13 @@ namespace aly{
 		}
 		virtual void onWindowRefresh(){};
 		virtual void onWindowFocus(int focused){};
-		virtual void onWindowSize(int width,int height){
-			glViewport(0,0,width,height);
-			context->viewport=box2i(int2(0,0),int2(width,height));
-		};
-		virtual void onChar(unsigned int codepoint){};
-		virtual void onKey(int key, int scancode, int action, int mods){};
-		virtual void onMouseButton(int button, int action, int    mods){};
-		virtual void onCursorPos( double xpos, double ypos     ){};
-		virtual void onScroll(double xoffset, double yoffset ){};
-
+		void onWindowSize(int width,int height);
+		void onChar(unsigned int codepoint);
+		void onKey(int key, int scancode, int action, int mods);
+		void onMouseButton(int button, int action, int    mods);
+		void onCursorPos(double xpos, double ypos);
+		void onScroll(double xoffset, double yoffset);
+		void onCursorEnter(int enter);
 		inline void throwException(std::exception_ptr e){
 			caughtExceptions.push_back(e);
 		}

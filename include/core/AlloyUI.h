@@ -48,6 +48,7 @@ namespace aly{
     	Region(const std::string& name=MakeString()<<"r"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++));
     	virtual void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio);
     	virtual void draw(AlloyContext* context)=0;
+    	virtual void drawDebug(AlloyContext* context);
     	virtual inline ~Region(){};
     };
 
@@ -58,6 +59,7 @@ namespace aly{
 		RGBA bgColor=COLOR_NONE;
 	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
 		virtual void draw(AlloyContext* context) override;
+    	virtual void drawDebug(AlloyContext* context) override;
 		void pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio) override;
 		void pack(AlloyContext* context);
 		Composite& add(const std::shared_ptr<Region>& region);
@@ -85,6 +87,7 @@ namespace aly{
     	{
     		aspectRatio=AspectRatio::FixedHeight;
     	};
+    	virtual void drawDebug(AlloyContext* context) override;
     	void draw(AlloyContext* context);
     };
     inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
@@ -97,17 +100,17 @@ namespace aly{
     		RGBA borderColor=COLOR_NONE,
     		const AUnit1D& borderWidth=UnitPX(2)
     		){
-    	std::shared_ptr<GlyphRegion> label=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
-    	label->glyph=glyph;
-    	label->position=position;
-    	label->dimensions=dimensions;
-    	label->bgColor=bgColor;
-    	label->fgColor=fgColor;
-    	label->borderColor=borderColor;
-    	label->borderWidth=borderWidth;
-    	label->aspectRatio=aspectRatio;
-    	label->aspect=glyph->width/(float)glyph->height;
-    	return label;
+    	std::shared_ptr<GlyphRegion> region=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
+    	region->glyph=glyph;
+    	region->position=position;
+    	region->dimensions=dimensions;
+    	region->bgColor=bgColor;
+    	region->fgColor=fgColor;
+    	region->borderColor=borderColor;
+    	region->borderWidth=borderWidth;
+    	region->aspectRatio=aspectRatio;
+    	region->aspect=glyph->width/(float)glyph->height;
+    	return region;
     }
     inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
     		const std::shared_ptr<AwesomeGlyph>& glyph,
@@ -118,17 +121,17 @@ namespace aly{
     		RGBA borderColor=COLOR_NONE,
     		const AUnit1D& borderWidth=UnitPX(2)
     		){
-    	std::shared_ptr<GlyphRegion> label=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
-    	label->glyph=glyph;
-    	label->position=position;
-    	label->dimensions=dimensions;
-    	label->bgColor=bgColor;
-    	label->fgColor=fgColor;
-    	label->borderColor=borderColor;
-    	label->borderWidth=borderWidth;
-    	label->aspectRatio=AspectRatio::FixedHeight;
-    	label->aspect=glyph->width/(float)glyph->height;
-    	return label;
+    	std::shared_ptr<GlyphRegion> region=std::shared_ptr<GlyphRegion>(new GlyphRegion(glyph->name));
+    	region->glyph=glyph;
+    	region->position=position;
+    	region->dimensions=dimensions;
+    	region->bgColor=bgColor;
+    	region->fgColor=fgColor;
+    	region->borderColor=borderColor;
+    	region->borderWidth=borderWidth;
+    	region->aspectRatio=AspectRatio::FixedHeight;
+    	region->aspect=glyph->width/(float)glyph->height;
+    	return region;
     }
 
     struct TextLabel : public Region{
@@ -145,15 +148,15 @@ namespace aly{
     inline std::shared_ptr<TextLabel> MakeLabel(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions,
     		FontType fontType,const AUnit1D& fontSize=UnitPT(14.0f),
     		RGBA fontColor=COLOR_WHITE,HorizontalAlignment halign=HorizontalAlignment::Left,VerticalAlignment valign=VerticalAlignment::Top){
-    	std::shared_ptr<TextLabel> label=std::shared_ptr<TextLabel>(new TextLabel(name));
-    	label->position=position;
-    	label->dimensions=dimensions;
-    	label->fontColor=fontColor;
-    	label->fontType=fontType;
-    	label->fontSize=fontSize;
-    	label->horizontalAlignment=halign;
-    	label->verticalAlignment=valign;
-    	return label;
+    	std::shared_ptr<TextLabel> region=std::shared_ptr<TextLabel>(new TextLabel(name));
+    	region->position=position;
+    	region->dimensions=dimensions;
+    	region->fontColor=fontColor;
+    	region->fontType=fontType;
+    	region->fontSize=fontSize;
+    	region->horizontalAlignment=halign;
+    	region->verticalAlignment=valign;
+    	return region;
     }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Region & region) {
         	ss<<"Region: "<<region.name<<std::endl;
@@ -201,7 +204,7 @@ namespace aly{
     	}
     	return ss;
     }
-    typedef std::shared_ptr<TextLabel> LabelPtr;
+    typedef std::shared_ptr<TextLabel> TextLabelPtr;
     typedef std::shared_ptr<Composite> CompositePtr;
     typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
     typedef std::shared_ptr<Region> RegionPtr;

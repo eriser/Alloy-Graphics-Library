@@ -21,6 +21,7 @@
 
 #include "AlloyApplication.h"
 #include "AlloyFileUtil.h"
+#include <thread>
 namespace aly {
 
 std::shared_ptr<AlloyContext> Application::context;
@@ -49,6 +50,8 @@ void Application::initInternal() {
 			[](GLFWwindow * window, int button, int action,int mods) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onMouseButton(button, action,mods);} catch(...) {app->throwException(std::current_exception());}});
 	glfwSetCursorPosCallback(context->window,
 			[](GLFWwindow * window, double xpos, double ypos ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onCursorPos(xpos, ypos);} catch(...) {app->throwException(std::current_exception());}});
+	glfwSetCursorEnterCallback(context->window,
+			[](GLFWwindow * window, int enter) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onCursorEnter(enter);} catch(...) {app->throwException(std::current_exception());}});
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 
@@ -81,6 +84,12 @@ void Application::draw(){
 	draw(e3d);
 	draw(e2d);
 	drawUI();
+	if(context->isDebugEnabled()){
+		glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		drawDebugUI();
+	} else {
+		glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
 
 }
 void Application::drawUI(){
@@ -92,6 +101,136 @@ void Application::drawUI(){
 	rootNode.draw(context.get());
 	nvgEndFrame(nvg);
 }
+void Application::drawDebugUI(){
+	box2i& view=context->viewport;
+	NVGcontext* nvg=context->nvgContext;
+	const RGBA color=RGBA(255,255,255,255);
+	nvgBeginFrame(nvg,context->width(),context->height(),context->pixelRatio);
+	rootNode.drawDebug(context.get());
+	int cr=6;
+	nvgBeginPath(nvg);
+	nvgLineCap(nvg,NVG_ROUND);
+	nvgStrokeWidth(nvg,2.0f);
+	nvgStrokeColor(nvg,Color(200,200,200,255));
+	nvgMoveTo(nvg,context->cursor.x-cr,context->cursor.y);
+	nvgLineTo(nvg,context->cursor.x+cr,context->cursor.y);
+	nvgMoveTo(nvg,context->cursor.x,context->cursor.y-cr);
+	nvgLineTo(nvg,context->cursor.x,context->cursor.y+cr);
+
+	nvgStroke(nvg);
+
+	if(context->viewport.contains(int2((int)context->cursor.x,(int)context->cursor.y))){
+		nvgFontSize(nvg,16);
+		nvgFontFaceId(nvg,context->getFontHandle(FontType::Bold));
+		int alignment=0;
+		if(context->cursor.x < context->viewport.dimensions.x*0.5f){
+			alignment=NVG_ALIGN_LEFT;
+		} else {
+			alignment=NVG_ALIGN_RIGHT;
+		}
+		if(context->cursor.y < context->viewport.dimensions.y*0.5f){
+			alignment|=NVG_ALIGN_TOP;
+		} else {
+			alignment|=NVG_ALIGN_BOTTOM;
+		}
+		std::string txt=MakeString()<<std::setprecision(4)<<context->cursor;
+		nvgTextAlign(nvg,alignment);
+		nvgFillColor(nvg, Color(0,0,0,128));
+		const float shft=1.0f;
+
+		nvgText(nvg,context->cursor.x+shft,context->cursor.y,txt.c_str(),nullptr);
+		nvgText(nvg,context->cursor.x-shft,context->cursor.y,txt.c_str(),nullptr);
+
+		nvgText(nvg,context->cursor.x,context->cursor.y+shft,txt.c_str(),nullptr);
+		nvgText(nvg,context->cursor.x,context->cursor.y-shft,txt.c_str(),nullptr);
+
+		nvgText(nvg,context->cursor.x+shft,context->cursor.y-shft,txt.c_str(),nullptr);
+		nvgText(nvg,context->cursor.x+shft,context->cursor.y+shft,txt.c_str(),nullptr);
+
+		nvgText(nvg,context->cursor.x+shft,context->cursor.y-shft,txt.c_str(),nullptr);
+		nvgText(nvg,context->cursor.x+shft,context->cursor.y+shft,txt.c_str(),nullptr);
+
+		nvgText(nvg,context->cursor.x-shft,context->cursor.y-shft,txt.c_str(),nullptr);
+		nvgText(nvg,context->cursor.x-shft,context->cursor.y+shft,txt.c_str(),nullptr);
+
+		nvgText(nvg,context->cursor.x-shft,context->cursor.y-shft,txt.c_str(),nullptr);
+		nvgText(nvg,context->cursor.x-shft,context->cursor.y+shft,txt.c_str(),nullptr);
+
+		nvgFillColor(nvg, Color(255,255,255,255));
+		nvgText(nvg,context->cursor.x,context->cursor.y,txt.c_str(),nullptr);
+
+	}
+	nvgBeginPath(nvg);
+	nvgFillColor(nvg,Color(200,200,200,255));
+	nvgCircle(nvg,context->cursor.x,context->cursor.y,3.0f);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgFillColor(nvg,Color(255,64,32,255));
+	nvgCircle(nvg,context->cursor.x,context->cursor.y,1.5f);
+	nvgFill(nvg);
+
+	nvgEndFrame(nvg);
+}
+
+void Application::onWindowSize(int width,int height){
+	glViewport(0,0,width,height);
+	if(context->viewport.dimensions.x!=width||context->viewport.dimensions.y!=height){
+		context->viewport=box2i(int2(0,0),int2(width,height));
+		rootNode.pack(context.get());
+	}
+}
+void Application::onCursorPos(double xpos, double ypos){
+	context->cursor=pixel2((pixel)xpos,(pixel)ypos);
+	InputEvent e;
+	e.type = InputType::Cursor;
+	e.cursor=pixel2((pixel)xpos,(pixel)ypos);
+}
+void Application::onCursorEnter(int enter){
+	if(!enter){
+		context->cursor=pixel2(-1,-1);
+		InputEvent e;
+		e.type = InputType::Cursor;
+		e.cursor=pixel2(-1,-1);
+	}
+}
+void Application::onScroll(double xoffset,double yoffset){
+	InputEvent e;
+	e.cursor=context->cursor;
+	e.type = InputType::Scroll;
+	e.scroll=pixel2((pixel)xoffset,(pixel)yoffset);
+}
+void Application::onMouseButton(int button, int action,int mods)
+{
+	InputEvent e;
+	e.type = InputType::MouseButton;
+	e.cursor=context->cursor;
+	e.button=button;
+	e.action=action;
+	e.mods=mods;
+}
+void Application::onKey(int key, int scancode,int action,int mods){
+	   InputEvent e;
+	    e.type = InputType::Key;
+	    e.action = action;
+	    e.key=key;
+	    e.scancode = scancode;
+	    e.mods=mods;
+		e.cursor=context->cursor;
+	    GLFWwindow* window=context->window;
+}
+void Application::onChar(unsigned int codepoint){
+	   InputEvent e;
+	    e.type = InputType::Character;
+	    e.codepoint=codepoint;
+		e.cursor=context->cursor;
+	    GLFWwindow* window=context->window;
+	    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) | glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) e.mods |= GLFW_MOD_SHIFT;
+	    if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) | glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) e.mods |= GLFW_MOD_CONTROL;
+	    if(glfwGetKey(window, GLFW_KEY_LEFT_ALT) | glfwGetKey(window, GLFW_KEY_RIGHT_ALT)) e.mods |= GLFW_MOD_ALT;
+	    if(glfwGetKey(window, GLFW_KEY_LEFT_SUPER) | glfwGetKey(window, GLFW_KEY_RIGHT_SUPER)) e.mods |= GLFW_MOD_SUPER;
+}
+
 void Application::run(int swapInterval) {
 	context->makeCurrent();
 	rootNode.pack(context.get());
@@ -105,6 +244,7 @@ void Application::run(int swapInterval) {
 	double lastCpuTime;
 	uint64_t frameCounter=0;
 	lastCpuTime = glfwGetTime();
+	std::cout<<"Draw thread ID: "<<std::this_thread::get_id()<<std::endl;
 	do {
 		draw();
 		double t = glfwGetTime();

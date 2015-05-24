@@ -678,10 +678,15 @@ template<class T> struct vec<T,1>
 
        	box(vec<T,M> pt,vec<T,M> dims):position(pt),dimensions(dims){
         }
-    	bool contains(const vec<T,M>& qt){
+    	inline bool contains(const vec<T,M>& qt){
     		for(int m=0;m<M;m++)if(qt[m]<position[m]||qt[m]>=position[m]+dimensions[m])return false;
     		return true;
     	}
+    	inline void clamp(const box<T,M>& other){
+    		position=aly::clamp(position,other.position,other.position+other.dimensions);
+    		dimensions=aly::min(dimensions,other.dimensions);
+    	}
+
     };
     template<class C, class R,class T,int M> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const box<T,M> & v) {
     	return ss << "{min: "<<v.position<<", max: "<<v.position+v.dimensions<<", dimensions: "<<v.dimensions<<"}"; }
