@@ -32,6 +32,21 @@ namespace aly{
 	typedef float pixel;
 	typedef vec<pixel,2> pixel2;
 	typedef box<pixel,2> box2px;
+	struct Tweenable{
+	protected:
+		double t=0;
+	public:
+		Tweenable(double t):t(t){
+
+		}
+		virtual void setTweenValue(double val){
+			t=val;
+		}
+		inline double getTweenValue() const {
+			return t;
+		}
+		virtual inline ~Tweenable(){};
+	};
 	class AUnit1D{
 		struct Interface
 		{
@@ -137,7 +152,14 @@ namespace aly{
 			return (float)(screenSize*value);
 		}
 	};
-
+	struct UnitTween : public Tweenable{
+		std::pair<AUnit1D,AUnit1D> value;
+		UnitTween(const AUnit1D& start,const AUnit1D end,double t=0):Tweenable(t),value(start,end){
+		}
+		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),t);
+		}
+	};
 	struct CoordDP{
 		int2 value;
 		CoordDP(int x,int y):value(x,y){}
@@ -216,6 +238,85 @@ namespace aly{
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
+	struct CoordTween: public Tweenable{
+		std::pair<AUnit2D,AUnit2D> value;
+
+		CoordTween(const AUnit2D& start,const AUnit2D end,double t=0):Tweenable(t),value(start,end){
+		}
+		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
+			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),(float)t);
+		}
+	};
+	struct Color: public NVGcolor{
+		Color():NVGcolor(){
+		}
+		Color(const NVGcolor& color):NVGcolor(color){
+		}
+		Color(RGB color):Color(nvgRGB(color.x,color.y,color.z)){
+		}
+		Color(const RGBA& color):Color(nvgRGBA(color.x,color.y,color.z,color.w)){
+		}
+		Color(const RGBi& color):Color(nvgRGB(color.x,color.y,color.z)){
+		}
+		Color(const RGBAi& color):Color(nvgRGBA(color.x,color.y,color.z,color.w)){
+		}
+		Color(const RGBAf& color):Color(nvgRGBAf(color.x,color.y,color.z,color.w)){
+		}
+		Color(const RGBf& color):Color(nvgRGBf(color.x,color.y,color.z)){
+		}
+		Color(float r,float g,float b,float a):Color(nvgRGBAf(r,g,b,a)){
+		}
+		Color(float r,float g,float b):Color(nvgRGBf(r,g,b)){
+		}
+		Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a):Color(nvgRGBA(r,g,b,a)){
+		}
+		Color(uint8_t r,uint8_t g,uint8_t b):Color(nvgRGB(r,g,b)){
+		}
+		Color(int r,int g,int b,int a):Color(nvgRGBA(r,g,b,a)){
+		}
+		Color(int r,int g,int b):Color(nvgRGB(r,g,b)){
+		}
+	};
+	struct ColorTween : public Tweenable, Color {
+		std::pair<Color,Color> value;
+		ColorTween(const Color& start,const Color& end,double t=0):Tweenable(t),value(start,end){
+
+		}
+		virtual void setTweenValue(double val) override{
+			t=val;
+			rgba[0]=mix(value.first.rgba[0],value.second.rgba[0],t);
+			rgba[1]=mix(value.first.rgba[1],value.second.rgba[1],t);
+			rgba[2]=mix(value.first.rgba[2],value.second.rgba[2],t);
+			rgba[3]=mix(value.first.rgba[3],value.second.rgba[3],t);
+		}
+
+	};
+	inline std::shared_ptr<Color> MakeColor(const Color& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const RGBA& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const RGB& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const RGBAf& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const RGBf& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const RGBAi& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const RGBi& c){
+		return std::shared_ptr<Color>(new Color(c));
+	}
+	inline std::shared_ptr<Color> MakeColor(const Color& start,const Color& end){
+		return std::shared_ptr<Color>(new ColorTween(start,end));
+	}
+	typedef std::shared_ptr<Color> ColorPtr;
+
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitDP & v) { return ss<<v.value<<" dp"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitPX & v) { return ss<<v.value<<" px"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitMM & v) { return ss<<v.value<<" mm"; }
@@ -223,6 +324,8 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitPT & v) { return ss<<v.value<<" pt"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitPercent & v) { return ss<<v.value*100<<"%"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AUnit1D& v) { return ss <<v.toString(); }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitTween & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
+
 
 	template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordDP & v) { return ss <<"("<<v.value.x<<" dp, "<<v.value.y<<" dp)"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPX & v) { return ss <<"("<<v.value.x<<" px, "<<v.value.y<<" px)"; }
@@ -237,5 +340,10 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerPT & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerMM & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerIN & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordTween & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
+
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Color & v) { return ss << "("<<v.r<<", "<<v.g<<", "<<v.b<<", "<<v.a<<")"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ColorTween & v) { return ss << "{"<<v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
+
 }
 #endif /* ALLOYUNITS_H_ */

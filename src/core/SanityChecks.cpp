@@ -75,7 +75,7 @@ namespace aly{
 			Image4f im1(320,240);
 			Image4f im2;
 			im2.resize(320,240);
-
+			im2.setZero();
 			std::cout<<im1<<std::endl;
 			std::cout<<im2<<std::endl;
 			Image4f out=float4(1,2,3,1)+im2;

@@ -49,42 +49,7 @@ namespace aly{
 	const RGBA COLOR_NONE(0,0,0,0);
 	const RGBA COLOR_BLACK(0,0,0,255);
 	const RGBA COLOR_WHITE(255,255,255,255);
-	inline NVGcolor Color(RGB color){
-		return nvgRGB(color.x,color.y,color.z);
-	}
-	inline NVGcolor Color(const RGBA& color){
-		return nvgRGBA(color.x,color.y,color.z,color.w);
-	}
-	inline NVGcolor Color(const RGBi& color){
-		return nvgRGB(color.x,color.y,color.z);
-	}
-	inline NVGcolor Color(const RGBAi& color){
-		return nvgRGBA(color.x,color.y,color.z,color.w);
-	}
-	inline NVGcolor Color(const RGBAf& color){
-		return nvgRGBAf(color.x,color.y,color.z,color.w);
-	}
-	inline NVGcolor Color(const RGBf& color){
-		return nvgRGBf(color.x,color.y,color.z);
-	}
-	inline NVGcolor Color(float r,float g,float b,float a){
-		return nvgRGBAf(r,g,b,a);
-	}
-	inline NVGcolor Color(float r,float g,float b){
-		return nvgRGBf(r,g,b);
-	}
-	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a){
-		return nvgRGBA(r,g,b,a);
-	}
-	inline NVGcolor Color(uint8_t r,uint8_t g,uint8_t b){
-		return nvgRGB(r,g,b);
-	}
-	inline NVGcolor Color(int r,int g,int b,int a){
-		return nvgRGBA(r,g,b,a);
-	}
-	inline NVGcolor Color(int r,int g,int b){
-		return nvgRGB(r,g,b);
-	}
+
 	enum class GlyphType{Image, Awesome};
     enum class InputType {Unspecified,Cursor,MouseButton,Key,Character,Scroll};
     enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
@@ -177,19 +142,19 @@ namespace aly{
 
 		}
 		virtual inline ~Glyph(){};
-		virtual void draw(const box2px& bounds,const RGBA& color,AlloyContext* context)=0;
+		virtual void draw(const box2px& bounds,const Color& color,AlloyContext* context)=0;
 	};
 	struct ImageGlyph: public Glyph{
 		int handle;
 		const std::string file;
 		ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap=false);
 		ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap=false);
-		void draw(const box2px& bounds,const RGBA& color,AlloyContext* context) override;
+		void draw(const box2px& bounds,const Color& color,AlloyContext* context) override;
 	};
 	struct AwesomeGlyph: public Glyph{
 		const int codePoint;
 		AwesomeGlyph(int codePoint,AlloyContext* context,pixel fontHeight=32);
-		void draw(const box2px& bounds,const RGBA& color,AlloyContext* context) override;
+		void draw(const box2px& bounds,const Color& color,AlloyContext* context) override;
 	};
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font: "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"ImageGlyph: "<<v.name<<"["<<v.handle<<"]: dimensions= ("<<v.width<<", "<<v.height<<")"; }

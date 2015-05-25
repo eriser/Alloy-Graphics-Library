@@ -326,9 +326,10 @@ template<class T> struct vec<T,1>
     template<class T,int M> vec<T,M> max(const vec<T,M> & l, const vec<T,M> & r) { vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::max(l[m],r[m]);return result; }
     template<class T,int M> vec<T,M> min(const vec<T,M> & l, const vec<T,M> & r) {vec<T,M> result;for(int m=0;m<M;m++)result[m]=std::min(l[m],r[m]);return result; }
 
-    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,const T& t) {return (a*(1-t) + b*t); }
-    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,const vec<T,M>& t) {return (a*(vec<T,M>(1)-t) + b*t); }
-
+    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,const T& t) {return vec<T,M>(vec<float,M>(a)*(1-t) + vec<float,M>(a)*t); }
+    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,double t) {return vec<T,M>(vec<double,M>(a)*(1-t) + vec<double,M>(a)*(t)); }
+    template<class T> T mix(const T & a, const T & b,double t) {return (T)((double)a*(1.0-t) + (double)b*(t)); }
+    template<class T,int M> vec<T,M> mix(const vec<T,M> & a, const vec<T,M> & b,const vec<T,M> & t) {return vec<T,M>(vec<float,M>(a)*(vec<float,M>(1)-t) + vec<float,M>(a)*t); }
     //////////////////////////////
     // Vector algebra functions //
     //////////////////////////////

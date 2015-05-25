@@ -51,10 +51,10 @@ namespace aly{
 		width=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
 
 	}
-	void AwesomeGlyph::draw(const box2px& bounds,const RGBA& color, AlloyContext* context){
+	void AwesomeGlyph::draw(const box2px& bounds,const Color& color, AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
 		nvgFontSize(nvg, bounds.dimensions.y);
-		nvgFillColor(nvg,Color(color));
+		nvgFillColor(nvg,color);
 		nvgFontFaceId(nvg,context->getFontHandle(FontType::Icon));
 		nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_TOP);
 		nvgText(nvg,bounds.position.x, bounds.position.y,name.c_str(),nullptr);
@@ -71,7 +71,7 @@ namespace aly{
 		width=(pixel)rgba.width;
 		height=(pixel)rgba.height;
 	}
-	void ImageGlyph::draw(const box2px& bounds,const RGBA& color,AlloyContext* context){
+	void ImageGlyph::draw(const box2px& bounds,const Color& color,AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
 		NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,bounds.position.y,
 				bounds.dimensions.x,bounds.dimensions.y,
@@ -81,7 +81,7 @@ namespace aly{
 		nvgRect(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 		nvgFillPaint(nvg, imgPaint);
 		nvgFill(nvg);
-		if(color.w>0){
+		if(color.a>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 			nvgFillColor(nvg, Color(color));

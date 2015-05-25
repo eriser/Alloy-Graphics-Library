@@ -69,6 +69,7 @@ bool ExampleUI::init(Composite& rootNode) {
 int main()
 {
 	try{
+		SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		ExampleUI app;
 		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;

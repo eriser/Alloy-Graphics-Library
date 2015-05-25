@@ -56,7 +56,7 @@ namespace aly{
     struct Composite : public Region{
     	std::vector<std::shared_ptr<Region>> children;
     	Orientation orientation=Orientation::Unspecified;
-		RGBA bgColor=COLOR_NONE;
+		ColorPtr bgColor=MakeColor(COLOR_NONE);
 	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
 		virtual void draw(AlloyContext* context) override;
     	virtual void drawDebug(AlloyContext* context) override;
@@ -71,15 +71,15 @@ namespace aly{
     		RGBA bgColor=COLOR_NONE,Orientation orientation=Orientation::Unspecified){
     	std::shared_ptr<Composite> composite=std::shared_ptr<Composite>(new Composite(name));
     	composite->position=position;
-    	composite->bgColor=bgColor;
+    	composite->bgColor=MakeColor(bgColor);
     	composite->dimensions=dimensions;
     	composite->orientation=orientation;
         return composite;
     }
     struct GlyphRegion : public Region{
-    	RGBA bgColor=COLOR_NONE;
-    	RGBA fgColor=COLOR_NONE;
-    	RGBA borderColor=COLOR_NONE;
+    	ColorPtr bgColor=MakeColor(COLOR_NONE);
+    	ColorPtr fgColor=MakeColor(COLOR_NONE);
+    	ColorPtr borderColor=MakeColor(COLOR_NONE);
     	AUnit1D borderWidth=UnitPX(2);
     	std::shared_ptr<Glyph> glyph;
     	GlyphRegion(const std::string& name=MakeString()<<"g"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
@@ -104,9 +104,9 @@ namespace aly{
     	region->glyph=glyph;
     	region->position=position;
     	region->dimensions=dimensions;
-    	region->bgColor=bgColor;
-    	region->fgColor=fgColor;
-    	region->borderColor=borderColor;
+    	region->bgColor=MakeColor(bgColor);
+    	region->fgColor=MakeColor(fgColor);
+    	region->borderColor=MakeColor(borderColor);
     	region->borderWidth=borderWidth;
     	region->aspectRatio=aspectRatio;
     	region->aspect=glyph->width/(float)glyph->height;
@@ -125,9 +125,9 @@ namespace aly{
     	region->glyph=glyph;
     	region->position=position;
     	region->dimensions=dimensions;
-    	region->bgColor=bgColor;
-    	region->fgColor=fgColor;
-    	region->borderColor=borderColor;
+    	region->bgColor=MakeColor(bgColor);
+    	region->fgColor=MakeColor(fgColor);
+    	region->borderColor=MakeColor(borderColor);
     	region->borderWidth=borderWidth;
     	region->aspectRatio=AspectRatio::FixedHeight;
     	region->aspect=glyph->width/(float)glyph->height;
@@ -140,7 +140,7 @@ namespace aly{
 
     	FontType fontType=FontType::Normal;
     	AUnit1D fontSize=UnitPT(14);
-    	RGBA fontColor=COLOR_WHITE;
+    	ColorPtr fontColor=MakeColor(COLOR_WHITE);
     	TextLabel(const std::string& name=MakeString()<<"t"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
     		Region(name){};
     	void draw(AlloyContext* context);
@@ -151,7 +151,7 @@ namespace aly{
     	std::shared_ptr<TextLabel> region=std::shared_ptr<TextLabel>(new TextLabel(name));
     	region->position=position;
     	region->dimensions=dimensions;
-    	region->fontColor=fontColor;
+    	region->fontColor=MakeColor(fontColor);
     	region->fontType=fontType;
     	region->fontSize=fontSize;
     	region->horizontalAlignment=halign;
