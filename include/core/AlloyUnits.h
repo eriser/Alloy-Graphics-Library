@@ -345,5 +345,6 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Color & v) { return ss << "("<<v.r<<", "<<v.g<<", "<<v.b<<", "<<v.a<<")"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ColorTween & v) { return ss << "{"<<v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
 
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const std::shared_ptr<Color> & v) { return ss <<*v; }
 }
 #endif /* ALLOYUNITS_H_ */

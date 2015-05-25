@@ -56,9 +56,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(iconr);
 	rootNode.pack();
 	getContext()->toggleDebug();
-	//std::cout<<*imgr<<std::endl;
-	//std::cout<<*label<<std::endl;
-	//std::cout<<*comp<<std::endl;
+	std::cout<<*imgr<<std::endl;
+	std::cout<<*label<<std::endl;
+	std::cout<<*comp<<std::endl;
 	//std::cout<<*iconr<<std::endl;
 
 	//std::cout<<rootNode<<std::endl;
