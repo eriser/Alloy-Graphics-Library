@@ -83,16 +83,16 @@ struct Tween{
 	std::shared_ptr<Tweenable> object;
 	Interpolant interpolant;
 	double duration;
-	double t=0;
+	double time=0;
 	Tween(const std::shared_ptr<Tweenable>& object,const Interpolant& interpolant,double duration):object(object),interpolant(interpolant),duration(duration){
 	}
 	void reset(){
 		object->reset();
-		t=0;
+		time=0;
 	}
 	double step(double dt){
-		t+=dt;
-		object->setTweenValue(interpolant(t/duration));
+		time+=dt;
+		object->setTweenValue(interpolant(time/duration));
 		return object->getTweenValue();
 	}
 };
