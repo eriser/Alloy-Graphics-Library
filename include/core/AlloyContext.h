@@ -196,7 +196,7 @@ namespace aly{
     }
     */
 
-	struct AlloyContext {
+	class AlloyContext {
 		private:
 			std::list<std::string> assetDirectories;
 			std::shared_ptr<Font> fonts[4];

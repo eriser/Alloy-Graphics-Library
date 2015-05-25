@@ -37,14 +37,10 @@ namespace aly{
 		std::vector<vec<T,C>>& data;
 		static const int channels = C;
 		void set(const T& val){
-			for(T& x:data){
-				x=vec<T,C>(val);
-			}
+			data.assign(data.size(),vec<T,C>(val));
 		}
 		void set(const vec<T,C>& val){
-			for(vec<T,C>& x:data){
-				x=val;
-			}
+			data.assign(data.size(),val);
 		}
 		void set(T* val){
 			if(val==nullptr)return;

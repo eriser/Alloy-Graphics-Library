@@ -58,7 +58,6 @@ namespace aly{
 		}
 		void set(const vec<T,C>& val){
 			data.assign(data.size(),val);
-
 		}
 
 		void set(T* val){
