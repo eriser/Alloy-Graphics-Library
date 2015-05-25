@@ -28,6 +28,19 @@
 namespace aly{
 	bool SANITY_CHECK_IMAGE();
 	enum class ImageType{BYTE,UBYTE,SHORT,USHORT,INT,UINT,FLOAT,DOUBLE};
+	template<class L,class R> std::basic_ostream<L,R>& operator << (std::basic_ostream<L,R> & ss, const ImageType& type) {
+		switch(type){
+			case ImageType::BYTE: return ss<<"byte";
+			case ImageType::UBYTE: return ss<<"ubyte";
+			case ImageType::SHORT: return ss<<"short";
+			case ImageType::USHORT: return ss<<"ushort";
+			case ImageType::INT: return ss<<"int";
+			case ImageType::UINT: return ss<<"uint";
+			case ImageType::FLOAT: return ss<<"float";
+			case ImageType::DOUBLE: return ss<<"double";
+		}
+	    return ss;
+	}
 	template<class T,int C,ImageType I> struct Image{
 	private:
 		std::vector<vec<T,C>> storage;
@@ -75,18 +88,7 @@ namespace aly{
 			set(&other.data[0]);
 		}
 		std::string getTypeName() const {
-			std::string tName;
-			switch(type){
-				case ImageType::BYTE: tName="byte";break;
-				case ImageType::UBYTE: tName="ubyte";break;
-				case ImageType::SHORT: tName="short";break;
-				case ImageType::USHORT: tName="ushort";break;
-				case ImageType::INT: tName="int";break;
-				case ImageType::UINT: tName="uint";break;
-				case ImageType::FLOAT: tName="float";break;
-				case ImageType::DOUBLE: tName="double";break;
-			}
-			return MakeString()<<tName<<channels;
+			return MakeString()<<type<<channels;
 		}
 		const Image<T, C, I>& operator=(Image<T, C, I>& img) const{
 			return Image<T, C, I>(&data[0],img.width,img.height,img.x,img.y,img.id);
@@ -146,7 +148,7 @@ namespace aly{
 			return &(data.front()[0]);
 		}
 		void setZero(){
-			memset(this->data(),0,sizeof(vec<T,C>)*data.size());
+			data.assign(data.size(),vec<T,C>((T)0));
 		}
 		const vec<T, C>& operator[](const size_t i) const {
 			return data[i];

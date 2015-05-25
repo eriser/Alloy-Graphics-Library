@@ -109,7 +109,7 @@ namespace aly{
 			return &(data.front()[0]);
 		}
 		void setZero(){
-			memset(this->data(),0,sizeof(vec<T,C>)*data.size());
+			data.assign(data.size(),vec<T,C>((T)0));
 		}
 		const vec<T, C>& operator[](const size_t i) const {
 			return data[i];
