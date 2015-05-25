@@ -20,8 +20,8 @@ bool Animator::step(double dt){
 	std::list<std::shared_ptr<Tween>>& next=tweens[1-parity];
 	next.clear();
 	for(std::shared_ptr<Tween>& tween:current){
-		tween->object->setTweenValue(tween->interpolant(tween->object->getTweenValue()+dt/tween->duration));
-		if(tween->object->getTweenValue()<1.0){
+		double t=tween->step(dt);
+		if(t<1.0){
 			next.push_back(tween);
 		}
 	}
