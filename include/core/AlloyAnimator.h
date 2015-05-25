@@ -33,46 +33,39 @@ struct Smoothstep : public Interpolant
 struct SineIn : public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    double out=1.0f - std::cos(t * ALY_PI / 2.f);
-	    return out;
+	    return 1.0f - std::cos(t * ALY_PI * 0.5);
 	}
 };
 
 struct SineOut : public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    double out=(t < 0.5f) ? (1.0f - std::cos(t * ALY_PI)) * 0.5f : 1.0f - 1.0f - std::cos((1.0f-t) * ALY_PI) * 0.5f;
-	    return out;
+	    return (t < 0.5f) ? (1.0f - std::cos(t * ALY_PI)) * 0.5f : 0.5f+std::cos((1.0f-t) * ALY_PI) * 0.5f;
 	}
 };
 
 struct ExponentialIn: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-		double out=std::pow(2.0f, 10.f * (t - 1.0f));
-		if(out>0.9999)return 1.0f; else return out;
+		return std::pow(2.0f, 10.f * (t - 1.0f));
     }
  };
 struct ExponentialOut: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-		const double maxValue=1.0/(1.0f - std::pow(2.0f, 10.f * (1.0f-2.0f)) * 0.5f);
- 	    double out=((t < 0.5f) ? std::pow(2.0f, 10.f * (2.0f*t - 1.0f)) * 0.5f : (1.0f - std::pow(2.0f, 10.f * (1.0f-2.0f*t)) * 0.5f))*maxValue;
- 	   if(out>0.9999)return 1.0; else return out; //Make sure value hits 1.0 for termination.
+ 	    return ((t < 0.5f) ? std::pow(2.0f, 10.f * (2.0f*t - 1.0f)) * 0.5f : (1.0f - std::pow(2.0f, 10.f * (1.0f-2.0f*t)) * 0.5f));
     }
 };
 struct QuadraticIn: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    double out=t * t;
-	    if(out>0.9999)return 1.0; else return out;//Make sure value hits 1.0 for termination.
+	    return t * t;
     }
 };
 struct QuadraticOut: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-        double out=(t < 0.5f) ? (t*t * 2.0f) * 0.5f : 1.0f - (2.0f - t*t * 2.0f) * 0.5f;
-	    if(out>0.9999)return 1.0; else return out;//Make sure value hits 1.0 for termination.
+        return (t < 0.5f) ? (t*t * 2.0f) * 0.5f : 1.0f - (2.0f - t*t * 2.0f) * 0.5f;
     }
 };
 struct CubicPulse : public Interpolant
@@ -101,8 +94,9 @@ public:
 	}
 	double step(double dt){
 		time+=dt;
-		if(duration>0){
-			object->setTweenValue((*interpolant)(clamp(time/duration,0.0,1.0)));
+		if(duration>0&&time<duration){
+			time=std::min(time,duration);
+			object->setTweenValue((*interpolant)(time/duration));
 		} else {
 			object->setTweenValue(1.0);
 		}

@@ -48,10 +48,12 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPX(50,100),
 			RGBA(32,64,128,255),
 			RGBA(255,255,255,255));
-	getContext()->animator.add(iconr->bgColor,Color(255,64,32,255),Color(32,64,255,255),3.0,SineIn());
-	getContext()->animator.add(iconr->fgColor,Color(0,0,0,255),Color(255,255,255,255),3.0,SineIn());
-	getContext()->animator.add(iconr->position,CoordPX(100,100),CoordPX(300,100),3.0,ExponentialOut());
-	getContext()->animator.add(label->fontSize,UnitPT(10.0f),UnitPT(30.0f),1.0,Linear());
+	addTween(imgr->fgColor,Color(128,128,128,255),Color(128,128,128,0),3.0,SineOut());
+	addTween(imgr->dimensions,CoordPX(50,50),CoordPX(300,300),3.0,SineOut());
+	addTween(iconr->bgColor,Color(255,64,32,255),Color(32,64,255,255),3.0,SineIn());
+	addTween(iconr->fgColor,Color(0,0,0,255),Color(255,255,255,255),3.0,SineIn());
+	addTween(iconr->position,CoordPX(100,100),CoordPX(300,100),3.0,ExponentialOut());
+	addTween(label->fontSize,UnitPT(10.0f),UnitPT(30.0f),1.0,Linear());
 	CompositePtr comp=MakeComposite("Rect 1",CoordPercent(0.2,0.3),CoordPX(400,300),RGBA(128,32,32,255));
 	comp->add(label);
 	rootNode.add(comp);
