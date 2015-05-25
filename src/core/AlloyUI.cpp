@@ -61,7 +61,7 @@ namespace aly{
 	void Composite::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
 		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
-		if(bgColor.get()!=nullptr&&bgColor->a>0){
+		if(bgColor->a >0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 			nvgFillColor(nvg, *bgColor);
@@ -177,7 +177,7 @@ namespace aly{
 	void GlyphRegion::draw(AlloyContext* context){
 		NVGcontext* nvg=context->nvgContext;
 		if(parent!=nullptr)nvgScissor(nvg,parent->bounds.position.x,parent->bounds.position.y,parent->bounds.dimensions.x,parent->bounds.dimensions.y);
-		if(bgColor.get()!=nullptr&&bgColor->a>0){
+		if(bgColor->a>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 			nvgFillColor(nvg, *bgColor);
@@ -186,7 +186,7 @@ namespace aly{
 		if(glyph.get()!=nullptr){
 			glyph->draw(bounds,*fgColor,context);
 		}
-		if(borderColor.get()!=nullptr&&borderColor->a>0){
+		if(borderColor->a>0){
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x, bounds.dimensions.y);
 			nvgStrokeColor(nvg,*borderColor);

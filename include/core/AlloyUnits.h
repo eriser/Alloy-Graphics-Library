@@ -43,7 +43,7 @@ namespace aly{
 
 		}
 		virtual void setTweenValue(double val){
-			t=val;
+			t=clamp(val,0.0,1.0);
 		}
 		inline double getTweenValue() const {
 			return t;
@@ -73,12 +73,13 @@ namespace aly{
 		virtual inline ~Tweenable(){};
 	};
 	class AUnit1D{
+	public:
 		struct Interface
 		{
 			virtual pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const =0;
 			virtual std::string toString() const = 0;
 		};
-	public:
+	private:
 		template<class T> struct Impl : public Interface{
 			T value;
 			Impl(const T& value):value(value){};
@@ -89,6 +90,7 @@ namespace aly{
 				return MakeString()<<value;
 			}
 		};
+		public:
 		std::shared_ptr<Interface> impl;
 
 		    // Can construct or assign any type that implements the implicit interface (According to Sterling)
@@ -96,19 +98,52 @@ namespace aly{
 		    AUnit1D(const AUnit1D & r) : impl(r.impl) {}
 		    virtual inline ~AUnit1D(){}
 		    template<class T> AUnit1D(const T & value) : impl(new Impl<T>{value}) {}
+		    template<class T> AUnit1D(T* value) : impl(value) {}
 		    AUnit1D & operator = (const AUnit1D & r) { impl = r.impl; return *this; }
 		    template<class T> AUnit1D & operator = (const T & value) { return *this = AUnit1D(value); }
 		    // Implicit interface
 		    pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const { return impl->toPixels(screenSize,dpmm,pixelRatio); }
 		    std::string toString() const {return impl->toString(); }
 	};
-
+	struct Color: public NVGcolor{
+		Color():NVGcolor(){
+		}
+		Color(const NVGcolor& color):NVGcolor(color){
+		}
+		Color(RGB color):Color(nvgRGB(color.x,color.y,color.z)){
+		}
+		Color(const RGBA& color):Color(nvgRGBA(color.x,color.y,color.z,color.w)){
+		}
+		Color(const RGBi& color):Color(nvgRGB(color.x,color.y,color.z)){
+		}
+		Color(const RGBAi& color):Color(nvgRGBA(color.x,color.y,color.z,color.w)){
+		}
+		Color(const RGBAf& color):Color(nvgRGBAf(color.x,color.y,color.z,color.w)){
+		}
+		Color(const RGBf& color):Color(nvgRGBf(color.x,color.y,color.z)){
+		}
+		Color(float r,float g,float b,float a):Color(nvgRGBAf(r,g,b,a)){
+		}
+		Color(float r,float g,float b):Color(nvgRGBf(r,g,b)){
+		}
+		Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a):Color(nvgRGBA(r,g,b,a)){
+		}
+		Color(uint8_t r,uint8_t g,uint8_t b):Color(nvgRGB(r,g,b)){
+		}
+		Color(int r,int g,int b,int a):Color(nvgRGBA(r,g,b,a)){
+		}
+		Color(int r,int g,int b):Color(nvgRGB(r,g,b)){
+		}
+	};
+	typedef std::shared_ptr<Color> AColor;
 	class AUnit2D{
+	public:
 		struct Interface
 		{
 			virtual pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const =0;
 			virtual std::string toString() const = 0;
 		};
+	private:
 		template<class T> struct Impl : public Interface{
 			T value;
 			Impl(const T& value):value(value){};
@@ -123,9 +158,10 @@ namespace aly{
 		public:
 		    // Can construct or assign any type that implements the implicit interface (According to Sterling)
 		    AUnit2D() {}
-		    AUnit2D(const AUnit2D & r) : impl(r.impl) {}
+		    explicit AUnit2D(const AUnit2D & r) : impl(r.impl) {}
 		    virtual inline ~AUnit2D(){}
-		    template<class T> AUnit2D(const T & value):impl(new Impl<T>{value}) {}
+		    template<class T> AUnit2D(const T& value):impl(new Impl<T>{value}) {}
+		    template<class T> AUnit2D(T* value):impl(value) {}
 		    AUnit2D & operator = (const AUnit2D & r) { impl = r.impl; return *this; }
 		    template<class T> AUnit2D & operator = (const T & value) { return *this = AUnit2D(value); }
 		    // Implicit interface
@@ -177,11 +213,14 @@ namespace aly{
 			return (float)(screenSize*value);
 		}
 	};
-	struct UnitTween : public Tweenable{
+	struct UnitTween : public AUnit1D::Interface, Tweenable{
 		std::pair<AUnit1D,AUnit1D> value;
 		UnitTween(const AUnit1D& start,const AUnit1D end,double t=0):Tweenable(t),value(start,end){
 		}
-		pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const {
+		virtual std::string toString() const override {
+			return MakeString()<<"{"<<value.first<<", "<<value.second<<", "<<t<<"}";
+		}
+		virtual pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const override {
 			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),t);
 		}
 	};
@@ -263,49 +302,22 @@ namespace aly{
 			return value.first.toPixels(screenSize,dpmm,pixelRatio)+value.second.toPixels(screenSize,dpmm,pixelRatio);
 		}
 	};
-	struct CoordTween: public Tweenable{
+	struct CoordTween: public Tweenable, AUnit2D::Interface{
 		std::pair<AUnit2D,AUnit2D> value;
+		CoordTween(const AUnit2D& start,const AUnit2D& end,double t=0):Tweenable(t),value(start,end){
+		}
+		virtual std::string toString() const override {
+			return MakeString()<<"{"<<value.first<<", "<<value.second<<", "<<t<<"}";
+		}
+		virtual pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const override {
+			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),t);
+		}
+	};
 
-		CoordTween(const AUnit2D& start,const AUnit2D end,double t=0):Tweenable(t),value(start,end){
-		}
-		pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const {
-			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),(float)t);
-		}
-	};
-	struct Color: public NVGcolor{
-		Color():NVGcolor(){
-		}
-		Color(const NVGcolor& color):NVGcolor(color){
-		}
-		Color(RGB color):Color(nvgRGB(color.x,color.y,color.z)){
-		}
-		Color(const RGBA& color):Color(nvgRGBA(color.x,color.y,color.z,color.w)){
-		}
-		Color(const RGBi& color):Color(nvgRGB(color.x,color.y,color.z)){
-		}
-		Color(const RGBAi& color):Color(nvgRGBA(color.x,color.y,color.z,color.w)){
-		}
-		Color(const RGBAf& color):Color(nvgRGBAf(color.x,color.y,color.z,color.w)){
-		}
-		Color(const RGBf& color):Color(nvgRGBf(color.x,color.y,color.z)){
-		}
-		Color(float r,float g,float b,float a):Color(nvgRGBAf(r,g,b,a)){
-		}
-		Color(float r,float g,float b):Color(nvgRGBf(r,g,b)){
-		}
-		Color(uint8_t r,uint8_t g,uint8_t b,uint8_t a):Color(nvgRGBA(r,g,b,a)){
-		}
-		Color(uint8_t r,uint8_t g,uint8_t b):Color(nvgRGB(r,g,b)){
-		}
-		Color(int r,int g,int b,int a):Color(nvgRGBA(r,g,b,a)){
-		}
-		Color(int r,int g,int b):Color(nvgRGB(r,g,b)){
-		}
-	};
 	struct ColorTween : public Tweenable, Color {
 		std::pair<Color,Color> value;
 		ColorTween(const Color& start,const Color& end,double t=0):Tweenable(t),value(start,end){
-
+			setTweenValue(t);
 		}
 		virtual void setTweenValue(double val) override{
 			t=val;
@@ -316,31 +328,33 @@ namespace aly{
 		}
 
 	};
-	inline std::shared_ptr<Color> MakeColor(const Color& c){
-		return std::shared_ptr<Color>(new Color(c));
+
+	inline AColor MakeColor(const Color& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const RGBA& c){
-		return std::shared_ptr<Color>(new Color(c));
+	inline AColor MakeColor(const RGBA& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const RGB& c){
-		return std::shared_ptr<Color>(new Color(c));
+	inline AColor MakeColor(const RGB& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const RGBAf& c){
-		return std::shared_ptr<Color>(new Color(c));
+	inline AColor MakeColor(const RGBAf& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const RGBf& c){
-		return std::shared_ptr<Color>(new Color(c));
+	inline AColor MakeColor(const RGBf& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const RGBAi& c){
-		return std::shared_ptr<Color>(new Color(c));
+	inline AColor MakeColor(const RGBAi& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const RGBi& c){
-		return std::shared_ptr<Color>(new Color(c));
+	inline AColor MakeColor(const RGBi& c){
+		return AColor(new Color(c));
 	}
-	inline std::shared_ptr<Color> MakeColor(const Color& start,const Color& end){
-		return std::shared_ptr<Color>(new ColorTween(start,end));
+	inline AColor MakeColor(const Color& start,const Color& end){
+		return AColor(new ColorTween(start,end));
 	}
-	typedef std::shared_ptr<Color> ColorPtr;
+
+	//typedef std::shared_ptr<Color> ColorPtr;
 
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitDP & v) { return ss<<v.value<<" dp"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitPX & v) { return ss<<v.value<<" px"; }
@@ -370,6 +384,6 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Color & v) { return ss << "("<<v.r<<", "<<v.g<<", "<<v.b<<", "<<v.a<<")"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ColorTween & v) { return ss << "{"<<v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
 
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const std::shared_ptr<Color> & v) { return ss <<*v; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AColor & v) { return ss <<*v; }
 }
 #endif /* ALLOYUNITS_H_ */

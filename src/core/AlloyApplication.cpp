@@ -22,6 +22,7 @@
 #include "AlloyApplication.h"
 #include "AlloyFileUtil.h"
 #include <thread>
+#include <chrono>
 namespace aly {
 
 std::shared_ptr<AlloyContext> Application::context;
@@ -248,20 +249,28 @@ void Application::run(int swapInterval) {
 	glfwSwapInterval(swapInterval);
 	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);
-	double lastCpuTime;
 	uint64_t frameCounter=0;
-	lastCpuTime = glfwGetTime();
 	std::cout<<"Draw thread ID: "<<std::this_thread::get_id()<<std::endl;
+	std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point endTime;
+	std::chrono::high_resolution_clock::time_point lastFpsTime=startTime;
+	const double POLL_INTERVAL_SEC=0.5f;
 	do {
 		draw();
+		endTime = std::chrono::high_resolution_clock::now();
 		double t = glfwGetTime();
-		double dt=(t - lastCpuTime);
+		double elapsed=std::chrono::duration<double>(endTime - lastFpsTime).count();
+		double dt = std::chrono::duration<double>(endTime - startTime).count();
+		startTime=endTime;
+		if(context->animator.step(dt)){
+			rootNode.pack();
+		}
 		frameCounter++;
-		if(dt>0.5f){//Poll every 0.5 seconds
-			frameRate=(float)(frameCounter/(t - lastCpuTime));
-			lastCpuTime = t;
-			//std::cout<<"FRAME RATE "<<frameRate<<stxd::endl;
+		if(elapsed>POLL_INTERVAL_SEC){
+			frameRate=(float)(frameCounter/elapsed);
+			lastFpsTime = endTime;
 			frameCounter=0;
+			//std::cout<<"Frame Rate "<<frameRate<<" "<<frameCounter<<std::endl;
 		}
 		glfwSwapBuffers(context->window);
 		glfwPollEvents();

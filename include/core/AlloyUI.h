@@ -56,7 +56,7 @@ namespace aly{
     struct Composite : public Region{
     	std::vector<std::shared_ptr<Region>> children;
     	Orientation orientation=Orientation::Unspecified;
-		ColorPtr bgColor=MakeColor(COLOR_NONE);
+		AColor bgColor=MakeColor(COLOR_NONE);
 	    Composite(const std::string& name=MakeString()<<"c"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):Region(name){};
 		virtual void draw(AlloyContext* context) override;
     	virtual void drawDebug(AlloyContext* context) override;
@@ -77,9 +77,9 @@ namespace aly{
         return composite;
     }
     struct GlyphRegion : public Region{
-    	ColorPtr bgColor=MakeColor(COLOR_NONE);
-    	ColorPtr fgColor=MakeColor(COLOR_NONE);
-    	ColorPtr borderColor=MakeColor(COLOR_NONE);
+    	AColor bgColor=MakeColor(COLOR_NONE);
+    	AColor fgColor=MakeColor(COLOR_NONE);
+    	AColor borderColor=MakeColor(COLOR_NONE);
     	AUnit1D borderWidth=UnitPX(2);
     	std::shared_ptr<Glyph> glyph;
     	GlyphRegion(const std::string& name=MakeString()<<"g"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
@@ -140,7 +140,7 @@ namespace aly{
 
     	FontType fontType=FontType::Normal;
     	AUnit1D fontSize=UnitPT(14);
-    	ColorPtr fontColor=MakeColor(COLOR_WHITE);
+    	AColor fontColor=MakeColor(COLOR_WHITE);
     	TextLabel(const std::string& name=MakeString()<<"t"<<std::setw(8)<<std::setfill('0')<<(REGION_COUNTER++)):
     		Region(name){};
     	void draw(AlloyContext* context);

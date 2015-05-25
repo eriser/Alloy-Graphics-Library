@@ -7,27 +7,24 @@
 #include "AlloyAnimator.h"
 namespace aly{
 void Animator::add(const std::shared_ptr<Tween>& tween){
-	tweens[parity].push_back(tween);
+	tweens.push_back(tween);
 }
 void Animator::reset(){
-	std::list<std::shared_ptr<Tween>>& current=tweens[parity];
-	for(std::shared_ptr<Tween>& tween:current){
+	for(std::shared_ptr<Tween>& tween:tweens){
 		tween->reset();
 	}
 }
 bool Animator::step(double dt){
-	std::list<std::shared_ptr<Tween>>& current=tweens[parity];
-	std::list<std::shared_ptr<Tween>>& next=tweens[1-parity];
-	next.clear();
-	for(std::shared_ptr<Tween>& tween:current){
+	if(tweens.size()==0)return false;
+	std::list<std::shared_ptr<Tween>> next;
+	for(std::shared_ptr<Tween>& tween:tweens){
 		double t=tween->step(dt);
 		if(t<1.0){
 			next.push_back(tween);
 		}
 	}
-	current.clear();
-	parity=1-parity;
-	return (next.size()>0);
+	tweens=next;
+	return true;
 }
 }
 

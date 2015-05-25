@@ -12,7 +12,7 @@
 #include <list>
 namespace aly{
 struct Interpolant{
-	virtual double operator()(double t) const {return 0;}
+	virtual double operator()(double t) const =0;
 	virtual inline ~Interpolant(){};
 };
 struct Linear : public Interpolant
@@ -78,13 +78,15 @@ struct CubicPulse : public Interpolant
 	    return 1.0f - x*x*(3.0f - 2.0f*x);
     }
 };
-
-struct Tween{
-	std::shared_ptr<Tweenable> object;
-	Interpolant interpolant;
-	double duration;
+class Tween{
+private:
+	std::unique_ptr<Interpolant> interpolant;
+public:
 	double time=0;
-	Tween(const std::shared_ptr<Tweenable>& object,const Interpolant& interpolant,double duration):object(object),interpolant(interpolant),duration(duration){
+	Tweenable* object;
+	double duration;
+	template<class A> Tween(Tweenable* object,double duration,const A& a):object(object),duration(duration){
+		interpolant=std::unique_ptr<Interpolant>(new A(a));
 	}
 	void reset(){
 		object->reset();
@@ -92,18 +94,33 @@ struct Tween{
 	}
 	double step(double dt){
 		time+=dt;
-		object->setTweenValue(interpolant(time/duration));
+		object->setTweenValue((*interpolant)(time/duration));
 		return object->getTweenValue();
 	}
 };
 class Animator{
 private:
-	std::list<std::shared_ptr<Tween>> tweens[2];
+	std::list<std::shared_ptr<Tween>> tweens;
 	int parity=0;
 public:
 	void add(const std::shared_ptr<Tween>& tween);
 	void reset();
 	bool step(double dt);
+	template<class A> void add(AColor& out,const Color& start,const Color& end,double duration,const A& a=Linear()){
+		ColorTween* ctween=new ColorTween(start,end);
+		out=std::shared_ptr<ColorTween>(ctween);
+		add(std::shared_ptr<Tween>(new Tween(ctween,duration,a)));
+	}
+	template<class A> void add(AUnit2D& out,const AUnit2D& start,const AUnit2D& end,double duration,const A& a=Linear()){
+		CoordTween* ctween=new CoordTween(start,end);
+		out=AUnit2D(ctween);
+		add(std::shared_ptr<Tween>(new Tween(ctween,duration,a)));
+	}
+	template<class A> void add(AUnit1D& out,const AUnit1D& start,const AUnit1D& end,double duration,const A& a=Linear()){
+		UnitTween* utween=new UnitTween(start,end);
+		out=AUnit1D(utween);
+		add(std::shared_ptr<Tween>(new Tween(utween,duration,a)));
+	}
 };
 }
 
