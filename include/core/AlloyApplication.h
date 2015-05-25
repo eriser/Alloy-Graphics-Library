@@ -27,7 +27,6 @@
 #include "GLShader.h"
 #include "GLFrameBuffer.h"
 #include "AlloyUI.h"
-
 #include <memory>
 #include <list>
 namespace aly{

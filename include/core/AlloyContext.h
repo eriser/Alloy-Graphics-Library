@@ -36,6 +36,7 @@
 #include "AlloyMath.h"
 #include "AlloyUnits.h"
 #include "AlloyImage.h"
+#include "AlloyAnimator.h"
 int printOglError(const char *file, int line);
 #define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
 
@@ -178,35 +179,19 @@ namespace aly{
 	    bool isControlDown() const { return ((mods & GLFW_MOD_CONTROL)!=0); }
 	    bool isAltDown() const { return ((mods & GLFW_MOD_ALT)!=0); }
     };
-
-    /*
-    static InputEvent MakeInputEvent(GLFWwindow * window, InputEvent::Type type, const float2 & cursor, int action)
-    {
-        InputEvent e;
-        e.window = window;
-        e.type = type;
-        e.cursor = cursor;
-        e.action = action;
-        e.mods = 0;
-        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) | glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) e.mods |= GLFW_MOD_SHIFT;
-        if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) | glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) e.mods |= GLFW_MOD_CONTROL;
-        if(glfwGetKey(window, GLFW_KEY_LEFT_ALT) | glfwGetKey(window, GLFW_KEY_RIGHT_ALT)) e.mods |= GLFW_MOD_ALT;
-        if(glfwGetKey(window, GLFW_KEY_LEFT_SUPER) | glfwGetKey(window, GLFW_KEY_RIGHT_SUPER)) e.mods |= GLFW_MOD_SUPER;
-        return e;
-    }
-    */
-
 	class AlloyContext {
 		private:
 			std::list<std::string> assetDirectories;
 			std::shared_ptr<Font> fonts[4];
 			static std::mutex contextLock;
 			GLFWwindow* current;
+
 			bool enableDebugInterface=false;
 		public:
-			ImageVAO vaoImage;
 			NVGcontext* nvgContext;
 			GLFWwindow* window;
+			ImageVAO vaoImage;
+			Animator animator;
 			box2i viewport;
 			pixel2 cursor=pixel2(-1,-1);
 			double2 dpmm;

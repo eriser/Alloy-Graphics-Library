@@ -22,8 +22,11 @@
 #ifndef ALLOYUNITS_H_
 #define ALLOYUNITS_H_
 #include "AlloyMath.h"
+#include "nanovg.h"
 #include <string>
 #include <iostream>
+#include <memory>
+#include <list>
 namespace aly{
 	const float MM_TO_PIX=1.0;
 	const float DP_TO_PIX=1.0/160.0;
