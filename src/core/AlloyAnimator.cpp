@@ -12,7 +12,7 @@ void Animator::add(const std::shared_ptr<Tween>& tween){
 void Animator::reset(){
 	std::list<std::shared_ptr<Tween>>& current=tweens[parity];
 	for(std::shared_ptr<Tween>& tween:current){
-		tween->object->reset();
+		tween->reset();
 	}
 }
 bool Animator::step(double dt){
