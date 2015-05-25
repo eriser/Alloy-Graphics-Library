@@ -261,9 +261,11 @@ void Application::run(int swapInterval) {
 		double t = glfwGetTime();
 		double elapsed=std::chrono::duration<double>(endTime - lastFpsTime).count();
 		double dt = std::chrono::duration<double>(endTime - startTime).count();
-		startTime=endTime;
-		if(context->animator.step(dt)){
-			rootNode.pack();
+		if(dt>0.016){//Dont try to animate faster than 60 fps.
+			startTime=endTime;
+			if(context->animator.step(dt)){
+				rootNode.pack();
+			}
 		}
 		frameCounter++;
 		if(elapsed>POLL_INTERVAL_SEC){

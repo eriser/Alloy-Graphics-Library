@@ -25,47 +25,54 @@ struct Linear : public Interpolant
 struct Smoothstep : public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    auto scale = t * t * (3.f - 2.f * t);
-	    return scale * 1.0f;
+	    double scale = t * t * (3.0 - 2.0 * t);
+	    return scale * 1.0;
     }
 };
 
 struct SineIn : public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    return 1.0f - std::cos(t * ALY_PI / 2.f);
-    }
+	    double out=1.0f - std::cos(t * ALY_PI / 2.f);
+	    return out;
+	}
 };
 
 struct SineOut : public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    return (t < 0.5f) ? (1.0f - std::cos(t * ALY_PI)) * 0.5f : 1.0f - 1.0f - std::cos((1.0f-t) * ALY_PI) * 0.5f;
-    }
+	    double out=(t < 0.5f) ? (1.0f - std::cos(t * ALY_PI)) * 0.5f : 1.0f - 1.0f - std::cos((1.0f-t) * ALY_PI) * 0.5f;
+	    return out;
+	}
 };
 
 struct ExponentialIn: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    return powf(2.0f, 10.f * (t - 1.0f));
+		double out=std::pow(2.0f, 10.f * (t - 1.0f));
+		if(out>0.9999)return 1.0f; else return out;
     }
  };
 struct ExponentialOut: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
- 	    return (t < 0.5f) ? std::pow(2.0f, 10.f * (2.0f*t - 1.0f)) * 0.5f : 1.0f - std::pow(2.0f, 10.f * (1.0f-2.0f*t)) * 0.5f;
+		const double maxValue=1.0/(1.0f - std::pow(2.0f, 10.f * (1.0f-2.0f)) * 0.5f);
+ 	    double out=((t < 0.5f) ? std::pow(2.0f, 10.f * (2.0f*t - 1.0f)) * 0.5f : (1.0f - std::pow(2.0f, 10.f * (1.0f-2.0f*t)) * 0.5f))*maxValue;
+ 	   if(out>0.9999)return 1.0; else return out; //Make sure value hits 1.0 for termination.
     }
 };
 struct QuadraticIn: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-	    return t * t;
+	    double out=t * t;
+	    if(out>0.9999)return 1.0; else return out;//Make sure value hits 1.0 for termination.
     }
 };
 struct QuadraticOut: public Interpolant
 {
 	virtual inline double operator()(double t) const override {
-        return (t < 0.5f) ? (t*t * 2.0f) * 0.5f : 1.0f - (2.0f - t*t * 2.0f) * 0.5f;
+        double out=(t < 0.5f) ? (t*t * 2.0f) * 0.5f : 1.0f - (2.0f - t*t * 2.0f) * 0.5f;
+	    if(out>0.9999)return 1.0; else return out;//Make sure value hits 1.0 for termination.
     }
 };
 struct CubicPulse : public Interpolant
@@ -94,13 +101,17 @@ public:
 	}
 	double step(double dt){
 		time+=dt;
-		object->setTweenValue((*interpolant)(time/duration));
+		if(duration>0){
+			object->setTweenValue((*interpolant)(clamp(time/duration,0.0,1.0)));
+		} else {
+			object->setTweenValue(1.0);
+		}
 		return object->getTweenValue();
 	}
 };
 class Animator{
 private:
-	std::list<std::shared_ptr<Tween>> tweens;
+	std::list<std::shared_ptr<Tween>> tweens[2];
 	int parity=0;
 public:
 	void add(const std::shared_ptr<Tween>& tween);
