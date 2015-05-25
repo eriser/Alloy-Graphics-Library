@@ -48,11 +48,10 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPX(50,100),
 			RGBA(32,64,128,255),
 			RGBA(255,255,255,255));
-	std::cout<<"Icon color "<<iconr->bgColor<<" "<<&(iconr->bgColor)<<std::endl;
 	getContext()->animator.add(iconr->bgColor,Color(255,64,32,255),Color(32,64,255,255),3.0,SineIn());
 	getContext()->animator.add(iconr->fgColor,Color(0,0,0,255),Color(255,255,255,255),3.0,SineIn());
-	getContext()->animator.add(iconr->position,CoordPX(300,100),CoordPX(300,300),3.0,ExponentialOut());
-
+	getContext()->animator.add(iconr->position,CoordPX(100,100),CoordPX(300,100),3.0,ExponentialOut());
+	getContext()->animator.add(label->fontSize,UnitPT(10.0f),UnitPT(30.0f),1.0,Linear());
 	CompositePtr comp=MakeComposite("Rect 1",CoordPercent(0.2,0.3),CoordPX(400,300),RGBA(128,32,32,255));
 	comp->add(label);
 	rootNode.add(comp);
@@ -60,9 +59,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(iconr);
 	rootNode.pack();
 	//getContext()->toggleDebug();
-	std::cout<<*imgr<<std::endl;
-	std::cout<<*label<<std::endl;
-	std::cout<<*comp<<std::endl;
+	//std::cout<<*imgr<<std::endl;
+	//std::cout<<*label<<std::endl;
+	//std::cout<<*comp<<std::endl;
 	//std::cout<<*iconr<<std::endl;
 
 	//std::cout<<rootNode<<std::endl;
