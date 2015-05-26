@@ -218,7 +218,7 @@ namespace aly{
 		UnitTween(const AUnit1D& start,const AUnit1D end,double t=0):Tweenable(t),value(start,end){
 		}
 		virtual std::string toString() const override {
-			return MakeString()<<"{"<<value.first<<", "<<value.second<<", "<<t<<"}";
+			return MakeString()<<"{"<<value.first<<", "<<value.second<<", tween = "<<t<<"}";
 		}
 		virtual pixel toPixels(pixel screenSize,double dpmm,double pixelRatio) const override {
 			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),t);
@@ -307,7 +307,7 @@ namespace aly{
 		CoordTween(const AUnit2D& start,const AUnit2D& end,double t=0):Tweenable(t),value(start,end){
 		}
 		virtual std::string toString() const override {
-			return MakeString()<<"{"<<value.first<<", "<<value.second<<", "<<t<<"}";
+			return MakeString()<<"{"<<value.first<<", "<<value.second<<", tween = "<<t<<"}";
 		}
 		virtual pixel2 toPixels(pixel2 screenSize,double2 dpmm,double pixelRatio) const override {
 			return mix(value.first.toPixels(screenSize,dpmm,pixelRatio),value.second.toPixels(screenSize,dpmm,pixelRatio),t);
@@ -363,7 +363,7 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitPT & v) { return ss<<v.value<<" pt"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitPercent & v) { return ss<<v.value*100<<"%"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AUnit1D& v) { return ss <<v.toString(); }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitTween & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const UnitTween & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<", tween = "<<v.getTweenValue()<<"}"; }
 
 
 	template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordDP & v) { return ss <<"("<<v.value.x<<" dp, "<<v.value.y<<" dp)"; }
@@ -379,11 +379,9 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerPT & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerMM & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordPerIN & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<"}"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordTween & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
-
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const CoordTween & v) { return ss <<"{"<< v.value.first<<", "<<v.value.second<<", tween = "<<v.getTweenValue()<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Color & v) { return ss << "("<<v.r<<", "<<v.g<<", "<<v.b<<", "<<v.a<<")"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ColorTween & v) { return ss << "{"<<v.value.first<<", "<<v.value.second<<", "<<v.getTweenValue()<<"}"; }
-
+    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ColorTween & v) { return ss << "{"<<v.value.first<<", "<<v.value.second<<", tween = "<<v.getTweenValue()<<"}"; }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AColor & v) { return ss <<*v; }
 }
 #endif /* ALLOYUNITS_H_ */
