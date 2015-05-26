@@ -85,12 +85,25 @@ private:
 	Tweenable* object;
 	double duration;
 	bool isCanceled=false;
+	bool isCompleted=false;
 public:
+	std::function<void(Tweenable* object)> onComplete;
+	std::function<void(Tweenable* object)> onCancel;
 	template<class A> Tween(Tweenable* object,double duration,const A& a):object(object),duration(duration){
 		interpolant=std::unique_ptr<Interpolant>(new A(a));
 	}
+	template<class F> Tween& addCompleteEvent(F func){
+		onComplete=func;
+		return *this;
+	}
+	template<class F> Tween& addCancelEvent(F func){
+		onCancel=func;
+		return *this;
+	}
 	void reset(){
 		object->reset();
+		isCanceled=false;
+		isCompleted=false;
 		time=0;
 	}
 	void cancel(){
@@ -105,9 +118,18 @@ public:
 			time=std::min(time,duration);
 			object->setTweenValue((*interpolant)(time/duration));
 		} else {
+			time=duration;
 			object->setTweenValue(1.0);
+			isCompleted=true;
 		}
 		return object->getTweenValue();
+	}
+	void firePostEvents(){
+		if(isCompleted){
+			if(onComplete)onComplete(object);
+		} else if(isCanceled){
+			if(onCancel)onCancel(object);
+		}
 	}
 };
 class Animator{

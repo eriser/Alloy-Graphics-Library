@@ -18,15 +18,21 @@ void Animator::reset(){
 bool Animator::step(double dt){
 	std::list<std::shared_ptr<Tween>>& current=tweens[parity];
 	std::list<std::shared_ptr<Tween>>& next=tweens[1-parity];
+	std::list<std::shared_ptr<Tween>> completed;
 	if(current.size()==0)return false;
 	for(std::shared_ptr<Tween>& tween:current){
 		double t=tween->step(dt);
 		if(t<1.0){
 			next.push_back(tween);
+		} else {
+			completed.push_back(tween);
 		}
 	}
 	current.clear();
 	parity=1-parity;
+	for(std::shared_ptr<Tween> tween:completed){
+		tween->firePostEvents();
+	}
 	return true;
 }
 }

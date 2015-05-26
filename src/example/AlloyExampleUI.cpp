@@ -50,10 +50,11 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(255,255,255,255));
 	imgr->origin=Origin::Center;
 	addTween(imgr->fgColor,Color(128,128,128,255),Color(128,128,128,0),3.0,SineOut());
-	addTween(imgr->dimensions,CoordPX(50,50),CoordPX(300,300),1.0,SineOut());
+	std::cout<<"Add Tween" <<std::endl;
+	addTween(imgr->dimensions,CoordPX(50,50),CoordPX(300,300),1.0,SineOut())->addCompleteEvent([](Tweenable* object){std::cout<<"Finished Dimension Change! "<<std::endl;});
 	addTween(iconr->bgColor,Color(255,64,32,255),Color(32,64,255,255),3.0,SineIn());
 	addTween(iconr->fgColor,Color(0,0,0,255),Color(255,255,255,255),3.0,SineIn());
-	addTween(iconr->position,CoordPX(100,100),CoordPX(300,100),3.0,ExponentialOut());
+	addTween(iconr->position,CoordPX(100,100),CoordPX(300,100),3.0,ExponentialOut())->addCompleteEvent([](Tweenable* object){std::cout<<"Finished Position Change! "<<std::endl;});
 	addTween(label->fontSize,UnitPT(10.0f),UnitPT(30.0f),1.0,Linear());
 	CompositePtr comp=MakeComposite("Rect 1",CoordPercent(0.2,0.3),CoordPX(400,300),RGBA(128,32,32,255));
 	comp->add(label);
@@ -75,7 +76,7 @@ bool ExampleUI::init(Composite& rootNode) {
 int main()
 {
 	try{
-		SANITY_CHECK_IMAGE();
+		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		ExampleUI app;
 		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;

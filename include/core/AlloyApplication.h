@@ -45,14 +45,14 @@ namespace aly{
 			if(context.get()==nullptr)throw std::runtime_error("Cannot get GLFW / NanoVG context.");
 			return context;
 		}
-		template<class A> void addTween(AColor& out,const Color& start,const Color& end,double duration,const A& a=Linear()){
-			context->addTween(out,start,end,duration,a);
+		template<class A> std::shared_ptr<Tween>& addTween(AColor& out,const Color& start,const Color& end,double duration,const A& a=Linear()){
+			return context->addTween(out,start,end,duration,a);
 		}
-		template<class A> void addTween(AUnit2D& out,const AUnit2D& start,const AUnit2D& end,double duration,const A& a=Linear()){
-			context->addTween(out,start,end,duration,a);
+		template<class A> std::shared_ptr<Tween>& addTween(AUnit2D& out,const AUnit2D& start,const AUnit2D& end,double duration,const A& a=Linear()){
+			return context->addTween(out,start,end,duration,a);
 		}
-		template<class A> void addTween(AUnit1D& out,const AUnit1D& start,const AUnit1D& end,double duration,const A& a=Linear()){
-			context->addTween(out,start,end,duration,a);
+		template<class A> std::shared_ptr<Tween>& addTween(AUnit1D& out,const AUnit1D& start,const AUnit1D& end,double duration,const A& a=Linear()){
+			return context->addTween(out,start,end,duration,a);
 		}
 		std::string getFullPath(const std::string& partialFile){
 			return context->getFullPath(partialFile);
