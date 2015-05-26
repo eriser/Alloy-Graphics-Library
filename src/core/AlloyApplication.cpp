@@ -58,6 +58,10 @@ void Application::initInternal() {
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 
 }
+void Application::updateCursorLocator(){
+	context->cursorLocator.reset(context->viewport.dimensions);
+	rootNode.update(context.get());
+}
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
 		const std::string& partialFile) {
 	ImageRGBA image;
@@ -137,42 +141,41 @@ void Application::drawDebugUI() {
 				<< context->cursor << " ";
 		nvgTextAlign(nvg, alignment);
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
-		const float shft = 1.0f;
+		const float shift = 1.0f;
 
-		nvgText(nvg, context->cursor.x + shft, context->cursor.y, txt.c_str(),
+		nvgText(nvg, context->cursor.x + shift, context->cursor.y, txt.c_str(),
 				nullptr);
-		nvgText(nvg, context->cursor.x - shft, context->cursor.y, txt.c_str(),
-				nullptr);
-
-		nvgText(nvg, context->cursor.x, context->cursor.y + shft, txt.c_str(),
-				nullptr);
-		nvgText(nvg, context->cursor.x, context->cursor.y - shft, txt.c_str(),
+		nvgText(nvg, context->cursor.x - shift, context->cursor.y, txt.c_str(),
 				nullptr);
 
-		nvgText(nvg, context->cursor.x + shft, context->cursor.y - shft,
+		nvgText(nvg, context->cursor.x, context->cursor.y + shift, txt.c_str(),
+				nullptr);
+		nvgText(nvg, context->cursor.x, context->cursor.y - shift, txt.c_str(),
+				nullptr);
+
+		nvgText(nvg, context->cursor.x + shift, context->cursor.y - shift,
 				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x + shft, context->cursor.y + shft,
+		nvgText(nvg, context->cursor.x + shift, context->cursor.y + shift,
 				txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursor.x + shft, context->cursor.y - shft,
+		nvgText(nvg, context->cursor.x + shift, context->cursor.y - shift,
 				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x + shft, context->cursor.y + shft,
-				txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursor.x - shft, context->cursor.y - shft,
-				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x - shft, context->cursor.y + shft,
+		nvgText(nvg, context->cursor.x + shift, context->cursor.y + shift,
 				txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursor.x - shft, context->cursor.y - shft,
+		nvgText(nvg, context->cursor.x - shift, context->cursor.y - shift,
 				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x - shft, context->cursor.y + shft,
+		nvgText(nvg, context->cursor.x - shift, context->cursor.y + shift,
+				txt.c_str(), nullptr);
+
+		nvgText(nvg, context->cursor.x - shift, context->cursor.y - shift,
+				txt.c_str(), nullptr);
+		nvgText(nvg, context->cursor.x - shift, context->cursor.y + shift,
 				txt.c_str(), nullptr);
 
 		nvgFillColor(nvg, Color(220, 220, 220, 255));
 		nvgText(nvg, context->cursor.x, context->cursor.y, txt.c_str(),
 				nullptr);
-
 		nvgBeginPath(nvg);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStrokeWidth(nvg, 2.0f);
@@ -197,7 +200,9 @@ void Application::drawDebugUI() {
 	nvgEndFrame(nvg);
 }
 void Application::fireEvent(const InputEvent& event) {
-
+	if(event.type==InputType::Cursor){
+		context->currentRegion=context->cursorLocator.contains(context->cursor);
+	}
 }
 
 void Application::onWindowSize(int width, int height) {
@@ -206,6 +211,7 @@ void Application::onWindowSize(int width, int height) {
 			|| context->viewport.dimensions.y != height) {
 		context->viewport = box2i(int2(0, 0), int2(width, height));
 		rootNode.pack(context.get());
+		updateCursorLocator();
 	}
 }
 void Application::onCursorPos(double xpos, double ypos) {
@@ -273,11 +279,11 @@ void Application::onChar(unsigned int codepoint) {
 
 void Application::run(int swapInterval) {
 	context->makeCurrent();
-	rootNode.pack(context.get());
 	if (!init(rootNode)) {
 		throw std::runtime_error("Error occurred in application init()");
 	}
 	rootNode.pack(context.get());
+	updateCursorLocator();
 	glfwSwapInterval(swapInterval);
 	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);
@@ -300,6 +306,7 @@ void Application::run(int swapInterval) {
 			startTime = endTime;
 			if (context->animator.step(dt)) {
 				rootNode.pack(context.get());
+				updateCursorLocator();
 				context->animator.firePostEvents();
 			}
 

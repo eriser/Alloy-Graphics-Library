@@ -38,10 +38,12 @@
 #include "AlloyImage.h"
 #include "AlloyAnimator.h"
 #include "AlloyEnum.h"
+#include "AlloyCursorLocator.h"
 int printOglError(const char *file, int line);
 #define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
 
 namespace aly {
+
 struct ImageVAO {
 	GLuint vao = 0;
 	GLuint positionBuffer = 0;
@@ -110,7 +112,6 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	return ss << "Glyph: " << v.name << ": dimensions= (" << v.width << ", "
 			<< v.height << ")";
 }
-
 struct InputEvent {
 	InputType type = InputType::Unspecified;
 	pixel2 cursor = pixel2(-1, -1);
@@ -153,7 +154,9 @@ public:
 	box2i viewport;
 	pixel2 cursor = pixel2(-1, -1);
 	double2 dpmm;
+	Region* currentRegion=nullptr;
 	double pixelRatio;
+	CursorLocator cursorLocator;
 	inline void setDebug(bool enabled) {
 		enableDebugInterface = enabled;
 	}

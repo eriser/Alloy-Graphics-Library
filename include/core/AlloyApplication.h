@@ -40,6 +40,7 @@ private:
 	Composite rootNode;
 	std::list<std::exception_ptr> caughtExceptions;
 	void initInternal();
+	void updateCursorLocator();
 public:
 	static inline std::shared_ptr<AlloyContext>& getContext() {
 		if (context.get() == nullptr)

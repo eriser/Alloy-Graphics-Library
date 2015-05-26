@@ -35,6 +35,7 @@ bool SANITY_CHECK_UI();
 
 struct Region {
 protected:
+	void drawBoundsLabel(AlloyContext* context, const std::string& name, int font);
 	static uint64_t REGION_COUNTER;
 public:
 	Origin origin = Origin::TopLeft;
@@ -43,6 +44,7 @@ public:
 	box2px bounds;
 	const std::string name;
 	AspectRatio aspectRatio = AspectRatio::Unspecified;
+	bool visible=true;
 	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
 	Region(
@@ -51,6 +53,7 @@ public:
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio);
 	virtual void draw(AlloyContext* context)=0;
+	virtual void update(AlloyContext* context);
 	virtual void drawDebug(AlloyContext* context);
 	virtual inline ~Region() {
 	}
@@ -69,6 +72,7 @@ struct Composite: public Region {
 	;
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
+	virtual void update(AlloyContext* context) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio) override;
 	void pack(AlloyContext* context);
