@@ -109,20 +109,21 @@ public:
 	void cancel(){
 		isCanceled=true;
 	}
-	double step(double dt){
+	bool step(double dt){
 		if(isCanceled){
-			return object->getTweenValue();
+			return false;
 		}
 		time+=dt;
 		if(duration>0&&time<duration){
 			time=std::min(time,duration);
 			object->setTweenValue((*interpolant)(time/duration));
+			return true;
 		} else {
 			time=duration;
 			object->setTweenValue(1.0);
 			isCompleted=true;
+			return false;
 		}
-		return object->getTweenValue();
 	}
 	void firePostEvents(){
 		if(isCompleted){

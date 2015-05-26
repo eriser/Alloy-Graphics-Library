@@ -18,19 +18,18 @@ void Animator::reset(){
 bool Animator::step(double dt){
 	std::list<std::shared_ptr<Tween>>& current=tweens[parity];
 	std::list<std::shared_ptr<Tween>>& next=tweens[1-parity];
-	std::list<std::shared_ptr<Tween>> completed;
+	std::list<std::shared_ptr<Tween>> finished;
 	if(current.size()==0)return false;
 	for(std::shared_ptr<Tween>& tween:current){
-		double t=tween->step(dt);
-		if(t<1.0){
+		if(tween->step(dt)){
 			next.push_back(tween);
 		} else {
-			completed.push_back(tween);
+			finished.push_back(tween);
 		}
 	}
 	current.clear();
 	parity=1-parity;
-	for(std::shared_ptr<Tween> tween:completed){
+	for(std::shared_ptr<Tween> tween:finished){
 		tween->firePostEvents();
 	}
 	return true;
