@@ -107,16 +107,23 @@ namespace aly{
 		draw(Application::getContext().get());
 	}
 	void Composite::pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio){
-		bounds.position=position.toPixels(dims,dpmm,pixelRatio);
-		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
-		if(parent!=nullptr)bounds.clamp(parent->bounds);
+		Region::pack(pos,dims,dpmm,pixelRatio);
 		for(std::shared_ptr<Region>& region:children){
 			region->pack(bounds.position,bounds.dimensions,dpmm,pixelRatio);
 		}
+
 	}
 	void Region::pack(const pixel2& pos,const pixel2& dims,const double2& dpmm,double pixelRatio){
-		bounds.position=pos+position.toPixels(dims,dpmm,pixelRatio);
-		bounds.dimensions=dimensions.toPixels(dims,dpmm,pixelRatio);
+		pixel2 xy=pos+position.toPixels(dims,dpmm,pixelRatio);
+		pixel2 wh=dimensions.toPixels(dims,dpmm,pixelRatio);
+		bounds.dimensions=wh;
+		switch(origin){
+			case Origin::TopLeft:bounds.position=xy;break;
+			case Origin::BottomRight:bounds.position=xy-wh;break;
+			case Origin::Center:bounds.position=xy-wh/(pixel)2;break;
+			case Origin::TopRight:bounds.position=xy-pixel2(xy.x,0);break;
+			case Origin::BottomLeft:bounds.position=xy-pixel2(0,xy.y);break;
+		}
 		if(parent!=nullptr)bounds.clamp(parent->bounds);
 		pixel2 d=bounds.dimensions;
 		if(aspect<0){

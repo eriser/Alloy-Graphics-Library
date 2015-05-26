@@ -6,8 +6,9 @@
  */
 #include "AlloyAnimator.h"
 namespace aly{
-void Animator::add(const std::shared_ptr<Tween>& tween){
+std::shared_ptr<Tween>& Animator::add(const std::shared_ptr<Tween>& tween){
 	tweens[parity].push_back(tween);
+	return tweens[parity].back();
 }
 void Animator::reset(){
 	for(std::shared_ptr<Tween>& tween:tweens[parity]){

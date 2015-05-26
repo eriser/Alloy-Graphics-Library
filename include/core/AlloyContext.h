@@ -51,6 +51,7 @@ namespace aly{
 	const RGBA COLOR_BLACK(0,0,0,255);
 	const RGBA COLOR_WHITE(255,255,255,255);
 
+	enum class Origin{TopLeft,Center,TopRight,BottomLeft,BottomRight};
 	enum class GlyphType{Image, Awesome};
     enum class InputType {Unspecified,Cursor,MouseButton,Key,Character,Scroll};
     enum class HorizontalAlignment { Left=NVG_ALIGN_LEFT, Center=NVG_ALIGN_CENTER, Right=NVG_ALIGN_RIGHT };
@@ -67,6 +68,16 @@ namespace aly{
 		return ss;
     }
 
+	template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Origin& type) {
+		switch(type){
+			case Origin::TopLeft: return ss<<"Top Left";
+			case Origin::TopRight: return ss<<"Top Right";
+			case Origin::BottomLeft: return ss<<"Bottom Left";
+			case Origin::BottomRight: return ss<<"Bottom Right";
+			case Origin::Center: return ss<<"Center";
+		}
+		return ss;
+    }
 	template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const FontType& type) {
 		switch(type){
 			case FontType::Normal: return ss<<"Normal";

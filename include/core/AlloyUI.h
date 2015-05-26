@@ -38,6 +38,7 @@ namespace aly{
     protected:
     	static uint64_t REGION_COUNTER;
     public:
+    	Origin origin=Origin::TopLeft;
     	AUnit2D position;
     	AUnit2D dimensions;
     	box2px bounds;
@@ -160,6 +161,7 @@ namespace aly{
     }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Region & region) {
         	ss<<"Region: "<<region.name<<std::endl;
+        	ss<<"\tOrigin: "<<region.origin<<std::endl;
         	ss<<"\tRelative Position: "<<region.position<<std::endl;
         	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
         	ss<<"\tBounds: "<<region.bounds<<std::endl;
@@ -170,6 +172,7 @@ namespace aly{
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const GlyphRegion & region) {
         	ss<<"Glyph Region: "<<region.name<<std::endl;
         	if(region.glyph.get()!=nullptr)ss<<"\t"<<*region.glyph<<std::endl;
+        	ss<<"\tOrigin: "<<region.origin<<std::endl;
         	ss<<"\tRelative Position: "<<region.position<<std::endl;
         	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
         	ss<<"\tBounds: "<<region.bounds<<std::endl;
@@ -179,25 +182,27 @@ namespace aly{
     }
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const TextLabel & region) {
     	ss<<"Text Label: "<<region.name<<std::endl;
+    	ss<<"\tOrigin: "<<region.origin<<std::endl;
+    	ss<<"\tHorizontal Alignment: "<<region.horizontalAlignment<<std::endl;
+    	ss<<"\tVertical Alignment: "<<region.verticalAlignment<<std::endl;
     	ss<<"\tRelative Position: "<<region.position<<std::endl;
     	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
     	ss<<"\tBounds: "<<region.bounds<<std::endl;
     	ss<<"\tFont Type: "<<region.fontType<<std::endl;
     	ss<<"\tFont Size: "<<region.fontSize<<std::endl;
     	ss<<"\tFont Color: "<<region.fontColor<<std::endl;
-    	ss<<"\tHorizontal Alignment: "<<region.horizontalAlignment<<std::endl;
-    	ss<<"\tVertical Alignment: "<<region.verticalAlignment<<std::endl;
     	if(region.parent!=nullptr)ss<<"\tParent: "<<region.parent->name<<std::endl;
     	return ss;
     }
 
     template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss,const Composite& region) {
     	ss<<"Composite: "<<region.name<<std::endl;
+    	ss<<"\tOrigin: "<<region.origin<<std::endl;
+    	ss<<"\tOrientation: "<<region.orientation<<std::endl;
     	ss<<"\tRelative Position: "<<region.position<<std::endl;
     	ss<<"\tRelative Dimensions: "<<region.dimensions<<std::endl;
     	ss<<"\tBackground Color: "<<region.bgColor<<std::endl;
     	ss<<"\tBounds: "<<region.bounds<<std::endl;
-    	ss<<"\tOrientation: "<<region.orientation<<std::endl;
     	int counter=0;
     	for(const std::shared_ptr<Region>& child:region.children){
     		ss<<"\tChild["<<counter<<"]: "<<child->name<<" "<<child->bounds<<std::endl;

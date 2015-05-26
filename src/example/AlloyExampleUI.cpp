@@ -36,7 +36,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img=createImageGlyph(getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr=MakeGlyphRegion(img,
-			CoordPX(30,20),
+			CoordPX(160,160),
 			CoordPX(100,300),
 			AspectRatio::FixedHeight,
 			RGBA(32,64,128,255),
@@ -48,8 +48,9 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPX(50,100),
 			RGBA(32,64,128,255),
 			RGBA(255,255,255,255));
+	imgr->origin=Origin::Center;
 	addTween(imgr->fgColor,Color(128,128,128,255),Color(128,128,128,0),3.0,SineOut());
-	addTween(imgr->dimensions,CoordPX(50,50),CoordPX(300,300),3.0,SineOut());
+	addTween(imgr->dimensions,CoordPX(50,50),CoordPX(300,300),1.0,SineOut());
 	addTween(iconr->bgColor,Color(255,64,32,255),Color(32,64,255,255),3.0,SineIn());
 	addTween(iconr->fgColor,Color(0,0,0,255),Color(255,255,255,255),3.0,SineIn());
 	addTween(iconr->position,CoordPX(100,100),CoordPX(300,100),3.0,ExponentialOut());
@@ -61,10 +62,10 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(iconr);
 	rootNode.pack();
 	//getContext()->toggleDebug();
-	//std::cout<<*imgr<<std::endl;
-	//std::cout<<*label<<std::endl;
-	//std::cout<<*comp<<std::endl;
-	//std::cout<<*iconr<<std::endl;
+	std::cout<<*imgr<<std::endl;
+	std::cout<<*label<<std::endl;
+	std::cout<<*comp<<std::endl;
+	std::cout<<*iconr<<std::endl;
 
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;
