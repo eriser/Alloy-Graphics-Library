@@ -30,7 +30,4 @@
 #include "AlloyContext.h"
 #include "AlloyApplication.h"
 
-
-
-
 #endif /* ALLOY_H_ */

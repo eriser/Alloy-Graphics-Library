@@ -41,136 +41,185 @@
 int printOglError(const char *file, int line);
 #define CHECK_GL_ERROR() printOglError(__FILE__, __LINE__)
 
+namespace aly {
+struct ImageVAO {
+	GLuint vao = 0;
+	GLuint positionBuffer = 0;
+	GLuint uvBuffer = 0;
+};
+const RGBA COLOR_NONE(0, 0, 0, 0);
+const RGBA COLOR_BLACK(0, 0, 0, 255);
+const RGBA COLOR_WHITE(255, 255, 255, 255);
 
-namespace aly{
-	struct ImageVAO{
-		GLuint vao=0;
-		GLuint positionBuffer=0;
-		GLuint uvBuffer=0;
-	};
-	const RGBA COLOR_NONE(0,0,0,0);
-	const RGBA COLOR_BLACK(0,0,0,255);
-	const RGBA COLOR_WHITE(255,255,255,255);
+class AlloyContext;
+struct Font {
+	int handle;
+	const std::string name;
+	const std::string file;
+	Font(const std::string& name, const std::string& file,
+			AlloyContext* context);
+};
+struct Glyph {
+	const std::string name;
+	pixel width;
+	pixel height;
+	const GlyphType type;
+	Glyph(const std::string& name, GlyphType type, pixel w, pixel h) :
+			name(name), type(type), width(w), height(h) {
 
+	}
+	virtual inline ~Glyph() {
+	}
+	;
+	virtual void draw(const box2px& bounds, const Color& color,
+			AlloyContext* context)=0;
+};
+struct ImageGlyph: public Glyph {
+	int handle;
+	const std::string file;
+	ImageGlyph(const std::string& file, AlloyContext* context, bool mipmap =
+			false);
+	ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
+			bool mipmap = false);
+	void draw(const box2px& bounds, const Color& color, AlloyContext* context)
+			override;
+};
+struct AwesomeGlyph: public Glyph {
+	const int codePoint;
+	AwesomeGlyph(int codePoint, AlloyContext* context, pixel fontHeight = 32);
+	void draw(const box2px& bounds, const Color& color, AlloyContext* context)
+			override;
+};
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const Font & v) {
+	return ss << "Font: " << v.name << "[" << v.handle << "]: \"" << v.file
+			<< "\"";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const ImageGlyph & v) {
+	return ss << "ImageGlyph: " << v.name << "[" << v.handle
+			<< "]: dimensions= (" << v.width << ", " << v.height << ")";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const AwesomeGlyph & v) {
+	return ss << "Awesome Glyph: " << v.name << "[" << v.codePoint
+			<< "]: dimensions= (" << v.width << ", " << v.height << ")";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const Glyph & v) {
+	return ss << "Glyph: " << v.name << ": dimensions= (" << v.width << ", "
+			<< v.height << ")";
+}
 
-    class AlloyContext;
-	struct Font{
-		int handle;
-		const std::string name;
-		const std::string file;
-		Font(const std::string& name,const std::string& file,AlloyContext* context);
-	};
-	struct Glyph{
-		const std::string name;
-		pixel width;
-		pixel height;
-		const GlyphType type;
-		Glyph(const std::string& name,GlyphType type,pixel w,pixel h):name(name),type(type),width(w),height(h){
+struct InputEvent {
+	InputType type = InputType::Unspecified;
+	pixel2 cursor = pixel2(-1, -1);
+	pixel2 scroll = pixel2(0, 0);
+	uint32_t codepoint = 0;
+	int action = 0;
+	int mods = 0;
+	int scancode = 0;
+	int key = 0;
+	int button = 0;
+	bool isMouseDown() const {
+		return (action != GLFW_RELEASE);
+	}
+	bool isMouseUp() const {
+		return (action == GLFW_RELEASE);
+	}
+	bool isShiftDown() const {
+		return ((mods & GLFW_MOD_SHIFT) != 0);
+	}
+	bool isControlDown() const {
+		return ((mods & GLFW_MOD_CONTROL) != 0);
+	}
+	bool isAltDown() const {
+		return ((mods & GLFW_MOD_ALT) != 0);
+	}
+};
+class AlloyContext {
+private:
+	std::list<std::string> assetDirectories;
+	std::shared_ptr<Font> fonts[4];
+	static std::mutex contextLock;
+	GLFWwindow* current;
 
-		}
-		virtual inline ~Glyph(){};
-		virtual void draw(const box2px& bounds,const Color& color,AlloyContext* context)=0;
-	};
-	struct ImageGlyph: public Glyph{
-		int handle;
-		const std::string file;
-		ImageGlyph(const std::string& file,AlloyContext* context,bool mipmap=false);
-		ImageGlyph(const ImageRGBA& rgba,AlloyContext* context,bool mipmap=false);
-		void draw(const box2px& bounds,const Color& color,AlloyContext* context) override;
-	};
-	struct AwesomeGlyph: public Glyph{
-		const int codePoint;
-		AwesomeGlyph(int codePoint,AlloyContext* context,pixel fontHeight=32);
-		void draw(const box2px& bounds,const Color& color,AlloyContext* context) override;
-	};
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Font & v) { return ss <<"Font: "<<v.name<<"["<<v.handle<<"]: \""<<v.file<<"\""; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const ImageGlyph & v) { return ss <<"ImageGlyph: "<<v.name<<"["<<v.handle<<"]: dimensions= ("<<v.width<<", "<<v.height<<")"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const AwesomeGlyph & v) { return ss <<"Awesome Glyph: "<<v.name<<"["<<v.codePoint<<"]: dimensions= ("<<v.width<<", "<<v.height<<")"; }
-    template<class C, class R> std::basic_ostream<C,R> & operator << (std::basic_ostream<C,R> & ss, const Glyph & v) { return ss <<"Glyph: "<<v.name<<": dimensions= ("<<v.width<<", "<<v.height<<")"; }
-
-    struct InputEvent
-    {
-        InputType type=InputType::Unspecified;
-        pixel2 cursor=pixel2(-1,-1);
-        pixel2 scroll=pixel2(0,0);
-        uint32_t codepoint=0;
-        int action=0;
-        int mods=0;
-        int scancode=0;
-        int key=0;
-        int button=0;
-        bool isMouseDown() const { return (action != GLFW_RELEASE); }
-        bool isMouseUp() const { return (action == GLFW_RELEASE); }
-        bool isShiftDown() const { return ((mods & GLFW_MOD_SHIFT)!=0); }
-	    bool isControlDown() const { return ((mods & GLFW_MOD_CONTROL)!=0); }
-	    bool isAltDown() const { return ((mods & GLFW_MOD_ALT)!=0); }
-    };
-	class AlloyContext {
-		private:
-			std::list<std::string> assetDirectories;
-			std::shared_ptr<Font> fonts[4];
-			static std::mutex contextLock;
-			GLFWwindow* current;
-
-			bool enableDebugInterface=false;
-		public:
-			NVGcontext* nvgContext;
-			GLFWwindow* window;
-			ImageVAO vaoImage;
-			Animator animator;
-			box2i viewport;
-			pixel2 cursor=pixel2(-1,-1);
-			double2 dpmm;
-			double pixelRatio;
-			inline void setDebug(bool enabled){
-				enableDebugInterface=enabled;
-			}
-			inline bool toggleDebug(){
-				return enableDebugInterface=!enableDebugInterface;
-			}
-			inline bool isDebugEnabled(){
-				return enableDebugInterface;
-			}
-			std::list<std::string>& getAssetDirectories(){return assetDirectories;}
-			void addAssetDirectory(const std::string& dir);
-			std::shared_ptr<Font>& loadFont(FontType type,const std::string& name,const std::string& partialFile);
-			std::string getFullPath(const std::string& partialFile);
-			inline int width(){return viewport.dimensions.x;}
-			inline int height(){return viewport.dimensions.y;}
-			inline const char* getFontName(FontType type){
-				if(fonts[static_cast<int>(type)].get()==nullptr)throw std::runtime_error("Font type not found.");
-				return fonts[static_cast<int>(type)]->name.c_str();
-			}
-			inline int getFontHandle(FontType type){
-				if(fonts[static_cast<int>(type)].get()==nullptr)throw std::runtime_error("Font type not found.");
-				return fonts[static_cast<int>(type)]->handle;
-			}
-			inline std::shared_ptr<ImageGlyph> createImageGlyph(const std::string& fileName,bool mipmap=false){
-				return std::shared_ptr<ImageGlyph>(new ImageGlyph(fileName,this));
-			}
-			inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,bool mipmap=false){
-				return std::shared_ptr<ImageGlyph>(new ImageGlyph(img,this));
-			}
-			inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint){
-				return std::shared_ptr<AwesomeGlyph>(new AwesomeGlyph(codePoint,this));
-			}
-			inline std::shared_ptr<Font>& getFont(FontType type){
-				return fonts[static_cast<int>(type)];
-			}
-			template<class A> std::shared_ptr<Tween>& addTween(AColor& out,const Color& start,const Color& end,double duration,const A& a=Linear()){
-				return animator.add(out,start,end,duration,a);
-			}
-			template<class A> std::shared_ptr<Tween>& addTween(AUnit2D& out,const AUnit2D& start,const AUnit2D& end,double duration,const A& a=Linear()){
-				return animator.add(out,start,end,duration,a);
-			}
-			template<class A> std::shared_ptr<Tween>& addTween(AUnit1D& out,const AUnit1D& start,const AUnit1D& end,double duration,const A& a=Linear()){
-				return animator.add(out,start,end,duration,a);
-			}
-			AlloyContext(int width,int height,const std::string& title);
-			bool begin();
-			bool end();
-			void makeCurrent();
-			~AlloyContext();
-	};
+	bool enableDebugInterface = false;
+public:
+	NVGcontext* nvgContext;
+	GLFWwindow* window;
+	ImageVAO vaoImage;
+	Animator animator;
+	box2i viewport;
+	pixel2 cursor = pixel2(-1, -1);
+	double2 dpmm;
+	double pixelRatio;
+	inline void setDebug(bool enabled) {
+		enableDebugInterface = enabled;
+	}
+	inline bool toggleDebug() {
+		return enableDebugInterface = !enableDebugInterface;
+	}
+	inline bool isDebugEnabled() {
+		return enableDebugInterface;
+	}
+	std::list<std::string>& getAssetDirectories() {
+		return assetDirectories;
+	}
+	void addAssetDirectory(const std::string& dir);
+	std::shared_ptr<Font>& loadFont(FontType type, const std::string& name,
+			const std::string& partialFile);
+	std::string getFullPath(const std::string& partialFile);
+	inline int width() {
+		return viewport.dimensions.x;
+	}
+	inline int height() {
+		return viewport.dimensions.y;
+	}
+	inline const char* getFontName(FontType type) {
+		if (fonts[static_cast<int>(type)].get() == nullptr)
+			throw std::runtime_error("Font type not found.");
+		return fonts[static_cast<int>(type)]->name.c_str();
+	}
+	inline int getFontHandle(FontType type) {
+		if (fonts[static_cast<int>(type)].get() == nullptr)
+			throw std::runtime_error("Font type not found.");
+		return fonts[static_cast<int>(type)]->handle;
+	}
+	inline std::shared_ptr<ImageGlyph> createImageGlyph(
+			const std::string& fileName, bool mipmap = false) {
+		return std::shared_ptr<ImageGlyph>(new ImageGlyph(fileName, this));
+	}
+	inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,
+			bool mipmap = false) {
+		return std::shared_ptr<ImageGlyph>(new ImageGlyph(img, this));
+	}
+	inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint) {
+		return std::shared_ptr<AwesomeGlyph>(new AwesomeGlyph(codePoint, this));
+	}
+	inline std::shared_ptr<Font>& getFont(FontType type) {
+		return fonts[static_cast<int>(type)];
+	}
+	template<class A> std::shared_ptr<Tween>& addTween(AColor& out,
+			const Color& start, const Color& end, double duration, const A& a =
+					Linear()) {
+		return animator.add(out, start, end, duration, a);
+	}
+	template<class A> std::shared_ptr<Tween>& addTween(AUnit2D& out,
+			const AUnit2D& start, const AUnit2D& end, double duration,
+			const A& a = Linear()) {
+		return animator.add(out, start, end, duration, a);
+	}
+	template<class A> std::shared_ptr<Tween>& addTween(AUnit1D& out,
+			const AUnit1D& start, const AUnit1D& end, double duration,
+			const A& a = Linear()) {
+		return animator.add(out, start, end, duration, a);
+	}
+	AlloyContext(int width, int height, const std::string& title);
+	bool begin();
+	bool end();
+	void makeCurrent();
+	~AlloyContext();
+};
 }
 #endif /* ALLOYCONTEXT_H_ */

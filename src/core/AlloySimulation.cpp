@@ -23,74 +23,79 @@
 #include <sstream>
 #include <iostream>
 namespace aly {
-void ExecuteSimulation(Simulation* sim){
+void ExecuteSimulation(Simulation* sim) {
 	try {
 		sim->fireUpdateEvent();
-		while(sim->step()){
+		while (sim->step()) {
 			sim->fireUpdateEvent();
 			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
-		if(sim->isRunning())sim->stopRunning();
+		if (sim->isRunning())
+			sim->stopRunning();
 	} catch (std::exception& e) {
 		std::cout << e.what() << std::endl;
 	}
 }
-SimulationListener::~SimulationListener(){
+SimulationListener::~SimulationListener() {
 
 }
-Simulation::Simulation(const std::string& name):
-		paused(false),computeTimeSeconds(0.0),name(name),isInitialized(false),isDrawDirty(false),
-		running(false),timeStep(0),simulationDuration(0),simulationTime(0),simulationIteration(0) {
+Simulation::Simulation(const std::string& name) :
+		paused(false), computeTimeSeconds(0.0), name(name), isInitialized(
+				false), isDrawDirty(false), running(false), timeStep(0), simulationDuration(
+				0), simulationTime(0), simulationIteration(0) {
 	// TODO Auto-generated constructor stub
 
 }
-bool Simulation::updateGL(){
-	if(isDrawDirty){
+bool Simulation::updateGL() {
+	if (isDrawDirty) {
 
-		isDrawDirty=false;
+		isDrawDirty = false;
 		return true;
-	} else return false;
+	} else
+		return false;
 }
 
-void Simulation::reset(){
-	simulationTime=0;
-	simulationIteration=0;
-	running=false;
-	paused=false;
-	if(isInitialized){
+void Simulation::reset() {
+	simulationTime = 0;
+	simulationIteration = 0;
+	running = false;
+	paused = false;
+	if (isInitialized) {
 		cleanup();
-		isInitialized=false;
+		isInitialized = false;
 	}
 }
-void Simulation::stopRunning(){
-	running=false;
-	paused=false;
+void Simulation::stopRunning() {
+	running = false;
+	paused = false;
 }
-bool Simulation::stop(){
-	if(running)paused=true;
-	running=false;
-	if(simulationThread.joinable()){
+bool Simulation::stop() {
+	if (running)
+		paused = true;
+	running = false;
+	if (simulationThread.joinable()) {
 		simulationThread.join();
 	} else {
 		return false;
 	}
 	return true;
 }
-bool Simulation::start(){
-	if(paused){
-		paused=false;
-		running=true;
-		simulationThread=std::thread(ExecuteSimulation,this);
+bool Simulation::start() {
+	if (paused) {
+		paused = false;
+		running = true;
+		simulationThread = std::thread(ExecuteSimulation, this);
 	} else {
 		stop();
-		if(isInitialized)cleanup();
-		isInitialized=false;
-		if(!init()){
+		if (isInitialized)
+			cleanup();
+		isInitialized = false;
+		if (!init()) {
 			return false;
 		}
-		isInitialized=true;
-		running=true;
-		simulationThread=std::thread(ExecuteSimulation,this);
+		isInitialized = true;
+		running = true;
+		simulationThread = std::thread(ExecuteSimulation, this);
 	}
 	return true;
 }
@@ -98,7 +103,4 @@ Simulation::~Simulation() {
 	stop();
 }
 }
-
-
-
 

@@ -23,20 +23,20 @@
 #include "GLShader.h"
 namespace aly {
 /*
-class GLFrameBuffer {
-protected:
-	unsigned int mFrameBufferId;
-	unsigned int mDepthBufferId;
-public:
-	GLFrameBuffer(int _x,int _y,int _width,int _height,int _imageWidth,int _imageHeight);
-	GLFrameBuffer(){};
-	virtual void updateGL();
-	void begin();
-	void end();
-	virtual ~GLFrameBuffer();
+ class GLFrameBuffer {
+ protected:
+ unsigned int mFrameBufferId;
+ unsigned int mDepthBufferId;
+ public:
+ GLFrameBuffer(int _x,int _y,int _width,int _height,int _imageWidth,int _imageHeight);
+ GLFrameBuffer(){};
+ virtual void updateGL();
+ void begin();
+ void end();
+ virtual ~GLFrameBuffer();
 
-};
-*/
+ };
+ */
 
 } /* namespace imagesci */
 

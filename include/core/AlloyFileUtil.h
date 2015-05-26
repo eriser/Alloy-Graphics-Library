@@ -25,36 +25,34 @@
 #include <string>
 #include <vector>
 
-namespace aly{
-	#if defined(WIN32) || defined(_WIN32)
-	#include <windows.h>
-	#define PATH_SEPARATOR std::string("\\")
-	#else
-	#include <dirent.h>
-	#define PATH_SEPARATOR std::string("/")
-	#endif
-	bool SANITY_CHECK_FILE_IO();
-	std::string GetFileExtension(const std::string& fileName);
-	std::string GetFileWithoutExtension(const std::string& file);
-	std::string GetFileNameWithoutExtension(const std::string& file);
-	std::string ReplaceFileExtension(const std::string& file,const std::string& ext);
-	std::string GetFileDirectoryPath(const std::string& file);
-	std::string GetFileName(const std::string& file);
-	std::string RemoveTrailingSlash(const std::string& file);
-	std::string ConcatPath(const std::string& dir,const std::string& file);
-	std::vector<std::string> GetDirectoryListing(const std::string& dirName,const std::string& ext="",const std::string& mask="");
-	std::string ReadTextFile(const std::string& str);
-	std::vector<char> ReadBinaryFile(const std::string& str);
-	bool FileExists(const std::string& name);
-	std::string CodePointToUTF8(int cp);
-	void WriteImageToFile(const std::string& file,const ImageRGBA& img);
-	void WriteImageToFile(const std::string& file,const ImageRGB& img);
-	void ReadImageFromFile(const std::string& file,ImageRGBA& img);
-	void ReadImageFromFile(const std::string& file,ImageRGB& img);
+namespace aly {
+#if defined(WIN32) || defined(_WIN32)
+#include <windows.h>
+#define PATH_SEPARATOR std::string("\\")
+#else
+#include <dirent.h>
+#define PATH_SEPARATOR std::string("/")
+#endif
+bool SANITY_CHECK_FILE_IO();
+std::string GetFileExtension(const std::string& fileName);
+std::string GetFileWithoutExtension(const std::string& file);
+std::string GetFileNameWithoutExtension(const std::string& file);
+std::string ReplaceFileExtension(const std::string& file,
+		const std::string& ext);
+std::string GetFileDirectoryPath(const std::string& file);
+std::string GetFileName(const std::string& file);
+std::string RemoveTrailingSlash(const std::string& file);
+std::string ConcatPath(const std::string& dir, const std::string& file);
+std::vector<std::string> GetDirectoryListing(const std::string& dirName,
+		const std::string& ext = "", const std::string& mask = "");
+std::string ReadTextFile(const std::string& str);
+std::vector<char> ReadBinaryFile(const std::string& str);
+bool FileExists(const std::string& name);
+std::string CodePointToUTF8(int cp);
+void WriteImageToFile(const std::string& file, const ImageRGBA& img);
+void WriteImageToFile(const std::string& file, const ImageRGB& img);
+void ReadImageFromFile(const std::string& file, ImageRGBA& img);
+void ReadImageFromFile(const std::string& file, ImageRGB& img);
 }
-
-
-
-
 
 #endif /* ALLOYFILEUTIL_H_ */

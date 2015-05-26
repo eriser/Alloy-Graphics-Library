@@ -23,77 +23,85 @@
 #include "GLShader.h"
 #include <iostream>
 
-
-
-namespace aly{
+namespace aly {
 
 GLShader::GLShader() :
-		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(0),mProgramHandle(0) {
+		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(
+				0), mProgramHandle(0) {
 
 }
-GLShader& GLShader::begin(){
+GLShader& GLShader::begin() {
 	glUseProgram(GetProgramHandle());
 	return *this;
 }
-void GLShader::end(){
-	glUseProgram((GLuint)NULL);
+void GLShader::end() {
+	glUseProgram((GLuint) NULL);
 }
-void GLShader::initialize(
-		std::vector<std::string>& pAttributeLocations,
+void GLShader::initialize(std::vector<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {
-	if(pVertexShaderString.size()==0||pFragmentShaderString.size()==0)return throw std::runtime_error("No shader program specified.");
+	if (pVertexShaderString.size() == 0 || pFragmentShaderString.size() == 0)
+		return throw std::runtime_error("No shader program specified.");
 	Application::getContext()->begin();
 	GLint lStatus;
-	char message[4096]="";
+	char message[4096] = "";
 	mVertexShaderHandle = glCreateShader( GL_VERTEX_SHADER);
-	const char* code= pVertexShaderString.c_str();
-	glShaderSource(mVertexShaderHandle, 1,&code, 0);
+	const char* code = pVertexShaderString.c_str();
+	glShaderSource(mVertexShaderHandle, 1, &code, 0);
 	glCompileShader(mVertexShaderHandle);
 	glGetShaderiv(mVertexShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
-		glGetInfoLogARB(mVertexShaderHandle,sizeof(message),NULL,message);
+		glGetInfoLogARB(mVertexShaderHandle, sizeof(message), NULL, message);
 		Application::getContext()->end();
-		throw std::runtime_error(MakeString()<<"Unable to compile vertex shader ...\n"<<message);
+		throw std::runtime_error(
+				MakeString() << "Unable to compile vertex shader ...\n"
+						<< message);
 	}
 	mFragmentShaderHandle = glCreateShader( GL_FRAGMENT_SHADER);
-	code= pFragmentShaderString.c_str();
+	code = pFragmentShaderString.c_str();
 	glShaderSource(mFragmentShaderHandle, 1, &code, 0);
 	glCompileShader(mFragmentShaderHandle);
 	glGetShaderiv(mFragmentShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
-		glGetInfoLogARB(mFragmentShaderHandle,sizeof(message),NULL,message);
+		glGetInfoLogARB(mFragmentShaderHandle, sizeof(message), NULL, message);
 		Application::getContext()->end();
-		throw std::runtime_error(MakeString()<<"Unable to compile fragment shader ...\n"<<message);
+		throw std::runtime_error(
+				MakeString() << "Unable to compile fragment shader ...\n"
+						<< message);
 	}
-	if(pGeometryShaderString.length()>0){
+	if (pGeometryShaderString.length() > 0) {
 		mGeometryShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
-		code= pGeometryShaderString.c_str();
-		glShaderSource(mGeometryShaderHandle, 1,&code, 0);
+		code = pGeometryShaderString.c_str();
+		glShaderSource(mGeometryShaderHandle, 1, &code, 0);
 		glCompileShader(mGeometryShaderHandle);
 		glGetShaderiv(mGeometryShaderHandle, GL_COMPILE_STATUS, &lStatus);
 		if (lStatus != GL_TRUE) {
-			glGetInfoLogARB(mGeometryShaderHandle,sizeof(message),NULL,message);
+			glGetInfoLogARB(mGeometryShaderHandle, sizeof(message), NULL,
+					message);
 			Application::getContext()->end();
-			throw std::runtime_error(MakeString()<<"Unable to compile geometry shader ...\n"<<message);
+			throw std::runtime_error(
+					MakeString() << "Unable to compile geometry shader ...\n"
+							<< message);
 		}
 	}
 	mProgramHandle = glCreateProgram();
 	glAttachShader(mProgramHandle, mVertexShaderHandle);
 	glAttachShader(mProgramHandle, mFragmentShaderHandle);
-	if(mGeometryShaderHandle>0)glAttachShader(mProgramHandle, mGeometryShaderHandle);
+	if (mGeometryShaderHandle > 0)
+		glAttachShader(mProgramHandle, mGeometryShaderHandle);
 	int lIndex = 0;
-	for(std::string str:pAttributeLocations) {
-		glBindAttribLocation(mProgramHandle, lIndex,str.c_str());
+	for (std::string str : pAttributeLocations) {
+		glBindAttribLocation(mProgramHandle, lIndex, str.c_str());
 		++lIndex;
 	}
 	glLinkProgram(mProgramHandle);
 	glGetProgramiv(mProgramHandle, GL_LINK_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
-		glGetInfoLogARB(mProgramHandle,sizeof(message),NULL,message);
+		glGetInfoLogARB(mProgramHandle, sizeof(message), NULL, message);
 		Application::getContext()->end();
-		throw std::runtime_error(MakeString()<<"Unable to link shaders ...\n"<<message);
+		throw std::runtime_error(
+				MakeString() << "Unable to link shaders ...\n" << message);
 	}
 	Application::getContext()->end();
 }

@@ -8,9 +8,7 @@ extern "C" {
 #endif
 
 enum GraphrenderStyle {
-    GRAPH_RENDER_FPS,
-    GRAPH_RENDER_MS,
-    GRAPH_RENDER_PERCENT,
+	GRAPH_RENDER_FPS, GRAPH_RENDER_MS, GRAPH_RENDER_PERCENT,
 };
 
 #define GRAPH_HISTORY_COUNT 100

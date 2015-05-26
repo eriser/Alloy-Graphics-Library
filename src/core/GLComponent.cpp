@@ -21,5 +21,4 @@
 #include "GLComponent.h"
 namespace aly {
 
-
 } /* namespace imagesci */

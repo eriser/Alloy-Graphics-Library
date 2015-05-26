@@ -15,61 +15,83 @@
 using namespace std;
 
 namespace aly {
-std::string CodePointToUTF8(int cp)
-{
+std::string CodePointToUTF8(int cp) {
 	int n = 0;
-	if (cp < 0x80) n = 1;
-	else if (cp < 0x800) n = 2;
-	else if (cp < 0x10000) n = 3;
-	else if (cp < 0x200000) n = 4;
-	else if (cp < 0x4000000) n = 5;
-	else if (cp <= 0x7fffffff) n = 6;
+	if (cp < 0x80)
+		n = 1;
+	else if (cp < 0x800)
+		n = 2;
+	else if (cp < 0x10000)
+		n = 3;
+	else if (cp < 0x200000)
+		n = 4;
+	else if (cp < 0x4000000)
+		n = 5;
+	else if (cp <= 0x7fffffff)
+		n = 6;
 	char str[7];
 	str[n] = '\0';
 	switch (n) {
-		case 6: str[5] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x4000000;
-		case 5: str[4] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x200000;
-		case 4: str[3] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x10000;
-		case 3: str[2] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x800;
-		case 2: str[1] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0xc0;
-		case 1: str[0] = cp;
+	case 6:
+		str[5] = 0x80 | (cp & 0x3f);
+		cp = cp >> 6;
+		cp |= 0x4000000;
+	case 5:
+		str[4] = 0x80 | (cp & 0x3f);
+		cp = cp >> 6;
+		cp |= 0x200000;
+	case 4:
+		str[3] = 0x80 | (cp & 0x3f);
+		cp = cp >> 6;
+		cp |= 0x10000;
+	case 3:
+		str[2] = 0x80 | (cp & 0x3f);
+		cp = cp >> 6;
+		cp |= 0x800;
+	case 2:
+		str[1] = 0x80 | (cp & 0x3f);
+		cp = cp >> 6;
+		cp |= 0xc0;
+	case 1:
+		str[0] = cp;
 	}
 	return std::string(str);
 }
 
-std::string ReadTextFile(const std::string& str){
+std::string ReadTextFile(const std::string& str) {
 	std::ifstream myfile;
 	myfile.open(str);
-	if(myfile.is_open()){
+	if (myfile.is_open()) {
 		std::stringstream buffer;
 		std::string line;
-		while(getline(myfile,line)){
-			buffer<<line<<std::endl;
+		while (getline(myfile, line)) {
+			buffer << line << std::endl;
 		}
 		return buffer.str();
 	} else {
-		throw std::runtime_error(MakeString()<<"Could not open "<<str);
+		throw std::runtime_error(MakeString() << "Could not open " << str);
 	}
 }
-std::vector<char> ReadBinaryFile(const std::string& str){
+std::vector<char> ReadBinaryFile(const std::string& str) {
 	streampos size;
-	  ifstream file (str, ios::in|ios::binary|ios::ate);
-	  if (file.is_open())
-	  {
-	    size = file.tellg();
-	    std::vector<char> memblock(size);
-	    file.seekg (0, ios::beg);
-	    file.read(memblock.data(), size);
-	    file.close();
-	    return memblock;
-	} else throw std::runtime_error(MakeString()<<"Could not open "<<str);
+	ifstream file(str, ios::in | ios::binary | ios::ate);
+	if (file.is_open()) {
+		size = file.tellg();
+		std::vector<char> memblock(size);
+		file.seekg(0, ios::beg);
+		file.read(memblock.data(), size);
+		file.close();
+		return memblock;
+	} else
+		throw std::runtime_error(MakeString() << "Could not open " << str);
 }
-bool FileExists(const std::string& name){
-	std::ifstream file(name,ios::in|ios::binary);
-	if(file.is_open()){
+bool FileExists(const std::string& name) {
+	std::ifstream file(name, ios::in | ios::binary);
+	if (file.is_open()) {
 		file.close();
 		return true;
-	} return false;
+	}
+	return false;
 }
 
 std::string GetFileExtension(const std::string& fileName) {
@@ -109,8 +131,9 @@ std::string GetFileWithoutExtension(const std::string& fileName) {
 	}
 	return fileName;
 }
-std::string ReplaceFileExtension(const std::string& file,const std::string& ext){
-	return GetFileWithoutExtension(file)+"."+ext;
+std::string ReplaceFileExtension(const std::string& file,
+		const std::string& ext) {
+	return GetFileWithoutExtension(file) + "." + ext;
 }
 std::string GetFileDirectoryPath(const std::string& fileName) {
 	if (fileName.find_last_of(PATH_SEPARATOR) != string::npos) {
@@ -121,7 +144,8 @@ std::string GetFileDirectoryPath(const std::string& fileName) {
 }
 
 //Only works on Linux for NOW!
-std::vector<std::string> GetDirectoryListing(const std::string& dirName, const std::string& ext, const std::string& mask) {
+std::vector<std::string> GetDirectoryListing(const std::string& dirName,
+		const std::string& ext, const std::string& mask) {
 	std::vector<std::string> files;
 	dirent* dp;
 	std::string cleanPath = RemoveTrailingSlash(dirName) + PATH_SEPARATOR;
@@ -142,7 +166,7 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName, const s
 	return files;
 }
 void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
-	std::string file=ReplaceFileExtension(_file,"png");
+	std::string file = ReplaceFileExtension(_file, "png");
 	int width = image.width;
 	int height = image.height;
 	const char* file_name = file.c_str();
@@ -226,7 +250,7 @@ void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
 	fclose(fp);
 }
 void WriteImageToFile(const std::string& _file, const ImageRGBA& image) {
-	std::string file=ReplaceFileExtension(_file,"png");
+	std::string file = ReplaceFileExtension(_file, "png");
 	int width = image.width;
 	int height = image.height;
 	const char* file_name = file.c_str();
@@ -311,18 +335,19 @@ void WriteImageToFile(const std::string& _file, const ImageRGBA& image) {
 	fclose(fp);
 }
 void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
-	std::string ext=GetFileExtension(file);
-	if(ext=="jpg"||ext=="jpeg"){
+	std::string ext = GetFileExtension(file);
+	if (ext == "jpg" || ext == "jpeg") {
 		unsigned char* img;
 		stbi_set_unpremultiply_on_load(1);
 		stbi_convert_iphone_png_to_rgb(1);
-		int w,h,n;
+		int w, h, n;
 		img = stbi_load(file.c_str(), &w, &h, &n, 4);
 		if (img == NULL) {
 			throw std::runtime_error(
-					MakeString() << "[read_jpg_file] File " << file << " is not recognized as a JPG file");
+					MakeString() << "[read_jpg_file] File " << file
+							<< " is not recognized as a JPG file");
 		}
-		image.resize(w,h);
+		image.resize(w, h);
 		image.set(img);
 		stbi_image_free(img);
 		return;
@@ -436,18 +461,19 @@ void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 
 }
 void ReadImageFromFile(const std::string& file, ImageRGB& image) {
-	std::string ext=GetFileExtension(file);
-	if(ext=="jpg"||ext=="jpeg"){
+	std::string ext = GetFileExtension(file);
+	if (ext == "jpg" || ext == "jpeg") {
 		unsigned char* img;
 		stbi_set_unpremultiply_on_load(1);
 		stbi_convert_iphone_png_to_rgb(1);
-		int w,h,n;
+		int w, h, n;
 		img = stbi_load(file.c_str(), &w, &h, &n, 3);
 		if (img == NULL) {
 			throw std::runtime_error(
-					MakeString() << "[read_jpg_file] File " << file << " is not recognized as a JPG file");
+					MakeString() << "[read_jpg_file] File " << file
+							<< " is not recognized as a JPG file");
 		}
-		image.resize(w,h);
+		image.resize(w, h);
 		image.set(img);
 		stbi_image_free(img);
 		return;

@@ -25,63 +25,81 @@
 #include <thread>
 #include <list>
 #include <vector>
-namespace aly{
+namespace aly {
 class Simulation;
-class SimulationListener{
+class SimulationListener {
 public:
-	virtual void SimulationEvent(Simulation* simulation,int mSimulationIteration,double time)=0;
+	virtual void SimulationEvent(Simulation* simulation,
+			int mSimulationIteration, double time)=0;
 	virtual ~SimulationListener();
 };
 class Simulation {
-	protected:
-		std::string name;
-		double simulationTime;
-		double timeStep;
-		double simulationDuration;
-		double computeTimeSeconds;
-		long simulationIteration;
-		bool running;
-		bool paused;
-		bool isDrawDirty;
-		bool isInitialized;
+protected:
+	std::string name;
+	double simulationTime;
+	double timeStep;
+	double simulationDuration;
+	double computeTimeSeconds;
+	long simulationIteration;
+	bool running;
+	bool paused;
+	bool isDrawDirty;
+	bool isInitialized;
 
-		std::thread simulationThread;
-		std::list<SimulationListener*> listeners;
-	public:
-		typedef std::chrono::high_resolution_clock Clock;
-		inline void addListener(SimulationListener* listener){
-			listeners.push_back(listener);
+	std::thread simulationThread;
+	std::list<SimulationListener*> listeners;
+public:
+	typedef std::chrono::high_resolution_clock Clock;
+	inline void addListener(SimulationListener* listener) {
+		listeners.push_back(listener);
+	}
+	inline void fireUpdateEvent() {
+		for (SimulationListener* listender : listeners) {
+			listender->SimulationEvent(this, simulationIteration,
+					simulationTime);
 		}
-		inline void fireUpdateEvent(){
-			for(SimulationListener* listender:listeners){
-				listender->SimulationEvent(this,simulationIteration,simulationTime);
-			}
-		}
-		Simulation(const std::string& name);
-		void loadParameters(const std::string& paramFile);
-		void saveParameters(const std::string& paramFile);
-		bool setSource(const std::string& sourceFileName);
-		inline bool isRunning(){return running;}
-		void stopRunning();
-		inline bool isDirty(){return isDrawDirty;}
-		virtual bool isPlayback(){return false;}
-		inline const std::string& getName(){return name;}
-		inline void setName(const std::string& name){this->name=name;}
-		inline double getSimulationTime(){return simulationTime;}
-		inline double getSimulationDuration(){return simulationDuration;}
-		inline long getSimulationIteration(){return simulationIteration;}
-		inline double getComputeTimePerFrame(){return computeTimeSeconds;}
-		virtual bool init()=0;
-		virtual bool step()=0;
-		virtual void cleanup()=0;
-		bool updateGL();
-		void reset();
-		bool start();
-		bool stop();
-		virtual ~Simulation();
-	};
+	}
+	Simulation(const std::string& name);
+	void loadParameters(const std::string& paramFile);
+	void saveParameters(const std::string& paramFile);
+	bool setSource(const std::string& sourceFileName);
+	inline bool isRunning() {
+		return running;
+	}
+	void stopRunning();
+	inline bool isDirty() {
+		return isDrawDirty;
+	}
+	virtual bool isPlayback() {
+		return false;
+	}
+	inline const std::string& getName() {
+		return name;
+	}
+	inline void setName(const std::string& name) {
+		this->name = name;
+	}
+	inline double getSimulationTime() {
+		return simulationTime;
+	}
+	inline double getSimulationDuration() {
+		return simulationDuration;
+	}
+	inline long getSimulationIteration() {
+		return simulationIteration;
+	}
+	inline double getComputeTimePerFrame() {
+		return computeTimeSeconds;
+	}
+	virtual bool init()=0;
+	virtual bool step()=0;
+	virtual void cleanup()=0;
+	bool updateGL();
+	void reset();
+	bool start();
+	bool stop();
+	virtual ~Simulation();
+};
 }
-
-
 
 #endif /* ALLOYPROCESS_H_ */

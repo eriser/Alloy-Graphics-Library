@@ -24,18 +24,23 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-namespace aly{
-	struct MakeString{
-		std::ostringstream ss;
-		operator std::string() const { return ss.str(); }
-		template<class T> MakeString & operator << (const T & val) { ss << val; return *this; }
-	};
-	struct DrawEvent3D{
+namespace aly {
+struct MakeString {
+	std::ostringstream ss;
+	operator std::string() const {
+		return ss.str();
+	}
+	template<class T> MakeString & operator <<(const T & val) {
+		ss << val;
+		return *this;
+	}
+};
+struct DrawEvent3D {
 
-	};
-	struct DrawEvent2D{
+};
+struct DrawEvent2D {
 
-	};
+};
 }
 
 #endif /* ALLOYCOMMON_H_ */

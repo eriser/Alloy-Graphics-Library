@@ -30,22 +30,28 @@ namespace aly {
 class GLComponentGroup;
 class GLComponent {
 protected:
-	std::shared_ptr<AlloyContext> context=nullptr;
+	std::shared_ptr<AlloyContext> context = nullptr;
 
 public:
 	friend class GLComponentGroup;
 	box2i bounds;
 	virtual void draw()=0;
 	virtual void update()=0;
-	virtual inline ~GLComponent(){};
-	GLComponent(std::shared_ptr<AlloyContext>& context):context(context){}
-	GLComponent(const box2i& b,AlloyContext* context):bounds(b),context(context){}
+	virtual inline ~GLComponent() {
+	}
+	;
+	GLComponent(std::shared_ptr<AlloyContext>& context) :
+			context(context) {
+	}
+	GLComponent(const box2i& b, AlloyContext* context) :
+			bounds(b), context(context) {
+	}
 
-	inline void setBounds(int x,int y,int w,int h){
-		bounds.position.x=x;
-		bounds.position.y=y;
-		bounds.dimensions.x=w;
-		bounds.dimensions.y=h;
+	inline void setBounds(int x, int y, int w, int h) {
+		bounds.position.x = x;
+		bounds.position.y = y;
+		bounds.dimensions.x = w;
+		bounds.dimensions.y = h;
 	}
 };
 
@@ -63,7 +69,8 @@ protected:
 		}
 	}
 public:
-	GLComponentGroup(std::shared_ptr<AlloyContext>& context) :GLComponent(context) {
+	GLComponentGroup(std::shared_ptr<AlloyContext>& context) :
+			GLComponent(context) {
 
 	}
 	virtual ~GLComponentGroup()=0;

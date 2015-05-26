@@ -23,11 +23,10 @@
 #define ALLOYEXAMPLEUI_H_
 
 #include "Alloy.h"
-class ExampleUI: public aly::Application{
+class ExampleUI: public aly::Application {
 public:
 	ExampleUI();
 	bool init(aly::Composite& rootNode);
 };
-
 
 #endif /* ALLOYEXAMPLEUI_H_ */
