@@ -136,11 +136,13 @@ public:
 class Animator{
 private:
 	std::list<std::shared_ptr<Tween>> tweens[2];
+	std::list<std::shared_ptr<Tween>> finished;
 	int parity=0;
 public:
 	std::shared_ptr<Tween>& add(const std::shared_ptr<Tween>& tween);
 	void reset();
 	bool step(double dt);
+	bool firePostEvents();
 	template<class A> std::shared_ptr<Tween>& add(AColor& out,const Color& start,const Color& end,double duration,const A& a=Linear()){
 		ColorTween* ctween=new ColorTween(start,end);
 		out=std::shared_ptr<ColorTween>(ctween);

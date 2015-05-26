@@ -265,8 +265,10 @@ void Application::run(int swapInterval) {
 		if(dt>=ANIMATE_INTERVAL_SEC){//Dont try to animate faster than 60 fps.
 			startTime=endTime;
 			if(context->animator.step(dt)){
-				rootNode.pack();
+				rootNode.pack(context.get());
+				context->animator.firePostEvents();
 			}
+
 		}
 		frameCounter++;
 		if(elapsed>POLL_INTERVAL_SEC){
