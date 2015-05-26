@@ -226,7 +226,7 @@ void fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output, int
 	FONS_NOTUSED(outHeight);
 	FONS_NOTUSED(scaleX);
 	FONS_NOTUSED(scaleY);
-	FONS_NOTUSED(glyph);// glyph has already been loaded by fons__tt_buildGlyphBitmap
+	FONS_NOTUSED(glyph); // glyph has already been loaded by fons__tt_buildGlyphBitmap
 
 	for ( y = 0; y < ftGlyph->bitmap.rows; y++ ) {
 		for ( x = 0; x < ftGlyph->bitmap.width; x++ ) {

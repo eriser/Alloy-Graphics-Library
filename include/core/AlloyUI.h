@@ -35,7 +35,8 @@ bool SANITY_CHECK_UI();
 
 struct Region {
 protected:
-	void drawBoundsLabel(AlloyContext* context, const std::string& name, int font);
+	void drawBoundsLabel(AlloyContext* context, const std::string& name,
+			int font);
 	static uint64_t REGION_COUNTER;
 public:
 	Origin origin = Origin::TopLeft;
@@ -44,7 +45,7 @@ public:
 	box2px bounds;
 	const std::string name;
 	AspectRatio aspectRatio = AspectRatio::Unspecified;
-	bool visible=true;
+	bool visible = true;
 	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
 	Region(

@@ -27,17 +27,18 @@ uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 
-void Region::drawBoundsLabel(AlloyContext* context, const std::string& name, int font) {
+void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
+		int font) {
 	NVGcontext* nvg = context->nvgContext;
-	bool hover=(this==context->currentRegion);
-	Color c(hover?DEBUG_HOVER_COLOR:DEBUG_STROKE_COLOR);
+	bool hover = (this == context->currentRegion);
+	Color c(hover ? DEBUG_HOVER_COLOR : DEBUG_STROKE_COLOR);
 	const int FONT_PADDING = 2;
 	const int FONT_SIZE_PX = 16;
 	nvgBeginPath(nvg);
 	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 			bounds.dimensions.y);
-	nvgStrokeColor(nvg,c);
-	nvgStrokeWidth(nvg, hover?4.0f:2.0f);
+	nvgStrokeColor(nvg, c);
+	nvgStrokeWidth(nvg, hover ? 4.0f : 2.0f);
 	nvgStroke(nvg);
 
 	nvgFontSize(nvg, FONT_SIZE_PX);
@@ -48,7 +49,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name, int
 	float xoffset = (bounds.dimensions.x - twidth - 2 * FONT_PADDING) * 0.5f;
 
 	nvgBeginPath(nvg);
-	nvgFillColor(nvg,c);
+	nvgFillColor(nvg, c);
 	nvgRect(nvg, bounds.position.x + xoffset, bounds.position.y + 1,
 			twidth + 2 * FONT_PADDING, FONT_SIZE_PX + FONT_PADDING);
 	nvgFill(nvg);
@@ -64,9 +65,7 @@ Region::Region(const std::string& name) :
 }
 void Region::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr)
-		nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
-				parent->bounds.dimensions.x, parent->bounds.dimensions.y);
+	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 }
 
@@ -88,9 +87,7 @@ void Composite::draw(AlloyContext* context) {
 }
 void Composite::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr)
-		nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
-				parent->bounds.dimensions.x, parent->bounds.dimensions.y);
+	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
@@ -111,14 +108,14 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 	}
 }
-void Composite::update(AlloyContext* context){
+void Composite::update(AlloyContext* context) {
 	context->cursorLocator.add(this);
 	for (std::shared_ptr<Region>& region : children) {
 		region->update(context);
 	}
 }
 
-void Region::update(AlloyContext* context){
+void Region::update(AlloyContext* context) {
 	context->cursorLocator.add(this);
 }
 
@@ -198,9 +195,7 @@ void TextLabel::draw(AlloyContext* context) {
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr)
-		nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
-				parent->bounds.dimensions.x, parent->bounds.dimensions.y);
+	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 	drawBoundsLabel(context, name,
 			(glyph->type == GlyphType::Awesome) ?
 					context->getFontHandle(FontType::Icon) :

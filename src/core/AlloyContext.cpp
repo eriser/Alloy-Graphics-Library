@@ -168,13 +168,13 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title) :
 	glGenBuffers(1, &vaoImage.positionBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vaoImage.positionBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 4, PositionCoords,
-			GL_STATIC_DRAW);
+	GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glGenBuffers(1, &vaoImage.uvBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vaoImage.uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2 * 6, TextureCoords,
-			GL_STATIC_DRAW);
+	GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 

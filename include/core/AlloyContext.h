@@ -154,7 +154,7 @@ public:
 	box2i viewport;
 	pixel2 cursor = pixel2(-1, -1);
 	double2 dpmm;
-	Region* currentRegion=nullptr;
+	Region* currentRegion = nullptr;
 	double pixelRatio;
 	CursorLocator cursorLocator;
 	inline void setDebug(bool enabled) {

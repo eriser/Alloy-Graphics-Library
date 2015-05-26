@@ -25,20 +25,21 @@
 #include "AlloyMath.h"
 #include "AlloyUnits.h"
 #include <list>
-namespace aly{
-	class Region;
-	class CursorLocator{
-		static const int ROWS=32;
-		static const int COLS=18;
-		std::list<Region*> grid[ROWS][COLS];
-		const int2 lowerBounds=int2(0,0);
-		const int2 upperBounds=int2(ROWS-1,COLS-1);
-		pixel2 cellSize;
-	public:
-		CursorLocator(){}
-		void reset(int2 viewportDims);
-		void add(Region* region);
-		Region* contains(const pixel2& cursor);
-	};
+namespace aly {
+class Region;
+class CursorLocator {
+	static const int ROWS = 32;
+	static const int COLS = 18;
+	std::list<Region*> grid[ROWS][COLS];
+	const int2 lowerBounds = int2(0, 0);
+	const int2 upperBounds = int2(ROWS - 1, COLS - 1);
+	pixel2 cellSize;
+public:
+	CursorLocator() {
+	}
+	void reset(int2 viewportDims);
+	void add(Region* region);
+	Region* contains(const pixel2& cursor);
+};
 }
 #endif /* ALLOYLOCATOR_H_ */

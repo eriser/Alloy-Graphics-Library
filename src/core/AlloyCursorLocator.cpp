@@ -20,35 +20,39 @@
  */
 #include "AlloyCursorLocator.h"
 #include "AlloyUI.h"
-namespace aly{
-		void CursorLocator::reset(int2 viewportDims){
-			cellSize.x=viewportDims.x/(pixel)ROWS;
-			cellSize.y=viewportDims.y/(pixel)COLS;
-			for(int j=0;j<COLS;j++){
-				for(int i=0;i<ROWS;i++){
-					grid[i][j].clear();
-				}
-			}
+namespace aly {
+void CursorLocator::reset(int2 viewportDims) {
+	cellSize.x = viewportDims.x / (pixel) ROWS;
+	cellSize.y = viewportDims.y / (pixel) COLS;
+	for (int j = 0; j < COLS; j++) {
+		for (int i = 0; i < ROWS; i++) {
+			grid[i][j].clear();
 		}
-		void CursorLocator::add(Region* region){
-			int2 start=clamp(int2(region->bounds.position/cellSize),lowerBounds,upperBounds);
-			int2 end=clamp(int2((region->bounds.position+region->bounds.dimensions)/cellSize),lowerBounds,upperBounds);
-			for(int j=(int)start.y;j<=(int)end.y;j++){
-				for(int i=(int)start.x;i<=(int)end.x;i++){
-					grid[i][j].push_front(region);
-				}
-			}
+	}
+}
+void CursorLocator::add(Region* region) {
+	int2 start = clamp(int2(region->bounds.position / cellSize), lowerBounds,
+			upperBounds);
+	int2 end = clamp(
+			int2(
+					(region->bounds.position + region->bounds.dimensions)
+							/ cellSize), lowerBounds, upperBounds);
+	for (int j = (int) start.y; j <= (int) end.y; j++) {
+		for (int i = (int) start.x; i <= (int) end.x; i++) {
+			grid[i][j].push_front(region);
 		}
-		Region* CursorLocator::contains(const pixel2& cursor){
-			if(cursor.x<0||cursor.y<0)return nullptr;
-			int2 query=clamp(int2(cursor/cellSize),lowerBounds,upperBounds);
-			for(Region* region:grid[(int)query.x][(int)query.y]){
-				if(region->visible&&region->bounds.contains(cursor))return region;
-			}
-			return nullptr;
-		}
-
+	}
+}
+Region* CursorLocator::contains(const pixel2& cursor) {
+	if (cursor.x < 0 || cursor.y < 0)
+		return nullptr;
+	int2 query = clamp(int2(cursor / cellSize), lowerBounds, upperBounds);
+	for (Region* region : grid[(int) query.x][(int) query.y]) {
+		if (region->visible && region->bounds.contains(cursor))
+			return region;
+	}
+	return nullptr;
 }
 
-
+}
 

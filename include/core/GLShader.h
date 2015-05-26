@@ -130,20 +130,20 @@ public:
 
 	inline GLShader& set(const std::string& variable, const float4x4& value) {
 		glUniformMatrix4fv(
-				glGetUniformLocation(mProgramHandle, variable.c_str()), 1,
-				false, value.ptr());
+		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
+				value.ptr());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const float3x3& value) {
 		glUniformMatrix3fv(
-				glGetUniformLocation(mProgramHandle, variable.c_str()), 1,
-				false, value.ptr());
+		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
+				value.ptr());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const float2x2& value) {
 		glUniformMatrix2fv(
-				glGetUniformLocation(mProgramHandle, variable.c_str()), 1,
-				false, value.ptr());
+		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
+				value.ptr());
 		return *this;
 	}
 	template<class T, int C, ImageType I> void set(const std::string& variable,

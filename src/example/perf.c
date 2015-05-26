@@ -57,7 +57,7 @@ int stopGPUTimer(GPUtimer* timer, float* times, int maxTimes) {
 	while (available && timer->ret <= timer->cur) {
 		// check for results if there are any
 		glGetQueryObjectiv(timer->queries[timer->ret % GPU_QUERY_COUNT],
-				GL_QUERY_RESULT_AVAILABLE, &available);
+		GL_QUERY_RESULT_AVAILABLE, &available);
 		if (available) {
 			/*			GLuint64 timeElapsed = 0;
 			 glGetQueryObjectui64v(timer->queries[timer->ret % GPU_QUERY_COUNT], GL_QUERY_RESULT, &timeElapsed);

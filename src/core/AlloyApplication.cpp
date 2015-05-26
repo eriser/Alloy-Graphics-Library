@@ -58,7 +58,7 @@ void Application::initInternal() {
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 
 }
-void Application::updateCursorLocator(){
+void Application::updateCursorLocator() {
 	context->cursorLocator.reset(context->viewport.dimensions);
 	rootNode.update(context.get());
 }
@@ -200,8 +200,9 @@ void Application::drawDebugUI() {
 	nvgEndFrame(nvg);
 }
 void Application::fireEvent(const InputEvent& event) {
-	if(event.type==InputType::Cursor){
-		context->currentRegion=context->cursorLocator.contains(context->cursor);
+	if (event.type == InputType::Cursor) {
+		context->currentRegion = context->cursorLocator.contains(
+				context->cursor);
 	}
 }
 

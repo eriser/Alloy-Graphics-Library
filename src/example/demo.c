@@ -160,7 +160,7 @@ void drawSearchBox(NVGcontext* vg, const char* text, float x, float y, float w,
 	nvgFillColor(vg, nvgRGBA(255, 255, 255, 64));
 	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 	nvgText(vg, x + h * 0.55f, y + h * 0.55f, cpToUTF8(ICON_SEARCH, icon),
-			NULL);
+	NULL);
 
 	nvgFontSize(vg, 20.0f);
 	nvgFontFace(vg, "sans");
@@ -345,10 +345,10 @@ void drawButton(NVGcontext* vg, int preicon, const char* text, float x, float y,
 	nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 	nvgFillColor(vg, nvgRGBA(0, 0, 0, 160));
 	nvgText(vg, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f - 1, text,
-			NULL);
+	NULL);
 	nvgFillColor(vg, nvgRGBA(255, 255, 255, 160));
 	nvgText(vg, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f, text,
-			NULL);
+	NULL);
 }
 
 void drawSlider(NVGcontext* vg, float pos, float x, float y, float w, float h) {
