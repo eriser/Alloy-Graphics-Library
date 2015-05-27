@@ -29,16 +29,25 @@ const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
+
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = (this == context->currentRegion);
 	Color c(hover ? DEBUG_HOVER_COLOR : DEBUG_STROKE_COLOR);
 	const int FONT_PADDING = 2;
 	const int FONT_SIZE_PX = 16;
+
+	if(hover){
+	nvgBeginPath(nvg);
+	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+			bounds.dimensions.y);
+	nvgFillColor(nvg,Color(255,255,255,128));
+	nvgFill(nvg);
+	}
 	nvgBeginPath(nvg);
 	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 			bounds.dimensions.y);
 	nvgStrokeColor(nvg, c);
-	nvgStrokeWidth(nvg, hover ? 4.0f : 2.0f);
+	nvgStrokeWidth(nvg, 2.0f);
 	nvgStroke(nvg);
 
 	nvgFontSize(nvg, FONT_SIZE_PX);
@@ -181,6 +190,7 @@ Composite& Composite::add(Region* region) {
 
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
+	if(parent!=nullptr)
 	nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
 			parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 	nvgFontSize(nvg,

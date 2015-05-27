@@ -212,7 +212,7 @@ void Application::onWindowSize(int width, int height) {
 			|| context->viewport.dimensions.y != height) {
 		context->viewport = box2i(int2(0, 0), int2(width, height));
 		rootNode.pack(context.get());
-		updateCursorLocator();
+		requestUpdateLocator=true;
 	}
 }
 void Application::onCursorPos(double xpos, double ypos) {
@@ -290,24 +290,33 @@ void Application::run(int swapInterval) {
 	glfwSetTime(0);
 	uint64_t frameCounter = 0;
 	std::cout << "Draw thread ID: " << std::this_thread::get_id() << std::endl;
-	std::chrono::high_resolution_clock::time_point startTime =
+	std::chrono::high_resolution_clock::time_point lastAnimateTime =
 			std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point endTime;
-	std::chrono::high_resolution_clock::time_point lastFpsTime = startTime;
+	std::chrono::high_resolution_clock::time_point lastFpsTime = lastAnimateTime;
+	std::chrono::high_resolution_clock::time_point lastUpdateTime = lastAnimateTime;
 	const double POLL_INTERVAL_SEC = 0.5f;
 	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
+	const double UPDATE_INTERVAL_SEC = 1.0 / 15.0;
 	do {
 		draw();
 		endTime = std::chrono::high_resolution_clock::now();
 		double t = glfwGetTime();
-		double elapsed =
-				std::chrono::duration<double>(endTime - lastFpsTime).count();
-		double dt = std::chrono::duration<double>(endTime - startTime).count();
-		if (dt >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
-			startTime = endTime;
-			if (context->animator.step(dt)) {
-				rootNode.pack(context.get());
+		double elapsed =std::chrono::duration<double>(endTime - lastFpsTime).count();
+		double updateElapsed=std::chrono::duration<double>(endTime - lastUpdateTime).count();
+		double animateElapsed = std::chrono::duration<double>(endTime - lastAnimateTime).count();
+		if(updateElapsed>UPDATE_INTERVAL_SEC){
+			if(requestUpdateLocator){
 				updateCursorLocator();
+				requestUpdateLocator=false;
+			}
+			lastUpdateTime=endTime;
+		}
+		if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
+			lastAnimateTime = endTime;
+			if (context->animator.step(animateElapsed)) {
+				rootNode.pack(context.get());
+				requestUpdateLocator=true;
 				context->animator.firePostEvents();
 			}
 
