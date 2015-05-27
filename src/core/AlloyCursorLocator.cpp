@@ -22,8 +22,8 @@
 #include "AlloyUI.h"
 namespace aly {
 void CursorLocator::reset(int2 viewportDims) {
-	cellSize.x = viewportDims.x / (pixel) ROWS;
-	cellSize.y = viewportDims.y / (pixel) COLS;
+	cellSize.x = std::max((pixel)1,viewportDims.x / (pixel) ROWS);
+	cellSize.y = std::max((pixel)1,viewportDims.y / (pixel) COLS);
 	for (int j = 0; j < COLS; j++) {
 		for (int i = 0; i < ROWS; i++) {
 			grid[i][j].clear();
