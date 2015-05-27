@@ -26,7 +26,13 @@ namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
-
+bool Region::isVisible(){
+	if(!visible)return false;
+	if(parent!=nullptr){
+		return parent->isVisible();
+	}
+	return true;
+}
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
 

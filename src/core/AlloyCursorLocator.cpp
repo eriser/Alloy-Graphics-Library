@@ -48,7 +48,7 @@ Region* CursorLocator::contains(const pixel2& cursor) {
 		return nullptr;
 	int2 query = clamp(int2(cursor / cellSize), lowerBounds, upperBounds);
 	for (Region* region : grid[(int) query.x][(int) query.y]) {
-		if (region->visible && region->bounds.contains(cursor))
+		if (region->isVisible() && region->bounds.contains(cursor))
 			return region;
 	}
 	return nullptr;

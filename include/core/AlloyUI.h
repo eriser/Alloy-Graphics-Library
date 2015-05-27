@@ -56,6 +56,7 @@ public:
 	virtual void draw(AlloyContext* context)=0;
 	virtual void update(AlloyContext* context);
 	virtual void drawDebug(AlloyContext* context);
+	bool isVisible();
 	virtual inline ~Region() {
 	}
 	;
