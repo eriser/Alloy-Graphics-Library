@@ -25,6 +25,7 @@
 #include "AlloyMath.h"
 #include "AlloyUnits.h"
 #include <list>
+#include <mutex>
 namespace aly {
 class Region;
 class CursorLocator {
@@ -34,6 +35,7 @@ class CursorLocator {
 	const int2 lowerBounds = int2(0, 0);
 	const int2 upperBounds = int2(ROWS - 1, COLS - 1);
 	pixel2 cellSize;
+	std::mutex lock;
 public:
 	CursorLocator() {
 	}
