@@ -39,7 +39,7 @@ public:
 	}
 	void reset(int2 viewportDims);
 	void add(Region* region);
-	Region* contains(const pixel2& cursor);
+	Region* locate(const pixel2& cursor);
 };
 }
 #endif /* ALLOYLOCATOR_H_ */

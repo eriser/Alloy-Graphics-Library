@@ -43,7 +43,7 @@ void CursorLocator::add(Region* region) {
 		}
 	}
 }
-Region* CursorLocator::contains(const pixel2& cursor) {
+Region* CursorLocator::locate(const pixel2& cursor) {
 	if (cursor.x < 0 || cursor.y < 0)
 		return nullptr;
 	int2 query = clamp(int2(cursor / cellSize), lowerBounds, upperBounds);

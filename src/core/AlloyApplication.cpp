@@ -201,7 +201,7 @@ void Application::drawDebugUI() {
 }
 void Application::fireEvent(const InputEvent& event) {
 	if (event.type == InputType::Cursor) {
-		context->currentRegion = context->cursorLocator.contains(
+		context->currentRegion = context->cursorLocator.locate(
 				context->cursor);
 	}
 }
