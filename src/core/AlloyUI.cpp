@@ -26,6 +26,7 @@ namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
+const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64,32, 255);
 bool Region::isVisible(){
 	if(!visible)return false;
 	if(parent!=nullptr){
@@ -33,27 +34,41 @@ bool Region::isVisible(){
 	}
 	return true;
 }
+void Region::setPosition(const AUnit2D& pt){
+	position=pt;
+	Application::getContext()->requestPack();
+}
+void Region::setDimensions(const AUnit2D& dims){
+	dimensions=dims;
+	Application::getContext()->requestPack();
+}
+void Region::setVisible(bool vis){
+	visible=vis;
+	Application::getContext()->requestUpdateCursor();
+
+}
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-
+	if(!context->hasFocus)return;
 	NVGcontext* nvg = context->nvgContext;
-	bool hover = (this == context->currentRegion);
-	Color c(hover ? DEBUG_HOVER_COLOR : DEBUG_STROKE_COLOR);
+	bool hover = (this == context->mouseOverRegion);
+	bool down=(this==context->mouseDownRegion);
+	Color c;
+	if(down){
+		c=DEBUG_DOWN_COLOR;
+	} else if(hover){
+		c=DEBUG_HOVER_COLOR;
+	} else {
+		c=DEBUG_STROKE_COLOR;
+	}
 	const int FONT_PADDING = 2;
 	const int FONT_SIZE_PX = 16;
 
-	if(hover){
 	nvgBeginPath(nvg);
-	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y);
-	nvgFillColor(nvg,Color(255,255,255,128));
-	nvgFill(nvg);
-	}
-	nvgBeginPath(nvg);
-	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y);
+	nvgRect(nvg, bounds.position.x+2, bounds.position.y+2, bounds.dimensions.x-4,
+			bounds.dimensions.y-4);
 	nvgStrokeColor(nvg, c);
-	nvgStrokeWidth(nvg, 2.0f);
+	nvgStrokeWidth(nvg, 4.0f);
 	nvgStroke(nvg);
 
 	nvgFontSize(nvg, FONT_SIZE_PX);

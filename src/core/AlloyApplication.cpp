@@ -27,8 +27,8 @@ namespace aly {
 
 std::shared_ptr<AlloyContext> Application::context;
 void Application::initInternal() {
-	rootNode.position = CoordPercent(0.0f, 0.0f);
-	rootNode.dimensions = CoordPercent(1.0f, 1.0f);
+	rootNode.setPosition(CoordPercent(0.0f, 0.0f));
+	rootNode.setDimensions(CoordPercent(1.0f, 1.0f));
 	context->addAssetDirectory("assets/");
 	context->addAssetDirectory("../assets/");
 	context->addAssetDirectory("../../assets/");
@@ -200,9 +200,15 @@ void Application::drawDebugUI() {
 	nvgEndFrame(nvg);
 }
 void Application::fireEvent(const InputEvent& event) {
-	if (event.type == InputType::Cursor) {
-		context->currentRegion = context->cursorLocator.locate(
-				context->cursor);
+	if (event.type == InputType::Cursor||event.type==InputType::MouseButton) {
+		context->requestUpdateCursor();
+	}
+	if(event.type==InputType::MouseButton){
+		if(event.isMouseDown()){
+			context->mouseDownRegion=context->cursorLocator.locate(context->cursor);
+		} else if(event.isMouseUp()){
+			context->mouseDownRegion=nullptr;
+		}
 	}
 }
 
@@ -211,11 +217,11 @@ void Application::onWindowSize(int width, int height) {
 	if (context->viewport.dimensions.x != width
 			|| context->viewport.dimensions.y != height) {
 		context->viewport = box2i(int2(0, 0), int2(width, height));
-		rootNode.pack(context.get());
-		requestUpdateLocator=true;
+		context->requestPack();
 	}
 }
 void Application::onCursorPos(double xpos, double ypos) {
+	context->hasFocus=true;
 	context->cursor = pixel2((pixel) xpos, (pixel) ypos);
 	InputEvent e;
 	e.type = InputType::Cursor;
@@ -224,11 +230,15 @@ void Application::onCursorPos(double xpos, double ypos) {
 }
 void Application::onCursorEnter(int enter) {
 	if (!enter) {
+		context->hasFocus=false;
+		context->mouseOverRegion=nullptr;
 		context->cursor = pixel2(-1, -1);
 		InputEvent e;
 		e.type = InputType::Cursor;
 		e.cursor = pixel2(-1, -1);
 		fireEvent(e);
+	}else {
+		context->hasFocus=true;
 	}
 }
 void Application::onScroll(double xoffset, double yoffset) {
@@ -279,6 +289,10 @@ void Application::onChar(unsigned int codepoint) {
 }
 
 void Application::run(int swapInterval) {
+	const double POLL_INTERVAL_SEC = 0.5f;
+	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
+	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
+	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
 	context->makeCurrent();
 	if (!init(rootNode)) {
 		throw std::runtime_error("Error occurred in application init()");
@@ -295,9 +309,8 @@ void Application::run(int swapInterval) {
 	std::chrono::high_resolution_clock::time_point endTime;
 	std::chrono::high_resolution_clock::time_point lastFpsTime = lastAnimateTime;
 	std::chrono::high_resolution_clock::time_point lastUpdateTime = lastAnimateTime;
-	const double POLL_INTERVAL_SEC = 0.5f;
-	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
-	const double UPDATE_INTERVAL_SEC = 1.0 / 15.0;
+	std::chrono::high_resolution_clock::time_point lastCursorTime = lastAnimateTime;
+
 	do {
 		draw();
 		endTime = std::chrono::high_resolution_clock::now();
@@ -305,21 +318,34 @@ void Application::run(int swapInterval) {
 		double elapsed =std::chrono::duration<double>(endTime - lastFpsTime).count();
 		double updateElapsed=std::chrono::duration<double>(endTime - lastUpdateTime).count();
 		double animateElapsed = std::chrono::duration<double>(endTime - lastAnimateTime).count();
-		if(updateElapsed>UPDATE_INTERVAL_SEC){
-			if(requestUpdateLocator){
+		double cursorElapsed= std::chrono::duration<double>(endTime - lastCursorTime).count();
+		if(updateElapsed>UPDATE_LOCATOR_INTERVAL_SEC){
+			if(context->dirtyCursorLocator){
 				updateCursorLocator();
-				requestUpdateLocator=false;
+				context->dirtyCursorLocator=false;
+				context->mouseOverRegion=context->cursorLocator.locate(context->cursor);
+				context->dirtyCursor=false;
 			}
 			lastUpdateTime=endTime;
 		}
+		if (cursorElapsed >= UPDATE_CURSOR_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
+			if(context->dirtyCursor&&!context->dirtyCursorLocator){
+				context->mouseOverRegion=context->cursorLocator.locate(context->cursor);
+				context->dirtyCursor=false;
+			}
+			lastCursorTime=endTime;
+		}
 		if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
 			lastAnimateTime = endTime;
-			if (context->animator.step(animateElapsed)) {
-				rootNode.pack(context.get());
-				requestUpdateLocator=true;
-				context->animator.firePostEvents();
+			if(context->animator.step(animateElapsed)){
+				context->dirtyLayout=true;
 			}
-
+		}
+		if (context->dirtyLayout) {
+			rootNode.pack(context.get());
+			context->animator.firePostEvents();
+			context->dirtyCursorLocator=true;
+			context->dirtyLayout=false;
 		}
 		frameCounter++;
 		if (elapsed > POLL_INTERVAL_SEC) {

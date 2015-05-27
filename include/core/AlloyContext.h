@@ -144,9 +144,12 @@ private:
 	std::shared_ptr<Font> fonts[4];
 	static std::mutex contextLock;
 	GLFWwindow* current;
-
+	bool dirtyLayout=false;
+	bool dirtyCursorLocator=false;
+	bool dirtyCursor=false;
 	bool enableDebugInterface = false;
 public:
+	friend class Application;
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
 	ImageVAO vaoImage;
@@ -154,9 +157,20 @@ public:
 	box2i viewport;
 	pixel2 cursor = pixel2(-1, -1);
 	double2 dpmm;
-	Region* currentRegion = nullptr;
+	bool hasFocus=false;
+	Region* mouseOverRegion = nullptr;
+	Region* mouseDownRegion = nullptr;
 	double pixelRatio;
 	CursorLocator cursorLocator;
+	void requestPack(){
+		dirtyLayout=true;
+	}
+	void requestUpdateCursor(){
+		dirtyCursor=true;
+	}
+	void requestUpdateCursorLocator(){
+		dirtyCursorLocator=true;
+	}
 	inline void setDebug(bool enabled) {
 		enableDebugInterface = enabled;
 	}

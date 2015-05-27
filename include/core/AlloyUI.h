@@ -38,14 +38,22 @@ protected:
 	void drawBoundsLabel(AlloyContext* context, const std::string& name,
 			int font);
 	static uint64_t REGION_COUNTER;
-public:
-	Origin origin = Origin::TopLeft;
 	AUnit2D position;
 	AUnit2D dimensions;
+	bool visible = true;
+public:
+	Origin origin = Origin::TopLeft;
 	box2px bounds;
 	const std::string name;
+	AUnit2D& getPosition(){return position;}
+	AUnit2D& getDimensions(){return dimensions;}
+	const AUnit2D& getPosition() const {return position;}
+	const AUnit2D& getDimensions() const {return dimensions;}
+	void setPosition(const AUnit2D& pt);
+	void setDimensions(const AUnit2D& dims);
+	void setVisible(bool vis);
 	AspectRatio aspectRatio = AspectRatio::Unspecified;
-	bool visible = true;
+
 	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
 	Region(
@@ -89,9 +97,10 @@ inline std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		Orientation orientation = Orientation::Unspecified) {
 	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
 			new Composite(name));
-	composite->position = position;
+	composite->setPosition(position);
+	composite->setDimensions(dimensions);
+
 	composite->bgColor = MakeColor(bgColor);
-	composite->dimensions = dimensions;
 	composite->orientation = orientation;
 	return composite;
 }
@@ -121,8 +130,9 @@ inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 			(glyph->name.length() > 0) ?
 					new GlyphRegion(glyph->name) : new GlyphRegion());
 	region->glyph = glyph;
-	region->position = position;
-	region->dimensions = dimensions;
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+
 	region->bgColor = MakeColor(bgColor);
 	region->fgColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
@@ -139,8 +149,10 @@ inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			new GlyphRegion(glyph->name));
 	region->glyph = glyph;
-	region->position = position;
-	region->dimensions = dimensions;
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+
+
 	region->bgColor = MakeColor(bgColor);
 	region->fgColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
@@ -172,8 +184,10 @@ inline std::shared_ptr<TextLabel> MakeLabel(const std::string& name,
 		VerticalAlignment valign = VerticalAlignment::Top) {
 	std::shared_ptr<TextLabel> region = std::shared_ptr<TextLabel>(
 			new TextLabel(name));
-	region->position = position;
-	region->dimensions = dimensions;
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+
+
 	region->fontColor = MakeColor(fontColor);
 	region->fontType = fontType;
 	region->fontSize = fontSize;
@@ -185,8 +199,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const Region & region) {
 	ss << "Region: " << region.name << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
-	ss << "\tRelative Position: " << region.position << std::endl;
-	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
+	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRatio << std::endl;
 	if (region.parent != nullptr)
@@ -199,8 +213,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	if (region.glyph.get() != nullptr)
 		ss << "\t" << *region.glyph << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
-	ss << "\tRelative Position: " << region.position << std::endl;
-	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
+	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRatio << " (" << region.aspect
 			<< ")" << std::endl;
@@ -214,8 +228,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tHorizontal Alignment: " << region.horizontalAlignment << std::endl;
 	ss << "\tVertical Alignment: " << region.verticalAlignment << std::endl;
-	ss << "\tRelative Position: " << region.position << std::endl;
-	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
+	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
 	ss << "\tFont Type: " << region.fontType << std::endl;
 	ss << "\tFont Size: " << region.fontSize << std::endl;
@@ -230,8 +244,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "Composite: " << region.name << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tOrientation: " << region.orientation << std::endl;
-	ss << "\tRelative Position: " << region.position << std::endl;
-	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
+	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBackground Color: " << region.bgColor << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
 	int counter = 0;

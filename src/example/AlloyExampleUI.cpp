@@ -34,7 +34,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr = MakeGlyphRegion(img, CoordPX(160, 160),
 			CoordPX(100, 300), AspectRatio::FixedHeight, RGBA(32, 64, 128, 255),
-			RGBA(128, 128, 128, 128), RGBA(32, 128, 32, 255), UnitPX(4.0f));
+			RGBA(128, 128, 128, 128), RGBA(32, 32, 32, 255), UnitPX(1.0f));
 
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf188),
 			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
@@ -43,14 +43,14 @@ bool ExampleUI::init(Composite& rootNode) {
 	addTween(imgr->fgColor, Color(128, 128, 128, 255), Color(128, 128, 128, 0),
 			3.0, SineOut());
 	std::cout << "Add Tween" << std::endl;
-	addTween(imgr->dimensions, CoordPX(50, 50), CoordPX(300, 300), 1.0,
+	addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0,
 			SineOut())->addCompleteEvent(
 			[](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
 	addTween(iconr->bgColor, Color(255, 64, 32, 255), Color(32, 64, 255, 255),
 			3.0, SineIn());
 	addTween(iconr->fgColor, Color(0, 0, 0, 255), Color(255, 255, 255, 255),
 			3.0, SineIn());
-	addTween(iconr->position, CoordPX(100, 100), CoordPX(300, 100), 3.0,
+	addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,
 			ExponentialOut())->addCompleteEvent(
 			[](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());

@@ -38,7 +38,6 @@ private:
 	void drawDebugUI();
 	void draw();
 	Composite rootNode;
-	bool requestUpdateLocator=false;
 	std::list<std::exception_ptr> caughtExceptions;
 	void initInternal();
 	void updateCursorLocator();
