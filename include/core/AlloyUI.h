@@ -41,19 +41,28 @@ protected:
 	AUnit2D position;
 	AUnit2D dimensions;
 	bool visible = true;
+	bool dragEnabled=false;
+	box2px bounds;
+
 public:
 	Origin origin = Origin::TopLeft;
-	box2px bounds;
+	pixel2 dragOffset=pixel2(0,0);
 	const std::string name;
+	AColor backgroundColor = MakeColor(COLOR_NONE);
+	AColor borderColor = MakeColor(COLOR_NONE);
+	AUnit1D borderWidth = UnitPX(2);
+	inline void setEnableDrag(bool enabled){dragEnabled=enabled;}
+
+	bool isDragEnabled() const {return dragEnabled;}
 	AUnit2D& getPosition(){return position;}
 	AUnit2D& getDimensions(){return dimensions;}
+	box2px getBounds() const {return bounds;}
 	const AUnit2D& getPosition() const {return position;}
 	const AUnit2D& getDimensions() const {return dimensions;}
 	void setPosition(const AUnit2D& pt);
 	void setDimensions(const AUnit2D& dims);
 	void setVisible(bool vis);
 	AspectRatio aspectRatio = AspectRatio::Unspecified;
-
 	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
 	Region(
@@ -61,8 +70,8 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio);
-	virtual void draw(AlloyContext* context)=0;
-	virtual void update(AlloyContext* context);
+	virtual void draw(AlloyContext* context);
+	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
 	bool isVisible();
 	virtual inline ~Region() {
@@ -82,7 +91,7 @@ struct Composite: public Region {
 	;
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
-	virtual void update(AlloyContext* context) override;
+	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio) override;
 	void pack(AlloyContext* context);
@@ -105,10 +114,9 @@ inline std::shared_ptr<Composite> MakeComposite(const std::string& name,
 	return composite;
 }
 struct GlyphRegion: public Region {
-	AColor bgColor = MakeColor(COLOR_NONE);
-	AColor fgColor = MakeColor(COLOR_NONE);
-	AColor borderColor = MakeColor(COLOR_NONE);
-	AUnit1D borderWidth = UnitPX(2);
+	AColor fontColor = MakeColor(COLOR_NONE);
+
+
 	std::shared_ptr<Glyph> glyph;
 	GlyphRegion(
 			const std::string& name = MakeString() << "g" << std::setw(8)
@@ -133,8 +141,8 @@ inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	region->setPosition(position);
 	region->setDimensions(dimensions);
 
-	region->bgColor = MakeColor(bgColor);
-	region->fgColor = MakeColor(fgColor);
+	region->backgroundColor = MakeColor(bgColor);
+	region->fontColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
 	region->aspectRatio = aspectRatio;
@@ -153,8 +161,8 @@ inline std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	region->setDimensions(dimensions);
 
 
-	region->bgColor = MakeColor(bgColor);
-	region->fgColor = MakeColor(fgColor);
+	region->backgroundColor = MakeColor(bgColor);
+	region->fontColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
 	region->aspectRatio = AspectRatio::FixedHeight;
@@ -177,7 +185,7 @@ struct TextLabel: public Region {
 	;
 	void draw(AlloyContext* context);
 };
-inline std::shared_ptr<TextLabel> MakeLabel(const std::string& name,
+inline std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions, FontType fontType,
 		const AUnit1D& fontSize = UnitPT(14.0f), RGBA fontColor = COLOR_WHITE,
 		HorizontalAlignment halign = HorizontalAlignment::Left,
@@ -193,6 +201,22 @@ inline std::shared_ptr<TextLabel> MakeLabel(const std::string& name,
 	region->fontSize = fontSize;
 	region->horizontalAlignment = halign;
 	region->verticalAlignment = valign;
+	return region;
+}
+inline std::shared_ptr<Region> MakeRegionLabel(
+		const std::string& name,
+		const AUnit2D& position,
+		const AUnit2D& dimensions,
+		const RGBA& bgColor=COLOR_NONE,
+		const RGBA& lineColor=COLOR_WHITE,
+		const AUnit1D& lineWidth=UnitPX(2.0f)) {
+	std::shared_ptr<Region> region = std::shared_ptr<Region>(
+			new Region(name));
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+	region->backgroundColor=MakeColor(bgColor);
+	region->borderColor=MakeColor(lineColor);
+	region->borderWidth=lineWidth;
 	return region;
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
@@ -215,7 +239,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
-	ss << "\tBounds: " << region.bounds << std::endl;
+	ss << "\tBounds: " << region.getBounds() << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRatio << " (" << region.aspect
 			<< ")" << std::endl;
 	if (region.parent != nullptr)
@@ -230,7 +254,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tVertical Alignment: " << region.verticalAlignment << std::endl;
 	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
-	ss << "\tBounds: " << region.bounds << std::endl;
+	ss << "\tBounds: " << region.getBounds() << std::endl;
 	ss << "\tFont Type: " << region.fontType << std::endl;
 	ss << "\tFont Size: " << region.fontSize << std::endl;
 	ss << "\tFont Color: " << region.fontColor << std::endl;
@@ -247,11 +271,11 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBackground Color: " << region.bgColor << std::endl;
-	ss << "\tBounds: " << region.bounds << std::endl;
+	ss << "\tBounds: " << region.getBounds() << std::endl;
 	int counter = 0;
 	for (const std::shared_ptr<Region>& child : region.children) {
 		ss << "\tChild[" << counter << "]: " << child->name << " "
-				<< child->bounds << std::endl;
+				<< child->getBounds() << std::endl;
 	}
 	return ss;
 }

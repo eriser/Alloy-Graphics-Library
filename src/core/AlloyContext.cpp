@@ -21,10 +21,12 @@
 
 #include "AlloyFileUtil.h"
 #include "AlloyContext.h"
+#include "AlloyUI.h"
 #include "nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "nanovg_gl.h"
 #include <iostream>
+#include <chrono>
 int printOglError(const char *file, int line) {
 
 	GLenum glErr;
@@ -194,7 +196,9 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title) :
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	// Calculate pixel ration for hi-dpi devices.
 	pixelRatio = (float) fbWidth / (float) winWidth;
-
+	lastAnimateTime =std::chrono::high_resolution_clock::now();
+	lastCursorTime =std::chrono::high_resolution_clock::now();
+	lastUpdateTime =std::chrono::high_resolution_clock::now();
 }
 bool AlloyContext::begin() {
 	if (current == nullptr) {
@@ -213,6 +217,43 @@ bool AlloyContext::end() {
 		return true;
 	} else
 		return false;
+}
+void AlloyContext::update(Composite& rootNode){
+	endTime = std::chrono::high_resolution_clock::now();
+	double t = glfwGetTime();
+	double updateElapsed=std::chrono::duration<double>(endTime - lastUpdateTime).count();
+	double animateElapsed = std::chrono::duration<double>(endTime - lastAnimateTime).count();
+	double cursorElapsed= std::chrono::duration<double>(endTime - lastCursorTime).count();
+	if(updateElapsed>UPDATE_LOCATOR_INTERVAL_SEC){
+		if(dirtyCursorLocator){
+			cursorLocator.reset(viewport.dimensions);
+			rootNode.update(&cursorLocator);
+			dirtyCursorLocator=false;
+			mouseOverRegion=cursorLocator.locate(cursorPosition);
+			dirtyCursor=false;
+		}
+		lastUpdateTime=endTime;
+	}
+	if (cursorElapsed >= UPDATE_CURSOR_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
+		if(dirtyCursor&&!dirtyCursorLocator){
+			mouseOverRegion=cursorLocator.locate(cursorPosition);
+			dirtyCursor=false;
+		}
+		lastCursorTime=endTime;
+	}
+	if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
+		lastAnimateTime = endTime;
+		if(animator.step(animateElapsed)){
+			dirtyLayout=true;
+		}
+	}
+	if (dirtyLayout) {
+		rootNode.pack(this);
+		animator.firePostEvents();
+		dirtyCursorLocator=true;
+		dirtyLayout=false;
+	}
+
 }
 void AlloyContext::makeCurrent() {
 	std::lock_guard<std::mutex> lock(contextLock);

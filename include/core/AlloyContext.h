@@ -138,6 +138,7 @@ struct InputEvent {
 		return ((mods & GLFW_MOD_ALT) != 0);
 	}
 };
+class Composite;
 class AlloyContext {
 private:
 	std::list<std::string> assetDirectories;
@@ -148,20 +149,31 @@ private:
 	bool dirtyCursorLocator=false;
 	bool dirtyCursor=false;
 	bool enableDebugInterface = false;
+	Animator animator;
+	CursorLocator cursorLocator;
+	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
+	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
+	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
+	pixel2 lastCursorOffset=pixel2(0,0);
+	std::chrono::high_resolution_clock::time_point endTime;
+	std::chrono::high_resolution_clock::time_point lastAnimateTime;
+	std::chrono::high_resolution_clock::time_point lastUpdateTime;
+	std::chrono::high_resolution_clock::time_point lastCursorTime;
 public:
 	friend class Application;
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
 	ImageVAO vaoImage;
-	Animator animator;
 	box2i viewport;
-	pixel2 cursor = pixel2(-1, -1);
+	pixel2 cursorPosition = pixel2(-1, -1);
+	pixel2 cursorDownPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus=false;
+	double pixelRatio;
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
-	double pixelRatio;
-	CursorLocator cursorLocator;
+
+	void update(Composite& rootNode);
 	void requestPack(){
 		dirtyLayout=true;
 	}

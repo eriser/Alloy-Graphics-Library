@@ -1279,9 +1279,10 @@ template<class T, int M> struct box {
 		return true;
 	}
 	inline void clamp(const box<T, M>& other) {
-		position = aly::clamp(position, other.position,
-				other.position + other.dimensions);
 		dimensions = aly::min(dimensions, other.dimensions);
+		position = aly::clamp(position, other.position,
+				other.position + other.dimensions-dimensions);
+
 	}
 
 };

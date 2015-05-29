@@ -25,7 +25,7 @@ ExampleUI::ExampleUI() :
 		Application(640, 480, "ExampleUI") {
 }
 bool ExampleUI::init(Composite& rootNode) {
-	TextLabelPtr label = MakeLabel("Hello Blake", CoordPercent(0.5f, 0.5f),
+	TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.5f, 0.5f),
 			CoordPercent(0.5f, 0.5f), FontType::Normal, UnitPT(16.0f),
 			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
 			VerticalAlignment::Middle);
@@ -40,15 +40,15 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
 			RGBA(255, 255, 255, 255));
 	imgr->origin = Origin::Center;
-	addTween(imgr->fgColor, Color(128, 128, 128, 255), Color(128, 128, 128, 0),
+	addTween(imgr->fontColor, Color(128, 128, 128, 255), Color(128, 128, 128, 0),
 			3.0, SineOut());
 	std::cout << "Add Tween" << std::endl;
 	addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0,
 			SineOut())->addCompleteEvent(
 			[](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
-	addTween(iconr->bgColor, Color(255, 64, 32, 255), Color(32, 64, 255, 255),
+	addTween(iconr->backgroundColor, Color(255, 64, 32, 255), Color(32, 64, 255, 255),
 			3.0, SineIn());
-	addTween(iconr->fgColor, Color(0, 0, 0, 255), Color(255, 255, 255, 255),
+	addTween(iconr->fontColor, Color(0, 0, 0, 255), Color(255, 255, 255, 255),
 			3.0, SineIn());
 	addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,
 			ExponentialOut())->addCompleteEvent(
@@ -56,11 +56,20 @@ bool ExampleUI::init(Composite& rootNode) {
 	addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.2, 0.3),
 			CoordPX(400, 300), RGBA(128, 32, 32, 255));
+
+	RegionPtr scrollHandle = MakeRegionLabel("Scroll Handle",CoordPercent(0.0,0.0),
+			CoordPX(30, 30), RGBA(255, 128, 64, 255), RGBA(255, 255, 255, 255),UnitPX(2.0f));
+	scrollHandle->setEnableDrag(true);
+	CompositePtr scrollTrack = MakeComposite("Scroll Track", CoordPercent(0.2, 0.7),
+			CoordPX(300, 30), RGBA(128, 128, 128, 255));
+	scrollTrack->add(scrollHandle);
+	iconr->setEnableDrag(true);
 	comp->add(label);
+
 	rootNode.add(comp);
 	rootNode.add(imgr);
 	rootNode.add(iconr);
-	rootNode.pack();
+	rootNode.add(scrollTrack);
 	getContext()->toggleDebug();
 	std::cout << *imgr << std::endl;
 	std::cout << *label << std::endl;

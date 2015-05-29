@@ -40,7 +40,6 @@ private:
 	Composite rootNode;
 	std::list<std::exception_ptr> caughtExceptions;
 	void initInternal();
-	void updateCursorLocator();
 public:
 	static inline std::shared_ptr<AlloyContext>& getContext() {
 		if (context.get() == nullptr)
@@ -78,10 +77,7 @@ public:
 	}
 	virtual void onWindowRefresh() {
 	}
-	;
-	virtual void onWindowFocus(int focused) {
-	}
-	;
+	virtual void onWindowFocus(int focused);
 	void onWindowSize(int width, int height);
 	void onChar(unsigned int codepoint);
 	void onKey(int key, int scancode, int action, int mods);

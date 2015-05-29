@@ -58,10 +58,6 @@ void Application::initInternal() {
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 
 }
-void Application::updateCursorLocator() {
-	context->cursorLocator.reset(context->viewport.dimensions);
-	rootNode.update(context.get());
-}
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
 		const std::string& partialFile) {
 	ImageRGBA image;
@@ -122,78 +118,78 @@ void Application::drawDebugUI() {
 	rootNode.drawDebug(context.get());
 	int cr = 6;
 
-	if (context->viewport.contains(
-			int2((int) context->cursor.x, (int) context->cursor.y))) {
+	if (context->hasFocus&&context->viewport.contains(
+			int2((int) context->cursorPosition.x, (int) context->cursorPosition.y))) {
 		nvgFontSize(nvg, 16);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		int alignment = 0;
-		if (context->cursor.x < context->viewport.dimensions.x * 0.5f) {
+		if (context->cursorPosition.x < context->viewport.dimensions.x * 0.5f) {
 			alignment = NVG_ALIGN_LEFT;
 		} else {
 			alignment = NVG_ALIGN_RIGHT;
 		}
-		if (context->cursor.y < context->viewport.dimensions.y * 0.5f) {
+		if (context->cursorPosition.y < context->viewport.dimensions.y * 0.5f) {
 			alignment |= NVG_ALIGN_TOP;
 		} else {
 			alignment |= NVG_ALIGN_BOTTOM;
 		}
 		std::string txt = MakeString() << std::setprecision(4) << " "
-				<< context->cursor << " ";
+				<< context->cursorPosition << " ";
 		nvgTextAlign(nvg, alignment);
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
 		const float shift = 1.0f;
 
-		nvgText(nvg, context->cursor.x + shift, context->cursor.y, txt.c_str(),
+		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y, txt.c_str(),
 				nullptr);
-		nvgText(nvg, context->cursor.x - shift, context->cursor.y, txt.c_str(),
-				nullptr);
-
-		nvgText(nvg, context->cursor.x, context->cursor.y + shift, txt.c_str(),
-				nullptr);
-		nvgText(nvg, context->cursor.x, context->cursor.y - shift, txt.c_str(),
+		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y, txt.c_str(),
 				nullptr);
 
-		nvgText(nvg, context->cursor.x + shift, context->cursor.y - shift,
+		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y + shift, txt.c_str(),
+				nullptr);
+		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y - shift, txt.c_str(),
+				nullptr);
+
+		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y - shift,
 				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x + shift, context->cursor.y + shift,
+		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y + shift,
 				txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursor.x + shift, context->cursor.y - shift,
+		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y - shift,
 				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x + shift, context->cursor.y + shift,
-				txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursor.x - shift, context->cursor.y - shift,
-				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x - shift, context->cursor.y + shift,
+		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y + shift,
 				txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursor.x - shift, context->cursor.y - shift,
+		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y - shift,
 				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursor.x - shift, context->cursor.y + shift,
+		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y + shift,
+				txt.c_str(), nullptr);
+
+		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y - shift,
+				txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y + shift,
 				txt.c_str(), nullptr);
 
 		nvgFillColor(nvg, Color(220, 220, 220, 255));
-		nvgText(nvg, context->cursor.x, context->cursor.y, txt.c_str(),
+		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y, txt.c_str(),
 				nullptr);
 		nvgBeginPath(nvg);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgStrokeColor(nvg, Color(255, 255, 255, 255));
-		nvgMoveTo(nvg, context->cursor.x - cr, context->cursor.y);
-		nvgLineTo(nvg, context->cursor.x + cr, context->cursor.y);
-		nvgMoveTo(nvg, context->cursor.x, context->cursor.y - cr);
-		nvgLineTo(nvg, context->cursor.x, context->cursor.y + cr);
+		nvgMoveTo(nvg, context->cursorPosition.x - cr, context->cursorPosition.y);
+		nvgLineTo(nvg, context->cursorPosition.x + cr, context->cursorPosition.y);
+		nvgMoveTo(nvg, context->cursorPosition.x, context->cursorPosition.y - cr);
+		nvgLineTo(nvg, context->cursorPosition.x, context->cursorPosition.y + cr);
 
 		nvgStroke(nvg);
 		nvgBeginPath(nvg);
 		nvgFillColor(nvg, Color(255, 255, 255, 255));
-		nvgCircle(nvg, context->cursor.x, context->cursor.y, 3.0f);
+		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y, 3.0f);
 		nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		nvgFillColor(nvg, Color(255, 64, 32, 255));
-		nvgCircle(nvg, context->cursor.x, context->cursor.y, 1.5f);
+		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y, 1.5f);
 		nvgFill(nvg);
 
 	}
@@ -205,10 +201,20 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if(event.type==InputType::MouseButton){
 		if(event.isMouseDown()){
-			context->mouseDownRegion=context->cursorLocator.locate(context->cursor);
+			context->mouseDownRegion=context->cursorLocator.locate(context->cursorPosition);
+			context->cursorDownPosition=context->cursorPosition;
+			if(context->mouseDownRegion!=nullptr)
+				context->lastCursorOffset=context->mouseDownRegion->dragOffset;
 		} else if(event.isMouseUp()){
 			context->mouseDownRegion=nullptr;
+			context->lastCursorOffset=pixel2(0,0);
+			context->cursorDownPosition=pixel2(-1,-1);
 		}
+	}
+
+	if(context->mouseDownRegion!=nullptr&&context->mouseDownRegion->isDragEnabled()){
+		context->mouseDownRegion->dragOffset=context->cursorPosition-context->cursorDownPosition+context->lastCursorOffset;
+		context->requestPack();
 	}
 }
 
@@ -222,17 +228,33 @@ void Application::onWindowSize(int width, int height) {
 }
 void Application::onCursorPos(double xpos, double ypos) {
 	context->hasFocus=true;
-	context->cursor = pixel2((pixel) xpos, (pixel) ypos);
+	context->cursorPosition = pixel2((pixel) xpos, (pixel) ypos);
 	InputEvent e;
 	e.type = InputType::Cursor;
 	e.cursor = pixel2((pixel) xpos, (pixel) ypos);
 	fireEvent(e);
 }
+
+void Application::onWindowFocus(int focused){
+	if(focused){
+		context->hasFocus=true;
+
+		InputEvent e;
+		e.type = InputType::Cursor;
+		e.cursor = context->cursorPosition;
+		fireEvent(e);
+	} else {
+		context->mouseOverRegion=nullptr;
+		context->mouseDownRegion=nullptr;
+		context->cursorPosition=pixel2(-1,-1);
+		context->cursorDownPosition=pixel2(-1,-1);
+		context->hasFocus=false;
+	}
+}
 void Application::onCursorEnter(int enter) {
 	if (!enter) {
 		context->hasFocus=false;
 		context->mouseOverRegion=nullptr;
-		context->cursor = pixel2(-1, -1);
 		InputEvent e;
 		e.type = InputType::Cursor;
 		e.cursor = pixel2(-1, -1);
@@ -243,7 +265,7 @@ void Application::onCursorEnter(int enter) {
 }
 void Application::onScroll(double xoffset, double yoffset) {
 	InputEvent e;
-	e.cursor = context->cursor;
+	e.cursor = context->cursorPosition;
 	e.type = InputType::Scroll;
 	e.scroll = pixel2((pixel) xoffset, (pixel) yoffset);
 	fireEvent(e);
@@ -251,7 +273,7 @@ void Application::onScroll(double xoffset, double yoffset) {
 void Application::onMouseButton(int button, int action, int mods) {
 	InputEvent e;
 	e.type = InputType::MouseButton;
-	e.cursor = context->cursor;
+	e.cursor = context->cursorPosition;
 	e.button = button;
 	e.action = action;
 	e.mods = mods;
@@ -264,14 +286,14 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 	e.key = key;
 	e.scancode = scancode;
 	e.mods = mods;
-	e.cursor = context->cursor;
+	e.cursor = context->cursorPosition;
 	fireEvent(e);
 }
 void Application::onChar(unsigned int codepoint) {
 	InputEvent e;
 	e.type = InputType::Character;
 	e.codepoint = codepoint;
-	e.cursor = context->cursor;
+	e.cursor = context->cursorPosition;
 	GLFWwindow* window = context->window;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
 			| glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
@@ -290,69 +312,27 @@ void Application::onChar(unsigned int codepoint) {
 
 void Application::run(int swapInterval) {
 	const double POLL_INTERVAL_SEC = 0.5f;
-	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
-	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
-	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
+
 	context->makeCurrent();
 	if (!init(rootNode)) {
 		throw std::runtime_error("Error occurred in application init()");
 	}
 	rootNode.pack(context.get());
-	updateCursorLocator();
 	glfwSwapInterval(swapInterval);
 	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);
 	uint64_t frameCounter = 0;
-	std::cout << "Draw thread ID: " << std::this_thread::get_id() << std::endl;
-	std::chrono::high_resolution_clock::time_point lastAnimateTime =
-			std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point endTime;
-	std::chrono::high_resolution_clock::time_point lastFpsTime = lastAnimateTime;
-	std::chrono::high_resolution_clock::time_point lastUpdateTime = lastAnimateTime;
-	std::chrono::high_resolution_clock::time_point lastCursorTime = lastAnimateTime;
-
+	std::chrono::high_resolution_clock::time_point lastFpsTime =std::chrono::high_resolution_clock::now();
 	do {
 		draw();
-		endTime = std::chrono::high_resolution_clock::now();
-		double t = glfwGetTime();
+		context->update(rootNode);
 		double elapsed =std::chrono::duration<double>(endTime - lastFpsTime).count();
-		double updateElapsed=std::chrono::duration<double>(endTime - lastUpdateTime).count();
-		double animateElapsed = std::chrono::duration<double>(endTime - lastAnimateTime).count();
-		double cursorElapsed= std::chrono::duration<double>(endTime - lastCursorTime).count();
-		if(updateElapsed>UPDATE_LOCATOR_INTERVAL_SEC){
-			if(context->dirtyCursorLocator){
-				updateCursorLocator();
-				context->dirtyCursorLocator=false;
-				context->mouseOverRegion=context->cursorLocator.locate(context->cursor);
-				context->dirtyCursor=false;
-			}
-			lastUpdateTime=endTime;
-		}
-		if (cursorElapsed >= UPDATE_CURSOR_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
-			if(context->dirtyCursor&&!context->dirtyCursorLocator){
-				context->mouseOverRegion=context->cursorLocator.locate(context->cursor);
-				context->dirtyCursor=false;
-			}
-			lastCursorTime=endTime;
-		}
-		if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
-			lastAnimateTime = endTime;
-			if(context->animator.step(animateElapsed)){
-				context->dirtyLayout=true;
-			}
-		}
-		if (context->dirtyLayout) {
-			rootNode.pack(context.get());
-			context->animator.firePostEvents();
-			context->dirtyCursorLocator=true;
-			context->dirtyLayout=false;
-		}
 		frameCounter++;
 		if (elapsed > POLL_INTERVAL_SEC) {
 			frameRate = (float) (frameCounter / elapsed);
 			lastFpsTime = endTime;
 			frameCounter = 0;
-			//std::cout<<"Frame Rate "<<frameRate<<" "<<frameCounter<<std::endl;
 		}
 		glfwSwapBuffers(context->window);
 		glfwPollEvents();

@@ -47,9 +47,28 @@ void Region::setVisible(bool vis){
 	Application::getContext()->requestUpdateCursor();
 
 }
+void Region::draw(AlloyContext* context){
+	NVGcontext* nvg = context->nvgContext;
+	if (backgroundColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+	if (borderColor->a > 0) {
+		nvgBeginPath(nvg);
+		pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
+		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
+				bounds.dimensions.y-lineWidth);
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg,lineWidth);
+		nvgStroke(nvg);
+	}
+}
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-	if(!context->hasFocus)return;
+	if(!context->hasFocus||context->cursorPosition.x<0||context->cursorPosition.y<0)return;
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = (this == context->mouseOverRegion);
 	bool down=(this==context->mouseDownRegion);
@@ -101,9 +120,11 @@ void Region::drawDebug(AlloyContext* context) {
 
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr)
-		nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
-				parent->bounds.dimensions.x, parent->bounds.dimensions.y);
+	if (parent != nullptr){
+		box2px pbounds=parent->getBounds();
+		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
+				pbounds.dimensions.x, pbounds.dimensions.y);
+	}
 	if (bgColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
@@ -138,20 +159,21 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 	}
 }
-void Composite::update(AlloyContext* context) {
-	context->cursorLocator.add(this);
+void Composite::update(CursorLocator* cursorLocator) {
+	cursorLocator->add(this);
 	for (std::shared_ptr<Region>& region : children) {
-		region->update(context);
+		region->update(cursorLocator);
 	}
 }
 
-void Region::update(AlloyContext* context) {
-	context->cursorLocator.add(this);
+void Region::update(CursorLocator* cursorLocator) {
+	cursorLocator->add(this);
 }
 
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio) {
-	pixel2 xy = pos + position.toPixels(dims, dpmm, pixelRatio);
+	pixel2 computedPos=position.toPixels(dims, dpmm, pixelRatio);
+	pixel2 xy = pos + dragOffset+computedPos;
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
 	bounds.dimensions = d;
 	switch (origin) {
@@ -171,8 +193,6 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		bounds.position = xy - pixel2(0, d.y);
 		break;
 	}
-	if (parent != nullptr)
-		bounds.clamp(parent->bounds);
 	d = bounds.dimensions;
 	if (aspect < 0) {
 		aspect = dims.x / std::max((float) dims.y, 0.0f);
@@ -187,6 +207,10 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	case AspectRatio::Unspecified:
 	default:
 		bounds.dimensions = d;
+	}
+	if (parent != nullptr){
+		bounds.clamp(parent->bounds);
+		dragOffset=xy-pos-computedPos;
 	}
 }
 
@@ -211,9 +235,11 @@ Composite& Composite::add(Region* region) {
 
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if(parent!=nullptr)
-	nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
-			parent->bounds.dimensions.x, parent->bounds.dimensions.y);
+	if (parent != nullptr){
+		box2px pbounds=parent->getBounds();
+		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
+				pbounds.dimensions.x, pbounds.dimensions.y);
+	}
 	nvgFontSize(nvg,
 			fontSize.toPixels(context->height(), context->dpmm.y,
 					context->pixelRatio));
@@ -235,27 +261,28 @@ void GlyphRegion::drawDebug(AlloyContext* context) {
 
 void GlyphRegion::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr)
-		nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,
-				parent->bounds.dimensions.x, parent->bounds.dimensions.y);
-	if (bgColor->a > 0) {
+	if (parent != nullptr){
+		box2px pbounds=parent->getBounds();
+		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
+				pbounds.dimensions.x, pbounds.dimensions.y);
+	}
+	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 				bounds.dimensions.y);
-		nvgFillColor(nvg, *bgColor);
+		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		glyph->draw(bounds, *fgColor, context);
+		glyph->draw(bounds, *fontColor, context);
 	}
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
+		pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
+		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
+				bounds.dimensions.y-lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg,
-				borderWidth.toPixels(context->height(), context->dpmm.y,
-						context->pixelRatio));
+		nvgStrokeWidth(nvg,lineWidth);
 		nvgStroke(nvg);
 	}
 }
