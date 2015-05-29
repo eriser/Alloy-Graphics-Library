@@ -125,11 +125,11 @@ void Composite::draw(AlloyContext* context) {
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
-	if (bgColor->a > 0) {
+	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 				bounds.dimensions.y);
-		nvgFillColor(nvg, *bgColor);
+		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	for (std::shared_ptr<Region>& region : children) {
@@ -275,7 +275,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		glyph->draw(bounds, *fontColor, context);
+		glyph->draw(bounds, *foregroundColor, context);
 	}
 
 	if (borderColor->a > 0) {
@@ -287,7 +287,104 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgStroke(nvg);
 	}
 }
+std::shared_ptr<Composite> MakeComposite(
+		const std::string& name,
+		const AUnit2D& position,
+		const AUnit2D& dimensions,
+		const RGBA& bgColor,
+		const Orientation& orientation) {
+	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
+			new Composite(name));
+	composite->setPosition(position);
+	composite->setDimensions(dimensions);
+	composite->backgroundColor = MakeColor(bgColor);
+	composite->orientation = orientation;
+	return composite;
+}
 
+std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+		const std::shared_ptr<AwesomeGlyph>& glyph,
+		const AUnit2D& position,
+		const AUnit2D& dimensions,
+		const RGBA& bgColor,
+		const RGBA& fgColor,
+		const RGBA& borderColor,
+		const AUnit1D& borderWidth) {
+	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
+			new GlyphRegion(glyph->name));
+	region->glyph = glyph;
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+
+
+	region->backgroundColor = MakeColor(bgColor);
+	region->foregroundColor = MakeColor(fgColor);
+	region->borderColor = MakeColor(borderColor);
+	region->borderWidth = borderWidth;
+	region->aspectRatio = AspectRatio::FixedHeight;
+	region->aspect = glyph->width / (float) glyph->height;
+	return region;
+}
+std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+		const std::shared_ptr<ImageGlyph>& glyph,
+		const AUnit2D& position,
+		const AUnit2D& dimensions,
+		const AspectRatio& aspectRatio,
+		const RGBA& bgColor,
+		const RGBA& fgColor,
+		const RGBA& borderColor,
+		const AUnit1D& borderWidth) {
+	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
+			(glyph->name.length() > 0) ?
+					new GlyphRegion(glyph->name) : new GlyphRegion());
+	region->glyph = glyph;
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+
+	region->backgroundColor = MakeColor(bgColor);
+	region->foregroundColor = MakeColor(fgColor);
+	region->borderColor = MakeColor(borderColor);
+	region->borderWidth = borderWidth;
+	region->aspectRatio = aspectRatio;
+	region->aspect = glyph->width / (float) glyph->height;
+	return region;
+}
+std::shared_ptr<TextLabel> MakeTextLabel(
+		const std::string& name,
+		const AUnit2D& position,
+		const AUnit2D& dimensions,
+		const FontType& fontType,
+		const AUnit1D& fontSize,
+		const RGBA& fontColor,
+		const HorizontalAlignment& halign,
+		const VerticalAlignment& valign) {
+	std::shared_ptr<TextLabel> region = std::shared_ptr<TextLabel>(
+			new TextLabel(name));
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+	region->fontColor = MakeColor(fontColor);
+	region->fontType = fontType;
+	region->fontSize = fontSize;
+	region->horizontalAlignment = halign;
+	region->verticalAlignment = valign;
+	return region;
+}
+std::shared_ptr<Region> MakeRegionLabel(
+		const std::string& name,
+		const AUnit2D& position,
+		const AUnit2D& dimensions,
+		const RGBA& bgColor,
+		const RGBA& borderColor,
+		const AUnit1D& borderWidth) {
+	std::shared_ptr<Region> region = std::shared_ptr<Region>(
+			new Region(name));
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+	region->backgroundColor=MakeColor(bgColor);
+	region->borderColor=MakeColor(borderColor);
+	region->borderWidth=borderWidth;
+	return region;
+}
 }
 ;
 

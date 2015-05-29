@@ -40,7 +40,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
 			RGBA(255, 255, 255, 255));
 	imgr->origin = Origin::Center;
-	addTween(imgr->fontColor, Color(128, 128, 128, 255), Color(128, 128, 128, 0),
+	addTween(imgr->foregroundColor, Color(128, 128, 128, 255), Color(128, 128, 128, 0),
 			3.0, SineOut());
 	std::cout << "Add Tween" << std::endl;
 	addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0,
@@ -48,7 +48,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			[](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
 	addTween(iconr->backgroundColor, Color(255, 64, 32, 255), Color(32, 64, 255, 255),
 			3.0, SineIn());
-	addTween(iconr->fontColor, Color(0, 0, 0, 255), Color(255, 255, 255, 255),
+	addTween(iconr->foregroundColor, Color(0, 0, 0, 255), Color(255, 255, 255, 255),
 			3.0, SineIn());
 	addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,
 			ExponentialOut())->addCompleteEvent(

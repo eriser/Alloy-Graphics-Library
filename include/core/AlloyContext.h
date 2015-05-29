@@ -155,10 +155,12 @@ private:
 	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
 	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
 	pixel2 lastCursorOffset=pixel2(0,0);
+	bool dragEnabled=false;
 	std::chrono::high_resolution_clock::time_point endTime;
 	std::chrono::high_resolution_clock::time_point lastAnimateTime;
 	std::chrono::high_resolution_clock::time_point lastUpdateTime;
 	std::chrono::high_resolution_clock::time_point lastCursorTime;
+	pixel2 cursorDownPosition = pixel2(-1, -1);
 public:
 	friend class Application;
 	NVGcontext* nvgContext;
@@ -166,13 +168,12 @@ public:
 	ImageVAO vaoImage;
 	box2i viewport;
 	pixel2 cursorPosition = pixel2(-1, -1);
-	pixel2 cursorDownPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus=false;
 	double pixelRatio;
+
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
-
 	void update(Composite& rootNode);
 	void requestPack(){
 		dirtyLayout=true;

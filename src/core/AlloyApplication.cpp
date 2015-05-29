@@ -203,16 +203,19 @@ void Application::fireEvent(const InputEvent& event) {
 		if(event.isMouseDown()){
 			context->mouseDownRegion=context->cursorLocator.locate(context->cursorPosition);
 			context->cursorDownPosition=context->cursorPosition;
-			if(context->mouseDownRegion!=nullptr)
+			if(context->mouseDownRegion!=nullptr&&event.button==GLFW_MOUSE_BUTTON_LEFT){
 				context->lastCursorOffset=context->mouseDownRegion->dragOffset;
+				context->dragEnabled=true;
+			}
 		} else if(event.isMouseUp()){
 			context->mouseDownRegion=nullptr;
+			context->dragEnabled=false;
 			context->lastCursorOffset=pixel2(0,0);
 			context->cursorDownPosition=pixel2(-1,-1);
 		}
 	}
 
-	if(context->mouseDownRegion!=nullptr&&context->mouseDownRegion->isDragEnabled()){
+	if(context->mouseDownRegion!=nullptr&&context->dragEnabled&&context->mouseDownRegion->isDragEnabled()){
 		context->mouseDownRegion->dragOffset=context->cursorPosition-context->cursorDownPosition+context->lastCursorOffset;
 		context->requestPack();
 	}
