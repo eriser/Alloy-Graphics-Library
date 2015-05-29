@@ -49,16 +49,16 @@ void Region::setVisible(bool vis){
 }
 void Region::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
+	pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
+		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
+				bounds.dimensions.y-lineWidth);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
 		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
 				bounds.dimensions.y-lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
@@ -266,19 +266,20 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
+	pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
+		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
+				bounds.dimensions.y-lineWidth);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
 		glyph->draw(bounds, *fontColor, context);
 	}
+
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
 		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
 				bounds.dimensions.y-lineWidth);
 		nvgStrokeColor(nvg, *borderColor);

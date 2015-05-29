@@ -34,7 +34,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr = MakeGlyphRegion(img, CoordPX(160, 160),
 			CoordPX(100, 300), AspectRatio::FixedHeight, RGBA(32, 64, 128, 255),
-			RGBA(128, 128, 128, 128), RGBA(32, 32, 32, 255), UnitPX(1.0f));
+			RGBA(128, 128, 128, 128), RGBA(200,200,200, 255), UnitPX(1.0f));
 
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf188),
 			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
