@@ -157,6 +157,8 @@ std::string GetFileDirectoryPath(const std::string& fileName) {
 	return fileName;
 }
 
+
+#ifndef WIN32
 //Only works on Linux for NOW!
 std::vector<std::string> GetDirectoryListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
@@ -179,6 +181,8 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
+#endif
+
 void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
 	std::string file = ReplaceFileExtension(_file, "png");
 	int width = image.width;
@@ -600,5 +604,6 @@ void ReadImageFromFile(const std::string& file, ImageRGB& image) {
 	free(row_pointers);
 
 }
+
 }
 

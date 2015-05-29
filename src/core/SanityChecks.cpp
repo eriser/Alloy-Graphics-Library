@@ -144,6 +144,8 @@ bool SANITY_CHECK_UI() {
 	comp.add(r1).add(r2);
 	return true;
 }
+
+#ifndef WIN32
 bool SANITY_CHECK_FILE_IO() {
 	try {
 		std::cout << RemoveTrailingSlash("/usr/local/bin/") << "::"
@@ -171,5 +173,7 @@ bool SANITY_CHECK_FILE_IO() {
 		return false;
 	}
 }
+#endif
+
 }
 

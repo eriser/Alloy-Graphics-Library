@@ -22,6 +22,7 @@
 #ifndef ALLOYANIMATOR_H_
 #define ALLOYANIMATOR_H_
 #include "AlloyUnits.h"
+#include <functional>
 #include <memory>
 #include <list>
 namespace aly {

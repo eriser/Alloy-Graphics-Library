@@ -198,7 +198,9 @@
 //  Incomplete text-in-3d-api example, which draws quads properly aligned to be lossless
 //
 #if 0
-#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation#include "stb_truetype.h"
+#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
+#include "stb_truetype.h"
+
 char ttf_buffer[1<<20];
 unsigned char temp_bitmap[512*512];
 
@@ -244,7 +246,9 @@ void my_stbtt_print(float x, float y, char *text)
 //
 #if 0
 #include <stdio.h>
-#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation#include "stb_truetype.h"
+#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
+#include "stb_truetype.h"
+
 char ttf_buffer[1<<25];
 
 int main(int argc, char **argv)
@@ -555,11 +559,17 @@ extern int stbtt_GetGlyphBox(const stbtt_fontinfo *info, int glyph_index,
 // the bitmaps for C declaration-order reasons)
 //
 
-#ifndef STBTT_vmove // you can predefine these to use different values (but why?)enum {STBTT_vmove = 1, STBTT_vline, STBTT_vcurve
+#ifndef STBTT_vmove // you can predefine these to use different values (but why?)
+enum {
+STBTT_vmove = 1, STBTT_vline, STBTT_vcurve
 };
 #endif
 
-#ifndef stbtt_vertex // you can predefine this to use different values// (we share this with other code at RAD)#define stbtt_vertex_type short // can't use stbtt_int16 because that's not visible in the header filetypedef struct {stbtt_vertex_type x, y, cx, cy;
+#ifndef stbtt_vertex // you can predefine this to use different values
+// (we share this with other code at RAD)
+#define stbtt_vertex_type short // can't use stbtt_int16 because that's not visible in the header file
+typedef struct {
+stbtt_vertex_type x, y, cx, cy;
 unsigned char type, padding;
 }stbtt_vertex;
 #endif
@@ -702,7 +712,9 @@ const char *name, int flags);
 #define STBTT_MACSTYLE_BOLD         1
 #define STBTT_MACSTYLE_ITALIC       2
 #define STBTT_MACSTYLE_UNDERSCORE   4
-#define STBTT_MACSTYLE_NONE         8   // <= not same as 0, this makes us check the bitfield is 0extern int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1,
+#define STBTT_MACSTYLE_NONE         8   // <= not same as 0, this makes us check the bitfield is 0
+
+extern int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1,
 const char *s2, int len2);
 // returns 1/0 whether the first string interpreted as utf8 is identical to
 // the second string interpreted as big-endian utf16... useful for strings from next func
@@ -787,7 +799,9 @@ STBTT_MAC_LANG_CHINESE_TRAD = 19
 }
 #endif
 
-#endif // __STB_INCLUDE_STB_TRUETYPE_H__///////////////////////////////////////////////////////////////////////////////
+#endif // __STB_INCLUDE_STB_TRUETYPE_H__
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ////
 ////   IMPLEMENTATION
@@ -2110,4 +2124,4 @@ return off;
 }
 }
 
-#endif // STB_TRUETYPE_IMPLEMENTATION
+#endif // STB_TRUETYPE_IMPLEMENTATION
