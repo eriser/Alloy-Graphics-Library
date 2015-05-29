@@ -26,66 +26,74 @@ namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
-const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64,32, 255);
-bool Region::isVisible(){
-	if(!visible)return false;
-	if(parent!=nullptr){
+const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
+bool Region::isVisible() {
+	if (!visible)
+		return false;
+	if (parent != nullptr) {
 		return parent->isVisible();
 	}
 	return true;
 }
-void Region::setPosition(const AUnit2D& pt){
-	position=pt;
+void Region::setPosition(const AUnit2D& pt) {
+	position = pt;
 	Application::getContext()->requestPack();
 }
-void Region::setDimensions(const AUnit2D& dims){
-	dimensions=dims;
+void Region::setDimensions(const AUnit2D& dims) {
+	dimensions = dims;
 	Application::getContext()->requestPack();
 }
-void Region::setVisible(bool vis){
-	visible=vis;
+void Region::setVisible(bool vis) {
+	visible = vis;
 	Application::getContext()->requestUpdateCursor();
 
 }
-void Region::draw(AlloyContext* context){
+void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
+	pixel lineWidth = borderWidth.toPixels(context->height(), context->dpmm.y,
+			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
-				bounds.dimensions.y-lineWidth);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
-				bounds.dimensions.y-lineWidth);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg,lineWidth);
+		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
 	}
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-	if(!context->hasFocus||context->cursorPosition.x<0||context->cursorPosition.y<0)return;
+	if (!context->hasFocus || context->cursorPosition.x < 0
+			|| context->cursorPosition.y < 0)
+		return;
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = (this == context->mouseOverRegion);
-	bool down=(this==context->mouseDownRegion);
+	bool down = (this == context->mouseDownRegion);
 	Color c;
-	if(down){
-		c=DEBUG_DOWN_COLOR;
-	} else if(hover){
-		c=DEBUG_HOVER_COLOR;
+	if (down) {
+		c = DEBUG_DOWN_COLOR;
+	} else if (hover) {
+		c = DEBUG_HOVER_COLOR;
 	} else {
-		c=DEBUG_STROKE_COLOR;
+		c = DEBUG_STROKE_COLOR;
 	}
 	const int FONT_PADDING = 2;
 	const int FONT_SIZE_PX = 16;
 
 	nvgBeginPath(nvg);
-	nvgRect(nvg, bounds.position.x+2, bounds.position.y+2, bounds.dimensions.x-4,
-			bounds.dimensions.y-4);
+	nvgRect(nvg, bounds.position.x + 2, bounds.position.y + 2,
+			bounds.dimensions.x - 4, bounds.dimensions.y - 4);
 	nvgStrokeColor(nvg, c);
 	nvgStrokeWidth(nvg, 4.0f);
 	nvgStroke(nvg);
@@ -120,8 +128,8 @@ void Region::drawDebug(AlloyContext* context) {
 
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr){
-		box2px pbounds=parent->getBounds();
+	if (parent != nullptr) {
+		box2px pbounds = parent->getBounds();
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
@@ -172,8 +180,8 @@ void Region::update(CursorLocator* cursorLocator) {
 
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio) {
-	pixel2 computedPos=position.toPixels(dims, dpmm, pixelRatio);
-	pixel2 xy = pos + dragOffset+computedPos;
+	pixel2 computedPos = position.toPixels(dims, dpmm, pixelRatio);
+	pixel2 xy = pos + dragOffset + computedPos;
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
 	bounds.dimensions = d;
 	switch (origin) {
@@ -208,9 +216,9 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	default:
 		bounds.dimensions = d;
 	}
-	if (parent != nullptr){
+	if (parent != nullptr) {
 		bounds.clamp(parent->bounds);
-		dragOffset=xy-pos-computedPos;
+		dragOffset = xy - pos - computedPos;
 	}
 }
 
@@ -235,20 +243,50 @@ Composite& Composite::add(Region* region) {
 
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr){
-		box2px pbounds=parent->getBounds();
+	if (parent != nullptr) {
+		box2px pbounds = parent->getBounds();
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
-	nvgFontSize(nvg,
-			fontSize.toPixels(context->height(), context->dpmm.y,
-					context->pixelRatio));
-	nvgFillColor(nvg, *fontColor);
+	float th=fontSize.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
+	nvgFontSize(nvg,th);
+	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
+	float tw=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
+
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
 					| static_cast<int>(verticalAlignment));
-	nvgText(nvg, bounds.position.x, bounds.position.y, name.c_str(), nullptr);
+	pixel2 offset(0,0);
+	pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
+	switch(horizontalAlignment){
+		case HorizontalAlignment::Left:
+			offset.x=lineWidth;break;
+		case HorizontalAlignment::Center:
+			offset.x=bounds.dimensions.x/2;break;
+		case HorizontalAlignment::Right:
+			offset.x=bounds.dimensions.x-lineWidth;break;
+	}
+	switch(verticalAlignment){
+			case VerticalAlignment::Top:
+				offset.y=lineWidth;break;
+			case VerticalAlignment::Middle:
+				offset.y=bounds.dimensions.y/2;break;
+			case VerticalAlignment::Bottom:
+			case VerticalAlignment::Baseline:
+				offset.y=bounds.dimensions.y-lineWidth;break;
+	}
+	nvgText(nvg, bounds.position.x+offset.x, bounds.position.y+offset.y, name.c_str(), nullptr);
+	if (borderColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+	}
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -261,16 +299,19 @@ void GlyphRegion::drawDebug(AlloyContext* context) {
 
 void GlyphRegion::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr){
-		box2px pbounds=parent->getBounds();
+	if (parent != nullptr) {
+		box2px pbounds = parent->getBounds();
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
-	pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
+	pixel lineWidth = borderWidth.toPixels(context->height(), context->dpmm.y,
+			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
-				bounds.dimensions.y-lineWidth);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
@@ -280,18 +321,17 @@ void GlyphRegion::draw(AlloyContext* context) {
 
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x+lineWidth*0.5f, bounds.position.y+lineWidth*0.5f, bounds.dimensions.x-lineWidth,
-				bounds.dimensions.y-lineWidth);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg,lineWidth);
+		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
 	}
 }
-std::shared_ptr<Composite> MakeComposite(
-		const std::string& name,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const RGBA& bgColor,
+std::shared_ptr<Composite> MakeComposite(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions, const RGBA& bgColor,
 		const Orientation& orientation) {
 	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
 			new Composite(name));
@@ -303,19 +343,14 @@ std::shared_ptr<Composite> MakeComposite(
 }
 
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
-		const std::shared_ptr<AwesomeGlyph>& glyph,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const RGBA& bgColor,
-		const RGBA& fgColor,
-		const RGBA& borderColor,
-		const AUnit1D& borderWidth) {
+		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
+		const AUnit2D& dimensions, const RGBA& bgColor, const RGBA& fgColor,
+		const RGBA& borderColor, const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			new GlyphRegion(glyph->name));
 	region->glyph = glyph;
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-
 
 	region->backgroundColor = MakeColor(bgColor);
 	region->foregroundColor = MakeColor(fgColor);
@@ -326,13 +361,9 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	return region;
 }
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
-		const std::shared_ptr<ImageGlyph>& glyph,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const AspectRatio& aspectRatio,
-		const RGBA& bgColor,
-		const RGBA& fgColor,
-		const RGBA& borderColor,
+		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
+		const AUnit2D& dimensions, const AspectRatio& aspectRatio,
+		const RGBA& bgColor, const RGBA& fgColor, const RGBA& borderColor,
 		const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			(glyph->name.length() > 0) ?
@@ -349,40 +380,31 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	region->aspect = glyph->width / (float) glyph->height;
 	return region;
 }
-std::shared_ptr<TextLabel> MakeTextLabel(
-		const std::string& name,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const FontType& fontType,
-		const AUnit1D& fontSize,
-		const RGBA& fontColor,
-		const HorizontalAlignment& halign,
+std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const FontType& fontType, const AUnit1D& fontSize,
+		const RGBA& fontColor, const HorizontalAlignment& halign,
 		const VerticalAlignment& valign) {
 	std::shared_ptr<TextLabel> region = std::shared_ptr<TextLabel>(
 			new TextLabel(name));
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-	region->fontColor = MakeColor(fontColor);
+	region->textColor = MakeColor(fontColor);
 	region->fontType = fontType;
 	region->fontSize = fontSize;
 	region->horizontalAlignment = halign;
 	region->verticalAlignment = valign;
 	return region;
 }
-std::shared_ptr<Region> MakeRegionLabel(
-		const std::string& name,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const RGBA& bgColor,
-		const RGBA& borderColor,
-		const AUnit1D& borderWidth) {
-	std::shared_ptr<Region> region = std::shared_ptr<Region>(
-			new Region(name));
+std::shared_ptr<Region> MakeRegionLabel(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions, const RGBA& bgColor,
+		const RGBA& borderColor, const AUnit1D& borderWidth) {
+	std::shared_ptr<Region> region = std::shared_ptr<Region>(new Region(name));
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-	region->backgroundColor=MakeColor(bgColor);
-	region->borderColor=MakeColor(borderColor);
-	region->borderWidth=borderWidth;
+	region->backgroundColor = MakeColor(bgColor);
+	region->borderColor = MakeColor(borderColor);
+	region->borderWidth = borderWidth;
 	return region;
 }
 }

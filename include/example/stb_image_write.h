@@ -69,8 +69,7 @@ extern int stbi_write_tga(char const *filename, int w, int h, int comp,
 }
 #endif
 
-#endif//INCLUDE_STB_IMAGE_WRITE_H#ifdef STB_IMAGE_WRITE_IMPLEMENTATION
-
+#endif//INCLUDE_STB_IMAGE_WRITE_H#ifdef STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -500,11 +499,10 @@ int stbi_write_png(char const *filename, int x, int y, int comp, const void *dat
 	free(png);
 	return 1;
 }
-#endif // STB_IMAGE_WRITE_IMPLEMENTATION/* Revision history
-
- 0.92 (2010-08-01)
- casts to unsigned char to fix warnings
- 0.91 (2010-07-17)
- first public release
- 0.90   first internal release
- */
+#endif // STB_IMAGE_WRITE_IMPLEMENTATION/* Revision history
+0.92 (2010-08-01)
+casts to unsigned char to fix warnings
+0.91 (2010-07-17)
+first public release
+0.90 first internal release
+*/

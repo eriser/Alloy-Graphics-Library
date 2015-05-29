@@ -43,24 +43,38 @@ protected:
 	AUnit2D position;
 	AUnit2D dimensions;
 	bool visible = true;
-	bool dragEnabled=false;
+	bool dragEnabled = false;
 	box2px bounds;
 
 public:
 	Origin origin = Origin::TopLeft;
-	pixel2 dragOffset=pixel2(0,0);
+	pixel2 dragOffset = pixel2(0, 0);
 	const std::string name;
 	AColor backgroundColor = MakeColor(COLOR_NONE);
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
-	inline void setEnableDrag(bool enabled){dragEnabled=enabled;}
+	inline void setEnableDrag(bool enabled) {
+		dragEnabled = enabled;
+	}
 
-	bool isDragEnabled() const {return dragEnabled;}
-	AUnit2D& getPosition(){return position;}
-	AUnit2D& getDimensions(){return dimensions;}
-	box2px getBounds() const {return bounds;}
-	const AUnit2D& getPosition() const {return position;}
-	const AUnit2D& getDimensions() const {return dimensions;}
+	bool isDragEnabled() const {
+		return dragEnabled;
+	}
+	AUnit2D& getPosition() {
+		return position;
+	}
+	AUnit2D& getDimensions() {
+		return dimensions;
+	}
+	box2px getBounds() const {
+		return bounds;
+	}
+	const AUnit2D& getPosition() const {
+		return position;
+	}
+	const AUnit2D& getDimensions() const {
+		return dimensions;
+	}
 	void setPosition(const AUnit2D& pt);
 	void setDimensions(const AUnit2D& dims);
 	void setVisible(bool vis);
@@ -102,11 +116,8 @@ struct Composite: public Region {
 	void draw();
 };
 
-
-		struct GlyphRegion: public Region {
+struct GlyphRegion: public Region {
 	AColor foregroundColor = MakeColor(COLOR_NONE);
-
-
 	std::shared_ptr<Glyph> glyph;
 	GlyphRegion(
 			const std::string& name = MakeString() << "g" << std::setw(8)
@@ -122,10 +133,11 @@ struct Composite: public Region {
 struct TextLabel: public Region {
 	HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left;
 	VerticalAlignment verticalAlignment = VerticalAlignment::Top;
-
+	FontStyle fontStyle=FontStyle::Normal;
 	FontType fontType = FontType::Normal;
 	AUnit1D fontSize = UnitPT(14);
-	AColor fontColor = MakeColor(COLOR_WHITE);
+	AColor textColor = MakeColor(COLOR_WHITE);
+	AColor textAltColor=MakeColor(COLOR_BLACK);
 	TextLabel(
 			const std::string& name = MakeString() << "t" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++)) :
@@ -134,50 +146,36 @@ struct TextLabel: public Region {
 	;
 	void draw(AlloyContext* context);
 };
-std::shared_ptr<Composite> MakeComposite(
-		const std::string& name,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const RGBA& bgColor =COLOR_NONE,
-		const Orientation& orientation = Orientation::Unspecified);
+std::shared_ptr<Composite> MakeComposite(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const RGBA& bgColor = COLOR_NONE, const Orientation& orientation =
+				Orientation::Unspecified);
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
-		const std::shared_ptr<ImageGlyph>& glyph,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const AspectRatio& aspectRatio =AspectRatio::Unspecified,
-		const RGBA& bgColor = COLOR_NONE,
-		const RGBA& fgColor = COLOR_NONE,
-		const RGBA& borderColor = COLOR_NONE,
+		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
+		const AUnit2D& dimensions, const AspectRatio& aspectRatio =
+				AspectRatio::Unspecified, const RGBA& bgColor = COLOR_NONE,
+		const RGBA& fgColor = COLOR_NONE, const RGBA& borderColor = COLOR_NONE,
 		const AUnit1D& borderWidth = UnitPX(2));
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
-		const std::shared_ptr<AwesomeGlyph>& glyph,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const RGBA& bgColor = COLOR_NONE,
-		const RGBA& fgColor =COLOR_NONE,
-		const RGBA& borderColor = COLOR_NONE,
+		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
+		const AUnit2D& dimensions, const RGBA& bgColor = COLOR_NONE,
+		const RGBA& fgColor = COLOR_NONE, const RGBA& borderColor = COLOR_NONE,
 		const AUnit1D& borderWidth = UnitPX(2));
-std::shared_ptr<TextLabel> MakeTextLabel(
-		const std::string& name,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const FontType& fontType,
-		const AUnit1D& fontSize = UnitPT(14.0f),
-		const RGBA& fontColor = COLOR_WHITE,
-		const HorizontalAlignment& halign = HorizontalAlignment::Left,
-		const VerticalAlignment& valign = VerticalAlignment::Top);
-std::shared_ptr<Region> MakeRegionLabel(
-		const std::string& name,
-		const AUnit2D& position,
-		const AUnit2D& dimensions,
-		const RGBA& bgColor=COLOR_NONE,
-		const RGBA& lineColor=COLOR_WHITE,
-		const AUnit1D& lineWidth=UnitPX(2.0f));
+std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const FontType& fontType, const AUnit1D& fontSize = UnitPT(14.0f),
+		const RGBA& fontColor = COLOR_WHITE, const HorizontalAlignment& halign =
+				HorizontalAlignment::Left, const VerticalAlignment& valign =
+				VerticalAlignment::Top);
+std::shared_ptr<Region> MakeRegionLabel(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const RGBA& bgColor = COLOR_NONE, const RGBA& lineColor = COLOR_WHITE,
+		const AUnit1D& lineWidth = UnitPX(2.0f));
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const Region & region) {
 	ss << "Region: " << region.name << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
-	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Position: " << region.getPosition() << std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRatio << std::endl;
@@ -192,7 +190,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	if (region.glyph.get() != nullptr)
 		ss << "\t" << *region.glyph << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
-	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Position: " << region.getPosition() << std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRatio << " (" << region.aspect
@@ -207,12 +205,12 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tHorizontal Alignment: " << region.horizontalAlignment << std::endl;
 	ss << "\tVertical Alignment: " << region.verticalAlignment << std::endl;
-	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Position: " << region.getPosition() << std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;
 	ss << "\tFont Type: " << region.fontType << std::endl;
 	ss << "\tFont Size: " << region.fontSize << std::endl;
-	ss << "\tFont Color: " << region.fontColor << std::endl;
+	ss << "\tFont Color: " << region.textColor << std::endl;
 	if (region.parent != nullptr)
 		ss << "\tParent: " << region.parent->name << std::endl;
 	return ss;
@@ -223,7 +221,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "Composite: " << region.name << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tOrientation: " << region.orientation << std::endl;
-	ss << "\tRelative Position: " << region.getPosition()<< std::endl;
+	ss << "\tRelative Position: " << region.getPosition() << std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBackground Color: " << region.backgroundColor << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;

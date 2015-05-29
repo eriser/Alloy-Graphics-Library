@@ -565,8 +565,8 @@ template<class T, int M> vec<T, M> clamp(const vec<T, M> & v, const T& mn,
 		result[m] = clamp(v[m], mn, mx);
 	return result;
 }
-template<class T, int M> vec<T, M> clamp(const vec<T, M> & v, const vec<T, M>& mn,
-		const vec<T, M>& mx) {
+template<class T, int M> vec<T, M> clamp(const vec<T, M> & v,
+		const vec<T, M>& mn, const vec<T, M>& mx) {
 	vec<T, M> result;
 	for (int m = 0; m < M; m++)
 		result[m] = clamp(v[m], mn[m], mx[m]);
@@ -1281,7 +1281,7 @@ template<class T, int M> struct box {
 	inline void clamp(const box<T, M>& other) {
 		dimensions = aly::min(dimensions, other.dimensions);
 		position = aly::clamp(position, other.position,
-				other.position + other.dimensions-dimensions);
+				other.position + other.dimensions - dimensions);
 
 	}
 

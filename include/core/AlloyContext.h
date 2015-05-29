@@ -145,17 +145,17 @@ private:
 	std::shared_ptr<Font> fonts[4];
 	static std::mutex contextLock;
 	GLFWwindow* current;
-	bool dirtyLayout=false;
-	bool dirtyCursorLocator=false;
-	bool dirtyCursor=false;
+	bool dirtyLayout = false;
+	bool dirtyCursorLocator = false;
+	bool dirtyCursor = false;
 	bool enableDebugInterface = false;
 	Animator animator;
 	CursorLocator cursorLocator;
 	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
 	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
 	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
-	pixel2 lastCursorOffset=pixel2(0,0);
-	bool dragEnabled=false;
+	pixel2 lastCursorOffset = pixel2(0, 0);
+	bool dragEnabled = false;
 	std::chrono::high_resolution_clock::time_point endTime;
 	std::chrono::high_resolution_clock::time_point lastAnimateTime;
 	std::chrono::high_resolution_clock::time_point lastUpdateTime;
@@ -169,20 +169,20 @@ public:
 	box2i viewport;
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
-	bool hasFocus=false;
+	bool hasFocus = false;
 	double pixelRatio;
 
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
 	void update(Composite& rootNode);
-	void requestPack(){
-		dirtyLayout=true;
+	void requestPack() {
+		dirtyLayout = true;
 	}
-	void requestUpdateCursor(){
-		dirtyCursor=true;
+	void requestUpdateCursor() {
+		dirtyCursor = true;
 	}
-	void requestUpdateCursorLocator(){
-		dirtyCursorLocator=true;
+	void requestUpdateCursorLocator() {
+		dirtyCursorLocator = true;
 	}
 	inline void setDebug(bool enabled) {
 		enableDebugInterface = enabled;

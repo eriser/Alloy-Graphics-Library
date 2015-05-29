@@ -118,8 +118,10 @@ void Application::drawDebugUI() {
 	rootNode.drawDebug(context.get());
 	int cr = 6;
 
-	if (context->hasFocus&&context->viewport.contains(
-			int2((int) context->cursorPosition.x, (int) context->cursorPosition.y))) {
+	if (context->hasFocus
+			&& context->viewport.contains(
+					int2((int) context->cursorPosition.x,
+							(int) context->cursorPosition.y))) {
 		nvgFontSize(nvg, 16);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		int alignment = 0;
@@ -139,84 +141,96 @@ void Application::drawDebugUI() {
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
 		const float shift = 1.0f;
 
-		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y, txt.c_str(),
-				nullptr);
-		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y, txt.c_str(),
-				nullptr);
+		nvgText(nvg, context->cursorPosition.x + shift,
+				context->cursorPosition.y, txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x - shift,
+				context->cursorPosition.y, txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y + shift, txt.c_str(),
-				nullptr);
-		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y - shift, txt.c_str(),
-				nullptr);
+		nvgText(nvg, context->cursorPosition.x,
+				context->cursorPosition.y + shift, txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x,
+				context->cursorPosition.y - shift, txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y - shift,
-				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y + shift,
-				txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x + shift,
+				context->cursorPosition.y - shift, txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x + shift,
+				context->cursorPosition.y + shift, txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y - shift,
-				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x + shift, context->cursorPosition.y + shift,
-				txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x + shift,
+				context->cursorPosition.y - shift, txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x + shift,
+				context->cursorPosition.y + shift, txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y - shift,
-				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y + shift,
-				txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x - shift,
+				context->cursorPosition.y - shift, txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x - shift,
+				context->cursorPosition.y + shift, txt.c_str(), nullptr);
 
-		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y - shift,
-				txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x - shift, context->cursorPosition.y + shift,
-				txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x - shift,
+				context->cursorPosition.y - shift, txt.c_str(), nullptr);
+		nvgText(nvg, context->cursorPosition.x - shift,
+				context->cursorPosition.y + shift, txt.c_str(), nullptr);
 
 		nvgFillColor(nvg, Color(220, 220, 220, 255));
-		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y, txt.c_str(),
-				nullptr);
+		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y,
+				txt.c_str(), nullptr);
 		nvgBeginPath(nvg);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgStrokeColor(nvg, Color(255, 255, 255, 255));
-		nvgMoveTo(nvg, context->cursorPosition.x - cr, context->cursorPosition.y);
-		nvgLineTo(nvg, context->cursorPosition.x + cr, context->cursorPosition.y);
-		nvgMoveTo(nvg, context->cursorPosition.x, context->cursorPosition.y - cr);
-		nvgLineTo(nvg, context->cursorPosition.x, context->cursorPosition.y + cr);
+		nvgMoveTo(nvg, context->cursorPosition.x - cr,
+				context->cursorPosition.y);
+		nvgLineTo(nvg, context->cursorPosition.x + cr,
+				context->cursorPosition.y);
+		nvgMoveTo(nvg, context->cursorPosition.x,
+				context->cursorPosition.y - cr);
+		nvgLineTo(nvg, context->cursorPosition.x,
+				context->cursorPosition.y + cr);
 
 		nvgStroke(nvg);
 		nvgBeginPath(nvg);
 		nvgFillColor(nvg, Color(255, 255, 255, 255));
-		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y, 3.0f);
+		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y,
+				3.0f);
 		nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		nvgFillColor(nvg, Color(255, 64, 32, 255));
-		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y, 1.5f);
+		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y,
+				1.5f);
 		nvgFill(nvg);
 
 	}
 	nvgEndFrame(nvg);
 }
 void Application::fireEvent(const InputEvent& event) {
-	if (event.type == InputType::Cursor||event.type==InputType::MouseButton) {
+	if (event.type == InputType::Cursor
+			|| event.type == InputType::MouseButton) {
 		context->requestUpdateCursor();
 	}
-	if(event.type==InputType::MouseButton){
-		if(event.isMouseDown()){
-			context->mouseDownRegion=context->cursorLocator.locate(context->cursorPosition);
-			context->cursorDownPosition=context->cursorPosition;
-			if(context->mouseDownRegion!=nullptr&&event.button==GLFW_MOUSE_BUTTON_LEFT){
-				context->lastCursorOffset=context->mouseDownRegion->dragOffset;
-				context->dragEnabled=true;
+	if (event.type == InputType::MouseButton) {
+		if (event.isMouseDown()) {
+			context->mouseDownRegion = context->cursorLocator.locate(
+					context->cursorPosition);
+			context->cursorDownPosition = context->cursorPosition;
+			if (context->mouseDownRegion
+					!= nullptr&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
+				context->lastCursorOffset =
+						context->mouseDownRegion->dragOffset;
+				context->dragEnabled = true;
 			}
-		} else if(event.isMouseUp()){
-			context->mouseDownRegion=nullptr;
-			context->dragEnabled=false;
-			context->lastCursorOffset=pixel2(0,0);
-			context->cursorDownPosition=pixel2(-1,-1);
+		} else if (event.isMouseUp()) {
+			context->mouseDownRegion = nullptr;
+			context->dragEnabled = false;
+			context->lastCursorOffset = pixel2(0, 0);
+			context->cursorDownPosition = pixel2(-1, -1);
 		}
 	}
 
-	if(context->mouseDownRegion!=nullptr&&context->dragEnabled&&context->mouseDownRegion->isDragEnabled()){
-		context->mouseDownRegion->dragOffset=context->cursorPosition-context->cursorDownPosition+context->lastCursorOffset;
+	if (context->mouseDownRegion != nullptr && context->dragEnabled
+			&& context->mouseDownRegion->isDragEnabled()) {
+		context->mouseDownRegion->dragOffset = context->cursorPosition
+				- context->cursorDownPosition + context->lastCursorOffset;
 		context->requestPack();
 	}
 }
@@ -230,7 +244,7 @@ void Application::onWindowSize(int width, int height) {
 	}
 }
 void Application::onCursorPos(double xpos, double ypos) {
-	context->hasFocus=true;
+	context->hasFocus = true;
 	context->cursorPosition = pixel2((pixel) xpos, (pixel) ypos);
 	InputEvent e;
 	e.type = InputType::Cursor;
@@ -238,32 +252,32 @@ void Application::onCursorPos(double xpos, double ypos) {
 	fireEvent(e);
 }
 
-void Application::onWindowFocus(int focused){
-	if(focused){
-		context->hasFocus=true;
+void Application::onWindowFocus(int focused) {
+	if (focused) {
+		context->hasFocus = true;
 
 		InputEvent e;
 		e.type = InputType::Cursor;
 		e.cursor = context->cursorPosition;
 		fireEvent(e);
 	} else {
-		context->mouseOverRegion=nullptr;
-		context->mouseDownRegion=nullptr;
-		context->cursorPosition=pixel2(-1,-1);
-		context->cursorDownPosition=pixel2(-1,-1);
-		context->hasFocus=false;
+		context->mouseOverRegion = nullptr;
+		context->mouseDownRegion = nullptr;
+		context->cursorPosition = pixel2(-1, -1);
+		context->cursorDownPosition = pixel2(-1, -1);
+		context->hasFocus = false;
 	}
 }
 void Application::onCursorEnter(int enter) {
 	if (!enter) {
-		context->hasFocus=false;
-		context->mouseOverRegion=nullptr;
+		context->hasFocus = false;
+		context->mouseOverRegion = nullptr;
 		InputEvent e;
 		e.type = InputType::Cursor;
 		e.cursor = pixel2(-1, -1);
 		fireEvent(e);
-	}else {
-		context->hasFocus=true;
+	} else {
+		context->hasFocus = true;
 	}
 }
 void Application::onScroll(double xoffset, double yoffset) {
@@ -326,11 +340,13 @@ void Application::run(int swapInterval) {
 	glfwSetTime(0);
 	uint64_t frameCounter = 0;
 	std::chrono::high_resolution_clock::time_point endTime;
-	std::chrono::high_resolution_clock::time_point lastFpsTime =std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point lastFpsTime =
+			std::chrono::high_resolution_clock::now();
 	do {
 		draw();
 		context->update(rootNode);
-		double elapsed =std::chrono::duration<double>(endTime - lastFpsTime).count();
+		double elapsed =
+				std::chrono::duration<double>(endTime - lastFpsTime).count();
 		frameCounter++;
 		if (elapsed > POLL_INTERVAL_SEC) {
 			frameRate = (float) (frameCounter / elapsed);

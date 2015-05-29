@@ -53,6 +53,9 @@ enum class Orientation {
 enum class FontType {
 	Normal = 0, Bold = 1, Italic = 2, Icon = 3
 };
+enum class FontStyle {
+	Normal = 0, Shadow = 1, Glow = 2, Outline = 3
+};
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const GlyphType& type) {
 	switch (type) {
@@ -91,6 +94,20 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		return ss << "Italic";
 	case FontType::Icon:
 		return ss << "Icon";
+	}
+	return ss;
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const FontStyle& type) {
+	switch (type) {
+	case FontStyle::Normal:
+		return ss << "Normal";
+	case FontStyle::Shadow:
+		return ss << "Shadow";
+	case FontStyle::Glow:
+		return ss << "Glow";
+	case FontStyle::Outline:
+		return ss << "Outline";
 	}
 	return ss;
 }

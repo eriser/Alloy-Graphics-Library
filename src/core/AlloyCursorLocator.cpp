@@ -23,8 +23,8 @@
 namespace aly {
 void CursorLocator::reset(int2 viewportDims) {
 	std::lock_guard<std::mutex> lockMe(lock);
-	cellSize.x = std::max((pixel)1,viewportDims.x / (pixel) ROWS);
-	cellSize.y = std::max((pixel)1,viewportDims.y / (pixel) COLS);
+	cellSize.x = std::max((pixel) 1, viewportDims.x / (pixel) ROWS);
+	cellSize.y = std::max((pixel) 1, viewportDims.y / (pixel) COLS);
 	for (int j = 0; j < COLS; j++) {
 		for (int i = 0; i < ROWS; i++) {
 			grid[i][j].clear();
@@ -33,13 +33,11 @@ void CursorLocator::reset(int2 viewportDims) {
 }
 void CursorLocator::add(Region* region) {
 	std::lock_guard<std::mutex> lockMe(lock);
-	box2px bounds=region->getBounds();
+	box2px bounds = region->getBounds();
 	int2 start = clamp(int2(bounds.position / cellSize), lowerBounds,
 			upperBounds);
-	int2 end = clamp(
-			int2(
-					(bounds.position + bounds.dimensions)
-							/ cellSize), lowerBounds, upperBounds);
+	int2 end = clamp(int2((bounds.position + bounds.dimensions) / cellSize),
+			lowerBounds, upperBounds);
 	for (int j = (int) start.y; j <= (int) end.y; j++) {
 		for (int i = (int) start.x; i <= (int) end.x; i++) {
 			grid[i][j].push_front(region);
