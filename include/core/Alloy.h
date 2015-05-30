@@ -26,6 +26,7 @@
 #include "AlloyMath.h"
 #include "AlloyImage.h"
 #include "AlloyUI.h"
+#include "AlloyWidget.h"
 #include "GLShader.h"
 #include "AlloyContext.h"
 #include "AlloyApplication.h"

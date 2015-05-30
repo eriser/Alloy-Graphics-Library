@@ -27,7 +27,7 @@ ExampleUI::ExampleUI() :
 bool ExampleUI::init(Composite& rootNode) {
 	TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
 			CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
-			RGBA(255, 255, 255, 255), HorizontalAlignment::Right,
+			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
 			VerticalAlignment::Baseline);
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
@@ -40,9 +40,11 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
 			RGBA(255, 255, 255, 255));
 	imgr->origin = Origin::Center;
+
+	/*
 	addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 			Color(128, 128, 128, 0), 3.0, SineOut());
-	std::cout << "Add Tween" << std::endl;
+
 	addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0,
 			SineOut())->addCompleteEvent(
 			[](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
@@ -54,8 +56,9 @@ bool ExampleUI::init(Composite& rootNode) {
 			ExponentialOut())->addCompleteEvent(
 			[](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
-	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.2, 0.3),
-			CoordPX(400, 300), RGBA(128, 32, 32, 255));
+	*/
+	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
+			CoordPercent(0.5f, 1.0f), RGBA(64,64,64, 255));
 
 	RegionPtr scrollHandle = MakeRegionLabel("Scroll Handle",
 			CoordPercent(0.0, 0.0), CoordPX(30, 30), RGBA(255, 128, 64, 255),
@@ -65,18 +68,19 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPercent(0.2, 0.7), CoordPX(300, 30), RGBA(128, 128, 128, 255));
 	scrollTrack->add(scrollHandle);
 	iconr->setEnableDrag(true);
-	comp->add(label);
+	//comp->add(label);
+
+	ButtonPtr button1=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.2,0.5,0,0),CoordPX(140,50)));
+	ButtonPtr button2=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.8,0.5,-140,0),CoordPX(140,50)));
 
 	rootNode.add(comp);
-	rootNode.add(imgr);
-	rootNode.add(iconr);
-	rootNode.add(scrollTrack);
-	getContext()->toggleDebug();
-	std::cout << *imgr << std::endl;
-	std::cout << *label << std::endl;
-	std::cout << *comp << std::endl;
-	std::cout << *iconr << std::endl;
-
+	//rootNode.add(imgr);
+	//rootNode.add(iconr);
+	//rootNode.add(scrollTrack);
+	rootNode.backgroundColor=MakeColor(Color(220,220,220,255));
+	rootNode.add(button1);
+	rootNode.add(button2);
+	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;
 	return true;

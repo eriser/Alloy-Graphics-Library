@@ -228,17 +228,15 @@ void Composite::pack(AlloyContext* context) {
 			context->pixelRatio);
 }
 
-Composite& Composite::add(const std::shared_ptr<Region>& region) {
+void Composite::add(const std::shared_ptr<Region>& region) {
 	children.push_back(region);
 	if (region->parent != nullptr)
 		throw std::runtime_error(
 				"Cannot add child node because it already has a parent.");
 	region->parent = this;
-	return *this;
 }
-Composite& Composite::add(Region* region) {
-	children.push_back(std::shared_ptr<Region>(region));
-	return *this;
+void Composite::add(Region* region) {
+	add(std::shared_ptr<Region>(region));
 }
 
 void TextLabel::draw(AlloyContext* context) {
@@ -253,7 +251,6 @@ void TextLabel::draw(AlloyContext* context) {
 	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
 	float tw=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
-
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
 					| static_cast<int>(verticalAlignment));

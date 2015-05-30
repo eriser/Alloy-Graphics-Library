@@ -40,12 +40,11 @@ protected:
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
 	static uint64_t REGION_COUNTER;
-	AUnit2D position;
-	AUnit2D dimensions;
+	AUnit2D position=CoordPercent(0.0f,0.0f);
+	AUnit2D dimensions=CoordPercent(1.0f,1.0f);
 	bool visible = true;
 	bool dragEnabled = false;
 	box2px bounds;
-
 public:
 	Origin origin = Origin::TopLeft;
 	pixel2 dragOffset = pixel2(0, 0);
@@ -53,10 +52,14 @@ public:
 	AColor backgroundColor = MakeColor(COLOR_NONE);
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
+
+	std::function<void(const InputEvent& event)> onMouseClick;
+	std::function<void(const InputEvent& event)> onMouseOver;
+	std::function<void(const InputEvent& event,const pixel2& lastDragPosition)> onMouseDrag;
+
 	inline void setEnableDrag(bool enabled) {
 		dragEnabled = enabled;
 	}
-
 	bool isDragEnabled() const {
 		return dragEnabled;
 	}
@@ -103,15 +106,15 @@ struct Composite: public Region {
 					<< std::setfill('0') << (REGION_COUNTER++)) :
 			Region(name) {
 	}
-	;
+
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
 	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio) override;
 	void pack(AlloyContext* context);
-	Composite& add(const std::shared_ptr<Region>& region);
-	Composite& add(Region* region); //After add(), composite will own region and be responsible for destroying it.
+	virtual void add(const std::shared_ptr<Region>& region);
+	void add(Region* region); //After add(), composite will own region and be responsible for destroying it.
 	void pack();
 	void draw();
 };

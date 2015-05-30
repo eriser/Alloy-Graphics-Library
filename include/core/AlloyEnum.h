@@ -42,7 +42,7 @@ enum class VerticalAlignment {
 	Baseline = NVG_ALIGN_BASELINE
 };
 enum class AspectRatio {
-	Unspecified, FixedWidth, FixedHeight
+	Unspecified, FixedWidth, FixedHeight,
 };
 enum class Shape {
 	Rectangle, Ellipse

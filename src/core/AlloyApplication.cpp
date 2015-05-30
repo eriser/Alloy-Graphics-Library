@@ -226,12 +226,19 @@ void Application::fireEvent(const InputEvent& event) {
 			context->cursorDownPosition = pixel2(-1, -1);
 		}
 	}
-
 	if (context->mouseDownRegion != nullptr && context->dragEnabled
 			&& context->mouseDownRegion->isDragEnabled()) {
 		context->mouseDownRegion->dragOffset = context->cursorPosition
 				- context->cursorDownPosition + context->lastCursorOffset;
+		if(context->mouseDownRegion->onMouseDrag)context->mouseDownRegion->onMouseDrag(event,context->cursorDownPosition);
 		context->requestPack();
+	} else if(context->mouseOverRegion!=nullptr){
+		if(event.type==InputType::MouseButton){
+			if(context->mouseOverRegion->onMouseClick)context->mouseOverRegion->onMouseClick(event);
+		}
+		if(event.type==InputType::Cursor){
+			if(context->mouseOverRegion->onMouseOver)context->mouseOverRegion->onMouseOver(event);
+		}
 	}
 }
 

@@ -24,20 +24,24 @@
 
 #include "AlloyUI.h"
 namespace aly {
-class Button: public Composite{
-private:
-	std::list<std::function<void(Button*)>> onClickListeners;
-	std::list<std::function<void(Button*)>> onMouseOverListeners;
-	std::list<std::function<void(Button*)>> onMouseOutListeners;
-	TextLabel textLabel;
+class Widget: public Composite{
 public:
-	Button(const std::string& label):Composite(),textLabel(label){
-	}
-	void setBackgroundColor(const AColor& c){backgroundColor=c;}
-	void setTextColor(const AColor& c){textLabel.textColor=c;};
+	Widget(const std::string& name=""):Composite(name){}
+	virtual void onMouseOver(Region* region,const InputEvent& event){}
+	virtual void onMouseClick(Region* region,const InputEvent& event){}
+	virtual void onMouseDrag(Region* region,const InputEvent& event,const pixel2& lastDragPosition){}
+	virtual void add(const std::shared_ptr<Region>& region) override;
+};
+class Button: public Widget{
+private:
+	AColor textColor;
+	AUnit1D fontSize;
+public:
+	Button(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions);
 	virtual void  draw(AlloyContext* context) override;
 	virtual inline ~Button(){};
 };
+typedef std::shared_ptr<Button> ButtonPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

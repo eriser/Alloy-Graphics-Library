@@ -141,7 +141,8 @@ bool SANITY_CHECK_UI() {
 	TextLabel* r1 = new TextLabel();
 	TextLabel* r2 = new TextLabel("region 2");
 	Composite comp;
-	comp.add(r1).add(r2);
+	comp.add(r1);
+	comp.add(r2);
 	return true;
 }
 bool SANITY_CHECK_FILE_IO() {

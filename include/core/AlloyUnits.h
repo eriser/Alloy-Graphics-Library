@@ -56,16 +56,16 @@ public:
 		t = std::min(1.0, t + dt);
 	}
 	void operator-=(const double& dt) {
-		t = std::max(0.0, t + dt);
+		t = std::max(0.0, t - dt);
 	}
 	void operator=(const double& val) {
 		t = clamp(val, 0.0, 1.0);
 	}
 	void operator+=(const float& dt) {
-		t = std::min(1.0, t + dt);
+		t = std::min(1.0, t + (double)dt);
 	}
 	void operator-=(const float& dt) {
-		t = std::max(0.0, t - dt);
+		t = std::max(0.0, t - (double)dt);
 	}
 	void operator=(const float& val) {
 		t = clamp(val, 0.0f, 1.0f);
