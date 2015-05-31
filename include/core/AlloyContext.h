@@ -161,6 +161,8 @@ private:
 	std::chrono::high_resolution_clock::time_point lastUpdateTime;
 	std::chrono::high_resolution_clock::time_point lastCursorTime;
 	pixel2 cursorDownPosition = pixel2(-1, -1);
+	Region* mouseOverRegion = nullptr;
+	Region* mouseDownRegion = nullptr;
 public:
 	friend class Application;
 	NVGcontext* nvgContext;
@@ -170,10 +172,14 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
+	inline bool isMouseOver(Region* region){
+		return (mouseOverRegion==region);
+	}
+	inline bool isMouseDown(Region* region){
+		return (mouseDownRegion==region);
+	}
 	double pixelRatio;
 
-	Region* mouseOverRegion = nullptr;
-	Region* mouseDownRegion = nullptr;
 	void update(Composite& rootNode);
 	void requestPack() {
 		dirtyLayout = true;

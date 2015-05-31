@@ -41,7 +41,30 @@ public:
 	virtual void  draw(AlloyContext* context) override;
 	virtual inline ~Button(){};
 };
+class ScrollHandle: public Region{
+public:
+	ScrollHandle(const std::string& name):Region(name){}
+	virtual void  draw(AlloyContext* context) override;
+};
+class ScrollTrack: public Composite{
+public:
+	ScrollTrack(const std::string& name):Composite(name){}
+
+	virtual void  draw(AlloyContext* context) override;
+};
+class HorizontalSlider: public Widget{
+private:
+	AColor textColor;
+	AUnit1D fontSize;
+public:
+	HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions);
+	virtual void  draw(AlloyContext* context) override;
+	virtual inline ~HorizontalSlider(){};
+};
+
 typedef std::shared_ptr<Button> ButtonPtr;
+typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
+
 }
 
 #endif /* ALLOYWIDGET_H_ */

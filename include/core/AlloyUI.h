@@ -84,8 +84,7 @@ public:
 	AspectRatio aspectRatio = AspectRatio::Unspecified;
 	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
-	Region(
-			const std::string& name = MakeString() << "r" << std::setw(8)
+	Region(const std::string& name = MakeString() << "r" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio);

@@ -41,7 +41,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(255, 255, 255, 255));
 	imgr->origin = Origin::Center;
 
-	/*
+/*
 	addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 			Color(128, 128, 128, 0), 3.0, SineOut());
 
@@ -56,7 +56,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			ExponentialOut())->addCompleteEvent(
 			[](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
-	*/
+*/
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), RGBA(64,64,64, 255));
 
@@ -70,9 +70,10 @@ bool ExampleUI::init(Composite& rootNode) {
 	iconr->setEnableDrag(true);
 	//comp->add(label);
 
-	ButtonPtr button1=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.2,0.5,0,0),CoordPX(140,50)));
+	ButtonPtr button1=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.1,0.1,0,0),CoordPX(140,50)));
 	ButtonPtr button2=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.8,0.5,-140,0),CoordPX(140,50)));
-
+	HSliderPtr hslider=std::shared_ptr<HorizontalSlider>(new HorizontalSlider("H Slider",CoordPerPX(0.1,0.3,0,0),CoordPX(200,50)));
+	button2->setEnableDrag(true);
 	rootNode.add(comp);
 	//rootNode.add(imgr);
 	//rootNode.add(iconr);
@@ -80,6 +81,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor=MakeColor(Color(220,220,220,255));
 	rootNode.add(button1);
 	rootNode.add(button2);
+	rootNode.add(hslider);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;

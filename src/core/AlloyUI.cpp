@@ -78,8 +78,8 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			|| context->cursorPosition.y < 0)
 		return;
 	NVGcontext* nvg = context->nvgContext;
-	bool hover = (this == context->mouseOverRegion);
-	bool down = (this == context->mouseDownRegion);
+	bool hover =context->isMouseOver(this);
+	bool down = context->isMouseDown(this);
 	Color c;
 	if (down) {
 		c = DEBUG_DOWN_COLOR;

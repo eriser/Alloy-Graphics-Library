@@ -444,7 +444,25 @@ struct ColorTween: public Tweenable, Color {
 	}
 
 };
+inline AColor MakeColor(int r,int g,int b,int a) {
+	return AColor(new Color(r,g,b,a));
+}
 
+inline AColor MakeColor(unsigned char r, unsigned char g,unsigned char b,unsigned char a) {
+	return AColor(new Color(r,g,b,a));
+}
+inline AColor MakeColor(float r, float g,float b,float a) {
+	return AColor(new Color(r,g,b,a));
+}
+inline AColor MakeColor(int r,int g,int b) {
+	return AColor(new Color(r,g,b));
+}
+inline AColor MakeColor(unsigned char r, unsigned char g,unsigned char b) {
+	return AColor(new Color(r,g,b));
+}
+inline AColor MakeColor(float r, float g,float b) {
+	return AColor(new Color(r,g,b));
+}
 inline AColor MakeColor(const Color& c) {
 	return AColor(new Color(c));
 }

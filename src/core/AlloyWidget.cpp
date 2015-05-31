@@ -37,10 +37,95 @@ namespace aly{
 		borderColor=MakeColor(Color(255,255,255,255));
 		this->aspectRatio=AspectRatio::FixedHeight;
 	}
-	void Button::draw(AlloyContext* context){
+	void ScrollTrack::draw(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
 
-		bool hover=(context->mouseOverRegion==this);
-		bool down=(context->mouseDownRegion==this);
+		nvgBeginPath(nvg);
+		nvgMoveTo(nvg,bounds.position.x+15,bounds.position.y+bounds.dimensions.y*0.5f);
+		nvgLineTo(nvg,bounds.position.x-15+bounds.dimensions.x,bounds.position.y+bounds.dimensions.y*0.5f);
+		nvgStrokeColor(nvg,Color(255,255,255,255));
+		nvgStrokeWidth(nvg,8.0f);
+		nvgLineCap(nvg,NVG_ROUND);
+		nvgStroke(nvg);
+		for(std::shared_ptr<Region> ptr:children){
+			ptr->draw(context);
+		}
+	}
+	void ScrollHandle::draw(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		if(context->isMouseOver(this)||context->isMouseDown(this)){
+			nvgBeginPath(nvg);
+			nvgCircle(nvg,bounds.position.x+bounds.dimensions.x*0.5f,bounds.position.y+bounds.dimensions.y*0.5f,bounds.dimensions.y*0.5f);
+			nvgFillColor(nvg,Color(220,220,220,128));
+			nvgFill(nvg);
+		}
+		nvgBeginPath(nvg);
+		nvgCircle(nvg,bounds.position.x+bounds.dimensions.x*0.5f,bounds.position.y+bounds.dimensions.y*0.5f,bounds.dimensions.y*0.25f);
+		nvgFillColor(nvg,Color(255,255,255,255));
+		nvgFill(nvg);
+
+		nvgBeginPath(nvg);
+		nvgStrokeWidth(nvg,2.0f);
+		nvgStrokeColor(nvg,Color(128,128,128,128));
+		nvgCircle(nvg,bounds.position.x+bounds.dimensions.x*0.5f,bounds.position.y+bounds.dimensions.y*0.5f,bounds.dimensions.y*0.25f);
+		nvgStroke(nvg);
+
+	}
+	HorizontalSlider::HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions):Widget(label){
+		this->position=position;
+		this->dimensions=dimensions;
+		textColor=MakeColor(Color(0,0,0,255));
+		borderColor=MakeColor(Color(255,255,255,255));
+		std::shared_ptr<ScrollHandle> scrollHandle =std::shared_ptr<ScrollHandle>(new ScrollHandle("Scroll Handle"));
+
+		scrollHandle->setPosition(CoordPercent(0.0, 0.0));
+		scrollHandle->setDimensions(CoordPX(30, 30));
+		scrollHandle->backgroundColor=MakeColor(255, 128, 64, 255);
+		scrollHandle->setEnableDrag(true);
+
+		std::shared_ptr<ScrollTrack> scrollTrack = std::shared_ptr<ScrollTrack>(new ScrollTrack("Scroll Track"));
+		scrollTrack->setPosition(CoordPerPX(0.0f, 0.5f,0.0f,-5.0f));
+		scrollTrack->setDimensions(CoordPerPX(1.0f, 0.0f,0.0f,30.0f));
+		scrollTrack->backgroundColor=MakeColor(128, 128, 128, 255);
+		scrollTrack->add(scrollHandle);
+		scrollTrack->backgroundColor=MakeColor(255,0,0);
+
+		add(MakeTextLabel("Label",CoordPerPX(0.0f,0.0f,10,0),CoordPerPX(0.5f,1.0f,0,-21),FontType::Bold,UnitPX(26),RGBA(255,255,255,255),HorizontalAlignment::Left,VerticalAlignment::Bottom));
+		add(MakeTextLabel("0.12345",CoordPercent(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-10,-21),FontType::Normal,UnitPX(24),RGBA(255,255,255,255),HorizontalAlignment::Right,VerticalAlignment::Bottom));
+
+		add(scrollTrack);
+	}
+
+	void HorizontalSlider::draw(AlloyContext* context){
+		NVGcontext* nvg=context->nvgContext;
+		float cornerRadius=5.0f;
+		nvgBeginPath(nvg);
+			NVGpaint shadowPaint = nvgBoxGradient(nvg,
+									bounds.position.x+1,
+									bounds.position.y,
+									bounds.dimensions.x-2,
+									bounds.dimensions.y,cornerRadius,8,Color(0,0,0,255),Color(255,255,255,0));
+			nvgFillPaint(nvg, shadowPaint);
+			nvgRoundedRect(nvg,
+					bounds.position.x+1,
+					bounds.position.y+4,
+					bounds.dimensions.x,
+					bounds.dimensions.y,4.0f);
+			nvgFill(nvg);
+
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x,
+				bounds.position.y,
+				bounds.dimensions.x,
+				bounds.dimensions.y,cornerRadius);
+		nvgFillColor(nvg,Color(64,64,64,255));
+		nvgFill(nvg);
+		Composite::draw(context);
+
+	}
+	void Button::draw(AlloyContext* context){
+		bool hover =context->isMouseOver(this);
+		bool down = context->isMouseDown(this);
 		NVGcontext* nvg=context->nvgContext;
 		float cornerRadius=5.0f;
 		float lineWidth=2.0f;
@@ -52,7 +137,7 @@ namespace aly{
 			yoff=2;
 		}
 
-		if(hover){
+		if(hover||down){
 			if(!down){
 			nvgBeginPath(nvg);
 				NVGpaint shadowPaint = nvgBoxGradient(nvg,

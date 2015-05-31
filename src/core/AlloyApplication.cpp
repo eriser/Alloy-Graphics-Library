@@ -228,8 +228,9 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if (context->mouseDownRegion != nullptr && context->dragEnabled
 			&& context->mouseDownRegion->isDragEnabled()) {
-		context->mouseDownRegion->dragOffset = context->cursorPosition
-				- context->cursorDownPosition + context->lastCursorOffset;
+		pixel2 dragOffset=context->cursorPosition - context->cursorDownPosition + context->lastCursorOffset;
+		pixel2 delta=context->mouseDownRegion->getBounds().position-context->mouseDownRegion->dragOffset;
+		context->mouseDownRegion->dragOffset =context->mouseDownRegion->getBounds().clamp(dragOffset+delta,context->mouseDownRegion->parent->getBounds())-delta;
 		if(context->mouseDownRegion->onMouseDrag)context->mouseDownRegion->onMouseDrag(event,context->cursorDownPosition);
 		context->requestPack();
 	} else if(context->mouseOverRegion!=nullptr){
