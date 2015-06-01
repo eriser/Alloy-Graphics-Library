@@ -40,24 +40,27 @@ protected:
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
 	static uint64_t REGION_COUNTER;
-	AUnit2D position=CoordPercent(0.0f,0.0f);
-	AUnit2D dimensions=CoordPercent(1.0f,1.0f);
+	AUnit2D position = CoordPercent(0.0f, 0.0f);
+	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 	bool visible = true;
 	bool dragEnabled = false;
+	pixel2 dragOffset = pixel2(0, 0);
 	box2px bounds;
 public:
 	Origin origin = Origin::TopLeft;
-	pixel2 dragOffset = pixel2(0, 0);
 	const std::string name;
 	AColor backgroundColor = MakeColor(COLOR_NONE);
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 
-	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseDown;
-	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseUp;
-	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseOver;
-	std::function<void(AlloyContext* context,const InputEvent& event,const pixel2& lastDragPosition)> onMouseDrag;
-	void setDragOffset(const pixel2&  cursor,const pixel2& delta);
+	std::function<void()> onPack;
+	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseDown;
+	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseUp;
+	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseOver;
+	std::function<
+			void(AlloyContext* context, const InputEvent& event,
+					const pixel2& mouseDownOffset)> onMouseDrag;
+	void setDragOffset(const pixel2& cursor, const pixel2& delta);
 	inline void setEnableDrag(bool enabled) {
 		dragEnabled = enabled;
 	}
@@ -73,22 +76,22 @@ public:
 	box2px getBounds() const {
 		return bounds;
 	}
-	pixel2 getBoundsPosition()  const {
+	pixel2 getBoundsPosition() const {
 		return bounds.position;
 	}
-	pixel2 getBoundsDimensions()  const {
+	pixel2 getBoundsDimensions() const {
 		return bounds.dimensions;
 	}
-	pixel getBoundsPositionX()  const {
+	pixel getBoundsPositionX() const {
 		return bounds.position.x;
 	}
-	pixel getBoundsDimensionsX()  const {
+	pixel getBoundsDimensionsX() const {
 		return bounds.dimensions.x;
 	}
-	pixel getBoundsPositionY()  const {
+	pixel getBoundsPositionY() const {
 		return bounds.position.y;
 	}
-	pixel getBoundsDimensionsY()  const {
+	pixel getBoundsDimensionsY() const {
 		return bounds.dimensions.y;
 	}
 	const AUnit2D& getPosition() const {
@@ -103,7 +106,8 @@ public:
 	AspectRatio aspectRatio = AspectRatio::Unspecified;
 	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
-	Region(const std::string& name = MakeString() << "r" << std::setw(8)
+	Region(
+			const std::string& name = MakeString() << "r" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio);
@@ -154,16 +158,16 @@ struct GlyphRegion: public Region {
 struct TextLabel: public Region {
 	HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left;
 	VerticalAlignment verticalAlignment = VerticalAlignment::Top;
-	FontStyle fontStyle=FontStyle::Normal;
+	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
-	AUnit1D fontSize = UnitPT(14);
+	AUnit1D fontSize = UnitPX(14);
 	AColor textColor = MakeColor(COLOR_WHITE);
-	AColor textAltColor=MakeColor(COLOR_BLACK);
+	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::string label;
 	TextLabel(
 			const std::string& name = MakeString() << "t" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++)) :
-			Region(name),label(name) {
+			Region(name), label(name) {
 	}
 	;
 	void draw(AlloyContext* context);

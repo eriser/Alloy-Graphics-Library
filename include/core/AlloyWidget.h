@@ -24,54 +24,93 @@
 
 #include "AlloyUI.h"
 namespace aly {
-class Widget: public Composite{
+class Widget: public Composite {
 public:
-	Widget(const std::string& name=""):Composite(name){}
-	virtual void onMouseOver(AlloyContext* context,Region* region,const InputEvent& event){}
-	virtual void onMouseDown(AlloyContext* context,Region* region,const InputEvent& event){}
-	virtual void onMouseUp(AlloyContext* context,Region* region,const InputEvent& event){}
-	virtual void onMouseDrag(AlloyContext* context,Region* region,const InputEvent& event,const pixel2& lastDragPosition){}
+	Widget(const std::string& name = "") :
+			Composite(name) {
+	}
+	virtual void onMouseOver(AlloyContext* context, Region* region,
+			const InputEvent& event) {
+	}
+	virtual void onMouseDown(AlloyContext* context, Region* region,
+			const InputEvent& event) {
+	}
+	virtual void onMouseUp(AlloyContext* context, Region* region,
+			const InputEvent& event) {
+	}
+	virtual void onMouseDrag(AlloyContext* context, Region* region,
+			const InputEvent& event, const pixel2& lastDragPosition) {
+	}
 	virtual void add(const std::shared_ptr<Region>& region) override;
 };
-class Button: public Widget{
+class Button: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
 public:
-	Button(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions);
-	virtual void  draw(AlloyContext* context) override;
-	virtual inline ~Button(){};
+	Button(const std::string& label, const AUnit2D& position,
+			const AUnit2D& dimensions);
+	virtual void draw(AlloyContext* context) override;
+	virtual inline ~Button() {
+	}
+	;
 };
-class ScrollHandle: public Region{
+class ScrollHandle: public Region {
 public:
-	ScrollHandle(const std::string& name):Region(name){}
-	virtual void  draw(AlloyContext* context) override;
+	ScrollHandle(const std::string& name) :
+			Region(name) {
+	}
+	virtual void draw(AlloyContext* context) override;
 };
-class ScrollTrack: public Composite{
+class ScrollTrack: public Composite {
 public:
-	ScrollTrack(const std::string& name):Composite(name){}
-	virtual void  draw(AlloyContext* context) override;
+	ScrollTrack(const std::string& name) :
+			Composite(name) {
+	}
+	virtual void draw(AlloyContext* context) override;
 };
-class HorizontalSlider: public Widget{
+class HorizontalSlider: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
 	Number value;
 	Number minValue;
 	Number maxValue;
+
+	TextLabelPtr sliderLabel;
 	TextLabelPtr valueLabel;
 	std::shared_ptr<ScrollHandle> scrollHandle;
 	std::shared_ptr<ScrollTrack> scrollTrack;
-	std::function<std::string(const Number& value)> labelFormatter=[](const Number& value){return value.toString();};
+	std::function<std::string(const Number& value)> labelFormatter =
+			[](const Number& value) {return value.toString();};
 	void update();
 public:
-	virtual void onMouseDown(AlloyContext* context,Region* region,const InputEvent& event) override;
-	virtual void onMouseUp(AlloyContext* context,Region* region,const InputEvent& event) override;
-	virtual void onMouseDrag(AlloyContext* context,Region* region,const InputEvent& event,const pixel2& lastDragPosition) override;
-	inline void setLabelFormatter(const std::function<const std::string&(const Number& value)>& func){labelFormatter=func;}
-	HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions,const Number& minValue=Float(0.0f),const Number& maxValue=Float(1.0f),const Number& value=Float(0.0f));
-	virtual void  draw(AlloyContext* context) override;
-	virtual inline ~HorizontalSlider(){};
+	void setValue(double value);
+	inline void setValue(int value) {
+		setValue((double) value);
+	}
+	inline void setValue(float value) {
+		setValue((double) value);
+	}
+
+	virtual void onMouseDown(AlloyContext* context, Region* region,
+			const InputEvent& event) override;
+	virtual void onMouseUp(AlloyContext* context, Region* region,
+			const InputEvent& event) override;
+	virtual void onMouseDrag(AlloyContext* context, Region* region,
+			const InputEvent& event, const pixel2& lastDragPosition) override;
+	inline void setLabelFormatter(
+			const std::function<const std::string&(const Number& value)>& func) {
+		labelFormatter = func;
+	}
+	HorizontalSlider(const std::string& label, const AUnit2D& position,
+			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
+			const Number& maxValue = Float(1.0f),
+			const Number& value = Float(0.0f));
+	virtual void draw(AlloyContext* context) override;
+	virtual inline ~HorizontalSlider() {
+	}
+	;
 };
 
 typedef std::shared_ptr<Button> ButtonPtr;

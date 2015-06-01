@@ -50,7 +50,7 @@ void Region::setVisible(bool vis) {
 }
 void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	pixel lineWidth = borderWidth.toPixels(context->height(), context->dpmm.y,
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
@@ -78,7 +78,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			|| context->cursorPosition.y < 0)
 		return;
 	NVGcontext* nvg = context->nvgContext;
-	bool hover =context->isMouseOver(this);
+	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	Color c;
 	if (down) {
@@ -95,7 +95,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgRect(nvg, bounds.position.x + 2, bounds.position.y + 2,
 			bounds.dimensions.x - 4, bounds.dimensions.y - 4);
 	nvgStrokeColor(nvg, c);
-	nvgStrokeWidth(nvg, 4.0f);
+	nvgStrokeWidth(nvg, 1.0f);
 	nvgStroke(nvg);
 
 	nvgFontSize(nvg, FONT_SIZE_PX);
@@ -116,10 +116,10 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
 
 }
-void Region::setDragOffset(const pixel2& cursor,const pixel2& delta){
-	pixel2 d=(bounds.position-dragOffset);
-	dragOffset =bounds.clamp(cursor-delta,parent->bounds)-d;
-	bounds.position=dragOffset+d;
+void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
+	pixel2 d = (bounds.position - dragOffset);
+	dragOffset = bounds.clamp(cursor - delta, parent->bounds) - d;
+	bounds.position = dragOffset + d;
 }
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
@@ -170,7 +170,11 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	Region::pack(pos, dims, dpmm, pixelRatio);
 	for (std::shared_ptr<Region>& region : children) {
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
+		if (region->onPack)
+			region->onPack();
 	}
+	if (onPack)
+		onPack();
 }
 void Composite::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
@@ -251,34 +255,43 @@ void TextLabel::draw(AlloyContext* context) {
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
-	float th=fontSize.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
-	nvgFontSize(nvg,th);
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	nvgFontSize(nvg, th);
 	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
-	float tw=nvgTextBounds(nvg,0,0,label.c_str(),nullptr,nullptr);
+	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
 					| static_cast<int>(verticalAlignment));
-	pixel2 offset(0,0);
-	pixel lineWidth=borderWidth.toPixels(context->height(), context->dpmm.y,context->pixelRatio);
-	switch(horizontalAlignment){
-		case HorizontalAlignment::Left:
-			offset.x=lineWidth;break;
-		case HorizontalAlignment::Center:
-			offset.x=bounds.dimensions.x/2;break;
-		case HorizontalAlignment::Right:
-			offset.x=bounds.dimensions.x-lineWidth;break;
+	pixel2 offset(0, 0);
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	switch (horizontalAlignment) {
+	case HorizontalAlignment::Left:
+		offset.x = lineWidth;
+		break;
+	case HorizontalAlignment::Center:
+		offset.x = bounds.dimensions.x / 2;
+		break;
+	case HorizontalAlignment::Right:
+		offset.x = bounds.dimensions.x - lineWidth;
+		break;
 	}
-	switch(verticalAlignment){
-			case VerticalAlignment::Top:
-				offset.y=lineWidth;break;
-			case VerticalAlignment::Middle:
-				offset.y=bounds.dimensions.y/2;break;
-			case VerticalAlignment::Bottom:
-			case VerticalAlignment::Baseline:
-				offset.y=bounds.dimensions.y-lineWidth;break;
+	switch (verticalAlignment) {
+	case VerticalAlignment::Top:
+		offset.y = lineWidth;
+		break;
+	case VerticalAlignment::Middle:
+		offset.y = bounds.dimensions.y / 2;
+		break;
+	case VerticalAlignment::Bottom:
+	case VerticalAlignment::Baseline:
+		offset.y = bounds.dimensions.y - lineWidth;
+		break;
 	}
-	nvgText(nvg, bounds.position.x+offset.x, bounds.position.y+offset.y, label.c_str(), nullptr);
+	nvgText(nvg, bounds.position.x + offset.x, bounds.position.y + offset.y,
+			label.c_str(), nullptr);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
@@ -306,7 +319,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
-	pixel lineWidth = borderWidth.toPixels(context->height(), context->dpmm.y,
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);

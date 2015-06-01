@@ -1284,14 +1284,15 @@ template<class T, int M> struct box {
 				other.position + other.dimensions - dimensions);
 
 	}
-	inline vec<T,M> max() const {
-		return position+dimensions;
+	inline vec<T, M> max() const {
+		return position + dimensions;
 	}
-	inline vec<T,M> min() const {
+	inline vec<T, M> min() const {
 		return position;
 	}
-	inline vec<T,M> clamp(const vec<T,M>& pt,const box<T, M>& parent) {
-		return aly::clamp(pt, parent.position,parent.position + parent.dimensions - dimensions);
+	inline vec<T, M> clamp(const vec<T, M>& pt, const box<T, M>& parent) {
+		return aly::clamp(pt, parent.position,
+				parent.position + parent.dimensions - dimensions);
 	}
 };
 template<class C, class R, class T, int M> std::basic_ostream<C, R> & operator <<(

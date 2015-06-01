@@ -63,10 +63,10 @@ public:
 		t = clamp(val, 0.0, 1.0);
 	}
 	void operator+=(const float& dt) {
-		t = std::min(1.0, t + (double)dt);
+		t = std::min(1.0, t + (double) dt);
 	}
 	void operator-=(const float& dt) {
-		t = std::max(0.0, t - (double)dt);
+		t = std::max(0.0, t - (double) dt);
 	}
 	void operator=(const float& val) {
 		t = clamp(val, 0.0f, 1.0f);
@@ -93,7 +93,7 @@ private:
 		Impl(const T& value) :
 				value(value) {
 		}
-		virtual int toInteger() const{
+		virtual int toInteger() const {
 			return value.toInteger();
 		}
 		virtual float toFloat() const {
@@ -105,9 +105,15 @@ private:
 		virtual std::string toString() const {
 			return value.toString();
 		}
-		virtual void setValue(int val) {value.setValue(val);}
-		virtual void setValue(float val) {value.setValue(val);}
-		virtual void setValue(double val) {value.setValue(val);}
+		virtual void setValue(int val) {
+			value.setValue(val);
+		}
+		virtual void setValue(float val) {
+			value.setValue(val);
+		}
+		virtual void setValue(double val) {
+			value.setValue(val);
+		}
 
 	};
 public:
@@ -132,106 +138,130 @@ public:
 	template<class T> Number & operator =(const T & value) {
 		return *this = Number(value);
 	}
-	virtual int toInteger() const{
+	virtual int toInteger() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
 		return impl->toInteger();
 	}
 	virtual float toFloat() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
 		return impl->toFloat();
 	}
 	virtual double toDouble() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
 		return impl->toDouble();
 	}
 	std::string toString() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
 		return impl->toString();
 	}
-	virtual void setValue(int val) {impl->setValue(val);}
-	virtual void setValue(float val) {impl->setValue(val);}
-	virtual void setValue(double val) {impl->setValue(val);}
-
-
+	virtual void setValue(int val) {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
+		impl->setValue(val);
+	}
+	virtual void setValue(float val) {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
+		impl->setValue(val);
+	}
+	virtual void setValue(double val) {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
+		impl->setValue(val);
+	}
 
 };
 struct Integer {
 private:
-	int value=0;
+	int value = 0;
 public:
-	int toInteger() const{
+	int toInteger() const {
 		return value;
 	}
-	float toFloat() const{
-		return (float)value;
+	float toFloat() const {
+		return (float) value;
 	}
-	double toDouble() const{
-		return (double)value;
+	double toDouble() const {
+		return (double) value;
 	}
 	std::string toString() const {
-		return MakeString()<<value;
+		return MakeString() << value;
 	}
-	void setValue(float other){
-		value=(int)other;
+	void setValue(float other) {
+		value = (int) other;
 	}
-	void setValue(double other){
-		value=(int)other;
+	void setValue(double other) {
+		value = (int) other;
 	}
-	void setValue(int other){
-		value=(int)other;
+	void setValue(int other) {
+		value = (int) other;
 	}
-	Integer(int value):value(value){}
+	Integer(int value) :
+			value(value) {
+	}
 };
 
 struct Float {
 private:
-	float value=0;
+	float value = 0;
 public:
-	int toInteger() const{
-		return (int)value;
+	int toInteger() const {
+		return (int) value;
 	}
-	float toFloat() const{
-		return (float)value;
+	float toFloat() const {
+		return (float) value;
 	}
-	double toDouble() const{
-		return (double)value;
+	double toDouble() const {
+		return (double) value;
 	}
 	std::string toString() const {
-		return MakeString()<<value;
+		return MakeString() << value;
 	}
-	void setValue(float other){
-		value=(float)other;
+	void setValue(float other) {
+		value = (float) other;
 	}
-	void setValue(double other){
-		value=(float)other;
+	void setValue(double other) {
+		value = (float) other;
 	}
-	void setValue(int other){
-		value=(float)other;
+	void setValue(int other) {
+		value = (float) other;
 	}
-	Float(float value):value(value){}
+	Float(float value) :
+			value(value) {
+	}
 };
 struct Double {
 private:
-	double value=0;
+	double value = 0;
 public:
-	int toInteger() const{
-		return (int)value;
+	int toInteger() const {
+		return (int) value;
 	}
-	float toFloat() const{
-		return (float)value;
+	float toFloat() const {
+		return (float) value;
 	}
-	double toDouble() const{
-		return (double)value;
+	double toDouble() const {
+		return (double) value;
 	}
 	std::string toString() const {
-		return MakeString()<<value;
+		return MakeString() << value;
 	}
-	void setValue(float other){
-		value=(double)other;
+	void setValue(float other) {
+		value = (double) other;
 	}
-	void setValue(double other){
-		value=(double)other;
+	void setValue(double other) {
+		value = (double) other;
 	}
-	void setValue(int other){
-		value=(double)other;
+	void setValue(int other) {
+		value = (double) other;
 	}
-	Double(float value):value(value){}
+	Double(float value) :
+			value(value) {
+	}
 };
 class AUnit1D {
 public:
@@ -280,9 +310,13 @@ public:
 	}
 	// Implicit interface
 	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Unit value has not been defined.");
 		return impl->toPixels(screenSize, dpmm, pixelRatio);
 	}
 	std::string toString() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Unit value has not been defined.");
 		return impl->toString();
 	}
 };
@@ -378,9 +412,13 @@ public:
 	}
 	// Implicit interface
 	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Coord value has not been defined.");
 		return impl->toPixels(screenSize, dpmm, pixelRatio);
 	}
 	std::string toString() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Coord value has not been defined.");
 		return impl->toString();
 	}
 };
@@ -441,6 +479,46 @@ struct UnitPercent {
 	}
 	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
 		return (float) (screenSize * value);
+	}
+};
+struct UnitPerPX {
+	std::pair<UnitPercent, UnitPX> value;
+	UnitPerPX(float px, float x) :
+			value(UnitPercent(px), UnitPX(x)) {
+	}
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+				+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+};
+struct UnitPerPT {
+	std::pair<UnitPercent, UnitPT> value;
+	UnitPerPT(float px, float x) :
+			value(UnitPercent(px), UnitPT(x)) {
+	}
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+				+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+};
+struct UnitPerMM {
+	std::pair<UnitPercent, UnitMM> value;
+	UnitPerMM(float px, float x) :
+			value(UnitPercent(px), UnitMM(x)) {
+	}
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+				+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+};
+struct UnitPerIN {
+	std::pair<UnitPercent, UnitIN> value;
+	UnitPerIN(float px, float x) :
+			value(UnitPercent(px), UnitIN(x)) {
+	}
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+				+ value.second.toPixels(screenSize, dpmm, pixelRatio);
 	}
 };
 struct UnitTween: public AUnit1D::Interface, Tweenable {
@@ -601,24 +679,25 @@ struct ColorTween: public Tweenable, Color {
 	}
 
 };
-inline AColor MakeColor(int r,int g,int b,int a) {
-	return AColor(new Color(r,g,b,a));
+inline AColor MakeColor(int r, int g, int b, int a) {
+	return AColor(new Color(r, g, b, a));
 }
 
-inline AColor MakeColor(unsigned char r, unsigned char g,unsigned char b,unsigned char a) {
-	return AColor(new Color(r,g,b,a));
+inline AColor MakeColor(unsigned char r, unsigned char g, unsigned char b,
+		unsigned char a) {
+	return AColor(new Color(r, g, b, a));
 }
-inline AColor MakeColor(float r, float g,float b,float a) {
-	return AColor(new Color(r,g,b,a));
+inline AColor MakeColor(float r, float g, float b, float a) {
+	return AColor(new Color(r, g, b, a));
 }
-inline AColor MakeColor(int r,int g,int b) {
-	return AColor(new Color(r,g,b));
+inline AColor MakeColor(int r, int g, int b) {
+	return AColor(new Color(r, g, b));
 }
-inline AColor MakeColor(unsigned char r, unsigned char g,unsigned char b) {
-	return AColor(new Color(r,g,b));
+inline AColor MakeColor(unsigned char r, unsigned char g, unsigned char b) {
+	return AColor(new Color(r, g, b));
 }
-inline AColor MakeColor(float r, float g,float b) {
-	return AColor(new Color(r,g,b));
+inline AColor MakeColor(float r, float g, float b) {
+	return AColor(new Color(r, g, b));
 }
 inline AColor MakeColor(const Color& c) {
 	return AColor(new Color(c));
@@ -676,6 +755,22 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	return ss << v.toString();
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const UnitPerPX & v) {
+	return ss << "{" << v.value.first << ", " << v.value.second << "}";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const UnitPerPT & v) {
+	return ss << "{" << v.value.first << ", " << v.value.second << "}";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const UnitPerMM & v) {
+	return ss << "{" << v.value.first << ", " << v.value.second << "}";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const UnitPerIN & v) {
+	return ss << "{" << v.value.first << ", " << v.value.second << "}";
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const UnitTween & v) {
 	return ss << "{" << v.value.first << ", " << v.value.second << ", tween = "
 			<< v.getTweenValue() << "}";
@@ -713,7 +808,6 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const Number& v) {
 	return ss << v.toString();
 }
-
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const CoordPerDP & v) {

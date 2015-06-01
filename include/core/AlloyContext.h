@@ -161,7 +161,6 @@ private:
 	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
 	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
 	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
-	pixel2 lastCursorOffset = pixel2(0, 0);
 	bool dragEnabled = false;
 	std::chrono::high_resolution_clock::time_point endTime;
 	std::chrono::high_resolution_clock::time_point lastAnimateTime;
@@ -179,11 +178,11 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
-	inline bool isMouseOver(Region* region){
-		return (mouseOverRegion==region);
+	inline bool isMouseOver(Region* region) {
+		return (mouseOverRegion == region);
 	}
-	inline bool isMouseDown(Region* region){
-		return (mouseDownRegion==region);
+	inline bool isMouseDown(Region* region) {
+		return (mouseDownRegion == region);
 	}
 	double pixelRatio;
 

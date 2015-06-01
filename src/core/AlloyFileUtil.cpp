@@ -157,7 +157,6 @@ std::string GetFileDirectoryPath(const std::string& fileName) {
 	return fileName;
 }
 
-
 #ifndef WIN32
 //Only works on Linux for NOW!
 std::vector<std::string> GetDirectoryListing(const std::string& dirName,

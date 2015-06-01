@@ -553,7 +553,8 @@ int nvgTransformInverse(float* inv, const float* t) {
 	return 1;
 }
 
-void nvgTransformPoint(float* dx, float* dy, const float* t, float sx, float sy) {
+void nvgTransformPoint(float* dx, float* dy, const float* t, float sx,
+		float sy) {
 	*dx = sx * t[0] + sy * t[2] + t[4];
 	*dy = sx * t[1] + sy * t[3] + t[5];
 }

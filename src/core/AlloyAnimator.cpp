@@ -35,7 +35,7 @@ bool Animator::step(double dt) {
 	if (current.size() == 0)
 		return false;
 	for (std::shared_ptr<Tween>& tween : current) {
-		if(tween.get()!=nullptr){
+		if (tween.get() != nullptr) {
 			if (tween->step(dt)) {
 				next.push_back(tween);
 			} else {

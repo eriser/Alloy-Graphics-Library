@@ -96,8 +96,8 @@ class Tween {
 private:
 	std::unique_ptr<Interpolant> interpolant;
 	double time = 0;
-	Tweenable* object=nullptr;
-	double duration=0;
+	Tweenable* object = nullptr;
+	double duration = 0;
 	bool isCanceled = false;
 	bool isCompleted = false;
 public:
