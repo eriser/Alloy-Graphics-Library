@@ -42,22 +42,19 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(255, 255, 255, 255));
 	imgr->origin = Origin::Center;
 
-	/*
+	 /*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());
 
-	 addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0,
-	 SineOut())->addCompleteEvent(
-	 [](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
+	 addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0,SineOut());//->addCompleteEvent([](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
+
 	 addTween(iconr->backgroundColor, Color(255, 64, 32, 255),
 	 Color(32, 64, 255, 255), 3.0, SineIn());
 	 addTween(iconr->foregroundColor, Color(0, 0, 0, 255),
 	 Color(255, 255, 255, 255), 3.0, SineIn());
-	 addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,
-	 ExponentialOut())->addCompleteEvent(
-	 [](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
+	 addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,ExponentialOut());//->addCompleteEvent([](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	 addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
-	 */
+*/
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), RGBA(64, 64, 64, 255));
 
@@ -78,10 +75,14 @@ bool ExampleUI::init(Composite& rootNode) {
 	ButtonPtr button2 = std::shared_ptr<Button>(
 			new Button("Drag Me", CoordPerPX(0.8, 0.5, -140, 0),
 					CoordPX(140, 50)));
-	HSliderPtr hslider = HSliderPtr(
-			new HorizontalSlider("H Slider", CoordPerPX(0.1, 0.3, 0, 0),
-					CoordPerPX(0.0f, 0.1, 200.0f, 0.0f)));
-	hslider->aspectRatio = AspectRatio::FixedHeight;
+	HSliderPtr hslider1 = HSliderPtr(
+			new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),
+					CoordPerPX(0.3f, 0.1, 0.0f, 0.0f),Integer(0),Integer(100),Integer(70)));
+
+	hslider1->aspectRatio = AspectRatio::FixedHeight;
+
+	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.6, 0.3),CoordPX(200.0f, 50.0f)));
+
 	button2->setEnableDrag(true);
 	rootNode.add(comp);
 	//rootNode.add(imgr);
@@ -90,7 +91,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor = MakeColor(Color(220, 220, 220, 255));
 	rootNode.add(button1);
 	rootNode.add(button2);
-	rootNode.add(hslider);
+	rootNode.add(hslider1);
+	rootNode.add(hslider2);
+
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;

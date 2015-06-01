@@ -118,7 +118,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e,const pixel2& lastDragPosition) {this->onMouseDrag(context,scrollHandle.get(),e,lastDragPosition);};
 
 	add(
-			sliderLabel = MakeTextLabel("Label",
+			sliderLabel = MakeTextLabel(label,
 					CoordPerPX(0.0f, 0.0f, trackPadding, 2.0f),
 					CoordPerPX(0.5f, 1.0f, 0,
 							-(handleSize - trackPadding * 0.75f)),
@@ -183,11 +183,17 @@ void HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 	}
 }
 void HorizontalSlider::draw(AlloyContext* context) {
+
 	valueLabel->label = labelFormatter(value);
 	NVGcontext* nvg = context->nvgContext;
+	if (parent != nullptr) {
+		box2px pbounds = parent->getBounds();
+		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
+				pbounds.dimensions.x, pbounds.dimensions.y);
+	}
 	float cornerRadius = 5.0f;
-
-	if(context->isMouseOverParent(this)||context->isMouseOver(scrollHandle.get())){
+	bool hover=context->isMouseContainedIn(this);
+	if(hover){
 		nvgBeginPath(nvg);
 		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
@@ -197,11 +203,22 @@ void HorizontalSlider::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
 		nvgFill(nvg);
 	}
+
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
 	nvgFillColor(nvg, Color(64, 64, 64, 255));
 	nvgFill(nvg);
+
+		nvgBeginPath(nvg);
+		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
+				bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y, cornerRadius, 2, Color(64, 64, 64, 0),
+				Color(255,255,255,255));
+		nvgFillPaint(nvg, hightlightPaint);
+		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+		nvgFill(nvg);
 	Composite::draw(context);
 }
 void Button::drawOnTop(AlloyContext* context) {
@@ -279,10 +296,6 @@ void Button::internalDraw(AlloyContext* context) {
 	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
 			nullptr);
-
-	/*
-
-	 */
 
 }
 }

@@ -181,7 +181,7 @@ public:
 	inline bool isMouseOver(Region* region) {
 		return (mouseOverRegion == region);
 	}
-	bool isMouseOverParent(Region* region);
+	bool isMouseContainedIn(Region* region);
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
 	}

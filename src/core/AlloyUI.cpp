@@ -127,7 +127,6 @@ Region::Region(const std::string& name) :
 }
 void Region::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 }
 void Composite::drawOnTop(AlloyContext* context) {
@@ -137,11 +136,6 @@ void Composite::drawOnTop(AlloyContext* context) {
 }
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr) {
-		box2px pbounds = parent->getBounds();
-		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
-				pbounds.dimensions.x, pbounds.dimensions.y);
-	}
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
@@ -149,13 +143,14 @@ void Composite::draw(AlloyContext* context) {
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
+
+	nvgScissor(nvg, bounds.position.x, bounds.position.y,bounds.dimensions.x, bounds.dimensions.y);
 	for (std::shared_ptr<Region>& region : children) {
 		region->draw(context);
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
@@ -254,11 +249,7 @@ void Composite::add(Region* region) {
 
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr) {
-		box2px pbounds = parent->getBounds();
-		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
-				pbounds.dimensions.x, pbounds.dimensions.y);
-	}
+
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
@@ -309,7 +300,6 @@ void TextLabel::draw(AlloyContext* context) {
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 	drawBoundsLabel(context, name,
 			(glyph->type == GlyphType::Awesome) ?
 					context->getFontHandle(FontType::Icon) :
@@ -318,11 +308,6 @@ void GlyphRegion::drawDebug(AlloyContext* context) {
 
 void GlyphRegion::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr) {
-		box2px pbounds = parent->getBounds();
-		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
-				pbounds.dimensions.x, pbounds.dimensions.y);
-	}
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {

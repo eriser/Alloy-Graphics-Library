@@ -200,8 +200,8 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title) :
 	lastCursorTime = std::chrono::high_resolution_clock::now();
 	lastUpdateTime = std::chrono::high_resolution_clock::now();
 }
-bool AlloyContext::isMouseOverParent(Region* region) {
-	return (mouseOverRegion!=nullptr&&(mouseOverRegion==region||(mouseOverRegion->parent!=nullptr&&mouseOverRegion->parent==region)));
+bool AlloyContext::isMouseContainedIn(Region* region) {
+	return (region->getBounds().contains(cursorPosition));
 }
 bool AlloyContext::begin() {
 	if (current == nullptr) {
