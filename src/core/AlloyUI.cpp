@@ -116,6 +116,9 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
 
 }
+void Region::setDragOffset(const pixel2& cursor,const pixel2& delta){
+	dragOffset =bounds.clamp(cursor-delta,parent->bounds)-(bounds.position-dragOffset);
+}
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
 
@@ -250,7 +253,7 @@ void TextLabel::draw(AlloyContext* context) {
 	nvgFontSize(nvg,th);
 	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
-	float tw=nvgTextBounds(nvg,0,0,name.c_str(),nullptr,nullptr);
+	float tw=nvgTextBounds(nvg,0,0,label.c_str(),nullptr,nullptr);
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
 					| static_cast<int>(verticalAlignment));
@@ -273,7 +276,7 @@ void TextLabel::draw(AlloyContext* context) {
 			case VerticalAlignment::Baseline:
 				offset.y=bounds.dimensions.y-lineWidth;break;
 	}
-	nvgText(nvg, bounds.position.x+offset.x, bounds.position.y+offset.y, name.c_str(), nullptr);
+	nvgText(nvg, bounds.position.x+offset.x, bounds.position.y+offset.y, label.c_str(), nullptr);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,

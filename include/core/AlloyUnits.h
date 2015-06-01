@@ -75,6 +75,163 @@ public:
 	}
 	;
 };
+class Number {
+public:
+	struct Interface {
+		virtual int toInteger() const =0;
+		virtual float toFloat() const =0;
+		virtual double toDouble() const =0;
+		virtual void setValue(int value) =0;
+		virtual void setValue(float value) =0;
+		virtual void setValue(double value) =0;
+		virtual std::string toString() const = 0;
+	};
+private:
+	template<class T> struct Impl: public Interface {
+		T value;
+		Impl(const T& value) :
+				value(value) {
+		}
+		virtual int toInteger() const{
+			return value.toInteger();
+		}
+		virtual float toFloat() const {
+			return value.toFloat();
+		}
+		virtual double toDouble() const {
+			return value.toDouble();
+		}
+		virtual std::string toString() const {
+			return value.toString();
+		}
+		virtual void setValue(int val) {value.setValue(val);}
+		virtual void setValue(float val) {value.setValue(val);}
+		virtual void setValue(double val) {value.setValue(val);}
+
+	};
+public:
+	std::shared_ptr<Interface> impl;
+	Number() {
+	}
+	Number(const Number & r) :
+			impl(r.impl) {
+	}
+	virtual inline ~Number() {
+	}
+	template<class T> Number(const T & value) :
+			impl(new Impl<T> { value }) {
+	}
+	template<class T> Number(T* value) :
+			impl(value) {
+	}
+	Number & operator =(const Number & r) {
+		impl = r.impl;
+		return *this;
+	}
+	template<class T> Number & operator =(const T & value) {
+		return *this = Number(value);
+	}
+	virtual int toInteger() const{
+		return impl->toInteger();
+	}
+	virtual float toFloat() const {
+		return impl->toFloat();
+	}
+	virtual double toDouble() const {
+		return impl->toDouble();
+	}
+	std::string toString() const {
+		return impl->toString();
+	}
+	virtual void setValue(int val) {impl->setValue(val);}
+	virtual void setValue(float val) {impl->setValue(val);}
+	virtual void setValue(double val) {impl->setValue(val);}
+
+
+
+};
+struct Integer {
+private:
+	int value=0;
+public:
+	int toInteger() const{
+		return value;
+	}
+	float toFloat() const{
+		return (float)value;
+	}
+	double toDouble() const{
+		return (double)value;
+	}
+	std::string toString() const {
+		return MakeString()<<value;
+	}
+	void setValue(float other){
+		value=(int)other;
+	}
+	void setValue(double other){
+		value=(int)other;
+	}
+	void setValue(int other){
+		value=(int)other;
+	}
+	Integer(int value):value(value){}
+};
+
+struct Float {
+private:
+	float value=0;
+public:
+	int toInteger() const{
+		return (int)value;
+	}
+	float toFloat() const{
+		return (float)value;
+	}
+	double toDouble() const{
+		return (double)value;
+	}
+	std::string toString() const {
+		return MakeString()<<value;
+	}
+	void setValue(float other){
+		value=(float)other;
+	}
+	void setValue(double other){
+		value=(float)other;
+	}
+	void setValue(int other){
+		value=(float)other;
+	}
+	Float(float value):value(value){}
+};
+struct Double {
+private:
+	double value=0;
+public:
+	int toInteger() const{
+		return (int)value;
+	}
+	float toFloat() const{
+		return (float)value;
+	}
+	double toDouble() const{
+		return (double)value;
+	}
+	std::string toString() const {
+		return MakeString()<<value;
+	}
+	void setValue(float other){
+		value=(double)other;
+	}
+	void setValue(double other){
+		value=(double)other;
+	}
+	void setValue(int other){
+		value=(double)other;
+	}
+	Double(float value):value(value){}
+};
 class AUnit1D {
 public:
 	struct Interface {
@@ -88,7 +245,6 @@ private:
 		Impl(const T& value) :
 				value(value) {
 		}
-		;
 		virtual pixel toPixels(pixel screenSize, double dpmm,
 				double pixelRatio) const {
 			return value.toPixels(screenSize, dpmm, pixelRatio);
@@ -552,6 +708,11 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const AUnit2D& v) {
 	return ss << v.toString();
 }
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const Number& v) {
+	return ss << v.toString();
+}
+
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const CoordPerDP & v) {

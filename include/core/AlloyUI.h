@@ -53,10 +53,10 @@ public:
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 
-	std::function<void(const InputEvent& event)> onMouseClick;
-	std::function<void(const InputEvent& event)> onMouseOver;
-	std::function<void(const InputEvent& event,const pixel2& lastDragPosition)> onMouseDrag;
-
+	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseClick;
+	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseOver;
+	std::function<void(AlloyContext* context,const InputEvent& event,const pixel2& lastDragPosition)> onMouseDrag;
+	void setDragOffset(const pixel2&  cursor,const pixel2& delta);
 	inline void setEnableDrag(bool enabled) {
 		dragEnabled = enabled;
 	}
@@ -71,6 +71,24 @@ public:
 	}
 	box2px getBounds() const {
 		return bounds;
+	}
+	pixel2 getBoundsPosition()  const {
+		return bounds.position;
+	}
+	pixel2 getBoundsDimensions()  const {
+		return bounds.dimensions;
+	}
+	pixel getBoundsPositionX()  const {
+		return bounds.position.x;
+	}
+	pixel getBoundsDimensionsX()  const {
+		return bounds.dimensions.x;
+	}
+	pixel getBoundsPositionY()  const {
+		return bounds.position.y;
+	}
+	pixel getBoundsDimensionsY()  const {
+		return bounds.dimensions.y;
 	}
 	const AUnit2D& getPosition() const {
 		return position;
@@ -140,10 +158,11 @@ struct TextLabel: public Region {
 	AUnit1D fontSize = UnitPT(14);
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor=MakeColor(COLOR_BLACK);
+	std::string label;
 	TextLabel(
 			const std::string& name = MakeString() << "t" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++)) :
-			Region(name) {
+			Region(name),label(name) {
 	}
 	;
 	void draw(AlloyContext* context);

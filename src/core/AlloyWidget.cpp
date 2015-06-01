@@ -24,9 +24,9 @@ using namespace std;
 namespace aly{
 	void Widget::add(const std::shared_ptr<Region>& region){
 		Composite::add(region);
-		region->onMouseOver=[this,region](const InputEvent& e){this->onMouseOver(region.get(),e);};
-		region->onMouseClick=[this,region](const InputEvent& e){this->onMouseClick(region.get(),e);};
-		region->onMouseDrag=[this,region](const InputEvent& e,const pixel2& lastDragPosition){this->onMouseDrag(region.get(),e,lastDragPosition);};
+		region->onMouseOver=[this,region](AlloyContext* context,const InputEvent& e){this->onMouseOver(context,region.get(),e);};
+		region->onMouseClick=[this,region](AlloyContext* context,const InputEvent& e){this->onMouseClick(context,region.get(),e);};
+		region->onMouseDrag=[this,region](AlloyContext* context,const InputEvent& e,const pixel2& lastDragPosition){this->onMouseDrag(context,region.get(),e,lastDragPosition);};
 	}
 
 	Button::Button(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions):Widget(label){
@@ -71,19 +71,19 @@ namespace aly{
 		nvgStroke(nvg);
 
 	}
-	HorizontalSlider::HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions):Widget(label){
+	HorizontalSlider::HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions,const Number& min,const Number& max,const Number& value):Widget(label),minValue(min),maxValue(max),value(value){
 		this->position=position;
 		this->dimensions=dimensions;
 		textColor=MakeColor(Color(0,0,0,255));
 		borderColor=MakeColor(Color(255,255,255,255));
-		std::shared_ptr<ScrollHandle> scrollHandle =std::shared_ptr<ScrollHandle>(new ScrollHandle("Scroll Handle"));
+		scrollHandle =std::shared_ptr<ScrollHandle>(new ScrollHandle("Scroll Handle"));
 
 		scrollHandle->setPosition(CoordPercent(0.0, 0.0));
 		scrollHandle->setDimensions(CoordPX(30, 30));
 		scrollHandle->backgroundColor=MakeColor(255, 128, 64, 255);
 		scrollHandle->setEnableDrag(true);
 
-		std::shared_ptr<ScrollTrack> scrollTrack = std::shared_ptr<ScrollTrack>(new ScrollTrack("Scroll Track"));
+		scrollTrack = std::shared_ptr<ScrollTrack>(new ScrollTrack("Scroll Track"));
 		scrollTrack->setPosition(CoordPerPX(0.0f, 0.5f,0.0f,-5.0f));
 		scrollTrack->setDimensions(CoordPerPX(1.0f, 0.0f,0.0f,30.0f));
 		scrollTrack->backgroundColor=MakeColor(128, 128, 128, 255);
@@ -91,12 +91,20 @@ namespace aly{
 		scrollTrack->backgroundColor=MakeColor(255,0,0);
 
 		add(MakeTextLabel("Label",CoordPerPX(0.0f,0.0f,10,0),CoordPerPX(0.5f,1.0f,0,-21),FontType::Bold,UnitPX(26),RGBA(255,255,255,255),HorizontalAlignment::Left,VerticalAlignment::Bottom));
-		add(MakeTextLabel("0.12345",CoordPercent(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-10,-21),FontType::Normal,UnitPX(24),RGBA(255,255,255,255),HorizontalAlignment::Right,VerticalAlignment::Bottom));
-
+		add(valueLabel=MakeTextLabel("0.12345",CoordPercent(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-10,-21),FontType::Normal,UnitPX(24),RGBA(255,255,255,255),HorizontalAlignment::Right,VerticalAlignment::Bottom));
 		add(scrollTrack);
 	}
-
-	void HorizontalSlider::draw(AlloyContext* context){
+	void HorizontalSlider::onMouseClick(AlloyContext* context,Region* region,const InputEvent& event){
+		if(region==scrollTrack.get()){
+			scrollHandle->setDragOffset(event.cursor,scrollHandle->getBoundsDimensions()*0.5f);
+			context->requestPack();
+		}
+	}
+void HorizontalSlider::draw(AlloyContext* context){
+		double interp=(scrollHandle->getBoundsPositionX()-scrollTrack->getBoundsPositionX())/(double)(scrollTrack->getBoundsDimensionsX()-scrollHandle->getBoundsDimensionsX());
+		double val=(1.0-interp)*minValue.toDouble()+interp*maxValue.toDouble();
+		value.setValue(val);
+		valueLabel->label=labelFormatter(value);
 		NVGcontext* nvg=context->nvgContext;
 		float cornerRadius=5.0f;
 		nvgBeginPath(nvg);

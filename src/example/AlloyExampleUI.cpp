@@ -72,7 +72,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	ButtonPtr button1=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.1,0.1,0,0),CoordPX(140,50)));
 	ButtonPtr button2=std::shared_ptr<Button>(new Button("Click Me",CoordPerPX(0.8,0.5,-140,0),CoordPX(140,50)));
-	HSliderPtr hslider=std::shared_ptr<HorizontalSlider>(new HorizontalSlider("H Slider",CoordPerPX(0.1,0.3,0,0),CoordPX(200,50)));
+	HSliderPtr hslider=HSliderPtr(new HorizontalSlider("H Slider",CoordPerPX(0.1,0.3,0,0),CoordPX(200,50)));
 	button2->setEnableDrag(true);
 	rootNode.add(comp);
 	//rootNode.add(imgr);

@@ -27,9 +27,9 @@ namespace aly {
 class Widget: public Composite{
 public:
 	Widget(const std::string& name=""):Composite(name){}
-	virtual void onMouseOver(Region* region,const InputEvent& event){}
-	virtual void onMouseClick(Region* region,const InputEvent& event){}
-	virtual void onMouseDrag(Region* region,const InputEvent& event,const pixel2& lastDragPosition){}
+	virtual void onMouseOver(AlloyContext* context,Region* region,const InputEvent& event){}
+	virtual void onMouseClick(AlloyContext* context,Region* region,const InputEvent& event){}
+	virtual void onMouseDrag(AlloyContext* context,Region* region,const InputEvent& event,const pixel2& lastDragPosition){}
 	virtual void add(const std::shared_ptr<Region>& region) override;
 };
 class Button: public Widget{
@@ -49,15 +49,23 @@ public:
 class ScrollTrack: public Composite{
 public:
 	ScrollTrack(const std::string& name):Composite(name){}
-
 	virtual void  draw(AlloyContext* context) override;
 };
 class HorizontalSlider: public Widget{
 private:
 	AColor textColor;
 	AUnit1D fontSize;
+	Number value;
+	Number minValue;
+	Number maxValue;
+	TextLabelPtr valueLabel;
+	std::shared_ptr<ScrollHandle> scrollHandle;
+	std::shared_ptr<ScrollTrack> scrollTrack;
+	std::function<std::string(const Number& value)> labelFormatter=[](const Number& value){return value.toString();};
 public:
-	HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions);
+	virtual void onMouseClick(AlloyContext* context,Region* region,const InputEvent& event) override;
+	inline void setLabelFormatter(const std::function<const std::string&(const Number& value)>& func){labelFormatter=func;}
+	HorizontalSlider(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions,const Number& minValue=Float(0.0f),const Number& maxValue=Float(1.0f),const Number& value=Float(0.0f));
 	virtual void  draw(AlloyContext* context) override;
 	virtual inline ~HorizontalSlider(){};
 };

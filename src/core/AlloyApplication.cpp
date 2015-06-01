@@ -212,7 +212,7 @@ void Application::fireEvent(const InputEvent& event) {
 		if (event.isMouseDown()) {
 			context->mouseDownRegion = context->cursorLocator.locate(
 					context->cursorPosition);
-			context->cursorDownPosition = context->cursorPosition;
+			context->cursorDownPosition = context->cursorPosition-context->mouseDownRegion->getBoundsPosition();
 			if (context->mouseDownRegion
 					!= nullptr&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
 				context->lastCursorOffset =
@@ -228,17 +228,15 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if (context->mouseDownRegion != nullptr && context->dragEnabled
 			&& context->mouseDownRegion->isDragEnabled()) {
-		pixel2 dragOffset=context->cursorPosition - context->cursorDownPosition + context->lastCursorOffset;
-		pixel2 delta=context->mouseDownRegion->getBounds().position-context->mouseDownRegion->dragOffset;
-		context->mouseDownRegion->dragOffset =context->mouseDownRegion->getBounds().clamp(dragOffset+delta,context->mouseDownRegion->parent->getBounds())-delta;
-		if(context->mouseDownRegion->onMouseDrag)context->mouseDownRegion->onMouseDrag(event,context->cursorDownPosition);
+		context->mouseDownRegion->setDragOffset(context->cursorPosition,context->cursorDownPosition);
+		if(context->mouseDownRegion->onMouseDrag)context->mouseDownRegion->onMouseDrag(context.get(),event,context->cursorDownPosition);
 		context->requestPack();
 	} else if(context->mouseOverRegion!=nullptr){
-		if(event.type==InputType::MouseButton){
-			if(context->mouseOverRegion->onMouseClick)context->mouseOverRegion->onMouseClick(event);
+		if(event.type==InputType::MouseButton&&event.isMouseDown()){
+			if(context->mouseOverRegion->onMouseClick)context->mouseOverRegion->onMouseClick(context.get(),event);
 		}
 		if(event.type==InputType::Cursor){
-			if(context->mouseOverRegion->onMouseOver)context->mouseOverRegion->onMouseOver(event);
+			if(context->mouseOverRegion->onMouseOver)context->mouseOverRegion->onMouseOver(context.get(),event);
 		}
 	}
 }
