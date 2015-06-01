@@ -47,10 +47,12 @@ class Button: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
+	void internalDraw(AlloyContext* context);
 public:
 	Button(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
+	virtual void drawOnTop(AlloyContext* context) override;
 	virtual inline ~Button() {
 	}
 	;
@@ -92,7 +94,9 @@ public:
 	inline void setValue(float value) {
 		setValue((double) value);
 	}
-
+	const Number& getValue(){
+		return value;
+	}
 	virtual void onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual void onMouseUp(AlloyContext* context, Region* region,

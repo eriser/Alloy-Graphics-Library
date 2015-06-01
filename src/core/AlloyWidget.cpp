@@ -183,28 +183,38 @@ void HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 	}
 }
 void HorizontalSlider::draw(AlloyContext* context) {
-
 	valueLabel->label = labelFormatter(value);
 	NVGcontext* nvg = context->nvgContext;
 	float cornerRadius = 5.0f;
-	nvgBeginPath(nvg);
-	NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-			bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-			cornerRadius, 8, Color(0, 0, 0, 255), Color(255, 255, 255, 0));
-	nvgFillPaint(nvg, shadowPaint);
-	nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-			bounds.dimensions.x, bounds.dimensions.y, 4.0f);
-	nvgFill(nvg);
 
+	if(context->isMouseOverParent(this)||context->isMouseOver(scrollHandle.get())){
+		nvgBeginPath(nvg);
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
+				cornerRadius, 8, Color(0, 0, 0, 255), Color(255, 255, 255, 0));
+		nvgFillPaint(nvg, shadowPaint);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
+		nvgFill(nvg);
+	}
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
 	nvgFillColor(nvg, Color(64, 64, 64, 255));
 	nvgFill(nvg);
 	Composite::draw(context);
-
+}
+void Button::drawOnTop(AlloyContext* context) {
+	if(context->isMouseDrag(this)){
+		internalDraw(context);
+	}
 }
 void Button::draw(AlloyContext* context) {
+	if(!context->isMouseDrag(this)){
+		internalDraw(context);
+	}
+}
+void Button::internalDraw(AlloyContext* context) {
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
@@ -217,7 +227,6 @@ void Button::draw(AlloyContext* context) {
 		xoff = 2;
 		yoff = 2;
 	}
-
 	if (hover || down) {
 		if (!down) {
 			nvgBeginPath(nvg);

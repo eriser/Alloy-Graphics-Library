@@ -107,7 +107,10 @@ void Application::drawUI() {
 	NVGcontext* nvg = context->nvgContext;
 	nvgBeginFrame(nvg, context->width(), context->height(),
 			context->pixelRatio);
+	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,view.dimensions.y);
 	rootNode.draw(context.get());
+	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,view.dimensions.y);
+	rootNode.drawOnTop(context.get());
 	nvgEndFrame(nvg);
 }
 void Application::drawDebugUI() {
@@ -115,6 +118,7 @@ void Application::drawDebugUI() {
 	NVGcontext* nvg = context->nvgContext;
 	nvgBeginFrame(nvg, context->width(), context->height(),
 			context->pixelRatio);
+	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,view.dimensions.y);
 	rootNode.drawDebug(context.get());
 	int cr = 6;
 

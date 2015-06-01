@@ -130,7 +130,11 @@ void Region::drawDebug(AlloyContext* context) {
 	//if (parent != nullptr)nvgScissor(nvg, parent->bounds.position.x, parent->bounds.position.y,parent->bounds.dimensions.x, parent->bounds.dimensions.y);
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 }
-
+void Composite::drawOnTop(AlloyContext* context) {
+	for (std::shared_ptr<Region>& region : children) {
+		region->drawOnTop(context);
+	}
+}
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	if (parent != nullptr) {
