@@ -96,15 +96,14 @@ class Tween {
 private:
 	std::unique_ptr<Interpolant> interpolant;
 	double time = 0;
-	Tweenable* object = nullptr;
+	Tweenable* object;
 	double duration = 0;
 	bool isCanceled = false;
 	bool isCompleted = false;
 public:
 	std::function<void(Tweenable* object)> onComplete;
 	std::function<void(Tweenable* object)> onCancel;
-	template<class A> Tween(Tweenable* object, double duration, const A& a) :
-			object(object), duration(duration) {
+	template<class A> Tween(Tweenable* object, double duration, const A& a) : object(object), duration(duration) {
 		interpolant = std::unique_ptr<Interpolant>(new A(a));
 	}
 	template<class F> Tween& addCompleteEvent(F func) {
@@ -154,6 +153,10 @@ class Animator {
 private:
 	std::list<std::shared_ptr<Tween>> tweens[2];
 	std::list<std::shared_ptr<Tween>> finished;
+	//Keep reference copies so that Tweenables are not destroyed before animator has time to finish.
+	std::list<AUnit2D> coords;
+	std::list<AUnit1D> units;
+	std::list<AColor> colors;
 	int parity = 0;
 public:
 	std::shared_ptr<Tween>& add(const std::shared_ptr<Tween>& tween);
@@ -164,7 +167,8 @@ public:
 			const Color& start, const Color& end, double duration, const A& a =
 					Linear()) {
 		ColorTween* ctween = new ColorTween(start, end);
-		out = std::shared_ptr<ColorTween>(ctween);
+		out=std::shared_ptr<ColorTween>(ctween);
+		colors.push_back(out);
 		return add(std::shared_ptr<Tween>(new Tween(ctween, duration, a)));
 	}
 	template<class A> std::shared_ptr<Tween>& add(AUnit2D& out,
@@ -172,6 +176,7 @@ public:
 			const A& a = Linear()) {
 		CoordTween* ctween = new CoordTween(start, end);
 		out = AUnit2D(ctween);
+		coords.push_back(out);
 		return add(std::shared_ptr<Tween>(new Tween(ctween, duration, a)));
 	}
 	template<class A> std::shared_ptr<Tween>& add(AUnit1D& out,
@@ -179,6 +184,7 @@ public:
 			const A& a = Linear()) {
 		UnitTween* utween = new UnitTween(start, end);
 		out = AUnit1D(utween);
+		units.push_back(out);
 		return add(std::shared_ptr<Tween>(new Tween(utween, duration, a)));
 	}
 };

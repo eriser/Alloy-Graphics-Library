@@ -222,12 +222,12 @@ void HorizontalSlider::draw(AlloyContext* context) {
 	Composite::draw(context);
 }
 void Button::drawOnTop(AlloyContext* context) {
-	if(context->isMouseDrag(this)){
+	if(isDragEnabled()&&context->isMouseDrag(this)){
 		internalDraw(context);
 	}
 }
 void Button::draw(AlloyContext* context) {
-	if(!context->isMouseDrag(this)){
+	if(!isDragEnabled()||!context->isMouseDrag(this)){
 		internalDraw(context);
 	}
 }

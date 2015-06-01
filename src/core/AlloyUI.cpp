@@ -143,9 +143,8 @@ void Composite::draw(AlloyContext* context) {
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
-
-	nvgScissor(nvg, bounds.position.x, bounds.position.y,bounds.dimensions.x, bounds.dimensions.y);
 	for (std::shared_ptr<Region>& region : children) {
+		nvgScissor(nvg, bounds.position.x, bounds.position.y,bounds.dimensions.x, bounds.dimensions.y);
 		region->draw(context);
 	}
 }

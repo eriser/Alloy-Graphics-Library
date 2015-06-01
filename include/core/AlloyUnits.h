@@ -74,7 +74,6 @@ public:
 
 	virtual inline ~Tweenable() {
 	}
-	;
 };
 class Number {
 public:
