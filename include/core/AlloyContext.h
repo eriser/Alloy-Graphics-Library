@@ -23,9 +23,16 @@
 #define ALLOYCONTEXT_H_
 #define GLFW_INCLUDE_GLU
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <GL/glew.h>
+#else
 #include <GL/glew.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
+#endif
+
 #include <GLFW/glfw3.h>
 #include <mutex>
 #include <memory>

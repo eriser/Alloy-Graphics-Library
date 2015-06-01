@@ -23,6 +23,7 @@
 #define ALLOYUNITS_H_
 #include "AlloyMath.h"
 #include "nanovg.h"
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <memory>
