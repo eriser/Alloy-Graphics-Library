@@ -117,7 +117,9 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 
 }
 void Region::setDragOffset(const pixel2& cursor,const pixel2& delta){
-	dragOffset =bounds.clamp(cursor-delta,parent->bounds)-(bounds.position-dragOffset);
+	pixel2 d=(bounds.position-dragOffset);
+	dragOffset =bounds.clamp(cursor-delta,parent->bounds)-d;
+	bounds.position=dragOffset+d;
 }
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {

@@ -24,9 +24,6 @@ using namespace std;
 namespace aly{
 	void Widget::add(const std::shared_ptr<Region>& region){
 		Composite::add(region);
-		region->onMouseOver=[this,region](AlloyContext* context,const InputEvent& e){this->onMouseOver(context,region.get(),e);};
-		region->onMouseClick=[this,region](AlloyContext* context,const InputEvent& e){this->onMouseClick(context,region.get(),e);};
-		region->onMouseDrag=[this,region](AlloyContext* context,const InputEvent& e,const pixel2& lastDragPosition){this->onMouseDrag(context,region.get(),e,lastDragPosition);};
 	}
 
 	Button::Button(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions):Widget(label){
@@ -90,20 +87,41 @@ namespace aly{
 		scrollTrack->add(scrollHandle);
 		scrollTrack->backgroundColor=MakeColor(255,0,0);
 
+		scrollTrack->onMouseDown=[this](AlloyContext* context,const InputEvent& e){this->onMouseDown(context,scrollTrack.get(),e);};
+		scrollHandle->onMouseDown=[this](AlloyContext* context,const InputEvent& e){this->onMouseDown(context,scrollHandle.get(),e);};
+		scrollHandle->onMouseUp=[this](AlloyContext* context,const InputEvent& e){this->onMouseUp(context,scrollHandle.get(),e);};
+		scrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& e,const pixel2& lastDragPosition){this->onMouseDrag(context,scrollHandle.get(),e,lastDragPosition);};
+
 		add(MakeTextLabel("Label",CoordPerPX(0.0f,0.0f,10,0),CoordPerPX(0.5f,1.0f,0,-21),FontType::Bold,UnitPX(26),RGBA(255,255,255,255),HorizontalAlignment::Left,VerticalAlignment::Bottom));
-		add(valueLabel=MakeTextLabel("0.12345",CoordPercent(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-10,-21),FontType::Normal,UnitPX(24),RGBA(255,255,255,255),HorizontalAlignment::Right,VerticalAlignment::Bottom));
+		add(valueLabel=MakeTextLabel("Value",CoordPercent(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-10,-21),FontType::Normal,UnitPX(24),RGBA(255,255,255,255),HorizontalAlignment::Right,VerticalAlignment::Bottom));
 		add(scrollTrack);
 	}
-	void HorizontalSlider::onMouseClick(AlloyContext* context,Region* region,const InputEvent& event){
-		if(region==scrollTrack.get()){
-			scrollHandle->setDragOffset(event.cursor,scrollHandle->getBoundsDimensions()*0.5f);
-			context->requestPack();
-		}
-	}
-void HorizontalSlider::draw(AlloyContext* context){
+	void HorizontalSlider::update(){
 		double interp=(scrollHandle->getBoundsPositionX()-scrollTrack->getBoundsPositionX())/(double)(scrollTrack->getBoundsDimensionsX()-scrollHandle->getBoundsDimensionsX());
 		double val=(1.0-interp)*minValue.toDouble()+interp*maxValue.toDouble();
 		value.setValue(val);
+	}
+	void HorizontalSlider::onMouseDown(AlloyContext* context,Region* region,const InputEvent& event){
+		if(region==scrollTrack.get()){
+			scrollHandle->setDragOffset(event.cursor,scrollHandle->getBoundsDimensions()*0.5f);
+			update();
+		} else if(region==scrollHandle.get()){
+			update();
+		}
+	}
+	void HorizontalSlider::onMouseUp(AlloyContext* context,Region* region,const InputEvent& event){
+		if(region==scrollHandle.get()){
+			update();
+		}
+	}
+	void HorizontalSlider::onMouseDrag(AlloyContext* context,Region* region,const InputEvent& event,const pixel2& lastCursorLocation){
+		if(region==scrollHandle.get()){
+			region->setDragOffset(event.cursor,lastCursorLocation);
+			update();
+		}
+	}
+void HorizontalSlider::draw(AlloyContext* context){
+
 		valueLabel->label=labelFormatter(value);
 		NVGcontext* nvg=context->nvgContext;
 		float cornerRadius=5.0f;

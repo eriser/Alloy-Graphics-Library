@@ -53,7 +53,8 @@ public:
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 
-	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseClick;
+	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseDown;
+	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseUp;
 	std::function<void(AlloyContext* context,const InputEvent& event)> onMouseOver;
 	std::function<void(AlloyContext* context,const InputEvent& event,const pixel2& lastDragPosition)> onMouseDrag;
 	void setDragOffset(const pixel2&  cursor,const pixel2& delta);
