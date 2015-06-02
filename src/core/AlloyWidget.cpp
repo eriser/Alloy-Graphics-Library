@@ -18,10 +18,83 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlloyWidget.h"
 
+#include "AlloyApplication.h"
+#include "AlloyWidget.h"
 using namespace std;
 namespace aly {
+CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit2D& dimensions,bool checked):Widget(label),checked(checked){
+	this->position = position;
+	this->dimensions = dimensions;
+	this->aspect = 4.0f;
+	CompositePtr valueContainer=MakeComposite("Check Bounds",CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+
+			checkLabel = MakeTextLabel(label,
+					CoordPercent(0.0f, 0.0f),
+					CoordPercent(1.0f, 1.0f),
+					FontType::Bold, UnitPercent(1.0f),
+					RGBA(255, 255, 255, 255), HorizontalAlignment::Left,
+					VerticalAlignment::Middle);
+
+	valueLabel=MakeGlyphRegion(Application::getContext()->createAwesomeGlyph(0xf00c),
+					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
+					RGBA(255, 255, 255, 255));
+	valueLabel->origin=Origin::TopRight;
+	valueLabel->aspectRatio=AspectRatio::FixedHeight;
+	valueContainer->add(checkLabel);
+	valueContainer->add(valueLabel);
+	add(valueContainer);
+	valueLabel->setVisible(checked);
+	valueLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
+		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+			this->checked=!this->checked;this->valueLabel->setVisible(this->checked);
+		}
+	};
+	checkLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
+		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+			this->checked=!this->checked;this->valueLabel->setVisible(this->checked);
+		}
+	};
+}
+void CheckBox::draw(AlloyContext* context){
+	float cornerRadius = 5.0f;
+	NVGcontext* nvg = context->nvgContext;
+	bool hover=context->isMouseContainedIn(this);
+	if(hover){
+		nvgBeginPath(nvg);
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
+				cornerRadius, 8, Color(0, 0, 0, 255), Color(255, 255, 255, 0));
+		nvgFillPaint(nvg, shadowPaint);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
+		nvgFill(nvg);
+	}
+
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+	nvgFillColor(nvg, Color(64, 64, 64, 255));
+	nvgFill(nvg);
+
+		nvgBeginPath(nvg);
+		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
+				bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y, cornerRadius, 2, Color(64, 64, 64, 0),
+				Color(255,255,255,255));
+		nvgFillPaint(nvg, hightlightPaint);
+		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+		nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgFillColor(nvg, Color(128,128,128));
+	box2px clickbox=valueLabel->getBounds();
+	nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
+	nvgFill(nvg);
+
+	Composite::draw(context);
+}
 void Widget::add(const std::shared_ptr<Region>& region) {
 	Composite::add(region);
 }
@@ -80,6 +153,8 @@ void ScrollHandle::draw(AlloyContext* context) {
 	nvgStroke(nvg);
 
 }
+
+
 HorizontalSlider::HorizontalSlider(const std::string& label,
 		const AUnit2D& position, const AUnit2D& dimensions, const Number& min,
 		const Number& max, const Number& value) :

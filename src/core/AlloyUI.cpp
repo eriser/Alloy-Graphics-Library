@@ -131,7 +131,9 @@ void Region::drawDebug(AlloyContext* context) {
 }
 void Composite::drawOnTop(AlloyContext* context) {
 	for (std::shared_ptr<Region>& region : children) {
-		region->drawOnTop(context);
+		if(region->isVisible()){
+			region->drawOnTop(context);
+		}
 	}
 }
 void Composite::draw(AlloyContext* context) {
@@ -144,8 +146,10 @@ void Composite::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	for (std::shared_ptr<Region>& region : children) {
-		nvgScissor(nvg, bounds.position.x, bounds.position.y,bounds.dimensions.x, bounds.dimensions.y);
-		region->draw(context);
+		if(region->isVisible()){
+			nvgScissor(nvg, bounds.position.x, bounds.position.y,bounds.dimensions.x, bounds.dimensions.y);
+			region->draw(context);
+		}
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
@@ -399,7 +403,7 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 	region->verticalAlignment = valign;
 	return region;
 }
-std::shared_ptr<Region> MakeRegionLabel(const std::string& name,
+std::shared_ptr<Region> MakeRegion(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions, const RGBA& bgColor,
 		const RGBA& borderColor, const AUnit1D& borderWidth) {
 	std::shared_ptr<Region> region = std::shared_ptr<Region>(new Region(name));

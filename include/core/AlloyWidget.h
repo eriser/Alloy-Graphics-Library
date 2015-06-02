@@ -57,6 +57,16 @@ public:
 	}
 	;
 };
+class CheckBox: public Widget {
+private:
+	TextLabelPtr checkLabel;
+	GlyphRegionPtr valueLabel;
+	bool checked;
+public:
+	inline bool getValue(){return checked;}
+	CheckBox(const std::string& label, const AUnit2D& position,const AUnit2D& dimensions,bool checked=false);
+	virtual void draw(AlloyContext* context) override;
+};
 class ScrollHandle: public Region {
 public:
 	ScrollHandle(const std::string& name) :
@@ -119,7 +129,7 @@ public:
 
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
-
+typedef std::shared_ptr<CheckBox> CheckBoxPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

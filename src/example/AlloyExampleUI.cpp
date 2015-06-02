@@ -58,7 +58,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), RGBA(64, 64, 64, 255));
 
-	RegionPtr scrollHandle = MakeRegionLabel("Scroll Handle",
+	RegionPtr scrollHandle = MakeRegion("Scroll Handle",
 			CoordPercent(0.0, 0.0), CoordPX(30, 30), RGBA(255, 128, 64, 255),
 			RGBA(255, 255, 255, 255), UnitPX(2.0f));
 	scrollHandle->setEnableDrag(true);
@@ -83,6 +83,8 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.6, 0.3),CoordPX(200.0f, 50.0f)));
 
+	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPercent(0.1, 0.6),CoordPercent(0.3f, 0.1),false));
+
 	button2->setEnableDrag(true);
 	//button1->setEnableDrag(true);
 	rootNode.add(comp);
@@ -94,7 +96,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(button2);
 	rootNode.add(hslider1);
 	rootNode.add(hslider2);
-
+	rootNode.add(checkbox);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;

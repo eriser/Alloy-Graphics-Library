@@ -195,7 +195,7 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const RGBA& fontColor = COLOR_WHITE, const HorizontalAlignment& halign =
 				HorizontalAlignment::Left, const VerticalAlignment& valign =
 				VerticalAlignment::Top);
-std::shared_ptr<Region> MakeRegionLabel(const std::string& name,
+std::shared_ptr<Region> MakeRegion(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const RGBA& bgColor = COLOR_NONE, const RGBA& lineColor = COLOR_WHITE,
 		const AUnit1D& lineWidth = UnitPX(2.0f));
