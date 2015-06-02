@@ -44,15 +44,18 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit
 	valueContainer->add(checkLabel);
 	valueContainer->add(valueLabel);
 	add(valueContainer);
-	valueLabel->setVisible(checked);
+	this->valueLabel->foregroundColor=(this->checked)?MakeColor(255,255,255):MakeColor(64,64,64);
+
 	valueLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-			this->checked=!this->checked;this->valueLabel->setVisible(this->checked);
+			this->checked=!this->checked;
+			this->valueLabel->foregroundColor=(this->checked)?MakeColor(255,255,255):MakeColor(64,64,64);
 		}
 	};
 	checkLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-			this->checked=!this->checked;this->valueLabel->setVisible(this->checked);
+			this->checked=!this->checked;
+			this->valueLabel->foregroundColor=(this->checked)?MakeColor(255,255,255):MakeColor(64,64,64);
 		}
 	};
 }
@@ -87,11 +90,20 @@ void CheckBox::draw(AlloyContext* context){
 				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
 		nvgFill(nvg);
 
+
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, Color(128,128,128));
 	box2px clickbox=valueLabel->getBounds();
 	nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
 	nvgFill(nvg);
+
+	if(context->isMouseOver(valueLabel.get())||context->isMouseOver(checkLabel.get())){
+		nvgBeginPath(nvg);
+		nvgStrokeColor(nvg, Color(200,200,200));
+		nvgStrokeWidth(nvg,2.0f);
+		nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
+		nvgStroke(nvg);
+	}
 
 	Composite::draw(context);
 }
