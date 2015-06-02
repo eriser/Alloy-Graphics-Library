@@ -223,7 +223,7 @@ void Application::fireEvent(const InputEvent& event) {
 				context->dragEnabled = true;
 			}
 		} else if (event.isMouseUp()) {
-			if(context->mouseDownRegion!=nullptr)context->mouseDownRegion->onMouseUp(context.get(), event);
+			if(context->mouseDownRegion!=nullptr&&context->mouseDownRegion->onMouseUp)context->mouseDownRegion->onMouseUp(context.get(), event);
 			context->mouseDownRegion = nullptr;
 			context->dragEnabled = false;
 			context->cursorDownPosition = pixel2(0, 0);
@@ -377,7 +377,7 @@ void Application::run(int swapInterval) {
 		glfwSwapBuffers(context->window);
 		glfwPollEvents();
 		for (std::exception_ptr e : caughtExceptions) {
-			throw e;
+			std::rethrow_exception(e);
 		}
 	} while (!glfwWindowShouldClose(context->window));
 }

@@ -127,6 +127,7 @@ public:
 struct SelectionBox: public Region{
 protected:
 	int selectedIndex=-1;
+	std::string label;
 public:
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
@@ -142,6 +143,7 @@ public:
 	}
 	void setSelectedIndex(int index){
 		selectedIndex=index;
+		label=(index>=0)?options[selectedIndex]:name;
 	}
 	void drawOnTop(AlloyContext* context) override;
 	void draw(AlloyContext* context) override;

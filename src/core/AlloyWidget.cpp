@@ -200,7 +200,7 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 
-	nvgText(nvg, bounds.position.x + offset.x+lineWidth, bounds.position.y + offset.y,name.c_str(), nullptr);
+	nvgText(nvg, bounds.position.x + offset.x+lineWidth, bounds.position.y + offset.y,label.c_str(), nullptr);
 	int index=0;
 
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
@@ -236,7 +236,7 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 		nvgStroke(nvg);
 	}
 }
-SelectionBox::SelectionBox(const std::string& name,const std::vector<std::string>& labels):Region(name),options(labels){
+SelectionBox::SelectionBox(const std::string& name,const std::vector<std::string>& labels):Region(name),options(labels),label(name){
 }
 Selection::Selection(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions,const std::vector<std::string>& options):Widget(label){
 	this->position=position;
@@ -286,6 +286,7 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 				selectionBox->setSelectedIndex(selectedIndex);
 			} else {
 				selectedIndex=selectionBox->getSelectedIndex();
+				selectionBox->setSelectedIndex(selectedIndex);
 			}
 			selectionLabel->label=this->getSelection();
 
