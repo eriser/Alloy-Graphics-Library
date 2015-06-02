@@ -161,19 +161,19 @@ void HorizontalSlider::update() {
 }
 void HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 		const InputEvent& event) {
-	if (region == scrollTrack.get()) {
-		scrollHandle->setDragOffset(event.cursor,
-				scrollHandle->getBoundsDimensions() * 0.5f);
-		update();
-	} else if (region == scrollHandle.get()) {
-		update();
+	if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+		if (region == scrollTrack.get()) {
+			scrollHandle->setDragOffset(event.cursor,
+					scrollHandle->getBoundsDimensions() * 0.5f);
+			context->setDragObject(scrollHandle.get());
+			update();
+		} else if (region == scrollHandle.get()) {
+			update();
+		}
 	}
 }
 void HorizontalSlider::onMouseUp(AlloyContext* context, Region* region,
 		const InputEvent& event) {
-	if (region == scrollHandle.get()) {
-		update();
-	}
 }
 void HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event, const pixel2& lastCursorLocation) {

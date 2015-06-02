@@ -178,7 +178,8 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
-	inline bool isMouseOver(Region* region) {
+	void setDragObject(Region* region);
+	bool isMouseOver(Region* region) {
 		return (mouseOverRegion == region);
 	}
 	bool isMouseContainedIn(Region* region);

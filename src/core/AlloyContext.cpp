@@ -131,6 +131,11 @@ std::string AlloyContext::getFullPath(const std::string& partialFile) {
 	throw std::runtime_error(MakeString()<<"Could not find \""<<partialFile<<"\"");
 	return std::string("");
 }
+void AlloyContext::setDragObject(Region* region){
+	mouseDownRegion=region;
+	cursorDownPosition = cursorPosition- mouseDownRegion->getBoundsPosition();
+	dragEnabled = true;
+}
 AlloyContext::AlloyContext(int width, int height, const std::string& title) :
 		window(nullptr), nvgContext(nullptr), current(nullptr) {
 	std::lock_guard<std::mutex> lock(contextLock);
