@@ -122,14 +122,53 @@ public:
 			const Number& maxValue = Float(1.0f),
 			const Number& value = Float(0.0f));
 	virtual void draw(AlloyContext* context) override;
-	virtual inline ~HorizontalSlider() {
-	}
-	;
+	virtual inline ~HorizontalSlider() {}
 };
+struct SelectionBox: public Region{
+protected:
+	int selectedIndex=-1;
+public:
+	FontStyle fontStyle = FontStyle::Normal;
+	FontType fontType = FontType::Normal;
+	AUnit1D fontSize = UnitPX(14);
+	AColor textColor = MakeColor(COLOR_WHITE);
+	AColor textAltColor = MakeColor(COLOR_BLACK);
+	std::vector<std::string> options;
+	std::string getSelection(int index){
+		return (selectedIndex>=0)?options[selectedIndex]:name;
+	}
+	int getSelectedIndex() const {
+		return selectedIndex;
+	}
+	void setSelectedIndex(int index){
+		selectedIndex=index;
+	}
+	void drawOnTop(AlloyContext* context) override;
+	void draw(AlloyContext* context) override;
 
+	SelectionBox(const std::string& name,const std::vector<std::string>& options);
+};
+class Selection: public Widget{
+private:
+	TextLabelPtr selectionLabel;
+	GlyphRegionPtr arrowLabel;
+	std::shared_ptr<SelectionBox> selectionBox;
+	int selectedIndex=-1;
+public:
+	inline int getSelectedIndex() const {
+		return selectedIndex;
+	}
+	std::string getSelection() {
+		return selectionBox->getSelection(selectedIndex);
+	}
+	virtual void draw(AlloyContext* context) override;
+	Selection(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions,const std::vector<std::string>& options=std::vector<std::string>());
+};
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
+typedef std::shared_ptr<Selection> SelectionPtr;
+typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

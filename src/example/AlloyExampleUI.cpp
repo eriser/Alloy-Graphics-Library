@@ -23,7 +23,7 @@
 #include "../../include/example/AlloyExampleUI.h"
 using namespace aly;
 ExampleUI::ExampleUI() :
-		Application(640, 480, "ExampleUI") {
+		Application(1280, 720, "ExampleUI") {
 }
 bool ExampleUI::init(Composite& rootNode) {
 	TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
@@ -85,6 +85,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPercent(0.1, 0.6),CoordPercent(0.3f, 0.1),false));
 
+	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.6),CoordPX(200, 50),std::vector<std::string>{"Mission","Bernal","Noe","SoMa","Pac Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
 	button2->setEnableDrag(true);
 	//button1->setEnableDrag(true);
 	rootNode.add(comp);
@@ -96,6 +97,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(button2);
 	rootNode.add(hslider1);
 	rootNode.add(hslider2);
+	rootNode.add(dropdown);
 	rootNode.add(checkbox);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;

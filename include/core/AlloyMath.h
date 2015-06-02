@@ -1272,7 +1272,7 @@ template<class T, int M> struct box {
 	box(vec<T, M> pt, vec<T, M> dims) :
 			position(pt), dimensions(dims) {
 	}
-	inline bool contains(const vec<T, M>& qt) {
+	inline bool contains(const vec<T, M>& qt) const {
 		for (int m = 0; m < M; m++)
 			if (qt[m] < position[m] || qt[m] >= position[m] + dimensions[m])
 				return false;

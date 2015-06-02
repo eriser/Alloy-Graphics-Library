@@ -136,6 +136,7 @@ void AlloyContext::setDragObject(Region* region){
 	cursorDownPosition = cursorPosition- mouseDownRegion->getBoundsPosition();
 	dragEnabled = true;
 }
+
 AlloyContext::AlloyContext(int width, int height, const std::string& title) :
 		window(nullptr), nvgContext(nullptr), current(nullptr) {
 	std::lock_guard<std::mutex> lock(contextLock);
@@ -207,6 +208,12 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title) :
 }
 bool AlloyContext::isMouseContainedIn(Region* region) {
 	return (region->getBounds().contains(cursorPosition));
+}
+bool AlloyContext::isMouseContainedIn(const box2px& box) {
+	return (box.contains(cursorPosition));
+}
+bool AlloyContext::isMouseContainedIn(const pixel2& pos,const pixel2& dims) {
+	return ((box2px(pos,dims)).contains(cursorPosition));
 }
 bool AlloyContext::begin() {
 	if (current == nullptr) {

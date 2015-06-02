@@ -223,9 +223,11 @@ void Application::fireEvent(const InputEvent& event) {
 				context->dragEnabled = true;
 			}
 		} else if (event.isMouseUp()) {
+			if(context->mouseDownRegion!=nullptr)context->mouseDownRegion->onMouseUp(context.get(), event);
 			context->mouseDownRegion = nullptr;
 			context->dragEnabled = false;
 			context->cursorDownPosition = pixel2(0, 0);
+
 		}
 	}
 	if (context->mouseDownRegion != nullptr && context->dragEnabled

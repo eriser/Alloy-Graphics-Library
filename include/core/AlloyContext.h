@@ -179,9 +179,14 @@ public:
 	double2 dpmm;
 	bool hasFocus = false;
 	void setDragObject(Region* region);
-	bool isMouseOver(Region* region) {
+	inline bool isMouseOver(Region* region) {
 		return (mouseOverRegion == region);
 	}
+	inline void setMouseDownObject(Region* region){
+		mouseDownRegion=region;
+	}
+	bool isMouseContainedIn(const box2px& box);
+	bool isMouseContainedIn(const pixel2& pos,const pixel2& dims);
 	bool isMouseContainedIn(Region* region);
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
