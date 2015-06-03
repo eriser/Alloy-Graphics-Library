@@ -350,6 +350,10 @@ struct Color: public NVGcolor {
 	Color(float r, float g, float b) :
 			Color(nvgRGBf(r, g, b)) {
 	}
+	Color(const Color& color,int alpha) : Color(color.r,color.g,color.b,alpha/255.0f){
+	}
+	Color(const Color& color,float alpha) : Color(color.r,color.g,color.b,alpha){
+	}
 	Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) :
 			Color(nvgRGBA(r, g, b, a)) {
 	}
@@ -364,6 +368,19 @@ struct Color: public NVGcolor {
 	}
 	Color(int lum) :
 		Color(nvgRGB(lum,lum,lum)) {
+	}
+	inline Color toSemiTransparent(float alpha){
+		return Color(r,g,b,alpha);
+	}
+	inline Color toSemiTransparent(int alpha) const {
+		return Color(r,g,b,alpha/255.0f);
+	}
+	inline RGBA rgba() const {
+		return RGBA(
+				(int)clamp(255.0f*r,0.0f,255.0f),
+				(int)clamp(255.0f*g,0.0f,255.0f),
+				(int)clamp(255.0f*b,0.0f,255.0f),
+				(int)clamp(255.0f*a,0.0f,255.0f));
 	}
 };
 typedef std::shared_ptr<Color> AColor;
@@ -676,10 +693,10 @@ struct ColorTween: public Tweenable, Color {
 	}
 	virtual void setTweenValue(double val) override {
 		t = val;
-		rgba[0] = mix(value.first.rgba[0], value.second.rgba[0], t);
-		rgba[1] = mix(value.first.rgba[1], value.second.rgba[1], t);
-		rgba[2] = mix(value.first.rgba[2], value.second.rgba[2], t);
-		rgba[3] = mix(value.first.rgba[3], value.second.rgba[3], t);
+		r = mix(value.first.r, value.second.r, t);
+		g = mix(value.first.g, value.second.g, t);
+		b = mix(value.first.b, value.second.b, t);
+		a = mix(value.first.a, value.second.a, t);
 	}
 
 };

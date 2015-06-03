@@ -33,29 +33,28 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit
 					CoordPercent(0.0f, 0.0f),
 					CoordPercent(1.0f, 1.0f),
 					FontType::Bold, UnitPercent(1.0f),
-					RGBA(255, 255, 255, 255), HorizontalAlignment::Left,
+					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Left,
 					VerticalAlignment::Middle);
 
 	valueLabel=MakeGlyphRegion(Application::getContext()->createAwesomeGlyph(0xf00c),
 					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
-					RGBA(255, 255, 255, 255));
+					Application::getContext()->theme.HIGHLIGHT.rgba());
 	valueLabel->origin=Origin::TopRight;
 	valueLabel->aspectRatio=AspectRatio::FixedHeight;
 	valueContainer->add(checkLabel);
 	valueContainer->add(valueLabel);
 	add(valueContainer);
-	this->valueLabel->foregroundColor=(this->checked)?MakeColor(255,255,255):MakeColor(64,64,64);
-
+	this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.HIGHLIGHT):MakeColor(Application::getContext()->theme.DARK);
 	valueLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 			this->checked=!this->checked;
-			this->valueLabel->foregroundColor=(this->checked)?MakeColor(255,255,255):MakeColor(64,64,64);
+			this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.HIGHLIGHT):MakeColor(Application::getContext()->theme.DARK);
 		}
 	};
 	checkLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 			this->checked=!this->checked;
-			this->valueLabel->foregroundColor=(this->checked)?MakeColor(255,255,255):MakeColor(64,64,64);
+			this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.HIGHLIGHT):MakeColor(Application::getContext()->theme.DARK);
 		}
 	};
 }
@@ -67,7 +66,7 @@ void CheckBox::draw(AlloyContext* context){
 		nvgBeginPath(nvg);
 		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				cornerRadius, 8, Color(0, 0, 0, 255), Color(255, 255, 255, 0));
+				cornerRadius, 8,context->theme.SHADOW, context->theme.HIGHLIGHT.toSemiTransparent(0));
 		nvgFillPaint(nvg, shadowPaint);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
 				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
@@ -77,14 +76,14 @@ void CheckBox::draw(AlloyContext* context){
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
-	nvgFillColor(nvg, Color(64, 64, 64, 255));
+	nvgFillColor(nvg,context->theme.DARK);
 	nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
 				bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y, cornerRadius, 2, Color(64, 64, 64, 0),
-				Color(255,255,255,255));
+				bounds.dimensions.y, cornerRadius, 2, context->theme.DARK.toSemiTransparent(0),
+				context->theme.HIGHLIGHT);
 		nvgFillPaint(nvg, hightlightPaint);
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
@@ -92,14 +91,14 @@ void CheckBox::draw(AlloyContext* context){
 
 
 	nvgBeginPath(nvg);
-	nvgFillColor(nvg, Color(128,128,128));
+	nvgFillColor(nvg, context->theme.NEUTRAL);
 	box2px clickbox=valueLabel->getBounds();
 	nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
 	nvgFill(nvg);
 
 	if(context->isMouseOver(valueLabel.get())||context->isMouseOver(checkLabel.get())){
 		nvgBeginPath(nvg);
-		nvgStrokeColor(nvg, Color(200,200,200));
+		nvgStrokeColor(nvg,context->theme.LIGHT);
 		nvgStrokeWidth(nvg,2.0f);
 		nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
 		nvgStroke(nvg);
@@ -117,9 +116,9 @@ Button::Button(const std::string& label, const AUnit2D& position,
 	this->position = position;
 	this->dimensions = dimensions;
 
-	backgroundColor = MakeColor(Color(255, 255, 255, 255));
-	textColor = MakeColor(Color(0, 0, 0, 255));
-	borderColor = MakeColor(Color(255, 255, 255, 255));
+	backgroundColor = MakeColor(Application::getContext()->theme.LIGHT);
+	textColor = MakeColor(Application::getContext()->theme.DARK);
+	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRatio = AspectRatio::FixedHeight;
 }
@@ -131,7 +130,7 @@ void ScrollTrack::draw(AlloyContext* context) {
 			bounds.position.y + bounds.dimensions.y * 0.5f);
 	nvgLineTo(nvg, bounds.position.x - 14 + bounds.dimensions.x,
 			bounds.position.y + bounds.dimensions.y * 0.5f);
-	nvgStrokeColor(nvg, Color(255, 255, 255, 255));
+	nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 	nvgStrokeWidth(nvg, 10.0f);
 	nvgLineCap(nvg, NVG_ROUND);
 	nvgStroke(nvg);
@@ -146,19 +145,19 @@ void ScrollHandle::draw(AlloyContext* context) {
 		nvgCircle(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
 				bounds.position.y + bounds.dimensions.y * 0.5f,
 				bounds.dimensions.y * 0.5f);
-		nvgFillColor(nvg, Color(220, 220, 220, 128));
+		nvgFillColor(nvg, context->theme.LIGHT.toSemiTransparent(0.5f));
 		nvgFill(nvg);
 	}
 	nvgBeginPath(nvg);
 	nvgCircle(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
 			bounds.position.y + bounds.dimensions.y * 0.5f,
 			bounds.dimensions.y * 0.25f);
-	nvgFillColor(nvg, Color(255, 255, 255, 255));
+	nvgFillColor(nvg,context->theme.HIGHLIGHT);
 	nvgFill(nvg);
 
 	nvgBeginPath(nvg);
 	nvgStrokeWidth(nvg, 2.0f);
-	nvgStrokeColor(nvg, Color(128, 128, 128, 128));
+	nvgStrokeColor(nvg, context->theme.NEUTRAL.toSemiTransparent(0.5f));
 	nvgCircle(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
 			bounds.position.y + bounds.dimensions.y * 0.5f,
 			bounds.dimensions.y * 0.25f);
@@ -199,7 +198,7 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 	nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
 	pixel2 offset(0, 0);
 
-	nvgFillColor(nvg,  Color(64,64,64));
+	nvgFillColor(nvg, context->theme.DARK);
 	int index=0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
 
@@ -213,7 +212,7 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 					yOffset,
 					bounds.dimensions.x,
 					boxHeight);
-			nvgFillColor(nvg, Color(64,64,64));
+			nvgFillColor(nvg, context->theme.NEUTRAL);
 			nvgFill(nvg);
 			selectedIndex=index;
 		}
@@ -244,24 +243,24 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 					CoordPercent(0.0f, 0.0f),
 					CoordPercent(1.0f, 1.0f),
 					FontType::Bold, UnitPercent(1.0f),
-					RGBA(255, 255, 255, 255), HorizontalAlignment::Left,
+					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Left,
 					VerticalAlignment::Middle);
 
 	arrowLabel=MakeGlyphRegion(Application::getContext()->createAwesomeGlyph(0xf13a),
-					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
-					RGBA(255, 255, 255, 255));
+					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE, COLOR_NONE);
 
+	arrowLabel->foregroundColor=MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	selectionBox=SelectionBoxPtr(new SelectionBox("Selection",options));
 	selectionBox->setPosition(CoordPercent(0.0f,0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f,1.0f));
 	selectionBox->fontSize=selectionLabel->fontSize;
-	selectionBox->backgroundColor=MakeColor(128,128,128);
-	selectionBox->borderColor=MakeColor(255,255,255);
+	selectionBox->backgroundColor=MakeColor(Application::getContext()->theme.DARK);
+	selectionBox->borderColor=MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	selectionBox->borderWidth=UnitPX(1.0f);
 	selectionBox->setVisible(false);
 	arrowLabel->origin=Origin::TopRight;
 	arrowLabel->aspectRatio=AspectRatio::FixedHeight;
-	arrowLabel->backgroundColor=MakeColor(64,64,64);
+	arrowLabel->backgroundColor=MakeColor(Application::getContext()->theme.DARK);
 
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
@@ -300,7 +299,7 @@ if(hover){
 	nvgBeginPath(nvg);
 	NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 			bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-			cornerRadius, 8, Color(0, 0, 0, 255), Color(255, 255, 255, 0));
+			cornerRadius, 8,context->theme.SHADOW, context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
 	nvgFillPaint(nvg, shadowPaint);
 	nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
 			bounds.dimensions.x, bounds.dimensions.y, 4.0f);
@@ -310,14 +309,14 @@ if(hover){
 nvgBeginPath(nvg);
 nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 		bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
-nvgFillColor(nvg, Color(64, 64, 64, 255));
+nvgFillColor(nvg,context->theme.DARK);
 nvgFill(nvg);
 
 	nvgBeginPath(nvg);
 	NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
 			bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y, cornerRadius, 2, Color(64, 64, 64, 0),
-			Color(255,255,255,255));
+			bounds.dimensions.y, cornerRadius, 2,  context->theme.SHADOW.toSemiTransparent(0.0f),
+			 context->theme.HIGHLIGHT);
 	nvgFillPaint(nvg, hightlightPaint);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
@@ -335,14 +334,14 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
 	this->aspect = 4.0f;
-	textColor = MakeColor(Color(0, 0, 0, 255));
-	borderColor = MakeColor(Color(255, 255, 255, 255));
+	textColor = MakeColor(Application::getContext()->theme.DARK);
+	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	scrollHandle = std::shared_ptr<ScrollHandle>(
 			new ScrollHandle("Scroll Handle"));
 
 	scrollHandle->setPosition(CoordPercent(0.0, 0.0));
 	scrollHandle->setDimensions(CoordPX(handleSize, handleSize));
-	scrollHandle->backgroundColor = MakeColor(255, 128, 64, 255);
+	scrollHandle->backgroundColor = MakeColor(Application::getContext()->theme.LIGHT);
 	scrollHandle->setEnableDrag(true);
 
 	scrollTrack = std::shared_ptr<ScrollTrack>(new ScrollTrack("Scroll Track"));
@@ -350,10 +349,8 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	scrollTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
 	scrollTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
 
-	scrollTrack->backgroundColor = MakeColor(128, 128, 128, 255);
+	scrollTrack->backgroundColor = MakeColor(Application::getContext()->theme.DARK);
 	scrollTrack->add(scrollHandle);
-	scrollTrack->backgroundColor = MakeColor(255, 0, 0);
-
 	scrollTrack->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {this->onMouseDown(context,scrollTrack.get(),e);};
 	scrollHandle->onMouseDown =
@@ -369,7 +366,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					CoordPerPX(0.5f, 1.0f, 0,
 							-(handleSize - trackPadding * 0.75f)),
 					FontType::Bold, UnitPerPX(1.0f, 0),
-					RGBA(255, 255, 255, 255), HorizontalAlignment::Left,
+					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Left,
 					VerticalAlignment::Bottom));
 	add(
 			valueLabel = MakeTextLabel("Value",
@@ -377,7 +374,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					CoordPerPX(1.0f, 1.0f, -trackPadding,
 							-(handleSize - trackPadding * 0.75f)),
 					FontType::Normal, UnitPerPX(1.0f, -2),
-					RGBA(255, 255, 255, 255), HorizontalAlignment::Right,
+					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Right,
 					VerticalAlignment::Bottom));
 	add(scrollTrack);
 	this->onPack = [this]() {
@@ -443,7 +440,7 @@ void HorizontalSlider::draw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				cornerRadius, 8, Color(0, 0, 0, 255), Color(255, 255, 255, 0));
+				cornerRadius, 8,context->theme.DARK, context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
 		nvgFillPaint(nvg, shadowPaint);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
 				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
@@ -453,14 +450,14 @@ void HorizontalSlider::draw(AlloyContext* context) {
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
-	nvgFillColor(nvg, Color(64, 64, 64, 255));
+	nvgFillColor(nvg,  context->theme.DARK);
 	nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
 				bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y, cornerRadius, 2, Color(64, 64, 64, 0),
-				Color(255,255,255,255));
+				bounds.dimensions.y, cornerRadius, 2, context->theme.DARK.toSemiTransparent(0.0f),
+				context->theme.HIGHLIGHT);
 		nvgFillPaint(nvg, hightlightPaint);
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
@@ -495,8 +492,8 @@ void Button::internalDraw(AlloyContext* context) {
 			nvgBeginPath(nvg);
 			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 					bounds.position.y, bounds.dimensions.x - 2,
-					bounds.dimensions.y, cornerRadius, 8, Color(0, 0, 0, 255),
-					Color(255, 255, 255, 0));
+					bounds.dimensions.y, cornerRadius, 8,context->theme.SHADOW,
+					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
 			nvgFillPaint(nvg, shadowPaint);
 			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
 					bounds.dimensions.x, bounds.dimensions.y, 4.0f);
@@ -506,14 +503,14 @@ void Button::internalDraw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
 				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
-		nvgFillColor(nvg, Color(255, 255, 255, 255));
+		nvgFillColor(nvg, context->theme.HIGHLIGHT);
 		nvgFill(nvg);
 
 	} else {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
 				bounds.dimensions.x - 2, bounds.dimensions.y - 2, cornerRadius);
-		nvgFillColor(nvg, Color(255, 255, 255, 255));
+		nvgFillColor(nvg, context->theme.HIGHLIGHT);
 		nvgFill(nvg);
 	}
 
@@ -522,8 +519,8 @@ void Button::internalDraw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
 				bounds.position.y + yoff, bounds.dimensions.x,
-				bounds.dimensions.y, cornerRadius, 4, Color(255, 255, 255, 0),
-				Color(64, 64, 64, 255));
+				bounds.dimensions.y, cornerRadius, 4, context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
+				context->theme.DARK);
 		nvgFillPaint(nvg, hightlightPaint);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
 				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
