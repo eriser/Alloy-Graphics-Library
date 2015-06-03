@@ -294,7 +294,6 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 }
 void Selection::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
-	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 float cornerRadius = 5.0f;
 bool hover=context->isMouseContainedIn(this);
 if(hover){
@@ -323,6 +322,8 @@ nvgFill(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
 	nvgFill(nvg);
+
+	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 Composite::draw(context);
 }
 HorizontalSlider::HorizontalSlider(const std::string& label,
