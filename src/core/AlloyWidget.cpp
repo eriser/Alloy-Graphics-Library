@@ -59,48 +59,47 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit
 	};
 }
 void CheckBox::draw(AlloyContext* context){
-	float cornerRadius = 5.0f;
 	NVGcontext* nvg = context->nvgContext;
 	bool hover=context->isMouseContainedIn(this);
 	if(hover){
 		nvgBeginPath(nvg);
 		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				cornerRadius, 8,context->theme.SHADOW, context->theme.HIGHLIGHT.toSemiTransparent(0));
+				context->theme.CORNER_RADIUS, 8,context->theme.SHADOW, context->theme.HIGHLIGHT.toSemiTransparent(0));
 		nvgFillPaint(nvg, shadowPaint);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
+				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 	}
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+			bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 	nvgFillColor(nvg,context->theme.DARK);
 	nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
 				bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y, cornerRadius, 2, context->theme.DARK.toSemiTransparent(0),
+				bounds.dimensions.y, context->theme.CORNER_RADIUS, 2, context->theme.DARK.toSemiTransparent(0),
 				context->theme.HIGHLIGHT);
 		nvgFillPaint(nvg, hightlightPaint);
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 
 
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, context->theme.NEUTRAL);
 	box2px clickbox=valueLabel->getBounds();
-	nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
+	nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, context->theme.CORNER_RADIUS);
 	nvgFill(nvg);
 
 	if(context->isMouseOver(valueLabel.get())||context->isMouseOver(checkLabel.get())){
 		nvgBeginPath(nvg);
 		nvgStrokeColor(nvg,context->theme.LIGHT_TEXT);
 		nvgStrokeWidth(nvg,2.0f);
-		nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
+		nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgStroke(nvg);
 	}
 
@@ -292,33 +291,32 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 }
 void Selection::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
-float cornerRadius = 5.0f;
 bool hover=context->isMouseContainedIn(this);
 if(hover){
 	nvgBeginPath(nvg);
 	NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 			bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-			cornerRadius, 8,context->theme.SHADOW, context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+			context->theme.CORNER_RADIUS, 8,context->theme.SHADOW, context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
 	nvgFillPaint(nvg, shadowPaint);
 	nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-			bounds.dimensions.x, bounds.dimensions.y, 4.0f);
+			bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 	nvgFill(nvg);
 }
 
 nvgBeginPath(nvg);
 nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-		bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+		bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 nvgFillColor(nvg,context->theme.DARK);
 nvgFill(nvg);
 
 	nvgBeginPath(nvg);
 	NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
 			bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y, cornerRadius, 2,  context->theme.SHADOW.toSemiTransparent(0.0f),
+			bounds.dimensions.y, context->theme.CORNER_RADIUS, 2,  context->theme.SHADOW.toSemiTransparent(0.0f),
 			 context->theme.HIGHLIGHT);
 	nvgFillPaint(nvg, hightlightPaint);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+			bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 	nvgFill(nvg);
 
 	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
@@ -433,33 +431,32 @@ void HorizontalSlider::draw(AlloyContext* context) {
 		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
 				pbounds.dimensions.x, pbounds.dimensions.y);
 	}
-	float cornerRadius = 5.0f;
 	bool hover=context->isMouseContainedIn(this);
 	if(hover){
 		nvgBeginPath(nvg);
 		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				cornerRadius, 8,context->theme.DARK, context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+				context->theme.CORNER_RADIUS, 8,context->theme.DARK, context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
 		nvgFillPaint(nvg, shadowPaint);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y, 4.0f);
+				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 	}
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-			bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+			bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 	nvgFillColor(nvg,  context->theme.DARK);
 	nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
 				bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y, cornerRadius, 2, context->theme.DARK.toSemiTransparent(0.0f),
+				bounds.dimensions.y, context->theme.CORNER_RADIUS, 2, context->theme.DARK.toSemiTransparent(0.0f),
 				context->theme.HIGHLIGHT);
 		nvgFillPaint(nvg, hightlightPaint);
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 	Composite::draw(context);
 }
@@ -477,7 +474,6 @@ void Button::internalDraw(AlloyContext* context) {
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
-	float cornerRadius = 5.0f;
 	float lineWidth = 2.0f;
 
 	int xoff = 0;
@@ -491,24 +487,24 @@ void Button::internalDraw(AlloyContext* context) {
 			nvgBeginPath(nvg);
 			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
 					bounds.position.y, bounds.dimensions.x - 2,
-					bounds.dimensions.y, cornerRadius, 8,context->theme.SHADOW,
+					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,context->theme.SHADOW,
 					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
 			nvgFillPaint(nvg, shadowPaint);
 			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-					bounds.dimensions.x, bounds.dimensions.y, 4.0f);
+					bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 			nvgFill(nvg);
 		}
 
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
-				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg,*backgroundColor);
 		nvgFill(nvg);
 
 	} else {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
-				bounds.dimensions.x - 2, bounds.dimensions.y - 2, cornerRadius);
+				bounds.dimensions.x - 2, bounds.dimensions.y - 2, context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg,*backgroundColor);
 		nvgFill(nvg);
 	}
@@ -518,11 +514,11 @@ void Button::internalDraw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
 				bounds.position.y + yoff, bounds.dimensions.x,
-				bounds.dimensions.y, cornerRadius, 4, context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
+				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4, context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
 				context->theme.DARK);
 		nvgFillPaint(nvg, hightlightPaint);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
-				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
+				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 	}
 

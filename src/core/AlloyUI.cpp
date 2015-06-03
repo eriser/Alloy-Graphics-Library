@@ -99,14 +99,12 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgStrokeColor(nvg, c);
 	nvgStrokeWidth(nvg, 1.0f);
 	nvgStroke(nvg);
-
 	nvgFontSize(nvg, FONT_SIZE_PX);
 	nvgFontFaceId(nvg, font);
 	nvgTextAlign(nvg, NVG_ALIGN_TOP | NVG_ALIGN_LEFT);
 	float twidth = std::ceil(
 			nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr));
 	float xoffset = (bounds.dimensions.x - twidth - 2 * FONT_PADDING) * 0.5f;
-
 	if(twidth<=bounds.dimensions.x&&FONT_SIZE_PX<=bounds.dimensions.y){
 	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y );
 	nvgBeginPath(nvg);

@@ -746,7 +746,7 @@ inline AColor MakeColor(const Color& start, const Color& end) {
 }
 
 struct Theme {
-	static const Theme Default;
+public:
 	Color HIGHLIGHT=Color(255,255,255);
 	Color SHADOW=Color(0,0,0);
 	Color LIGHT=Color(220,220,220);
@@ -754,8 +754,10 @@ struct Theme {
 	Color NEUTRAL=Color(128,128,128);
 	Color DARK_TEXT=Color(64,64,64);
 	Color LIGHT_TEXT=Color(240,240,240);
+	float CORNER_RADIUS=5.0f;
 	Theme(){
 	}
+	static const Theme DEFAULT;
 };
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(

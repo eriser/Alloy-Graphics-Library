@@ -164,32 +164,12 @@ void Application::drawDebugUI() {
 		}
 		if(context->leftMouseButton){
 			txt="Left Mouse Button";
-			nvgFillColor(nvg, Color(64, 64, 64, 255));
-			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
-			nvgFillColor(nvg, Color(255,255,255, 255));
-			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
 			yoffset+=16;
 		}
 		if(context->rightMouseButton){
 			txt="Right Mouse Button";
-			nvgFillColor(nvg, Color(64, 64, 64, 255));
-			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
-			nvgFillColor(nvg, Color(255,255,255, 255));
-			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
 			yoffset+=16;
 		}
 		if(context->hasFocus){
@@ -384,7 +364,7 @@ void Application::run(int swapInterval) {
 	debug->onMouseDown=[this,debug](AlloyContext* context,const InputEvent& e){
 		if(e.button==GLFW_MOUSE_BUTTON_LEFT){
 			context->toggleDebug();
-			debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,32,255):MakeColor(255,255,255,128);
+			debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(255,255,255,128);
 		}
 };
 	rootNode.add(debug);
