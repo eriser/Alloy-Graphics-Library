@@ -171,21 +171,24 @@ void SelectionBox::draw(AlloyContext* context){
 void SelectionBox::drawOnTop(AlloyContext* context){
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
-	float boxHeight=(options.size()+1)*bounds.dimensions.y;
+
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
+	float entryHeight=std::min(context->viewport.dimensions.y/(float)options.size(),bounds.dimensions.y);
+	float boxHeight=(options.size())*entryHeight;
+
+	float yOffset=std::min(bounds.position.y+boxHeight+entryHeight,(float)context->viewport.dimensions.y)-boxHeight;
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, bounds.position.x,
-				bounds.position.y,
+		nvgRect(nvg, bounds.position.x,
+				yOffset,
 				bounds.dimensions.x,
-				boxHeight,5.0f);
+				boxHeight);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 
-	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
+	float th = entryHeight-2;
 	nvgFontSize(nvg, th);
 	nvgFillColor(nvg, *textColor);
 
@@ -193,44 +196,39 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 	for(std::string& label:options){
 		tw = std::max(tw,nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr));
 	}
-	nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_TOP);
+	nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
 	pixel2 offset(0, 0);
 
 	nvgFillColor(nvg,  Color(64,64,64));
-
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-
-	nvgText(nvg, bounds.position.x + offset.x+lineWidth, bounds.position.y + offset.y,label.c_str(), nullptr);
 	int index=0;
-
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
 
 	selectedIndex=-1;
 	for(std::string& label:options){
-		offset.y+=bounds.dimensions.y;
-		if(context->isMouseContainedIn(bounds.position+offset,bounds.dimensions)){
-			nvgScissor(nvg,bounds.position.x + offset.x, bounds.position.y + offset.y,bounds.dimensions.x,bounds.dimensions.y);
+		nvgScissor(nvg,bounds.position.x + offset.x,yOffset+ offset.y,bounds.dimensions.x,entryHeight);
+		if(context->isMouseContainedIn(pixel2(bounds.position.x,yOffset)+offset,pixel2(bounds.dimensions.x,entryHeight))){
 			nvgBeginPath(nvg);
-			nvgRoundedRect(nvg,
+			nvgRect(nvg,
 					bounds.position.x,
-					bounds.position.y,
+					yOffset,
 					bounds.dimensions.x,
-					boxHeight,5.0f);
+					boxHeight);
 			nvgFillColor(nvg, Color(64,64,64));
 			nvgFill(nvg);
-			nvgScissor(nvg,0,0,context->viewport.dimensions.x,context->viewport.dimensions.y);
 			selectedIndex=index;
 		}
 		index++;
 		nvgFillColor(nvg, *textColor);
-		nvgText(nvg, bounds.position.x + offset.x+lineWidth, bounds.position.y + offset.y,label.c_str(), nullptr);
+		nvgText(nvg, bounds.position.x + offset.x+lineWidth, yOffset +entryHeight/2+ offset.y,label.c_str(), nullptr);
+		offset.y+=entryHeight;
 	}
+	nvgScissor(nvg,0,0,context->viewport.dimensions.x,context->viewport.dimensions.y);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				yOffset+ lineWidth * 0.5f,
 				bounds.dimensions.x - lineWidth,
-				boxHeight- lineWidth,5.0f);
+				boxHeight- lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
@@ -257,17 +255,18 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 	selectionBox->setPosition(CoordPercent(0.0f,0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f,1.0f));
 	selectionBox->fontSize=selectionLabel->fontSize;
-	selectionBox->backgroundColor=MakeColor(200,200,200);
+	selectionBox->backgroundColor=MakeColor(128,128,128);
 	selectionBox->borderColor=MakeColor(255,255,255);
+	selectionBox->borderWidth=UnitPX(1.0f);
 	selectionBox->setVisible(false);
 	arrowLabel->origin=Origin::TopRight;
 	arrowLabel->aspectRatio=AspectRatio::FixedHeight;
+	arrowLabel->backgroundColor=MakeColor(64,64,64);
 
-	valueContainer->add(selectionBox);
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
 	add(valueContainer);
-
+	add(selectionBox);
 	selectionLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 			selectionBox->setVisible(true);
@@ -295,12 +294,7 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 }
 void Selection::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
-if (parent != nullptr) {
-	box2px pbounds = parent->getBounds();
-	nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
-			pbounds.dimensions.x, pbounds.dimensions.y);
-}
-
+	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 float cornerRadius = 5.0f;
 bool hover=context->isMouseContainedIn(this);
 if(hover){

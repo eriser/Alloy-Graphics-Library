@@ -85,7 +85,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPercent(0.1, 0.6),CoordPercent(0.3f, 0.1),false));
 
-	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.6),CoordPX(200, 50),std::vector<std::string>{"Mission","Bernal","Noe","SoMa","Pac Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
+	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.1),CoordPX(200, 30),std::vector<std::string>{"Mission","Bernal Heights","Noe Valley","Telegraph Hill","North Beach","South  Beach","Richmond","Sunset","Daly City","Dogpatch","Potrero Hill","Ocean Beach","SoMa","Pacific Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
 	button2->setEnableDrag(true);
 	//button1->setEnableDrag(true);
 	rootNode.add(comp);
