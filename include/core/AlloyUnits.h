@@ -362,6 +362,9 @@ struct Color: public NVGcolor {
 	Color(int r, int g, int b) :
 			Color(nvgRGB(r, g, b)) {
 	}
+	Color(int lum) :
+		Color(nvgRGB(lum,lum,lum)) {
+	}
 };
 typedef std::shared_ptr<Color> AColor;
 class AUnit2D {

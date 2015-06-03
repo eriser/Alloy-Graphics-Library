@@ -21,6 +21,7 @@
 
 #include "AlloyApplication.h"
 #include "AlloyFileUtil.h"
+#include "AlloyDrawUtil.h"
 #include <thread>
 #include <chrono>
 namespace aly {
@@ -144,83 +145,21 @@ void Application::drawDebugUI() {
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
 		const float shift = 1.0f;
 		if(context->hasFocus){
-		nvgText(nvg, context->cursorPosition.x + shift,
-				context->cursorPosition.y, txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x - shift,
-				context->cursorPosition.y, txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursorPosition.x,
-				context->cursorPosition.y + shift, txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x,
-				context->cursorPosition.y - shift, txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursorPosition.x + shift,
-				context->cursorPosition.y - shift, txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x + shift,
-				context->cursorPosition.y + shift, txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursorPosition.x + shift,
-				context->cursorPosition.y - shift, txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x + shift,
-				context->cursorPosition.y + shift, txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursorPosition.x - shift,
-				context->cursorPosition.y - shift, txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x - shift,
-				context->cursorPosition.y + shift, txt.c_str(), nullptr);
-
-		nvgText(nvg, context->cursorPosition.x - shift,
-				context->cursorPosition.y - shift, txt.c_str(), nullptr);
-		nvgText(nvg, context->cursorPosition.x - shift,
-				context->cursorPosition.y + shift, txt.c_str(), nullptr);
-
-		nvgFillColor(nvg, Color(220, 220, 220, 255));
-		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y,
-				txt.c_str(), nullptr);
+			drawText(nvg,context->cursorPosition,txt,FontStyle::Outline,Color(255),Color(64,64,64));
 		}
 		nvgTextAlign(nvg,NVG_ALIGN_TOP);
 		float yoffset=5;
 			txt=context->hasFocus?"Window Has Focus":"Window Lost Focus";
-			nvgFillColor(nvg, Color(64, 64, 64, 255));
-			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
-			nvgFillColor(nvg, Color(255,255,255, 255));
-			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
 			yoffset+=16;
 		if(context->mouseOverRegion!=nullptr){
 			txt=MakeString()<<"Mouse Over "<<context->mouseOverRegion->name<<" "<<context->cursorPosition;
-			nvgFillColor(nvg, Color(64, 64, 64, 255));
-			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
-			nvgFillColor(nvg, Color(255,255,255, 255));
-			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
 			yoffset+=16;
 		}
 		if(context->mouseDownRegion!=nullptr){
 			txt=MakeString()<<"Mouse Down "<<context->mouseDownRegion->name<<" "<<context->cursorDownPosition;
-			nvgFillColor(nvg, Color(64, 64, 64, 255));
-			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
-			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
-			nvgFillColor(nvg, Color(255,255,255, 255));
-			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
 			yoffset+=16;
 		}
 		if(context->leftMouseButton){

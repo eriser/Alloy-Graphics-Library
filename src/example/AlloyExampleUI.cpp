@@ -77,7 +77,7 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPX(140, 50)));
 	HSliderPtr hslider1 = HSliderPtr(new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),CoordPX(200.0f, 40.0f),Integer(0),Integer(100),Integer(70)));
 	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.1, 0.3),CoordPX(200.0f, 50.0f)));
-	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPX(200, 40.0),CoordPercent(0.3f, 0.1),false));
+	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPX(200, 40.0),CoordPercent(0.4f, 0.1),false));
 	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.1),CoordPX(200, 30),std::vector<std::string>{"Mission","Bernal Heights","Noe Valley","Telegraph Hill","North Beach","South  Beach","Richmond","Sunset","Daly City","Dogpatch","Potrero Hill","Ocean Beach","SoMa","Pacific Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
 	comp->add(hslider1);
 	comp->add(button1);

@@ -22,6 +22,7 @@
 #include "nanovg.h"
 #include "nanovg_gl.h"
 #include "AlloyApplication.h"
+#include "AlloyDrawUtil.h"
 namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
@@ -274,7 +275,6 @@ void TextLabel::draw(AlloyContext* context) {
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
-	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
 	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
 	nvgTextAlign(nvg,
@@ -306,8 +306,7 @@ void TextLabel::draw(AlloyContext* context) {
 		offset.y = bounds.dimensions.y - lineWidth;
 		break;
 	}
-	nvgText(nvg, bounds.position.x + offset.x, bounds.position.y + offset.y,
-			label.c_str(), nullptr);
+	drawText(nvg,bounds.position+offset,label,fontStyle,*textColor,*textAltColor);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,

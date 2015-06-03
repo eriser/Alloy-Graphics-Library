@@ -22,6 +22,9 @@
 #ifndef ALLOYENUM_H_
 #define ALLOYENUM_H_
 
+#include "nanovg.h"
+#include <iostream>
+#include <iomanip>
 namespace aly {
 enum class Origin {
 	TopLeft, Center, TopRight, BottomLeft, BottomRight
