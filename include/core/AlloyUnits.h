@@ -369,7 +369,7 @@ struct Color: public NVGcolor {
 	Color(int lum) :
 		Color(nvgRGB(lum,lum,lum)) {
 	}
-	inline Color toSemiTransparent(float alpha){
+	inline Color toSemiTransparent(float alpha) const {
 		return Color(r,g,b,alpha);
 	}
 	inline Color toSemiTransparent(int alpha) const {
@@ -745,7 +745,18 @@ inline AColor MakeColor(const Color& start, const Color& end) {
 	return AColor(new ColorTween(start, end));
 }
 
-//typedef std::shared_ptr<Color> ColorPtr;
+struct Theme {
+	static const Theme Default;
+	Color HIGHLIGHT=Color(255,255,255);
+	Color SHADOW=Color(0,0,0);
+	Color LIGHT=Color(220,220,220);
+	Color DARK=Color(64,64,64);
+	Color NEUTRAL=Color(128,128,128);
+	Color DARK_TEXT=Color(64,64,64);
+	Color LIGHT_TEXT=Color(240,240,240);
+	Theme(){
+	}
+};
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const UnitDP & v) {

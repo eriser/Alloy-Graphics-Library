@@ -28,33 +28,33 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit
 	this->dimensions = dimensions;
 	this->aspect = 4.0f;
 	CompositePtr valueContainer=MakeComposite("Check Bounds",CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
-
 	checkLabel = MakeTextLabel(label,
 					CoordPercent(0.0f, 0.0f),
 					CoordPercent(1.0f, 1.0f),
 					FontType::Bold, UnitPercent(1.0f),
-					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Left,
+					Application::getContext()->theme.LIGHT_TEXT.rgba(),
+					HorizontalAlignment::Left,
 					VerticalAlignment::Middle);
-
 	valueLabel=MakeGlyphRegion(Application::getContext()->createAwesomeGlyph(0xf00c),
 					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
-					Application::getContext()->theme.HIGHLIGHT.rgba());
+					Application::getContext()->theme.LIGHT_TEXT.rgba());
 	valueLabel->origin=Origin::TopRight;
 	valueLabel->aspectRatio=AspectRatio::FixedHeight;
 	valueContainer->add(checkLabel);
 	valueContainer->add(valueLabel);
 	add(valueContainer);
-	this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.HIGHLIGHT):MakeColor(Application::getContext()->theme.DARK);
+	this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.LIGHT_TEXT):MakeColor(Application::getContext()->theme.DARK);
 	valueLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 			this->checked=!this->checked;
-			this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.HIGHLIGHT):MakeColor(Application::getContext()->theme.DARK);
+			this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.LIGHT_TEXT):MakeColor(Application::getContext()->theme.DARK);
+
 		}
 	};
 	checkLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 		if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 			this->checked=!this->checked;
-			this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.HIGHLIGHT):MakeColor(Application::getContext()->theme.DARK);
+			this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.LIGHT_TEXT):MakeColor(Application::getContext()->theme.DARK);
 		}
 	};
 }
@@ -98,7 +98,7 @@ void CheckBox::draw(AlloyContext* context){
 
 	if(context->isMouseOver(valueLabel.get())||context->isMouseOver(checkLabel.get())){
 		nvgBeginPath(nvg);
-		nvgStrokeColor(nvg,context->theme.LIGHT);
+		nvgStrokeColor(nvg,context->theme.LIGHT_TEXT);
 		nvgStrokeWidth(nvg,2.0f);
 		nvgRoundedRect(nvg,clickbox.position.x, clickbox.position.y,clickbox.dimensions.x, clickbox.dimensions.y, cornerRadius);
 		nvgStroke(nvg);
@@ -115,10 +115,9 @@ Button::Button(const std::string& label, const AUnit2D& position,
 		Widget(label) {
 	this->position = position;
 	this->dimensions = dimensions;
-
-	backgroundColor = MakeColor(Application::getContext()->theme.LIGHT);
-	textColor = MakeColor(Application::getContext()->theme.DARK);
-	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
+	backgroundColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
+	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(Application::getContext()->theme.LIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRatio = AspectRatio::FixedHeight;
 }
@@ -243,13 +242,13 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 					CoordPercent(0.0f, 0.0f),
 					CoordPercent(1.0f, 1.0f),
 					FontType::Bold, UnitPercent(1.0f),
-					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Left,
+					Application::getContext()->theme.LIGHT_TEXT.rgba(),
+					HorizontalAlignment::Left,
 					VerticalAlignment::Middle);
-
 	arrowLabel=MakeGlyphRegion(Application::getContext()->createAwesomeGlyph(0xf13a),
-					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE, COLOR_NONE);
-
-	arrowLabel->foregroundColor=MakeColor(Application::getContext()->theme.HIGHLIGHT);
+					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f),
+					Application::getContext()->theme.DARK.rgba(),
+					Application::getContext()->theme.LIGHT_TEXT.rgba());
 	selectionBox=SelectionBoxPtr(new SelectionBox("Selection",options));
 	selectionBox->setPosition(CoordPercent(0.0f,0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f,1.0f));
@@ -258,10 +257,10 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 	selectionBox->borderColor=MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	selectionBox->borderWidth=UnitPX(1.0f);
 	selectionBox->setVisible(false);
+	selectionBox->textColor=MakeColor(Application::getContext()->theme.LIGHT_TEXT);
+	selectionBox->textAltColor=MakeColor(Application::getContext()->theme.DARK_TEXT);
 	arrowLabel->origin=Origin::TopRight;
 	arrowLabel->aspectRatio=AspectRatio::FixedHeight;
-	arrowLabel->backgroundColor=MakeColor(Application::getContext()->theme.DARK);
-
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
 	add(valueContainer);
@@ -334,7 +333,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
 	this->aspect = 4.0f;
-	textColor = MakeColor(Application::getContext()->theme.DARK);
+	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	scrollHandle = std::shared_ptr<ScrollHandle>(
 			new ScrollHandle("Scroll Handle"));
@@ -366,7 +365,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					CoordPerPX(0.5f, 1.0f, 0,
 							-(handleSize - trackPadding * 0.75f)),
 					FontType::Bold, UnitPerPX(1.0f, 0),
-					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Left,
+					Application::getContext()->theme.LIGHT_TEXT.rgba(), HorizontalAlignment::Left,
 					VerticalAlignment::Bottom));
 	add(
 			valueLabel = MakeTextLabel("Value",
@@ -374,7 +373,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					CoordPerPX(1.0f, 1.0f, -trackPadding,
 							-(handleSize - trackPadding * 0.75f)),
 					FontType::Normal, UnitPerPX(1.0f, -2),
-					Application::getContext()->theme.HIGHLIGHT.rgba(), HorizontalAlignment::Right,
+					Application::getContext()->theme.LIGHT_TEXT.rgba(), HorizontalAlignment::Right,
 					VerticalAlignment::Bottom));
 	add(scrollTrack);
 	this->onPack = [this]() {
@@ -503,14 +502,14 @@ void Button::internalDraw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
 				bounds.dimensions.x, bounds.dimensions.y, cornerRadius);
-		nvgFillColor(nvg, context->theme.HIGHLIGHT);
+		nvgFillColor(nvg,*backgroundColor);
 		nvgFill(nvg);
 
 	} else {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
 				bounds.dimensions.x - 2, bounds.dimensions.y - 2, cornerRadius);
-		nvgFillColor(nvg, context->theme.HIGHLIGHT);
+		nvgFillColor(nvg,*backgroundColor);
 		nvgFill(nvg);
 	}
 

@@ -145,15 +145,6 @@ struct InputEvent {
 		return ((mods & GLFW_MOD_ALT) != 0);
 	}
 };
-struct Theme {
-	Color HIGHLIGHT=Color(255,255,255);
-	Color SHADOW=Color(0,0,0);
-	Color LIGHT=Color(200,200,200);
-	Color DARK=Color(64,64,64);
-	Color NEUTRAL=Color(128,128,128);
-	Theme(){
-	}
-};
 class Composite;
 class AlloyContext {
 private:
