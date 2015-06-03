@@ -161,7 +161,8 @@ private:
 	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
 	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
 	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
-	bool dragEnabled = false;
+	bool leftMouseButton = false;
+	bool rightMouseButton = false;
 	std::chrono::high_resolution_clock::time_point endTime;
 	std::chrono::high_resolution_clock::time_point lastAnimateTime;
 	std::chrono::high_resolution_clock::time_point lastUpdateTime;
@@ -192,7 +193,7 @@ public:
 		return (mouseDownRegion == region);
 	}
 	inline bool isMouseDrag(Region* region) {
-		return (mouseDownRegion == region&&dragEnabled);
+		return (mouseDownRegion == region&&leftMouseButton);
 	}
 	double pixelRatio;
 

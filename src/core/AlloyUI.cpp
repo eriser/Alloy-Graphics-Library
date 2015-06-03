@@ -74,9 +74,10 @@ void Region::draw(AlloyContext* context) {
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-	if (!context->hasFocus || context->cursorPosition.x < 0
-			|| context->cursorPosition.y < 0)
+
+	if(bounds.dimensions.x<=20&&bounds.dimensions.y<=20){
 		return;
+	}
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
@@ -92,8 +93,8 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	const int FONT_SIZE_PX = 16;
 
 	nvgBeginPath(nvg);
-	nvgRect(nvg, bounds.position.x + 2, bounds.position.y + 2,
-			bounds.dimensions.x - 4, bounds.dimensions.y - 4);
+	nvgRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
+			bounds.dimensions.x - 2, bounds.dimensions.y - 2);
 	nvgStrokeColor(nvg, c);
 	nvgStrokeWidth(nvg, 1.0f);
 	nvgStroke(nvg);
@@ -105,16 +106,19 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr));
 	float xoffset = (bounds.dimensions.x - twidth - 2 * FONT_PADDING) * 0.5f;
 
+	if(twidth<=bounds.dimensions.x&&FONT_SIZE_PX<=bounds.dimensions.y){
+	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y );
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, c);
-	nvgRect(nvg, bounds.position.x + xoffset, bounds.position.y + 1,
-			twidth + 2 * FONT_PADDING, FONT_SIZE_PX + FONT_PADDING);
+	nvgRoundedRect(nvg, bounds.position.x + xoffset, bounds.position.y -4,
+			twidth + 2 * FONT_PADDING, FONT_SIZE_PX + FONT_PADDING+5,5);
 	nvgFill(nvg);
 
 	nvgFillColor(nvg, Color(COLOR_WHITE));
 	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
-
+	nvgScissor(nvg,context->viewport.position.x,context->viewport.position.y,context->viewport.dimensions.x,context->viewport.dimensions.y );
+	}
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	pixel2 d = (bounds.position - dragOffset);

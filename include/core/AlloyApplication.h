@@ -32,6 +32,7 @@
 namespace aly {
 class Application {
 private:
+	bool showDebugIcon;
 	float frameRate = 0.0f;
 	static std::shared_ptr<AlloyContext> context;
 	void drawUI();
@@ -89,7 +90,7 @@ public:
 	inline void throwException(std::exception_ptr e) {
 		caughtExceptions.push_back(e);
 	}
-	Application(int w, int h, const std::string& title = "");
+	Application(int w, int h, const std::string& title = "",bool showDebugIcon=true);
 	float getFrameRate() const {
 		return frameRate;
 	}

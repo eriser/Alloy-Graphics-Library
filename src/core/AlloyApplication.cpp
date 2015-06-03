@@ -75,8 +75,8 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 	return std::shared_ptr<Font>(
 			new Font(name, context->getFullPath(file), context.get()));
 }
-Application::Application(int w, int h, const std::string& title) :
-		rootNode("Root") {
+Application::Application(int w, int h, const std::string& title,bool showDebugIcon) :
+		rootNode("Root"),showDebugIcon(showDebugIcon) {
 	if (context.get() == nullptr) {
 		context = std::shared_ptr<AlloyContext>(new AlloyContext(w, h, title));
 	} else {
@@ -122,8 +122,7 @@ void Application::drawDebugUI() {
 	rootNode.drawDebug(context.get());
 	int cr = 6;
 
-	if (context->hasFocus
-			&& context->viewport.contains(
+	if (context->viewport.contains(
 					int2((int) context->cursorPosition.x,
 							(int) context->cursorPosition.y))) {
 		nvgFontSize(nvg, 16);
@@ -140,11 +139,11 @@ void Application::drawDebugUI() {
 			alignment |= NVG_ALIGN_BOTTOM;
 		}
 		std::string txt = MakeString() << std::setprecision(4) << " "
-				<< context->cursorPosition << " ";
+				<< context->cursorPosition;
 		nvgTextAlign(nvg, alignment);
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
 		const float shift = 1.0f;
-
+		if(context->hasFocus){
 		nvgText(nvg, context->cursorPosition.x + shift,
 				context->cursorPosition.y, txt.c_str(), nullptr);
 		nvgText(nvg, context->cursorPosition.x - shift,
@@ -178,32 +177,109 @@ void Application::drawDebugUI() {
 		nvgFillColor(nvg, Color(220, 220, 220, 255));
 		nvgText(nvg, context->cursorPosition.x, context->cursorPosition.y,
 				txt.c_str(), nullptr);
-		nvgBeginPath(nvg);
-		nvgLineCap(nvg, NVG_ROUND);
-		nvgStrokeWidth(nvg, 2.0f);
-		nvgStrokeColor(nvg, Color(255, 255, 255, 255));
-		nvgMoveTo(nvg, context->cursorPosition.x - cr,
-				context->cursorPosition.y);
-		nvgLineTo(nvg, context->cursorPosition.x + cr,
-				context->cursorPosition.y);
-		nvgMoveTo(nvg, context->cursorPosition.x,
-				context->cursorPosition.y - cr);
-		nvgLineTo(nvg, context->cursorPosition.x,
-				context->cursorPosition.y + cr);
+		}
+		nvgTextAlign(nvg,NVG_ALIGN_TOP);
+		float yoffset=5;
+			txt=context->hasFocus?"Window Has Focus":"Window Lost Focus";
+			nvgFillColor(nvg, Color(64, 64, 64, 255));
+			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
+			nvgFillColor(nvg, Color(255,255,255, 255));
+			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			yoffset+=16;
+		if(context->mouseOverRegion!=nullptr){
+			txt=MakeString()<<"Mouse Over "<<context->mouseOverRegion->name<<" "<<context->cursorPosition;
+			nvgFillColor(nvg, Color(64, 64, 64, 255));
+			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
+			nvgFillColor(nvg, Color(255,255,255, 255));
+			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			yoffset+=16;
+		}
+		if(context->mouseDownRegion!=nullptr){
+			txt=MakeString()<<"Mouse Down "<<context->mouseDownRegion->name<<" "<<context->cursorDownPosition;
+			nvgFillColor(nvg, Color(64, 64, 64, 255));
+			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
+			nvgFillColor(nvg, Color(255,255,255, 255));
+			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			yoffset+=16;
+		}
+		if(context->leftMouseButton){
+			txt="Left Mouse Button";
+			nvgFillColor(nvg, Color(64, 64, 64, 255));
+			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
+			nvgFillColor(nvg, Color(255,255,255, 255));
+			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			yoffset+=16;
+		}
+		if(context->rightMouseButton){
+			txt="Right Mouse Button";
+			nvgFillColor(nvg, Color(64, 64, 64, 255));
+			nvgText(nvg, 5+shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset+shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5-shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5+shift, yoffset,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset-shift,txt.c_str(), nullptr);
+			nvgText(nvg, 5, yoffset+shift,txt.c_str(), nullptr);
+			nvgFillColor(nvg, Color(255,255,255, 255));
+			nvgText(nvg, 5, yoffset,txt.c_str(), nullptr);
+			yoffset+=16;
+		}
+		if(context->hasFocus){
+			nvgBeginPath(nvg);
+			nvgLineCap(nvg, NVG_ROUND);
+			nvgStrokeWidth(nvg, 2.0f);
+			nvgStrokeColor(nvg, Color(255, 255, 255, 255));
+			nvgMoveTo(nvg, context->cursorPosition.x - cr,
+					context->cursorPosition.y);
+			nvgLineTo(nvg, context->cursorPosition.x + cr,
+					context->cursorPosition.y);
+			nvgMoveTo(nvg, context->cursorPosition.x,
+					context->cursorPosition.y - cr);
+			nvgLineTo(nvg, context->cursorPosition.x,
+					context->cursorPosition.y + cr);
 
-		nvgStroke(nvg);
-		nvgBeginPath(nvg);
-		nvgFillColor(nvg, Color(255, 255, 255, 255));
-		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y,
-				3.0f);
-		nvgFill(nvg);
+			nvgStroke(nvg);
+			nvgBeginPath(nvg);
+			nvgFillColor(nvg, Color(255, 255, 255, 255));
+			nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y,
+					3.0f);
+			nvgFill(nvg);
 
-		nvgBeginPath(nvg);
-		nvgFillColor(nvg, Color(255, 64, 32, 255));
-		nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y,
-				1.5f);
-		nvgFill(nvg);
-
+			nvgBeginPath(nvg);
+			nvgFillColor(nvg, Color(255, 64, 32, 255));
+			nvgCircle(nvg, context->cursorPosition.x, context->cursorPosition.y,
+					1.5f);
+			nvgFill(nvg);
+		}
 	}
 	nvgEndFrame(nvg);
 }
@@ -219,18 +295,24 @@ void Application::fireEvent(const InputEvent& event) {
 			context->cursorDownPosition = context->cursorPosition
 					- context->mouseDownRegion->getBoundsPosition();
 			if (context->mouseDownRegion
-					!= nullptr&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
-				context->dragEnabled = true;
+					!= nullptr) {
+				if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+					context->leftMouseButton = true;
+				}
+				if(event.button==GLFW_MOUSE_BUTTON_RIGHT){
+					context->rightMouseButton = true;
+				}
 			}
 		} else if (event.isMouseUp()) {
 			if(context->mouseDownRegion!=nullptr&&context->mouseDownRegion->onMouseUp)context->mouseDownRegion->onMouseUp(context.get(), event);
 			context->mouseDownRegion = nullptr;
-			context->dragEnabled = false;
+			context->leftMouseButton = false;
+			context->rightMouseButton=false;
 			context->cursorDownPosition = pixel2(0, 0);
 
 		}
 	}
-	if (context->mouseDownRegion != nullptr && context->dragEnabled
+	if (context->mouseDownRegion != nullptr && context->leftMouseButton
 			&& context->mouseDownRegion->isDragEnabled()) {
 		//
 		if (context->mouseDownRegion->onMouseDrag) {
@@ -354,6 +436,19 @@ void Application::run(int swapInterval) {
 	context->makeCurrent();
 	if (!init(rootNode)) {
 		throw std::runtime_error("Error occurred in application init()");
+	}
+	if(showDebugIcon){
+	GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188),
+			CoordPercent(1.0f,1.0f), CoordPX(20,20),RGBA(64,64,64,128),
+			RGBA(255,255,255,128));
+	debug->origin=Origin::BottomRight;
+	debug->onMouseDown=[this,debug](AlloyContext* context,const InputEvent& e){
+		if(e.button==GLFW_MOUSE_BUTTON_LEFT){
+			context->toggleDebug();
+			debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,32,255):MakeColor(255,255,255,128);
+		}
+};
+	rootNode.add(debug);
 	}
 	rootNode.pack(context.get());
 	glfwSwapInterval(swapInterval);

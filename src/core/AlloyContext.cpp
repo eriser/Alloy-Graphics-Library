@@ -134,7 +134,7 @@ std::string AlloyContext::getFullPath(const std::string& partialFile) {
 void AlloyContext::setDragObject(Region* region){
 	mouseDownRegion=region;
 	cursorDownPosition = cursorPosition- mouseDownRegion->getBoundsPosition();
-	dragEnabled = true;
+	leftMouseButton = true;
 }
 
 AlloyContext::AlloyContext(int width, int height, const std::string& title) :
