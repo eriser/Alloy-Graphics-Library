@@ -33,6 +33,7 @@
 namespace aly {
 bool SANITY_CHECK_UI();
 
+class Composite;
 struct Region {
 protected:
 	void drawBoundsLabel(AlloyContext* context, const std::string& name,
@@ -47,6 +48,7 @@ protected:
 	pixel2 dragOffset = pixel2(0, 0);
 	box2px bounds;
 public:
+	friend class  Composite;
 	Origin origin = Origin::TopLeft;
 	const std::string name;
 	AColor backgroundColor = MakeColor(COLOR_NONE);
@@ -122,14 +124,19 @@ public:
 };
 
 struct Composite: public Region {
+protected:
+	const pixel2 CELL_SPACING=pixel2(4,2);
+	Orientation orientation;
+public:
 	std::vector<std::shared_ptr<Region>> children;
-	Orientation orientation = Orientation::Unspecified;
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++)) :
-			Region(name) {
+			Region(name),orientation(Orientation::Unspecified) {
 	}
-
+	inline void setOrientation(const Orientation& orient){
+		orientation=orient;
+	}
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;

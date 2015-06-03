@@ -174,11 +174,25 @@ void Composite::draw() {
 void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
+
+	pixel2 offset(0,0);
 	for (std::shared_ptr<Region>& region : children) {
+		if(orientation!=Orientation::Unspecified){
+			region->position=CoordPX(offset);
+		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
-		if (region->onPack)
-			region->onPack();
+
+		if(orientation==Orientation::Vertical){
+			offset.y+=CELL_SPACING.y+region->bounds.dimensions.y;
+		}
+		if(orientation==Orientation::Horizontal){
+			offset.x+=CELL_SPACING.x+region->bounds.dimensions.x;
+		}
 	}
+	for (std::shared_ptr<Region>& region : children) {
+		if (region->onPack)region->onPack();
+	}
+
 	if (onPack)
 		onPack();
 }
@@ -349,7 +363,7 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 	composite->setPosition(position);
 	composite->setDimensions(dimensions);
 	composite->backgroundColor = MakeColor(bgColor);
-	composite->orientation = orientation;
+	composite->setOrientation(orientation);
 	return composite;
 }
 

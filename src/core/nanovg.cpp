@@ -2338,8 +2338,7 @@ static void nvg__renderText(NVGcontext* ctx, NVGvertex* verts, int nverts) {
 	ctx->textTriCount += nverts / 3;
 }
 
-float nvgText(NVGcontext* ctx, float x, float y, const char* string,
-		const char* end) {
+float nvgText(NVGcontext* ctx, float x, float y, const char* string,const char* end) {
 	NVGstate* state = nvg__getState(ctx);
 	FONStextIter iter, prevIter;
 	FONSquad q;

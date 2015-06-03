@@ -550,6 +550,8 @@ struct CoordPX {
 	CoordPX(float x, float y) :
 			value((pixel) x, (pixel) y) {
 	}
+	CoordPX(const pixel2& pix) : value(pix) {
+	}
 	CoordPX(int x, int y) :
 			value((pixel) x, (pixel) y) {
 	}

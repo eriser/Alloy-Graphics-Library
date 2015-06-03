@@ -54,10 +54,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	 Color(255, 255, 255, 255), 3.0, SineIn());
 	 addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,ExponentialOut());//->addCompleteEvent([](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	 addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
-
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), RGBA(64, 64, 64, 255));
-
+	comp->setOrientation(Orientation::Vertical);
 	RegionPtr scrollHandle = MakeRegion("Scroll Handle",
 			CoordPercent(0.0, 0.0), CoordPX(30, 30), RGBA(255, 128, 64, 255),
 			RGBA(255, 255, 255, 255), UnitPX(2.0f));
@@ -66,6 +65,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPercent(0.2, 0.7), CoordPX(300, 30), RGBA(128, 128, 128, 255));
 	scrollTrack->add(scrollHandle);
 	iconr->setEnableDrag(true);
+
 	//comp->add(label);
 
 	ButtonPtr button1 = std::shared_ptr<Button>(
@@ -73,19 +73,17 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPX(140,50)));
 
 	ButtonPtr button2 = std::shared_ptr<Button>(
-			new Button("Drag Me", CoordPerPX(0.8, 0.5, -140, 0),
+			new Button("Drag Me", CoordPerPX(0.2, 0.5, -140, 0),
 					CoordPX(140, 50)));
-	HSliderPtr hslider1 = HSliderPtr(
-			new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),
-					CoordPerPX(0.3f, 0.1, 0.0f, 0.0f),Integer(0),Integer(100),Integer(70)));
-
-	hslider1->aspectRatio = AspectRatio::FixedHeight;
-
-	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.6, 0.3),CoordPX(200.0f, 50.0f)));
-
-	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPercent(0.1, 0.6),CoordPercent(0.3f, 0.1),false));
-
+	HSliderPtr hslider1 = HSliderPtr(new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),CoordPX(200.0f, 40.0f),Integer(0),Integer(100),Integer(70)));
+	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.1, 0.3),CoordPX(200.0f, 50.0f)));
+	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPX(200, 40.0),CoordPercent(0.3f, 0.1),false));
 	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.1),CoordPX(200, 30),std::vector<std::string>{"Mission","Bernal Heights","Noe Valley","Telegraph Hill","North Beach","South  Beach","Richmond","Sunset","Daly City","Dogpatch","Potrero Hill","Ocean Beach","SoMa","Pacific Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
+	comp->add(hslider1);
+	comp->add(button1);
+	comp->add(dropdown);
+	comp->add(checkbox);
+
 	button2->setEnableDrag(true);
 	//button1->setEnableDrag(true);
 	rootNode.add(comp);
@@ -93,12 +91,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	//rootNode.add(iconr);
 	//rootNode.add(scrollTrack);
 	rootNode.backgroundColor = MakeColor(Color(220, 220, 220, 255));
-	rootNode.add(button1);
 	rootNode.add(button2);
-	rootNode.add(hslider1);
 	rootNode.add(hslider2);
-	rootNode.add(dropdown);
-	rootNode.add(checkbox);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;
