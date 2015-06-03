@@ -757,7 +757,7 @@ public:
 	float CORNER_RADIUS=5.0f;
 	Theme(){
 	}
-	static const Theme DEFAULT;
+	static const Theme Default;
 };
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(

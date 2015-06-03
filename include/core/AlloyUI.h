@@ -151,7 +151,7 @@ public:
 };
 
 struct GlyphRegion: public Region {
-	AColor foregroundColor = MakeColor(Theme::DEFAULT.LIGHT_TEXT);
+	AColor foregroundColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	std::shared_ptr<Glyph> glyph;
 	GlyphRegion(
 			const std::string& name = MakeString() << "g" << std::setw(8)
@@ -170,8 +170,8 @@ struct TextLabel: public Region {
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
 	AUnit1D fontSize = UnitPX(24);
-	AColor textColor=MakeColor(Theme::DEFAULT.LIGHT_TEXT);
-	AColor textAltColor=MakeColor(Theme::DEFAULT.DARK_TEXT);
+	AColor textColor=MakeColor(Theme::Default.LIGHT_TEXT);
+	AColor textAltColor=MakeColor(Theme::Default.DARK_TEXT);
 	std::string label;
 	TextLabel(
 			const std::string& name = MakeString() << "t" << std::setw(8)

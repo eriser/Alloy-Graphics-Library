@@ -20,7 +20,7 @@
  */
 #include "AlloyUnits.h"
 namespace aly{
-	const Theme Theme::DEFAULT=Theme();
+	const Theme Theme::Default=Theme();
 }
 
 

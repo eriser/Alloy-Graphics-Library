@@ -172,7 +172,7 @@ private:
 	Region* mouseDownRegion = nullptr;
 public:
 	friend class Application;
-	Theme theme;
+	const Theme theme;
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
 	ImageVAO vaoImage;
@@ -269,7 +269,7 @@ public:
 			const A& a = Linear()) {
 		return animator.add(out, start, end, duration, a);
 	}
-	AlloyContext(int width, int height, const std::string& title);
+	AlloyContext(int width, int height, const std::string& title,const Theme& theme=Theme::Default);
 	bool begin();
 	bool end();
 	void makeCurrent();

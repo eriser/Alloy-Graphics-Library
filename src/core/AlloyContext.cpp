@@ -137,8 +137,8 @@ void AlloyContext::setDragObject(Region* region){
 	leftMouseButton = true;
 }
 
-AlloyContext::AlloyContext(int width, int height, const std::string& title) :
-		window(nullptr), nvgContext(nullptr), current(nullptr) {
+AlloyContext::AlloyContext(int width, int height, const std::string& title,const Theme& theme) :
+		window(nullptr), nvgContext(nullptr), current(nullptr),theme(theme) {
 	std::lock_guard<std::mutex> lock(contextLock);
 	if (glfwInit() != GL_TRUE) {
 		throw std::runtime_error("Could not initialize GLFW.");
