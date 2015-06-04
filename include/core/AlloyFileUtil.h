@@ -27,10 +27,8 @@
 
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
-#include <windows.h>
 #define PATH_SEPARATOR std::string("\\")
 #else
-#include <dirent.h>
 #define PATH_SEPARATOR std::string("/")
 #endif
 bool SANITY_CHECK_FILE_IO();

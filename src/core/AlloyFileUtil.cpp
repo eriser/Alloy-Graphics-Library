@@ -26,6 +26,14 @@
 #include "stdint.h"
 #include "AlloyFileUtil.h"
 #include "stb_image.h"
+#if defined(WIN32) || defined(_WIN32)
+
+#include <windows.h>
+#include <codecvt>
+#define WINDOWS
+#else
+#include <dirent.h>
+#endif
 using namespace std;
 
 namespace aly {
@@ -157,7 +165,7 @@ std::string GetFileDirectoryPath(const std::string& fileName) {
 	return fileName;
 }
 
-#ifndef WIN32
+#ifndef WINDOWS
 //Only works on Linux for NOW!
 std::vector<std::string> GetDirectoryListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
@@ -179,6 +187,43 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName,
 	closedir(dirp);
 	std::sort(files.begin(), files.end());
 	return files;
+}
+#else 
+
+std::wstring ToWString(const std::string& str) {
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::wstring wide = converter.from_bytes(str);
+	return wide;
+}
+
+std::string ToString(const std::wstring& str) {
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::string narrow = converter.to_bytes(str);
+	return narrow;
+}
+
+std::vector<std::string> GetDirectoryListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
+	WIN32_FIND_DATAW fd;
+	std::string path = RemoveTrailingSlash(dirName);
+	std::wstring query = ToWString(path + PATH_SEPARATOR+string("*"));
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return std::vector<std::string>();
+	}
+	std::vector<std::string> list;
+	do {
+		std::string fileName = ToString(fd.cFileName);
+		if (fileName != "." && fileName != "..")
+		{
+			if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
+				if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
+					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) list.push_back(path + PATH_SEPARATOR + fileName);
+				}
+			}
+		}
+	} while (FindNextFile(h, &fd));
+	FindClose(h);
+	return list;
 }
 #endif
 
