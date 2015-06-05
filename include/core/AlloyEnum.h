@@ -27,7 +27,7 @@
 #include <iomanip>
 namespace aly {
 enum class Origin {
-	TopLeft, Center, TopRight, BottomLeft, BottomRight
+	TopLeft, Center, TopRight, BottomLeft, BottomRight,CenterLeft,CenterRight,CenterTop,CenterBottom
 };
 enum class GlyphType {
 	Image, Awesome
@@ -44,7 +44,7 @@ enum class VerticalAlignment {
 	Bottom = NVG_ALIGN_BOTTOM,
 	Baseline = NVG_ALIGN_BASELINE
 };
-enum class AspectRatio {
+enum class AspectRule {
 	Unspecified, FixedWidth, FixedHeight,
 };
 enum class Shape {
@@ -171,13 +171,13 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	return ss;
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
-		std::basic_ostream<C, R> & ss, const AspectRatio& type) {
+		std::basic_ostream<C, R> & ss, const AspectRule& type) {
 	switch (type) {
-	case AspectRatio::Unspecified:
+	case AspectRule::Unspecified:
 		return ss << "Unspecified";
-	case AspectRatio::FixedWidth:
+	case AspectRule::FixedWidth:
 		return ss << "Fixed Width";
-	case AspectRatio::FixedHeight:
+	case AspectRule::FixedHeight:
 		return ss << "Fixed Height";
 	}
 	return ss;

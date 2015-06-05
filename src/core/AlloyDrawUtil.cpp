@@ -20,6 +20,20 @@
  */
 #include "AlloyDrawUtil.h"
 namespace aly{
+	std::list<float4> NVG_SCISSOR_STACK;
+	int pushScissor(NVGcontext* ctx,float x,float y,float w,float h){
+		NVG_SCISSOR_STACK.push_back(float4(x,y,w,h));
+		nvgScissor(ctx,x,y,w,h);
+		return  NVG_SCISSOR_STACK.size();
+	}
+	int popScissor(NVGcontext* ctx,float x,float y,float w,float h){
+		if(NVG_SCISSOR_STACK.size()==0)throw std::runtime_error("Cannot pop an empty scissor stack.");
+		float4  back=NVG_SCISSOR_STACK.back();
+		NVG_SCISSOR_STACK.pop_back();
+		nvgScissor(ctx,back.x,back.y,back.z,back.w);
+		return NVG_SCISSOR_STACK.size();
+	}
+
 	float drawText(NVGcontext* nvg, float x, float y, const char* txt,const FontStyle& style,const Color& foreground,const Color& background,const char* end){
 		float ret;
 		const float shift = 1.0f;

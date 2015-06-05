@@ -34,13 +34,13 @@ bool ExampleUI::init(Composite& rootNode) {
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
 			getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr = MakeGlyphRegion(img, CoordPX(160, 160),
-			CoordPX(100, 300), AspectRatio::FixedHeight, RGBA(32, 64, 128, 255),
+			CoordPX(100, 300), AspectRule::FixedHeight, RGBA(32, 64, 128, 255),
 			RGBA(128, 128, 128, 128), RGBA(200, 200, 200, 255), UnitPX(1.0f));
 
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf188),
 			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
 			RGBA(255, 255, 255, 255));
-	imgr->origin = Origin::Center;
+	imgr->setOrigin(Origin::Center);
 
 
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
@@ -73,12 +73,19 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPX(140,50)));
 
 	ButtonPtr button2 = std::shared_ptr<Button>(
-			new Button("Drag Me", CoordPerPX(0.2, 0.5, -140, 0),
+			new Button("Drag Me", CoordPX(10, 10),
 					CoordPX(140, 50)));
 	HSliderPtr hslider1 = HSliderPtr(new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),CoordPX(200.0f, 40.0f),Integer(0),Integer(100),Integer(70)));
 	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.1, 0.3),CoordPX(200.0f, 50.0f)));
 	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPX(200, 40.0),CoordPercent(0.4f, 0.1),false));
 	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.1),CoordPX(200, 30),std::vector<std::string>{"Mission","Bernal Heights","Noe Valley","Telegraph Hill","North Beach","South  Beach","Richmond","Sunset","Daly City","Dogpatch","Potrero Hill","Ocean Beach","SoMa","Pacific Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
+
+	CompositePtr scrollPane=MakeComposite("Scroll  Pane",CoordPercent(0.1f,0.4f),CoordPercent(0.35f,0.5f),RGBA(64,128,64,255));
+	for(int n=0;n<10;n++){
+		HSliderPtr hslider = HSliderPtr(new HorizontalSlider(MakeString()<<"Item "<<(n+1), CoordPX(0,0),CoordPX(200.0f, 50.0f),Integer(0),Integer(100),Integer(70)));
+		scrollPane->add(hslider);
+	}
+	scrollPane->setOrientation(Orientation::Vertical);
 	comp->add(hslider1);
 	comp->add(button1);
 	comp->add(dropdown);
@@ -86,6 +93,8 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	button2->setEnableDrag(true);
 	//button1->setEnableDrag(true);
+	rootNode.add(scrollPane);
+
 	rootNode.add(comp);
 	//rootNode.add(imgr);
 	//rootNode.add(iconr);

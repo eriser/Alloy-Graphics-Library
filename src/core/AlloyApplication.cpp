@@ -28,8 +28,7 @@ namespace aly {
 
 std::shared_ptr<AlloyContext> Application::context;
 void Application::initInternal() {
-	rootNode.setPosition(CoordPercent(0.0f, 0.0f));
-	rootNode.setDimensions(CoordPercent(1.0f, 1.0f));
+	rootNode.setBounds(CoordPercent(0.0f, 0.0f),CoordPercent(1.0f, 1.0f));
 	context->addAssetDirectory("assets/");
 	context->addAssetDirectory("../assets/");
 	context->addAssetDirectory("../../assets/");
@@ -360,7 +359,7 @@ void Application::run(int swapInterval) {
 	GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188),
 			CoordPercent(1.0f,1.0f), CoordPX(20,20),RGBA(64,64,64,128),
 			RGBA(255,255,255,128));
-	debug->origin=Origin::BottomRight;
+	debug->setOrigin(Origin::BottomRight);
 	debug->onMouseDown=[this,debug](AlloyContext* context,const InputEvent& e){
 		if(e.button==GLFW_MOUSE_BUTTON_LEFT){
 			context->toggleDebug();

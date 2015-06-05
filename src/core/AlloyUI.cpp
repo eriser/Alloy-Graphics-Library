@@ -116,7 +116,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgFillColor(nvg, Color(COLOR_WHITE));
 	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
-	nvgScissor(nvg,context->viewport.position.x,context->viewport.position.y,context->viewport.dimensions.x,context->viewport.dimensions.y );
+	nvgResetScissor(nvg);
 	}
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
@@ -141,6 +141,8 @@ void Composite::drawOnTop(AlloyContext* context) {
 }
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
+	//nvgScissor(nvg,scissor.position.x,scissor.position.y,scissor.dimensions.x,scissor.dimensions.y);
+
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
@@ -148,11 +150,17 @@ void Composite::draw(AlloyContext* context) {
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
+	if(isScrollEnabled()){
+		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	}
 	for (std::shared_ptr<Region>& region : children) {
 		if(region->isVisible()){
-			nvgScissor(nvg, bounds.position.x, bounds.position.y,bounds.dimensions.x, bounds.dimensions.y);
+
 			region->draw(context);
 		}
+	}
+	if(isScrollEnabled()){
+		nvgResetScissor(nvg);
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
@@ -170,17 +178,16 @@ void Composite::pack() {
 void Composite::draw() {
 	draw(Application::getContext().get());
 }
-void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
+void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		double pixelRatio) {
-	Region::pack(pos, dims, dpmm, pixelRatio);
-
+	Region::pack(pos, dims,dpmm, pixelRatio);
 	pixel2 offset(0,0);
 	for (std::shared_ptr<Region>& region : children) {
 		if(orientation!=Orientation::Unspecified){
 			region->position=CoordPX(offset);
 		}
-		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 
+		region->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
 		if(orientation==Orientation::Vertical){
 			offset.y+=CELL_SPACING.y+region->bounds.dimensions.y;
 		}
@@ -205,55 +212,67 @@ void Composite::update(CursorLocator* cursorLocator) {
 void Region::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
 }
-
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio) {
 	pixel2 computedPos = position.toPixels(dims, dpmm, pixelRatio);
 	pixel2 xy = pos + dragOffset + computedPos;
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
-	bounds.dimensions = d;
+	if (aspectRatio < 0) {
+		aspectRatio = d.x / std::max((float) d.y, 0.0f);
+	}
+	switch (aspectRule) {
+		case AspectRule::FixedWidth:
+			bounds.dimensions = pixel2(d.x, d.x / aspectRatio);
+			break;
+		case AspectRule::FixedHeight:
+			bounds.dimensions = pixel2(d.y * aspectRatio, d.y);
+			break;
+		case AspectRule::Unspecified:
+		default:
+			bounds.dimensions = d;
+	}
+	if (parent != nullptr&&!parent->isScrollEnabled()) {
+		bounds.dimensions=aly::clamp(bounds.dimensions,pixel2(0,0),parent->bounds.dimensions);
+	}
 	switch (origin) {
 	case Origin::TopLeft:
 		bounds.position = xy;
 		break;
 	case Origin::BottomRight:
-		bounds.position = xy - d;
+		bounds.position = xy - bounds.dimensions;
 		break;
 	case Origin::Center:
-		bounds.position = xy - d / (pixel) 2;
+		bounds.position = xy - bounds.dimensions / (pixel) 2;
 		break;
 	case Origin::TopRight:
-		bounds.position = xy - pixel2(d.x, 0);
+		bounds.position = xy - pixel2(bounds.dimensions.x, 0);
 		break;
 	case Origin::BottomLeft:
-		bounds.position = xy - pixel2(0, d.y);
+		bounds.position = xy - pixel2(0, bounds.dimensions.y);
+		break;
+	case Origin::CenterLeft:
+		bounds.position = xy - pixel2(0, bounds.dimensions.y / (pixel) 2);
+		break;
+	case Origin::CenterRight:
+		bounds.position = xy - pixel2(bounds.dimensions.x, bounds.dimensions.y / (pixel) 2);
+		break;
+	case Origin::CenterTop:
+		bounds.position = xy - pixel2(bounds.dimensions.x / (pixel) 2, 0);
+		break;
+	case Origin::CenterBottom:
+		bounds.position = xy - pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
 		break;
 	}
-	d = bounds.dimensions;
-	if (aspect < 0) {
-		aspect = dims.x / std::max((float) dims.y, 0.0f);
+	if (parent != nullptr&&!parent->isScrollEnabled()) {
+		bounds.position = aly::clamp(bounds.position, parent->bounds.position,
+				 parent->bounds.position +  parent->bounds.dimensions - bounds.dimensions);
 	}
-	switch (aspectRatio) {
-	case AspectRatio::FixedWidth:
-		bounds.dimensions = pixel2(d.x, d.x / aspect);
-		break;
-	case AspectRatio::FixedHeight:
-		bounds.dimensions = pixel2(d.y * aspect, d.y);
-		break;
-	case AspectRatio::Unspecified:
-	default:
-		bounds.dimensions = d;
-	}
-	if (parent != nullptr) {
-		bounds.clamp(parent->bounds);
-		dragOffset = xy - pos - computedPos;
-	}
+	dragOffset = xy - pos - computedPos;
 }
 
 void Composite::pack(AlloyContext* context) {
 	pack(pixel2(context->viewport.position),
-			pixel2(context->viewport.dimensions), context->dpmm,
-			context->pixelRatio);
+			pixel2(context->viewport.dimensions),context->dpmm, context->pixelRatio);
 }
 
 void Composite::add(const std::shared_ptr<Region>& region) {
@@ -373,18 +392,17 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	region->glyph = glyph;
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-
 	region->backgroundColor = MakeColor(bgColor);
 	region->foregroundColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
-	region->aspectRatio = AspectRatio::FixedHeight;
-	region->aspect = glyph->width / (float) glyph->height;
+	region->setAspectRule(AspectRule::FixedHeight);
+	region->setAspectRatio(glyph->width / (float) glyph->height);
 	return region;
 }
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions, const AspectRatio& aspectRatio,
+		const AUnit2D& dimensions, const AspectRule& aspectRatio,
 		const RGBA& bgColor, const RGBA& fgColor, const RGBA& borderColor,
 		const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
@@ -393,13 +411,12 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	region->glyph = glyph;
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-
 	region->backgroundColor = MakeColor(bgColor);
 	region->foregroundColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
-	region->aspectRatio = aspectRatio;
-	region->aspect = glyph->width / (float) glyph->height;
+	region->setAspectRule(aspectRatio);
+	region->setAspectRatio(glyph->width / (float) glyph->height);
 	return region;
 }
 std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,

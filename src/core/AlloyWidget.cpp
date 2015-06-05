@@ -26,7 +26,7 @@ namespace aly {
 CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit2D& dimensions,bool checked):Widget(label),checked(checked){
 	this->position = position;
 	this->dimensions = dimensions;
-	this->aspect = 4.0f;
+	this->aspectRatio = 4.0f;
 	CompositePtr valueContainer=MakeComposite("Check Bounds",CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	checkLabel = MakeTextLabel(label,
 					CoordPercent(0.0f, 0.0f),
@@ -38,8 +38,8 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit
 	valueLabel=MakeGlyphRegion(Application::getContext()->createAwesomeGlyph(0xf00c),
 					CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
 					Application::getContext()->theme.LIGHT_TEXT.rgba());
-	valueLabel->origin=Origin::TopRight;
-	valueLabel->aspectRatio=AspectRatio::FixedHeight;
+	valueLabel->setOrigin(Origin::TopRight);
+	valueLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(checkLabel);
 	valueContainer->add(valueLabel);
 	add(valueContainer);
@@ -118,7 +118,7 @@ Button::Button(const std::string& label, const AUnit2D& position,
 	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(Application::getContext()->theme.LIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
-	this->aspectRatio = AspectRatio::FixedHeight;
+	this->aspectRule = AspectRule::FixedHeight;
 }
 void ScrollTrack::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -202,14 +202,9 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 
 	selectedIndex=-1;
 	for(std::string& label:options){
-		nvgScissor(nvg,bounds.position.x + offset.x,yOffset+ offset.y,bounds.dimensions.x,entryHeight);
 		if(context->isMouseContainedIn(pixel2(bounds.position.x,yOffset)+offset,pixel2(bounds.dimensions.x,entryHeight))){
 			nvgBeginPath(nvg);
-			nvgRect(nvg,
-					bounds.position.x,
-					yOffset,
-					bounds.dimensions.x,
-					boxHeight);
+			nvgRect(nvg,bounds.position.x + offset.x,yOffset+ offset.y,bounds.dimensions.x,entryHeight);
 			nvgFillColor(nvg, context->theme.NEUTRAL);
 			nvgFill(nvg);
 			selectedIndex=index;
@@ -219,7 +214,6 @@ void SelectionBox::drawOnTop(AlloyContext* context){
 		nvgText(nvg, bounds.position.x + offset.x+lineWidth, yOffset +entryHeight/2+ offset.y,label.c_str(), nullptr);
 		offset.y+=entryHeight;
 	}
-	nvgScissor(nvg,0,0,context->viewport.dimensions.x,context->viewport.dimensions.y);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
@@ -258,8 +252,8 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 	selectionBox->setVisible(false);
 	selectionBox->textColor=MakeColor(Application::getContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor=MakeColor(Application::getContext()->theme.DARK_TEXT);
-	arrowLabel->origin=Origin::TopRight;
-	arrowLabel->aspectRatio=AspectRatio::FixedHeight;
+	arrowLabel->setOrigin(Origin::TopRight);
+	arrowLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
 	add(valueContainer);
@@ -318,8 +312,6 @@ nvgFill(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 	nvgFill(nvg);
-
-	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 Composite::draw(context);
 }
 HorizontalSlider::HorizontalSlider(const std::string& label,
@@ -330,7 +322,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	this->dimensions = dimensions;
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
-	this->aspect = 4.0f;
+	this->aspectRatio = 4.0f;
 	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
 	scrollHandle = std::shared_ptr<ScrollHandle>(
@@ -426,11 +418,6 @@ void HorizontalSlider::draw(AlloyContext* context) {
 
 	valueLabel->label = labelFormatter(value);
 	NVGcontext* nvg = context->nvgContext;
-	if (parent != nullptr) {
-		box2px pbounds = parent->getBounds();
-		nvgScissor(nvg, pbounds.position.x, pbounds.position.y,
-				pbounds.dimensions.x, pbounds.dimensions.y);
-	}
 	bool hover=context->isMouseContainedIn(this);
 	if(hover){
 		nvgBeginPath(nvg);
@@ -528,7 +515,7 @@ void Button::internalDraw(AlloyContext* context) {
 	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
-	this->aspect = tw / th;
+	this->aspectRatio = tw / th;
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
 	pixel2 offset(0, 0);
 	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,

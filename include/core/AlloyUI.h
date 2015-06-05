@@ -41,20 +41,38 @@ protected:
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
 	static uint64_t REGION_COUNTER;
-	AUnit2D position = CoordPercent(0.0f, 0.0f);
-	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 	bool visible = true;
 	bool dragEnabled = false;
+	bool scrollEnabled=false;
+	Origin origin = Origin::TopLeft;
 	pixel2 dragOffset = pixel2(0, 0);
 	box2px bounds;
+	AspectRule aspectRule = AspectRule::Unspecified;
+	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
+	AUnit2D position = CoordPercent(0.0f, 0.0f);
+	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 public:
 	friend class  Composite;
-	Origin origin = Origin::TopLeft;
 	const std::string name;
+	//Also request context refresh
+	bool isScrollEnabled() const {
+		return scrollEnabled;
+	}
+	void setPosition(const AUnit2D& pt);
+	void setDimensions(const AUnit2D& dim);
+	inline void setAspectRule(const AspectRule& aspect){
+		aspectRule=aspect;
+	}
+	inline void setAspectRatio(double val){
+		aspectRatio=val;
+	}
+	inline void setBounds(const AUnit2D& pt,const AUnit2D& dim){
+		setPosition(pt);
+		setDimensions(dim);
+	}
 	AColor backgroundColor = MakeColor(COLOR_NONE);
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
-
 	std::function<void()> onPack;
 	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseDown;
 	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseUp;
@@ -65,6 +83,9 @@ public:
 	void setDragOffset(const pixel2& cursor, const pixel2& delta);
 	inline void setEnableDrag(bool enabled) {
 		dragEnabled = enabled;
+	}
+	inline void setOrigin(const Origin& org){
+		origin=org;
 	}
 	bool isDragEnabled() const {
 		return dragEnabled;
@@ -102,11 +123,7 @@ public:
 	const AUnit2D& getDimensions() const {
 		return dimensions;
 	}
-	void setPosition(const AUnit2D& pt);
-	void setDimensions(const AUnit2D& dims);
 	void setVisible(bool vis);
-	AspectRatio aspectRatio = AspectRatio::Unspecified;
-	double aspect = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	Region* parent = nullptr;
 	Region(
 			const std::string& name = MakeString() << "r" << std::setw(8)
@@ -114,6 +131,7 @@ public:
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio);
 	virtual void draw(AlloyContext* context);
+	//virtual void draw(AlloyContext* context);
 	inline virtual void drawOnTop(AlloyContext* context){};
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
@@ -136,8 +154,10 @@ public:
 	}
 	inline void setOrientation(const Orientation& orient){
 		orientation=orient;
+		scrollEnabled=true;
 	}
 	virtual void draw(AlloyContext* context) override;
+	//virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
 	virtual void update(CursorLocator* cursorLocator) override;
@@ -157,11 +177,11 @@ struct GlyphRegion: public Region {
 			const std::string& name = MakeString() << "g" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++)) :
 			Region(name) {
-		aspectRatio = AspectRatio::FixedHeight;
+		aspectRule = AspectRule::FixedHeight;
 	}
 	;
 	virtual void drawDebug(AlloyContext* context) override;
-	void draw(AlloyContext* context);
+	virtual void draw(AlloyContext* context) override;
 };
 
 struct TextLabel: public Region {
@@ -178,8 +198,7 @@ struct TextLabel: public Region {
 					<< std::setfill('0') << (REGION_COUNTER++)) :
 			Region(name), label(name) {
 	}
-	;
-	void draw(AlloyContext* context);
+	virtual void draw(AlloyContext* context) override;
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
@@ -187,8 +206,8 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 				Orientation::Unspecified);
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions, const AspectRatio& aspectRatio =
-				AspectRatio::Unspecified, const RGBA& bgColor = COLOR_NONE,
+		const AUnit2D& dimensions, const AspectRule& aspectRatio =
+				AspectRule::Unspecified, const RGBA& bgColor = COLOR_NONE,
 		const RGBA& fgColor = COLOR_NONE, const RGBA& borderColor = COLOR_NONE,
 		const AUnit1D& borderWidth = UnitPX(2));
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
@@ -213,7 +232,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tRelative Position: " << region.getPosition() << std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
-	ss << "\tAspect Ratio: " << region.aspectRatio << std::endl;
+	ss << "\tAspect Ratio: " << region.aspectRule << std::endl;
 	ss << "\tBackground Color: " << region.backgroundColor << std::endl;
 	if (region.parent != nullptr)
 		ss << "\tParent: " << region.parent->name << std::endl;
@@ -228,7 +247,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tRelative Position: " << region.getPosition() << std::endl;
 	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;
-	ss << "\tAspect Ratio: " << region.aspectRatio << " (" << region.aspect
+	ss << "\tAspect Ratio: " << region.aspectRule << " (" << region.aspectRatio
 			<< ")" << std::endl;
 	if (region.parent != nullptr)
 		ss << "\tParent: " << region.parent->name << std::endl;
