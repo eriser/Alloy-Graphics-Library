@@ -72,7 +72,9 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	if(bounds.dimensions.x<=20&&bounds.dimensions.y<=20){
 		return;
 	}
+
 	NVGcontext* nvg = context->nvgContext;
+	pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	Color c;
@@ -113,6 +115,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
 	}
+	popScissor(nvg);
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	pixel2 d = (bounds.position - dragOffset);
@@ -136,6 +139,7 @@ void Composite::drawOnTop(AlloyContext* context) {
 }
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
 	float x=bounds.position.x;
 	float y=bounds.position.y;
 	float w=bounds.dimensions.x;
@@ -192,7 +196,7 @@ void Composite::draw(AlloyContext* context) {
 }
 void Composite::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-
+	box2px bounds=getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	if(isScrollEnabled()){
 		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
@@ -225,6 +229,9 @@ void Composite::draw() {
 }
 void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		double pixelRatio) {
+
+	Region::pack(pos, dims,dpmm, pixelRatio);
+	box2px bounds=getBounds();
 	if(verticalScrollTrack.get()==nullptr&&isScrollEnabled()){
 		verticalScrollTrack=std::shared_ptr<ScrollTrack>(new ScrollTrack("Vert Track",Orientation::Vertical));
 		verticalScrollTrack->setPosition(CoordPercent(1.0f,0.0f));
@@ -246,7 +253,8 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		verticalScrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor){
 			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 				this->verticalScrollHandle->setDragOffset(event.cursor,lastCursor);
-				this->scrollPosition.y=(this->verticalScrollHandle->bounds.position.y-this->verticalScrollTrack->bounds.position.y)/std::max(1.0f,(float)this->verticalScrollTrack->bounds.dimensions.y-(float)this->verticalScrollHandle->bounds.dimensions.y);
+				this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
+						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
 			}
 		};
 		horizontalScrollTrack=std::shared_ptr<ScrollTrack>(new ScrollTrack("Horiz Track",Orientation::Horizontal));
@@ -262,6 +270,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 
 		horizontalScrollTrack->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
 			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+
 				this->horizontalScrollHandle->setDragOffset(event.cursor,this->horizontalScrollHandle->getBoundsDimensions() * 0.5f);
 				context->setDragObject(horizontalScrollHandle.get());
 			}
@@ -269,24 +278,23 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		horizontalScrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor){
 			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 				this->horizontalScrollHandle->setDragOffset(event.cursor,lastCursor);
-				this->scrollPosition.x=(this->horizontalScrollHandle->bounds.position.x-this->horizontalScrollTrack->bounds.position.x)/
-						std::max(1.0f,(float)this->horizontalScrollTrack->bounds.dimensions.x-(float)this->horizontalScrollHandle->bounds.dimensions.x);
+				this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
+						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
 			}
 		};
 	}
-	Region::pack(pos, dims,dpmm, pixelRatio);
 	pixel2 offset(0,0);
 	scrollExtent=pixel2(0,0);
 	for (std::shared_ptr<Region>& region : children) {
 		if(orientation!=Orientation::Unspecified){
-			region->position=CoordPX(offset);
+			region->setPosition(CoordPX(offset));
 		}
 		region->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
 		if(orientation==Orientation::Horizontal){
-			offset.x+=CELL_SPACING.x+region->bounds.dimensions.x;
+			offset.x+=CELL_SPACING.x+region->getBounds().dimensions.x;
 		}
 		if(orientation==Orientation::Vertical){
-			offset.y+=CELL_SPACING.y+region->bounds.dimensions.y;
+			offset.y+=CELL_SPACING.y+region->getBounds().dimensions.y;
 		}
 		scrollExtent.x=std::max(region->getBoundsDimensionsY()+region->getBoundsPositionY()-bounds.position.y,scrollExtent.x);
 		scrollExtent.y=std::max(region->getBoundsDimensionsX()+region->getBoundsPositionX()-bounds.position.x,scrollExtent.y);
@@ -308,6 +316,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		onPack();
 }
 void ScrollHandle::draw(AlloyContext* context){
+	box2px bounds=getBounds();
 	float x=bounds.position.x;
 	float y=bounds.position.y;
 	float w=bounds.dimensions.x;
@@ -351,6 +360,7 @@ void ScrollHandle::draw(AlloyContext* context){
 }
 
 void ScrollTrack::draw(AlloyContext* context){
+	box2px bounds=getBounds();
 	float x=bounds.position.x;
 	float y=bounds.position.y;
 	float w=bounds.dimensions.x;
@@ -479,7 +489,7 @@ void Composite::pack(AlloyContext* context) {
 		pack(pixel2(context->viewport.position),
 				pixel2(context->viewport.dimensions),context->dpmm, context->pixelRatio);
 	} else {
-		pack(parent->bounds.position,parent->bounds.dimensions,context->dpmm, context->pixelRatio);
+		pack(parent->getBounds().position,parent->getBounds().dimensions,context->dpmm, context->pixelRatio);
 	}
 }
 
@@ -496,7 +506,7 @@ void Composite::add(Region* region) {
 
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-
+	box2px bounds=getBounds();
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
@@ -553,6 +563,7 @@ void GlyphRegion::drawDebug(AlloyContext* context) {
 
 void GlyphRegion::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {

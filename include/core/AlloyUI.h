@@ -35,6 +35,8 @@ bool SANITY_CHECK_UI();
 
 class Composite;
 struct Region {
+private:
+	box2px bounds;
 protected:
 	void drawBoundsLabel(AlloyContext* context, const std::string& name,
 			int font);
@@ -45,13 +47,12 @@ protected:
 	bool dragEnabled = false;
 	Origin origin = Origin::TopLeft;
 	pixel2 dragOffset = pixel2(0, 0);
-	box2px bounds;
+
 	AspectRule aspectRule = AspectRule::Unspecified;
 	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	AUnit2D position = CoordPercent(0.0f, 0.0f);
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 public:
-	friend class  Composite;
 	const std::string name;
 	//Also request context refresh
 	virtual inline bool isScrollEnabled() const {
@@ -104,28 +105,30 @@ public:
 		return dimensions;
 	}
 	box2px getBounds() const {
-		return bounds;
+		box2px box=bounds;
+		if(parent!=nullptr)box.position+=parent->drawOffset();
+		return box;
 	}
 	pixel2 getBoundsPosition() const {
-		return bounds.position;
+		return getBounds().position;
 	}
 	pixel2 getBoundsDimensions() const {
-		return bounds.dimensions;
+		return getBounds().dimensions;
 	}
 	pixel2 getDragOffset() const {
 		return dragOffset;
 	}
 	pixel getBoundsPositionX() const {
-		return bounds.position.x;
+		return getBounds().position.x;
 	}
 	pixel getBoundsDimensionsX() const {
-		return bounds.dimensions.x;
+		return getBounds().dimensions.x;
 	}
 	pixel getBoundsPositionY() const {
-		return bounds.position.y;
+		return getBounds().position.y;
 	}
 	pixel getBoundsDimensionsY() const {
-		return bounds.dimensions.y;
+		return getBounds().dimensions.y;
 	}
 	const AUnit2D& getPosition() const {
 		return position;
@@ -194,7 +197,7 @@ public:
 		scrollEnabled=enabled;
 	}
 	virtual inline pixel2 drawOffset() const {
-		return -scrollPosition*aly::max(pixel2(0,0),scrollExtent-bounds.dimensions);
+		return -scrollPosition*aly::max(pixel2(0,0),scrollExtent-Region::getBounds().dimensions);
 	}
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;

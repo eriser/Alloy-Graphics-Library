@@ -60,6 +60,7 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,const AUnit
 }
 void CheckBox::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
 	bool hover=context->isMouseContainedIn(this);
 	if(hover){
 		nvgBeginPath(nvg);
@@ -122,7 +123,7 @@ Button::Button(const std::string& label, const AUnit2D& position,
 }
 void SliderTrack::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-
+	box2px bounds=getBounds();
 	nvgBeginPath(nvg);
 	nvgMoveTo(nvg, bounds.position.x + 14,
 			bounds.position.y + bounds.dimensions.y * 0.5f);
@@ -138,6 +139,7 @@ void SliderTrack::draw(AlloyContext* context) {
 }
 void SliderHandle::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
 	if (context->isMouseOver(this) || context->isMouseDown(this)) {
 		nvgBeginPath(nvg);
 		nvgCircle(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
@@ -168,7 +170,7 @@ void SelectionBox::draw(AlloyContext* context){
 void SelectionBox::drawOnTop(AlloyContext* context){
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
-
+	box2px bounds=getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	float entryHeight=std::min(context->viewport.dimensions.y/(float)options.size(),bounds.dimensions.y);
@@ -286,6 +288,7 @@ Selection::Selection(const std::string& label,const AUnit2D& position,const AUni
 void Selection::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
 bool hover=context->isMouseContainedIn(this);
+box2px bounds=getBounds();
 if(hover){
 	nvgBeginPath(nvg);
 	NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
@@ -418,6 +421,7 @@ void HorizontalSlider::draw(AlloyContext* context) {
 
 	valueLabel->label = labelFormatter(value);
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
 	bool hover=context->isMouseContainedIn(this);
 	if(hover){
 		nvgBeginPath(nvg);
@@ -461,6 +465,7 @@ void Button::internalDraw(AlloyContext* context) {
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
 	float lineWidth = 2.0f;
 
 	int xoff = 0;
