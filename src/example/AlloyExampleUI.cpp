@@ -42,7 +42,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(255, 255, 255, 255));
 	imgr->setOrigin(Origin::Center);
 
-
+/*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());
 
@@ -54,6 +54,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 Color(255, 255, 255, 255), 3.0, SineIn());
 	 addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,ExponentialOut());//->addCompleteEvent([](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	 addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
+	 */
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), RGBA(64, 64, 64, 255));
 	comp->setOrientation(Orientation::Vertical);

@@ -210,10 +210,10 @@ void Application::fireEvent(const InputEvent& event) {
 		if (event.isMouseDown()) {
 			context->mouseDownRegion = context->cursorLocator.locate(
 					context->cursorPosition);
-			context->cursorDownPosition = context->cursorPosition
-					- context->mouseDownRegion->getBoundsPosition();
 			if (context->mouseDownRegion
 					!= nullptr) {
+				context->cursorDownPosition = context->cursorPosition
+						- context->mouseDownRegion->getBoundsPosition();
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 					context->leftMouseButton = true;
 				}
@@ -368,7 +368,11 @@ void Application::run(int swapInterval) {
 };
 	rootNode.add(debug);
 	}
+
+	//First pack triggers computation of aspect ratios  for components.
 	rootNode.pack(context.get());
+
+	context->requestPack();
 	glfwSwapInterval(swapInterval);
 	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);

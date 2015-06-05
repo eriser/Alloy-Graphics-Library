@@ -57,8 +57,13 @@ public:
 	virtual inline bool isScrollEnabled() const {
 		return false;
 	}
-	void setPosition(const AUnit2D& pt);
-	void setDimensions(const AUnit2D& dim);
+	inline void setPosition(const AUnit2D& pt) {
+		position = pt;
+	}
+	inline void setDimensions(const AUnit2D& dims) {
+		dimensions = dims;
+	}
+
 	inline void setAspectRule(const AspectRule& aspect){
 		aspectRule=aspect;
 	}
@@ -144,15 +149,17 @@ public:
 };
 struct ScrollHandle: public Region {
 public:
-	ScrollHandle(const std::string& name) :
-			Region(name) {
+	const Orientation orientation;
+	ScrollHandle(const std::string& name,Orientation orient) :
+			Region(name) ,orientation(orient){
 	}
 	virtual void draw(AlloyContext* context) override;
 };
 struct ScrollTrack: public Region{
 public:
-	ScrollTrack(const std::string& name) :
-			Region(name) {
+	const Orientation orientation;
+	ScrollTrack(const std::string& name,Orientation orient) :
+			Region(name),orientation(orient) {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
@@ -162,10 +169,15 @@ protected:
 	Orientation orientation=Orientation::Unspecified;
 	bool scrollEnabled=false;
 	float2 scrollPosition=float2(0.0f,0.0f);
-	float verticalScrollHeight=0;
+	static const float scrollBarSize;
+	float verticalScrollExtent=0;
 	float verticalScrollPosition=0;
-	std::shared_ptr<ScrollTrack> verticalScrollTrack;
-	std::shared_ptr<ScrollHandle> verticalScrollHandle;
+
+	float horizontalScrollExtent=0;
+	float horizontalScrollPosition=0;
+
+	std::shared_ptr<ScrollTrack> verticalScrollTrack,horizontalScrollTrack;
+	std::shared_ptr<ScrollHandle> verticalScrollHandle,horizontalScrollHandle;
 public:
 	std::vector<std::shared_ptr<Region>> children;
 	Composite(
