@@ -57,6 +57,9 @@ public:
 	virtual inline bool isScrollEnabled() const {
 		return false;
 	}
+	virtual inline pixel2 drawOffset() const {
+		return pixel2(0,0);
+	}
 	inline void setPosition(const AUnit2D& pt) {
 		position = pt;
 	}
@@ -169,7 +172,7 @@ protected:
 	Orientation orientation=Orientation::Unspecified;
 	bool scrollEnabled=false;
 	static const float scrollBarSize;
-	float verticalScrollExtent=0;
+	pixel2 scrollExtent=pixel2(0,0);
 	float horizontalScrollExtent=0;
 	pixel2 scrollPosition=pixel2(0,0);
 
@@ -189,6 +192,9 @@ public:
 	}
 	void setScrollEnabled(bool  enabled){
 		scrollEnabled=enabled;
+	}
+	virtual inline pixel2 drawOffset() const {
+		return -scrollPosition*aly::max(pixel2(0,0),scrollExtent-bounds.dimensions);
 	}
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;
