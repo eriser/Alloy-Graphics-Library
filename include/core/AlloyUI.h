@@ -104,6 +104,9 @@ public:
 	pixel2 getBoundsDimensions() const {
 		return bounds.dimensions;
 	}
+	pixel2 getDragOffset() const {
+		return dragOffset;
+	}
 	pixel getBoundsPositionX() const {
 		return bounds.position.x;
 	}
@@ -139,20 +142,35 @@ public:
 	}
 	;
 };
-
+struct ScrollHandle: public Region {
+public:
+	ScrollHandle(const std::string& name) :
+			Region(name) {
+	}
+	virtual void draw(AlloyContext* context) override;
+};
+struct ScrollTrack: public Region{
+public:
+	ScrollTrack(const std::string& name) :
+			Region(name) {
+	}
+	virtual void draw(AlloyContext* context) override;
+};
 struct Composite: public Region {
 protected:
 	const pixel2 CELL_SPACING=pixel2(4,2);
 	Orientation orientation=Orientation::Unspecified;
 	bool scrollEnabled=false;
 	float2 scrollPosition=float2(0.0f,0.0f);
+	float verticalScrollHeight=0;
+	float verticalScrollPosition=0;
+	std::shared_ptr<ScrollTrack> verticalScrollTrack;
+	std::shared_ptr<ScrollHandle> verticalScrollHandle;
 public:
 	std::vector<std::shared_ptr<Region>> children;
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
-					<< std::setfill('0') << (REGION_COUNTER++)) :
-			Region(name) {
-	}
+					<< std::setfill('0') << (REGION_COUNTER++));
 
 	inline void setOrientation(const Orientation& orient){
 		orientation=orient;
@@ -167,7 +185,6 @@ public:
 		scrollEnabled=enabled;
 	}
 	virtual void draw(AlloyContext* context) override;
-	//virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
 	virtual void update(CursorLocator* cursorLocator) override;

@@ -82,7 +82,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	CompositePtr scrollPane=MakeComposite("Scroll  Pane",CoordPercent(0.1f,0.4f),CoordPercent(0.35f,0.5f),RGBA(64,128,64,255));
 	for(int n=0;n<8;n++){
-		HSliderPtr hslider = HSliderPtr(new HorizontalSlider(MakeString()<<"Item "<<(n+1), CoordPX(0,0),CoordPX(200.0f, 50.0f),Integer(0),Integer(100),Integer(70)));
+		HSliderPtr hslider = HSliderPtr(new HorizontalSlider(MakeString()<<"Item "<<(n+1), CoordPX(0,0),CoordPX(400.0f, 50.0f),Integer(0),Integer(100),Integer(70)));
 		scrollPane->add(hslider);
 	}
 	scrollPane->setOrientation(Orientation::Vertical);

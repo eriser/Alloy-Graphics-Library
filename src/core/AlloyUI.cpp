@@ -155,32 +155,27 @@ void Composite::draw(AlloyContext* context) {
 		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	}
 	float stackw;
-	float stackh=0;
 	float u=scrollPosition.y;
 	for (std::shared_ptr<Region>& region : children) {
 		if(region->isVisible()){
 			region->draw(context);
-			stackh=std::max(region->getBoundsDimensionsY()+region->getBoundsPositionY()-y,stackh);
 		}
 	}
-	if(isScrollEnabled()&&stackh>h){
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, x + w - 12 + 1, y + 4 + 1, 8, h - 8, 3, 4,
-				nvgRGBA(0, 0, 0, 32), nvgRGBA(0, 0, 0, 92));
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, x + w - 12, y + 4, 8, h - 8, 3);
-		nvgFillPaint(nvg, shadowPaint);
-		nvgFill(nvg);
 
-		float scrollh = (h / stackh) * (h - 8);
-		shadowPaint = nvgBoxGradient(nvg, x + w - 12 - 1,
-				y + 4 + (h - 8 - scrollh) * u - 1, 8, scrollh, 3, 4,
-				nvgRGBA(220, 220, 220, 255), nvgRGBA(128, 128, 128, 255));
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, x + w - 12 + 1, y + 4 + 1 + (h - 8 - scrollh) * u, 8 - 2,
-				scrollh - 2, 2);
-		nvgFillPaint(nvg, shadowPaint);
-		nvgFill(nvg);
+	if(isScrollEnabled()&&verticalScrollTrack.get()!=nullptr&&verticalScrollHandle.get()!=nullptr){
+		if(verticalScrollHeight>h){
+			float scrollh = std::max(verticalScrollTrack->getBoundsDimensionsX(),(h / verticalScrollHeight) * (verticalScrollTrack->getBoundsDimensionsY()));
+			verticalScrollHandle->setDimensions(CoordPX(verticalScrollHandle->getBoundsDimensionsX(),scrollh));
+			verticalScrollTrack->setVisible(true);
+			verticalScrollHandle->setVisible(true);
+			verticalScrollTrack->draw(context);
+			verticalScrollHandle->draw(context);
+		} else {
+			verticalScrollTrack->setVisible(false);
+			verticalScrollHandle->setVisible(false);
+		}
 	}
+
 	if(isScrollEnabled()){
 		nvgResetScissor(nvg);
 	}
@@ -192,6 +187,12 @@ void Composite::drawDebug(AlloyContext* context) {
 	for (std::shared_ptr<Region>& region : children) {
 		region->drawDebug(context);
 	}
+	if(verticalScrollTrack.get()){
+		verticalScrollTrack->drawDebug(context);
+	}
+	if(verticalScrollHandle.get()){
+		verticalScrollHandle->drawDebug(context);
+	}
 }
 
 void Composite::pack() {
@@ -202,8 +203,28 @@ void Composite::draw() {
 }
 void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		double pixelRatio) {
+	if(verticalScrollTrack.get()==nullptr&&isScrollEnabled()){
+		verticalScrollTrack=std::shared_ptr<ScrollTrack>(new ScrollTrack("V Scroll Track"));
+		verticalScrollTrack->setPosition(CoordPercent(1.0f,0.0f));
+		verticalScrollTrack->setDimensions(CoordPerPX(0.0,1.0f,12.0f,0.0f));
+		verticalScrollTrack->setOrigin(Origin::TopRight);
+
+		verticalScrollHandle=std::shared_ptr<ScrollHandle>(new ScrollHandle("V Scroll Handle"));
+		verticalScrollHandle->setPosition(CoordPX(0.0f,0.0f));
+		verticalScrollHandle->setDimensions(CoordPX(12.0f,120.0f));
+		verticalScrollHandle->parent=verticalScrollTrack.get();
+		verticalScrollHandle->setEnableDrag(true);
+
+		verticalScrollTrack->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
+			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+				this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
+				context->setDragObject(verticalScrollHandle.get());
+			}
+		};
+	}
 	Region::pack(pos, dims,dpmm, pixelRatio);
 	pixel2 offset(0,0);
+	verticalScrollHeight=0;
 	for (std::shared_ptr<Region>& region : children) {
 		if(orientation!=Orientation::Unspecified){
 			region->position=CoordPX(offset);
@@ -216,6 +237,13 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		if(orientation==Orientation::Horizontal){
 			offset.x+=CELL_SPACING.x+region->bounds.dimensions.x;
 		}
+
+		verticalScrollHeight=std::max(region->getBoundsDimensionsY()+region->getBoundsPositionY()-bounds.position.y,verticalScrollHeight);
+	}
+
+	if(verticalScrollTrack.get()!=nullptr&&verticalScrollHandle.get()!=nullptr){
+		verticalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
+		verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),verticalScrollTrack->getBoundsDimensions(),dpmm, pixelRatio);
 	}
 	for (std::shared_ptr<Region>& region : children) {
 		if (region->onPack)region->onPack();
@@ -224,10 +252,68 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 	if (onPack)
 		onPack();
 }
+void ScrollHandle::draw(AlloyContext* context){
+	float x=bounds.position.x;
+	float y=bounds.position.y;
+	float w=bounds.dimensions.x;
+	float h=bounds.dimensions.y;
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	NVGcontext* nvg=context->nvgContext;
+	NVGpaint shadowPaint = nvgBoxGradient(nvg,
+			x+ lineWidth- 1,
+			y+ lineWidth- 1,
+			w-2*lineWidth,
+			h-2*lineWidth,
+			w/2, 4,
+			context->theme.HIGHLIGHT,context->theme.NEUTRAL);
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg,
+			x+1 + lineWidth,
+			y+1 + lineWidth,
+			w-2-2*lineWidth,
+			h-2-2*lineWidth, (w-2-2*lineWidth)/2);
+	nvgFillPaint(nvg, shadowPaint);
+	nvgFill(nvg);
+
+}
+
+void ScrollTrack::draw(AlloyContext* context){
+	float x=bounds.position.x;
+	float y=bounds.position.y;
+	float w=bounds.dimensions.x;
+	float h=bounds.dimensions.y;
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	NVGcontext* nvg=context->nvgContext;
+	NVGpaint shadowPaint = nvgBoxGradient(nvg,
+			x + lineWidth+ 1, //-1
+			y+ lineWidth+ 1, //+1
+			w-2*lineWidth,
+			h-2*lineWidth, w/2, 4,
+			context->theme.SHADOW.toSemiTransparent(32),context->theme.SHADOW.toSemiTransparent(92));
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg,
+			x + lineWidth,
+			y + lineWidth,
+			w-2*lineWidth,
+			h-2*lineWidth, (w-2*lineWidth)/2);
+	nvgFillPaint(nvg, shadowPaint);
+	nvgFill(nvg);
+}
+Composite::Composite(const std::string& name):Region(name) {
+
+}
 void Composite::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
 	for (std::shared_ptr<Region>& region : children) {
 		region->update(cursorLocator);
+	}
+	if(verticalScrollTrack.get()!=nullptr){
+		verticalScrollTrack->update(cursorLocator);
+	}
+	if(verticalScrollHandle.get()!=nullptr){
+		verticalScrollHandle->update(cursorLocator);
 	}
 }
 
@@ -293,6 +379,7 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 }
 
 void Composite::pack(AlloyContext* context) {
+
 	pack(pixel2(context->viewport.position),
 			pixel2(context->viewport.dimensions),context->dpmm, context->pixelRatio);
 }

@@ -120,7 +120,7 @@ Button::Button(const std::string& label, const AUnit2D& position,
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
 }
-void ScrollTrack::draw(AlloyContext* context) {
+void SliderTrack::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 
 	nvgBeginPath(nvg);
@@ -136,7 +136,7 @@ void ScrollTrack::draw(AlloyContext* context) {
 		ptr->draw(context);
 	}
 }
-void ScrollHandle::draw(AlloyContext* context) {
+void SliderHandle::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	if (context->isMouseOver(this) || context->isMouseDown(this)) {
 		nvgBeginPath(nvg);
@@ -325,29 +325,29 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	this->aspectRatio = 4.0f;
 	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
-	scrollHandle = std::shared_ptr<ScrollHandle>(
-			new ScrollHandle("Scroll Handle"));
+	sliderHandle = std::shared_ptr<SliderHandle>(
+			new SliderHandle("Scroll Handle"));
 
-	scrollHandle->setPosition(CoordPercent(0.0, 0.0));
-	scrollHandle->setDimensions(CoordPX(handleSize, handleSize));
-	scrollHandle->backgroundColor = MakeColor(Application::getContext()->theme.LIGHT);
-	scrollHandle->setEnableDrag(true);
+	sliderHandle->setPosition(CoordPercent(0.0, 0.0));
+	sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
+	sliderHandle->backgroundColor = MakeColor(Application::getContext()->theme.LIGHT);
+	sliderHandle->setEnableDrag(true);
 
-	scrollTrack = std::shared_ptr<ScrollTrack>(new ScrollTrack("Scroll Track"));
+	sliderTrack = std::shared_ptr<SliderTrack>(new SliderTrack("Scroll Track"));
 
-	scrollTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
-	scrollTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
+	sliderTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
+	sliderTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
 
-	scrollTrack->backgroundColor = MakeColor(Application::getContext()->theme.DARK);
-	scrollTrack->add(scrollHandle);
-	scrollTrack->onMouseDown =
-			[this](AlloyContext* context,const InputEvent& e) {this->onMouseDown(context,scrollTrack.get(),e);};
-	scrollHandle->onMouseDown =
-			[this](AlloyContext* context,const InputEvent& e) {this->onMouseDown(context,scrollHandle.get(),e);};
-	scrollHandle->onMouseUp =
-			[this](AlloyContext* context,const InputEvent& e) {this->onMouseUp(context,scrollHandle.get(),e);};
-	scrollHandle->onMouseDrag =
-			[this](AlloyContext* context,const InputEvent& e,const pixel2& lastDragPosition) {this->onMouseDrag(context,scrollHandle.get(),e,lastDragPosition);};
+	sliderTrack->backgroundColor = MakeColor(Application::getContext()->theme.DARK);
+	sliderTrack->add(sliderHandle);
+	sliderTrack->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& e) {this->onMouseDown(context,sliderTrack.get(),e);};
+	sliderHandle->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& e) {this->onMouseDown(context,sliderHandle.get(),e);};
+	sliderHandle->onMouseUp =
+			[this](AlloyContext* context,const InputEvent& e) {this->onMouseUp(context,sliderHandle.get(),e);};
+	sliderHandle->onMouseDrag =
+			[this](AlloyContext* context,const InputEvent& e,const pixel2& lastDragPosition) {this->onMouseDrag(context,sliderHandle.get(),e,lastDragPosition);};
 
 	add(
 			sliderLabel = MakeTextLabel(label,
@@ -365,7 +365,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					FontType::Normal, UnitPerPX(1.0f, -2),
 					Application::getContext()->theme.LIGHT_TEXT.rgba(), HorizontalAlignment::Right,
 					VerticalAlignment::Bottom));
-	add(scrollTrack);
+	add(sliderTrack);
 	this->onPack = [this]() {
 		this->setValue(this->value.toDouble());
 	};
@@ -374,19 +374,19 @@ void HorizontalSlider::setValue(double value) {
 	double interp = clamp(
 			(value - minValue.toDouble())
 					/ (maxValue.toDouble() - minValue.toDouble()), 0.0, 1.0);
-	double xoff = scrollTrack->getBoundsPositionX()
+	double xoff = sliderTrack->getBoundsPositionX()
 			+ interp
-					* (scrollTrack->getBoundsDimensionsX()
-							- scrollHandle->getBoundsDimensionsX());
-	scrollHandle->setDragOffset(
-			pixel2(xoff, scrollHandle->getBoundsDimensionsY()),
+					* (sliderTrack->getBoundsDimensionsX()
+							- sliderHandle->getBoundsDimensionsX());
+	sliderHandle->setDragOffset(
+			pixel2(xoff, sliderHandle->getBoundsDimensionsY()),
 			pixel2(0.0f, 0.0f));
 }
 void HorizontalSlider::update() {
-	double interp = (scrollHandle->getBoundsPositionX()
-			- scrollTrack->getBoundsPositionX())
-			/ (double) (scrollTrack->getBoundsDimensionsX()
-					- scrollHandle->getBoundsDimensionsX());
+	double interp = (sliderHandle->getBoundsPositionX()
+			- sliderTrack->getBoundsPositionX())
+			/ (double) (sliderTrack->getBoundsDimensionsX()
+					- sliderHandle->getBoundsDimensionsX());
 	double val = (1.0 - interp) * minValue.toDouble()
 			+ interp * maxValue.toDouble();
 	value.setValue(val);
@@ -394,12 +394,12 @@ void HorizontalSlider::update() {
 void HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-		if (region == scrollTrack.get()) {
-			scrollHandle->setDragOffset(event.cursor,
-					scrollHandle->getBoundsDimensions() * 0.5f);
-			context->setDragObject(scrollHandle.get());
+		if (region == sliderTrack.get()) {
+			sliderHandle->setDragOffset(event.cursor,
+					sliderHandle->getBoundsDimensions() * 0.5f);
+			context->setDragObject(sliderHandle.get());
 			update();
-		} else if (region == scrollHandle.get()) {
+		} else if (region == sliderHandle.get()) {
 			update();
 		}
 	}
@@ -409,7 +409,7 @@ void HorizontalSlider::onMouseUp(AlloyContext* context, Region* region,
 }
 void HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event, const pixel2& lastCursorLocation) {
-	if (region == scrollHandle.get()) {
+	if (region == sliderHandle.get()) {
 		region->setDragOffset(event.cursor, lastCursorLocation);
 		update();
 	}

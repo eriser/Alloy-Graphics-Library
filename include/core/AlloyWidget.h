@@ -67,16 +67,16 @@ public:
 	CheckBox(const std::string& label, const AUnit2D& position,const AUnit2D& dimensions,bool checked=false);
 	virtual void draw(AlloyContext* context) override;
 };
-class ScrollHandle: public Region {
+class SliderHandle: public Region {
 public:
-	ScrollHandle(const std::string& name) :
+	SliderHandle(const std::string& name) :
 			Region(name) {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
-class ScrollTrack: public Composite {
+class SliderTrack: public Composite {
 public:
-	ScrollTrack(const std::string& name) :
+	SliderTrack(const std::string& name) :
 			Composite(name) {
 	}
 	virtual void draw(AlloyContext* context) override;
@@ -91,8 +91,8 @@ private:
 
 	TextLabelPtr sliderLabel;
 	TextLabelPtr valueLabel;
-	std::shared_ptr<ScrollHandle> scrollHandle;
-	std::shared_ptr<ScrollTrack> scrollTrack;
+	std::shared_ptr<SliderHandle> sliderHandle;
+	std::shared_ptr<SliderTrack> sliderTrack;
 	std::function<std::string(const Number& value)> labelFormatter =
 			[](const Number& value) {return value.toString();};
 	void update();
