@@ -28,10 +28,15 @@ namespace aly{
 	}
 	int popScissor(NVGcontext* ctx){
 		if(NVG_SCISSOR_STACK.size()==0)throw std::runtime_error("Cannot pop an empty scissor stack.");
-		float4  back=NVG_SCISSOR_STACK.back();
 		NVG_SCISSOR_STACK.pop_back();
-		nvgScissor(ctx,back.x,back.y,back.z,back.w);
-		return NVG_SCISSOR_STACK.size();
+		if(NVG_SCISSOR_STACK.size()>0){
+			float4  back=NVG_SCISSOR_STACK.back();
+			nvgScissor(ctx,back.x,back.y,back.z,back.w);
+			return NVG_SCISSOR_STACK.size();
+		} else {
+			nvgResetScissor(ctx);
+			return 0;
+		}
 	}
 
 	float drawText(NVGcontext* nvg, float x, float y, const char* txt,const FontStyle& style,const Color& foreground,const Color& background,const char* end){
