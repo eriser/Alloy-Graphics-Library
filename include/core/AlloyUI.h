@@ -59,7 +59,11 @@ public:
 		return false;
 	}
 	virtual inline pixel2 drawOffset() const {
-		return pixel2(0,0);
+		if(parent!=nullptr){
+			return parent->drawOffset();
+		} else {
+			return pixel2(0,0);
+		}
 	}
 	inline void setPosition(const AUnit2D& pt) {
 		position = pt;
@@ -197,7 +201,9 @@ public:
 		scrollEnabled=enabled;
 	}
 	virtual inline pixel2 drawOffset() const {
-		return -scrollPosition*aly::max(pixel2(0,0),scrollExtent-Region::getBounds().dimensions);
+		pixel2 offset=-scrollPosition*aly::max(pixel2(0,0),scrollExtent-Region::getBounds().dimensions);
+		if(parent!=nullptr)offset+=parent->drawOffset();
+		return offset;
 	}
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;
