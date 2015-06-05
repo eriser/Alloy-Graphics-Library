@@ -28,7 +28,7 @@ uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
-const float Composite::scrollBarSize=12.0f;
+const float Composite::scrollBarSize=15.0f;
 bool Region::isVisible() {
 	if (!visible)
 		return false;
@@ -98,7 +98,6 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr));
 	float xoffset = (bounds.dimensions.x - twidth - 2 * FONT_PADDING) * 0.5f;
 	if(twidth<=bounds.dimensions.x&&FONT_SIZE_PX<=bounds.dimensions.y){
-	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y );
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, c);
 	nvgRoundedRect(nvg, bounds.position.x + xoffset, bounds.position.y -4,
@@ -108,7 +107,6 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgFillColor(nvg, Color(COLOR_WHITE));
 	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
-	nvgResetScissor(nvg);
 	}
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
@@ -191,14 +189,26 @@ void Composite::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
-	for (std::shared_ptr<Region>& region : children) {
-		region->drawDebug(context);
+	if(isScrollEnabled()){
+		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	}
-	if(verticalScrollTrack.get()){
-		verticalScrollTrack->drawDebug(context);
-	}
-	if(verticalScrollHandle.get()){
-		verticalScrollHandle->drawDebug(context);
+		for (std::shared_ptr<Region>& region : children) {
+			region->drawDebug(context);
+		}
+		if(verticalScrollTrack.get()){
+			verticalScrollTrack->drawDebug(context);
+		}
+		if(verticalScrollHandle.get()){
+			verticalScrollHandle->drawDebug(context);
+		}
+		if(horizontalScrollTrack.get()){
+			horizontalScrollTrack->drawDebug(context);
+		}
+		if(horizontalScrollHandle.get()){
+			horizontalScrollHandle->drawDebug(context);
+		}
+	if(isScrollEnabled()){
+		nvgReset(nvg);
 	}
 }
 

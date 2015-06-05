@@ -186,9 +186,6 @@ public:
 
 	inline void setOrientation(const Orientation& orient){
 		orientation=orient;
-		if(orient!=Orientation::Unspecified){
-			scrollEnabled=true;
-		}
 	}
 	virtual inline bool isScrollEnabled() const override {
 		return scrollEnabled;

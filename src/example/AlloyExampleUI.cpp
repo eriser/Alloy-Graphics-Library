@@ -87,6 +87,7 @@ bool ExampleUI::init(Composite& rootNode) {
 		scrollPane->add(hslider);
 	}
 	scrollPane->setOrientation(Orientation::Vertical);
+	scrollPane->setScrollEnabled(true);
 	comp->add(hslider1);
 	comp->add(button1);
 	comp->add(dropdown);
