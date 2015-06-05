@@ -26,7 +26,7 @@ namespace aly{
 		nvgScissor(ctx,x,y,w,h);
 		return  NVG_SCISSOR_STACK.size();
 	}
-	int popScissor(NVGcontext* ctx,float x,float y,float w,float h){
+	int popScissor(NVGcontext* ctx){
 		if(NVG_SCISSOR_STACK.size()==0)throw std::runtime_error("Cannot pop an empty scissor stack.");
 		float4  back=NVG_SCISSOR_STACK.back();
 		NVG_SCISSOR_STACK.pop_back();

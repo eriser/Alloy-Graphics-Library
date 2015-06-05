@@ -31,7 +31,7 @@
 
 namespace aly{
 	int pushScissor(NVGcontext* ctx,float x,float y,float w,float h);
-	int popScissor(NVGcontext* ctx,float x,float y,float w,float h);
+	int popScissor(NVGcontext* ctx);
 	float drawText(NVGcontext* ctx, float x, float y,
 			const char* string,
 			const FontStyle& style=FontStyle::Normal,
