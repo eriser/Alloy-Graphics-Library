@@ -141,23 +141,45 @@ void Composite::drawOnTop(AlloyContext* context) {
 }
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	//nvgScissor(nvg,scissor.position.x,scissor.position.y,scissor.dimensions.x,scissor.dimensions.y);
-
+	float x=bounds.position.x;
+	float y=bounds.position.y;
+	float w=bounds.dimensions.x;
+	float h=bounds.dimensions.y;
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
+		nvgRect(nvg, x,y,w,h);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	if(isScrollEnabled()){
 		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	}
+	float stackw;
+	float stackh=0;
+	float u=scrollPosition.y;
 	for (std::shared_ptr<Region>& region : children) {
 		if(region->isVisible()){
-
 			region->draw(context);
+			stackh=std::max(region->getBoundsDimensionsY()+region->getBoundsPositionY()-y,stackh);
 		}
+	}
+	if(isScrollEnabled()&&stackh>h){
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, x + w - 12 + 1, y + 4 + 1, 8, h - 8, 3, 4,
+				nvgRGBA(0, 0, 0, 32), nvgRGBA(0, 0, 0, 92));
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, x + w - 12, y + 4, 8, h - 8, 3);
+		nvgFillPaint(nvg, shadowPaint);
+		nvgFill(nvg);
+
+		float scrollh = (h / stackh) * (h - 8);
+		shadowPaint = nvgBoxGradient(nvg, x + w - 12 - 1,
+				y + 4 + (h - 8 - scrollh) * u - 1, 8, scrollh, 3, 4,
+				nvgRGBA(220, 220, 220, 255), nvgRGBA(128, 128, 128, 255));
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, x + w - 12 + 1, y + 4 + 1 + (h - 8 - scrollh) * u, 8 - 2,
+				scrollh - 2, 2);
+		nvgFillPaint(nvg, shadowPaint);
+		nvgFill(nvg);
 	}
 	if(isScrollEnabled()){
 		nvgResetScissor(nvg);

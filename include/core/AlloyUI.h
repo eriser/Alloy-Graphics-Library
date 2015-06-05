@@ -43,7 +43,6 @@ protected:
 	static uint64_t REGION_COUNTER;
 	bool visible = true;
 	bool dragEnabled = false;
-	bool scrollEnabled=false;
 	Origin origin = Origin::TopLeft;
 	pixel2 dragOffset = pixel2(0, 0);
 	box2px bounds;
@@ -55,8 +54,8 @@ public:
 	friend class  Composite;
 	const std::string name;
 	//Also request context refresh
-	bool isScrollEnabled() const {
-		return scrollEnabled;
+	virtual inline bool isScrollEnabled() const {
+		return false;
 	}
 	void setPosition(const AUnit2D& pt);
 	void setDimensions(const AUnit2D& dim);
@@ -144,17 +143,28 @@ public:
 struct Composite: public Region {
 protected:
 	const pixel2 CELL_SPACING=pixel2(4,2);
-	Orientation orientation;
+	Orientation orientation=Orientation::Unspecified;
+	bool scrollEnabled=false;
+	float2 scrollPosition=float2(0.0f,0.0f);
 public:
 	std::vector<std::shared_ptr<Region>> children;
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++)) :
-			Region(name),orientation(Orientation::Unspecified) {
+			Region(name) {
 	}
+
 	inline void setOrientation(const Orientation& orient){
 		orientation=orient;
-		scrollEnabled=true;
+		if(orient!=Orientation::Unspecified){
+			scrollEnabled=true;
+		}
+	}
+	virtual inline bool isScrollEnabled() const override {
+		return scrollEnabled;
+	}
+	void setScrollEnabled(bool  enabled){
+		scrollEnabled=enabled;
 	}
 	virtual void draw(AlloyContext* context) override;
 	//virtual void draw(AlloyContext* context) override;

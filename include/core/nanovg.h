@@ -51,8 +51,14 @@ struct NVGpaint {
 	NVGcolor outerColor;
 	int image;
 };
+struct NVGscissorBounds {
+	float x;
+	float y;
+	float w;
+	float h;
+};
 typedef struct NVGpaint NVGpaint;
-
+typedef struct NVGscissorBounds NVGscissorBounds;
 enum NVGwinding {
 	NVG_CCW = 1,			// Winding for solid shapes
 	NVG_CW = 2,				// Winding for holes
@@ -372,6 +378,8 @@ NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex,
 // Sets the current scissor rectangle.
 // The scissor rectangle is transformed by the current transform.
 void nvgScissor(NVGcontext* ctx, float x, float y, float w, float h);
+
+NVGscissorBounds nvgCurrentScissor(NVGcontext* ctx);
 
 // Intersects current scissor rectangle with the specified rectangle.
 // The scissor rectangle is transformed by the current transform.
