@@ -168,13 +168,10 @@ protected:
 	const pixel2 CELL_SPACING=pixel2(4,2);
 	Orientation orientation=Orientation::Unspecified;
 	bool scrollEnabled=false;
-	float2 scrollPosition=float2(0.0f,0.0f);
 	static const float scrollBarSize;
 	float verticalScrollExtent=0;
-	float verticalScrollPosition=0;
-
 	float horizontalScrollExtent=0;
-	float horizontalScrollPosition=0;
+	pixel2 scrollPosition=pixel2(0,0);
 
 	std::shared_ptr<ScrollTrack> verticalScrollTrack,horizontalScrollTrack;
 	std::shared_ptr<ScrollHandle> verticalScrollHandle,horizontalScrollHandle;
