@@ -110,7 +110,17 @@ public:
 	}
 	box2px getBounds() const {
 		box2px box=bounds;
-		if(parent!=nullptr)box.position+=parent->drawOffset();
+		if(parent!=nullptr){
+			box.position+=parent->drawOffset();
+		}
+		return box;
+	}
+	box2px getCursorBounds() const {
+		box2px box=bounds;
+		if(parent!=nullptr){
+			box.position+=parent->drawOffset();
+			box.intersect(parent->getCursorBounds());
+		}
 		return box;
 	}
 	pixel2 getBoundsPosition() const {
@@ -148,7 +158,6 @@ public:
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio);
 	virtual void draw(AlloyContext* context);
-	//virtual void draw(AlloyContext* context);
 	inline virtual void drawOnTop(AlloyContext* context){};
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);

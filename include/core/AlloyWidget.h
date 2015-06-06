@@ -107,6 +107,7 @@ public:
 	const Number& getValue(){
 		return value;
 	}
+	//virtual void pack(const pixel2& pos, const pixel2& dims,const double2& dpmm, double pixelRatio) override;
 	virtual void onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual void onMouseUp(AlloyContext* context, Region* region,

@@ -68,13 +68,14 @@ void Region::draw(AlloyContext* context) {
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-
-	if(bounds.dimensions.x<=20&&bounds.dimensions.y<=20){
+	box2px bounds=getCursorBounds();
+	if((bounds.dimensions.x<=20&&bounds.dimensions.y<=20)||bounds.dimensions.x*bounds.dimensions.y==0){
 		return;
 	}
 
 	NVGcontext* nvg = context->nvgContext;
-	pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	//pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	Color c;
@@ -115,7 +116,8 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
 	}
-	popScissor(nvg);
+	//popScissor(nvg);
+	nvgResetScissor(nvg);
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	pixel2 d = (bounds.position - dragOffset);
@@ -153,8 +155,6 @@ void Composite::draw(AlloyContext* context) {
 	if(isScrollEnabled()){
 		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	}
-	float stackw;
-	float u=scrollPosition.y;
 	for (std::shared_ptr<Region>& region : children) {
 		if(region->isVisible()){
 			region->draw(context);
@@ -232,6 +232,9 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 
 	Region::pack(pos, dims,dpmm, pixelRatio);
 	box2px bounds=getBounds();
+	if(parent!=nullptr&&parent->isScrollEnabled()){
+		bounds.position-=drawOffset();
+	}
 	if(verticalScrollTrack.get()==nullptr&&isScrollEnabled()){
 		verticalScrollTrack=std::shared_ptr<ScrollTrack>(new ScrollTrack("Vert Track",Orientation::Vertical));
 		verticalScrollTrack->setPosition(CoordPercent(1.0f,0.0f));
@@ -291,14 +294,13 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		}
 		region->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
 		if(orientation==Orientation::Horizontal){
-			offset.x+=CELL_SPACING.x+region->getBounds().dimensions.x;
+			offset.x+=CELL_SPACING.x+region->getBoundsDimensionsX();
 		}
 		if(orientation==Orientation::Vertical){
-			offset.y+=CELL_SPACING.y+region->getBounds().dimensions.y;
+			offset.y+=CELL_SPACING.y+region->getBoundsDimensionsY();
 		}
-		scrollExtent.x=std::max(region->getBoundsDimensionsY()+region->getBoundsPositionY()-bounds.position.y,scrollExtent.x);
-		scrollExtent.y=std::max(region->getBoundsDimensionsX()+region->getBoundsPositionX()-bounds.position.x,scrollExtent.y);
 
+		scrollExtent=max(region->getBoundsDimensions()+region->getBoundsPosition()-bounds.position,scrollExtent);
 	}
 	if(verticalScrollTrack.get()!=nullptr){
 		verticalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
@@ -445,9 +447,11 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		default:
 			bounds.dimensions = d;
 	}
+	/*
 	if (parent != nullptr&&!parent->isScrollEnabled()) {
 		bounds.dimensions=aly::clamp(bounds.dimensions,pixel2(0,0),parent->bounds.dimensions);
 	}
+	*/
 	switch (origin) {
 	case Origin::TopLeft:
 		bounds.position = xy;
@@ -477,10 +481,13 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		bounds.position = xy - pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
 		break;
 	}
+	/*
 	if (parent != nullptr&&!parent->isScrollEnabled()) {
-		bounds.position = aly::clamp(bounds.position, parent->bounds.position,
-				 parent->bounds.position +  parent->bounds.dimensions - bounds.dimensions);
+		pixel2 ppos= parent->getBoundsPosition();
+		bounds.position = aly::clamp(bounds.position, ppos,
+				 ppos+  parent->bounds.dimensions - bounds.dimensions);
 	}
+	*/
 	dragOffset = xy - pos - computedPos;
 }
 
@@ -489,7 +496,7 @@ void Composite::pack(AlloyContext* context) {
 		pack(pixel2(context->viewport.position),
 				pixel2(context->viewport.dimensions),context->dpmm, context->pixelRatio);
 	} else {
-		pack(parent->getBounds().position,parent->getBounds().dimensions,context->dpmm, context->pixelRatio);
+		pack(parent->getBoundsPosition(),parent->getBoundsDimensions(),context->dpmm, context->pixelRatio);
 	}
 }
 

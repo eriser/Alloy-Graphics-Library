@@ -373,6 +373,21 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 		this->setValue(this->value.toDouble());
 	};
 }
+/*
+void HorizontalSlider::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm, double pixelRatio){
+	Region::pack(pos, dims,dpmm, pixelRatio);
+	box2px bounds=getBounds();
+	bounds.position-=drawOffset();
+	for (std::shared_ptr<Region>& region : children) {
+		region->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
+	}
+	for (std::shared_ptr<Region>& region : children) {
+		if (region->onPack)region->onPack();
+	}
+	if (onPack)
+		onPack();
+}
+*/
 void HorizontalSlider::setValue(double value) {
 	double interp = clamp(
 			(value - minValue.toDouble())
@@ -449,7 +464,11 @@ void HorizontalSlider::draw(AlloyContext* context) {
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 				bounds.dimensions.x, bounds.dimensions.y, context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-	Composite::draw(context);
+	for (std::shared_ptr<Region>& region : children) {
+		if(region->isVisible()){
+			region->draw(context);
+		}
+	}
 }
 void Button::drawOnTop(AlloyContext* context) {
 	if(isDragEnabled()&&context->isMouseDrag(this)){

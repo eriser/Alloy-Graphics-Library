@@ -33,7 +33,8 @@ void CursorLocator::reset(int2 viewportDims) {
 }
 void CursorLocator::add(Region* region) {
 	std::lock_guard<std::mutex> lockMe(lock);
-	box2px bounds = region->getBounds();
+	box2px bounds = region->getCursorBounds();
+	if(bounds.dimensions.x*bounds.dimensions.y==0)return;
 	int2 start = clamp(int2(bounds.position / cellSize), lowerBounds,
 			upperBounds);
 	int2 end = clamp(int2((bounds.position + bounds.dimensions) / cellSize),
@@ -50,7 +51,7 @@ Region* CursorLocator::locate(const pixel2& cursor) {
 		return nullptr;
 	int2 query = clamp(int2(cursor / cellSize), lowerBounds, upperBounds);
 	for (Region* region : grid[(int) query.x][(int) query.y]) {
-		if (region->isVisible() && region->getBounds().contains(cursor))
+		if (region->isVisible() && region->getCursorBounds().contains(cursor))
 			return region;
 	}
 	return nullptr;

@@ -81,8 +81,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPX(200, 40.0),CoordPercent(0.4f, 0.1),false));
 	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.1),CoordPX(200, 30),std::vector<std::string>{"Mission","Bernal Heights","Noe Valley","Telegraph Hill","North Beach","South  Beach","Richmond","Sunset","Daly City","Dogpatch","Potrero Hill","Ocean Beach","SoMa","Pacific Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
 
-	CompositePtr scrollPane=MakeComposite("Scroll  Pane",CoordPercent(0.1f,0.4f),CoordPercent(0.35f,0.5f),RGBA(64,128,64,255));
-	for(int n=0;n<8;n++){
+	CompositePtr scrollPane=MakeComposite("Scroll  Pane",CoordPercent(0.1f,0.1f),CoordPercent(0.35f,0.5f),RGBA(64,128,64,255));
+	for(int n=0;n<12;n++){
 		HSliderPtr hslider = HSliderPtr(new HorizontalSlider(MakeString()<<"Item "<<(n+1), CoordPX(0,0),CoordPX(400.0f, 50.0f),Integer(0),Integer(100),Integer(70)));
 		scrollPane->add(hslider);
 	}
