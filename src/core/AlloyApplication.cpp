@@ -118,10 +118,9 @@ void Application::drawDebugUI() {
 	NVGcontext* nvg = context->nvgContext;
 	nvgBeginFrame(nvg, context->width(), context->height(),
 			context->pixelRatio);
-	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,view.dimensions.y);
+	nvgResetScissor(nvg);
 	rootNode.drawDebug(context.get());
-	int cr = 6;
-
+	int cr = context->theme.CORNER_RADIUS;
 	if (context->viewport.contains(
 					int2((int) context->cursorPosition.x,
 							(int) context->cursorPosition.y))) {

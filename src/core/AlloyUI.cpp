@@ -74,7 +74,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	}
 
 	NVGcontext* nvg = context->nvgContext;
-	nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	//pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
@@ -116,8 +116,8 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
 			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
 	}
-	//popScissor(nvg);
-	nvgResetScissor(nvg);
+	popScissor(nvg);
+	//nvgResetScissor(nvg);
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	pixel2 d = (bounds.position - dragOffset);
@@ -153,7 +153,7 @@ void Composite::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if(isScrollEnabled()){
-		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+		pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	}
 	for (std::shared_ptr<Region>& region : children) {
 		if(region->isVisible()){
@@ -185,33 +185,27 @@ void Composite::draw(AlloyContext* context) {
 	}
 
 	if(isScrollEnabled()){
-		nvgResetScissor(nvg);
+		popScissor(nvg);
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds=getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
-	if(isScrollEnabled()){
-		nvgScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	for (std::shared_ptr<Region>& region : children) {
+		region->drawDebug(context);
 	}
-		for (std::shared_ptr<Region>& region : children) {
-			region->drawDebug(context);
-		}
-		if(verticalScrollTrack.get()){
-			verticalScrollTrack->drawDebug(context);
-		}
-		if(verticalScrollHandle.get()){
-			verticalScrollHandle->drawDebug(context);
-		}
-		if(horizontalScrollTrack.get()){
-			horizontalScrollTrack->drawDebug(context);
-		}
-		if(horizontalScrollHandle.get()){
-			horizontalScrollHandle->drawDebug(context);
-		}
-	if(isScrollEnabled()){
-		nvgReset(nvg);
+	if(verticalScrollTrack.get()){
+		verticalScrollTrack->drawDebug(context);
+	}
+	if(verticalScrollHandle.get()){
+		verticalScrollHandle->drawDebug(context);
+	}
+	if(horizontalScrollTrack.get()){
+		horizontalScrollTrack->drawDebug(context);
+	}
+	if(horizontalScrollHandle.get()){
+		horizontalScrollHandle->drawDebug(context);
 	}
 }
 
@@ -572,6 +566,78 @@ void TextLabel::draw(AlloyContext* context) {
 		nvgStroke(nvg);
 	}
 }
+
+
+void TextField::draw(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds=getBounds();
+	float x=bounds.position.x;
+	float y=bounds.position.y;
+	float w=bounds.dimensions.x;
+	float h=bounds.dimensions.y;
+
+	/*
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	nvgFontSize(nvg, th);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
+	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
+	nvgTextAlign(nvg,NVG_ALIGN_LEFT|NVG_ALIGN_BOTTOM);
+	pixel2 offset(0, 0);
+
+
+*/
+	if(backgroundColor->a>0){
+		nvgBeginPath(nvg);
+		nvgRect(nvg, x, y, w, h);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+
+	x+=lineWidth;
+	y+=lineWidth;
+	w-=2*lineWidth;
+	h-=2*lineWidth;
+	const float PADDING=2;
+	 NVGpaint bg = nvgBoxGradient(nvg,
+			 x + 1,
+			 y + 3,
+			 w - 2*PADDING,
+			 h - 2*PADDING, context->theme.CORNER_RADIUS, 4,
+			 context->theme.HIGHLIGHT.toSemiTransparent(0.5f), context->theme.SHADOW.toSemiTransparent(0.5f));
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, x + PADDING, y + PADDING, w - 2*PADDING, h - 2*PADDING, context->theme.CORNER_RADIUS);
+	nvgFillPaint(nvg, bg);
+	nvgFill(nvg);
+
+	pushScissor(nvg,x+PADDING,y+PADDING,w-2*PADDING,h-2*PADDING);
+	nvgFontSize(nvg, h-4*PADDING);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
+	nvgFillColor(nvg, context->theme.DARK_TEXT.toSemiTransparent(0.5f));
+	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+	nvgText(nvg, x+2, y + h * 0.5f, label.c_str(), NULL);
+	popScissor(nvg);
+
+	NVGscissorBounds scissor=nvgCurrentScissor(nvg);
+	nvgBeginPath(nvg);
+	nvgStrokeWidth(nvg,lineWidth);
+	nvgRoundedRect(nvg, x + PADDING, y + PADDING, w - 2*PADDING, h - 2*PADDING, context->theme.CORNER_RADIUS);
+	nvgStrokeColor(nvg, context->theme.SHADOW.toSemiTransparent(0.5f));
+	nvgStroke(nvg);
+
+	if (borderColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+	}
+}
 void GlyphRegion::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name,
@@ -610,7 +676,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 	}
 }
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions, const RGBA& bgColor,
+		const AUnit2D& position, const AUnit2D& dimensions, const Color& bgColor,
 		const Orientation& orientation) {
 	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
 			new Composite(name));
@@ -623,8 +689,8 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions, const RGBA& bgColor, const RGBA& fgColor,
-		const RGBA& borderColor, const AUnit1D& borderWidth) {
+		const AUnit2D& dimensions, const Color& bgColor, const Color& fgColor,
+		const Color& borderColor, const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			new GlyphRegion(glyph->name));
 	region->glyph = glyph;
@@ -641,7 +707,7 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const AspectRule& aspectRatio,
-		const RGBA& bgColor, const RGBA& fgColor, const RGBA& borderColor,
+		const Color& bgColor, const Color& fgColor, const Color& borderColor,
 		const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			(glyph->name.length() > 0) ?
@@ -660,7 +726,7 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const FontType& fontType, const AUnit1D& fontSize,
-		const RGBA& fontColor, const HorizontalAlignment& halign,
+		const Color& fontColor, const HorizontalAlignment& halign,
 		const VerticalAlignment& valign) {
 	std::shared_ptr<TextLabel> region = std::shared_ptr<TextLabel>(
 			new TextLabel(name));
@@ -673,9 +739,18 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 	region->verticalAlignment = valign;
 	return region;
 }
+std::shared_ptr<TextField> MakeTextField(const std::string& name,const AUnit2D& position, const AUnit2D& dimensions,const AUnit1D& fontSize,const std::string& value) {
+	std::shared_ptr<TextField> region = std::shared_ptr<TextField>(
+			new TextField(name));
+	region->setPosition(position);
+	region->setDimensions(dimensions);
+	region->fontSize = fontSize;
+	//region->backgroundColor=MakeColor(Theme::Default.DARK);
+	return region;
+}
 std::shared_ptr<Region> MakeRegion(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions, const RGBA& bgColor,
-		const RGBA& borderColor, const AUnit1D& borderWidth) {
+		const AUnit2D& position, const AUnit2D& dimensions, const Color& bgColor,
+		const Color& borderColor, const AUnit1D& borderWidth) {
 	std::shared_ptr<Region> region = std::shared_ptr<Region>(new Region(name));
 	region->setPosition(position);
 	region->setDimensions(dimensions);

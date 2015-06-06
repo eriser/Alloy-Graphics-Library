@@ -258,30 +258,44 @@ struct TextLabel: public Region {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
+struct TextField: public Region {
+	AUnit1D fontSize = UnitPX(24);
+	AColor textColor=MakeColor(Theme::Default.LIGHT_TEXT);
+	std::string label;
+	std::string value;
+	TextField(
+			const std::string& name = MakeString() << "t" << std::setw(8)
+					<< std::setfill('0') << (REGION_COUNTER++)) :
+			Region(name), label(name),value("") {
+	}
+	virtual void draw(AlloyContext* context) override;
+};
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
-		const RGBA& bgColor = COLOR_NONE, const Orientation& orientation =
+		const Color& bgColor = COLOR_NONE, const Orientation& orientation =
 				Orientation::Unspecified);
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const AspectRule& aspectRatio =
-				AspectRule::Unspecified, const RGBA& bgColor = COLOR_NONE,
-		const RGBA& fgColor = COLOR_NONE, const RGBA& borderColor = COLOR_NONE,
+				AspectRule::Unspecified, const Color& bgColor = COLOR_NONE,
+		const Color& fgColor = COLOR_NONE, const Color& borderColor = COLOR_NONE,
 		const AUnit1D& borderWidth = UnitPX(2));
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions, const RGBA& bgColor = COLOR_NONE,
-		const RGBA& fgColor = COLOR_NONE, const RGBA& borderColor = COLOR_NONE,
+		const AUnit2D& dimensions, const Color& bgColor = COLOR_NONE,
+		const Color& fgColor = COLOR_NONE, const Color& borderColor = COLOR_NONE,
 		const AUnit1D& borderWidth = UnitPX(2));
 std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const FontType& fontType, const AUnit1D& fontSize = UnitPT(14.0f),
-		const RGBA& fontColor = COLOR_WHITE, const HorizontalAlignment& halign =
+		const Color& fontColor = COLOR_WHITE, const HorizontalAlignment& halign =
 				HorizontalAlignment::Left, const VerticalAlignment& valign =
 				VerticalAlignment::Top);
+std::shared_ptr<TextField> MakeTextField(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions,const AUnit1D& fontSize = UnitPT(14.0f),const std::string& value="");
 std::shared_ptr<Region> MakeRegion(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
-		const RGBA& bgColor = COLOR_NONE, const RGBA& lineColor = COLOR_WHITE,
+		const Color& bgColor = COLOR_NONE, const Color& lineColor = COLOR_WHITE,
 		const AUnit1D& lineWidth = UnitPX(2.0f));
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const Region & region) {
@@ -345,6 +359,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	return ss;
 }
 typedef std::shared_ptr<TextLabel> TextLabelPtr;
+typedef std::shared_ptr<TextField> TextFieldPtr;
 typedef std::shared_ptr<Composite> CompositePtr;
 typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
 typedef std::shared_ptr<Region> RegionPtr;

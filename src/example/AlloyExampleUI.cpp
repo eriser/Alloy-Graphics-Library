@@ -30,16 +30,21 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
 			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
 			VerticalAlignment::Baseline);
+
+
+	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.1f, 0.8f),CoordPX(200.0f, 50.0f),UnitPT(20.0f));
+	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.6f, 0.8f),CoordPX(200.0f, 50.0f),UnitPT(20.0f));
+
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
 			getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr = MakeGlyphRegion(img, CoordPX(160, 160),
-			CoordPX(100, 300), AspectRule::FixedHeight, RGBA(32, 64, 128, 255),
-			RGBA(128, 128, 128, 128), RGBA(200, 200, 200, 255), UnitPX(1.0f));
+			CoordPX(100, 300), AspectRule::FixedHeight,Color(32, 64, 128, 255),
+			Color(128, 128, 128, 128), Color(200, 200, 200, 255), UnitPX(1.0f));
 
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf188),
-			CoordPX(20, 20), CoordPX(50, 100), RGBA(32, 64, 128, 255),
-			RGBA(255, 255, 255, 255));
+			CoordPX(20, 20), CoordPX(50, 100), Color(32, 64, 128, 255),
+			Color(255, 255, 255, 255));
 	imgr->setOrigin(Origin::Center);
 
 /*
@@ -104,6 +109,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor = MakeColor(Color(220, 220, 220, 255));
 	rootNode.add(button2);
 	rootNode.add(hslider2);
+	rootNode.add(field1);
+	rootNode.add(field2);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;
