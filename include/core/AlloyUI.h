@@ -156,7 +156,7 @@ public:
 			const std::string& name = MakeString() << "r" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void pack(const pixel2& pos, const pixel2& dims,
-			const double2& dpmm, double pixelRatio);
+			const double2& dpmm, double pixelRatio,bool clamp=false);
 	virtual void draw(AlloyContext* context);
 	inline virtual void drawOnTop(AlloyContext* context){};
 	virtual void update(CursorLocator* cursorLocator);
@@ -199,7 +199,8 @@ public:
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
-
+	void setVerticalScrollPosition(float fy);
+	void setHorizontalScrollPosition(float fx);
 	inline void setOrientation(const Orientation& orient){
 		orientation=orient;
 	}
@@ -219,7 +220,7 @@ public:
 	virtual void drawDebug(AlloyContext* context) override;
 	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
-			double pixelRatio) override;
+			double pixelRatio,bool clamp=false) override;
 	void pack(AlloyContext* context);
 	virtual void add(const std::shared_ptr<Region>& region);
 	void add(Region* region); //After add(), composite will own region and be responsible for destroying it.
