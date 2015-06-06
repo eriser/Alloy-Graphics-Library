@@ -304,13 +304,16 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		float nudge=(scrollExtent.y>bounds.dimensions.y&&scrollExtent.x>bounds.dimensions.x)?-scrollBarSize:0;
 
 		verticalScrollTrack->setDimensions(CoordPerPX(0.0f,1.0f,scrollBarSize,nudge));
-		verticalScrollHandle->setDimensions(CoordPercent(1.0f,std::min(1.0f,bounds.dimensions.y / scrollExtent.y)));
+		verticalScrollHandle->setDimensions(CoordPerPX(1.0f,0.0f,0.0f,
+					std::max(scrollBarSize,(verticalScrollTrack->getBoundsDimensionsY()*bounds.dimensions.y) / scrollExtent.y)
+				));
 
 		verticalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
 		verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),verticalScrollTrack->getBoundsDimensions(),dpmm, pixelRatio,true);
 
 		horizontalScrollTrack->setDimensions(CoordPerPX(1.0f,0.0f,nudge,scrollBarSize));
-		horizontalScrollHandle->setDimensions(CoordPercent(std::min(1.0f,bounds.dimensions.x / scrollExtent.x),1.0f));
+		horizontalScrollHandle->setDimensions(CoordPerPX(0.0f,1.0f,
+				std::max(scrollBarSize,(horizontalScrollTrack->getBoundsDimensionsX()*bounds.dimensions.x) / scrollExtent.x),0.0f));
 
 		horizontalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
 		horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(),horizontalScrollTrack->getBoundsDimensions(),dpmm, pixelRatio,true);
