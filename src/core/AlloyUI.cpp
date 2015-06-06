@@ -251,6 +251,9 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 				this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
 				context->setDragObject(verticalScrollHandle.get());
+				this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
+						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
+				context->requestPack();
 			}
 		};
 		verticalScrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor){
@@ -275,6 +278,9 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
 				this->horizontalScrollHandle->setDragOffset(event.cursor,this->horizontalScrollHandle->getBoundsDimensions() * 0.5f);
 				context->setDragObject(horizontalScrollHandle.get());
+				this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
+						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
+				context->requestPack();
 			}
 		};
 		horizontalScrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor){
@@ -304,9 +310,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
 		float nudge=(scrollExtent.y>bounds.dimensions.y&&scrollExtent.x>bounds.dimensions.x)?-scrollBarSize:0;
 
 		verticalScrollTrack->setDimensions(CoordPerPX(0.0f,1.0f,scrollBarSize,nudge));
-		verticalScrollHandle->setDimensions(CoordPerPX(1.0f,0.0f,0.0f,
-					std::max(scrollBarSize,(verticalScrollTrack->getBoundsDimensionsY()*bounds.dimensions.y) / scrollExtent.y)
-				));
+		verticalScrollHandle->setDimensions(CoordPerPX(1.0f,0.0f,0.0f,std::max(scrollBarSize,(verticalScrollTrack->getBoundsDimensionsY()*bounds.dimensions.y) / scrollExtent.y)));
 
 		verticalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
 		verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),verticalScrollTrack->getBoundsDimensions(),dpmm, pixelRatio,true);
