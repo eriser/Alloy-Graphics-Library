@@ -50,6 +50,8 @@ bool ExampleUI::init(Composite& rootNode) {
 			Color(255, 255, 255, 255));
 	imgr->setOrigin(Origin::Center);
 
+	ProgressBarPtr pbar=ProgressBarPtr(new ProgressBar("Progress",CoordPercent(0.05f,0.7f),CoordPercent(0.4,0.05f)));
+	pbar->setProgress("Progress Bar",0.6f);
 	/*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());
@@ -134,6 +136,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(hslider2);
 	rootNode.add(field1);
 	rootNode.add(field2);
+	rootNode.add(pbar);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;

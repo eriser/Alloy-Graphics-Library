@@ -134,6 +134,9 @@ void Region::addDragOffset(const pixel2& delta) {
 }
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
+}
+Region::Region(const std::string& name,const AUnit2D& pos,const AUnit2D& dims) :
+			position(pos), dimensions(dims), name(name) {
 
 }
 void Region::drawDebug(AlloyContext* context) {
@@ -440,6 +443,8 @@ void ScrollTrack::draw(AlloyContext* context) {
 Composite::Composite(const std::string& name) :
 		Region(name) {
 
+}
+Composite::Composite(const std::string& name,const AUnit2D& pos,const AUnit2D& dims) :Region(name,pos,dims){
 }
 bool Composite::onEvent(AlloyContext* context, const InputEvent& event){
 	if(event.type==InputType::Scroll&&isScrollEnabled()){

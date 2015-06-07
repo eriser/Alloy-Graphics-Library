@@ -29,6 +29,10 @@ public:
 	Widget(const std::string& name = "") :
 			Composite(name) {
 	}
+	Widget(const std::string& name ,const AUnit2D& pos,const AUnit2D& dims) :
+			Composite(name,pos,dims){
+
+	}
 	virtual void onMouseOver(AlloyContext* context, Region* region,
 			const InputEvent& event) {
 	}
@@ -83,6 +87,25 @@ public:
 			Composite(name) {
 	}
 	virtual void draw(AlloyContext* context) override;
+};
+class ProgressBar: public Widget{
+private:
+	TextLabelPtr textLabel;
+	float value;
+	std::string label;
+public:
+	virtual void draw(AlloyContext* context) override;
+	inline void setProgress(float p){
+		value=p;
+	}
+	inline void setProgress(const std::string& l){
+		label=l;
+	}
+	inline void setProgress(const std::string& l,float p){
+		label=l;
+		value=p;
+	}
+	ProgressBar(const std::string& name,const AUnit2D& pt,const AUnit2D& dims);
 };
 class HorizontalSlider: public Widget {
 private:
@@ -179,6 +202,7 @@ typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
 typedef std::shared_ptr<Selection> SelectionPtr;
 typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
+typedef std::shared_ptr<ProgressBar> ProgressBarPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

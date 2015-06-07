@@ -21,6 +21,7 @@
 
 #include "AlloyApplication.h"
 #include "AlloyWidget.h"
+#include "AlloyDrawUtil.h"
 using namespace std;
 namespace aly {
 CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
@@ -124,7 +125,49 @@ void CheckBox::draw(AlloyContext* context) {
 void Widget::add(const std::shared_ptr<Region>& region) {
 	Composite::add(region);
 }
+void ProgressBar::draw(AlloyContext* context){
+	box2px bounds=getBounds();
+	NVGcontext* nvg=context->nvgContext;
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
+	const float FADE=8;
+	NVGpaint shadowPaint = nvgBoxGradient(nvg, x,
+	y, //+1
+	w, h,(h) / 2,FADE,
+			context->theme.LIGHT,
+			context->theme.SHADOW);
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, x, y, w,h, h / 2);
+	nvgFillPaint(nvg, shadowPaint);
+	nvgFill(nvg);
 
+	NVGpaint gradPaint = nvgLinearGradient(nvg, x,y,x, y+h,context->theme.NEUTRAL,context->theme.DARK);
+	pushScissor(nvg,x,y,w*value,h);
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, x, y, w,h, h / 2);
+	nvgFillPaint(nvg, gradPaint);
+	nvgFill(nvg);
+	shadowPaint = nvgBoxGradient(nvg, x,
+		y, //+1
+		w, h,(h) / 2,FADE,
+				context->theme.LIGHT.toSemiTransparent(0.0f),
+				context->theme.SHADOW.toSemiTransparent(1.0f));
+	nvgFillPaint(nvg, shadowPaint);
+	nvgFill(nvg);
+	nvgTextAlign(nvg,NVG_ALIGN_MIDDLE|NVG_ALIGN_CENTER);
+	nvgFontFaceId(nvg,context->getFontHandle(FontType::Bold));
+	nvgFontSize(nvg,h-FADE);
+	drawText(nvg,pixel2(x+0.5f*w,y+0.5f*h),label,FontStyle::Normal,context->theme.LIGHT_TEXT,context->theme.DARK_TEXT);
+	popScissor(nvg);
+	pushScissor(nvg,x+w*value,y,w,h);
+	drawText(nvg,pixel2(x+0.5f*w,y+0.5f*h),label,FontStyle::Normal,context->theme.DARK_TEXT,context->theme.LIGHT_TEXT);
+
+}
+ProgressBar::ProgressBar(const std::string& name,const AUnit2D& pt,const AUnit2D& dims):Widget(name,pt,dims),value(0),label(""){
+
+}
 Button::Button(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions) :
 		Widget(label) {
