@@ -682,7 +682,6 @@ bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
 				if (onTextEntered)
 					onTextEntered();
 				break;
-
 			case GLFW_KEY_BACKSPACE:
 				if (cursorEnd != cursorStart)
 					erase();
@@ -724,16 +723,16 @@ bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
 							e.isShiftDown());
 				}
 				break;
-			}
 			case GLFW_KEY_DELETE:
-			if (cursorEnd != cursorStart)
-				erase();
-			else if (cursorStart < value.size())
-				value.erase(value.begin() + cursorStart);
-			showDefaultLabel = false;
-			if (onKeyInput)
-				onKeyInput();
-			break;
+				if (cursorEnd != cursorStart)
+					erase();
+				else if (cursorStart < value.size())
+					value.erase(value.begin() + cursorStart);
+				showDefaultLabel = false;
+				if (onKeyInput)
+					onKeyInput();
+				break;
+			}
 		}
 		break;
 	case InputType::Cursor:
