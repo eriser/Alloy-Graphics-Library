@@ -46,8 +46,24 @@ namespace aly {
 std::mutex AlloyContext::contextLock;
 Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
-		name(name), file(file) {
-	handle = nvgCreateFont(context->nvgContext, name.c_str(), file.c_str());
+		name(name), file(file),nvg(context->nvgContext) {
+	handle = nvgCreateFont(nvg, name.c_str(), file.c_str());
+}
+size_t Font::getCursorPosition(const std::string & text, float fontSize, int xCoord) const
+{
+    std::vector<NVGglyphPosition> positions(text.size());
+	nvgFontSize(nvg, fontSize);
+	nvgFontFaceId(nvg, handle);
+	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    positions.resize(nvgTextGlyphPositions(nvg, 0, 0, text.data(), text.data()+text.size(), positions.data(), positions.size()));
+    for(size_t i=0; i<positions.size(); ++i)
+    {
+        if(xCoord < positions[i].maxx)
+        {
+            return i;
+        }
+    }
+    return positions.size();
 }
 AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context, pixel height) :
 		Glyph(CodePointToUTF8(codePoint), GlyphType::Awesome, 0, height), codePoint(
@@ -136,7 +152,11 @@ void AlloyContext::setDragObject(Region* region){
 	cursorDownPosition = cursorPosition- mouseDownRegion->getBoundsPosition();
 	leftMouseButton = true;
 }
-
+void AlloyContext::fireListeners(const InputEvent& event){
+	for(Region* region:listeners){
+		if(region->onEvent(this,event))return;
+	}
+}
 AlloyContext::AlloyContext(int width, int height, const std::string& title,const Theme& theme) :
 		window(nullptr), nvgContext(nullptr), current(nullptr),theme(theme) {
 	std::lock_guard<std::mutex> lock(contextLock);
@@ -232,6 +252,17 @@ bool AlloyContext::end() {
 		return true;
 	} else
 		return false;
+}
+bool AlloyContext::isFocused(Region* region){
+	if(mouseFocusRegion!=nullptr){
+		if(mouseFocusRegion->isVisible()){
+			return (region==mouseFocusRegion);
+		} else{
+			mouseFocusRegion=nullptr;
+			return false;
+		}
+	}
+	return false;
 }
 void AlloyContext::update(Composite& rootNode) {
 	endTime = std::chrono::high_resolution_clock::now();

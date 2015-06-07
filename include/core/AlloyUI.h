@@ -54,7 +54,9 @@ protected:
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 public:
 	const std::string name;
-	//Also request context refresh
+	virtual bool onEvent(AlloyContext* context,const InputEvent& event){
+		return false;
+	}
 	virtual inline bool isScrollEnabled() const {
 		return false;
 	}
@@ -259,16 +261,27 @@ struct TextLabel: public Region {
 	virtual void draw(AlloyContext* context) override;
 };
 struct TextField: public Region {
-	AUnit1D fontSize = UnitPX(24);
-	AColor textColor=MakeColor(Theme::Default.LIGHT_TEXT);
+private:
+    bool showDefaultLabel=true;
 	std::string label;
 	std::string value;
-	TextField(
-			const std::string& name = MakeString() << "t" << std::setw(8)
-					<< std::setfill('0') << (REGION_COUNTER++)) :
-			Region(name), label(name),value("") {
-	}
+	void clear();
+    void erase();
+    void moveCursorTo(int index, bool isShiftHeld = false);
+    void dragCursorTo(int index);
+    int  cursorStart=0, cursorEnd=0;
+      bool drag=false;
+
+    static const float PADDING;
+public:
+    AColor textColor=MakeColor(Theme::Default.LIGHT_TEXT);
+	virtual bool onEvent(AlloyContext* context,const InputEvent& event) override;
+	~TextField();
+	TextField(const std::string& name = MakeString() << "t" << std::setw(8)<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void draw(AlloyContext* context) override;
+    void setValue(const std::string& value);
+    std::function<void()> onTextEntered;
+    std::function<void()> onKeyInput;
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,

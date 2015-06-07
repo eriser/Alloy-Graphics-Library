@@ -160,6 +160,11 @@ void Application::drawDebugUI() {
 			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
 			yoffset+=16;
 		}
+		if(context->mouseFocusRegion!=nullptr){
+			txt=MakeString()<<"Mouse Focus "<<context->mouseFocusRegion->name;
+			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
+			yoffset+=16;
+		}
 		if(context->leftMouseButton){
 			txt="Left Mouse Button";
 			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
@@ -207,7 +212,7 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if (event.type == InputType::MouseButton) {
 		if (event.isMouseDown()) {
-			context->mouseDownRegion = context->cursorLocator.locate(
+			context->mouseFocusRegion=context->mouseDownRegion = context->cursorLocator.locate(
 					context->cursorPosition);
 			if (context->mouseDownRegion
 					!= nullptr) {
@@ -253,6 +258,7 @@ void Application::fireEvent(const InputEvent& event) {
 				context->mouseOverRegion->onMouseOver(context.get(), event);
 		}
 	}
+	context->fireListeners(event);
 }
 
 void Application::onWindowSize(int width, int height) {
@@ -363,6 +369,7 @@ void Application::run(int swapInterval) {
 		if(e.button==GLFW_MOUSE_BUTTON_LEFT){
 			context->toggleDebug();
 			debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(255,255,255,128);
+			context->setMouseFocusObject(nullptr);
 		}
 };
 	rootNode.add(debug);

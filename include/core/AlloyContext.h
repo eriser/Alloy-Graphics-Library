@@ -62,9 +62,14 @@ const RGBA COLOR_WHITE(255, 255, 255, 255);
 
 class AlloyContext;
 struct Font {
+private:
+	NVGcontext* nvg;
+public:
 	int handle;
 	const std::string name;
 	const std::string file;
+
+	size_t getCursorPosition(const std::string & text, float fontSize, int xCoord) const;
 	Font(const std::string& name, const std::string& file,
 			AlloyContext* context);
 };
@@ -170,6 +175,8 @@ private:
 	pixel2 cursorDownPosition = pixel2(-1, -1);
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
+	Region* mouseFocusRegion = nullptr;
+	std::list<Region*> listeners;
 public:
 	friend class Application;
 	const Theme theme;
@@ -180,12 +187,23 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
+	void addListener(Region* region){
+		listeners.push_back(region);
+	}
+	void removeListener(Region* region){
+		listeners.remove(region);
+	}
+	void fireListeners(const InputEvent& event);
 	void setDragObject(Region* region);
 	inline bool isMouseOver(Region* region) {
 		return (mouseOverRegion == region);
 	}
+	bool isFocused(Region* region);
 	inline void setMouseDownObject(Region* region){
 		mouseDownRegion=region;
+	}
+	inline void setMouseFocusObject(Region* region){
+		mouseFocusRegion=region;
 	}
 	bool isMouseContainedIn(const box2px& box);
 	bool isMouseContainedIn(const pixel2& pos,const pixel2& dims);
@@ -275,5 +293,9 @@ public:
 	void makeCurrent();
 	~AlloyContext();
 };
+typedef std::shared_ptr<Font> FontPtr;
+typedef std::shared_ptr<AwesomeGlyph> AwesomeGlyphPtr;
+typedef std::shared_ptr<ImageGlyph> ImageGlyphPtr;
+
 }
 #endif /* ALLOYCONTEXT_H_ */
