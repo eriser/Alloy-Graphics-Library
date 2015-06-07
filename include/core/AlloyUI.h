@@ -54,17 +54,17 @@ protected:
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 public:
 	const std::string name;
-	virtual bool onEvent(AlloyContext* context,const InputEvent& event){
+	virtual bool onEvent(AlloyContext* context, const InputEvent& event) {
 		return false;
 	}
 	virtual inline bool isScrollEnabled() const {
 		return false;
 	}
 	virtual inline pixel2 drawOffset() const {
-		if(parent!=nullptr){
+		if (parent != nullptr) {
 			return parent->drawOffset();
 		} else {
-			return pixel2(0,0);
+			return pixel2(0, 0);
 		}
 	}
 	inline void setPosition(const AUnit2D& pt) {
@@ -74,13 +74,13 @@ public:
 		dimensions = dims;
 	}
 
-	inline void setAspectRule(const AspectRule& aspect){
-		aspectRule=aspect;
+	inline void setAspectRule(const AspectRule& aspect) {
+		aspectRule = aspect;
 	}
-	inline void setAspectRatio(double val){
-		aspectRatio=val;
+	inline void setAspectRatio(double val) {
+		aspectRatio = val;
 	}
-	inline void setBounds(const AUnit2D& pt,const AUnit2D& dim){
+	inline void setBounds(const AUnit2D& pt, const AUnit2D& dim) {
 		setPosition(pt);
 		setDimensions(dim);
 	}
@@ -99,8 +99,8 @@ public:
 	inline void setEnableDrag(bool enabled) {
 		dragEnabled = enabled;
 	}
-	inline void setOrigin(const Origin& org){
-		origin=org;
+	inline void setOrigin(const Origin& org) {
+		origin = org;
 	}
 	bool isDragEnabled() const {
 		return dragEnabled;
@@ -112,16 +112,16 @@ public:
 		return dimensions;
 	}
 	box2px getBounds() const {
-		box2px box=bounds;
-		if(parent!=nullptr){
-			box.position+=parent->drawOffset();
+		box2px box = bounds;
+		if (parent != nullptr) {
+			box.position += parent->drawOffset();
 		}
 		return box;
 	}
 	box2px getCursorBounds() const {
-		box2px box=bounds;
-		if(parent!=nullptr){
-			box.position+=parent->drawOffset();
+		box2px box = bounds;
+		if (parent != nullptr) {
+			box.position += parent->drawOffset();
 			box.intersect(parent->getCursorBounds());
 		}
 		return box;
@@ -159,9 +159,11 @@ public:
 			const std::string& name = MakeString() << "r" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void pack(const pixel2& pos, const pixel2& dims,
-			const double2& dpmm, double pixelRatio,bool clamp=false);
+			const double2& dpmm, double pixelRatio, bool clamp = false);
 	virtual void draw(AlloyContext* context);
-	inline virtual void drawOnTop(AlloyContext* context){};
+	inline virtual void drawOnTop(AlloyContext* context) {
+	}
+	;
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
 	bool isVisible();
@@ -172,31 +174,31 @@ public:
 struct ScrollHandle: public Region {
 public:
 	const Orientation orientation;
-	ScrollHandle(const std::string& name,Orientation orient) :
-			Region(name) ,orientation(orient){
+	ScrollHandle(const std::string& name, Orientation orient) :
+			Region(name), orientation(orient) {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
-struct ScrollTrack: public Region{
+struct ScrollTrack: public Region {
 public:
 	const Orientation orientation;
-	ScrollTrack(const std::string& name,Orientation orient) :
-			Region(name),orientation(orient) {
+	ScrollTrack(const std::string& name, Orientation orient) :
+			Region(name), orientation(orient) {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
 struct Composite: public Region {
 protected:
-	const pixel2 CELL_SPACING=pixel2(4,2);
-	Orientation orientation=Orientation::Unspecified;
-	bool scrollEnabled=false;
+	const pixel2 CELL_SPACING = pixel2(4, 2);
+	Orientation orientation = Orientation::Unspecified;
+	bool scrollEnabled = false;
 	static const float scrollBarSize;
-	pixel2 scrollExtent=pixel2(0,0);
-	float horizontalScrollExtent=0;
-	pixel2 scrollPosition=pixel2(0,0);
+	pixel2 scrollExtent = pixel2(0, 0);
+	float horizontalScrollExtent = 0;
+	pixel2 scrollPosition = pixel2(0, 0);
 
-	std::shared_ptr<ScrollTrack> verticalScrollTrack,horizontalScrollTrack;
-	std::shared_ptr<ScrollHandle> verticalScrollHandle,horizontalScrollHandle;
+	std::shared_ptr<ScrollTrack> verticalScrollTrack, horizontalScrollTrack;
+	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
 public:
 	std::vector<std::shared_ptr<Region>> children;
 	Composite(
@@ -204,18 +206,21 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++));
 	void setVerticalScrollPosition(float fy);
 	void setHorizontalScrollPosition(float fx);
-	inline void setOrientation(const Orientation& orient){
-		orientation=orient;
+	inline void setOrientation(const Orientation& orient) {
+		orientation = orient;
 	}
 	virtual inline bool isScrollEnabled() const override {
 		return scrollEnabled;
 	}
-	void setScrollEnabled(bool  enabled){
-		scrollEnabled=enabled;
+	void setScrollEnabled(bool enabled) {
+		scrollEnabled = enabled;
 	}
 	virtual inline pixel2 drawOffset() const {
-		pixel2 offset=-scrollPosition*aly::max(pixel2(0,0),scrollExtent-Region::getBounds().dimensions);
-		if(parent!=nullptr)offset+=parent->drawOffset();
+		pixel2 offset = -scrollPosition
+				* aly::max(pixel2(0, 0),
+						scrollExtent - Region::getBounds().dimensions);
+		if (parent != nullptr)
+			offset += parent->drawOffset();
 		return offset;
 	}
 	virtual void draw(AlloyContext* context) override;
@@ -223,7 +228,7 @@ public:
 	virtual void drawDebug(AlloyContext* context) override;
 	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
-			double pixelRatio,bool clamp=false) override;
+			double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
 	virtual void add(const std::shared_ptr<Region>& region);
 	void add(Region* region); //After add(), composite will own region and be responsible for destroying it.
@@ -251,8 +256,8 @@ struct TextLabel: public Region {
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
 	AUnit1D fontSize = UnitPX(24);
-	AColor textColor=MakeColor(Theme::Default.LIGHT_TEXT);
-	AColor textAltColor=MakeColor(Theme::Default.DARK_TEXT);
+	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
+	AColor textAltColor = MakeColor(Theme::Default.DARK_TEXT);
 	std::string label;
 	TextLabel(
 			const std::string& name = MakeString() << "t" << std::setw(8)
@@ -263,30 +268,33 @@ struct TextLabel: public Region {
 };
 struct TextField: public Region {
 private:
-    bool showDefaultLabel=true;
+	bool showDefaultLabel = true;
 	std::string label;
 	std::string value;
-	float fontSize=0;
-	float textOffsetX=0;
-	bool showCursor=false;
+	float fontSize = 0;
+	float textOffsetX = 0;
+	bool showCursor = false;
 	std::chrono::high_resolution_clock::time_point lastTime;
 	void clear();
-    void erase();
-    void moveCursorTo(int index, bool isShiftHeld = false);
-    void dragCursorTo(int index);
-    int  cursorStart=0, cursorEnd=0;
-      bool drag=false;
+	void erase();
+	void moveCursorTo(int index, bool isShiftHeld = false);
+	void dragCursorTo(int index);
+	int cursorStart = 0, cursorEnd = 0;
+	bool drag = false;
 
-    static const float PADDING;
+	static const float PADDING;
 public:
-    AColor textColor=MakeColor(Theme::Default.LIGHT_TEXT);
-	virtual bool onEvent(AlloyContext* context,const InputEvent& event) override;
+	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
+	virtual bool onEvent(AlloyContext* context, const InputEvent& event)
+			override;
 	~TextField();
-	TextField(const std::string& name = MakeString() << "t" << std::setw(8)<< std::setfill('0') << (REGION_COUNTER++));
+	TextField(
+			const std::string& name = MakeString() << "t" << std::setw(8)
+					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void draw(AlloyContext* context) override;
-    void setValue(const std::string& value);
-    std::function<void()> onTextEntered;
-    std::function<void()> onKeyInput;
+	void setValue(const std::string& value);
+	std::function<void()> onTextEntered;
+	std::function<void()> onKeyInput;
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
@@ -296,21 +304,25 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const AspectRule& aspectRatio =
 				AspectRule::Unspecified, const Color& bgColor = COLOR_NONE,
-		const Color& fgColor = COLOR_NONE, const Color& borderColor = COLOR_NONE,
-		const AUnit1D& borderWidth = UnitPX(2));
+		const Color& fgColor = COLOR_NONE,
+		const Color& borderColor = COLOR_NONE, const AUnit1D& borderWidth =
+				UnitPX(2));
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const Color& bgColor = COLOR_NONE,
-		const Color& fgColor = COLOR_NONE, const Color& borderColor = COLOR_NONE,
-		const AUnit1D& borderWidth = UnitPX(2));
+		const Color& fgColor = COLOR_NONE,
+		const Color& borderColor = COLOR_NONE, const AUnit1D& borderWidth =
+				UnitPX(2));
 std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const FontType& fontType, const AUnit1D& fontSize = UnitPT(14.0f),
-		const Color& fontColor = COLOR_WHITE, const HorizontalAlignment& halign =
-				HorizontalAlignment::Left, const VerticalAlignment& valign =
-				VerticalAlignment::Top);
+		const Color& fontColor = COLOR_WHITE,
+		const HorizontalAlignment& halign = HorizontalAlignment::Left,
+		const VerticalAlignment& valign = VerticalAlignment::Top);
 std::shared_ptr<TextField> MakeTextField(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions,const Color& bgColor=Theme::Default.DARK, const Color& textColor=Theme::Default.LIGHT_TEXT,const std::string& value="");
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const Color& bgColor = Theme::Default.DARK, const Color& textColor =
+				Theme::Default.LIGHT_TEXT, const std::string& value = "");
 std::shared_ptr<Region> MakeRegion(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const Color& bgColor = COLOR_NONE, const Color& lineColor = COLOR_WHITE,

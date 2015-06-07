@@ -283,7 +283,7 @@ NVGcontext* nvgCreateInternal(NVGparams* params) {
 	if (ctx->fontImages[0] == 0)
 		goto error;
 	ctx->fontImageIdx = 0;
-	ctx->scissor={0,0,-1,-1};
+	ctx->scissor= {0,0,-1,-1};
 	return ctx;
 
 	error: nvgDeleteInternal(ctx);
@@ -875,14 +875,14 @@ NVGpaint nvgImagePattern(NVGcontext* ctx, float cx, float cy, float w, float h,
 
 	return p;
 }
-NVGscissorBounds nvgCurrentScissor(NVGcontext* ctx){
+NVGscissorBounds nvgCurrentScissor(NVGcontext* ctx) {
 	return ctx->scissor;
 }
 // Scissoring
 void nvgScissor(NVGcontext* ctx, float x, float y, float w, float h) {
 
 	NVGstate* state = nvg__getState(ctx);
-	ctx->scissor={x,y,w,h};
+	ctx->scissor= {x,y,w,h};
 	w = nvg__maxf(0.0f, w);
 	h = nvg__maxf(0.0f, h);
 
@@ -941,7 +941,7 @@ void nvgResetScissor(NVGcontext* ctx) {
 	memset(state->scissor.xform, 0, sizeof(state->scissor.xform));
 	state->scissor.extent[0] = -1.0f;
 	state->scissor.extent[1] = -1.0f;
-	ctx->scissor={0,0,-1,-1};
+	ctx->scissor= {0,0,-1,-1};
 }
 
 static int nvg__ptEquals(float x1, float y1, float x2, float y2, float tol) {
@@ -2343,7 +2343,8 @@ static void nvg__renderText(NVGcontext* ctx, NVGvertex* verts, int nverts) {
 	ctx->textTriCount += nverts / 3;
 }
 
-float nvgText(NVGcontext* ctx, float x, float y, const char* string,const char* end) {
+float nvgText(NVGcontext* ctx, float x, float y, const char* string,
+		const char* end) {
 	NVGstate* state = nvg__getState(ctx);
 	FONStextIter iter, prevIter;
 	FONSquad q;

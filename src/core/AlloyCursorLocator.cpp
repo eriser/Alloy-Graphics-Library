@@ -34,7 +34,8 @@ void CursorLocator::reset(int2 viewportDims) {
 void CursorLocator::add(Region* region) {
 	std::lock_guard<std::mutex> lockMe(lock);
 	box2px bounds = region->getCursorBounds();
-	if(bounds.dimensions.x*bounds.dimensions.y==0)return;
+	if (bounds.dimensions.x * bounds.dimensions.y == 0)
+		return;
 	int2 start = clamp(int2(bounds.position / cellSize), lowerBounds,
 			upperBounds);
 	int2 end = clamp(int2((bounds.position + bounds.dimensions) / cellSize),

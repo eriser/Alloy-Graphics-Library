@@ -1285,13 +1285,13 @@ template<class T, int M> struct box {
 
 	}
 	inline void intersect(const box<T, M>& other) {
-		vec<T,M> mn=aly::max(position,other.position);
-		vec<T,M> mx=aly::min(max(),other.max());
-		dimensions=mx-mn;
-		for(int m=0;m<M;m++){
-			dimensions[m]=std::max(dimensions[m],(T)0);
+		vec<T, M> mn = aly::max(position, other.position);
+		vec<T, M> mx = aly::min(max(), other.max());
+		dimensions = mx - mn;
+		for (int m = 0; m < M; m++) {
+			dimensions[m] = std::max(dimensions[m], (T) 0);
 		}
-		position=mn;
+		position = mn;
 	}
 	inline vec<T, M> max() const {
 		return position + dimensions;

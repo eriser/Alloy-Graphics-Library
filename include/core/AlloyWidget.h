@@ -63,8 +63,11 @@ private:
 	GlyphRegionPtr valueLabel;
 	bool checked;
 public:
-	inline bool getValue(){return checked;}
-	CheckBox(const std::string& label, const AUnit2D& position,const AUnit2D& dimensions,bool checked=false);
+	inline bool getValue() {
+		return checked;
+	}
+	CheckBox(const std::string& label, const AUnit2D& position,
+			const AUnit2D& dimensions, bool checked = false);
 	virtual void draw(AlloyContext* context) override;
 };
 class SliderHandle: public Region {
@@ -104,7 +107,7 @@ public:
 	inline void setValue(float value) {
 		setValue((double) value);
 	}
-	const Number& getValue(){
+	const Number& getValue() {
 		return value;
 	}
 	//virtual void pack(const pixel2& pos, const pixel2& dims,const double2& dpmm, double pixelRatio) override;
@@ -123,11 +126,12 @@ public:
 			const Number& maxValue = Float(1.0f),
 			const Number& value = Float(0.0f));
 	virtual void draw(AlloyContext* context) override;
-	virtual inline ~HorizontalSlider() {}
+	virtual inline ~HorizontalSlider() {
+	}
 };
-struct SelectionBox: public Region{
+struct SelectionBox: public Region {
 protected:
-	int selectedIndex=-1;
+	int selectedIndex = -1;
 	std::string label;
 public:
 	FontStyle fontStyle = FontStyle::Normal;
@@ -136,27 +140,28 @@ public:
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::vector<std::string> options;
-	std::string getSelection(int index){
-		return (selectedIndex>=0)?options[selectedIndex]:name;
+	std::string getSelection(int index) {
+		return (selectedIndex >= 0) ? options[selectedIndex] : name;
 	}
 	int getSelectedIndex() const {
 		return selectedIndex;
 	}
-	void setSelectedIndex(int index){
-		selectedIndex=index;
-		label=(index>=0)?options[selectedIndex]:name;
+	void setSelectedIndex(int index) {
+		selectedIndex = index;
+		label = (index >= 0) ? options[selectedIndex] : name;
 	}
 	void drawOnTop(AlloyContext* context) override;
 	void draw(AlloyContext* context) override;
 
-	SelectionBox(const std::string& name,const std::vector<std::string>& options);
+	SelectionBox(const std::string& name,
+			const std::vector<std::string>& options);
 };
-class Selection: public Widget{
+class Selection: public Widget {
 private:
 	TextLabelPtr selectionLabel;
 	GlyphRegionPtr arrowLabel;
 	std::shared_ptr<SelectionBox> selectionBox;
-	int selectedIndex=-1;
+	int selectedIndex = -1;
 public:
 	inline int getSelectedIndex() const {
 		return selectedIndex;
@@ -165,7 +170,9 @@ public:
 		return selectionBox->getSelection(selectedIndex);
 	}
 	virtual void draw(AlloyContext* context) override;
-	Selection(const std::string& label,const AUnit2D& position,const AUnit2D& dimensions,const std::vector<std::string>& options=std::vector<std::string>());
+	Selection(const std::string& label, const AUnit2D& position,
+			const AUnit2D& dimensions, const std::vector<std::string>& options =
+					std::vector<std::string>());
 };
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;

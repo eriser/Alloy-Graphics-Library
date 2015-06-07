@@ -221,7 +221,7 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName,const st
 				}
 			}
 		}
-	} while (FindNextFile(h, &fd));
+	}while (FindNextFile(h, &fd));
 	FindClose(h);
 	return list;
 }

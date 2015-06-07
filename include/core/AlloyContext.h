@@ -69,7 +69,8 @@ public:
 	const std::string name;
 	const std::string file;
 
-	size_t getCursorPosition(const std::string & text, float fontSize, int xCoord) const;
+	size_t getCursorPosition(const std::string & text, float fontSize,
+			int xCoord) const;
 	Font(const std::string& name, const std::string& file,
 			AlloyContext* context);
 };
@@ -187,10 +188,10 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
-	void addListener(Region* region){
+	void addListener(Region* region) {
 		listeners.push_back(region);
 	}
-	void removeListener(Region* region){
+	void removeListener(Region* region) {
 		listeners.remove(region);
 	}
 	void fireListeners(const InputEvent& event);
@@ -199,20 +200,20 @@ public:
 		return (mouseOverRegion == region);
 	}
 	bool isFocused(Region* region);
-	inline void setMouseDownObject(Region* region){
-		mouseDownRegion=region;
+	inline void setMouseDownObject(Region* region) {
+		mouseDownRegion = region;
 	}
-	inline void setMouseFocusObject(Region* region){
-		mouseFocusRegion=region;
+	inline void setMouseFocusObject(Region* region) {
+		mouseFocusRegion = region;
 	}
 	bool isMouseContainedIn(const box2px& box);
-	bool isMouseContainedIn(const pixel2& pos,const pixel2& dims);
+	bool isMouseContainedIn(const pixel2& pos, const pixel2& dims);
 	bool isMouseContainedIn(Region* region);
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
 	}
 	inline bool isMouseDrag(Region* region) {
-		return (mouseDownRegion == region&&leftMouseButton);
+		return (mouseDownRegion == region && leftMouseButton);
 	}
 	double pixelRatio;
 
@@ -287,7 +288,8 @@ public:
 			const A& a = Linear()) {
 		return animator.add(out, start, end, duration, a);
 	}
-	AlloyContext(int width, int height, const std::string& title,const Theme& theme=Theme::Default);
+	AlloyContext(int width, int height, const std::string& title,
+			const Theme& theme = Theme::Default);
 	bool begin();
 	bool end();
 	void makeCurrent();

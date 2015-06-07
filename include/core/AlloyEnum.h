@@ -27,7 +27,15 @@
 #include <iomanip>
 namespace aly {
 enum class Origin {
-	TopLeft, Center, TopRight, BottomLeft, BottomRight,CenterLeft,CenterRight,CenterTop,CenterBottom
+	TopLeft,
+	Center,
+	TopRight,
+	BottomLeft,
+	BottomRight,
+	CenterLeft,
+	CenterRight,
+	CenterTop,
+	CenterBottom
 };
 enum class GlyphType {
 	Image, Awesome

@@ -19,9 +19,7 @@
  * THE SOFTWARE.
  */
 #include "AlloyUnits.h"
-namespace aly{
-	const Theme Theme::Default=Theme();
+namespace aly {
+const Theme Theme::Default = Theme();
 }
-
-
 

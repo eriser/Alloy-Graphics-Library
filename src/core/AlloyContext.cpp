@@ -46,24 +46,25 @@ namespace aly {
 std::mutex AlloyContext::contextLock;
 Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
-		name(name), file(file),nvg(context->nvgContext) {
+		name(name), file(file), nvg(context->nvgContext) {
 	handle = nvgCreateFont(nvg, name.c_str(), file.c_str());
 }
-size_t Font::getCursorPosition(const std::string & text, float fontSize, int xCoord) const
-{
-    std::vector<NVGglyphPosition> positions(text.size());
+size_t Font::getCursorPosition(const std::string & text, float fontSize,
+		int xCoord) const {
+	std::vector<NVGglyphPosition> positions(text.size());
 	nvgFontSize(nvg, fontSize);
 	nvgFontFaceId(nvg, handle);
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    positions.resize(nvgTextGlyphPositions(nvg, 0, 0, text.data(), text.data()+text.size(), positions.data(), positions.size()));
-    for(size_t i=0; i<positions.size(); ++i)
-    {
-        if(xCoord < positions[i].maxx)
-        {
-            return i;
-        }
-    }
-    return positions.size();
+	positions.resize(
+			nvgTextGlyphPositions(nvg, 0, 0, text.data(),
+					text.data() + text.size(), positions.data(),
+					positions.size()));
+	for (size_t i = 0; i < positions.size(); ++i) {
+		if (xCoord < positions[i].maxx) {
+			return i;
+		}
+	}
+	return positions.size();
 }
 AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context, pixel height) :
 		Glyph(CodePointToUTF8(codePoint), GlyphType::Awesome, 0, height), codePoint(
@@ -147,18 +148,20 @@ std::string AlloyContext::getFullPath(const std::string& partialFile) {
 	throw std::runtime_error(MakeString()<<"Could not find \""<<partialFile<<"\"");
 	return std::string("");
 }
-void AlloyContext::setDragObject(Region* region){
-	mouseDownRegion=region;
-	cursorDownPosition = cursorPosition- mouseDownRegion->getBoundsPosition();
+void AlloyContext::setDragObject(Region* region) {
+	mouseDownRegion = region;
+	cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
 	leftMouseButton = true;
 }
-void AlloyContext::fireListeners(const InputEvent& event){
-	for(Region* region:listeners){
-		if(region->onEvent(this,event))return;
+void AlloyContext::fireListeners(const InputEvent& event) {
+	for (Region* region : listeners) {
+		if (region->onEvent(this, event))
+			return;
 	}
 }
-AlloyContext::AlloyContext(int width, int height, const std::string& title,const Theme& theme) :
-		window(nullptr), nvgContext(nullptr), current(nullptr),theme(theme) {
+AlloyContext::AlloyContext(int width, int height, const std::string& title,
+		const Theme& theme) :
+		window(nullptr), nvgContext(nullptr), current(nullptr), theme(theme) {
 	std::lock_guard<std::mutex> lock(contextLock);
 	if (glfwInit() != GL_TRUE) {
 		throw std::runtime_error("Could not initialize GLFW.");
@@ -232,8 +235,8 @@ bool AlloyContext::isMouseContainedIn(Region* region) {
 bool AlloyContext::isMouseContainedIn(const box2px& box) {
 	return (box.contains(cursorPosition));
 }
-bool AlloyContext::isMouseContainedIn(const pixel2& pos,const pixel2& dims) {
-	return ((box2px(pos,dims)).contains(cursorPosition));
+bool AlloyContext::isMouseContainedIn(const pixel2& pos, const pixel2& dims) {
+	return ((box2px(pos, dims)).contains(cursorPosition));
 }
 bool AlloyContext::begin() {
 	if (current == nullptr) {
@@ -253,12 +256,12 @@ bool AlloyContext::end() {
 	} else
 		return false;
 }
-bool AlloyContext::isFocused(Region* region){
-	if(mouseFocusRegion!=nullptr){
-		if(mouseFocusRegion->isVisible()){
-			return (region==mouseFocusRegion);
-		} else{
-			mouseFocusRegion=nullptr;
+bool AlloyContext::isFocused(Region* region) {
+	if (mouseFocusRegion != nullptr) {
+		if (mouseFocusRegion->isVisible()) {
+			return (region == mouseFocusRegion);
+		} else {
+			mouseFocusRegion = nullptr;
 			return false;
 		}
 	}

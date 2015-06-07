@@ -350,9 +350,11 @@ struct Color: public NVGcolor {
 	Color(float r, float g, float b) :
 			Color(nvgRGBf(r, g, b)) {
 	}
-	Color(const Color& color,int alpha) : Color(color.r,color.g,color.b,alpha/255.0f){
+	Color(const Color& color, int alpha) :
+			Color(color.r, color.g, color.b, alpha / 255.0f) {
 	}
-	Color(const Color& color,float alpha) : Color(color.r,color.g,color.b,alpha){
+	Color(const Color& color, float alpha) :
+			Color(color.r, color.g, color.b, alpha) {
 	}
 	Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) :
 			Color(nvgRGBA(r, g, b, a)) {
@@ -367,31 +369,31 @@ struct Color: public NVGcolor {
 			Color(nvgRGB(r, g, b)) {
 	}
 	Color(int lum) :
-		Color(nvgRGB(lum,lum,lum)) {
+			Color(nvgRGB(lum, lum, lum)) {
 	}
 	inline Color toSemiTransparent(float alpha) const {
-		return Color(r,g,b,alpha);
+		return Color(r, g, b, alpha);
 	}
 	inline Color toDarker(float alpha) const {
-		alpha=clamp(alpha,0.0f,1.0f);
-		return Color(alpha*r,alpha*g,alpha*b,a);
+		alpha = clamp(alpha, 0.0f, 1.0f);
+		return Color(alpha * r, alpha * g, alpha * b, a);
 	}
 	inline Color toLighter(float alpha) const {
-		alpha+=1.0f;
-		return Color(clamp(alpha*r,0.0f,1.0f),clamp(alpha*g,0.0f,1.0f),clamp(alpha*b,0.0f,1.0f),a);
+		alpha += 1.0f;
+		return Color(clamp(alpha * r, 0.0f, 1.0f), clamp(alpha * g, 0.0f, 1.0f),
+				clamp(alpha * b, 0.0f, 1.0f), a);
 	}
 	inline Color toOpposite(float alpha) const {
-		return Color(1.0f-r,1.0f-g,1.0f-b,a);
+		return Color(1.0f - r, 1.0f - g, 1.0f - b, a);
 	}
 	inline Color toSemiTransparent(int alpha) const {
-		return Color(r,g,b,alpha/255.0f);
+		return Color(r, g, b, alpha / 255.0f);
 	}
 	inline RGBA rgba() const {
-		return RGBA(
-				(int)clamp(255.0f*r,0.0f,255.0f),
-				(int)clamp(255.0f*g,0.0f,255.0f),
-				(int)clamp(255.0f*b,0.0f,255.0f),
-				(int)clamp(255.0f*a,0.0f,255.0f));
+		return RGBA((int) clamp(255.0f * r, 0.0f, 255.0f),
+				(int) clamp(255.0f * g, 0.0f, 255.0f),
+				(int) clamp(255.0f * b, 0.0f, 255.0f),
+				(int) clamp(255.0f * a, 0.0f, 255.0f));
 	}
 };
 typedef std::shared_ptr<Color> AColor;
@@ -581,7 +583,8 @@ struct CoordPX {
 	CoordPX(float x, float y) :
 			value((pixel) x, (pixel) y) {
 	}
-	CoordPX(const pixel2& pix) : value(pix) {
+	CoordPX(const pixel2& pix) :
+			value(pix) {
 	}
 	CoordPX(int x, int y) :
 			value((pixel) x, (pixel) y) {
@@ -758,15 +761,15 @@ inline AColor MakeColor(const Color& start, const Color& end) {
 
 struct Theme {
 public:
-	Color HIGHLIGHT=Color(255,255,255);
-	Color SHADOW=Color(0,0,0);
-	Color LIGHT=Color(220,220,220);
-	Color DARK=Color(64,64,64);
-	Color NEUTRAL=Color(128,128,128);
-	Color DARK_TEXT=Color(64,64,64);
-	Color LIGHT_TEXT=Color(240,240,240);
-	float CORNER_RADIUS=5.0f;
-	Theme(){
+	Color HIGHLIGHT = Color(255, 255, 255);
+	Color SHADOW = Color(0, 0, 0);
+	Color LIGHT = Color(220, 220, 220);
+	Color DARK = Color(64, 64, 64);
+	Color NEUTRAL = Color(128, 128, 128);
+	Color DARK_TEXT = Color(64, 64, 64);
+	Color LIGHT_TEXT = Color(240, 240, 240);
+	float CORNER_RADIUS = 5.0f;
+	Theme() {
 	}
 	static const Theme Default;
 };

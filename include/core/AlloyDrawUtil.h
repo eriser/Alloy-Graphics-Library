@@ -28,26 +28,21 @@
 #include "nanovg.h"
 #include "nanovg_gl.h"
 
-
-namespace aly{
-	int pushScissor(NVGcontext* ctx,float x,float y,float w,float h);
-	int popScissor(NVGcontext* ctx);
-	float drawText(NVGcontext* ctx, float x, float y,
-			const char* string,
-			const FontStyle& style=FontStyle::Normal,
-			const Color& foreground=COLOR_WHITE,
-			const Color& background=COLOR_BLACK,
-			const char* end=nullptr);
-	inline float drawText(NVGcontext* ctx, const pixel2& pix,
-			const std::string& txt,
-			const FontStyle& style=FontStyle::Normal,
-			const Color& foreground=COLOR_WHITE,
-			const Color& background=COLOR_BLACK,
-			const char* end=nullptr){
-		return drawText(ctx,pix.x,pix.y,txt.c_str(),style,foreground,background,end);
-	}
-
+namespace aly {
+int pushScissor(NVGcontext* ctx, float x, float y, float w, float h);
+int popScissor(NVGcontext* ctx);
+float drawText(NVGcontext* ctx, float x, float y, const char* string,
+		const FontStyle& style = FontStyle::Normal, const Color& foreground =
+				COLOR_WHITE, const Color& background = COLOR_BLACK,
+		const char* end = nullptr);
+inline float drawText(NVGcontext* ctx, const pixel2& pix,
+		const std::string& txt, const FontStyle& style = FontStyle::Normal,
+		const Color& foreground = COLOR_WHITE, const Color& background =
+				COLOR_BLACK, const char* end = nullptr) {
+	return drawText(ctx, pix.x, pix.y, txt.c_str(), style, foreground,
+			background, end);
 }
 
+}
 
 #endif /* ALLOYDRAWUTIL_H_ */

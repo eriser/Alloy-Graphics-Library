@@ -19,65 +19,54 @@
  * THE SOFTWARE.
  */
 #include "AlloyDrawUtil.h"
-namespace aly{
-	std::list<NVGscissorBounds> NVG_SCISSOR_STACK;
-	int pushScissor(NVGcontext* ctx,float x,float y,float w,float h){
-		NVGscissorBounds sb=nvgCurrentScissor(ctx);
-		NVG_SCISSOR_STACK.push_back(sb);
-		nvgScissor(ctx,x,y,w,h);
-		return  NVG_SCISSOR_STACK.size();
+namespace aly {
+std::list<NVGscissorBounds> NVG_SCISSOR_STACK;
+int pushScissor(NVGcontext* ctx, float x, float y, float w, float h) {
+	NVGscissorBounds sb = nvgCurrentScissor(ctx);
+	NVG_SCISSOR_STACK.push_back(sb);
+	nvgScissor(ctx, x, y, w, h);
+	return NVG_SCISSOR_STACK.size();
+}
+int popScissor(NVGcontext* ctx) {
+	if (NVG_SCISSOR_STACK.size() == 0)
+		throw std::runtime_error("Cannot pop an empty scissor stack.");
+	NVGscissorBounds back = NVG_SCISSOR_STACK.back();
+	NVG_SCISSOR_STACK.pop_back();
+	if (back.w >= 0 && back.h >= 0) {
+		nvgScissor(ctx, back.x, back.y, back.w, back.h);
+	} else {
+		nvgResetScissor(ctx);
 	}
-	int popScissor(NVGcontext* ctx){
-		if(NVG_SCISSOR_STACK.size()==0)throw std::runtime_error("Cannot pop an empty scissor stack.");
-		NVGscissorBounds back=NVG_SCISSOR_STACK.back();
-		NVG_SCISSOR_STACK.pop_back();
-		if(back.w>=0&&back.h>=0){
-			nvgScissor(ctx,back.x,back.y,back.w,back.h);
-		}else {
-			nvgResetScissor(ctx);
-		}
-		return NVG_SCISSOR_STACK.size();
-	}
-
-	float drawText(NVGcontext* nvg, float x, float y, const char* txt,const FontStyle& style,const Color& foreground,const Color& background,const char* end){
-		float ret;
-		const float shift = 1.0f;
-		nvgFillColor(nvg, background);
-		if(style==FontStyle::Outline){
-			nvgText(nvg, x + shift,
-					y, txt, nullptr);
-			nvgText(nvg, x - shift,
-					y, txt, nullptr);
-			nvgText(nvg, x,
-					y + shift, txt, nullptr);
-			nvgText(nvg, x,
-					y - shift, txt, nullptr);
-			nvgText(nvg, x + shift,
-					y - shift, txt, nullptr);
-			nvgText(nvg, x + shift,
-					y + shift, txt, nullptr);
-			nvgText(nvg, x + shift,
-					y - shift, txt, nullptr);
-			nvgText(nvg, x + shift,
-					y + shift, txt, nullptr);
-			nvgText(nvg, x - shift,
-					y - shift, txt, nullptr);
-			nvgText(nvg, x - shift,
-					y + shift, txt, nullptr);
-			nvgText(nvg, x - shift,
-					y - shift, txt, nullptr);
-			nvgText(nvg, x - shift,
-					y + shift, txt, nullptr);
-		} else if(style==FontStyle::Shadow){
-			nvgText(nvg, x,y + shift, txt, nullptr);
-		} else if(style==FontStyle::Glow){
-			throw std::runtime_error("Not supported yet");
-		}
-		nvgFillColor(nvg,foreground);
-		ret=nvgText(nvg, x, y,txt, nullptr);
-		return ret;
-	}
+	return NVG_SCISSOR_STACK.size();
 }
 
-
+float drawText(NVGcontext* nvg, float x, float y, const char* txt,
+		const FontStyle& style, const Color& foreground,
+		const Color& background, const char* end) {
+	float ret;
+	const float shift = 1.0f;
+	nvgFillColor(nvg, background);
+	if (style == FontStyle::Outline) {
+		nvgText(nvg, x + shift, y, txt, nullptr);
+		nvgText(nvg, x - shift, y, txt, nullptr);
+		nvgText(nvg, x, y + shift, txt, nullptr);
+		nvgText(nvg, x, y - shift, txt, nullptr);
+		nvgText(nvg, x + shift, y - shift, txt, nullptr);
+		nvgText(nvg, x + shift, y + shift, txt, nullptr);
+		nvgText(nvg, x + shift, y - shift, txt, nullptr);
+		nvgText(nvg, x + shift, y + shift, txt, nullptr);
+		nvgText(nvg, x - shift, y - shift, txt, nullptr);
+		nvgText(nvg, x - shift, y + shift, txt, nullptr);
+		nvgText(nvg, x - shift, y - shift, txt, nullptr);
+		nvgText(nvg, x - shift, y + shift, txt, nullptr);
+	} else if (style == FontStyle::Shadow) {
+		nvgText(nvg, x, y + shift, txt, nullptr);
+	} else if (style == FontStyle::Glow) {
+		throw std::runtime_error("Not supported yet");
+	}
+	nvgFillColor(nvg, foreground);
+	ret = nvgText(nvg, x, y, txt, nullptr);
+	return ret;
+}
+}
 

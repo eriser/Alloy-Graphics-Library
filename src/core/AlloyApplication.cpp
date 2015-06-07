@@ -28,7 +28,7 @@ namespace aly {
 
 std::shared_ptr<AlloyContext> Application::context;
 void Application::initInternal() {
-	rootNode.setBounds(CoordPercent(0.0f, 0.0f),CoordPercent(1.0f, 1.0f));
+	rootNode.setBounds(CoordPercent(0.0f, 0.0f), CoordPercent(1.0f, 1.0f));
 	context->addAssetDirectory("assets/");
 	context->addAssetDirectory("../assets/");
 	context->addAssetDirectory("../../assets/");
@@ -75,8 +75,9 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 	return std::shared_ptr<Font>(
 			new Font(name, context->getFullPath(file), context.get()));
 }
-Application::Application(int w, int h, const std::string& title,bool showDebugIcon) :
-		rootNode("Root"),showDebugIcon(showDebugIcon) {
+Application::Application(int w, int h, const std::string& title,
+		bool showDebugIcon) :
+		rootNode("Root"), showDebugIcon(showDebugIcon) {
 	if (context.get() == nullptr) {
 		context = std::shared_ptr<AlloyContext>(new AlloyContext(w, h, title));
 	} else {
@@ -107,9 +108,11 @@ void Application::drawUI() {
 	NVGcontext* nvg = context->nvgContext;
 	nvgBeginFrame(nvg, context->width(), context->height(),
 			context->pixelRatio);
-	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,view.dimensions.y);
+	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,
+			view.dimensions.y);
 	rootNode.draw(context.get());
-	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,view.dimensions.y);
+	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,
+			view.dimensions.y);
 	rootNode.drawOnTop(context.get());
 	nvgEndFrame(nvg);
 }
@@ -122,8 +125,8 @@ void Application::drawDebugUI() {
 	rootNode.drawDebug(context.get());
 	int cr = context->theme.CORNER_RADIUS;
 	if (context->viewport.contains(
-					int2((int) context->cursorPosition.x,
-							(int) context->cursorPosition.y))) {
+			int2((int) context->cursorPosition.x,
+					(int) context->cursorPosition.y))) {
 		nvgFontSize(nvg, 16);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		int alignment = 0;
@@ -142,40 +145,52 @@ void Application::drawDebugUI() {
 		nvgTextAlign(nvg, alignment);
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
 		const float shift = 1.0f;
-		if(context->hasFocus){
-			drawText(nvg,context->cursorPosition,txt,FontStyle::Outline,Color(255),Color(64,64,64));
+		if (context->hasFocus) {
+			drawText(nvg, context->cursorPosition, txt, FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
 		}
-		nvgTextAlign(nvg,NVG_ALIGN_TOP);
-		float yoffset=5;
-			txt=context->hasFocus?"Window Has Focus":"Window Lost Focus";
-			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
-			yoffset+=16;
-		if(context->mouseOverRegion!=nullptr){
-			txt=MakeString()<<"Mouse Over "<<context->mouseOverRegion->name<<" "<<context->cursorPosition;
-			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
-			yoffset+=16;
+		nvgTextAlign(nvg, NVG_ALIGN_TOP);
+		float yoffset = 5;
+		txt = context->hasFocus ? "Window Has Focus" : "Window Lost Focus";
+		drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline, Color(255),
+				Color(64, 64, 64));
+		yoffset += 16;
+		if (context->mouseOverRegion != nullptr) {
+			txt = MakeString() << "Mouse Over "
+					<< context->mouseOverRegion->name << " "
+					<< context->cursorPosition;
+			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
+			yoffset += 16;
 		}
-		if(context->mouseDownRegion!=nullptr){
-			txt=MakeString()<<"Mouse Down "<<context->mouseDownRegion->name<<" "<<context->cursorDownPosition;
-			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
-			yoffset+=16;
+		if (context->mouseDownRegion != nullptr) {
+			txt = MakeString() << "Mouse Down "
+					<< context->mouseDownRegion->name << " "
+					<< context->cursorDownPosition;
+			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
+			yoffset += 16;
 		}
-		if(context->mouseFocusRegion!=nullptr){
-			txt=MakeString()<<"Mouse Focus "<<context->mouseFocusRegion->name;
-			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
-			yoffset+=16;
+		if (context->mouseFocusRegion != nullptr) {
+			txt = MakeString() << "Mouse Focus "
+					<< context->mouseFocusRegion->name;
+			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
+			yoffset += 16;
 		}
-		if(context->leftMouseButton){
-			txt="Left Mouse Button";
-			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
-			yoffset+=16;
+		if (context->leftMouseButton) {
+			txt = "Left Mouse Button";
+			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
+			yoffset += 16;
 		}
-		if(context->rightMouseButton){
-			txt="Right Mouse Button";
-			drawText(nvg,5,yoffset,txt.c_str(),FontStyle::Outline,Color(255),Color(64,64,64));
-			yoffset+=16;
+		if (context->rightMouseButton) {
+			txt = "Right Mouse Button";
+			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
+			yoffset += 16;
 		}
-		if(context->hasFocus){
+		if (context->hasFocus) {
 			nvgBeginPath(nvg);
 			nvgLineCap(nvg, NVG_ROUND);
 			nvgStrokeWidth(nvg, 2.0f);
@@ -212,24 +227,25 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if (event.type == InputType::MouseButton) {
 		if (event.isMouseDown()) {
-			context->mouseFocusRegion=context->mouseDownRegion = context->cursorLocator.locate(
-					context->cursorPosition);
-			if (context->mouseDownRegion
-					!= nullptr) {
+			context->mouseFocusRegion = context->mouseDownRegion =
+					context->cursorLocator.locate(context->cursorPosition);
+			if (context->mouseDownRegion != nullptr) {
 				context->cursorDownPosition = context->cursorPosition
 						- context->mouseDownRegion->getBoundsPosition();
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT){
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 					context->leftMouseButton = true;
 				}
-				if(event.button==GLFW_MOUSE_BUTTON_RIGHT){
+				if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
 					context->rightMouseButton = true;
 				}
 			}
 		} else if (event.isMouseUp()) {
-			if(context->mouseDownRegion!=nullptr&&context->mouseDownRegion->onMouseUp)context->mouseDownRegion->onMouseUp(context.get(), event);
+			if (context->mouseDownRegion != nullptr
+					&& context->mouseDownRegion->onMouseUp)
+				context->mouseDownRegion->onMouseUp(context.get(), event);
 			context->mouseDownRegion = nullptr;
 			context->leftMouseButton = false;
-			context->rightMouseButton=false;
+			context->rightMouseButton = false;
 			context->cursorDownPosition = pixel2(0, 0);
 
 		}
@@ -360,19 +376,20 @@ void Application::run(int swapInterval) {
 	if (!init(rootNode)) {
 		throw std::runtime_error("Error occurred in application init()");
 	}
-	if(showDebugIcon){
-	GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188),
-			CoordPercent(1.0f,1.0f), CoordPX(20,20),RGBA(64,64,64,128),
-			RGBA(255,255,255,128));
-	debug->setOrigin(Origin::BottomRight);
-	debug->onMouseDown=[this,debug](AlloyContext* context,const InputEvent& e){
-		if(e.button==GLFW_MOUSE_BUTTON_LEFT){
-			context->toggleDebug();
-			debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(255,255,255,128);
-			context->setMouseFocusObject(nullptr);
-		}
-};
-	rootNode.add(debug);
+	if (showDebugIcon) {
+		GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188),
+				CoordPercent(1.0f, 1.0f), CoordPX(20, 20),
+				RGBA(64, 64, 64, 128), RGBA(255, 255, 255, 128));
+		debug->setOrigin(Origin::BottomRight);
+		debug->onMouseDown =
+				[this,debug](AlloyContext* context,const InputEvent& e) {
+					if(e.button==GLFW_MOUSE_BUTTON_LEFT) {
+						context->toggleDebug();
+						debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(255,255,255,128);
+						context->setMouseFocusObject(nullptr);
+					}
+				};
+		rootNode.add(debug);
 	}
 
 	//First pack triggers computation of aspect ratios  for components.

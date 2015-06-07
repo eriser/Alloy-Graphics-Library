@@ -31,16 +31,18 @@ bool ExampleUI::init(Composite& rootNode) {
 			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
 			VerticalAlignment::Baseline);
 
-
-	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),CoordPX(200.0f, 50.0f),Theme::Default.DARK,Theme::Default.LIGHT_TEXT);
-	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.1f, 0.8f),CoordPX(200.0f, 50.0f),Theme::Default.LIGHT,Theme::Default.DARK_TEXT);
-
+	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
+			CoordPX(200.0f, 50.0f), Theme::Default.DARK,
+			Theme::Default.LIGHT_TEXT);
+	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.1f, 0.8f),
+			CoordPX(200.0f, 50.0f), Theme::Default.LIGHT,
+			Theme::Default.DARK_TEXT);
 
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
 			getFullPath("images/robot.png"));
 	GlyphRegionPtr imgr = MakeGlyphRegion(img, CoordPX(160, 160),
-			CoordPX(100, 300), AspectRule::FixedHeight,Color(32, 64, 128, 255),
+			CoordPX(100, 300), AspectRule::FixedHeight, Color(32, 64, 128, 255),
 			Color(128, 128, 128, 128), Color(200, 200, 200, 255), UnitPX(1.0f));
 
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf188),
@@ -48,7 +50,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			Color(255, 255, 255, 255));
 	imgr->setOrigin(Origin::Center);
 
-/*
+	/*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());
 
@@ -64,9 +66,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), Theme::Default.DARK);
 	comp->setOrientation(Orientation::Vertical);
-	RegionPtr scrollHandle = MakeRegion("Scroll Handle",
-			CoordPercent(0.0, 0.0), CoordPX(30, 30), RGBA(255, 128, 64, 255),
-			RGBA(255, 255, 255, 255), UnitPX(2.0f));
+	RegionPtr scrollHandle = MakeRegion("Scroll Handle", CoordPercent(0.0, 0.0),
+			CoordPX(30, 30), RGBA(255, 128, 64, 255), RGBA(255, 255, 255, 255),
+			UnitPX(2.0f));
 	scrollHandle->setEnableDrag(true);
 	CompositePtr scrollTrack = MakeComposite("Scroll Track",
 			CoordPercent(0.2, 0.7), CoordPX(300, 30), RGBA(128, 128, 128, 255));
@@ -76,20 +78,40 @@ bool ExampleUI::init(Composite& rootNode) {
 	//comp->add(label);
 
 	ButtonPtr button1 = std::shared_ptr<Button>(
-			new Button("Click Me", CoordPX(10, 110),
-					CoordPX(140,50)));
+			new Button("Click Me", CoordPX(10, 110), CoordPX(140, 50)));
 
 	ButtonPtr button2 = std::shared_ptr<Button>(
-			new Button("Drag Me", CoordPX(10, 10),
-					CoordPX(140, 50)));
-	HSliderPtr hslider1 = HSliderPtr(new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),CoordPX(200.0f, 40.0f),Integer(0),Integer(100),Integer(70)));
-	HSliderPtr hslider2 = HSliderPtr(new HorizontalSlider("Label B", CoordPercent(0.7, 0.7),CoordPX(200.0f, 50.0f)));
-	CheckBoxPtr checkbox = CheckBoxPtr(new CheckBox("Check", CoordPX(200, 40.0),CoordPercent(0.4f, 0.1),false));
-	SelectionPtr dropdown=SelectionPtr(new Selection("Selection", CoordPercent(0.6, 0.1),CoordPX(200, 30),std::vector<std::string>{"Mission","Bernal Heights","Noe Valley","Telegraph Hill","North Beach","South  Beach","Richmond","Sunset","Daly City","Dogpatch","Potrero Hill","Ocean Beach","SoMa","Pacific Heights","Cow Hollow","Russian Hill","Tenderloin","Hayes Valley","Financial District"}));
+			new Button("Drag Me", CoordPX(10, 10), CoordPX(140, 50)));
+	HSliderPtr hslider1 = HSliderPtr(
+			new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),
+					CoordPX(200.0f, 40.0f), Integer(0), Integer(100),
+					Integer(70)));
+	HSliderPtr hslider2 = HSliderPtr(
+			new HorizontalSlider("Label B", CoordPercent(0.7, 0.7),
+					CoordPX(200.0f, 50.0f)));
+	CheckBoxPtr checkbox = CheckBoxPtr(
+			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.1),
+					false));
+	SelectionPtr dropdown =
+			SelectionPtr(
+					new Selection("Selection", CoordPercent(0.6, 0.1),
+							CoordPX(200, 30), std::vector<std::string> {
+									"Mission", "Bernal Heights", "Noe Valley",
+									"Telegraph Hill", "North Beach",
+									"South  Beach", "Richmond", "Sunset",
+									"Daly City", "Dogpatch", "Potrero Hill",
+									"Ocean Beach", "SoMa", "Pacific Heights",
+									"Cow Hollow", "Russian Hill", "Tenderloin",
+									"Hayes Valley", "Financial District" }));
 
-	CompositePtr scrollPane=MakeComposite("Scroll  Pane",CoordPercent(0.1f,0.1f),CoordPercent(0.35f,0.5f),RGBA(64,128,64,255));
-	for(int n=0;n<12;n++){
-		HSliderPtr hslider = HSliderPtr(new HorizontalSlider(MakeString()<<"Item "<<(n+1), CoordPX(0,0),CoordPX(400.0f, 50.0f),Integer(0),Integer(100),Integer(70)));
+	CompositePtr scrollPane = MakeComposite("Scroll  Pane",
+			CoordPercent(0.1f, 0.1f), CoordPercent(0.35f, 0.5f),
+			RGBA(64, 128, 64, 255));
+	for (int n = 0; n < 12; n++) {
+		HSliderPtr hslider = HSliderPtr(
+				new HorizontalSlider(MakeString() << "Item " << (n + 1),
+						CoordPX(0, 0), CoordPX(400.0f, 50.0f), Integer(0),
+						Integer(100), Integer(70)));
 		scrollPane->add(hslider);
 	}
 	scrollPane->setOrientation(Orientation::Vertical);

@@ -90,7 +90,8 @@ public:
 	inline void throwException(std::exception_ptr e) {
 		caughtExceptions.push_back(e);
 	}
-	Application(int w, int h, const std::string& title = "",bool showDebugIcon=true);
+	Application(int w, int h, const std::string& title = "",
+			bool showDebugIcon = true);
 	float getFrameRate() const {
 		return frameRate;
 	}

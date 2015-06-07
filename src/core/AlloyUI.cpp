@@ -27,11 +27,11 @@
 namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
-const RGBA DEBUG_HIDDEN_COLOR = RGBA(128,128,128, 255);
+const RGBA DEBUG_HIDDEN_COLOR = RGBA(128, 128, 128, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
-const float Composite::scrollBarSize=15.0f;
-const float TextField::PADDING=2;
+const float Composite::scrollBarSize = 15.0f;
+const float TextField::PADDING = 2;
 bool Region::isVisible() {
 	if (!visible)
 		return false;
@@ -70,18 +70,20 @@ void Region::draw(AlloyContext* context) {
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-	box2px bounds=getCursorBounds();
-	if((bounds.dimensions.x<=20&&bounds.dimensions.y<=20)||bounds.dimensions.x*bounds.dimensions.y==0){
+	box2px bounds = getCursorBounds();
+	if ((bounds.dimensions.x <= 20 && bounds.dimensions.y <= 20)
+			|| bounds.dimensions.x * bounds.dimensions.y == 0) {
 		return;
 	}
 
 	NVGcontext* nvg = context->nvgContext;
-	pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	pushScissor(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+			bounds.dimensions.y);
 	//pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	Color c;
-	if(isVisible()){
+	if (isVisible()) {
 		if (down) {
 			c = DEBUG_DOWN_COLOR;
 		} else if (hover) {
@@ -107,16 +109,16 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	float twidth = std::ceil(
 			nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr));
 	float xoffset = (bounds.dimensions.x - twidth - 2 * FONT_PADDING) * 0.5f;
-	if(twidth<=bounds.dimensions.x&&FONT_SIZE_PX<=bounds.dimensions.y){
-	nvgBeginPath(nvg);
-	nvgFillColor(nvg, c);
-	nvgRoundedRect(nvg, bounds.position.x + xoffset, bounds.position.y -4,
-			twidth + 2 * FONT_PADDING, FONT_SIZE_PX + FONT_PADDING+5,5);
-	nvgFill(nvg);
+	if (twidth <= bounds.dimensions.x && FONT_SIZE_PX <= bounds.dimensions.y) {
+		nvgBeginPath(nvg);
+		nvgFillColor(nvg, c);
+		nvgRoundedRect(nvg, bounds.position.x + xoffset, bounds.position.y - 4,
+				twidth + 2 * FONT_PADDING, FONT_SIZE_PX + FONT_PADDING + 5, 5);
+		nvgFill(nvg);
 
-	nvgFillColor(nvg, Color(COLOR_WHITE));
-	nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
-			bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
+		nvgFillColor(nvg, Color(COLOR_WHITE));
+		nvgText(nvg, bounds.position.x + FONT_PADDING + xoffset,
+				bounds.position.y + 1 + FONT_PADDING, name.c_str(), nullptr);
 	}
 	popScissor(nvg);
 }
@@ -135,36 +137,37 @@ void Region::drawDebug(AlloyContext* context) {
 }
 void Composite::drawOnTop(AlloyContext* context) {
 	for (std::shared_ptr<Region>& region : children) {
-		if(region->isVisible()){
+		if (region->isVisible()) {
 			region->drawOnTop(context);
 		}
 	}
 }
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	box2px bounds=getBounds();
-	float x=bounds.position.x;
-	float y=bounds.position.y;
-	float w=bounds.dimensions.x;
-	float h=bounds.dimensions.y;
+	box2px bounds = getBounds();
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, x,y,w,h);
+		nvgRect(nvg, x, y, w, h);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
-	if(isScrollEnabled()){
-		pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+	if (isScrollEnabled()) {
+		pushScissor(nvg, bounds.position.x, bounds.position.y,
+				bounds.dimensions.x, bounds.dimensions.y);
 	}
 	for (std::shared_ptr<Region>& region : children) {
-		if(region->isVisible()){
+		if (region->isVisible()) {
 			region->draw(context);
 		}
 	}
 
-	if(isScrollEnabled()&&verticalScrollTrack.get()!=nullptr){
+	if (isScrollEnabled() && verticalScrollTrack.get() != nullptr) {
 
-		if(scrollExtent.y>h){
+		if (scrollExtent.y > h) {
 
 			verticalScrollTrack->setVisible(true);
 			verticalScrollHandle->setVisible(true);
@@ -174,7 +177,7 @@ void Composite::draw(AlloyContext* context) {
 			verticalScrollTrack->setVisible(false);
 			verticalScrollHandle->setVisible(false);
 		}
-		if(scrollExtent.x>w){
+		if (scrollExtent.x > w) {
 			horizontalScrollTrack->setVisible(true);
 			horizontalScrollHandle->setVisible(true);
 			horizontalScrollTrack->draw(context);
@@ -185,27 +188,27 @@ void Composite::draw(AlloyContext* context) {
 		}
 	}
 
-	if(isScrollEnabled()){
+	if (isScrollEnabled()) {
 		popScissor(nvg);
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	box2px bounds=getBounds();
+	box2px bounds = getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
 		region->drawDebug(context);
 	}
-	if(verticalScrollTrack.get()){
+	if (verticalScrollTrack.get()) {
 		verticalScrollTrack->drawDebug(context);
 	}
-	if(verticalScrollHandle.get()){
+	if (verticalScrollHandle.get()) {
 		verticalScrollHandle->drawDebug(context);
 	}
-	if(horizontalScrollTrack.get()){
+	if (horizontalScrollTrack.get()) {
 		horizontalScrollTrack->drawDebug(context);
 	}
-	if(horizontalScrollHandle.get()){
+	if (horizontalScrollHandle.get()) {
 		horizontalScrollHandle->drawDebug(context);
 	}
 }
@@ -216,202 +219,220 @@ void Composite::pack() {
 void Composite::draw() {
 	draw(Application::getContext().get());
 }
-void Composite::setVerticalScrollPosition(float fy){
+void Composite::setVerticalScrollPosition(float fy) {
 
 }
-void Composite::setHorizontalScrollPosition(float fy){
+void Composite::setHorizontalScrollPosition(float fy) {
 
 }
-void Composite::pack(const pixel2& pos, const pixel2& dims,const double2& dpmm,
-		double pixelRatio,bool clamp) {
+void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
+		double pixelRatio, bool clamp) {
 
-	Region::pack(pos, dims,dpmm, pixelRatio);
-	box2px bounds=getBounds();
-	if(parent!=nullptr&&parent->isScrollEnabled()){
-		bounds.position-=drawOffset();
+	Region::pack(pos, dims, dpmm, pixelRatio);
+	box2px bounds = getBounds();
+	if (parent != nullptr && parent->isScrollEnabled()) {
+		bounds.position -= drawOffset();
 	}
-	if(verticalScrollTrack.get()==nullptr&&isScrollEnabled()){
-		verticalScrollTrack=std::shared_ptr<ScrollTrack>(new ScrollTrack("Vert Track",Orientation::Vertical));
-		verticalScrollTrack->setPosition(CoordPercent(1.0f,0.0f));
-		verticalScrollTrack->setDimensions(CoordPerPX(0.0,1.0f,scrollBarSize,0.0f));
+	if (verticalScrollTrack.get() == nullptr && isScrollEnabled()) {
+		verticalScrollTrack = std::shared_ptr<ScrollTrack>(
+				new ScrollTrack("Vert Track", Orientation::Vertical));
+		verticalScrollTrack->setPosition(CoordPercent(1.0f, 0.0f));
+		verticalScrollTrack->setDimensions(
+				CoordPerPX(0.0, 1.0f, scrollBarSize, 0.0f));
 		verticalScrollTrack->setOrigin(Origin::TopRight);
 
-		verticalScrollHandle=std::shared_ptr<ScrollHandle>(new ScrollHandle("Vert Handle",Orientation::Vertical));
-		verticalScrollHandle->setPosition(CoordPX(0.0f,0.0f));
-		verticalScrollHandle->setDimensions(CoordPerPX(1.0f,0.0f,0.0f,scrollBarSize));
-		verticalScrollHandle->parent=verticalScrollTrack.get();
+		verticalScrollHandle = std::shared_ptr<ScrollHandle>(
+				new ScrollHandle("Vert Handle", Orientation::Vertical));
+		verticalScrollHandle->setPosition(CoordPX(0.0f, 0.0f));
+		verticalScrollHandle->setDimensions(
+				CoordPerPX(1.0f, 0.0f, 0.0f, scrollBarSize));
+		verticalScrollHandle->parent = verticalScrollTrack.get();
 		verticalScrollHandle->setEnableDrag(true);
 
-		verticalScrollTrack->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
-			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-				this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
-				context->setDragObject(verticalScrollHandle.get());
-				this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
+		verticalScrollTrack->onMouseDown =
+				[this](AlloyContext* context,const InputEvent& event) {
+					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+						this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
+						context->setDragObject(verticalScrollHandle.get());
+						this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
 						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
-				context->requestPack();
-			}
-		};
-		verticalScrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor){
-			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-				this->verticalScrollHandle->setDragOffset(event.cursor,lastCursor);
-				this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
+						context->requestPack();
+					}
+				};
+		verticalScrollHandle->onMouseDrag =
+				[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor) {
+					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+						this->verticalScrollHandle->setDragOffset(event.cursor,lastCursor);
+						this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
 						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
-			}
-		};
-		horizontalScrollTrack=std::shared_ptr<ScrollTrack>(new ScrollTrack("Horiz Track",Orientation::Horizontal));
-		horizontalScrollTrack->setPosition(CoordPercent(0.0f,1.0f));
-		horizontalScrollTrack->setDimensions(CoordPerPX(1.0,0.0f,0.0f,scrollBarSize));
+					}
+				};
+		horizontalScrollTrack = std::shared_ptr<ScrollTrack>(
+				new ScrollTrack("Horiz Track", Orientation::Horizontal));
+		horizontalScrollTrack->setPosition(CoordPercent(0.0f, 1.0f));
+		horizontalScrollTrack->setDimensions(
+				CoordPerPX(1.0, 0.0f, 0.0f, scrollBarSize));
 		horizontalScrollTrack->setOrigin(Origin::BottomLeft);
 
-		horizontalScrollHandle=std::shared_ptr<ScrollHandle>(new ScrollHandle("Horiz Handle",Orientation::Horizontal));
-		horizontalScrollHandle->setPosition(CoordPX(0.0f,0.0f));
-		horizontalScrollHandle->setDimensions(CoordPerPX(0.0f,1.0f,scrollBarSize,0.0f));
-		horizontalScrollHandle->parent=horizontalScrollTrack.get();
+		horizontalScrollHandle = std::shared_ptr<ScrollHandle>(
+				new ScrollHandle("Horiz Handle", Orientation::Horizontal));
+		horizontalScrollHandle->setPosition(CoordPX(0.0f, 0.0f));
+		horizontalScrollHandle->setDimensions(
+				CoordPerPX(0.0f, 1.0f, scrollBarSize, 0.0f));
+		horizontalScrollHandle->parent = horizontalScrollTrack.get();
 		horizontalScrollHandle->setEnableDrag(true);
 
-		horizontalScrollTrack->onMouseDown=[this](AlloyContext* context,const InputEvent& event){
-			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-				this->horizontalScrollHandle->setDragOffset(event.cursor,this->horizontalScrollHandle->getBoundsDimensions() * 0.5f);
-				context->setDragObject(horizontalScrollHandle.get());
-				this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
+		horizontalScrollTrack->onMouseDown =
+				[this](AlloyContext* context,const InputEvent& event) {
+					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+						this->horizontalScrollHandle->setDragOffset(event.cursor,this->horizontalScrollHandle->getBoundsDimensions() * 0.5f);
+						context->setDragObject(horizontalScrollHandle.get());
+						this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
 						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
-				context->requestPack();
-			}
-		};
-		horizontalScrollHandle->onMouseDrag=[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor){
-			if(event.button==GLFW_MOUSE_BUTTON_LEFT){
-				this->horizontalScrollHandle->setDragOffset(event.cursor,lastCursor);
-				this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
+						context->requestPack();
+					}
+				};
+		horizontalScrollHandle->onMouseDrag =
+				[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor) {
+					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+						this->horizontalScrollHandle->setDragOffset(event.cursor,lastCursor);
+						this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
 						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
-			}
-		};
+					}
+				};
 	}
-	pixel2 offset(0,0);
-	scrollExtent=pixel2(0,0);
+	pixel2 offset(0, 0);
+	scrollExtent = pixel2(0, 0);
 	for (std::shared_ptr<Region>& region : children) {
-		if(orientation!=Orientation::Unspecified){
+		if (orientation != Orientation::Unspecified) {
 			region->setPosition(CoordPX(offset));
 		}
-		region->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
-		if(orientation==Orientation::Horizontal){
-			offset.x+=CELL_SPACING.x+region->getBoundsDimensionsX();
+		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
+		if (orientation == Orientation::Horizontal) {
+			offset.x += CELL_SPACING.x + region->getBoundsDimensionsX();
 		}
-		if(orientation==Orientation::Vertical){
-			offset.y+=CELL_SPACING.y+region->getBoundsDimensionsY();
+		if (orientation == Orientation::Vertical) {
+			offset.y += CELL_SPACING.y + region->getBoundsDimensionsY();
 		}
-		scrollExtent=max(region->getBoundsDimensions()+region->getBoundsPosition()-bounds.position-region->drawOffset(),scrollExtent);
+		scrollExtent = max(
+				region->getBoundsDimensions() + region->getBoundsPosition()
+						- bounds.position - region->drawOffset(), scrollExtent);
 	}
-	if(verticalScrollTrack.get()!=nullptr){
-		float nudge=(scrollExtent.y>bounds.dimensions.y&&scrollExtent.x>bounds.dimensions.x)?-scrollBarSize:0;
+	if (verticalScrollTrack.get() != nullptr) {
+		float nudge =
+				(scrollExtent.y > bounds.dimensions.y
+						&& scrollExtent.x > bounds.dimensions.x) ?
+						-scrollBarSize : 0;
 
-		verticalScrollTrack->setDimensions(CoordPerPX(0.0f,1.0f,scrollBarSize,nudge));
-		verticalScrollHandle->setDimensions(CoordPerPX(1.0f,0.0f,0.0f,std::max(scrollBarSize,(verticalScrollTrack->getBoundsDimensionsY()*bounds.dimensions.y) / scrollExtent.y)));
+		verticalScrollTrack->setDimensions(
+				CoordPerPX(0.0f, 1.0f, scrollBarSize, nudge));
+		verticalScrollHandle->setDimensions(
+				CoordPerPX(1.0f, 0.0f, 0.0f,
+						std::max(scrollBarSize,
+								(verticalScrollTrack->getBoundsDimensionsY()
+										* bounds.dimensions.y)
+										/ scrollExtent.y)));
 
-		verticalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
-		verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),verticalScrollTrack->getBoundsDimensions(),dpmm, pixelRatio,true);
+		verticalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
+				pixelRatio);
+		verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),
+				verticalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
+				true);
 
-		horizontalScrollTrack->setDimensions(CoordPerPX(1.0f,0.0f,nudge,scrollBarSize));
-		horizontalScrollHandle->setDimensions(CoordPerPX(0.0f,1.0f,
-				std::max(scrollBarSize,(horizontalScrollTrack->getBoundsDimensionsX()*bounds.dimensions.x) / scrollExtent.x),0.0f));
+		horizontalScrollTrack->setDimensions(
+				CoordPerPX(1.0f, 0.0f, nudge, scrollBarSize));
+		horizontalScrollHandle->setDimensions(
+				CoordPerPX(0.0f, 1.0f,
+						std::max(scrollBarSize,
+								(horizontalScrollTrack->getBoundsDimensionsX()
+										* bounds.dimensions.x)
+										/ scrollExtent.x), 0.0f));
 
-		horizontalScrollTrack->pack(bounds.position,bounds.dimensions,dpmm, pixelRatio);
-		horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(),horizontalScrollTrack->getBoundsDimensions(),dpmm, pixelRatio,true);
+		horizontalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
+				pixelRatio);
+		horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(),
+				horizontalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
+				true);
 
 	}
 	for (std::shared_ptr<Region>& region : children) {
-		if (region->onPack)region->onPack();
+		if (region->onPack)
+			region->onPack();
 	}
 
 	if (onPack)
 		onPack();
 }
-void ScrollHandle::draw(AlloyContext* context){
-	box2px bounds=getBounds();
-	float x=bounds.position.x;
-	float y=bounds.position.y;
-	float w=bounds.dimensions.x;
-	float h=bounds.dimensions.y;
+void ScrollHandle::draw(AlloyContext* context) {
+	box2px bounds = getBounds();
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	NVGcontext* nvg=context->nvgContext;
-	if(orientation==Orientation::Vertical){
-		NVGpaint shadowPaint = nvgBoxGradient(nvg,
-				x+ lineWidth- 1,
-				y+ lineWidth- 1,
-				w-2*lineWidth,
-				h-2*lineWidth,
-				(w-2-2*lineWidth)/2, 4,
-				context->theme.HIGHLIGHT,context->theme.NEUTRAL);
+	NVGcontext* nvg = context->nvgContext;
+	if (orientation == Orientation::Vertical) {
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, x + lineWidth - 1,
+				y + lineWidth - 1, w - 2 * lineWidth, h - 2 * lineWidth,
+				(w - 2 - 2 * lineWidth) / 2, 4, context->theme.HIGHLIGHT,
+				context->theme.NEUTRAL);
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg,
-				x+1 + lineWidth,
-				y+1 + lineWidth,
-				w-2-2*lineWidth,
-				h-2-2*lineWidth, (w-2-2*lineWidth)/2);
+		nvgRoundedRect(nvg, x + 1 + lineWidth, y + 1 + lineWidth,
+				w - 2 - 2 * lineWidth, h - 2 - 2 * lineWidth,
+				(w - 2 - 2 * lineWidth) / 2);
 		nvgFillPaint(nvg, shadowPaint);
 		nvgFill(nvg);
-	} else if(orientation==Orientation::Horizontal){
-		NVGpaint shadowPaint = nvgBoxGradient(nvg,
-				x+ lineWidth- 1,
-				y+ lineWidth- 1,
-				w-2*lineWidth,
-				h-2*lineWidth,
-				(h-2-2*lineWidth)/2, 4,
-				context->theme.HIGHLIGHT,context->theme.NEUTRAL);
+	} else if (orientation == Orientation::Horizontal) {
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, x + lineWidth - 1,
+				y + lineWidth - 1, w - 2 * lineWidth, h - 2 * lineWidth,
+				(h - 2 - 2 * lineWidth) / 2, 4, context->theme.HIGHLIGHT,
+				context->theme.NEUTRAL);
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg,
-				x+1 + lineWidth,
-				y+1 + lineWidth,
-				w-2-2*lineWidth,
-				h-2-2*lineWidth, (h-2-2*lineWidth)/2);
+		nvgRoundedRect(nvg, x + 1 + lineWidth, y + 1 + lineWidth,
+				w - 2 - 2 * lineWidth, h - 2 - 2 * lineWidth,
+				(h - 2 - 2 * lineWidth) / 2);
 		nvgFillPaint(nvg, shadowPaint);
 		nvgFill(nvg);
 	}
 }
 
-void ScrollTrack::draw(AlloyContext* context){
-	box2px bounds=getBounds();
-	float x=bounds.position.x;
-	float y=bounds.position.y;
-	float w=bounds.dimensions.x;
-	float h=bounds.dimensions.y;
+void ScrollTrack::draw(AlloyContext* context) {
+	box2px bounds = getBounds();
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	NVGcontext* nvg=context->nvgContext;
+	NVGcontext* nvg = context->nvgContext;
 
-	if(orientation==Orientation::Vertical){
-		NVGpaint shadowPaint = nvgBoxGradient(nvg,
-				x + lineWidth+ 1, //-1
-				y+ lineWidth+ 1, //+1
-				w-2*lineWidth,
-				h-2*lineWidth, (w-2*lineWidth)/2, 4,
-				context->theme.SHADOW.toSemiTransparent(32),context->theme.SHADOW.toSemiTransparent(92));
+	if (orientation == Orientation::Vertical) {
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, x + lineWidth + 1, //-1
+		y + lineWidth + 1, //+1
+		w - 2 * lineWidth, h - 2 * lineWidth, (w - 2 * lineWidth) / 2, 4,
+				context->theme.SHADOW.toSemiTransparent(32),
+				context->theme.SHADOW.toSemiTransparent(92));
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg,
-				x + lineWidth,
-				y + lineWidth,
-				w-2*lineWidth,
-				h-2*lineWidth, (w-2*lineWidth)/2);
+		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2 * lineWidth,
+				h - 2 * lineWidth, (w - 2 * lineWidth) / 2);
 		nvgFillPaint(nvg, shadowPaint);
 		nvgFill(nvg);
-	} else if(orientation==Orientation::Horizontal){
-		NVGpaint shadowPaint = nvgBoxGradient(nvg,
-				x+ lineWidth+ 1, //-1
-				y+ lineWidth+ 1, //+1
-				w-2*lineWidth,
-				h-2*lineWidth, (h-2*lineWidth)/2, 4,
-				context->theme.SHADOW.toSemiTransparent(32),context->theme.SHADOW.toSemiTransparent(92));
+	} else if (orientation == Orientation::Horizontal) {
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, x + lineWidth + 1, //-1
+		y + lineWidth + 1, //+1
+		w - 2 * lineWidth, h - 2 * lineWidth, (h - 2 * lineWidth) / 2, 4,
+				context->theme.SHADOW.toSemiTransparent(32),
+				context->theme.SHADOW.toSemiTransparent(92));
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg,
-				x + lineWidth,
-				y + lineWidth,
-				w-2*lineWidth,
-				h-2*lineWidth, (h-2*lineWidth)/2);
+		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2 * lineWidth,
+				h - 2 * lineWidth, (h - 2 * lineWidth) / 2);
 		nvgFillPaint(nvg, shadowPaint);
 		nvgFill(nvg);
 	}
 }
-Composite::Composite(const std::string& name):Region(name) {
+Composite::Composite(const std::string& name) :
+		Region(name) {
 
 }
 void Composite::update(CursorLocator* cursorLocator) {
@@ -419,16 +440,16 @@ void Composite::update(CursorLocator* cursorLocator) {
 	for (std::shared_ptr<Region>& region : children) {
 		region->update(cursorLocator);
 	}
-	if(verticalScrollTrack.get()!=nullptr){
+	if (verticalScrollTrack.get() != nullptr) {
 		verticalScrollTrack->update(cursorLocator);
 	}
-	if(verticalScrollHandle.get()!=nullptr){
+	if (verticalScrollHandle.get() != nullptr) {
 		verticalScrollHandle->update(cursorLocator);
 	}
-	if(horizontalScrollTrack.get()!=nullptr){
+	if (horizontalScrollTrack.get() != nullptr) {
 		horizontalScrollTrack->update(cursorLocator);
 	}
-	if(horizontalScrollHandle.get()!=nullptr){
+	if (horizontalScrollHandle.get() != nullptr) {
 		horizontalScrollHandle->update(cursorLocator);
 	}
 }
@@ -437,7 +458,7 @@ void Region::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
 }
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
-		double pixelRatio,bool clamp) {
+		double pixelRatio, bool clamp) {
 	pixel2 computedPos = position.toPixels(dims, dpmm, pixelRatio);
 	pixel2 xy = pos + dragOffset + computedPos;
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
@@ -445,18 +466,19 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		aspectRatio = d.x / std::max((float) d.y, 0.0f);
 	}
 	switch (aspectRule) {
-		case AspectRule::FixedWidth:
-			bounds.dimensions = pixel2(d.x, d.x / aspectRatio);
-			break;
-		case AspectRule::FixedHeight:
-			bounds.dimensions = pixel2(d.y * aspectRatio, d.y);
-			break;
-		case AspectRule::Unspecified:
-		default:
-			bounds.dimensions = d;
+	case AspectRule::FixedWidth:
+		bounds.dimensions = pixel2(d.x, d.x / aspectRatio);
+		break;
+	case AspectRule::FixedHeight:
+		bounds.dimensions = pixel2(d.y * aspectRatio, d.y);
+		break;
+	case AspectRule::Unspecified:
+	default:
+		bounds.dimensions = d;
 	}
-	if (clamp&&parent != nullptr) {
-		bounds.dimensions=aly::clamp(bounds.dimensions,pixel2(0,0),parent->bounds.dimensions);
+	if (clamp && parent != nullptr) {
+		bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),
+				parent->bounds.dimensions);
 	}
 
 	switch (origin) {
@@ -479,31 +501,35 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		bounds.position = xy - pixel2(0, bounds.dimensions.y / (pixel) 2);
 		break;
 	case Origin::CenterRight:
-		bounds.position = xy - pixel2(bounds.dimensions.x, bounds.dimensions.y / (pixel) 2);
+		bounds.position = xy
+				- pixel2(bounds.dimensions.x, bounds.dimensions.y / (pixel) 2);
 		break;
 	case Origin::CenterTop:
 		bounds.position = xy - pixel2(bounds.dimensions.x / (pixel) 2, 0);
 		break;
 	case Origin::CenterBottom:
-		bounds.position = xy - pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
+		bounds.position = xy
+				- pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
 		break;
 	}
 
-	if (clamp&&parent != nullptr&&!parent->isScrollEnabled()) {
-		pixel2 ppos= parent->getBoundsPosition();
+	if (clamp && parent != nullptr && !parent->isScrollEnabled()) {
+		pixel2 ppos = parent->getBoundsPosition();
 		bounds.position = aly::clamp(bounds.position, ppos,
-					 ppos+  parent->bounds.dimensions - bounds.dimensions);
+				ppos + parent->bounds.dimensions - bounds.dimensions);
 	}
 	dragOffset = xy - pos - computedPos;
 
 }
 
 void Composite::pack(AlloyContext* context) {
-	if(parent==nullptr){
+	if (parent == nullptr) {
 		pack(pixel2(context->viewport.position),
-				pixel2(context->viewport.dimensions),context->dpmm, context->pixelRatio);
+				pixel2(context->viewport.dimensions), context->dpmm,
+				context->pixelRatio);
 	} else {
-		pack(parent->getBoundsPosition(),parent->getBoundsDimensions(),context->dpmm, context->pixelRatio);
+		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
+				context->dpmm, context->pixelRatio);
 	}
 }
 
@@ -520,7 +546,7 @@ void Composite::add(Region* region) {
 
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	box2px bounds=getBounds();
+	box2px bounds = getBounds();
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
@@ -555,7 +581,8 @@ void TextLabel::draw(AlloyContext* context) {
 		offset.y = bounds.dimensions.y - lineWidth;
 		break;
 	}
-	drawText(nvg,bounds.position+offset,label,fontStyle,*textColor,*textAltColor);
+	drawText(nvg, bounds.position + offset, label, fontStyle, *textColor,
+			*textAltColor);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
@@ -567,252 +594,274 @@ void TextLabel::draw(AlloyContext* context) {
 		nvgStroke(nvg);
 	}
 }
-void TextField::setValue(const std::string& text)
-{
-    this->value = text;
-    moveCursorTo(text.size());
+void TextField::setValue(const std::string& text) {
+	this->value = text;
+	moveCursorTo(text.size());
 }
 
-void TextField::erase()
-{
-    int lo = std::min(cursorEnd, cursorStart);
-    int hi = std::max(cursorEnd, cursorStart);
-    if(hi!=lo){
-    	value.erase(value.begin() + lo, value.begin() + hi);
-    }
-    cursorEnd = cursorStart = lo;
+void TextField::erase() {
+	int lo = std::min(cursorEnd, cursorStart);
+	int hi = std::max(cursorEnd, cursorStart);
+	if (hi != lo) {
+		value.erase(value.begin() + lo, value.begin() + hi);
+	}
+	cursorEnd = cursorStart = lo;
 }
 
-void TextField::dragCursorTo(int index)
-{
-    if(index <0 || index >value.size())throw std::runtime_error(MakeString()<<name<<": Cursor position out of range.");
-    cursorStart = index;
+void TextField::dragCursorTo(int index) {
+	if (index < 0 || index > value.size())
+		throw std::runtime_error(
+				MakeString() << name << ": Cursor position out of range.");
+	cursorStart = index;
 }
 
-void TextField::moveCursorTo(int index, bool isShiftHeld)
-{
-    dragCursorTo(index);
-    if(!isShiftHeld) cursorEnd = cursorStart;
+void TextField::moveCursorTo(int index, bool isShiftHeld) {
+	dragCursorTo(index);
+	if (!isShiftHeld)
+		cursorEnd = cursorStart;
 }
 
-void TextField::clear()
-{
+void TextField::clear() {
 	setValue("");
 }
 
-TextField::TextField(const std::string& name) :Region(name), label(name),value(""){
+TextField::TextField(const std::string& name) :
+		Region(name), label(name), value("") {
 	Application::getContext()->addListener(this);
-	lastTime =std::chrono::high_resolution_clock::now();
+	lastTime = std::chrono::high_resolution_clock::now();
 }
 TextField::~TextField() {
-	try{
+	try {
 		Application::getContext()->removeListener(this);
-	} catch(std::exception& e){
+	} catch (std::exception& e) {
 
 	}
 }
-bool TextField::onEvent(AlloyContext* context,const InputEvent& e){
-	  if(!context->isFocused(this)||fontSize<=0)return false;
-	  FontPtr fontFace=context->getFont(FontType::Bold);
-	  box2px bounds=getBounds();
-	  switch(e.type)
-	    {
-	    case InputType::Cursor:
-	        if(drag)
-	        {
-	        	float shift=e.cursor.x - textOffsetX;
-	            dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
-	        }
-	        break;
-	    case InputType::MouseButton:
-	        switch(e.button)
-	        {
-	        case GLFW_MOUSE_BUTTON_LEFT:
-	            if(e.isMouseDown())
-	            {
-	            	showCursor=true;
-	            	showDefaultLabel=false;
-					float shift=e.cursor.x - textOffsetX;
-					size_t cursorPos=fontFace->getCursorPosition(value, fontSize, shift);
-	                moveCursorTo(cursorPos);
-	                drag = true;
-	            }
-	            else drag = false;
-	            break;
-	        }
-	        break;
-	    case InputType::Character:
-	        if(e.codepoint < 128 && isprint(e.codepoint)){
-	            erase();
-	            value.insert(value.begin()+ cursorStart, e.codepoint);
-	            showCursor=true;
-	            cursorEnd = ++cursorStart;
-	            showDefaultLabel=false;
-				if (onKeyInput) onKeyInput();
-	        }
-	        break;
-	    case InputType::Key:
-	    	showCursor=true;
-	        if(e.isMouseDown()) switch(e.key)
-	        {
-	        case GLFW_KEY_A:
-	            if(e.isControlDown())
-	            {
-	                cursorEnd = 0;
-	                cursorStart = value.size();
-	            }
-	            break;
-	        case GLFW_KEY_C:
-	            if(e.isControlDown())
-	            {
-	                glfwSetClipboardString(context->window, value.substr(std::min(cursorEnd, cursorStart), std::abs(cursorEnd - cursorStart)).c_str());
-	            }
-	            break;
-	        case GLFW_KEY_X:
-	            if(e.isControlDown())
-	            {
-	                glfwSetClipboardString(context->window, value.substr(std::min(cursorEnd, cursorStart), std::abs(cursorEnd - cursorStart)).c_str());
-	                erase();
-	            }
-	            break;
-	        case GLFW_KEY_V:
-	            if(e.isControlDown())
-	            {
-	                erase();
+bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
+	if (!context->isFocused(this) || fontSize <= 0)
+		return false;
+	FontPtr fontFace = context->getFont(FontType::Bold);
+	box2px bounds = getBounds();
+	switch (e.type) {
+	case InputType::MouseButton:
+		switch (e.button) {
+		case GLFW_MOUSE_BUTTON_LEFT:
+			if (e.isMouseDown()) {
+				showCursor = true;
+				showDefaultLabel = false;
+				float shift = e.cursor.x - textOffsetX;
+				size_t cursorPos = fontFace->getCursorPosition(value, fontSize,
+						shift);
+				moveCursorTo(cursorPos);
+				drag = true;
+			} else
+				drag = false;
+			break;
+		}
+		break;
+
+	case InputType::Key:
+		showCursor = true;
+		if (e.isMouseDown()) {
+			switch (e.key) {
+			case GLFW_KEY_RIGHT:
+				if (cursorStart < value.size())
+					moveCursorTo(cursorStart + 1, e.isShiftDown());
+				break;
+			case GLFW_KEY_LEFT:
+				if (cursorStart > 0)
+					moveCursorTo(cursorStart - 1, e.isShiftDown());
+				break;
+			case GLFW_KEY_END:
+				moveCursorTo(value.size(), e.isShiftDown());
+				break;
+			case GLFW_KEY_HOME:
+				moveCursorTo(0, e.isShiftDown());
+				break;
+			case GLFW_KEY_ENTER:
+				if (onTextEntered)
+					onTextEntered();
+				break;
+
+			case GLFW_KEY_BACKSPACE:
+				if (cursorEnd != cursorStart)
+					erase();
+				else if (cursorStart > 0) {
+					moveCursorTo(cursorStart - 1);
+					value.erase(value.begin() + cursorStart);
+					showDefaultLabel = false;
+					if (onKeyInput)
+						onKeyInput();
+				}
+				break;
+			case GLFW_KEY_A:
+				if (e.isControlDown()) {
+					cursorEnd = 0;
+					cursorStart = value.size();
+				}
+				break;
+			case GLFW_KEY_C:
+				if (e.isControlDown()) {
+					glfwSetClipboardString(context->window,
+							value.substr(std::min(cursorEnd, cursorStart),
+									std::abs(cursorEnd - cursorStart)).c_str());
+				}
+				break;
+			case GLFW_KEY_X:
+				if (e.isControlDown()) {
+					glfwSetClipboardString(context->window,
+							value.substr(std::min(cursorEnd, cursorStart),
+									std::abs(cursorEnd - cursorStart)).c_str());
+					erase();
+				}
+				break;
+			case GLFW_KEY_V:
+				if (e.isControlDown()) {
+					erase();
 					auto pasteText = glfwGetClipboardString(context->window);
-	                value.insert(cursorStart, pasteText);
-					moveCursorTo(cursorStart + std::string(pasteText).size(), e.isShiftDown());
-	            }
-	            break;
-	        case GLFW_KEY_HOME: moveCursorTo(0, e.isShiftDown()); break;
-	        case GLFW_KEY_END: moveCursorTo(value.size(), e.isShiftDown()); break;
-	        case GLFW_KEY_LEFT: if(cursorStart > 0) moveCursorTo(cursorStart-1, e.isShiftDown()); break;
-	        case GLFW_KEY_RIGHT: if(cursorStart < value.size()) moveCursorTo(cursorStart+1, e.isShiftDown()); break;
-	        case GLFW_KEY_ENTER:
-	            if(onTextEntered) onTextEntered();
-	            break;
-	        case GLFW_KEY_DELETE:
-	            if(cursorEnd != cursorStart) erase();
-	            else if(cursorStart < value.size()) value.erase(value.begin() + cursorStart);
-	            showDefaultLabel=false;
-				if (onKeyInput) onKeyInput();
-	            break;
-	        case GLFW_KEY_BACKSPACE:
-	            if(cursorEnd != cursorStart) erase();
-	            else if(cursorStart > 0)
-	            {
-	                moveCursorTo(cursorStart - 1);
-	                value.erase(value.begin() + cursorStart);
-					showDefaultLabel=false;
-					if (onKeyInput) onKeyInput();
-	            }
-	            break;
-	        }
-	        break;
-	    }
+					value.insert(cursorStart, pasteText);
+					moveCursorTo(cursorStart + std::string(pasteText).size(),
+							e.isShiftDown());
+				}
+				break;
+			}
+			case GLFW_KEY_DELETE:
+			if (cursorEnd != cursorStart)
+				erase();
+			else if (cursorStart < value.size())
+				value.erase(value.begin() + cursorStart);
+			showDefaultLabel = false;
+			if (onKeyInput)
+				onKeyInput();
+			break;
+		}
+		break;
+	case InputType::Cursor:
+		if (drag) {
+			float shift = e.cursor.x - textOffsetX;
+			dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
+		}
+		break;
+	case InputType::Character:
+		if (e.codepoint < 128 && isprint(e.codepoint)) {
+			erase();
+			value.insert(value.begin() + cursorStart, e.codepoint);
+			showCursor = true;
+			cursorEnd = ++cursorStart;
+			showDefaultLabel = false;
+			if (onKeyInput)
+				onKeyInput();
+		}
+		break;
+	}
 	return true;
 }
 void TextField::draw(AlloyContext* context) {
 
-    float ascender, descender, lineh;
-    std::vector<NVGglyphPosition> positions(value.size());
+	float ascender, descender, lineh;
+	std::vector<NVGglyphPosition> positions(value.size());
 	NVGcontext* nvg = context->nvgContext;
-	box2px bounds=getBounds();
-	float x=bounds.position.x;
-	float y=bounds.position.y;
-	float w=bounds.dimensions.x;
-	float h=bounds.dimensions.y;
+	box2px bounds = getBounds();
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
 
-	if(backgroundColor->a>0){
+	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, x, y, w, h,context->theme.CORNER_RADIUS);
+		nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 
-	auto currentTime =std::chrono::high_resolution_clock::now();
-	double elapsed = std::chrono::duration<double>(currentTime-lastTime).count();
-	if(elapsed>=0.5f){
-		showCursor=!showCursor;
-		lastTime=currentTime;
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	double elapsed =
+			std::chrono::duration<double>(currentTime - lastTime).count();
+	if (elapsed >= 0.5f) {
+		showCursor = !showCursor;
+		lastTime = currentTime;
 	}
+	textOffsetX = x + 2.0f * lineWidth + PADDING;
+	float textY = y;
 
-	//x+=lineWidth;
-	//y+=lineWidth;
-	//w-=2*lineWidth;
-	//h-=2*lineWidth;
-    textOffsetX =x+2.0f*lineWidth+PADDING;
-    float textY =y;
-
-	NVGpaint bg = nvgBoxGradient(nvg,
-			 x + 1,
-			 y + 3,
-			 w - 2*PADDING,
-			 h - 2*PADDING, context->theme.CORNER_RADIUS, 4,
-			 context->theme.HIGHLIGHT.toSemiTransparent(0.5f), context->theme.SHADOW.toSemiTransparent(0.5f));
+	NVGpaint bg = nvgBoxGradient(nvg, x + 1, y + 3, w - 2 * PADDING,
+			h - 2 * PADDING, context->theme.CORNER_RADIUS, 4,
+			context->theme.HIGHLIGHT.toSemiTransparent(0.5f),
+			context->theme.SHADOW.toSemiTransparent(0.5f));
 	nvgBeginPath(nvg);
-	nvgRoundedRect(nvg, x + PADDING, y + PADDING, w - 2*PADDING, h - 2*PADDING, context->theme.CORNER_RADIUS);
+	nvgRoundedRect(nvg, x + PADDING, y + PADDING, w - 2 * PADDING,
+			h - 2 * PADDING, context->theme.CORNER_RADIUS);
 	nvgFillPaint(nvg, bg);
 	nvgFill(nvg);
 
-	fontSize=h-4*PADDING;
+	fontSize = h - 4 * PADDING;
 	nvgFontSize(nvg, fontSize);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
-	float twidth=nvgTextBounds(nvg,0,textY,value.c_str(),nullptr,nullptr);
-	if(!showDefaultLabel){
-		textOffsetX=textOffsetX+std::min((w-3.0f*PADDING-2.0f*lineWidth)-twidth,0.0f);
+	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,
+			nullptr);
+	if (!showDefaultLabel) {
+		textOffsetX = textOffsetX
+				+ std::min((w - 3.0f * PADDING - 2.0f * lineWidth) - twidth,
+						0.0f);
 	}
-	pushScissor(nvg,x+PADDING,y,w-2*PADDING,h);
+	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
 
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-    positions.resize(nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(), value.data()+value.size(), positions.data(), positions.size()));
-	bool isFocused=context->isFocused(this);
+	positions.resize(
+			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
+					value.data() + value.size(), positions.data(),
+					positions.size()));
+	bool isFocused = context->isFocused(this);
 
-    if(cursorEnd != cursorStart)
-    {
-        int lo = std::min(cursorEnd, cursorStart), hi = std::max(cursorEnd, cursorStart);
-        float x0 = lo ? positions[lo-1].maxx-1 : textOffsetX;
-        float x1 = hi ? positions[hi-1].maxx-1 : textOffsetX;
+	if (cursorEnd != cursorStart) {
+		int lo = std::min(cursorEnd, cursorStart), hi = std::max(cursorEnd,
+				cursorStart);
+		float x0 = lo ? positions[lo - 1].maxx - 1 : textOffsetX;
+		float x1 = hi ? positions[hi - 1].maxx - 1 : textOffsetX;
 
-        nvgBeginPath(nvg);
-        nvgRect(nvg, x0, textY+(h-lineh)/2+PADDING, x1-x0,lineh-2*PADDING);
-        nvgFillColor(nvg, isFocused ? context->theme.DARK.toSemiTransparent(0.5f) : context->theme.DARK.toSemiTransparent(0.25f));
-        nvgFill(nvg);
-    }
+		nvgBeginPath(nvg);
+		nvgRect(nvg, x0, textY + (h - lineh) / 2 + PADDING, x1 - x0,
+				lineh - 2 * PADDING);
+		nvgFillColor(nvg,
+				isFocused ?
+						context->theme.DARK.toSemiTransparent(0.5f) :
+						context->theme.DARK.toSemiTransparent(0.25f));
+		nvgFill(nvg);
+	}
 
-
-
-	if(showDefaultLabel){
-		nvgFillColor(nvg,textColor->toDarker(0.5f).toSemiTransparent(0.5f));
-		nvgText(nvg,textOffsetX ,textY+h/2, label.c_str(), NULL);
+	if (showDefaultLabel) {
+		nvgFillColor(nvg, textColor->toDarker(0.5f).toSemiTransparent(0.5f));
+		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
 	} else {
 		nvgFillColor(nvg, *textColor);
-		nvgText(nvg,textOffsetX ,textY+h/2, value.c_str(), NULL);
+		nvgText(nvg, textOffsetX, textY + h / 2, value.c_str(), NULL);
 	}
-    if(isFocused&&showCursor)
-    {
-        nvgBeginPath(nvg);
-        float xOffset=cursorStart ? positions[cursorStart-1].maxx-1 : (textOffsetX);
-        nvgMoveTo(nvg,xOffset, textY+h/2-lineh/2+PADDING);
-        nvgLineTo(nvg,xOffset, textY+h/2+lineh/2-PADDING);
-        nvgStrokeWidth(nvg,lineWidth);
-        nvgLineCap(nvg,NVG_ROUND);
-        nvgStrokeColor(nvg, context->theme.SHADOW);
-        nvgStroke(nvg);
-    }
+	if (isFocused && showCursor) {
+		nvgBeginPath(nvg);
+		float xOffset =
+				cursorStart ?
+						positions[cursorStart - 1].maxx - 1 : (textOffsetX);
+		nvgMoveTo(nvg, xOffset, textY + h / 2 - lineh / 2 + PADDING);
+		nvgLineTo(nvg, xOffset, textY + h / 2 + lineh / 2 - PADDING);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgLineCap(nvg, NVG_ROUND);
+		nvgStrokeColor(nvg, context->theme.SHADOW);
+		nvgStroke(nvg);
+	}
 	popScissor(nvg);
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgStrokeWidth(nvg,lineWidth);
-		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2*lineWidth, h - 2*lineWidth, context->theme.CORNER_RADIUS);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2 * lineWidth,
+				h - 2 * lineWidth, context->theme.CORNER_RADIUS);
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStroke(nvg);
 	}
-	if(!isFocused&&value.size()==0){
-		showDefaultLabel=true;
+	if (!isFocused && value.size() == 0) {
+		showDefaultLabel = true;
 	}
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
@@ -825,7 +874,7 @@ void GlyphRegion::drawDebug(AlloyContext* context) {
 
 void GlyphRegion::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	box2px bounds=getBounds();
+	box2px bounds = getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
@@ -853,8 +902,8 @@ void GlyphRegion::draw(AlloyContext* context) {
 	}
 }
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions, const Color& bgColor,
-		const Orientation& orientation) {
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const Color& bgColor, const Orientation& orientation) {
 	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
 			new Composite(name));
 	composite->setPosition(position);
@@ -916,21 +965,24 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 	region->verticalAlignment = valign;
 	return region;
 }
-std::shared_ptr<TextField> MakeTextField(const std::string& name,const AUnit2D& position,
-		const AUnit2D& dimensions, const Color& bgColor,const Color& textColor,const std::string& value) {
+std::shared_ptr<TextField> MakeTextField(const std::string& name,
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const Color& bgColor, const Color& textColor,
+		const std::string& value) {
 	std::shared_ptr<TextField> region = std::shared_ptr<TextField>(
 			new TextField(name));
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-	region->backgroundColor=MakeColor(bgColor);
-	region->textColor=MakeColor(textColor);
-	region->borderColor=MakeColor(bgColor.toDarker(0.5f));
+	region->backgroundColor = MakeColor(bgColor);
+	region->textColor = MakeColor(textColor);
+	region->borderColor = MakeColor(bgColor.toDarker(0.5f));
 	region->setValue(value);
 	return region;
 }
 std::shared_ptr<Region> MakeRegion(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions, const Color& bgColor,
-		const Color& borderColor, const AUnit1D& borderWidth) {
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const Color& bgColor, const Color& borderColor,
+		const AUnit1D& borderWidth) {
 	std::shared_ptr<Region> region = std::shared_ptr<Region>(new Region(name));
 	region->setPosition(position);
 	region->setDimensions(dimensions);
