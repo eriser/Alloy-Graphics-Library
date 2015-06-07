@@ -135,10 +135,10 @@ struct InputEvent {
 	int scancode = 0;
 	int key = 0;
 	int button = 0;
-	bool isMouseDown() const {
+	bool isDown() const {
 		return (action != GLFW_RELEASE);
 	}
-	bool isMouseUp() const {
+	bool isUp() const {
 		return (action == GLFW_RELEASE);
 	}
 	bool isShiftDown() const {

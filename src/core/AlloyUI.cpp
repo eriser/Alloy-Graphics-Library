@@ -675,7 +675,7 @@ void TextField::handleCharacterInput(AlloyContext* context, const InputEvent& e)
 }
 void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e){
 	showCursor = true;
-	if (e.isMouseDown()) {
+	if (e.isDown()) {
 		switch (e.key) {
 		case GLFW_KEY_RIGHT:
 			if (cursorStart < value.size())
@@ -752,7 +752,7 @@ void TextField::handleMouseInput(AlloyContext* context,const InputEvent& e){
 	FontPtr fontFace = context->getFont(FontType::Bold);
 	box2px bounds = getBounds();
 	if(e.button==GLFW_MOUSE_BUTTON_LEFT){
-		if (e.isMouseDown()) {
+		if (e.isDown()) {
 			showCursor = true;
 			showDefaultLabel = false;
 			float shift = e.cursor.x - textOffsetX;

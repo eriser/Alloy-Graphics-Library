@@ -226,7 +226,7 @@ void Application::fireEvent(const InputEvent& event) {
 		context->requestUpdateCursor();
 	}
 	if (event.type == InputType::MouseButton) {
-		if (event.isMouseDown()) {
+		if (event.isDown()) {
 			context->mouseFocusRegion = context->mouseDownRegion =
 					context->cursorLocator.locate(context->cursorPosition);
 			if (context->mouseDownRegion != nullptr) {
@@ -239,7 +239,7 @@ void Application::fireEvent(const InputEvent& event) {
 					context->rightMouseButton = true;
 				}
 			}
-		} else if (event.isMouseUp()) {
+		} else if (event.isUp()) {
 			if (context->mouseDownRegion != nullptr
 					&& context->mouseDownRegion->onMouseUp)
 				context->mouseDownRegion->onMouseUp(context.get(), event);
@@ -263,9 +263,9 @@ void Application::fireEvent(const InputEvent& event) {
 		context->requestPack();
 	} else if (context->mouseOverRegion != nullptr) {
 		if (event.type == InputType::MouseButton) {
-			if (context->mouseOverRegion->onMouseDown && event.isMouseDown())
+			if (context->mouseOverRegion->onMouseDown && event.isDown())
 				context->mouseOverRegion->onMouseDown(context.get(), event);
-			if (context->mouseOverRegion->onMouseUp && event.isMouseUp())
+			if (context->mouseOverRegion->onMouseUp && event.isUp())
 				context->mouseOverRegion->onMouseUp(context.get(), event);
 			context->requestPack();
 		}
