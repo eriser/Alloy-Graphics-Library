@@ -95,15 +95,15 @@ private:
 	std::string label;
 public:
 	virtual void draw(AlloyContext* context) override;
-	inline void setProgress(float p){
-		value=p;
+	inline void setValue(float p){
+		value=clamp(p,0.0f,1.0f);
 	}
-	inline void setProgress(const std::string& l){
+	inline void setValue(const std::string& l){
 		label=l;
 	}
-	inline void setProgress(const std::string& l,float p){
+	inline void setValue(const std::string& l,float p){
 		label=l;
-		value=p;
+		value=clamp(p,0.0f,1.0f);
 	}
 	ProgressBar(const std::string& name,const AUnit2D& pt,const AUnit2D& dims);
 };

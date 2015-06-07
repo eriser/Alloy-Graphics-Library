@@ -158,14 +158,15 @@ void ProgressBar::draw(AlloyContext* context){
 	nvgFill(nvg);
 	nvgTextAlign(nvg,NVG_ALIGN_MIDDLE|NVG_ALIGN_CENTER);
 	nvgFontFaceId(nvg,context->getFontHandle(FontType::Bold));
-	nvgFontSize(nvg,h-FADE);
+	nvgFontSize(nvg,std::max(8.0f,h-FADE));
 	drawText(nvg,pixel2(x+0.5f*w,y+0.5f*h),label,FontStyle::Normal,context->theme.LIGHT_TEXT,context->theme.DARK_TEXT);
 	popScissor(nvg);
-	pushScissor(nvg,x+w*value,y,w,h);
-	drawText(nvg,pixel2(x+0.5f*w,y+0.5f*h),label,FontStyle::Normal,context->theme.DARK_TEXT,context->theme.LIGHT_TEXT);
 
+	pushScissor(nvg,x+w*value,y,w*(1.0f-value),h);
+	drawText(nvg,pixel2(x+0.5f*w,y+0.5f*h),label,FontStyle::Normal,context->theme.DARK_TEXT,context->theme.LIGHT_TEXT);
+	popScissor(nvg);
 }
-ProgressBar::ProgressBar(const std::string& name,const AUnit2D& pt,const AUnit2D& dims):Widget(name,pt,dims),value(0),label(""){
+ProgressBar::ProgressBar(const std::string& name,const AUnit2D& pt,const AUnit2D& dims):Widget(name,pt,dims),value(0),label(name){
 
 }
 Button::Button(const std::string& label, const AUnit2D& position,
