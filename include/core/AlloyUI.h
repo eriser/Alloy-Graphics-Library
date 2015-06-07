@@ -280,7 +280,7 @@ private:
 	void moveCursorTo(int index, bool isShiftHeld = false);
 	void dragCursorTo(int index);
 	int cursorStart = 0, cursorEnd = 0;
-	bool drag = false;
+	bool dragging = false;
 
 	static const float PADDING;
 public:
@@ -293,8 +293,11 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++));
 	virtual void draw(AlloyContext* context) override;
 	void setValue(const std::string& value);
-	std::function<void()> onTextEntered;
-	std::function<void()> onKeyInput;
+	std::string getValue() const {
+		return value;
+	}
+	std::function<void(TextField*)> onTextEntered;
+	std::function<void(TextField*)> onKeyInput;
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,

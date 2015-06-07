@@ -653,9 +653,9 @@ bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
 				size_t cursorPos = fontFace->getCursorPosition(value, fontSize,
 						shift);
 				moveCursorTo(cursorPos);
-				drag = true;
+				dragging = true;
 			} else
-				drag = false;
+				dragging = false;
 			break;
 		}
 		break;
@@ -680,7 +680,7 @@ bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
 				break;
 			case GLFW_KEY_ENTER:
 				if (onTextEntered)
-					onTextEntered();
+					onTextEntered(this);
 				break;
 			case GLFW_KEY_BACKSPACE:
 				if (cursorEnd != cursorStart)
@@ -690,7 +690,7 @@ bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
 					value.erase(value.begin() + cursorStart);
 					showDefaultLabel = false;
 					if (onKeyInput)
-						onKeyInput();
+						onKeyInput(this);
 				}
 				break;
 			case GLFW_KEY_A:
@@ -730,26 +730,26 @@ bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
 					value.erase(value.begin() + cursorStart);
 				showDefaultLabel = false;
 				if (onKeyInput)
-					onKeyInput();
+					onKeyInput(this);
 				break;
 			}
 		}
 		break;
 	case InputType::Cursor:
-		if (drag) {
+		if (dragging) {
 			float shift = e.cursor.x - textOffsetX;
 			dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
 		}
 		break;
 	case InputType::Character:
-		if (e.codepoint < 128 && isprint(e.codepoint)) {
+		if (e.codepoint < 128 && isprint(e.codepoint)&&!e.isControlDown()) {
 			erase();
 			value.insert(value.begin() + cursorStart, e.codepoint);
 			showCursor = true;
 			cursorEnd = ++cursorStart;
 			showDefaultLabel = false;
 			if (onKeyInput)
-				onKeyInput();
+				onKeyInput(this);
 		}
 		break;
 	}
