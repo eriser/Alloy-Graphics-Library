@@ -21,6 +21,7 @@
 
 #include "Alloy.h"
 #include "../../include/example/AlloyExampleUI.h"
+#include <chrono>
 using namespace aly;
 ExampleUI::ExampleUI() :
 		Application(1280, 720, "ExampleUI") {
@@ -53,7 +54,16 @@ bool ExampleUI::init(Composite& rootNode) {
 	ProgressBarPtr pbar = ProgressBarPtr(
 			new ProgressBar("Progress", CoordPercent(0.05f, 0.7f),
 					CoordPercent(0.4, 0.05f)));
-	pbar->setValue("Progress Bar", 0.6f);
+	progressTask=std::unique_ptr<aly::RecurrentWorkerTask>(
+			new RecurrentWorkerTask(
+			[pbar](uint64_t iter){
+				pbar->setValue("Task Executing ...",(iter++)/20.0f);
+				return (iter<20);
+			},
+			[pbar](){
+				pbar->setValue("Task Complete.",1.0f);
+			},100));
+	progressTask->execute();
 	/*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());

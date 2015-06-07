@@ -21,26 +21,55 @@
 
 #include "AlloyWorker.h"
 namespace aly {
-AlloyWorker::AlloyWorker() {
+WorkerTask::WorkerTask(const std::function<void()>& func):executionTask(func),endTask() {
 
 }
-void AlloyWorker::task() {
+WorkerTask::WorkerTask(const std::function<void()>& func,const std::function<void()>& end):executionTask(func),endTask(end) {
+
+}
+void WorkerTask::task() {
 	running = true;
 	requestCancel = false;
-	executionTask();
+	if(executionTask){
+		executionTask();
+	}
+	if(!requestCancel){
+		done();
+	}
 	running = false;
 	requestCancel = false;
 }
-void AlloyWorker::execute() {
-	workerThread = std::thread(&AlloyWorker::task, this);
+void WorkerTask::done(){
+	if(endTask)endTask();
 }
-AlloyWorker::~AlloyWorker() {
+void WorkerTask::execute() {
+	workerThread = std::thread(&WorkerTask::task, this);
+}
+WorkerTask::~WorkerTask() {
 	cancel();
 }
-void AlloyWorker::cancel() {
+void WorkerTask::cancel() {
 	if (workerThread.joinable()) {
 		requestCancel = true;
 		workerThread.join();
+	}
+}
+RecurrentWorkerTask::RecurrentWorkerTask(const std::function<bool(uint64_t)>& func,long timeout):WorkerTask([this]{this->step();}),recurrentTask(func),timeout(timeout){
+
+}
+RecurrentWorkerTask::RecurrentWorkerTask(const std::function<bool(uint64_t)>& func,const std::function<void()>& end,long timeout):WorkerTask([this]{this->step();},end),recurrentTask(func),timeout(timeout){
+
+}
+void RecurrentWorkerTask::step() {
+	uint64_t iter=0;
+	while(!requestCancel){
+		auto currentTime=std::chrono::high_resolution_clock::now();
+		if(recurrentTask){
+			if(!recurrentTask(iter++))break;
+		}
+		if(requestCancel)break;
+		auto endTime=currentTime+std::chrono::milliseconds(timeout);
+		std::this_thread::sleep_until(endTime);
 	}
 }
 }

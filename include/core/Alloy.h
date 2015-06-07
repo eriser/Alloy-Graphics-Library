@@ -30,5 +30,5 @@
 #include "GLShader.h"
 #include "AlloyContext.h"
 #include "AlloyApplication.h"
-
+#include "AlloyWorker.h"
 #endif /* ALLOY_H_ */
