@@ -92,10 +92,13 @@ public:
 	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseDown;
 	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseUp;
 	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseOver;
+	std::function<void(AlloyContext* context, const InputEvent& event)> onScroll;
 	std::function<
 			void(AlloyContext* context, const InputEvent& event,
 					const pixel2& mouseDownOffset)> onMouseDrag;
 	void setDragOffset(const pixel2& cursor, const pixel2& delta);
+	void addDragOffset(const pixel2& delta);
+
 	inline void setEnableDrag(bool enabled) {
 		dragEnabled = enabled;
 	}
@@ -196,7 +199,6 @@ protected:
 	pixel2 scrollExtent = pixel2(0, 0);
 	float horizontalScrollExtent = 0;
 	pixel2 scrollPosition = pixel2(0, 0);
-
 	std::shared_ptr<ScrollTrack> verticalScrollTrack, horizontalScrollTrack;
 	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
 public:
@@ -206,6 +208,7 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++));
 	void setVerticalScrollPosition(float fy);
 	void setHorizontalScrollPosition(float fx);
+	virtual bool onEvent(AlloyContext* context, const InputEvent& event) override;
 	inline void setOrientation(const Orientation& orient) {
 		orientation = orient;
 	}
@@ -223,6 +226,7 @@ public:
 			offset += parent->drawOffset();
 		return offset;
 	}
+
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawOnTop(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
@@ -277,6 +281,10 @@ private:
 	std::chrono::high_resolution_clock::time_point lastTime;
 	void clear();
 	void erase();
+	void handleCursorInput(AlloyContext* context,const InputEvent& e);
+	void handleMouseInput(AlloyContext* context,const InputEvent& e);
+	void handleKeyInput(AlloyContext* context,const InputEvent& e);
+	void handleCharacterInput(AlloyContext* context, const InputEvent& e);
 	void moveCursorTo(int index, bool isShiftHeld = false);
 	void dragCursorTo(int index);
 	int cursorStart = 0, cursorEnd = 0;

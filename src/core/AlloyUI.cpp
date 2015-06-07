@@ -127,6 +127,11 @@ void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	dragOffset = bounds.clamp(cursor - delta, parent->bounds) - d;
 	bounds.position = dragOffset + d;
 }
+void Region::addDragOffset(const pixel2& delta) {
+	pixel2 d = (bounds.position - dragOffset);
+	dragOffset = bounds.clamp(bounds.position+delta, parent->bounds) - d;
+	bounds.position = dragOffset + d;
+}
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
 
@@ -300,6 +305,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
 					}
 				};
+		Application::getContext()->addListener(this);
 	}
 	pixel2 offset(0, 0);
 	scrollExtent = pixel2(0, 0);
@@ -434,6 +440,25 @@ void ScrollTrack::draw(AlloyContext* context) {
 Composite::Composite(const std::string& name) :
 		Region(name) {
 
+}
+bool Composite::onEvent(AlloyContext* context, const InputEvent& event){
+	if(event.type==InputType::Scroll&&isScrollEnabled()){
+		box2px bounds=getBounds();
+		if(bounds.contains(event.cursor)){
+			if(event.scroll.y!=0){
+				verticalScrollHandle->addDragOffset(pixel2(-10.0f*event.scroll));
+				this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
+				std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
+			}
+			if(event.scroll.x!=0){
+				horizontalScrollHandle->addDragOffset(pixel2(-10.0f*event.scroll));
+				this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
+				std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
+			}
+			return true;
+		}
+	}
+	return false;
 }
 void Composite::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
@@ -637,121 +662,135 @@ TextField::~TextField() {
 
 	}
 }
-bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
-	if (!context->isFocused(this) || fontSize <= 0)
-		return false;
-	FontPtr fontFace = context->getFont(FontType::Bold);
-	box2px bounds = getBounds();
-	switch (e.type) {
-	case InputType::MouseButton:
-		switch (e.button) {
-		case GLFW_MOUSE_BUTTON_LEFT:
-			if (e.isMouseDown()) {
-				showCursor = true;
-				showDefaultLabel = false;
-				float shift = e.cursor.x - textOffsetX;
-				size_t cursorPos = fontFace->getCursorPosition(value, fontSize,
-						shift);
-				moveCursorTo(cursorPos);
-				dragging = true;
-			} else
-				dragging = false;
-			break;
-		}
-		break;
-
-	case InputType::Key:
+void TextField::handleCharacterInput(AlloyContext* context, const InputEvent& e){
+	if (e.codepoint < 128 && isprint(e.codepoint)&&!e.isControlDown()) {
+		erase();
+		value.insert(value.begin() + cursorStart, e.codepoint);
 		showCursor = true;
-		if (e.isMouseDown()) {
-			switch (e.key) {
-			case GLFW_KEY_RIGHT:
-				if (cursorStart < value.size())
-					moveCursorTo(cursorStart + 1, e.isShiftDown());
-				break;
-			case GLFW_KEY_LEFT:
-				if (cursorStart > 0)
-					moveCursorTo(cursorStart - 1, e.isShiftDown());
-				break;
-			case GLFW_KEY_END:
-				moveCursorTo(value.size(), e.isShiftDown());
-				break;
-			case GLFW_KEY_HOME:
-				moveCursorTo(0, e.isShiftDown());
-				break;
-			case GLFW_KEY_ENTER:
-				if (onTextEntered)
-					onTextEntered(this);
-				break;
-			case GLFW_KEY_BACKSPACE:
-				if (cursorEnd != cursorStart)
-					erase();
-				else if (cursorStart > 0) {
-					moveCursorTo(cursorStart - 1);
-					value.erase(value.begin() + cursorStart);
-					showDefaultLabel = false;
-					if (onKeyInput)
-						onKeyInput(this);
-				}
-				break;
-			case GLFW_KEY_A:
-				if (e.isControlDown()) {
-					cursorEnd = 0;
-					cursorStart = value.size();
-				}
-				break;
-			case GLFW_KEY_C:
-				if (e.isControlDown()) {
-					glfwSetClipboardString(context->window,
-							value.substr(std::min(cursorEnd, cursorStart),
-									std::abs(cursorEnd - cursorStart)).c_str());
-				}
-				break;
-			case GLFW_KEY_X:
-				if (e.isControlDown()) {
-					glfwSetClipboardString(context->window,
-							value.substr(std::min(cursorEnd, cursorStart),
-									std::abs(cursorEnd - cursorStart)).c_str());
-					erase();
-				}
-				break;
-			case GLFW_KEY_V:
-				if (e.isControlDown()) {
-					erase();
-					auto pasteText = glfwGetClipboardString(context->window);
-					value.insert(cursorStart, pasteText);
-					moveCursorTo(cursorStart + std::string(pasteText).size(),
-							e.isShiftDown());
-				}
-				break;
-			case GLFW_KEY_DELETE:
-				if (cursorEnd != cursorStart)
-					erase();
-				else if (cursorStart < value.size())
-					value.erase(value.begin() + cursorStart);
+		cursorEnd = ++cursorStart;
+		showDefaultLabel = false;
+		if (onKeyInput)
+			onKeyInput(this);
+	}
+}
+void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e){
+	showCursor = true;
+	if (e.isMouseDown()) {
+		switch (e.key) {
+		case GLFW_KEY_RIGHT:
+			if (cursorStart < value.size())
+				moveCursorTo(cursorStart + 1, e.isShiftDown());
+			break;
+		case GLFW_KEY_LEFT:
+			if (cursorStart > 0)
+				moveCursorTo(cursorStart - 1, e.isShiftDown());
+			break;
+		case GLFW_KEY_END:
+			moveCursorTo(value.size(), e.isShiftDown());
+			break;
+		case GLFW_KEY_HOME:
+			moveCursorTo(0, e.isShiftDown());
+			break;
+		case GLFW_KEY_ENTER:
+			if (onTextEntered)
+				onTextEntered(this);
+			break;
+		case GLFW_KEY_BACKSPACE:
+			if (cursorEnd != cursorStart)
+				erase();
+			else if (cursorStart > 0) {
+				moveCursorTo(cursorStart - 1);
+				value.erase(value.begin() + cursorStart);
 				showDefaultLabel = false;
 				if (onKeyInput)
 					onKeyInput(this);
-				break;
 			}
-		}
-		break;
-	case InputType::Cursor:
-		if (dragging) {
-			float shift = e.cursor.x - textOffsetX;
-			dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
-		}
-		break;
-	case InputType::Character:
-		if (e.codepoint < 128 && isprint(e.codepoint)&&!e.isControlDown()) {
-			erase();
-			value.insert(value.begin() + cursorStart, e.codepoint);
-			showCursor = true;
-			cursorEnd = ++cursorStart;
+			break;
+		case GLFW_KEY_A:
+			if (e.isControlDown()) {
+				cursorEnd = 0;
+				cursorStart = value.size();
+			}
+			break;
+		case GLFW_KEY_C:
+			if (e.isControlDown()) {
+				glfwSetClipboardString(context->window,
+						value.substr(std::min(cursorEnd, cursorStart),
+								std::abs(cursorEnd - cursorStart)).c_str());
+			}
+			break;
+		case GLFW_KEY_X:
+			if (e.isControlDown()) {
+				glfwSetClipboardString(context->window,
+						value.substr(std::min(cursorEnd, cursorStart),
+								std::abs(cursorEnd - cursorStart)).c_str());
+				erase();
+			}
+			break;
+		case GLFW_KEY_V:
+			if (e.isControlDown()) {
+				erase();
+				auto pasteText = glfwGetClipboardString(context->window);
+				value.insert(cursorStart, pasteText);
+				moveCursorTo(cursorStart + std::string(pasteText).size(),
+						e.isShiftDown());
+			}
+			break;
+		case GLFW_KEY_DELETE:
+			if (cursorEnd != cursorStart)
+				erase();
+			else if (cursorStart < value.size())
+				value.erase(value.begin() + cursorStart);
 			showDefaultLabel = false;
 			if (onKeyInput)
 				onKeyInput(this);
+			break;
 		}
+	}
+}
+void TextField::handleMouseInput(AlloyContext* context,const InputEvent& e){
+	FontPtr fontFace = context->getFont(FontType::Bold);
+	box2px bounds = getBounds();
+	if(e.button==GLFW_MOUSE_BUTTON_LEFT){
+		if (e.isMouseDown()) {
+			showCursor = true;
+			showDefaultLabel = false;
+			float shift = e.cursor.x - textOffsetX;
+			size_t cursorPos = fontFace->getCursorPosition(value, fontSize,
+					shift);
+			moveCursorTo(cursorPos);
+			dragging = true;
+		} else {
+			dragging = false;
+		}
+	}
+}
+void TextField::handleCursorInput(AlloyContext* context,const InputEvent& e){
+	FontPtr fontFace = context->getFont(FontType::Bold);
+	box2px bounds = getBounds();
+	if (dragging) {
+		float shift = e.cursor.x - textOffsetX;
+		dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
+	}
+}
+bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
+	if (!context->isFocused(this) || fontSize <= 0)
+		return false;
+
+	switch (e.type) {
+	case InputType::MouseButton:
+		handleMouseInput(context,e);
 		break;
+	case InputType::Character:
+		handleCharacterInput(context,e);
+		break;
+	case InputType::Key:
+		handleKeyInput(context,e);
+		break;
+	case InputType::Cursor:
+		handleCursorInput(context,e);
+		break;
+
 	}
 	return true;
 }
