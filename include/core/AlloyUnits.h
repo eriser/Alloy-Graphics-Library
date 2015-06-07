@@ -372,6 +372,17 @@ struct Color: public NVGcolor {
 	inline Color toSemiTransparent(float alpha) const {
 		return Color(r,g,b,alpha);
 	}
+	inline Color toDarker(float alpha) const {
+		alpha=clamp(alpha,0.0f,1.0f);
+		return Color(alpha*r,alpha*g,alpha*b,a);
+	}
+	inline Color toLighter(float alpha) const {
+		alpha+=1.0f;
+		return Color(clamp(alpha*r,0.0f,1.0f),clamp(alpha*g,0.0f,1.0f),clamp(alpha*b,0.0f,1.0f),a);
+	}
+	inline Color toOpposite(float alpha) const {
+		return Color(1.0f-r,1.0f-g,1.0f-b,a);
+	}
 	inline Color toSemiTransparent(int alpha) const {
 		return Color(r,g,b,alpha/255.0f);
 	}

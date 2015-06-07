@@ -85,6 +85,7 @@ public:
 		setDimensions(dim);
 	}
 	AColor backgroundColor = MakeColor(COLOR_NONE);
+	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 	std::function<void()> onPack;
@@ -265,6 +266,10 @@ private:
     bool showDefaultLabel=true;
 	std::string label;
 	std::string value;
+	float fontSize=0;
+	float textOffsetX=0;
+	bool showCursor=false;
+	std::chrono::high_resolution_clock::time_point lastTime;
 	void clear();
     void erase();
     void moveCursorTo(int index, bool isShiftHeld = false);
@@ -305,7 +310,7 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 				HorizontalAlignment::Left, const VerticalAlignment& valign =
 				VerticalAlignment::Top);
 std::shared_ptr<TextField> MakeTextField(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions,const AUnit1D& fontSize = UnitPT(14.0f),const std::string& value="");
+		const AUnit2D& position, const AUnit2D& dimensions,const Color& bgColor=Theme::Default.DARK, const Color& textColor=Theme::Default.LIGHT_TEXT,const std::string& value="");
 std::shared_ptr<Region> MakeRegion(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const Color& bgColor = COLOR_NONE, const Color& lineColor = COLOR_WHITE,

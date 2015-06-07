@@ -600,8 +600,9 @@ void TextField::clear()
 	setValue("");
 }
 
-TextField::TextField(const std::string& name) :Region(name), label(name),value("") {
+TextField::TextField(const std::string& name) :Region(name), label(name),value(""){
 	Application::getContext()->addListener(this);
+	lastTime =std::chrono::high_resolution_clock::now();
 }
 TextField::~TextField() {
 	try{
@@ -611,16 +612,15 @@ TextField::~TextField() {
 	}
 }
 bool TextField::onEvent(AlloyContext* context,const InputEvent& e){
-	  if(!context->isFocused(this))return false;
-	  FontPtr fontFace=context->getFont(FontType::Normal);
+	  if(!context->isFocused(this)||fontSize<=0)return false;
+	  FontPtr fontFace=context->getFont(FontType::Bold);
 	  box2px bounds=getBounds();
-	  float fontSize=bounds.dimensions.y-4*PADDING;
 	  switch(e.type)
 	    {
 	    case InputType::Cursor:
 	        if(drag)
 	        {
-	        	float shift=e.cursor.x - (bounds.position.x + PADDING);
+	        	float shift=e.cursor.x - textOffsetX;
 	            dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
 	        }
 	        break;
@@ -630,9 +630,11 @@ bool TextField::onEvent(AlloyContext* context,const InputEvent& e){
 	        case GLFW_MOUSE_BUTTON_LEFT:
 	            if(e.isMouseDown())
 	            {
+	            	showCursor=true;
 	            	showDefaultLabel=false;
-					float shift=e.cursor.x - (bounds.position.x +PADDING);
-	                moveCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
+					float shift=e.cursor.x - textOffsetX;
+					size_t cursorPos=fontFace->getCursorPosition(value, fontSize, shift);
+	                moveCursorTo(cursorPos);
 	                drag = true;
 	            }
 	            else drag = false;
@@ -643,12 +645,14 @@ bool TextField::onEvent(AlloyContext* context,const InputEvent& e){
 	        if(e.codepoint < 128 && isprint(e.codepoint)){
 	            erase();
 	            value.insert(value.begin()+ cursorStart, e.codepoint);
+	            showCursor=true;
 	            cursorEnd = ++cursorStart;
 	            showDefaultLabel=false;
 				if (onKeyInput) onKeyInput();
 	        }
 	        break;
 	    case InputType::Key:
+	    	showCursor=true;
 	        if(e.isMouseDown()) switch(e.key)
 	        {
 	        case GLFW_KEY_A:
@@ -719,22 +723,29 @@ void TextField::draw(AlloyContext* context) {
 	float w=bounds.dimensions.x;
 	float h=bounds.dimensions.y;
 
-
 	if(backgroundColor->a>0){
 		nvgBeginPath(nvg);
-		nvgRect(nvg, x, y, w, h);
+		nvgRoundedRect(nvg, x, y, w, h,context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 
-	x+=lineWidth;
-	y+=lineWidth;
-	w-=2*lineWidth;
-	h-=2*lineWidth;
-    float textX =x+PADDING;
+	auto currentTime =std::chrono::high_resolution_clock::now();
+	double elapsed = std::chrono::duration<double>(currentTime-lastTime).count();
+	if(elapsed>=0.5f){
+		showCursor=!showCursor;
+		lastTime=currentTime;
+	}
+
+	//x+=lineWidth;
+	//y+=lineWidth;
+	//w-=2*lineWidth;
+	//h-=2*lineWidth;
+    textOffsetX =x+2.0f*lineWidth+PADDING;
     float textY =y;
+
 	NVGpaint bg = nvgBoxGradient(nvg,
 			 x + 1,
 			 y + 3,
@@ -746,60 +757,62 @@ void TextField::draw(AlloyContext* context) {
 	nvgFillPaint(nvg, bg);
 	nvgFill(nvg);
 
-	float textHeight=h-4*PADDING;
-	pushScissor(nvg,x+PADDING,y,w-2*PADDING,h);
-	nvgFontSize(nvg, textHeight);
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
+	fontSize=h-4*PADDING;
+	nvgFontSize(nvg, fontSize);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
-    positions.resize(nvgTextGlyphPositions(nvg, textX, textY, value.data(), value.data()+value.size(), positions.data(), positions.size()));
+	float twidth=nvgTextBounds(nvg,0,textY,value.c_str(),nullptr,nullptr);
+	if(!showDefaultLabel){
+		textOffsetX=textOffsetX+std::min((w-3.0f*PADDING-2.0f*lineWidth)-twidth,0.0f);
+	}
+	pushScissor(nvg,x+PADDING,y,w-2*PADDING,h);
+
+	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+    positions.resize(nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(), value.data()+value.size(), positions.data(), positions.size()));
 	bool isFocused=context->isFocused(this);
 
     if(cursorEnd != cursorStart)
     {
         int lo = std::min(cursorEnd, cursorStart), hi = std::max(cursorEnd, cursorStart);
-        float x0 = lo ? positions[lo-1].maxx-1 : textX;
-        float x1 = hi ? positions[hi-1].maxx-1 : textX;
+        float x0 = lo ? positions[lo-1].maxx-1 : textOffsetX;
+        float x1 = hi ? positions[hi-1].maxx-1 : textOffsetX;
 
         nvgBeginPath(nvg);
         nvgRect(nvg, x0, textY+(h-lineh)/2+PADDING, x1-x0,lineh-2*PADDING);
-        nvgFillColor(nvg, isFocused ? context->theme.HIGHLIGHT : context->theme.HIGHLIGHT);
+        nvgFillColor(nvg, isFocused ? context->theme.DARK.toSemiTransparent(0.5f) : context->theme.DARK.toSemiTransparent(0.25f));
         nvgFill(nvg);
     }
 
-	nvgFillColor(nvg, context->theme.DARK_TEXT.toSemiTransparent(0.5f));
-	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgText(nvg,textX ,textY+h/2, value.c_str(), NULL);
 
-    if(isFocused)
+
+	if(showDefaultLabel){
+		nvgFillColor(nvg,textColor->toDarker(0.5f).toSemiTransparent(0.5f));
+		nvgText(nvg,textOffsetX ,textY+h/2, label.c_str(), NULL);
+	} else {
+		nvgFillColor(nvg, *textColor);
+		nvgText(nvg,textOffsetX ,textY+h/2, value.c_str(), NULL);
+	}
+    if(isFocused&&showCursor)
     {
         nvgBeginPath(nvg);
-        float xOffset=cursorStart ? positions[cursorStart-1].maxx-1 : (textX);
+        float xOffset=cursorStart ? positions[cursorStart-1].maxx-1 : (textOffsetX);
         nvgMoveTo(nvg,xOffset, textY+h/2-lineh/2+PADDING);
         nvgLineTo(nvg,xOffset, textY+h/2+lineh/2-PADDING);
-        nvgStrokeWidth(nvg,2.0f);
-        nvgLineCap(nvg,NVG_SQUARE);
+        nvgStrokeWidth(nvg,lineWidth);
+        nvgLineCap(nvg,NVG_ROUND);
         nvgStrokeColor(nvg, context->theme.SHADOW);
         nvgStroke(nvg);
     }
-
 	popScissor(nvg);
-
-	NVGscissorBounds scissor=nvgCurrentScissor(nvg);
-	nvgBeginPath(nvg);
-	nvgStrokeWidth(nvg,lineWidth);
-	nvgRoundedRect(nvg, x + PADDING, y + PADDING, w - 2*PADDING, h - 2*PADDING, context->theme.CORNER_RADIUS);
-	nvgStrokeColor(nvg, context->theme.SHADOW.toSemiTransparent(0.5f));
-	nvgStroke(nvg);
-
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+		nvgStrokeWidth(nvg,lineWidth);
+		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2*lineWidth, h - 2*lineWidth, context->theme.CORNER_RADIUS);
 		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
+	}
+	if(!isFocused&&value.size()==0){
+		showDefaultLabel=true;
 	}
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
@@ -903,12 +916,16 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 	region->verticalAlignment = valign;
 	return region;
 }
-std::shared_ptr<TextField> MakeTextField(const std::string& name,const AUnit2D& position, const AUnit2D& dimensions,const AUnit1D& fontSize,const std::string& value) {
+std::shared_ptr<TextField> MakeTextField(const std::string& name,const AUnit2D& position,
+		const AUnit2D& dimensions, const Color& bgColor,const Color& textColor,const std::string& value) {
 	std::shared_ptr<TextField> region = std::shared_ptr<TextField>(
 			new TextField(name));
 	region->setPosition(position);
 	region->setDimensions(dimensions);
-	//region->backgroundColor=MakeColor(Theme::Default.DARK);
+	region->backgroundColor=MakeColor(bgColor);
+	region->textColor=MakeColor(textColor);
+	region->borderColor=MakeColor(bgColor.toDarker(0.5f));
+	region->setValue(value);
 	return region;
 }
 std::shared_ptr<Region> MakeRegion(const std::string& name,

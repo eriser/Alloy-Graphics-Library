@@ -32,8 +32,9 @@ bool ExampleUI::init(Composite& rootNode) {
 			VerticalAlignment::Baseline);
 
 
-	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.1f, 0.8f),CoordPX(200.0f, 50.0f),UnitPT(20.0f));
-	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.6f, 0.8f),CoordPX(200.0f, 50.0f),UnitPT(20.0f));
+	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),CoordPX(200.0f, 50.0f),Theme::Default.DARK,Theme::Default.LIGHT_TEXT);
+	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.1f, 0.8f),CoordPX(200.0f, 50.0f),Theme::Default.LIGHT,Theme::Default.DARK_TEXT);
+
 
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
@@ -61,7 +62,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
 	 */
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
-			CoordPercent(0.5f, 1.0f), RGBA(64, 64, 64, 255));
+			CoordPercent(0.5f, 1.0f), Theme::Default.DARK);
 	comp->setOrientation(Orientation::Vertical);
 	RegionPtr scrollHandle = MakeRegion("Scroll Handle",
 			CoordPercent(0.0, 0.0), CoordPX(30, 30), RGBA(255, 128, 64, 255),
@@ -106,7 +107,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	//rootNode.add(imgr);
 	//rootNode.add(iconr);
 	//rootNode.add(scrollTrack);
-	rootNode.backgroundColor = MakeColor(Color(220, 220, 220, 255));
+	rootNode.backgroundColor = MakeColor(Theme::Default.LIGHT);
 	rootNode.add(button2);
 	rootNode.add(hslider2);
 	rootNode.add(field1);
