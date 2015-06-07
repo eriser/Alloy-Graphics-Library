@@ -327,8 +327,9 @@ void Application::onScroll(double xoffset, double yoffset) {
 	e.cursor = context->cursorPosition;
 	e.type = InputType::Scroll;
 	e.scroll = pixel2((pixel) xoffset, (pixel) yoffset);
-	if(context->mouseOverRegion!=nullptr&&context->mouseOverRegion->onScroll){
-		context->mouseOverRegion->onScroll(context.get(),e);
+	if (context->mouseOverRegion != nullptr
+			&& context->mouseOverRegion->onScroll) {
+		context->mouseOverRegion->onScroll(context.get(), e);
 	}
 	fireEvent(e);
 }

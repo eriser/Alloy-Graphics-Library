@@ -50,8 +50,10 @@ bool ExampleUI::init(Composite& rootNode) {
 			Color(255, 255, 255, 255));
 	imgr->setOrigin(Origin::Center);
 
-	ProgressBarPtr pbar=ProgressBarPtr(new ProgressBar("Progress",CoordPercent(0.05f,0.7f),CoordPercent(0.4,0.05f)));
-	pbar->setValue("Progress Bar",0.6f);
+	ProgressBarPtr pbar = ProgressBarPtr(
+			new ProgressBar("Progress", CoordPercent(0.05f, 0.7f),
+					CoordPercent(0.4, 0.05f)));
+	pbar->setValue("Progress Bar", 0.6f);
 	/*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());

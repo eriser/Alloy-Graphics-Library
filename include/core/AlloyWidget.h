@@ -29,8 +29,8 @@ public:
 	Widget(const std::string& name = "") :
 			Composite(name) {
 	}
-	Widget(const std::string& name ,const AUnit2D& pos,const AUnit2D& dims) :
-			Composite(name,pos,dims){
+	Widget(const std::string& name, const AUnit2D& pos, const AUnit2D& dims) :
+			Composite(name, pos, dims) {
 
 	}
 	virtual void onMouseOver(AlloyContext* context, Region* region,
@@ -88,24 +88,25 @@ public:
 	}
 	virtual void draw(AlloyContext* context) override;
 };
-class ProgressBar: public Widget{
+class ProgressBar: public Widget {
 private:
 	TextLabelPtr textLabel;
 	float value;
 	std::string label;
 public:
 	virtual void draw(AlloyContext* context) override;
-	inline void setValue(float p){
-		value=clamp(p,0.0f,1.0f);
+	inline void setValue(float p) {
+		value = clamp(p, 0.0f, 1.0f);
 	}
-	inline void setValue(const std::string& l){
-		label=l;
+	inline void setValue(const std::string& l) {
+		label = l;
 	}
-	inline void setValue(const std::string& l,float p){
-		label=l;
-		value=clamp(p,0.0f,1.0f);
+	inline void setValue(const std::string& l, float p) {
+		label = l;
+		value = clamp(p, 0.0f, 1.0f);
 	}
-	ProgressBar(const std::string& name,const AUnit2D& pt,const AUnit2D& dims);
+	ProgressBar(const std::string& name, const AUnit2D& pt,
+			const AUnit2D& dims);
 };
 class HorizontalSlider: public Widget {
 private:
