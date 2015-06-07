@@ -832,7 +832,7 @@ void TextField::draw(AlloyContext* context) {
 	}
 
 	if (showDefaultLabel) {
-		nvgFillColor(nvg, textColor->toDarker(0.5f).toSemiTransparent(0.5f));
+		nvgFillColor(nvg, backgroundColor->toDarker(0.75f));
 		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
 	} else {
 		nvgFillColor(nvg, *textColor);
