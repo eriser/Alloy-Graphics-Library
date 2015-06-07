@@ -673,11 +673,7 @@ TextField::TextField(const std::string& name) :
 	lastTime = std::chrono::high_resolution_clock::now();
 }
 TextField::~TextField() {
-	try {
-		Application::getContext()->removeListener(this);
-	} catch (std::exception& e) {
-
-	}
+	Application::removeListener(this);
 }
 void TextField::handleCharacterInput(AlloyContext* context,
 		const InputEvent& e) {

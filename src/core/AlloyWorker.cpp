@@ -63,13 +63,12 @@ RecurrentWorkerTask::RecurrentWorkerTask(const std::function<bool(uint64_t)>& fu
 void RecurrentWorkerTask::step() {
 	uint64_t iter=0;
 	while(!requestCancel){
-		auto currentTime=std::chrono::high_resolution_clock::now();
+		auto currentTime=std::chrono::system_clock::now();
 		if(recurrentTask){
 			if(!recurrentTask(iter++))break;
 		}
 		if(requestCancel)break;
-		auto endTime=currentTime+std::chrono::milliseconds(timeout);
-		std::this_thread::sleep_until(endTime);
+		std::this_thread::sleep_until(currentTime + std::chrono::milliseconds(timeout));
 	}
 }
 }

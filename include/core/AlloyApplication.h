@@ -47,6 +47,11 @@ public:
 			throw std::runtime_error("Cannot get GLFW / NanoVG context.");
 		return context;
 	}
+	static inline void removeListener(Region* region) {
+		if (context.get() != nullptr) {
+			context->removeListener(region);
+		}
+	}
 	template<class A> std::shared_ptr<Tween>& addTween(AColor& out,
 			const Color& start, const Color& end, double duration, const A& a =
 					Linear()) {

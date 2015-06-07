@@ -29,6 +29,7 @@
     <ClCompile Include="..\..\src\core\AlloyUI.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUnits.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWidget.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyWorker.cpp" />
     <ClCompile Include="..\..\src\core\GLComponent.cpp" />
     <ClCompile Include="..\..\src\core\GLFrameBuffer.cpp" />
     <ClCompile Include="..\..\src\core\GLShader.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="..\..\include\core\AlloyUnits.h" />
     <ClInclude Include="..\..\include\core\AlloyVector.h" />
     <ClInclude Include="..\..\include\core\AlloyWidget.h" />
+    <ClInclude Include="..\..\include\core\AlloyWorker.h" />
     <ClInclude Include="..\..\include\core\fontstash.h" />
     <ClInclude Include="..\..\include\core\GLComponent.h" />
     <ClInclude Include="..\..\include\core\GLFrameBuffer.h" />

@@ -57,6 +57,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	progressTask=std::unique_ptr<aly::RecurrentWorkerTask>(
 			new RecurrentWorkerTask(
 			[pbar](uint64_t iter){
+				//std::cout << "Iteration " << iter << std::endl;
 				pbar->setValue("Task Executing ...",(iter++)/20.0f);
 				return (iter<20);
 			},
