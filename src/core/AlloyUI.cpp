@@ -839,7 +839,7 @@ void TextField::draw(AlloyContext* context) {
 	nvgFillPaint(nvg, bg);
 	nvgFill(nvg);
 
-	fontSize = h - 4 * PADDING;
+	fontSize = std::max(8.0f,h - 4 * PADDING);
 	nvgFontSize(nvg, fontSize);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
