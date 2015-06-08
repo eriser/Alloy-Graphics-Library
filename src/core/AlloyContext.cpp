@@ -49,7 +49,7 @@ Font::Font(const std::string& name, const std::string& file,
 		name(name), file(file), nvg(context->nvgContext) {
 	handle = nvgCreateFont(nvg, name.c_str(), file.c_str());
 }
-size_t Font::getCursorPosition(const std::string & text, float fontSize,
+int Font::getCursorPosition(const std::string & text, float fontSize,
 		int xCoord) const {
 	std::vector<NVGglyphPosition> positions(text.size());
 	nvgFontSize(nvg, fontSize);
@@ -64,7 +64,7 @@ size_t Font::getCursorPosition(const std::string & text, float fontSize,
 			return i;
 		}
 	}
-	return positions.size();
+	return static_cast<int>(positions.size());
 }
 AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context, pixel height) :
 		Glyph(CodePointToUTF8(codePoint), GlyphType::Awesome, 0, height), codePoint(

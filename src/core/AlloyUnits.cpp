@@ -21,5 +21,88 @@
 #include "AlloyUnits.h"
 namespace aly {
 const Theme Theme::Default = Theme();
+HSVA Color::toHSVA() const {
+	HSVA hsva;
+	float h,s,v;
+	float min, max, delta;
+	min = std::min( std::min(r, g), b );
+	max = std::max( std::max(r, g), b );
+	v = max;
+	delta = max - min;
+	if( max != 0 ) {
+		s = delta / max;
+	} else {
+		return float4(0,0,0,a);
+	}
+	if( r == max )h = ( g - b ) / delta;
+	else if( g == max )h = 2 + ( b - r ) / delta;
+	else h = 4 + ( r - g ) / delta;
+	h *= 60;
+	if( h < 0 )h += 360;
+	return float4(h/360.0f,s,v,a);
+}
+RGBA Color::toRGBA() const {
+	return RGBA((int) clamp(255.0f * r, 0.0f, 255.0f),
+			(int) clamp(255.0f * g, 0.0f, 255.0f),
+			(int) clamp(255.0f * b, 0.0f, 255.0f),
+			(int) clamp(255.0f * a, 0.0f, 255.0f));
+}
+HSV Color::toHSV() const {
+	HSV hsva;
+	float h,s,v;
+	float min, max, delta;
+	min = std::min( std::min(r, g), b );
+	max = std::max( std::max(r, g), b );
+	v = max;
+	delta = max - min;
+	if( max != 0 ) {
+		s = delta / max;
+	} else {
+		return float3(0,0,0);
+	}
+	if( r == max )h = ( g - b ) / delta;
+	else if( g == max )h = 2 + ( b - r ) / delta;
+	else h = 4 + ( r - g ) / delta;
+	h *= 60;
+	if( h < 0 )h += 360;
+	return float3(h/360.0f,s,v);
+}
+Color HSVtoColor(const HSV& hsv)
+{
+	float h=hsv.x*360.0f;
+	float s=hsv.y;
+	float v=hsv.z;
+	int i;
+	float f, p, q, t;
+	if( s == 0 ) {
+		return Color(v,v,v);
+	}
+	h /= 60.0f;// sector 0 to 5
+	i = (int)std::floor(h);
+	f = h - i;
+	p = v * ( 1 - s );
+	q = v * ( 1 - s * f );
+	t = v * ( 1 - s * ( 1 - f ) );
+	switch( i ) {
+		case 0:
+			return Color(v,t,p);
+		case 1:
+			return Color(q,v,p);
+		case 2:
+			return Color(p,v,t);
+		case 3:
+			return Color(p,q,v);
+		case 4:
+			return Color(t,p,v);
+		default:
+			return Color(v,p,q);
+	}
+}
+Color HSVAtoColor(const HSVA& hsva)
+{
+	Color c=HSVtoColor(hsva.xyz());
+	c.a=hsva.w;
+	return c;
+}
 }
 

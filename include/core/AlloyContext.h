@@ -69,7 +69,7 @@ public:
 	const std::string name;
 	const std::string file;
 
-	size_t getCursorPosition(const std::string & text, float fontSize,
+	int getCursorPosition(const std::string & text, float fontSize,
 			int xCoord) const;
 	Font(const std::string& name, const std::string& file,
 			AlloyContext* context);

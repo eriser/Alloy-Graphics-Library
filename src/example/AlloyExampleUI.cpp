@@ -113,6 +113,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	CheckBoxPtr checkbox = CheckBoxPtr(
 			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.1),
 					false));
+	ColorSelectorPtr colorselect=ColorSelectorPtr(new ColorSelector("Color",CoordPercent(0.6f,0.5f),CoordPX(200,50)));
 	SelectionPtr dropdown =
 			SelectionPtr(
 					new Selection("Selection", CoordPercent(0.6, 0.1),
@@ -157,6 +158,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(field2);
 	rootNode.add(vslider1);
 	rootNode.add(pbar);
+	rootNode.add(colorselect);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
 	//std::cout<<"Label "<<label->bounds<<std::endl;
@@ -169,7 +171,7 @@ int main() {
 		//SANITY_CHECK_UI();
 		ExampleUI app;
 		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
-		app.run();
+		app.run(2);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;

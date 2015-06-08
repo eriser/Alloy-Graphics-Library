@@ -389,13 +389,14 @@ struct Color: public NVGcolor {
 	inline Color toSemiTransparent(int alpha) const {
 		return Color(r, g, b, alpha / 255.0f);
 	}
-	inline RGBA rgba() const {
-		return RGBA((int) clamp(255.0f * r, 0.0f, 255.0f),
-				(int) clamp(255.0f * g, 0.0f, 255.0f),
-				(int) clamp(255.0f * b, 0.0f, 255.0f),
-				(int) clamp(255.0f * a, 0.0f, 255.0f));
-	}
+	HSVA toHSVA() const;
+	HSV toHSV() const;
+	RGBA toRGBA() const;
+
 };
+Color HSVtoColor(const HSV& hsv);
+Color HSVAtoColor(const HSVA& hsv);
+
 typedef std::shared_ptr<Color> AColor;
 class AUnit2D {
 public:

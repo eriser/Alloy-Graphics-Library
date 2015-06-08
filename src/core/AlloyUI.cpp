@@ -58,6 +58,8 @@ void Region::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (borderColor->a > 0) {
+
+		nvgLineJoin(nvg,NVG_ROUND);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 				bounds.position.y + lineWidth * 0.5f,
@@ -66,6 +68,7 @@ void Region::draw(AlloyContext* context) {
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
+		nvgLineJoin(nvg,NVG_MITER);
 	}
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
@@ -98,11 +101,15 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	const int FONT_SIZE_PX = 16;
 
 	nvgBeginPath(nvg);
+
+	nvgLineJoin(nvg,NVG_ROUND);
 	nvgRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
 			bounds.dimensions.x - 2, bounds.dimensions.y - 2);
 	nvgStrokeColor(nvg, c);
 	nvgStrokeWidth(nvg, 1.0f);
 	nvgStroke(nvg);
+
+	nvgLineJoin(nvg,NVG_MITER);
 	nvgFontSize(nvg, FONT_SIZE_PX);
 	nvgFontFaceId(nvg, font);
 	nvgTextAlign(nvg, NVG_ALIGN_TOP | NVG_ALIGN_LEFT);

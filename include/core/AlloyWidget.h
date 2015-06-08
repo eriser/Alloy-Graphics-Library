@@ -246,13 +246,40 @@ public:
 			const AUnit2D& dimensions, const std::vector<std::string>& options =
 					std::vector<std::string>());
 };
+
+struct ColorWheel: public Composite{
+protected:
+	Color selectedColor;
+	HSV hsvColor;
+	float2 t0,t1,t2;
+	float rInner,rOuter;
+	float2 center;
+	void updateWheel();
+public:
+	void setColor(const  Color& c);
+	void setColor(const pixel2& cursor);
+	ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	void drawOnTop(AlloyContext* context) override;
+};
+class ColorSelector: public Widget {
+	TextLabelPtr textLabel;
+	RegionPtr colorLabel;
+	std::shared_ptr<ColorWheel> colorWheel;
+public:
+	virtual void onMouseDown(AlloyContext* context, Region* region,const InputEvent& event) override;
+	virtual void onMouseOver(AlloyContext* context, Region* region,const InputEvent& event) override;
+	ColorSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	virtual void draw(AlloyContext* context) override;
+};
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
+typedef std::shared_ptr<ColorSelector> ColorSelectorPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
 typedef std::shared_ptr<Selection> SelectionPtr;
 typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 typedef std::shared_ptr<ProgressBar> ProgressBarPtr;
+typedef std::shared_ptr<ColorWheel> ColorWheelPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

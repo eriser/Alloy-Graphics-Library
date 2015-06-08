@@ -1370,6 +1370,8 @@ typedef matrix<double, 4, 3> double4x3;
 typedef matrix<double, 4, 4> double4x4;
 typedef float4 RGBAf;
 typedef float3 RGBf;
+typedef float4 HSVA;
+typedef float3 HSV;
 typedef int4 RGBAi;
 typedef int3 RGBi;
 typedef ubyte4 RGBA;
