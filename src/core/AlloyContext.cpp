@@ -151,13 +151,13 @@ std::string AlloyContext::getFullPath(const std::string& partialFile) {
 void AlloyContext::setDragObject(Region* region) {
 	mouseDownRegion = region;
 	cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
-	leftMouseButton = true;
 }
-void AlloyContext::fireListeners(const InputEvent& event) {
-	for (Region* region : listeners) {
-		if (region->onEvent(this, event))
-			return;
+bool AlloyContext::fireListeners(const InputEvent& event) {
+	for (auto iter=listeners.rbegin();iter!=listeners.rend();iter++) {
+		if ((*iter)->onEvent(this, event))
+			return true;
 	}
+	return false;
 }
 AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		const Theme& theme) :

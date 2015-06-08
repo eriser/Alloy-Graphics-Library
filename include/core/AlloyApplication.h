@@ -52,6 +52,11 @@ public:
 			context->removeListener(region);
 		}
 	}
+	static inline void addListener(Region* region) {
+		if (context.get() != nullptr) {
+			context->addListener(region);
+		}
+	}
 	template<class A> std::shared_ptr<Tween>& addTween(AColor& out,
 			const Color& start, const Color& end, double duration, const A& a =
 					Linear()) {

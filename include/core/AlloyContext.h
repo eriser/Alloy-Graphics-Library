@@ -194,7 +194,7 @@ public:
 	void removeListener(Region* region) {
 		listeners.remove(region);
 	}
-	void fireListeners(const InputEvent& event);
+	bool fireListeners(const InputEvent& event);
 	void setDragObject(Region* region);
 	inline bool isMouseOver(Region* region) {
 		return (mouseOverRegion == region);
@@ -209,12 +209,19 @@ public:
 	bool isMouseContainedIn(const box2px& box);
 	bool isMouseContainedIn(const pixel2& pos, const pixel2& dims);
 	bool isMouseContainedIn(Region* region);
+	bool isLeftMouseButtonDown() const {
+		return leftMouseButton;
+	}
+	bool isRightMouseButtonDown() const {
+		return rightMouseButton;
+	}
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
 	}
 	inline bool isMouseDrag(Region* region) {
 		return (mouseDownRegion == region && leftMouseButton);
 	}
+
 	double pixelRatio;
 
 	void update(Composite& rootNode);

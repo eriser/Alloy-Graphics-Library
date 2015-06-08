@@ -616,7 +616,9 @@ template<class T, int N> T dot(const vec<T, N> & l, const vec<T, N> & r) {
 template<class T> vec<T, 3> cross(const vec<T, 3> & l, const vec<T, 3> & r) {
 	return {l.y*r.z-l.z*r.y, l.z*r.x-l.x*r.z, l.x*r.y-l.y*r.x};
 }
-
+template<class T> T cross(const vec<T, 2> & l, const vec<T, 2> & r) {
+	return l.x*r.y-l.y*r.x;
+}
 // Compute the length/square length of a vector
 template<class T, int N> T lengthSqr(const vec<T, N> & v) {
 	return dot(v, v);
@@ -1132,6 +1134,11 @@ template<class T> matrix<T, 4, 4> MakeRotationMatrix(const vec<T, 3>& axis,
 		M(2, 2) = t * az * az + cosTheta;
 	}
 	return M;
+}
+template<class T> vec<T, 2> Rotate(const vec<T,2>& v,T angle) {
+	T cs=cos(angle);
+	T sn=sin(angle);
+	return vec<T,2>(cs*v[0]+sn*v[1],-sn*v[0]+cs*v[1]);
 }
 template<class T> matrix<T, 4, 4> MakeRotationX(T angle) {
 	return MakeRotationMatrix(vec<T, 3>(1, 0, 0), angle);

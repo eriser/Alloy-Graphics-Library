@@ -33,6 +33,7 @@ public:
 			Composite(name, pos, dims) {
 
 	}
+
 	virtual void onMouseOver(AlloyContext* context, Region* region,
 			const InputEvent& event) {
 	}
@@ -45,7 +46,7 @@ public:
 	virtual void onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event, const pixel2& lastDragPosition) {
 	}
-	virtual void add(const std::shared_ptr<Region>& region) override;
+
 };
 class Button: public Widget {
 private:
@@ -136,7 +137,7 @@ public:
 	const Number& getValue() {
 		return value;
 	}
-	//virtual void pack(const pixel2& pos, const pixel2& dims,const double2& dpmm, double pixelRatio) override;
+
 	virtual void onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual void onMouseUp(AlloyContext* context, Region* region,
@@ -182,13 +183,14 @@ public:
 	const Number& getValue() {
 		return value;
 	}
-	//virtual void pack(const pixel2& pos, const pixel2& dims,const double2& dpmm, double pixelRatio) override;
+
 	virtual void onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual void onMouseUp(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual void onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event, const pixel2& lastDragPosition) override;
+
 	inline void setLabelFormatter(
 			const std::function<const std::string&(const Number& value)>& func) {
 		labelFormatter = func;
@@ -251,7 +253,8 @@ struct ColorWheel: public Composite{
 protected:
 	Color selectedColor;
 	HSV hsvColor;
-	float2 t0,t1,t2;
+	float2 tBounds[3];
+	float2 tPoints[3];
 	float rInner,rOuter;
 	float2 center;
 	void updateWheel();
@@ -260,14 +263,16 @@ public:
 	void setColor(const pixel2& cursor);
 	ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	void drawOnTop(AlloyContext* context) override;
+	virtual bool onEvent(AlloyContext* context,const InputEvent& event) override;
+
 };
 class ColorSelector: public Widget {
 	TextLabelPtr textLabel;
 	RegionPtr colorLabel;
 	std::shared_ptr<ColorWheel> colorWheel;
 public:
-	virtual void onMouseDown(AlloyContext* context, Region* region,const InputEvent& event) override;
-	virtual void onMouseOver(AlloyContext* context, Region* region,const InputEvent& event) override;
+	//virtual void onMouseDown(AlloyContext* context, Region* region,const InputEvent& event) override;
+	//virtual void onMouseOver(AlloyContext* context, Region* region,const InputEvent& event) override;
 	ColorSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };

@@ -120,9 +120,6 @@ void CheckBox::draw(AlloyContext* context) {
 
 	Composite::draw(context);
 }
-void Widget::add(const std::shared_ptr<Region>& region) {
-	Composite::add(region);
-}
 void ProgressBar::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	NVGcontext* nvg = context->nvgContext;
@@ -718,6 +715,7 @@ ColorSelector::ColorSelector(const std::string& name,const AUnit2D& pos,const AU
 	add(colorLabel);
 	add(colorWheel);
 }
+/*
 void ColorSelector::onMouseDown(AlloyContext* context, Region* region,const InputEvent& event) {
 	if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 
@@ -726,18 +724,25 @@ void ColorSelector::onMouseDown(AlloyContext* context, Region* region,const Inpu
 void ColorSelector::onMouseOver(AlloyContext* context, Region* region,const InputEvent& event) {
 
 }
+*/
 
 
 ColorWheel::ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims):Composite(name,pos,dims){
-	this->onMouseDown=[this](AlloyContext* context,const InputEvent& e){
-		if(e.isDown()&&e.button==GLFW_MOUSE_BUTTON_LEFT){
-			this->setColor(e.cursor);
-		}
-	};
+
 	setColor(Color(32,64,255));
 	this->onPack=[this](){
 		this->updateWheel();
 	};
+	Application::addListener(this);
+}
+bool ColorWheel::onEvent(AlloyContext* context,const InputEvent& e){
+	if(context->isMouseContainedIn(this)){
+		if(context->isLeftMouseButtonDown()){
+			this->setColor(e.cursor);
+		}
+		return true;
+	}
+	return false;
 }
 void ColorWheel::updateWheel(){
 	box2px bounds = getBounds();
@@ -752,9 +757,13 @@ void ColorWheel::updateWheel(){
 	rInner = rOuter - 20.0f;
 	center=float2(cx,cy);
 	float r = rInner - 6;
-	t0=float2(r,0);
-	t1=float2(cos(120.0f / 180.0f * NVG_PI) * r,sin(120.0f / 180.0f * NVG_PI) * r);
-	t2=float2(cosf(-120.0f / 180.0f * NVG_PI) * r,sin(-120.0f / 180.0f * NVG_PI) * r);
+	tPoints[0]=float2(r,0);
+	tPoints[1]=float2(cos(120.0f / 180.0f * NVG_PI) * r,sin(120.0f / 180.0f * NVG_PI) * r);
+	tPoints[2]=float2(cosf(-120.0f / 180.0f * NVG_PI) * r,sin(-120.0f / 180.0f * NVG_PI) * r);
+	float angle=-hsvColor.x * NVG_PI * 2;
+	for(int i=0;i<3;i++){
+		tBounds[i]=Rotate(tPoints[i],angle)+center;
+	}
 }
 void ColorWheel::setColor(const Color& c){
 	selectedColor=c;
@@ -762,7 +771,15 @@ void ColorWheel::setColor(const Color& c){
 	updateWheel();
 }
 void ColorWheel::setColor(const pixel2& cursor){
-
+	float2 pt=cursor-tBounds[0];
+	float v=cross(pt,tBounds[2]-tBounds[0])/cross(pt,tBounds[2]-tBounds[1]);
+	float s=dot(pt,pt)/dot(pt,(tBounds[2]-tBounds[0])+v*(tBounds[1]-tBounds[2]));
+	v=clamp(v,0.0f,1.0f);
+	s=clamp(s,0.0f,1.0f);
+	hsvColor.z=v;
+	hsvColor.y=s;
+	selectedColor=HSVtoColor(hsvColor);
+	updateWheel();
 }
 void ColorWheel::drawOnTop(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
@@ -788,22 +805,18 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 
 	NVGpaint paint;
 	nvgSave(nvg);
-	cx = x + w * 0.5f;
-	cy = y + h * 0.5f;
-	r1 = (w < h ? w : h) * 0.5f - 5.0f;
-	r0 = r1 - 20.0f;
-	aeps = 0.5f / r1;	// half a pixel arc length in radians (2pi cancels out).
+	aeps = 0.5f / rOuter;	// half a pixel arc length in radians (2pi cancels out).
 	for (i = 0; i < 6; i++) {
 		float a0 = (float) i / 6.0f * NVG_PI * 2.0f - aeps;
 		float a1 = (float) (i + 1.0f) / 6.0f * NVG_PI * 2.0f + aeps;
 		nvgBeginPath(nvg);
-		nvgArc(nvg, cx, cy, r0, a0, a1, NVG_CW);
-		nvgArc(nvg, cx, cy, r1, a1, a0, NVG_CCW);
+		nvgArc(nvg, center.x, center.y, rInner, a0, a1, NVG_CW);
+		nvgArc(nvg, center.x, center.y, rOuter, a1, a0, NVG_CCW);
 		nvgClosePath(nvg);
-		ax = cx + cosf(a0) * (r0 + r1) * 0.5f;
-		ay = cy + sinf(a0) * (r0 + r1) * 0.5f;
-		bx = cx + cosf(a1) * (r0 + r1) * 0.5f;
-		by = cy + sinf(a1) * (r0 + r1) * 0.5f;
+		ax = center.x + cosf(a0) * (rInner + rOuter) * 0.5f;
+		ay = center.y + sinf(a0) * (rInner + rOuter) * 0.5f;
+		bx = center.x + cosf(a1) * (rInner + rOuter) * 0.5f;
+		by = center.y + sinf(a1) * (rInner + rOuter) * 0.5f;
 		paint = nvgLinearGradient(nvg, ax, ay, bx, by,
 				nvgHSLA(a0 / (NVG_PI * 2), 1.0f, 0.55f, 255),
 				nvgHSLA(a1 / (NVG_PI * 2), 1.0f, 0.55f, 255));
@@ -812,64 +825,68 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	}
 
 	nvgBeginPath(nvg);
-	nvgCircle(nvg, cx, cy, r0 - 0.5f);
-	nvgCircle(nvg, cx, cy, r1 + 0.5f);
+	nvgCircle(nvg, center.x, center.y, rInner - 0.5f);
+	nvgCircle(nvg, center.x, center.y, rOuter + 0.5f);
 	nvgStrokeColor(nvg, nvgRGBA(0, 0, 0, 64));
 	nvgStrokeWidth(nvg, 1.0f);
 	nvgStroke(nvg);
 
 	// Selector
 	nvgSave(nvg);
-	nvgTranslate(nvg, cx, cy);
+	nvgTranslate(nvg, center.x, center.y);
 	nvgRotate(nvg, hue * NVG_PI * 2);
-
 	// Marker on
 	nvgStrokeWidth(nvg, 2.0f);
 	nvgBeginPath(nvg);
-	nvgRect(nvg, r0 - 1, -3, r1 - r0 + 2, 6);
+	nvgRect(nvg, rInner - 1, -3, rOuter - rInner + 2, 6);
 	nvgStrokeColor(nvg, nvgRGBA(255, 255, 255, 192));
 	nvgStroke(nvg);
 
-	paint = nvgBoxGradient(nvg, r0 - 3, -5, r1 - r0 + 6, 10, 2, 4,
+	paint = nvgBoxGradient(nvg, rInner - 3, -5, rOuter - rInner + 6, 10, 2, 4,
 			nvgRGBA(0, 0, 0, 128), nvgRGBA(0, 0, 0, 0));
 	nvgBeginPath(nvg);
-	nvgRect(nvg, r0 - 2 - 10, -4 - 10, r1 - r0 + 4 + 20, 8 + 20);
-	nvgRect(nvg, r0 - 2, -4, r1 - r0 + 4, 8);
+	nvgRect(nvg, rInner - 2 - 10, -4 - 10, rOuter - rInner + 4 + 20, 8 + 20);
+	nvgRect(nvg, rInner - 2, -4, rOuter - rInner + 4, 8);
 	nvgPathWinding(nvg, NVG_HOLE);
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
 
 	// Center triangle
-	r = r0 - 6;
+	/*
+	r = rInner - 6;
 	ax = cosf(120.0f / 180.0f * NVG_PI) * r;
 	ay = sinf(120.0f / 180.0f * NVG_PI) * r;
 	bx = cosf(-120.0f / 180.0f * NVG_PI) * r;
 	by = sinf(-120.0f / 180.0f * NVG_PI) * r;
+	*/
 	nvgBeginPath(nvg);
-	nvgMoveTo(nvg, r, 0);
-	nvgLineTo(nvg, ax, ay);
-	nvgLineTo(nvg, bx, by);
+	nvgMoveTo(nvg, tPoints[0].x, tPoints[0].y);
+	nvgLineTo(nvg, tPoints[1].x, tPoints[1].y);
+	nvgLineTo(nvg, tPoints[2].x, tPoints[2].y);
 	nvgClosePath(nvg);
-	paint = nvgLinearGradient(nvg, r, 0, ax, ay, nvgHSLA(hue, 1.0f, 0.5f, 255),
+	paint = nvgLinearGradient(nvg,
+		tPoints[0].x, tPoints[0].y, tPoints[1].x, tPoints[1].y,
+		nvgHSLA(hue, 1.0f, 0.5f, 255),
 			nvgRGBA(255, 255, 255, 255));
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
-	paint = nvgLinearGradient(nvg, (r + ax) * 0.5f, (0 + ay) * 0.5f, bx, by,
+	paint = nvgLinearGradient(nvg,
+			(tPoints[0].x+tPoints[1].x) * 0.5f,
+			(tPoints[0].y+tPoints[1].y) * 0.5f,
+			tPoints[2].x, tPoints[2].y,
 			nvgRGBA(0, 0, 0, 0), nvgRGBA(0, 0, 0, 255));
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
 	nvgStrokeColor(nvg, nvgRGBA(0, 0, 0, 64));
 	nvgStroke(nvg);
-
-	// Select circle on triangle
-	ax = cosf(120.0f / 180.0f * NVG_PI) * r * 0.3f;
-	ay = sinf(120.0f / 180.0f * NVG_PI) * r * 0.4f;
+	float2 bary=mix(tPoints[0],mix(tPoints[2],tPoints[1],hsvColor.z),hsvColor.y);
+	ax=bary.x;
+	ay=bary.y;
 	nvgStrokeWidth(nvg, 2.0f);
 	nvgBeginPath(nvg);
 	nvgCircle(nvg, ax, ay, 5);
 	nvgStrokeColor(nvg, nvgRGBA(255, 255, 255, 192));
 	nvgStroke(nvg);
-
 	paint = nvgRadialGradient(nvg, ax, ay, 7, 9, nvgRGBA(0, 0, 0, 64),
 			nvgRGBA(0, 0, 0, 0));
 	nvgBeginPath(nvg);
@@ -882,6 +899,24 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	nvgRestore(nvg);
 
 	nvgRestore(nvg);
+
+	/*
+	nvgBeginPath(nvg);
+	nvgStrokeColor(nvg, Color(0,64,0));
+	nvgStrokeWidth(nvg,2.0f);
+	nvgMoveTo(nvg,tBounds[0].x,tBounds[0].y);
+	nvgLineTo(nvg,tBounds[1].x,tBounds[1].y);
+	nvgLineTo(nvg,tBounds[2].x,tBounds[2].y);
+	nvgClosePath(nvg);
+	nvgStroke(nvg);
+
+	nvgBeginPath(nvg);
+	nvgStrokeColor(nvg, Color(0,64,0));
+	nvgStrokeWidth(nvg,2.0f);
+	nvgCircle(nvg,center.x,center.y,rInner);
+	nvgCircle(nvg,center.x,center.y,rOuter);
+	nvgStroke(nvg);
+	*/
 }
 void ColorSelector::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
