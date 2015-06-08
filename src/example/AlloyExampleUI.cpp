@@ -54,8 +54,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	ProgressBarPtr pbar = ProgressBarPtr(
 			new ProgressBar("Progress", CoordPercent(0.05f, 0.7f),
 					CoordPercent(0.4, 0.05f)));
-	progressTask=std::unique_ptr<aly::RecurrentWorkerTask>(
-			new RecurrentWorkerTask(
+	progressTask=std::unique_ptr<aly::RecurrentWorker>(
+			new RecurrentWorker(
 			[pbar](uint64_t iter){
 				//std::cout << "Iteration " << iter << std::endl;
 				pbar->setValue("Task Executing ...",(iter++)/20.0f);

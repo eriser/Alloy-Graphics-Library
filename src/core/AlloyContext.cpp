@@ -225,9 +225,9 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	// Calculate pixel ration for hi-dpi devices.
 	pixelRatio = (float) fbWidth / (float) winWidth;
-	lastAnimateTime = std::chrono::high_resolution_clock::now();
-	lastCursorTime = std::chrono::high_resolution_clock::now();
-	lastUpdateTime = std::chrono::high_resolution_clock::now();
+	lastAnimateTime = std::chrono::steady_clock::now();
+	lastCursorTime = std::chrono::steady_clock::now();
+	lastUpdateTime = std::chrono::steady_clock::now();
 }
 bool AlloyContext::isMouseContainedIn(Region* region) {
 	return (region->getBounds().contains(cursorPosition));
@@ -268,7 +268,7 @@ bool AlloyContext::isFocused(Region* region) {
 	return false;
 }
 void AlloyContext::update(Composite& rootNode) {
-	endTime = std::chrono::high_resolution_clock::now();
+	endTime = std::chrono::steady_clock::now();
 	double t = glfwGetTime();
 	double updateElapsed = std::chrono::duration<double>(
 			endTime - lastUpdateTime).count();

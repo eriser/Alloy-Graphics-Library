@@ -169,10 +169,10 @@ private:
 	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
 	bool leftMouseButton = false;
 	bool rightMouseButton = false;
-	std::chrono::high_resolution_clock::time_point endTime;
-	std::chrono::high_resolution_clock::time_point lastAnimateTime;
-	std::chrono::high_resolution_clock::time_point lastUpdateTime;
-	std::chrono::high_resolution_clock::time_point lastCursorTime;
+	std::chrono::steady_clock::time_point endTime;
+	std::chrono::steady_clock::time_point lastAnimateTime;
+	std::chrono::steady_clock::time_point lastUpdateTime;
+	std::chrono::steady_clock::time_point lastCursorTime;
 	pixel2 cursorDownPosition = pixel2(-1, -1);
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;

@@ -25,7 +25,7 @@
 #include "Alloy.h"
 class ExampleUI: public aly::Application {
 private:
-	std::unique_ptr<aly::RecurrentWorkerTask> progressTask;
+	std::unique_ptr<aly::RecurrentWorker> progressTask;
 public:
 	ExampleUI();
 	bool init(aly::Composite& rootNode);

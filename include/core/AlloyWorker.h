@@ -25,14 +25,15 @@
 #include <functional>
 #include <chrono>
 namespace aly {
-class WorkerTask {
+class Worker {
 protected:
 	std::thread workerThread;
 	const std::function<void()> executionTask;
 	const std::function<void()> endTask;
 	bool running = false;
+	bool complete=false;
 	bool requestCancel = false;
-	virtual void task();
+	void task();
 	void done();
 public:
 	inline bool isRunning() const {
@@ -41,25 +42,28 @@ public:
 	inline bool isCanceled() const {
 		return requestCancel;
 	}
-	WorkerTask(const std::function<void()>& func);
-	WorkerTask(const std::function<void()>& func,const std::function<void()>& end);
+	inline bool isComplete() const {
+		return complete;
+	}
+
+	Worker(const std::function<void()>& func);
+	Worker(const std::function<void()>& func,const std::function<void()>& end);
 	void execute();
 	void cancel();
-	virtual ~WorkerTask();
+	virtual ~Worker();
 };
-class RecurrentWorkerTask: public WorkerTask {
-	std::thread workerThread;
+class RecurrentWorker: public Worker {
+protected:
 	const std::function<bool(uint64_t iteration)> recurrentTask;
-
 	long timeout;
+	void step();
 public:
 	void setTimeout(long milliseconds){
 		timeout=milliseconds;
 	}
-	void step();
-	RecurrentWorkerTask(const std::function<bool(uint64_t iteration)>& func,long milliseconds);
-	RecurrentWorkerTask(const std::function<bool(uint64_t iteration)>& func,const std::function<void()>& end,long milliseconds);
+	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,long milliseconds);
+	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,const std::function<void()>& end,long milliseconds);
 };
-typedef std::shared_ptr<WorkerTask> WorkerTaskPtr;
+typedef std::shared_ptr<Worker> WorkerTaskPtr;
 }
 #endif /* ALLOYWORKER_H_ */

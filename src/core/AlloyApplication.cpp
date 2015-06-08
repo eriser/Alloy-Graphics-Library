@@ -404,9 +404,9 @@ void Application::run(int swapInterval) {
 	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);
 	uint64_t frameCounter = 0;
-	std::chrono::high_resolution_clock::time_point endTime;
-	std::chrono::high_resolution_clock::time_point lastFpsTime =
-			std::chrono::high_resolution_clock::now();
+	std::chrono::steady_clock::time_point endTime;
+	std::chrono::steady_clock::time_point lastFpsTime =
+			std::chrono::steady_clock::now();
 	do {
 		draw();
 		context->update(rootNode);
