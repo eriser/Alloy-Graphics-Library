@@ -257,14 +257,17 @@ protected:
 	float2 tPoints[3];
 	float rInner,rOuter;
 	float2 center;
+
+	bool triangleSelected=false;
+	bool circleSelected=false;
+
 	void updateWheel();
 public:
+	Color getSelectedColor() const {return selectedColor;}
 	void setColor(const  Color& c);
 	void setColor(const pixel2& cursor);
 	ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	void drawOnTop(AlloyContext* context) override;
-	virtual bool onEvent(AlloyContext* context,const InputEvent& event) override;
-
 };
 class ColorSelector: public Widget {
 	TextLabelPtr textLabel;

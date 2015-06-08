@@ -30,6 +30,7 @@ const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HIDDEN_COLOR = RGBA(128, 128, 128, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
+const RGBA DEBUG_ON_TOP_COLOR = RGBA(200, 100, 0, 255);
 const float Composite::scrollBarSize = 15.0f;
 const float TextField::PADDING = 2;
 bool Region::isVisible() {
@@ -73,7 +74,8 @@ void Region::draw(AlloyContext* context) {
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-	box2px bounds = getCursorBounds();
+	bool ontop=context->isOnTop(this);
+	box2px bounds =(ontop)?getBounds():getCursorBounds();
 	if ((bounds.dimensions.x <= 20 && bounds.dimensions.y <= 20)
 			|| bounds.dimensions.x * bounds.dimensions.y == 0) {
 		return;
@@ -85,12 +87,15 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	//pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
+
 	Color c;
 	if (isVisible()) {
 		if (down) {
 			c = DEBUG_DOWN_COLOR;
 		} else if (hover) {
 			c = DEBUG_HOVER_COLOR;
+		} else if(ontop){
+			c=DEBUG_ON_TOP_COLOR;
 		} else {
 			c = DEBUG_STROKE_COLOR;
 		}
@@ -315,7 +320,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
 					}
 				};
-		Application::getContext()->addListener(this);
+		Application::addListener(this);
 	}
 	pixel2 offset(0, 0);
 	scrollExtent = pixel2(0, 0);
@@ -676,7 +681,7 @@ void TextField::clear() {
 
 TextField::TextField(const std::string& name) :
 		Region(name), label(name), value("") {
-	Application::getContext()->addListener(this);
+	Application::addListener(this);
 	lastTime = std::chrono::high_resolution_clock::now();
 }
 TextField::~TextField() {

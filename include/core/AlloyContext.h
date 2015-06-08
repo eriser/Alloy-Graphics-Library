@@ -177,6 +177,7 @@ private:
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
 	Region* mouseFocusRegion = nullptr;
+	Region* onTopRegion=nullptr;
 	std::list<Region*> listeners;
 public:
 	friend class Application;
@@ -206,9 +207,15 @@ public:
 	inline void setMouseFocusObject(Region* region) {
 		mouseFocusRegion = region;
 	}
-	bool isMouseContainedIn(const box2px& box);
-	bool isMouseContainedIn(const pixel2& pos, const pixel2& dims);
-	bool isMouseContainedIn(Region* region);
+	inline void setOnTopRegion(Region* region){
+		onTopRegion=region;
+	}
+	inline Region* getOnTopRegion() const {
+		return onTopRegion;
+	}
+	bool isMouseContainedIn(const box2px& box) const;
+	bool isMouseContainedIn(const pixel2& pos, const pixel2& dims) const;
+	bool isMouseContainedIn(Region* region) const;
 	bool isLeftMouseButtonDown() const {
 		return leftMouseButton;
 	}
@@ -217,6 +224,9 @@ public:
 	}
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
+	}
+	inline bool isOnTop(Region* region) {
+		return (onTopRegion == region);
 	}
 	inline bool isMouseDrag(Region* region) {
 		return (mouseDownRegion == region && leftMouseButton);
@@ -228,6 +238,7 @@ public:
 	void requestPack() {
 		dirtyLayout = true;
 	}
+	Region* locate(const pixel2& cursor) const;
 	void requestUpdateCursor() {
 		dirtyCursor = true;
 	}

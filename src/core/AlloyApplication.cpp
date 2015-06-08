@@ -113,7 +113,11 @@ void Application::drawUI() {
 	rootNode.draw(context.get());
 	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,
 			view.dimensions.y);
-	rootNode.drawOnTop(context.get());
+
+	Region* onTop=context->getOnTopRegion();
+	if(onTop!=nullptr){
+		onTop->drawOnTop(context.get());
+	}
 	nvgEndFrame(nvg);
 }
 void Application::drawDebugUI() {
@@ -123,6 +127,10 @@ void Application::drawDebugUI() {
 			context->pixelRatio);
 	nvgResetScissor(nvg);
 	rootNode.drawDebug(context.get());
+	Region* onTop=context->getOnTopRegion();
+	if(onTop!=nullptr){
+		onTop->drawDebug(context.get());
+	}
 	int cr = context->theme.CORNER_RADIUS;
 	if (context->viewport.contains(
 			int2((int) context->cursorPosition.x,
@@ -225,6 +233,12 @@ void Application::fireEvent(const InputEvent& event) {
 			|| event.type == InputType::MouseButton) {
 		context->requestUpdateCursor();
 	}
+	Region* onTop=context->getOnTopRegion();
+	if(onTop!=nullptr){
+		if(!onTop->isVisible()){
+			context->setOnTopRegion(nullptr);
+		}
+	}
 	if (event.type == InputType::MouseButton) {
 		if(event.isDown()){
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -238,11 +252,10 @@ void Application::fireEvent(const InputEvent& event) {
 			context->rightMouseButton = false;
 		}
 	}
-	bool consumed=context->fireListeners(event);
 	if (event.type == InputType::MouseButton) {
 		if (event.isDown()) {
 			context->mouseFocusRegion = context->mouseDownRegion =
-					context->cursorLocator.locate(context->cursorPosition);
+					context->locate(context->cursorPosition);
 			if (context->mouseDownRegion != nullptr) {
 				context->cursorDownPosition = context->cursorPosition
 						- context->mouseDownRegion->getBoundsPosition();
@@ -250,7 +263,7 @@ void Application::fireEvent(const InputEvent& event) {
 		} else if (event.isUp()) {
 			if (context->mouseDownRegion != nullptr
 					&& context->mouseDownRegion->onMouseUp){
-				if(!consumed)context->mouseDownRegion->onMouseUp(context.get(), event);
+				context->mouseDownRegion->onMouseUp(context.get(), event);
 			}
 			context->mouseDownRegion = nullptr;
 			context->cursorDownPosition = pixel2(0, 0);
@@ -258,7 +271,6 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if (context->mouseDownRegion != nullptr && context->leftMouseButton
 			&& context->mouseDownRegion->isDragEnabled()) {
-		if(!consumed){
 			if (context->mouseDownRegion->onMouseDrag) {
 				context->mouseDownRegion->onMouseDrag(context.get(), event,
 						context->cursorDownPosition);
@@ -267,9 +279,7 @@ void Application::fireEvent(const InputEvent& event) {
 						context->cursorDownPosition);
 			}
 			context->requestPack();
-		}
 	} else if (context->mouseOverRegion != nullptr) {
-		if(!consumed){
 			if (event.type == InputType::MouseButton) {
 				if (context->mouseOverRegion->onMouseDown && event.isDown())
 					context->mouseOverRegion->onMouseDown(context.get(), event);
@@ -281,8 +291,8 @@ void Application::fireEvent(const InputEvent& event) {
 				if (context->mouseOverRegion->onMouseOver)
 					context->mouseOverRegion->onMouseOver(context.get(), event);
 		}
-		}
 	}
+	context->fireListeners(event);
 }
 
 void Application::onWindowSize(int width, int height) {

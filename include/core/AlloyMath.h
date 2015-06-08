@@ -633,7 +633,7 @@ template<class T, int N> T distance(const vec<T, N> & l, const vec<T, N> & r) {
 }
 template<class T, int N> T distanceSqr(const vec<T, N> & l,
 		const vec<T, N> & r) {
-	return length_sq(r - l);
+	return lengthSqr(r - l);
 }
 
 // Compute a normalized vector with the same direction as the original vector

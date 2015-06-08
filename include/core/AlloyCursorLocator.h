@@ -35,13 +35,13 @@ class CursorLocator {
 	const int2 lowerBounds = int2(0, 0);
 	const int2 upperBounds = int2(ROWS - 1, COLS - 1);
 	pixel2 cellSize;
-	std::mutex lock;
+	//std::mutex lock;
 public:
 	CursorLocator() {
 	}
 	void reset(int2 viewportDims);
 	void add(Region* region);
-	Region* locate(const pixel2& cursor);
+	Region* locate(const pixel2& cursor) const;
 };
 }
 #endif /* ALLOYLOCATOR_H_ */

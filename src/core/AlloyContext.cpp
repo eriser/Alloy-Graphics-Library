@@ -229,14 +229,23 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	lastCursorTime = std::chrono::steady_clock::now();
 	lastUpdateTime = std::chrono::steady_clock::now();
 }
-bool AlloyContext::isMouseContainedIn(Region* region) {
+bool AlloyContext::isMouseContainedIn(Region* region) const {
 	return (region->getBounds().contains(cursorPosition));
 }
-bool AlloyContext::isMouseContainedIn(const box2px& box) {
+bool AlloyContext::isMouseContainedIn(const box2px& box) const {
 	return (box.contains(cursorPosition));
 }
-bool AlloyContext::isMouseContainedIn(const pixel2& pos, const pixel2& dims) {
+bool AlloyContext::isMouseContainedIn(const pixel2& pos, const pixel2& dims) const {
 	return ((box2px(pos, dims)).contains(cursorPosition));
+}
+
+Region* AlloyContext::locate(const pixel2& cursor) const {
+	if(onTopRegion!=nullptr){
+		if(onTopRegion->isVisible()&&isMouseContainedIn(onTopRegion)){
+			return onTopRegion;
+		}
+	}
+	return cursorLocator.locate(cursor);
 }
 bool AlloyContext::begin() {
 	if (current == nullptr) {
@@ -281,14 +290,14 @@ void AlloyContext::update(Composite& rootNode) {
 			cursorLocator.reset(viewport.dimensions);
 			rootNode.update(&cursorLocator);
 			dirtyCursorLocator = false;
-			mouseOverRegion = cursorLocator.locate(cursorPosition);
+			mouseOverRegion = locate(cursorPosition);
 			dirtyCursor = false;
 		}
 		lastUpdateTime = endTime;
 	}
 	if (cursorElapsed >= UPDATE_CURSOR_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
 		if (dirtyCursor && !dirtyCursorLocator) {
-			mouseOverRegion = cursorLocator.locate(cursorPosition);
+			mouseOverRegion = locate(cursorPosition);
 			dirtyCursor = false;
 		}
 		lastCursorTime = endTime;

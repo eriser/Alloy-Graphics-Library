@@ -22,7 +22,7 @@
 #include "AlloyUI.h"
 namespace aly {
 void CursorLocator::reset(int2 viewportDims) {
-	std::lock_guard<std::mutex> lockMe(lock);
+	//std::lock_guard<std::mutex> lockMe(lock);
 	cellSize.x = std::max((pixel) 1, viewportDims.x / (pixel) ROWS);
 	cellSize.y = std::max((pixel) 1, viewportDims.y / (pixel) COLS);
 	for (int j = 0; j < COLS; j++) {
@@ -32,7 +32,7 @@ void CursorLocator::reset(int2 viewportDims) {
 	}
 }
 void CursorLocator::add(Region* region) {
-	std::lock_guard<std::mutex> lockMe(lock);
+	//std::lock_guard<std::mutex> lockMe(lock);
 	box2px bounds = region->getCursorBounds();
 	if (bounds.dimensions.x * bounds.dimensions.y == 0)
 		return;
@@ -46,8 +46,8 @@ void CursorLocator::add(Region* region) {
 		}
 	}
 }
-Region* CursorLocator::locate(const pixel2& cursor) {
-	std::lock_guard<std::mutex> lockMe(lock);
+Region* CursorLocator::locate(const pixel2& cursor) const {
+	//std::lock_guard<std::mutex> lockMe(lock);
 	if (cursor.x < 0 || cursor.y < 0)
 		return nullptr;
 	int2 query = clamp(int2(cursor / cellSize), lowerBounds, upperBounds);
