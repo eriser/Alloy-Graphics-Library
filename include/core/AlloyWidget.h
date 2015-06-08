@@ -82,9 +82,11 @@ public:
 	virtual void draw(AlloyContext* context) override;
 };
 class SliderTrack: public Composite {
+protected:
+	const Orientation orientation;
 public:
-	SliderTrack(const std::string& name) :
-			Composite(name) {
+	SliderTrack(const std::string& name,Orientation orient) :
+			Composite(name),orientation(orient) {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
@@ -153,6 +155,52 @@ public:
 	virtual inline ~HorizontalSlider() {
 	}
 };
+
+class VerticalSlider: public Widget {
+private:
+	AColor textColor;
+	AUnit1D fontSize;
+	Number value;
+	Number minValue;
+	Number maxValue;
+
+	TextLabelPtr sliderLabel;
+	TextLabelPtr valueLabel;
+	std::shared_ptr<SliderHandle> sliderHandle;
+	std::shared_ptr<SliderTrack> sliderTrack;
+	std::function<std::string(const Number& value)> labelFormatter =
+			[](const Number& value) {return value.toString();};
+	void update();
+public:
+	void setValue(double value);
+	inline void setValue(int value) {
+		setValue((double) value);
+	}
+	inline void setValue(float value) {
+		setValue((double) value);
+	}
+	const Number& getValue() {
+		return value;
+	}
+	//virtual void pack(const pixel2& pos, const pixel2& dims,const double2& dpmm, double pixelRatio) override;
+	virtual void onMouseDown(AlloyContext* context, Region* region,
+			const InputEvent& event) override;
+	virtual void onMouseUp(AlloyContext* context, Region* region,
+			const InputEvent& event) override;
+	virtual void onMouseDrag(AlloyContext* context, Region* region,
+			const InputEvent& event, const pixel2& lastDragPosition) override;
+	inline void setLabelFormatter(
+			const std::function<const std::string&(const Number& value)>& func) {
+		labelFormatter = func;
+	}
+	VerticalSlider(const std::string& label, const AUnit2D& position,
+			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
+			const Number& maxValue = Float(1.0f),
+			const Number& value = Float(0.0f));
+	virtual void draw(AlloyContext* context) override;
+	virtual inline ~VerticalSlider() {
+	}
+};
 struct SelectionBox: public Region {
 protected:
 	int selectedIndex = -1;
@@ -200,6 +248,7 @@ public:
 };
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
+typedef std::shared_ptr<VerticalSlider> VSliderPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
 typedef std::shared_ptr<Selection> SelectionPtr;
 typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;

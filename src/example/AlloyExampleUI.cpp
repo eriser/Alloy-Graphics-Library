@@ -104,6 +104,12 @@ bool ExampleUI::init(Composite& rootNode) {
 	HSliderPtr hslider2 = HSliderPtr(
 			new HorizontalSlider("Label B", CoordPercent(0.7, 0.7),
 					CoordPX(200.0f, 50.0f)));
+
+	VSliderPtr vslider1 = VSliderPtr(
+			new VerticalSlider("Slider", CoordPerPX(0.85, 0.1, 0, 0),
+					CoordPX(100.0f, 200.0f), Integer(0), Integer(100),
+					Integer(70)));
+
 	CheckBoxPtr checkbox = CheckBoxPtr(
 			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.1),
 					false));
@@ -149,6 +155,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.add(hslider2);
 	rootNode.add(field1);
 	rootNode.add(field2);
+	rootNode.add(vslider1);
 	rootNode.add(pbar);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
