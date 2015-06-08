@@ -186,9 +186,9 @@ void SliderTrack::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	if(orientation==Orientation::Horizontal){
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg, bounds.position.x + 14,
-				bounds.position.y + bounds.dimensions.y * 0.5f);
-		nvgLineTo(nvg, bounds.position.x - 14 + bounds.dimensions.x,
+		nvgMoveTo(nvg, bounds.position.x + bounds.dimensions.y*0.5f-1,
+				bounds.position.y  + bounds.dimensions.y * 0.5f);
+		nvgLineTo(nvg, bounds.position.x - bounds.dimensions.y*0.5f+1 + bounds.dimensions.x,
 				bounds.position.y + bounds.dimensions.y * 0.5f);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 10.0f);
@@ -198,10 +198,10 @@ void SliderTrack::draw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		nvgMoveTo(nvg,
 				bounds.position.x + bounds.dimensions.x * 0.5f,
-				bounds.position.y + 14);
+				bounds.position.y + bounds.dimensions.x*0.5f-1);
 		nvgLineTo(nvg,
 				bounds.position.x + bounds.dimensions.x * 0.5f,
-				bounds.position.y - 14 + bounds.dimensions.y);
+				bounds.position.y - bounds.dimensions.x*0.5f+1 + bounds.dimensions.y);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
