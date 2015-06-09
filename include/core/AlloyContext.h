@@ -214,6 +214,11 @@ public:
 		mouseFocusRegion = region;
 	}
 	void setOnTopRegion(Region* region);
+	void removeOnTopRegion(Region* region);
+
+	inline bool isOnTop(Region* region) const {
+		return (onTopRegion!=nullptr&&region==onTopRegion);
+	}
 	inline Region* getOnTopRegion() const {
 		return onTopRegion;
 	}

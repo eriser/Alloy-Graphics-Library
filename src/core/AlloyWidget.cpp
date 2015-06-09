@@ -351,7 +351,6 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	selectionBox->borderColor = MakeColor(
 			Application::getContext()->theme.HIGHLIGHT);
 	selectionBox->borderWidth = UnitPX(1.0f);
-	selectionBox->setVisible(false);
 	selectionBox->textColor = MakeColor(
 			Application::getContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor = MakeColor(
@@ -360,12 +359,12 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	arrowLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
-	add(valueContainer);
 	add(selectionBox);
+	add(valueContainer);
+
 	selectionLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					selectionBox->setVisible(true);
 					context->setOnTopRegion(selectionBox.get());
 					return true;
 				}
@@ -374,17 +373,17 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	arrowLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					selectionBox->setVisible(true);
 					context->setOnTopRegion(selectionBox.get());
 					return true;
+				}  else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
+					context->removeOnTopRegion(selectionBox.get());
 				}
 				return false;
 			};
 	selectionBox->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					selectionBox->setVisible(false);
-					context->setOnTopRegion(nullptr);
+					context->removeOnTopRegion(selectionBox.get());
 					int newSelection=selectionBox->getSelectedIndex();
 					if(newSelection<0) {
 						selectionBox->setSelectedIndex(selectedIndex);
@@ -394,6 +393,8 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 					}
 					selectionLabel->label=this->getSelection();
 					return true;
+				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
+					context->removeOnTopRegion(selectionBox.get());
 				}
 				return false;
 			};
@@ -757,12 +758,12 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
 				if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
-					if(!this->colorWheel->isVisible()) {
+					if(!context->isOnTop(colorWheel.get())) {
 						colorWheel->reset();
 						context->setOnTopRegion(colorWheel.get());
 
 					} else {
-						context->setOnTopRegion(nullptr);
+						context->removeOnTopRegion(colorWheel.get());
 					}
 					return true;
 				}
@@ -770,12 +771,11 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			};
 	textLabel->onMouseDown = [this](AlloyContext* context,const InputEvent& e) {
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
-			if(!this->colorWheel->isVisible()) {
-				this->colorWheel->setVisible(true);
+			if(!context->isOnTop(colorWheel.get())) {
 				colorWheel->reset();
 				context->setOnTopRegion(colorWheel.get());
 			} else {
-				context->setOnTopRegion(nullptr);
+				context->removeOnTopRegion(colorWheel.get());
 			}
 			return true;
 		}
@@ -786,7 +786,6 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			new ColorWheel("Color Wheel", CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),
 					CoordPX(300, 300)));
 	colorWheel->setOrigin(Origin::TopCenter);
-	colorWheel->setVisible(false);
 	colorWheel->setColor(*colorLabel->backgroundColor);
 	add(textLabel);
 	add(colorLabel);
@@ -831,11 +830,11 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 		return false;
 	};
 	this->onEvent = [this](AlloyContext* context,const InputEvent& e) {
-		if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
+		if(context->isOnTop(this)&&e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
 			this->setColor(e.cursor);
 			return true;
 		} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
-			context->setOnTopRegion(nullptr);
+			context->removeOnTopRegion(this);
 			return true;
 		}
 		return false;

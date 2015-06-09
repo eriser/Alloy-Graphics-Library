@@ -160,21 +160,17 @@ bool AlloyContext::fireListeners(const InputEvent& event) {
 	return false;
 }
 void AlloyContext::setOnTopRegion(Region* region) {
-	if (region != nullptr) {
-		if (onTopRegion != nullptr) {
-			onTopRegion->setVisible(false);
-		}
-		onTopRegion = region;
-		region->setVisible(true);
-	} else {
-		/*
-		if (onTopRegion != nullptr) {
-			onTopRegion->setVisible(false);
-		}
-		*/
-		onTopRegion = nullptr;
+	if(region==nullptr)throw std::runtime_error("On top region cannot be null. use removeOnTopRegion() instead.");
+	onTopRegion = region;
+	region->setVisible(true);
+}
+void AlloyContext::removeOnTopRegion(Region* region) {
+	if(region==nullptr)throw std::runtime_error("Remove on top region cannot be null.");
+	if(region==onTopRegion){
+		onTopRegion=nullptr;
 	}
 }
+
 AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		const Theme& theme) :
 		window(nullptr), nvgContext(nullptr), current(nullptr), theme(theme) {
