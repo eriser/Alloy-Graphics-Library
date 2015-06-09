@@ -23,24 +23,29 @@ namespace aly {
 const Theme Theme::Default = Theme();
 HSVA Color::toHSVA() const {
 	HSVA hsva;
-	float h,s,v;
+	float h, s, v;
 	float min, max, delta;
-	min = std::min( std::min(r, g), b );
-	max = std::max( std::max(r, g), b );
+	min = std::min(std::min(r, g), b);
+	max = std::max(std::max(r, g), b);
 	v = max;
 	delta = max - min;
-	if( max != 0 ) {
+	if (max != 0) {
 		s = delta / max;
 	} else {
-		return float4(0,0,0,a);
+		return float4(0, 0, 0, a);
 	}
-	if(delta<1E-6f)h=0;
-	else if( r == max )h = ( g - b ) / delta;
-	else if( g == max )h = 2 + ( b - r ) / delta;
-	else h = 4 + ( r - g ) / delta;
+	if (delta < 1E-6f)
+		h = 0;
+	else if (r == max)
+		h = (g - b) / delta;
+	else if (g == max)
+		h = 2 + (b - r) / delta;
+	else
+		h = 4 + (r - g) / delta;
 	h *= 60;
-	if( h < 0 )h += 360;
-	return float4(h/360.0f,s,v,a);
+	if (h < 0)
+		h += 360;
+	return float4(h / 360.0f, s, v, a);
 }
 RGBA Color::toRGBA() const {
 	return RGBA((int) clamp(255.0f * r, 0.0f, 255.0f),
@@ -50,123 +55,124 @@ RGBA Color::toRGBA() const {
 }
 HSV Color::toHSV() const {
 	HSV hsva;
-	float h,s,v;
+	float h, s, v;
 	float min, max, delta;
-	min = std::min( std::min(r, g), b );
-	max = std::max( std::max(r, g), b );
+	min = std::min(std::min(r, g), b);
+	max = std::max(std::max(r, g), b);
 	v = max;
 	delta = max - min;
 
-	if( max != 0 ) {
+	if (max != 0) {
 		s = delta / max;
 	} else {
-		return float3(0,0,0);
+		return float3(0, 0, 0);
 	}
-	if(delta<1E-6f)h=0;
-	else if( r == max )h = ( g - b ) / delta;
-	else if( g == max )h = 2 + ( b - r ) / delta;
-	else h = 4 + ( r - g ) / delta;
+	if (delta < 1E-6f)
+		h = 0;
+	else if (r == max)
+		h = (g - b) / delta;
+	else if (g == max)
+		h = 2 + (b - r) / delta;
+	else
+		h = 4 + (r - g) / delta;
 	h *= 60;
-	if( h < 0 )h += 360;
-	return float3(h/360.0f,s,v);
+	if (h < 0)
+		h += 360;
+	return float3(h / 360.0f, s, v);
 }
-RGBf HSVtoRGBf(const HSV& hsv)
-{
-	float h=hsv.x*360.0f;
-	float s=hsv.y;
-	float v=hsv.z;
+RGBf HSVtoRGBf(const HSV& hsv) {
+	float h = hsv.x * 360.0f;
+	float s = hsv.y;
+	float v = hsv.z;
 	int i;
 	float f, p, q, t;
-	if( s == 0 ) {
-		return RGBf(v,v,v);
+	if (s == 0) {
+		return RGBf(v, v, v);
 	}
-	h /= 60.0f;// sector 0 to 5
-	i = (int)std::floor(h);
+	h /= 60.0f; // sector 0 to 5
+	i = (int) std::floor(h);
 	f = h - i;
-	p = v * ( 1 - s );
-	q = v * ( 1 - s * f );
-	t = v * ( 1 - s * ( 1 - f ) );
-	switch( i ) {
-		case 0:
-			return RGBf(v,t,p);
-		case 1:
-			return RGBf(q,v,p);
-		case 2:
-			return RGBf(p,v,t);
-		case 3:
-			return RGBf(p,q,v);
-		case 4:
-			return RGBf(t,p,v);
-		default:
-			return RGBf(v,p,q);
+	p = v * (1 - s);
+	q = v * (1 - s * f);
+	t = v * (1 - s * (1 - f));
+	switch (i) {
+	case 0:
+		return RGBf(v, t, p);
+	case 1:
+		return RGBf(q, v, p);
+	case 2:
+		return RGBf(p, v, t);
+	case 3:
+		return RGBf(p, q, v);
+	case 4:
+		return RGBf(t, p, v);
+	default:
+		return RGBf(v, p, q);
 	}
 }
-RGBAf HSVAtoRGBAf(const HSVA& hsv)
-{
-	float h=hsv.x*360.0f;
-	float s=hsv.y;
-	float v=hsv.z;
+RGBAf HSVAtoRGBAf(const HSVA& hsv) {
+	float h = hsv.x * 360.0f;
+	float s = hsv.y;
+	float v = hsv.z;
 	int i;
 	float f, p, q, t;
-	if( s == 0 ) {
-		return RGBAf(v,v,v,hsv.w);
+	if (s == 0) {
+		return RGBAf(v, v, v, hsv.w);
 	}
-	h /= 60.0f;// sector 0 to 5
-	i = (int)std::floor(h);
+	h /= 60.0f; // sector 0 to 5
+	i = (int) std::floor(h);
 	f = h - i;
-	p = v * ( 1 - s );
-	q = v * ( 1 - s * f );
-	t = v * ( 1 - s * ( 1 - f ) );
-	switch( i ) {
-		case 0:
-			return RGBAf(v,t,p,hsv.w);
-		case 1:
-			return RGBAf(q,v,p,hsv.w);
-		case 2:
-			return RGBAf(p,v,t,hsv.w);
-		case 3:
-			return RGBAf(p,q,v,hsv.w);
-		case 4:
-			return RGBAf(t,p,v,hsv.w);
-		default:
-			return RGBAf(v,p,q,hsv.w);
+	p = v * (1 - s);
+	q = v * (1 - s * f);
+	t = v * (1 - s * (1 - f));
+	switch (i) {
+	case 0:
+		return RGBAf(v, t, p, hsv.w);
+	case 1:
+		return RGBAf(q, v, p, hsv.w);
+	case 2:
+		return RGBAf(p, v, t, hsv.w);
+	case 3:
+		return RGBAf(p, q, v, hsv.w);
+	case 4:
+		return RGBAf(t, p, v, hsv.w);
+	default:
+		return RGBAf(v, p, q, hsv.w);
 	}
 }
-Color HSVtoColor(const HSV& hsv)
-{
-	float h=hsv.x*360.0f;
-	float s=hsv.y;
-	float v=hsv.z;
+Color HSVtoColor(const HSV& hsv) {
+	float h = hsv.x * 360.0f;
+	float s = hsv.y;
+	float v = hsv.z;
 	int i;
 	float f, p, q, t;
-	if( s == 0 ) {
-		return Color(v,v,v);
+	if (s == 0) {
+		return Color(v, v, v);
 	}
-	h /= 60.0f;// sector 0 to 5
-	i = (int)std::floor(h);
+	h /= 60.0f; // sector 0 to 5
+	i = (int) std::floor(h);
 	f = h - i;
-	p = v * ( 1 - s );
-	q = v * ( 1 - s * f );
-	t = v * ( 1 - s * ( 1 - f ) );
-	switch( i ) {
-		case 0:
-			return Color(v,t,p);
-		case 1:
-			return Color(q,v,p);
-		case 2:
-			return Color(p,v,t);
-		case 3:
-			return Color(p,q,v);
-		case 4:
-			return Color(t,p,v);
-		default:
-			return Color(v,p,q);
+	p = v * (1 - s);
+	q = v * (1 - s * f);
+	t = v * (1 - s * (1 - f));
+	switch (i) {
+	case 0:
+		return Color(v, t, p);
+	case 1:
+		return Color(q, v, p);
+	case 2:
+		return Color(p, v, t);
+	case 3:
+		return Color(p, q, v);
+	case 4:
+		return Color(t, p, v);
+	default:
+		return Color(v, p, q);
 	}
 }
-Color HSVAtoColor(const HSVA& hsva)
-{
-	Color c=HSVtoColor(hsva.xyz());
-	c.a=hsva.w;
+Color HSVAtoColor(const HSVA& hsva) {
+	Color c = HSVtoColor(hsva.xyz());
+	c.a = hsva.w;
 	return c;
 }
 }

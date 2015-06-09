@@ -46,7 +46,10 @@ void Region::setVisible(bool vis) {
 	Application::getContext()->requestUpdateCursor();
 }
 bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
-	if(isVisible()&&onEvent)return onEvent(context,event); else return false;
+	if (isVisible() && onEvent)
+		return onEvent(context, event);
+	else
+		return false;
 }
 void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -63,7 +66,7 @@ void Region::draw(AlloyContext* context) {
 	}
 	if (borderColor->a > 0) {
 
-		nvgLineJoin(nvg,NVG_ROUND);
+		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 				bounds.position.y + lineWidth * 0.5f,
@@ -72,13 +75,13 @@ void Region::draw(AlloyContext* context) {
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
-		nvgLineJoin(nvg,NVG_MITER);
+		nvgLineJoin(nvg, NVG_MITER);
 	}
 }
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
-	bool ontop=context->isOnTop(this);
-	box2px bounds =(ontop)?getBounds():getCursorBounds();
+	bool ontop = context->isOnTop(this);
+	box2px bounds = (ontop) ? getBounds() : getCursorBounds();
 	if ((bounds.dimensions.x <= 20 && bounds.dimensions.y <= 20)
 			|| bounds.dimensions.x * bounds.dimensions.y == 0) {
 		return;
@@ -97,8 +100,8 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 			c = DEBUG_DOWN_COLOR;
 		} else if (hover) {
 			c = DEBUG_HOVER_COLOR;
-		} else if(ontop){
-			c=DEBUG_ON_TOP_COLOR;
+		} else if (ontop) {
+			c = DEBUG_ON_TOP_COLOR;
 		} else {
 			c = DEBUG_STROKE_COLOR;
 		}
@@ -110,14 +113,14 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 
 	nvgBeginPath(nvg);
 
-	nvgLineJoin(nvg,NVG_ROUND);
+	nvgLineJoin(nvg, NVG_ROUND);
 	nvgRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
 			bounds.dimensions.x - 2, bounds.dimensions.y - 2);
 	nvgStrokeColor(nvg, c);
 	nvgStrokeWidth(nvg, 1.0f);
 	nvgStroke(nvg);
 
-	nvgLineJoin(nvg,NVG_MITER);
+	nvgLineJoin(nvg, NVG_MITER);
 	nvgFontSize(nvg, FONT_SIZE_PX);
 	nvgFontFaceId(nvg, font);
 	nvgTextAlign(nvg, NVG_ALIGN_TOP | NVG_ALIGN_LEFT);
@@ -307,7 +310,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
 						return true;
 					}
-					return  false;
+					return false;
 				};
 		horizontalScrollTrack = std::shared_ptr<ScrollTrack>(
 				new ScrollTrack("Horiz Track", Orientation::Horizontal));
@@ -513,7 +516,7 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 			return true;
 		}
 	}
-	return Region::onEventHandler(context,event);
+	return Region::onEventHandler(context, event);
 }
 void Composite::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
@@ -830,20 +833,20 @@ bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 	if (!context->isFocused(this) || fontSize <= 0)
 		return false;
 	switch (e.type) {
-		case InputType::MouseButton:
-			handleMouseInput(context, e);
-			break;
-		case InputType::Character:
-			handleCharacterInput(context, e);
-			break;
-		case InputType::Key:
-			handleKeyInput(context, e);
-			break;
-		case InputType::Cursor:
-			handleCursorInput(context, e);
-			break;
+	case InputType::MouseButton:
+		handleMouseInput(context, e);
+		break;
+	case InputType::Character:
+		handleCharacterInput(context, e);
+		break;
+	case InputType::Key:
+		handleKeyInput(context, e);
+		break;
+	case InputType::Cursor:
+		handleCursorInput(context, e);
+		break;
 	}
-	return Region::onEventHandler(context,e);
+	return Region::onEventHandler(context, e);
 }
 void TextField::draw(AlloyContext* context) {
 

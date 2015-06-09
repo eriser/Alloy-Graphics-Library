@@ -153,24 +153,24 @@ void AlloyContext::setDragObject(Region* region) {
 	cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
 }
 bool AlloyContext::fireListeners(const InputEvent& event) {
-	for (auto iter=listeners.rbegin();iter!=listeners.rend();iter++) {
+	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
 		if ((*iter)->onEventHandler(this, event))
 			return true;
 	}
 	return false;
 }
-void AlloyContext::setOnTopRegion(Region* region){
-	if(region!=nullptr){
-		if(onTopRegion!=nullptr){
+void AlloyContext::setOnTopRegion(Region* region) {
+	if (region != nullptr) {
+		if (onTopRegion != nullptr) {
 			onTopRegion->setVisible(false);
 		}
-		onTopRegion=region;
+		onTopRegion = region;
 		region->setVisible(true);
 	} else {
-		if(onTopRegion!=nullptr){
+		if (onTopRegion != nullptr) {
 			onTopRegion->setVisible(false);
 		}
-		onTopRegion=nullptr;
+		onTopRegion = nullptr;
 	}
 }
 AlloyContext::AlloyContext(int width, int height, const std::string& title,
@@ -249,13 +249,14 @@ bool AlloyContext::isMouseContainedIn(Region* region) const {
 bool AlloyContext::isMouseContainedIn(const box2px& box) const {
 	return (box.contains(cursorPosition));
 }
-bool AlloyContext::isMouseContainedIn(const pixel2& pos, const pixel2& dims) const {
+bool AlloyContext::isMouseContainedIn(const pixel2& pos,
+		const pixel2& dims) const {
 	return ((box2px(pos, dims)).contains(cursorPosition));
 }
 
 Region* AlloyContext::locate(const pixel2& cursor) const {
-	if(onTopRegion!=nullptr){
-		if(onTopRegion->isVisible()&&isMouseContainedIn(onTopRegion)){
+	if (onTopRegion != nullptr) {
+		if (onTopRegion->isVisible() && isMouseContainedIn(onTopRegion)) {
 			return onTopRegion;
 		}
 	}

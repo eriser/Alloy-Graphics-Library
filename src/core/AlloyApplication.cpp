@@ -114,9 +114,10 @@ void Application::drawUI() {
 	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,
 			view.dimensions.y);
 
-	Region* onTop=context->getOnTopRegion();
-	if(onTop!=nullptr){
-		if(onTop->isVisible())onTop->drawOnTop(context.get());
+	Region* onTop = context->getOnTopRegion();
+	if (onTop != nullptr) {
+		if (onTop->isVisible())
+			onTop->drawOnTop(context.get());
 	}
 	nvgEndFrame(nvg);
 }
@@ -127,8 +128,8 @@ void Application::drawDebugUI() {
 			context->pixelRatio);
 	nvgResetScissor(nvg);
 	rootNode.drawDebug(context.get());
-	Region* onTop=context->getOnTopRegion();
-	if(onTop!=nullptr){
+	Region* onTop = context->getOnTopRegion();
+	if (onTop != nullptr) {
 		onTop->drawDebug(context.get());
 	}
 	int cr = context->theme.CORNER_RADIUS;
@@ -233,7 +234,7 @@ void Application::fireEvent(const InputEvent& event) {
 			|| event.type == InputType::MouseButton) {
 		context->requestUpdateCursor();
 	}
-	bool consumed=false;
+	bool consumed = false;
 	if (event.type == InputType::MouseButton) {
 		if (event.isDown()) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -250,8 +251,9 @@ void Application::fireEvent(const InputEvent& event) {
 			}
 		} else if (event.isUp()) {
 			if (context->mouseDownRegion != nullptr
-					&& context->mouseDownRegion->onMouseUp){
-				consumed|=context->mouseDownRegion->onMouseUp(context.get(), event);
+					&& context->mouseDownRegion->onMouseUp) {
+				consumed |= context->mouseDownRegion->onMouseUp(context.get(),
+						event);
 
 			}
 			context->leftMouseButton = false;
@@ -262,27 +264,32 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 	if (context->mouseDownRegion != nullptr && context->leftMouseButton
 			&& context->mouseDownRegion->isDragEnabled()) {
-			if (context->mouseDownRegion->onMouseDrag) {
-				consumed|=context->mouseDownRegion->onMouseDrag(context.get(), event);
-			} else {
-				context->mouseDownRegion->setDragOffset(context->cursorPosition,
-						context->cursorDownPosition);
-			}
-			context->requestPack();
+		if (context->mouseDownRegion->onMouseDrag) {
+			consumed |= context->mouseDownRegion->onMouseDrag(context.get(),
+					event);
+		} else {
+			context->mouseDownRegion->setDragOffset(context->cursorPosition,
+					context->cursorDownPosition);
+		}
+		context->requestPack();
 	} else if (context->mouseOverRegion != nullptr) {
-			if (event.type == InputType::MouseButton) {
-				if (context->mouseOverRegion->onMouseDown && event.isDown())
-					consumed|=context->mouseOverRegion->onMouseDown(context.get(), event);
-				if (context->mouseOverRegion->onMouseUp && event.isUp())
-					consumed|=context->mouseOverRegion->onMouseUp(context.get(), event);
-				context->requestPack();
-			}
-			if (event.type == InputType::Cursor) {
-				if (context->mouseOverRegion->onMouseOver)
-					consumed|=context->mouseOverRegion->onMouseOver(context.get(), event);
+		if (event.type == InputType::MouseButton) {
+			if (context->mouseOverRegion->onMouseDown && event.isDown())
+				consumed |= context->mouseOverRegion->onMouseDown(context.get(),
+						event);
+			if (context->mouseOverRegion->onMouseUp && event.isUp())
+				consumed |= context->mouseOverRegion->onMouseUp(context.get(),
+						event);
+			context->requestPack();
+		}
+		if (event.type == InputType::Cursor) {
+			if (context->mouseOverRegion->onMouseOver)
+				consumed |= context->mouseOverRegion->onMouseOver(context.get(),
+						event);
 		}
 	}
-	if(!consumed)context->fireListeners(event);
+	if (!consumed)
+		context->fireListeners(event);
 }
 
 void Application::onWindowSize(int width, int height) {

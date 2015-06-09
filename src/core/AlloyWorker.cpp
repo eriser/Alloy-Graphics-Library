@@ -21,27 +21,31 @@
 
 #include "AlloyWorker.h"
 namespace aly {
-Worker::Worker(const std::function<void()>& func):executionTask(func),endTask() {
+Worker::Worker(const std::function<void()>& func) :
+		executionTask(func), endTask() {
 
 }
-Worker::Worker(const std::function<void()>& func,const std::function<void()>& end):executionTask(func),endTask(end) {
+Worker::Worker(const std::function<void()>& func,
+		const std::function<void()>& end) :
+		executionTask(func), endTask(end) {
 
 }
 void Worker::task() {
 	running = true;
 	requestCancel = false;
-	if(executionTask){
+	if (executionTask) {
 		executionTask();
 	}
-	if(!requestCancel){
+	if (!requestCancel) {
 		done();
 	}
 	running = false;
 	requestCancel = false;
-	complete=true;
+	complete = true;
 }
-void Worker::done(){
-	if(endTask)endTask();
+void Worker::done() {
+	if (endTask)
+		endTask();
 }
 void Worker::execute() {
 	workerThread = std::thread(&Worker::task, this);
@@ -55,22 +59,30 @@ void Worker::cancel() {
 		workerThread.join();
 	}
 }
-RecurrentWorker::RecurrentWorker(const std::function<bool(uint64_t)>& func,long timeout):Worker([this]{this->step();}),recurrentTask(func),timeout(timeout){
+RecurrentWorker::RecurrentWorker(const std::function<bool(uint64_t)>& func,
+		long timeout) :
+		Worker([this] {this->step();}), recurrentTask(func), timeout(timeout) {
 
 }
-RecurrentWorker::RecurrentWorker(const std::function<bool(uint64_t)>& func,const std::function<void()>& end,long timeout):Worker([this]{this->step();},end),recurrentTask(func),timeout(timeout){
+RecurrentWorker::RecurrentWorker(const std::function<bool(uint64_t)>& func,
+		const std::function<void()>& end, long timeout) :
+		Worker([this] {this->step();}, end), recurrentTask(func), timeout(
+				timeout) {
 
 }
 
 void RecurrentWorker::step() {
-	uint64_t iter=0;
-	while(!requestCancel){
-		auto currentTime=std::chrono::steady_clock::now();
-		if(recurrentTask){
-			if(!recurrentTask(iter++))break;
+	uint64_t iter = 0;
+	while (!requestCancel) {
+		auto currentTime = std::chrono::steady_clock::now();
+		if (recurrentTask) {
+			if (!recurrentTask(iter++))
+				break;
 		}
-		if(requestCancel)break;
-		std::this_thread::sleep_until(currentTime + std::chrono::milliseconds(timeout));
+		if (requestCancel)
+			break;
+		std::this_thread::sleep_until(
+				currentTime + std::chrono::milliseconds(timeout));
 	}
 }
 }

@@ -177,7 +177,7 @@ private:
 	Region* mouseOverRegion = nullptr;
 	Region* mouseDownRegion = nullptr;
 	Region* mouseFocusRegion = nullptr;
-	Region* onTopRegion=nullptr;
+	Region* onTopRegion = nullptr;
 	std::list<Region*> listeners;
 public:
 	friend class Application;
@@ -190,7 +190,7 @@ public:
 	double2 dpmm;
 	bool hasFocus = false;
 	box2px getViewport() const {
-		return box2px(pixel2(viewport.position),pixel2(viewport.dimensions));
+		return box2px(pixel2(viewport.position), pixel2(viewport.dimensions));
 	}
 	void addListener(Region* region) {
 		listeners.push_back(region);

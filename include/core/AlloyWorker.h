@@ -31,7 +31,7 @@ protected:
 	const std::function<void()> executionTask;
 	const std::function<void()> endTask;
 	bool running = false;
-	bool complete=false;
+	bool complete = false;
 	bool requestCancel = false;
 	void task();
 	void done();
@@ -47,7 +47,7 @@ public:
 	}
 
 	Worker(const std::function<void()>& func);
-	Worker(const std::function<void()>& func,const std::function<void()>& end);
+	Worker(const std::function<void()>& func, const std::function<void()>& end);
 	void execute();
 	void cancel();
 	virtual ~Worker();
@@ -58,11 +58,13 @@ protected:
 	long timeout;
 	void step();
 public:
-	void setTimeout(long milliseconds){
-		timeout=milliseconds;
+	void setTimeout(long milliseconds) {
+		timeout = milliseconds;
 	}
-	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,long milliseconds);
-	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,const std::function<void()>& end,long milliseconds);
+	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,
+			long milliseconds);
+	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,
+			const std::function<void()>& end, long milliseconds);
 };
 typedef std::shared_ptr<Worker> WorkerTaskPtr;
 }

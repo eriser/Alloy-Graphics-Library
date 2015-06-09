@@ -86,8 +86,8 @@ class SliderTrack: public Composite {
 protected:
 	const Orientation orientation;
 public:
-	SliderTrack(const std::string& name,Orientation orient) :
-			Composite(name),orientation(orient) {
+	SliderTrack(const std::string& name, Orientation orient) :
+			Composite(name), orientation(orient) {
 	}
 	virtual void draw(AlloyContext* context) override;
 };
@@ -248,25 +248,28 @@ public:
 					std::vector<std::string>());
 };
 
-struct ColorWheel: public Composite{
+struct ColorWheel: public Composite {
 protected:
 	Color selectedColor;
 	HSV hsvColor;
 	float2 tBounds[3];
 	float2 tPoints[3];
-	float rInner,rOuter;
+	float rInner, rOuter;
 	float2 center;
 
-	bool triangleSelected=false;
-	bool circleSelected=false;
+	bool triangleSelected = false;
+	bool circleSelected = false;
 	void updateWheel();
 public:
 	void reset();
 	virtual box2px getBounds() const override;
-	Color getSelectedColor() const {return selectedColor;}
-	void setColor(const  Color& c);
+	Color getSelectedColor() const {
+		return selectedColor;
+	}
+	void setColor(const Color& c);
 	void setColor(const pixel2& cursor);
-	ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	ColorWheel(const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims);
 	void drawOnTop(AlloyContext* context) override;
 };
 class ColorSelector: public Widget {
@@ -276,7 +279,8 @@ class ColorSelector: public Widget {
 public:
 	void setColor(const Color& color);
 	Color getColor();
-	ColorSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	ColorSelector(const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
 typedef std::shared_ptr<Button> ButtonPtr;

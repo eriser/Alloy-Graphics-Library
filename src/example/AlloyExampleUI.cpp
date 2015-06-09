@@ -54,16 +54,14 @@ bool ExampleUI::init(Composite& rootNode) {
 	ProgressBarPtr pbar = ProgressBarPtr(
 			new ProgressBar("Progress", CoordPercent(0.05f, 0.7f),
 					CoordPercent(0.4, 0.05f)));
-	progressTask=std::unique_ptr<aly::RecurrentWorker>(
-			new RecurrentWorker(
-			[pbar](uint64_t iter){
+	progressTask = std::unique_ptr<aly::RecurrentWorker>(
+			new RecurrentWorker([pbar](uint64_t iter) {
 				//std::cout << "Iteration " << iter << std::endl;
-				pbar->setValue("Task Executing ...",(iter++)/20.0f);
-				return (iter<20);
-			},
-			[pbar](){
-				pbar->setValue("Task Complete.",1.0f);
-			},100));
+					pbar->setValue("Task Executing ...",(iter++)/20.0f);
+					return (iter<20);
+				}, [pbar]() {
+					pbar->setValue("Task Complete.",1.0f);
+				}, 100));
 	progressTask->execute();
 	/*
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
@@ -113,7 +111,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	CheckBoxPtr checkbox = CheckBoxPtr(
 			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.1),
 					false));
-	ColorSelectorPtr colorselect=ColorSelectorPtr(new ColorSelector("Color",CoordPercent(0.6f,0.5f),CoordPX(200,50)));
+	ColorSelectorPtr colorselect = ColorSelectorPtr(
+			new ColorSelector("Color", CoordPercent(0.6f, 0.5f),
+					CoordPX(200, 50)));
 	SelectionPtr dropdown =
 			SelectionPtr(
 					new Selection("Selection", CoordPercent(0.6, 0.1),

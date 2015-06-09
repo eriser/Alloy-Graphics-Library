@@ -26,7 +26,7 @@ using namespace std;
 namespace aly {
 CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, bool checked) :
-		Widget(label,position,dimensions), checked(checked) {
+		Widget(label, position, dimensions), checked(checked) {
 	this->aspectRatio = 4.0f;
 	CompositePtr valueContainer = MakeComposite("Check Bounds",
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
@@ -182,24 +182,25 @@ Button::Button(const std::string& label, const AUnit2D& position,
 void SliderTrack::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	if(orientation==Orientation::Horizontal){
+	if (orientation == Orientation::Horizontal) {
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg, bounds.position.x + bounds.dimensions.y*0.5f-1,
-				bounds.position.y  + bounds.dimensions.y * 0.5f);
-		nvgLineTo(nvg, bounds.position.x - bounds.dimensions.y*0.5f+1 + bounds.dimensions.x,
+		nvgMoveTo(nvg, bounds.position.x + bounds.dimensions.y * 0.5f - 1,
+				bounds.position.y + bounds.dimensions.y * 0.5f);
+		nvgLineTo(nvg,
+				bounds.position.x - bounds.dimensions.y * 0.5f + 1
+						+ bounds.dimensions.x,
 				bounds.position.y + bounds.dimensions.y * 0.5f);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStroke(nvg);
-	} else if(orientation==Orientation::Vertical){
+	} else if (orientation == Orientation::Vertical) {
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg,
-				bounds.position.x + bounds.dimensions.x * 0.5f,
-				bounds.position.y + bounds.dimensions.x*0.5f-1);
-		nvgLineTo(nvg,
-				bounds.position.x + bounds.dimensions.x * 0.5f,
-				bounds.position.y - bounds.dimensions.x*0.5f+1 + bounds.dimensions.y);
+		nvgMoveTo(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
+				bounds.position.y + bounds.dimensions.x * 0.5f - 1);
+		nvgLineTo(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
+				bounds.position.y - bounds.dimensions.x * 0.5f + 1
+						+ bounds.dimensions.y);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
@@ -242,7 +243,7 @@ void SelectionBox::draw(AlloyContext* context) {
 }
 box2px SelectionBox::getBounds() const {
 	box2px bounds = Region::getBounds();
-	AlloyContext* context=Application::getContext().get();
+	AlloyContext* context = Application::getContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	float entryHeight = std::min(
@@ -254,8 +255,8 @@ box2px SelectionBox::getBounds() const {
 			(float) context->viewport.dimensions.y) - boxHeight;
 
 	box2px bbox;
-	bbox.position=pixel2( bounds.position.x, yOffset);
-	bbox.dimensions=pixel2(bounds.dimensions.x,boxHeight);
+	bbox.position = pixel2(bounds.position.x, yOffset);
+	bbox.dimensions = pixel2(bounds.dimensions.x, boxHeight);
 
 	return bbox;
 }
@@ -265,7 +266,7 @@ void SelectionBox::drawOnTop(AlloyContext* context) {
 	box2px bounds = getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	float entryHeight = bounds.dimensions.y/options.size();
+	float entryHeight = bounds.dimensions.y / options.size();
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
@@ -295,8 +296,9 @@ void SelectionBox::drawOnTop(AlloyContext* context) {
 		if (context->isMouseContainedIn(bounds.position + offset,
 				pixel2(bounds.dimensions.x, entryHeight))) {
 			nvgBeginPath(nvg);
-			nvgRect(nvg, bounds.position.x + offset.x, bounds.position.y + offset.y,
-					bounds.dimensions.x, entryHeight);
+			nvgRect(nvg, bounds.position.x + offset.x,
+					bounds.position.y + offset.y, bounds.dimensions.x,
+					entryHeight);
 			nvgFillColor(nvg, context->theme.NEUTRAL);
 			nvgFill(nvg);
 			selectedIndex = index;
@@ -304,13 +306,15 @@ void SelectionBox::drawOnTop(AlloyContext* context) {
 		index++;
 		nvgFillColor(nvg, *textColor);
 		nvgText(nvg, bounds.position.x + offset.x + lineWidth,
-				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(), nullptr);
+				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(),
+				nullptr);
 		offset.y += entryHeight;
 	}
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f, bounds.dimensions.x - lineWidth,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
 				bounds.dimensions.y - lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -452,7 +456,8 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 			Application::getContext()->theme.LIGHT);
 	sliderHandle->setEnableDrag(true);
 
-	sliderTrack = std::shared_ptr<SliderTrack>(new SliderTrack("Scroll Track",Orientation::Horizontal));
+	sliderTrack = std::shared_ptr<SliderTrack>(
+			new SliderTrack("Scroll Track", Orientation::Horizontal));
 
 	sliderTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
 	sliderTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
@@ -530,7 +535,7 @@ bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 bool HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if (region == sliderHandle.get()) {
-		region->setDragOffset(event.cursor,context->getCursorDownPosition());
+		region->setDragOffset(event.cursor, context->getCursorDownPosition());
 		update();
 		return true;
 	}
@@ -600,10 +605,11 @@ VerticalSlider::VerticalSlider(const std::string& label,
 			Application::getContext()->theme.LIGHT);
 	sliderHandle->setEnableDrag(true);
 
-	sliderTrack = std::shared_ptr<SliderTrack>(new SliderTrack("Scroll Track",Orientation::Vertical));
+	sliderTrack = std::shared_ptr<SliderTrack>(
+			new SliderTrack("Scroll Track", Orientation::Vertical));
 
-	sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize*0.5f,2));
-	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize,-4));
+	sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2));
+	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4));
 
 	sliderTrack->backgroundColor = MakeColor(
 			Application::getContext()->theme.DARK);
@@ -618,17 +624,15 @@ VerticalSlider::VerticalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDrag(context,sliderHandle.get(),e);};
 
 	add(
-			sliderLabel = MakeTextLabel(label,
-					CoordPercent(0.0f, 0.0f),
-					CoordPercent(1.0f, 0.1f),
-					FontType::Bold, UnitPerPX(1.0f, 0),
+			sliderLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
+					CoordPercent(1.0f, 0.1f), FontType::Bold,
+					UnitPerPX(1.0f, 0),
 					Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Center, VerticalAlignment::Top));
 	add(
-			valueLabel = MakeTextLabel("Value",
-					CoordPercent(0.0f, 1.0f),
-					CoordPercent(1.0f, 0.1f),
-					FontType::Normal, UnitPerPX(1.0f, -2),
+			valueLabel = MakeTextLabel("Value", CoordPercent(0.0f, 1.0f),
+					CoordPercent(1.0f, 0.1f), FontType::Normal,
+					UnitPerPX(1.0f, -2),
 					Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Center, VerticalAlignment::Bottom));
 	valueLabel->setOrigin(Origin::BottomLeft);
@@ -638,12 +642,17 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	};
 }
 void VerticalSlider::setValue(double value) {
-	double interp = 1.0f-clamp(
-			(value - minValue.toDouble())
-					/ (maxValue.toDouble() - minValue.toDouble()), 0.0, 1.0);
-	double yoff = sliderTrack->getBoundsPositionY()+ interp* (sliderTrack->getBoundsDimensionsY()- sliderHandle->getBoundsDimensionsY());
+	double interp = 1.0f
+			- clamp(
+					(value - minValue.toDouble())
+							/ (maxValue.toDouble() - minValue.toDouble()), 0.0,
+					1.0);
+	double yoff = sliderTrack->getBoundsPositionY()
+			+ interp
+					* (sliderTrack->getBoundsDimensionsY()
+							- sliderHandle->getBoundsDimensionsY());
 	sliderHandle->setDragOffset(
-			pixel2(sliderHandle->getBoundsDimensionsX(),yoff),
+			pixel2(sliderHandle->getBoundsDimensionsX(), yoff),
 			pixel2(0.0f, 0.0f));
 }
 void VerticalSlider::update() {
@@ -651,8 +660,8 @@ void VerticalSlider::update() {
 			- sliderTrack->getBoundsPositionY())
 			/ (double) (sliderTrack->getBoundsDimensionsY()
 					- sliderHandle->getBoundsDimensionsY());
-	double val = interp*minValue.toDouble()
-			+ (1.0 - interp) *  maxValue.toDouble();
+	double val = interp * minValue.toDouble()
+			+ (1.0 - interp) * maxValue.toDouble();
 	value.setValue(val);
 }
 bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
@@ -671,7 +680,8 @@ bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 	}
 	return false;
 }
-bool VerticalSlider::onMouseDrag(AlloyContext* context, Region* region,const InputEvent& event) {
+bool VerticalSlider::onMouseDrag(AlloyContext* context, Region* region,
+		const InputEvent& event) {
 	if (region == sliderHandle.get()) {
 		region->setDragOffset(event.cursor, context->getCursorDownPosition());
 		update();
@@ -721,7 +731,9 @@ void VerticalSlider::draw(AlloyContext* context) {
 		}
 	}
 }
-ColorSelector::ColorSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims):Widget(name,pos,dims){
+ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Widget(name, pos, dims) {
 	CompositePtr valueContainer = MakeComposite("Check Bounds",
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
@@ -729,18 +741,32 @@ ColorSelector::ColorSelector(const std::string& name,const AUnit2D& pos,const AU
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			Application::getContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	colorLabel = MakeRegion(
-			"Color",
-			CoordPerPX(1.0f, 0.0f,-4.0f,4.0f), CoordPerPX(0.0f, 1.0f,0.0f,-8.0f), Color(255,0,0),Application::getContext()->theme.LIGHT,UnitPX(1.0f));
+	colorLabel = MakeRegion("Color", CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f),
+			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f), Color(255, 0, 0),
+			Application::getContext()->theme.LIGHT, UnitPX(1.0f));
 	colorLabel->setAspectRatio(1.0f);
 	colorLabel->setAspectRule(AspectRule::FixedHeight);
 	colorLabel->setOrigin(Origin::TopRight);
-	colorLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& e){
-		if(e.button == GLFW_MOUSE_BUTTON_LEFT){
-			if(!this->colorWheel->isVisible()){
+	colorLabel->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& e) {
+				if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
+					if(!this->colorWheel->isVisible()) {
+						colorWheel->reset();
+						context->setOnTopRegion(colorWheel.get());
+
+					} else {
+						context->setOnTopRegion(nullptr);
+					}
+					return true;
+				}
+				return false;
+			};
+	textLabel->onMouseDown = [this](AlloyContext* context,const InputEvent& e) {
+		if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			if(!this->colorWheel->isVisible()) {
+				this->colorWheel->setVisible(true);
 				colorWheel->reset();
 				context->setOnTopRegion(colorWheel.get());
-
 			} else {
 				context->setOnTopRegion(nullptr);
 			}
@@ -748,21 +774,10 @@ ColorSelector::ColorSelector(const std::string& name,const AUnit2D& pos,const AU
 		}
 		return false;
 	};
-	textLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& e){
-		if(e.button == GLFW_MOUSE_BUTTON_LEFT){
-		if(!this->colorWheel->isVisible()){
-			this->colorWheel->setVisible(true);
-			colorWheel->reset();
-			context->setOnTopRegion(colorWheel.get());
-		} else {
-			context->setOnTopRegion(nullptr);
-		}
-		return true;
-		}
-		return false;
-	};
 
-	colorWheel=ColorWheelPtr(new ColorWheel("Color Wheel",CoordPerPX(0.5f,1.0,0.0f,2.0f),CoordPX(300,300)));
+	colorWheel = ColorWheelPtr(
+			new ColorWheel("Color Wheel", CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),
+					CoordPX(300, 300)));
 	colorWheel->setOrigin(Origin::TopCenter);
 	colorWheel->setVisible(false);
 	colorWheel->setColor(*colorLabel->backgroundColor);
@@ -770,31 +785,33 @@ ColorSelector::ColorSelector(const std::string& name,const AUnit2D& pos,const AU
 	add(colorLabel);
 	add(colorWheel);
 }
-void ColorSelector::setColor(const Color& color){
-	*colorLabel->backgroundColor=color;
+void ColorSelector::setColor(const Color& color) {
+	*colorLabel->backgroundColor = color;
 	colorWheel->setColor(color);
 }
-Color ColorSelector::getColor(){
+Color ColorSelector::getColor() {
 	return colorWheel->getSelectedColor();
 }
-void ColorWheel::reset(){
-	circleSelected=false;
-	triangleSelected=false;
+void ColorWheel::reset() {
+	circleSelected = false;
+	triangleSelected = false;
 	updateWheel();
 }
-ColorWheel::ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims):Composite(name,pos,dims){
+ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Composite(name, pos, dims) {
 
-	setColor(Color(32,64,255));
-	this->onPack=[this](){
+	setColor(Color(32, 64, 255));
+	this->onPack = [this]() {
 		this->updateWheel();
 	};
-	this->onMouseDown=[this](AlloyContext* context,const InputEvent& e){
-		if(e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()){
+	this->onMouseDown = [this](AlloyContext* context,const InputEvent& e) {
+		if(e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
 			float r2=distanceSqr(e.cursor,center);
-			if(r2<rInner*rInner){
+			if(r2<rInner*rInner) {
 				triangleSelected=true;
 				circleSelected=false;
-			} else if(r2<rOuter*rOuter){
+			} else if(r2<rOuter*rOuter) {
 				triangleSelected=false;
 				circleSelected=true;
 			} else {
@@ -806,11 +823,11 @@ ColorWheel::ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D&
 		}
 		return false;
 	};
-	this->onEvent=[this](AlloyContext* context,const InputEvent& e){
-		if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()){
+	this->onEvent = [this](AlloyContext* context,const InputEvent& e) {
+		if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
 			this->setColor(e.cursor);
 			return true;
-		} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())){
+		} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
 			context->setOnTopRegion(nullptr);
 			return true;
 		}
@@ -819,70 +836,77 @@ ColorWheel::ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D&
 	Application::addListener(this);
 }
 box2px ColorWheel::getBounds() const {
-	box2px bounds=Region::getBounds();
+	box2px bounds = Region::getBounds();
 	bounds.clamp(Application::getContext()->getViewport());
+	bounds.dimensions=aly::max(bounds.dimensions,pixel2(100,100));
 	return bounds;
 }
-void ColorWheel::updateWheel(){
+void ColorWheel::updateWheel() {
 	box2px bounds = getBounds();
-	float x=bounds.position.x;
-	float y=bounds.position.y;
-	float w=bounds.dimensions.x;
-	float h=bounds.dimensions.y;
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
 
 	float cx = x + w * 0.5f;
 	float cy = y + h * 0.5f;
 	rOuter = (w < h ? w : h) * 0.5f - 5.0f;
 	rInner = rOuter - 20.0f;
-	center=float2(cx,cy);
+	center = float2(cx, cy);
 	float r = rInner - 6;
-	tPoints[0]=float2(r,0);
-	tPoints[1]=float2(cos(120.0f / 180.0f * NVG_PI) * r,sin(120.0f / 180.0f * NVG_PI) * r);
-	tPoints[2]=float2(cosf(-120.0f / 180.0f * NVG_PI) * r,sin(-120.0f / 180.0f * NVG_PI) * r);
-	float angle=-hsvColor.x * NVG_PI * 2;
-	for(int i=0;i<3;i++){
-		tBounds[i]=Rotate(tPoints[i],angle)+center;
+	tPoints[0] = float2(r, 0);
+	tPoints[1] = float2(cos(120.0f / 180.0f * NVG_PI) * r,
+			sin(120.0f / 180.0f * NVG_PI) * r);
+	tPoints[2] = float2(cosf(-120.0f / 180.0f * NVG_PI) * r,
+			sin(-120.0f / 180.0f * NVG_PI) * r);
+	float angle = -hsvColor.x * NVG_PI * 2;
+	for (int i = 0; i < 3; i++) {
+		tBounds[i] = Rotate(tPoints[i], angle) + center;
 	}
 }
-void ColorWheel::setColor(const Color& c){
-	selectedColor=c;
-	hsvColor=c.toHSV();
+void ColorWheel::setColor(const Color& c) {
+	selectedColor = c;
+	hsvColor = c.toHSV();
 	updateWheel();
 }
-void ColorWheel::setColor(const pixel2& cursor){
-	if(triangleSelected){
-		float2 pt=cursor-tBounds[0];
-		RGBAf pivot=HSVAtoRGBAf(HSVA(hsvColor.x,1.0f,0.5f,1.0f));
+void ColorWheel::setColor(const pixel2& cursor) {
+	if (triangleSelected) {
+		float2 pt = cursor - tBounds[0];
+		RGBAf pivot = HSVAtoRGBAf(HSVA(hsvColor.x, 1.0f, 0.5f, 1.0f));
 
-		float2 mid=0.5f*(tBounds[0]+tBounds[1]);
-		float u=clamp(dot(cursor-tBounds[0],tBounds[1]-tBounds[0])/lengthSqr(tBounds[1]-tBounds[0]),0.0f,1.0f);
-		float v=clamp(dot(cursor-tBounds[2],mid-tBounds[2])/lengthSqr(mid-tBounds[2]),0.0f,1.0f);
-		RGBAf hc=HSVAtoRGBAf(HSVA(hsvColor.x,1.0f,1.0f,1.0f));
-		RGBAf c=v*(hc+u*(1.0f-hc));
-		HSVA hsv=Color(c).toHSVA();
-		hsvColor.y=hsv.y;
-		hsvColor.z=hsv.z;
-		selectedColor=HSVtoColor(hsvColor);
+		float2 mid = 0.5f * (tBounds[0] + tBounds[1]);
+		float u = clamp(
+				dot(cursor - tBounds[0], tBounds[1] - tBounds[0])
+						/ lengthSqr(tBounds[1] - tBounds[0]), 0.0f, 1.0f);
+		float v = clamp(
+				dot(cursor - tBounds[2], mid - tBounds[2])
+						/ lengthSqr(mid - tBounds[2]), 0.0f, 1.0f);
+		RGBAf hc = HSVAtoRGBAf(HSVA(hsvColor.x, 1.0f, 1.0f, 1.0f));
+		RGBAf c = v * (hc + u * (1.0f - hc));
+		HSVA hsv = Color(c).toHSVA();
+		hsvColor.y = hsv.y;
+		hsvColor.z = hsv.z;
+		selectedColor = HSVtoColor(hsvColor);
 		updateWheel();
-	} else if(circleSelected){
-		float2 vec=cursor-center;
-		hsvColor.x=(atan2(vec.y,vec.x))/(2.0f*NVG_PI);
-		if(hsvColor.x<0.0f){
-			hsvColor.x+=1.0f;
+	} else if (circleSelected) {
+		float2 vec = cursor - center;
+		hsvColor.x = (atan2(vec.y, vec.x)) / (2.0f * NVG_PI);
+		if (hsvColor.x < 0.0f) {
+			hsvColor.x += 1.0f;
 		}
-		selectedColor=HSVtoColor(hsvColor);
+		selectedColor = HSVtoColor(hsvColor);
 		updateWheel();
 	}
 }
-void ColorWheel::drawOnTop(AlloyContext* context){
+void ColorWheel::drawOnTop(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 
-	float x=bounds.position.x;
-	float y=bounds.position.y;
-	float w=bounds.dimensions.x;
-	float h=bounds.dimensions.y;
-	float t=0.3f;
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
+	float t = 0.3f;
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -898,7 +922,7 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 
 	NVGpaint paint;
 	nvgSave(nvg);
-	aeps = 0.5f / rOuter;	// half a pixel arc length in radians (2pi cancels out).
+	aeps = 0.5f / rOuter;// half a pixel arc length in radians (2pi cancels out).
 	for (i = 0; i < 6; i++) {
 		float a0 = (float) i / 6.0f * NVG_PI * 2.0f - aeps;
 		float a1 = (float) (i + 1.0f) / 6.0f * NVG_PI * 2.0f + aeps;
@@ -949,56 +973,59 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	nvgLineTo(nvg, tPoints[1].x, tPoints[1].y);
 	nvgLineTo(nvg, tPoints[2].x, tPoints[2].y);
 	nvgClosePath(nvg);
-	NVGcolor chue=nvgHSLA(hue, 1.0f, 0.5f, 255);
-	paint = nvgLinearGradient(nvg,
-		tPoints[0].x, tPoints[0].y, tPoints[1].x, tPoints[1].y,
-		chue,
-			nvgRGBA(255, 255, 255, 255));
+	NVGcolor chue = nvgHSLA(hue, 1.0f, 0.5f, 255);
+	paint = nvgLinearGradient(nvg, tPoints[0].x, tPoints[0].y, tPoints[1].x,
+			tPoints[1].y, chue, nvgRGBA(255, 255, 255, 255));
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
-	paint = nvgLinearGradient(nvg,
-			(tPoints[0].x+tPoints[1].x) * 0.5f,
-			(tPoints[0].y+tPoints[1].y) * 0.5f,
-			tPoints[2].x, tPoints[2].y,
+	paint = nvgLinearGradient(nvg, (tPoints[0].x + tPoints[1].x) * 0.5f,
+			(tPoints[0].y + tPoints[1].y) * 0.5f, tPoints[2].x, tPoints[2].y,
 			nvgRGBA(0, 0, 0, 0), nvgRGBA(0, 0, 0, 255));
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
 	nvgStrokeColor(nvg, nvgRGBA(0, 0, 0, 64));
 	nvgStroke(nvg);
 
+	RGBf c3(0.0f, 0.0f, 0.0f);
+	RGBf c2(1.0f, 1.0f, 1.0f);
+	RGBf hc(chue.r, chue.g, chue.b);
+	RGBf c = selectedColor.toRGBf();
 
-	RGBf c3(0.0f,0.0f,0.0f);
-	RGBf c2(1.0f,1.0f,1.0f);
-	RGBf hc(chue.r,chue.g,chue.b);
-	RGBf c=selectedColor.toRGBf();
+	float2 bvec, pt;
+	float u, v;
 
-	float2 bvec,pt;
-	float u,v;
+	v = std::max(std::max(c.x, c.y), c.z);
+	if (v > 0.0f) {
+		u = dot(c / v - hc, 1.0f - hc) / lengthSqr(1.0f - hc);
 
-	v=std::max(std::max(c.x,c.y),c.z);
-	if(v>0.0f){
-		u=dot(c/v-hc,1.0f-hc)/lengthSqr(1.0f-hc);
-
-		float2 mid=0.5f*(tPoints[0]+tPoints[1]);
-		bvec.x=dot(tPoints[0],tPoints[1]-tPoints[0])+lengthSqr(tPoints[1]-tPoints[0])*u;
-		bvec.y=dot(tPoints[2],mid-tPoints[2])+lengthSqr(mid-tPoints[2])*v;
+		float2 mid = 0.5f * (tPoints[0] + tPoints[1]);
+		bvec.x = dot(tPoints[0], tPoints[1] - tPoints[0])
+				+ lengthSqr(tPoints[1] - tPoints[0]) * u;
+		bvec.y = dot(tPoints[2], mid - tPoints[2])
+				+ lengthSqr(mid - tPoints[2]) * v;
 		float2x2 M;
-		float2 row1=tPoints[1]-tPoints[0];
-		float2 row2=mid-tPoints[2];
-		M(0,0)=row1.x;M(0,1)=row1.y;
-		M(1,0)=row2.x;M(1,1)=row2.y;
-		pt=inverse(M)*bvec;
+		float2 row1 = tPoints[1] - tPoints[0];
+		float2 row2 = mid - tPoints[2];
+		M(0, 0) = row1.x;
+		M(0, 1) = row1.y;
+		M(1, 0) = row2.x;
+		M(1, 1) = row2.y;
+		pt = inverse(M) * bvec;
 
-		if(cross(pt-tPoints[2],tPoints[1]-tPoints[2])<0){
-			pt=dot(pt-tPoints[2],tPoints[1]-tPoints[2])*(tPoints[1]-tPoints[2])/lengthSqr(tPoints[1]-tPoints[2])+tPoints[2];
-		} else if(cross(tPoints[0]-tPoints[2],pt-tPoints[2])<0){
-			pt=dot(pt-tPoints[2],tPoints[0]-tPoints[2])*(tPoints[0]-tPoints[2])/lengthSqr(tPoints[0]-tPoints[2])+tPoints[2];
+		if (cross(pt - tPoints[2], tPoints[1] - tPoints[2]) < 0) {
+			pt = dot(pt - tPoints[2], tPoints[1] - tPoints[2])
+					* (tPoints[1] - tPoints[2])
+					/ lengthSqr(tPoints[1] - tPoints[2]) + tPoints[2];
+		} else if (cross(tPoints[0] - tPoints[2], pt - tPoints[2]) < 0) {
+			pt = dot(pt - tPoints[2], tPoints[0] - tPoints[2])
+					* (tPoints[0] - tPoints[2])
+					/ lengthSqr(tPoints[0] - tPoints[2]) + tPoints[2];
 		}
 	} else {
-		pt=tPoints[2];
+		pt = tPoints[2];
 	}
-	ax=pt.x;
-	ay=pt.y;
+	ax = pt.x;
+	ay = pt.y;
 
 	nvgStrokeWidth(nvg, 2.0f);
 	nvgBeginPath(nvg);
@@ -1017,12 +1044,12 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	nvgRestore(nvg);
 	nvgRestore(nvg);
 }
-void ColorSelector::draw(AlloyContext* context){
+void ColorSelector::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
-	if(colorWheel->isVisible()){
-		*colorLabel->backgroundColor=colorWheel->getSelectedColor();
+	if (colorWheel->isVisible()) {
+		*colorLabel->backgroundColor = colorWheel->getSelectedColor();
 	}
 	if (hover) {
 		nvgBeginPath(nvg);
@@ -1036,12 +1063,12 @@ void ColorSelector::draw(AlloyContext* context){
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 	}
-	if(context->isMouseOver(colorLabel.get())){
-		colorLabel->borderWidth=UnitPX(2.0f);
-		colorLabel->borderColor=MakeColor(context->theme.HIGHLIGHT);
-	}else {
-		colorLabel->borderWidth=UnitPX(1.0f);
-		colorLabel->borderColor=MakeColor(context->theme.NEUTRAL);
+	if (context->isMouseOver(colorLabel.get())) {
+		colorLabel->borderWidth = UnitPX(2.0f);
+		colorLabel->borderColor = MakeColor(context->theme.HIGHLIGHT);
+	} else {
+		colorLabel->borderWidth = UnitPX(1.0f);
+		colorLabel->borderColor = MakeColor(context->theme.NEUTRAL);
 	}
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
