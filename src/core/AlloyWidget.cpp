@@ -757,7 +757,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			Application::getContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	colorLabel = MakeRegion("Color", CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f),
-			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f), Color(255, 0, 0),
+			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f),Application::getContext()->theme.NEUTRAL,
 			Application::getContext()->theme.LIGHT, UnitPX(1.0f));
 	colorLabel->setAspectRatio(1.0f);
 	colorLabel->setAspectRule(AspectRule::FixedHeight);
@@ -844,7 +844,14 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 			} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
 				context->removeOnTopRegion(this);
 				return true;
-		}
+			} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())){
+				hsvColor.x+=e.scroll.y*0.01f;
+				if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
+				if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
+				selectedColor=HSVtoColor(hsvColor);
+				updateWheel();
+				return true;
+			}
 		}
 		return false;
 	};

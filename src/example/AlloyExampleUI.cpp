@@ -114,6 +114,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	ColorSelectorPtr colorselect = ColorSelectorPtr(
 			new ColorSelector("Color", CoordPercent(0.6f, 0.5f),
 					CoordPX(200, 50)));
+	colorselect->setColor(Color(200,128,32));
 	SelectionPtr dropdown =
 			SelectionPtr(
 					new Selection("Selection", CoordPercent(0.6, 0.1),
