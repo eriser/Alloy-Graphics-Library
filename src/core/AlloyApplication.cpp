@@ -116,7 +116,7 @@ void Application::drawUI() {
 
 	Region* onTop=context->getOnTopRegion();
 	if(onTop!=nullptr){
-		onTop->drawOnTop(context.get());
+		if(onTop->isVisible())onTop->drawOnTop(context.get());
 	}
 	nvgEndFrame(nvg);
 }
@@ -240,20 +240,13 @@ void Application::fireEvent(const InputEvent& event) {
 		}
 	}
 	if (event.type == InputType::MouseButton) {
-		if(event.isDown()){
+		if (event.isDown()) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 				context->leftMouseButton = true;
 			}
 			if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
 				context->rightMouseButton = true;
 			}
-		} else {
-			context->leftMouseButton = false;
-			context->rightMouseButton = false;
-		}
-	}
-	if (event.type == InputType::MouseButton) {
-		if (event.isDown()) {
 			context->mouseFocusRegion = context->mouseDownRegion =
 					context->locate(context->cursorPosition);
 			if (context->mouseDownRegion != nullptr) {
@@ -265,6 +258,8 @@ void Application::fireEvent(const InputEvent& event) {
 					&& context->mouseDownRegion->onMouseUp){
 				context->mouseDownRegion->onMouseUp(context.get(), event);
 			}
+			context->leftMouseButton = false;
+			context->rightMouseButton = false;
 			context->mouseDownRegion = nullptr;
 			context->cursorDownPosition = pixel2(0, 0);
 		}

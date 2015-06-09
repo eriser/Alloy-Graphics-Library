@@ -114,21 +114,8 @@ public:
 	AUnit2D& getDimensions() {
 		return dimensions;
 	}
-	box2px getBounds() const {
-		box2px box = bounds;
-		if (parent != nullptr) {
-			box.position += parent->drawOffset();
-		}
-		return box;
-	}
-	box2px getCursorBounds() const {
-		box2px box = bounds;
-		if (parent != nullptr) {
-			box.position += parent->drawOffset();
-			box.intersect(parent->getCursorBounds());
-		}
-		return box;
-	}
+	virtual box2px getBounds() const;
+	virtual box2px getCursorBounds() const;
 	pixel2 getBoundsPosition() const {
 		return getBounds().position;
 	}

@@ -215,6 +215,7 @@ public:
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::vector<std::string> options;
+	virtual box2px getBounds() const override;
 	std::string getSelection(int index) {
 		return (selectedIndex >= 0) ? options[selectedIndex] : name;
 	}
@@ -275,8 +276,8 @@ class ColorSelector: public Widget {
 	RegionPtr colorLabel;
 	std::shared_ptr<ColorWheel> colorWheel;
 public:
-	//virtual void onMouseDown(AlloyContext* context, Region* region,const InputEvent& event) override;
-	//virtual void onMouseOver(AlloyContext* context, Region* region,const InputEvent& event) override;
+	void setColor(const Color& color);
+	Color getColor();
 	ColorSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };

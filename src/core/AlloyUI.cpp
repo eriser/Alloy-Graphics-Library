@@ -155,6 +155,21 @@ void Region::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 }
+box2px Region::getBounds() const {
+	box2px box = bounds;
+	if (parent != nullptr) {
+		box.position += parent->drawOffset();
+	}
+	return box;
+}
+box2px Region::getCursorBounds() const {
+	box2px box = bounds;
+	if (parent != nullptr) {
+		box.position += parent->drawOffset();
+		box.intersect(parent->getCursorBounds());
+	}
+	return box;
+}
 void Composite::drawOnTop(AlloyContext* context) {
 	for (std::shared_ptr<Region>& region : children) {
 		if (region->isVisible()) {

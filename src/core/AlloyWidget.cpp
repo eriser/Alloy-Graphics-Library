@@ -237,10 +237,9 @@ void SliderHandle::draw(AlloyContext* context) {
 void SelectionBox::draw(AlloyContext* context) {
 
 }
-void SelectionBox::drawOnTop(AlloyContext* context) {
-	context->setDragObject(this);
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
+box2px SelectionBox::getBounds() const {
+	box2px bounds = Region::getBounds();
+	AlloyContext* context=Application::getContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	float entryHeight = std::min(
@@ -250,10 +249,24 @@ void SelectionBox::drawOnTop(AlloyContext* context) {
 
 	float yOffset = std::min(bounds.position.y + boxHeight + entryHeight,
 			(float) context->viewport.dimensions.y) - boxHeight;
+
+	box2px bbox;
+	bbox.position=pixel2( bounds.position.x, yOffset);
+	bbox.dimensions=pixel2(bounds.dimensions.x,boxHeight);
+
+	return bbox;
+}
+void SelectionBox::drawOnTop(AlloyContext* context) {
+	context->setDragObject(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	float entryHeight = bounds.dimensions.y/options.size();
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, yOffset, bounds.dimensions.x,
-				boxHeight);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
@@ -276,11 +289,10 @@ void SelectionBox::drawOnTop(AlloyContext* context) {
 
 	selectedIndex = -1;
 	for (std::string& label : options) {
-		if (context->isMouseContainedIn(
-				pixel2(bounds.position.x, yOffset) + offset,
+		if (context->isMouseContainedIn(bounds.position + offset,
 				pixel2(bounds.dimensions.x, entryHeight))) {
 			nvgBeginPath(nvg);
-			nvgRect(nvg, bounds.position.x + offset.x, yOffset + offset.y,
+			nvgRect(nvg, bounds.position.x + offset.x, bounds.position.y + offset.y,
 					bounds.dimensions.x, entryHeight);
 			nvgFillColor(nvg, context->theme.NEUTRAL);
 			nvgFill(nvg);
@@ -289,14 +301,14 @@ void SelectionBox::drawOnTop(AlloyContext* context) {
 		index++;
 		nvgFillColor(nvg, *textColor);
 		nvgText(nvg, bounds.position.x + offset.x + lineWidth,
-				yOffset + entryHeight / 2 + offset.y, label.c_str(), nullptr);
+				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(), nullptr);
 		offset.y += entryHeight;
 	}
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				yOffset + lineWidth * 0.5f, bounds.dimensions.x - lineWidth,
-				boxHeight - lineWidth);
+				bounds.position.y + lineWidth * 0.5f, bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
@@ -323,7 +335,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f),
 			Application::getContext()->theme.DARK.toRGBA(),
 			Application::getContext()->theme.LIGHT_TEXT.toRGBA());
-	selectionBox = SelectionBoxPtr(new SelectionBox("Selection", options));
+	selectionBox = SelectionBoxPtr(new SelectionBox("Selection Box", options));
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
 	selectionBox->fontSize = selectionLabel->fontSize;
@@ -361,6 +373,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					selectionBox->setVisible(false);
+					context->setOnTopRegion(nullptr);
 					int newSelection=selectionBox->getSelectedIndex();
 					if(newSelection<0) {
 						selectionBox->setSelectedIndex(selectedIndex);
@@ -369,10 +382,10 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 						selectionBox->setSelectedIndex(selectedIndex);
 					}
 					selectionLabel->label=this->getSelection();
-
 				}
 			};
 }
+
 void Selection::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseContainedIn(this);
@@ -712,17 +725,37 @@ ColorSelector::ColorSelector(const std::string& name,const AUnit2D& pos,const AU
 	colorLabel->setOrigin(Origin::TopRight);
 	colorLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& e){
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT){
+			if(!this->colorWheel->isVisible()){
+				this->colorWheel->setVisible(true);
+				context->setOnTopRegion(colorWheel.get());
+			} else {
+				this->colorWheel->setVisible(false);
+			}
+		}
+	};
+	textLabel->onMouseDown=[this](AlloyContext* context,const InputEvent& e){
+		if(!this->colorWheel->isVisible()){
 			this->colorWheel->setVisible(true);
 			context->setOnTopRegion(colorWheel.get());
+		} else {
+			this->colorWheel->setVisible(false);
 		}
 	};
 
 	colorWheel=ColorWheelPtr(new ColorWheel("Color Wheel",CoordPerPX(0,1.0,0.0f,2.0f),CoordPX(400,300)));
 	colorWheel->setOrigin(Origin::TopLeft);
-
+	colorWheel->setVisible(false);
+	colorWheel->setColor(*colorLabel->backgroundColor);
 	add(textLabel);
 	add(colorLabel);
 	add(colorWheel);
+}
+void ColorSelector::setColor(const Color& color){
+	*colorLabel->backgroundColor=color;
+	colorWheel->setColor(color);
+}
+Color ColorSelector::getColor(){
+	return colorWheel->getSelectedColor();
 }
 ColorWheel::ColorWheel(const std::string& name,const AUnit2D& pos,const AUnit2D& dims):Composite(name,pos,dims){
 
@@ -779,7 +812,6 @@ void ColorWheel::setColor(const Color& c){
 	updateWheel();
 }
 void ColorWheel::setColor(const pixel2& cursor){
-	float r2=distanceSqr(cursor,center);
 	if(triangleSelected){
 		float2 pt=cursor-tBounds[0];
 		RGBAf pivot=HSVAtoRGBAf(HSVA(hsvColor.x,1.0f,0.5f,1.0f));

@@ -134,7 +134,7 @@ struct InputEvent {
 	int mods = 0;
 	int scancode = 0;
 	int key = 0;
-	int button = 0;
+	int button = -1;
 	bool isDown() const {
 		return (action != GLFW_RELEASE);
 	}
