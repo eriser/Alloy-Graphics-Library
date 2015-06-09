@@ -53,10 +53,9 @@ protected:
 	AUnit2D position = CoordPercent(0.0f, 0.0f);
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 public:
+	std::function<bool(AlloyContext*, const InputEvent& event)> onEvent;
 	const std::string name;
-	virtual bool onEvent(AlloyContext* context, const InputEvent& event) {
-		return false;
-	}
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event);
 	virtual inline bool isScrollEnabled() const {
 		return false;
 	}
@@ -89,13 +88,11 @@ public:
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 	std::function<void()> onPack;
-	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseDown;
-	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseUp;
-	std::function<void(AlloyContext* context, const InputEvent& event)> onMouseOver;
-	std::function<void(AlloyContext* context, const InputEvent& event)> onScroll;
-	std::function<
-			void(AlloyContext* context, const InputEvent& event,
-					const pixel2& mouseDownOffset)> onMouseDrag;
+	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseDown;
+	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseUp;
+	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseOver;
+	std::function<bool(AlloyContext* context, const InputEvent& event)> onScroll;
+	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseDrag;
 	void setDragOffset(const pixel2& cursor, const pixel2& delta);
 	void addDragOffset(const pixel2& delta);
 
@@ -197,7 +194,7 @@ public:
 	Composite(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 	void setVerticalScrollPosition(float fy);
 	void setHorizontalScrollPosition(float fx);
-	virtual bool onEvent(AlloyContext* context, const InputEvent& event)
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
 	inline void setOrientation(const Orientation& orient) {
 		orientation = orient;
@@ -283,7 +280,7 @@ private:
 	static const float PADDING;
 public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
-	virtual bool onEvent(AlloyContext* context, const InputEvent& event)
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
 	~TextField();
 	TextField(

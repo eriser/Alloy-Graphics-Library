@@ -189,11 +189,17 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
+	box2px getViewport() const {
+		return box2px(pixel2(viewport.position),pixel2(viewport.dimensions));
+	}
 	void addListener(Region* region) {
 		listeners.push_back(region);
 	}
 	void removeListener(Region* region) {
 		listeners.remove(region);
+	}
+	inline pixel2 getCursorDownPosition() const {
+		return cursorDownPosition;
 	}
 	bool fireListeners(const InputEvent& event);
 	void setDragObject(Region* region);
@@ -207,9 +213,7 @@ public:
 	inline void setMouseFocusObject(Region* region) {
 		mouseFocusRegion = region;
 	}
-	inline void setOnTopRegion(Region* region){
-		onTopRegion=region;
-	}
+	void setOnTopRegion(Region* region);
 	inline Region* getOnTopRegion() const {
 		return onTopRegion;
 	}

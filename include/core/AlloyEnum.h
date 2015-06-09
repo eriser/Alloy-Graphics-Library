@@ -28,14 +28,14 @@
 namespace aly {
 enum class Origin {
 	TopLeft,
-	Center,
+	TopCenter,
 	TopRight,
 	BottomLeft,
+	BottomCenter,
 	BottomRight,
-	CenterLeft,
-	CenterRight,
-	CenterTop,
-	CenterBottom
+	MiddleLeft,
+	MiddleCenter,
+	MiddleRight
 };
 enum class GlyphType {
 	Image, Awesome
@@ -89,7 +89,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		return ss << "Bottom Left";
 	case Origin::BottomRight:
 		return ss << "Bottom Right";
-	case Origin::Center:
+	case Origin::MiddleCenter:
 		return ss << "Center";
 	}
 	return ss;

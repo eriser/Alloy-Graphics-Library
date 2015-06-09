@@ -45,6 +45,9 @@ void Region::setVisible(bool vis) {
 	visible = vis;
 	Application::getContext()->requestUpdateCursor();
 }
+bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
+	if(isVisible()&&onEvent)return onEvent(context,event); else return false;
+}
 void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
@@ -292,15 +295,19 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
 						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
 						context->requestPack();
+						return true;
 					}
+					return false;
 				};
 		verticalScrollHandle->onMouseDrag =
-				[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor) {
+				[this](AlloyContext* context,const InputEvent& event) {
 					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-						this->verticalScrollHandle->setDragOffset(event.cursor,lastCursor);
+						this->verticalScrollHandle->setDragOffset(event.cursor,context->getCursorDownPosition());
 						this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
 						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
+						return true;
 					}
+					return  false;
 				};
 		horizontalScrollTrack = std::shared_ptr<ScrollTrack>(
 				new ScrollTrack("Horiz Track", Orientation::Horizontal));
@@ -325,15 +332,19 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
 						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
 						context->requestPack();
+						return true;
 					}
+					return false;
 				};
 		horizontalScrollHandle->onMouseDrag =
-				[this](AlloyContext* context,const InputEvent& event,const pixel2& lastCursor) {
+				[this](AlloyContext* context,const InputEvent& event) {
 					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-						this->horizontalScrollHandle->setDragOffset(event.cursor,lastCursor);
+						this->horizontalScrollHandle->setDragOffset(event.cursor,context->getCursorDownPosition());
 						this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
 						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
+						return true;
 					}
+					return false;
 				};
 		Application::addListener(this);
 	}
@@ -475,7 +486,7 @@ Composite::Composite(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		Region(name, pos, dims) {
 }
-bool Composite::onEvent(AlloyContext* context, const InputEvent& event) {
+bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	if (event.type == InputType::Scroll && isScrollEnabled()) {
 		box2px bounds = getBounds();
 		if (bounds.contains(event.cursor)) {
@@ -502,7 +513,7 @@ bool Composite::onEvent(AlloyContext* context, const InputEvent& event) {
 			return true;
 		}
 	}
-	return false;
+	return Region::onEventHandler(context,event);
 }
 void Composite::update(CursorLocator* cursorLocator) {
 	cursorLocator->add(this);
@@ -557,7 +568,7 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	case Origin::BottomRight:
 		bounds.position = xy - bounds.dimensions;
 		break;
-	case Origin::Center:
+	case Origin::MiddleCenter:
 		bounds.position = xy - bounds.dimensions / (pixel) 2;
 		break;
 	case Origin::TopRight:
@@ -566,17 +577,17 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	case Origin::BottomLeft:
 		bounds.position = xy - pixel2(0, bounds.dimensions.y);
 		break;
-	case Origin::CenterLeft:
+	case Origin::MiddleLeft:
 		bounds.position = xy - pixel2(0, bounds.dimensions.y / (pixel) 2);
 		break;
-	case Origin::CenterRight:
+	case Origin::MiddleRight:
 		bounds.position = xy
 				- pixel2(bounds.dimensions.x, bounds.dimensions.y / (pixel) 2);
 		break;
-	case Origin::CenterTop:
+	case Origin::TopCenter:
 		bounds.position = xy - pixel2(bounds.dimensions.x / (pixel) 2, 0);
 		break;
-	case Origin::CenterBottom:
+	case Origin::BottomCenter:
 		bounds.position = xy
 				- pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
 		break;
@@ -789,6 +800,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 		}
 	}
 }
+
 void TextField::handleMouseInput(AlloyContext* context, const InputEvent& e) {
 	FontPtr fontFace = context->getFont(FontType::Bold);
 	box2px bounds = getBounds();
@@ -814,26 +826,24 @@ void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 		dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
 	}
 }
-bool TextField::onEvent(AlloyContext* context, const InputEvent& e) {
+bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 	if (!context->isFocused(this) || fontSize <= 0)
 		return false;
-
 	switch (e.type) {
-	case InputType::MouseButton:
-		handleMouseInput(context, e);
-		break;
-	case InputType::Character:
-		handleCharacterInput(context, e);
-		break;
-	case InputType::Key:
-		handleKeyInput(context, e);
-		break;
-	case InputType::Cursor:
-		handleCursorInput(context, e);
-		break;
-
+		case InputType::MouseButton:
+			handleMouseInput(context, e);
+			break;
+		case InputType::Character:
+			handleCharacterInput(context, e);
+			break;
+		case InputType::Key:
+			handleKeyInput(context, e);
+			break;
+		case InputType::Cursor:
+			handleCursorInput(context, e);
+			break;
 	}
-	return true;
+	return Region::onEventHandler(context,e);
 }
 void TextField::draw(AlloyContext* context) {
 

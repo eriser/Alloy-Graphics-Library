@@ -49,7 +49,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf188),
 			CoordPX(20, 20), CoordPX(50, 100), Color(32, 64, 128, 255),
 			Color(255, 255, 255, 255));
-	imgr->setOrigin(Origin::Center);
+	imgr->setOrigin(Origin::MiddleCenter);
 
 	ProgressBarPtr pbar = ProgressBarPtr(
 			new ProgressBar("Progress", CoordPercent(0.05f, 0.7f),

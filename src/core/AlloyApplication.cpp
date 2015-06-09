@@ -233,12 +233,7 @@ void Application::fireEvent(const InputEvent& event) {
 			|| event.type == InputType::MouseButton) {
 		context->requestUpdateCursor();
 	}
-	Region* onTop=context->getOnTopRegion();
-	if(onTop!=nullptr){
-		if(!onTop->isVisible()){
-			context->setOnTopRegion(nullptr);
-		}
-	}
+	bool consumed=false;
 	if (event.type == InputType::MouseButton) {
 		if (event.isDown()) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -256,7 +251,8 @@ void Application::fireEvent(const InputEvent& event) {
 		} else if (event.isUp()) {
 			if (context->mouseDownRegion != nullptr
 					&& context->mouseDownRegion->onMouseUp){
-				context->mouseDownRegion->onMouseUp(context.get(), event);
+				consumed|=context->mouseDownRegion->onMouseUp(context.get(), event);
+
 			}
 			context->leftMouseButton = false;
 			context->rightMouseButton = false;
@@ -267,8 +263,7 @@ void Application::fireEvent(const InputEvent& event) {
 	if (context->mouseDownRegion != nullptr && context->leftMouseButton
 			&& context->mouseDownRegion->isDragEnabled()) {
 			if (context->mouseDownRegion->onMouseDrag) {
-				context->mouseDownRegion->onMouseDrag(context.get(), event,
-						context->cursorDownPosition);
+				consumed|=context->mouseDownRegion->onMouseDrag(context.get(), event);
 			} else {
 				context->mouseDownRegion->setDragOffset(context->cursorPosition,
 						context->cursorDownPosition);
@@ -277,17 +272,17 @@ void Application::fireEvent(const InputEvent& event) {
 	} else if (context->mouseOverRegion != nullptr) {
 			if (event.type == InputType::MouseButton) {
 				if (context->mouseOverRegion->onMouseDown && event.isDown())
-					context->mouseOverRegion->onMouseDown(context.get(), event);
+					consumed|=context->mouseOverRegion->onMouseDown(context.get(), event);
 				if (context->mouseOverRegion->onMouseUp && event.isUp())
-					context->mouseOverRegion->onMouseUp(context.get(), event);
+					consumed|=context->mouseOverRegion->onMouseUp(context.get(), event);
 				context->requestPack();
 			}
 			if (event.type == InputType::Cursor) {
 				if (context->mouseOverRegion->onMouseOver)
-					context->mouseOverRegion->onMouseOver(context.get(), event);
+					consumed|=context->mouseOverRegion->onMouseOver(context.get(), event);
 		}
 	}
-	context->fireListeners(event);
+	if(!consumed)context->fireListeners(event);
 }
 
 void Application::onWindowSize(int width, int height) {
@@ -404,7 +399,9 @@ void Application::run(int swapInterval) {
 						context->toggleDebug();
 						debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(255,255,255,128);
 						context->setMouseFocusObject(nullptr);
+						return true;
 					}
+					return false;
 				};
 		rootNode.add(debug);
 	}

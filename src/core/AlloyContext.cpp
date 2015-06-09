@@ -154,10 +154,24 @@ void AlloyContext::setDragObject(Region* region) {
 }
 bool AlloyContext::fireListeners(const InputEvent& event) {
 	for (auto iter=listeners.rbegin();iter!=listeners.rend();iter++) {
-		if ((*iter)->onEvent(this, event))
+		if ((*iter)->onEventHandler(this, event))
 			return true;
 	}
 	return false;
+}
+void AlloyContext::setOnTopRegion(Region* region){
+	if(region!=nullptr){
+		if(onTopRegion!=nullptr){
+			onTopRegion->setVisible(false);
+		}
+		onTopRegion=region;
+		region->setVisible(true);
+	} else {
+		if(onTopRegion!=nullptr){
+			onTopRegion->setVisible(false);
+		}
+		onTopRegion=nullptr;
+	}
 }
 AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		const Theme& theme) :

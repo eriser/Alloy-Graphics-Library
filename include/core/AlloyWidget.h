@@ -34,17 +34,17 @@ public:
 
 	}
 
-	virtual void onMouseOver(AlloyContext* context, Region* region,
+	virtual bool onMouseOver(AlloyContext* context, Region* region,
 			const InputEvent& event) {
 	}
-	virtual void onMouseDown(AlloyContext* context, Region* region,
+	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) {
 	}
-	virtual void onMouseUp(AlloyContext* context, Region* region,
+	virtual bool onMouseUp(AlloyContext* context, Region* region,
 			const InputEvent& event) {
 	}
-	virtual void onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event, const pixel2& lastDragPosition) {
+	virtual bool onMouseDrag(AlloyContext* context, Region* region,
+			const InputEvent& event) {
 	}
 
 };
@@ -138,12 +138,10 @@ public:
 		return value;
 	}
 
-	virtual void onMouseDown(AlloyContext* context, Region* region,
+	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-	virtual void onMouseUp(AlloyContext* context, Region* region,
+	virtual bool onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-	virtual void onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event, const pixel2& lastDragPosition) override;
 	inline void setLabelFormatter(
 			const std::function<const std::string&(const Number& value)>& func) {
 		labelFormatter = func;
@@ -184,12 +182,10 @@ public:
 		return value;
 	}
 
-	virtual void onMouseDown(AlloyContext* context, Region* region,
+	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-	virtual void onMouseUp(AlloyContext* context, Region* region,
+	virtual bool onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-	virtual void onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event, const pixel2& lastDragPosition) override;
 
 	inline void setLabelFormatter(
 			const std::function<const std::string&(const Number& value)>& func) {
@@ -222,6 +218,7 @@ public:
 	int getSelectedIndex() const {
 		return selectedIndex;
 	}
+
 	void setSelectedIndex(int index) {
 		selectedIndex = index;
 		label = (index >= 0) ? options[selectedIndex] : name;
@@ -262,9 +259,10 @@ protected:
 
 	bool triangleSelected=false;
 	bool circleSelected=false;
-
 	void updateWheel();
 public:
+	void reset();
+	virtual box2px getBounds() const override;
 	Color getSelectedColor() const {return selectedColor;}
 	void setColor(const  Color& c);
 	void setColor(const pixel2& cursor);
