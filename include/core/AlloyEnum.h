@@ -85,12 +85,22 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		return ss << "Top Left";
 	case Origin::TopRight:
 		return ss << "Top Right";
+	case Origin::TopCenter:
+		return ss << "Top Center";
 	case Origin::BottomLeft:
 		return ss << "Bottom Left";
 	case Origin::BottomRight:
 		return ss << "Bottom Right";
+	case Origin::BottomCenter:
+		return ss << "Bottom Center";
+	case Origin::MiddleLeft:
+		return ss << "Middle Left";
+	case Origin::MiddleRight:
+		return ss << "Middle Right";
 	case Origin::MiddleCenter:
-		return ss << "Center";
+		return ss << "Middle Center";
+	case Origin::MiddleCenter:
+		return ss << "Middle Center";
 	}
 	return ss;
 }

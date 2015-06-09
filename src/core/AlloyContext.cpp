@@ -167,9 +167,11 @@ void AlloyContext::setOnTopRegion(Region* region) {
 		onTopRegion = region;
 		region->setVisible(true);
 	} else {
+		/*
 		if (onTopRegion != nullptr) {
 			onTopRegion->setVisible(false);
 		}
+		*/
 		onTopRegion = nullptr;
 	}
 }

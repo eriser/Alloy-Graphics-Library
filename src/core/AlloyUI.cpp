@@ -490,7 +490,7 @@ Composite::Composite(const std::string& name, const AUnit2D& pos,
 		Region(name, pos, dims) {
 }
 bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
-	if (event.type == InputType::Scroll && isScrollEnabled()) {
+	if (isVisible()&&event.type == InputType::Scroll && isScrollEnabled()) {
 		box2px bounds = getBounds();
 		if (bounds.contains(event.cursor)) {
 			if (event.scroll.y != 0) {
@@ -830,21 +830,23 @@ void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 	}
 }
 bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
-	if (!context->isFocused(this) || fontSize <= 0)
-		return false;
-	switch (e.type) {
-	case InputType::MouseButton:
-		handleMouseInput(context, e);
-		break;
-	case InputType::Character:
-		handleCharacterInput(context, e);
-		break;
-	case InputType::Key:
-		handleKeyInput(context, e);
-		break;
-	case InputType::Cursor:
-		handleCursorInput(context, e);
-		break;
+	if(isVisible()){
+		if (!context->isFocused(this) || fontSize <= 0)
+			return false;
+		switch (e.type) {
+		case InputType::MouseButton:
+			handleMouseInput(context, e);
+			break;
+		case InputType::Character:
+			handleCharacterInput(context, e);
+			break;
+		case InputType::Key:
+			handleKeyInput(context, e);
+			break;
+		case InputType::Cursor:
+			handleCursorInput(context, e);
+			break;
+		}
 	}
 	return Region::onEventHandler(context, e);
 }

@@ -136,7 +136,7 @@ void Application::drawDebugUI() {
 	if (context->viewport.contains(
 			int2((int) context->cursorPosition.x,
 					(int) context->cursorPosition.y))) {
-		nvgFontSize(nvg, 16);
+		nvgFontSize(nvg, 22);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		int alignment = 0;
 		if (context->cursorPosition.x < context->viewport.dimensions.x * 0.5f) {
@@ -165,36 +165,36 @@ void Application::drawDebugUI() {
 				Color(64, 64, 64));
 		yoffset += 16;
 		if (context->mouseOverRegion != nullptr) {
-			txt = MakeString() << "Mouse Over "
-					<< context->mouseOverRegion->name << " "
+			txt = MakeString() << "Mouse Over ["
+					<< context->mouseOverRegion->name << "] "
 					<< context->cursorPosition;
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
 		}
 		if (context->mouseDownRegion != nullptr) {
-			txt = MakeString() << "Mouse Down "
-					<< context->mouseDownRegion->name << " "
+			txt = MakeString() << "Mouse Down ["
+					<< context->mouseDownRegion->name << "] "
 					<< context->cursorDownPosition;
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
 		}
 		if (context->mouseFocusRegion != nullptr) {
-			txt = MakeString() << "Mouse Focus "
-					<< context->mouseFocusRegion->name;
+			txt = MakeString() << "Mouse Focus ["
+					<< context->mouseFocusRegion->name<<"]";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
 		}
 		if (context->leftMouseButton) {
-			txt = "Left Mouse Button";
+			txt = "Left Mouse Button Down";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
 		}
 		if (context->rightMouseButton) {
-			txt = "Right Mouse Button";
+			txt = "Right Mouse Button Down";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
@@ -256,6 +256,10 @@ void Application::fireEvent(const InputEvent& event) {
 						event);
 
 			}
+			if(context->mouseDownRegion!=nullptr&&context->getOnTopRegion()==context->mouseDownRegion&&context->mouseDownRegion->isDragEnabled()){
+				context->setOnTopRegion(nullptr);
+			}
+
 			context->leftMouseButton = false;
 			context->rightMouseButton = false;
 			context->mouseDownRegion = nullptr;
@@ -268,6 +272,7 @@ void Application::fireEvent(const InputEvent& event) {
 			consumed |= context->mouseDownRegion->onMouseDrag(context.get(),
 					event);
 		} else {
+			context->setOnTopRegion(context->mouseDownRegion);
 			context->mouseDownRegion->setDragOffset(context->cursorPosition,
 					context->cursorDownPosition);
 		}
