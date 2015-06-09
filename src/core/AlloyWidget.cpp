@@ -260,6 +260,13 @@ box2px SelectionBox::getBounds() const {
 
 	return bbox;
 }
+Region* SelectionBox::locate(const pixel2& cursor){
+	if(getBounds().contains(cursor)){
+		return this;
+	} else {
+		return nullptr;
+	}
+}
 void SelectionBox::drawOnTop(AlloyContext* context) {
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
@@ -830,12 +837,14 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 		return false;
 	};
 	this->onEvent = [this](AlloyContext* context,const InputEvent& e) {
-		if(context->isOnTop(this)&&e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
-			this->setColor(e.cursor);
-			return true;
-		} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
-			context->removeOnTopRegion(this);
-			return true;
+		if(context->isOnTop(this)){
+			if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
+				this->setColor(e.cursor);
+				return true;
+			} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
+				context->removeOnTopRegion(this);
+				return true;
+		}
 		}
 		return false;
 	};
@@ -846,6 +855,13 @@ box2px ColorWheel::getBounds() const {
 	bounds.clamp(Application::getContext()->getViewport());
 	bounds.dimensions=aly::max(bounds.dimensions,pixel2(100,100));
 	return bounds;
+}
+Region* ColorWheel::locate(const pixel2& cursor){
+	if(getBounds().contains(cursor)){
+		return this;
+	} else {
+		return nullptr;
+	}
 }
 void ColorWheel::updateWheel() {
 	box2px bounds = getBounds();

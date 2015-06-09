@@ -31,6 +31,7 @@ const RGBA DEBUG_HIDDEN_COLOR = RGBA(128, 128, 128, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
 const RGBA DEBUG_ON_TOP_COLOR = RGBA(200, 100, 0, 255);
+const RGBA DEBUG_ON_TOP_DOWN_COLOR = RGBA(200, 200, 0, 255);
 const float Composite::scrollBarSize = 15.0f;
 const float TextField::PADDING = 2;
 bool Region::isVisible() {
@@ -51,6 +52,14 @@ bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	else
 		return false;
 }
+Region* Region::locate(const pixel2& cursor){
+	if(getBounds().contains(cursor)){
+		return this;
+	} else {
+		return nullptr;
+	}
+}
+
 void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
@@ -97,7 +106,11 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	Color c;
 	if (isVisible()) {
 		if (down) {
-			c = DEBUG_DOWN_COLOR;
+			if(ontop){
+				c=DEBUG_ON_TOP_DOWN_COLOR;
+			} else {
+				c = DEBUG_DOWN_COLOR;
+			}
 		} else if (hover) {
 			c = DEBUG_HOVER_COLOR;
 		} else if (ontop) {
@@ -175,6 +188,13 @@ box2px Region::getCursorBounds() const {
 		box.intersect(parent->getCursorBounds());
 	}
 	return box;
+}
+Region* Composite::locate(const pixel2& cursor) {
+	for(auto iter=children.rbegin();iter!=children.rend();iter++){
+		Region* r=(*iter)->locate(cursor);
+		if(r!=nullptr)return r;
+	}
+	return nullptr;
 }
 void Composite::drawOnTop(AlloyContext* context) {
 	for (std::shared_ptr<Region>& region : children) {
@@ -831,8 +851,7 @@ void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 }
 bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 	if(isVisible()){
-		if (!context->isFocused(this) || fontSize <= 0)
-			return false;
+		if (!context->isFocused(this) || fontSize <= 0)return false;
 		switch (e.type) {
 		case InputType::MouseButton:
 			handleMouseInput(context, e);

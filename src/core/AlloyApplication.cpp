@@ -276,22 +276,31 @@ void Application::fireEvent(const InputEvent& event) {
 		context->requestPack();
 	} else if (context->mouseOverRegion != nullptr) {
 		if (event.type == InputType::MouseButton) {
-			if (context->mouseOverRegion->onMouseDown && event.isDown())
-				consumed |= context->mouseOverRegion->onMouseDown(context.get(),
-						event);
+			if(event.isDown()){
+				if (context->mouseOverRegion->onMouseDown){
+					consumed |= context->mouseOverRegion->onMouseDown(context.get(),
+							event);
+				}  else if(context->mouseDownRegion->isDragEnabled()) {
+					context->setOnTopRegion(context->mouseDownRegion);
+					context->mouseDownRegion->setDragOffset(context->cursorPosition,
+							context->cursorDownPosition);
+				}
+			}
 			if (context->mouseOverRegion->onMouseUp && event.isUp())
 				consumed |= context->mouseOverRegion->onMouseUp(context.get(),
 						event);
 			context->requestPack();
 		}
 		if (event.type == InputType::Cursor) {
-			if (context->mouseOverRegion->onMouseOver)
+			if (context->mouseOverRegion->onMouseOver){
 				consumed |= context->mouseOverRegion->onMouseOver(context.get(),
 						event);
+			}
 		}
 	}
-	if (!consumed)
+	if (!consumed){
 		context->fireListeners(event);
+	}
 }
 
 void Application::onWindowSize(int width, int height) {

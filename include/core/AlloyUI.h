@@ -66,6 +66,7 @@ public:
 			return pixel2(0, 0);
 		}
 	}
+	virtual Region* locate(const pixel2& cursor);
 	inline void setPosition(const AUnit2D& pt) {
 		position = pt;
 	}
@@ -194,6 +195,8 @@ public:
 	Composite(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 	void setVerticalScrollPosition(float fy);
 	void setHorizontalScrollPosition(float fx);
+	virtual Region* locate(const pixel2& cursor) override;
+
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
 	inline void setOrientation(const Orientation& orient) {

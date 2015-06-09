@@ -140,7 +140,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	case InputType::Cursor:
 		return ss << "Cursor";
 	case InputType::MouseButton:
-		return ss << "Mouse";
+		return ss << "Mouse Button";
 	case InputType::Key:
 		return ss << "Key";
 	case InputType::Character:

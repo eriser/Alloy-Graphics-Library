@@ -254,8 +254,9 @@ bool AlloyContext::isMouseContainedIn(const pixel2& pos,
 
 Region* AlloyContext::locate(const pixel2& cursor) const {
 	if (onTopRegion != nullptr) {
-		if (onTopRegion->isVisible() && isMouseContainedIn(onTopRegion)) {
-			return onTopRegion;
+		if (onTopRegion->isVisible()) {
+			Region* r=onTopRegion->locate(cursor);
+			if(r!=nullptr)return r;
 		}
 	}
 	return cursorLocator.locate(cursor);
