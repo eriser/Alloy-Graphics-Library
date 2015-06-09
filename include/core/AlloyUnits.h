@@ -392,10 +392,14 @@ struct Color: public NVGcolor {
 	HSVA toHSVA() const;
 	HSV toHSV() const;
 	RGBA toRGBA() const;
+	RGBf toRGBf() const {return RGBf(r,g,b);}
+	RGBAf toRGBAf() const {return RGBAf(r,g,b,a);}
 
 };
 Color HSVtoColor(const HSV& hsv);
 Color HSVAtoColor(const HSVA& hsv);
+RGBf HSVtoRGBf(const HSV& hsv);
+RGBAf HSVAtoRGBAf(const HSVA& hsv);
 
 typedef std::shared_ptr<Color> AColor;
 class AUnit2D {

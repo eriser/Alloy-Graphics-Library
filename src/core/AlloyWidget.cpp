@@ -779,14 +779,19 @@ void ColorWheel::setColor(const Color& c){
 	updateWheel();
 }
 void ColorWheel::setColor(const pixel2& cursor){
-	float2 pt=cursor-tBounds[0];
+	float r2=distanceSqr(cursor,center);
 	if(triangleSelected){
-		float v=cross(pt,tBounds[2]-tBounds[0])/std::max(1E-6f,cross(pt,tBounds[2]-tBounds[1]));
-		float s=dot(pt,pt)/dot(pt,(tBounds[2]-tBounds[0])+v*(tBounds[1]-tBounds[2]));
-		v=clamp(v,0.0f,1.0f);
-		s=clamp(s,0.0f,1.0f);
-		hsvColor.z=v;
-		hsvColor.y=s;
+		float2 pt=cursor-tBounds[0];
+		RGBAf pivot=HSVAtoRGBAf(HSVA(hsvColor.x,1.0f,0.5f,1.0f));
+
+		float2 mid=0.5f*(tBounds[0]+tBounds[1]);
+		float u=clamp(dot(cursor-tBounds[0],tBounds[1]-tBounds[0])/lengthSqr(tBounds[1]-tBounds[0]),0.0f,1.0f);
+		float v=clamp(dot(cursor-tBounds[2],mid-tBounds[2])/lengthSqr(mid-tBounds[2]),0.0f,1.0f);
+		RGBAf hc=HSVAtoRGBAf(HSVA(hsvColor.x,1.0f,1.0f,1.0f));
+		RGBAf c=v*(hc+u*(1.0f-hc));
+		HSVA hsv=Color(c).toHSVA();
+		hsvColor.y=hsv.y;
+		hsvColor.z=hsv.z;
 		selectedColor=HSVtoColor(hsvColor);
 		updateWheel();
 	} else if(circleSelected){
@@ -869,22 +874,15 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
 
-	// Center triangle
-	/*
-	r = rInner - 6;
-	ax = cosf(120.0f / 180.0f * NVG_PI) * r;
-	ay = sinf(120.0f / 180.0f * NVG_PI) * r;
-	bx = cosf(-120.0f / 180.0f * NVG_PI) * r;
-	by = sinf(-120.0f / 180.0f * NVG_PI) * r;
-	*/
 	nvgBeginPath(nvg);
 	nvgMoveTo(nvg, tPoints[0].x, tPoints[0].y);
 	nvgLineTo(nvg, tPoints[1].x, tPoints[1].y);
 	nvgLineTo(nvg, tPoints[2].x, tPoints[2].y);
 	nvgClosePath(nvg);
+	NVGcolor chue=nvgHSLA(hue, 1.0f, 0.5f, 255);
 	paint = nvgLinearGradient(nvg,
 		tPoints[0].x, tPoints[0].y, tPoints[1].x, tPoints[1].y,
-		nvgHSLA(hue, 1.0f, 0.5f, 255),
+		chue,
 			nvgRGBA(255, 255, 255, 255));
 	nvgFillPaint(nvg, paint);
 	nvgFill(nvg);
@@ -897,9 +895,41 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	nvgFill(nvg);
 	nvgStrokeColor(nvg, nvgRGBA(0, 0, 0, 64));
 	nvgStroke(nvg);
-	float2 bary=mix(tPoints[0],mix(tPoints[2],tPoints[1],hsvColor.z),hsvColor.y);
-	ax=bary.x;
-	ay=bary.y;
+
+
+	RGBf c3(0.0f,0.0f,0.0f);
+	RGBf c2(1.0f,1.0f,1.0f);
+	RGBf hc(chue.r,chue.g,chue.b);
+	RGBf c=selectedColor.toRGBf();
+
+	float2 bvec,pt;
+	float u,v;
+
+	v=std::max(std::max(c.x,c.y),c.z);
+	if(v>0.0f){
+		u=dot(c/v-hc,1.0f-hc)/lengthSqr(1.0f-hc);
+
+		float2 mid=0.5f*(tPoints[0]+tPoints[1]);
+		bvec.x=dot(tPoints[0],tPoints[1]-tPoints[0])+lengthSqr(tPoints[1]-tPoints[0])*u;
+		bvec.y=dot(tPoints[2],mid-tPoints[2])+lengthSqr(mid-tPoints[2])*v;
+		float2x2 M;
+		float2 row1=tPoints[1]-tPoints[0];
+		float2 row2=mid-tPoints[2];
+		M(0,0)=row1.x;M(0,1)=row1.y;
+		M(1,0)=row2.x;M(1,1)=row2.y;
+		pt=inverse(M)*bvec;
+
+		if(cross(pt-tPoints[2],tPoints[1]-tPoints[2])<0){
+			pt=dot(pt-tPoints[2],tPoints[1]-tPoints[2])*(tPoints[1]-tPoints[2])/lengthSqr(tPoints[1]-tPoints[2])+tPoints[2];
+		} else if(cross(tPoints[0]-tPoints[2],pt-tPoints[2])<0){
+			pt=dot(pt-tPoints[2],tPoints[0]-tPoints[2])*(tPoints[0]-tPoints[2])/lengthSqr(tPoints[0]-tPoints[2])+tPoints[2];
+		}
+	} else {
+		pt=tPoints[2];
+	}
+	ax=pt.x;
+	ay=pt.y;
+
 	nvgStrokeWidth(nvg, 2.0f);
 	nvgBeginPath(nvg);
 	nvgCircle(nvg, ax, ay, 5);
@@ -915,26 +945,7 @@ void ColorWheel::drawOnTop(AlloyContext* context){
 	nvgFill(nvg);
 
 	nvgRestore(nvg);
-
 	nvgRestore(nvg);
-
-	/*
-	nvgBeginPath(nvg);
-	nvgStrokeColor(nvg, Color(0,64,0));
-	nvgStrokeWidth(nvg,2.0f);
-	nvgMoveTo(nvg,tBounds[0].x,tBounds[0].y);
-	nvgLineTo(nvg,tBounds[1].x,tBounds[1].y);
-	nvgLineTo(nvg,tBounds[2].x,tBounds[2].y);
-	nvgClosePath(nvg);
-	nvgStroke(nvg);
-
-	nvgBeginPath(nvg);
-	nvgStrokeColor(nvg, Color(0,64,0));
-	nvgStrokeWidth(nvg,2.0f);
-	nvgCircle(nvg,center.x,center.y,rInner);
-	nvgCircle(nvg,center.x,center.y,rOuter);
-	nvgStroke(nvg);
-	*/
 }
 void ColorSelector::draw(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;

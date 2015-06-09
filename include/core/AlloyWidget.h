@@ -207,6 +207,7 @@ struct SelectionBox: public Region {
 protected:
 	int selectedIndex = -1;
 	std::string label;
+	void updateBox(AlloyContext* context);
 public:
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
