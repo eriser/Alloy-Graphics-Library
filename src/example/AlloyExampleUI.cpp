@@ -171,7 +171,7 @@ int main() {
 		//SANITY_CHECK_UI();
 		ExampleUI app;
 		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
-		app.run(2);
+		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
