@@ -472,7 +472,8 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	sliderHandle->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
-			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDrag(context,sliderHandle.get(),e);};
+			[this](AlloyContext* context,const InputEvent& e) {
+		return this->onMouseDrag(context,sliderHandle.get(),e);};
 
 	add(
 			sliderLabel = MakeTextLabel(label,
@@ -617,11 +618,15 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderTrack->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
 	sliderHandle->onMouseDown =
-			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderHandle.get(),e);};
+			[this](AlloyContext* context,const InputEvent& e) {
+		std:cout<<"-->Mouse Down"<<std::endl;
+		return this->onMouseDown(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
-			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDrag(context,sliderHandle.get(),e);};
+			[this](AlloyContext* context,const InputEvent& e) {
+		std:cout<<"Vertical Mouse Drag"<<std::endl;
+		return this->onMouseDrag(context,sliderHandle.get(),e);};
 
 	add(
 			sliderLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
@@ -667,6 +672,7 @@ void VerticalSlider::update() {
 bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+
 		if (region == sliderTrack.get()) {
 			sliderHandle->setDragOffset(event.cursor,
 					sliderHandle->getBoundsDimensions() * 0.5f);
@@ -683,6 +689,7 @@ bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 bool VerticalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if (region == sliderHandle.get()) {
+
 		region->setDragOffset(event.cursor, context->getCursorDownPosition());
 		update();
 		return true;

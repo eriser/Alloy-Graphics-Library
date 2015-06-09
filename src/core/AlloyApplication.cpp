@@ -243,19 +243,11 @@ void Application::fireEvent(const InputEvent& event) {
 			if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
 				context->rightMouseButton = true;
 			}
-			context->mouseFocusRegion = context->mouseDownRegion =
-					context->locate(context->cursorPosition);
+			context->mouseOverRegion=context->mouseFocusRegion = context->mouseDownRegion = context->locate(context->cursorPosition);
 			if (context->mouseDownRegion != nullptr) {
-				context->cursorDownPosition = context->cursorPosition
-						- context->mouseDownRegion->getBoundsPosition();
+				context->cursorDownPosition = event.cursor - context->mouseDownRegion->getBoundsPosition();
 			}
 		} else if (event.isUp()) {
-			if (context->mouseDownRegion != nullptr
-					&& context->mouseDownRegion->onMouseUp) {
-				consumed |= context->mouseDownRegion->onMouseUp(context.get(),
-						event);
-
-			}
 			if(context->mouseDownRegion!=nullptr&&context->getOnTopRegion()==context->mouseDownRegion&&context->mouseDownRegion->isDragEnabled()){
 				context->setOnTopRegion(nullptr);
 			}
@@ -266,7 +258,9 @@ void Application::fireEvent(const InputEvent& event) {
 			context->cursorDownPosition = pixel2(0, 0);
 		}
 	}
-	if (context->mouseDownRegion != nullptr && context->leftMouseButton
+
+	//Fire events
+	if (context->mouseDownRegion != nullptr &&event.type != InputType::MouseButton&& context->leftMouseButton
 			&& context->mouseDownRegion->isDragEnabled()) {
 		if (context->mouseDownRegion->onMouseDrag) {
 			consumed |= context->mouseDownRegion->onMouseDrag(context.get(),
