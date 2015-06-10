@@ -402,12 +402,15 @@ box2px SelectionBox::getBounds() const {
 
 	return bbox;
 }
-Region* SelectionBox::locate(const pixel2& cursor) {
-	if (getBounds().contains(cursor)) {
-		return this;
-	} else {
-		return nullptr;
+box2px SelectionBox::getCursorBounds() const {
+	box2px box = getBounds();
+	if (parent != nullptr) {
+		box.position += parent->drawOffset();
+		if(Application::getContext()->getOnTopRegion()!=this){
+			box.intersect(parent->getCursorBounds());
+		}
 	}
+	return box;
 }
 void SelectionBox::drawOnTop(AlloyContext* context) {
 	context->setDragObject(this);
@@ -1020,13 +1023,17 @@ box2px ColorWheel::getBounds() const {
 	bounds.dimensions = aly::max(bounds.dimensions, pixel2(100, 100));
 	return bounds;
 }
-Region* ColorWheel::locate(const pixel2& cursor) {
-	if (getBounds().contains(cursor)) {
-		return this;
-	} else {
-		return nullptr;
+box2px ColorWheel::getCursorBounds() const {
+	box2px box = getBounds();
+	if (parent != nullptr) {
+		box.position += parent->drawOffset();
+		if(Application::getContext()->getOnTopRegion()!=this){
+			box.intersect(parent->getCursorBounds());
+		}
 	}
+	return box;
 }
+
 void ColorWheel::updateWheel() {
 	box2px bounds = getBounds();
 	float x = bounds.position.x;

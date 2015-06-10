@@ -231,7 +231,7 @@ public:
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::vector<std::string> options;
 	virtual box2px getBounds() const override;
-	Region* locate(const pixel2& cursor);
+	virtual box2px getCursorBounds() const override;
 	std::string getSelection(int index) {
 		return (selectedIndex >= 0) ? options[selectedIndex] : name;
 	}
@@ -282,8 +282,8 @@ protected:
 	void updateWheel();
 public:
 	void reset();
-	Region* locate(const pixel2& cursor);
 	virtual box2px getBounds() const override;
+	virtual box2px getCursorBounds() const override;
 	Color getSelectedColor() const {
 		return selectedColor;
 	}

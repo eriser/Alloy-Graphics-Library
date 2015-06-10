@@ -53,7 +53,7 @@ bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
 		return false;
 }
 Region* Region::locate(const pixel2& cursor) {
-	if (getBounds().contains(cursor)) {
+	if (isVisible()&&getCursorBounds().contains(cursor)) {
 		return this;
 	} else {
 		return nullptr;
@@ -90,7 +90,7 @@ void Region::draw(AlloyContext* context) {
 void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 		int font) {
 	bool ontop = context->isOnTop(this);
-	box2px bounds = (ontop) ? getBounds() : getCursorBounds();
+	box2px bounds = getCursorBounds();
 	if ((bounds.dimensions.x <= 20 && bounds.dimensions.y <= 20)
 			|| bounds.dimensions.x * bounds.dimensions.y == 0) {
 		return;
@@ -184,7 +184,9 @@ box2px Region::getCursorBounds() const {
 	box2px box = bounds;
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		box.intersect(parent->getCursorBounds());
+		if(Application::getContext()->getOnTopRegion()!=this){
+			box.intersect(parent->getCursorBounds());
+		}
 	}
 	return box;
 }
