@@ -77,14 +77,14 @@ public:
 };
 class ToggleBox: public Widget {
 private:
-	TextLabelPtr checkLabel;
+	TextLabelPtr toggleLabel;
 	TextLabelPtr onLabel;
 	TextLabelPtr offLabel;
 	CompositePtr clickRegion;
-	bool isToggledOn;
+	bool toggledOn;
 public:
 	inline bool getValue() {
-		return isToggledOn;
+		return toggledOn;
 	}
 	ToggleBox(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, bool toggledOn = false);

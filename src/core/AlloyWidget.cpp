@@ -82,8 +82,10 @@ void CheckBox::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
+		checkLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+	} else {
+		checkLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
 	}
-
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
@@ -126,12 +128,12 @@ void CheckBox::draw(AlloyContext* context) {
 
 ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, bool checked) :
-		Widget(label, position, dimensions), isToggledOn(checked) {
+		Widget(label, position, dimensions), toggledOn(checked) {
 	this->aspectRatio = 4.0f;
 	CompositePtr valueContainer = MakeComposite("Check Bounds",
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
-	checkLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
+	toggleLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
@@ -147,18 +149,18 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 	clickRegion->setAspectRule(AspectRule::FixedHeight);
 	clickRegion->add(onLabel);
 	clickRegion->add(offLabel);
-	valueContainer->add(checkLabel);
+	valueContainer->add(toggleLabel);
 	valueContainer->add(clickRegion);
 	add(valueContainer);
-	onLabel->setVisible(this->isToggledOn);
-	offLabel->setVisible(!this->isToggledOn);
+	onLabel->setVisible(this->toggledOn);
+	offLabel->setVisible(!this->toggledOn);
 
 	onLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->isToggledOn=!this->isToggledOn;
-					onLabel->setVisible(this->isToggledOn);
-					offLabel->setVisible(!this->isToggledOn);
+					this->toggledOn=!this->toggledOn;
+					onLabel->setVisible(this->toggledOn);
+					offLabel->setVisible(!this->toggledOn);
 					return true;
 				}
 				return false;
@@ -166,9 +168,9 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 	offLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->isToggledOn=!this->isToggledOn;
-					onLabel->setVisible(this->isToggledOn);
-					offLabel->setVisible(!this->isToggledOn);
+					this->toggledOn=!this->toggledOn;
+					onLabel->setVisible(this->toggledOn);
+					offLabel->setVisible(!this->toggledOn);
 					return true;
 				}
 				return false;
@@ -176,19 +178,19 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 	clickRegion->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->isToggledOn=!this->isToggledOn;
-					onLabel->setVisible(this->isToggledOn);
-					offLabel->setVisible(!this->isToggledOn);
+					this->toggledOn=!this->toggledOn;
+					onLabel->setVisible(this->toggledOn);
+					offLabel->setVisible(!this->toggledOn);
 					return true;
 				}
 				return false;
 			};
-	checkLabel->onMouseDown =
+	toggleLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->isToggledOn=!this->isToggledOn;
-					onLabel->setVisible(this->isToggledOn);
-					offLabel->setVisible(!this->isToggledOn);
+					this->toggledOn=!this->toggledOn;
+					onLabel->setVisible(this->toggledOn);
+					offLabel->setVisible(!this->toggledOn);
 					return true;
 				}
 				return false;
@@ -209,8 +211,10 @@ void ToggleBox::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
+		toggleLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+	} else {
+		toggleLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
 	}
-
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
@@ -237,13 +241,13 @@ void ToggleBox::draw(AlloyContext* context) {
 			clickbox.dimensions.x, clickbox.dimensions.y,radius);
 	nvgFill(nvg);
 	float pos;
-	if(isToggledOn){
+	if(toggledOn){
 		pos=clickbox.position.x+clickbox.dimensions.x-radius;
 	} else {
 		pos=clickbox.position.x+radius;
 	}
 	if (context->isMouseOver(clickRegion.get())
-			|| context->isMouseOver(checkLabel.get())) {
+			|| context->isMouseOver(toggleLabel.get())) {
 		nvgBeginPath(nvg);
 		nvgStrokeColor(nvg, context->theme.LIGHT_TEXT);
 		nvgStrokeWidth(nvg, 2.0f);
@@ -506,6 +510,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	add(selectionBox);
 	add(valueContainer);
 
+
 	selectionLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
@@ -559,6 +564,13 @@ void Selection::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
+
+		arrowLabel->foregroundColor=MakeColor(context->theme.HIGHLIGHT);
+		selectionLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+	} else {
+
+		arrowLabel->foregroundColor=MakeColor(context->theme.LIGHT_TEXT);
+		selectionLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
 	}
 
 	nvgBeginPath(nvg);
