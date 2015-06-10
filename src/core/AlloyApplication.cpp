@@ -187,6 +187,13 @@ void Application::drawDebugUI() {
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
 		}
+		if (context->onTopRegion != nullptr) {
+			txt = MakeString() << "On Top ["
+					<< context->onTopRegion->name<<"]";
+			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
+					Color(255), Color(64, 64, 64));
+			yoffset += 16;
+		}
 		if (context->leftMouseButton) {
 			txt = "Left Mouse Button Down";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,

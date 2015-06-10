@@ -776,13 +776,11 @@ VerticalSlider::VerticalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
 	sliderHandle->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
-		std:cout<<"-->Mouse Down"<<std::endl;
 		return this->onMouseDown(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
-		std:cout<<"Vertical Mouse Drag"<<std::endl;
 		return this->onMouseDrag(context,sliderHandle.get(),e);};
 
 	add(
@@ -942,6 +940,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			new ColorWheel("Color Wheel", CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),
 					CoordPX(300, 300)));
 	colorWheel->setOrigin(Origin::TopCenter);
+	colorWheel->setVisible(false);
 	colorWheel->setColor(*colorLabel->backgroundColor);
 	add(textLabel);
 	add(colorLabel);
@@ -968,7 +967,7 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 		this->updateWheel();
 	};
 	this->onMouseDown = [this](AlloyContext* context,const InputEvent& e) {
-		if(e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
+		if(context->isOnTop(this)&&e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
 			float r2=distanceSqr(e.cursor,center);
 			if(r2<rInner*rInner) {
 				triangleSelected=true;

@@ -169,6 +169,8 @@ void AlloyContext::removeOnTopRegion(Region* region) {
 	if(region==onTopRegion){
 		onTopRegion=nullptr;
 	}
+	//Something else has grabbed focus, hide component.
+	region->setVisible(false);
 }
 
 AlloyContext::AlloyContext(int width, int height, const std::string& title,
