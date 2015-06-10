@@ -40,7 +40,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
-			getFullPath("images/robot.png"));
+			getFullPath("images/sfmarket.png"));
 	GlyphRegionPtr imgr = MakeGlyphRegion(img, CoordPX(160, 160),
 			CoordPX(100, 300), AspectRule::FixedHeight, Color(32, 64, 128, 255),
 			Color(128, 128, 128, 128), Color(200, 200, 200, 255), UnitPX(1.0f));
