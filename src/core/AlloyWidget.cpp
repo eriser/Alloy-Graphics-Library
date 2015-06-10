@@ -526,6 +526,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 					return true;
 				}  else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
 					context->removeOnTopRegion(selectionBox.get());
+					selectionBox->setVisible(false);
 				}
 				return false;
 			};
@@ -533,6 +534,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					context->removeOnTopRegion(selectionBox.get());
+					selectionBox->setVisible(false);
 					int newSelection=selectionBox->getSelectedIndex();
 					if(newSelection<0) {
 						selectionBox->setSelectedIndex(selectedIndex);
@@ -544,6 +546,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 					return true;
 				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
 					context->removeOnTopRegion(selectionBox.get());
+					selectionBox->setVisible(false);
 				}
 				return false;
 			};
@@ -918,6 +921,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 
 					} else {
 						context->removeOnTopRegion(colorWheel.get());
+						colorWheel->setVisible(false);
 					}
 					return true;
 				}
@@ -930,6 +934,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 				context->setOnTopRegion(colorWheel.get());
 			} else {
 				context->removeOnTopRegion(colorWheel.get());
+				colorWheel->setVisible(false);
 			}
 			return true;
 		}
@@ -991,6 +996,7 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 				return true;
 			} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
 				context->removeOnTopRegion(this);
+				setVisible(false);
 				return true;
 			} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())){
 				hsvColor.x+=e.scroll.y*0.01f;
