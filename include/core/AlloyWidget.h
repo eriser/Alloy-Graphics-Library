@@ -36,15 +36,19 @@ public:
 
 	virtual bool onMouseOver(AlloyContext* context, Region* region,
 			const InputEvent& event) {
+		return false;
 	}
 	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) {
+		return false;
 	}
 	virtual bool onMouseUp(AlloyContext* context, Region* region,
 			const InputEvent& event) {
+		return false;
 	}
 	virtual bool onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event) {
+		return false;
 	}
 
 };
