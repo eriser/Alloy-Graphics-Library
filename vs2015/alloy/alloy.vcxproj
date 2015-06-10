@@ -36,6 +36,8 @@
     <ClCompile Include="..\..\src\core\GLTexture.cpp" />
     <ClCompile Include="..\..\src\core\nanovg.cpp" />
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
+    <ClCompile Include="..\..\src\example\main.cpp" />
+    <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h" />
