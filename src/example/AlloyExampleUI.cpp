@@ -21,7 +21,6 @@
 
 #include "Alloy.h"
 #include "../../include/example/AlloyExampleUI.h"
-#include <chrono>
 using namespace aly;
 ExampleUI::ExampleUI() :
 		Application(1280, 720, "ExampleUI") {
@@ -124,7 +123,7 @@ bool ExampleUI::init(Composite& rootNode) {
 							CoordPX(200, 30), std::vector<std::string> {
 									"Mission", "Bernal Heights", "Noe Valley",
 									"Telegraph Hill", "North Beach",
-									"South  Beach", "Richmond", "Sunset",
+									"South Beach", "Richmond", "Sunset",
 									"Daly City", "Dogpatch", "Potrero Hill",
 									"Ocean Beach", "SoMa", "Pacific Heights",
 									"Cow Hollow", "Russian Hill", "Tenderloin",
@@ -169,20 +168,4 @@ bool ExampleUI::init(Composite& rootNode) {
 	return true;
 }
 
-int main() {
-	try {
-		//SANITY_CHECK_IMAGE();
-		//SANITY_CHECK_UI();
-		ExampleUI app;
-		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
-		app.run(1);
-		return 0;
-	} catch (std::exception& e) {
-		std::cout << "Error: " << e.what() << std::endl;
-		std::flush(std::cout);
-		std::cout << "Exiting ..." << std::endl;
-		//std::cout<<"Hit any key ..."<<std::endl;
-		//getchar();
-		return 1;
-	}
-}
+
