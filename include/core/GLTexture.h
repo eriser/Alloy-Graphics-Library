@@ -33,7 +33,7 @@ protected:
 public:
 	GLuint textureId = 0;
 	virtual void draw() override {
-		std::cout << "Start Image Draw " << std::endl;
+		//std::cout << "Start Image Draw " << std::endl;
 		GLuint& vao = context->vaoImage.vao;
 		GLuint& positionBuffer = context->vaoImage.positionBuffer;
 		GLuint& uvBuffer = context->vaoImage.uvBuffer;

@@ -123,6 +123,143 @@ void CheckBox::draw(AlloyContext* context) {
 
 	Composite::draw(context);
 }
+
+ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
+		const AUnit2D& dimensions, bool checked) :
+		Widget(label, position, dimensions), isToggledOn(checked) {
+	this->aspectRatio = 4.0f;
+	CompositePtr valueContainer = MakeComposite("Check Bounds",
+			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
+			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+	checkLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
+			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
+			Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Left, VerticalAlignment::Middle);
+	onLabel = MakeTextLabel(
+			"ON",
+			CoordPercent(0.2f, 0.0f), CoordPercent(0.3f, 1.0f),FontType::Bold,UnitPerPX(1.0f,-4.0f),Application::getContext()->theme.LIGHT_TEXT,HorizontalAlignment::Center,VerticalAlignment::Middle);
+	offLabel = MakeTextLabel(
+			"OFF",
+			CoordPercent(0.5f, 0.0f), CoordPercent(0.3f, 1.0f),FontType::Bold,UnitPerPX(1.0f,-4.0f),Application::getContext()->theme.DARK_TEXT,HorizontalAlignment::Center,VerticalAlignment::Middle);
+
+	clickRegion=MakeComposite("tog select",CoordPercent(1.0f, 0.0f),CoordPercent(0.42f, 1.0f));
+	clickRegion->setOrigin(Origin::TopRight);
+	clickRegion->setAspectRule(AspectRule::FixedHeight);
+	clickRegion->add(onLabel);
+	clickRegion->add(offLabel);
+	valueContainer->add(checkLabel);
+	valueContainer->add(clickRegion);
+	add(valueContainer);
+	onLabel->setVisible(this->isToggledOn);
+	offLabel->setVisible(!this->isToggledOn);
+
+	onLabel->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& event) {
+				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+					this->isToggledOn=!this->isToggledOn;
+					onLabel->setVisible(this->isToggledOn);
+					offLabel->setVisible(!this->isToggledOn);
+					return true;
+				}
+				return false;
+			};
+	offLabel->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& event) {
+				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+					this->isToggledOn=!this->isToggledOn;
+					onLabel->setVisible(this->isToggledOn);
+					offLabel->setVisible(!this->isToggledOn);
+					return true;
+				}
+				return false;
+			};
+	clickRegion->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& event) {
+				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+					this->isToggledOn=!this->isToggledOn;
+					onLabel->setVisible(this->isToggledOn);
+					offLabel->setVisible(!this->isToggledOn);
+					return true;
+				}
+				return false;
+			};
+	checkLabel->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& event) {
+				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
+					this->isToggledOn=!this->isToggledOn;
+					onLabel->setVisible(this->isToggledOn);
+					offLabel->setVisible(!this->isToggledOn);
+					return true;
+				}
+				return false;
+			};
+}
+void ToggleBox::draw(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	bool hover = context->isMouseContainedIn(this);
+	if (hover) {
+		nvgBeginPath(nvg);
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
+				context->theme.HIGHLIGHT.toSemiTransparent(0));
+		nvgFillPaint(nvg, shadowPaint);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFill(nvg);
+	}
+
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgFillColor(nvg, context->theme.DARK);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
+			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS, 2,
+			context->theme.DARK.toSemiTransparent(0), context->theme.HIGHLIGHT);
+	nvgFillPaint(nvg, hightlightPaint);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgFillColor(nvg, context->theme.NEUTRAL);
+	box2px clickbox =clickRegion->getBounds();
+	float radius=clickbox.dimensions.y/2;
+	nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
+			clickbox.dimensions.x, clickbox.dimensions.y,radius);
+	nvgFill(nvg);
+	float pos;
+	if(isToggledOn){
+		pos=clickbox.position.x+clickbox.dimensions.x-radius;
+	} else {
+		pos=clickbox.position.x+radius;
+	}
+	if (context->isMouseOver(clickRegion.get())
+			|| context->isMouseOver(checkLabel.get())) {
+		nvgBeginPath(nvg);
+		nvgStrokeColor(nvg, context->theme.LIGHT_TEXT);
+		nvgStrokeWidth(nvg, 2.0f);
+		nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
+				clickbox.dimensions.x, clickbox.dimensions.y,
+				radius);
+		nvgStroke(nvg);
+	}
+	nvgBeginPath(nvg);
+	nvgFillColor(nvg, context->theme.LIGHT);
+	nvgCircle(nvg, pos,clickbox.position.y+radius,radius-4);
+	nvgFill(nvg);
+
+
+	Composite::draw(context);
+}
 void ProgressBar::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	NVGcontext* nvg = context->nvgContext;

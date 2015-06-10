@@ -109,7 +109,10 @@ bool ExampleUI::init(Composite& rootNode) {
 					Integer(70)));
 
 	CheckBoxPtr checkbox = CheckBoxPtr(
-			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.1),
+			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.07),
+					false));
+	ToggleBoxPtr togglebox = ToggleBoxPtr(
+			new ToggleBox("Toggle", CoordPX(200, 40.0), CoordPercent(0.4f, 0.07),
 					false));
 	ColorSelectorPtr colorselect = ColorSelectorPtr(
 			new ColorSelector("Color", CoordPercent(0.6f, 0.5f),
@@ -143,7 +146,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	comp->add(button1);
 	comp->add(dropdown);
 	comp->add(checkbox);
-
+	comp->add(togglebox);
 	button2->setEnableDrag(true);
 	//button1->setEnableDrag(true);
 	rootNode.add(scrollPane);

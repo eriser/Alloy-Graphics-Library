@@ -75,6 +75,21 @@ public:
 			const AUnit2D& dimensions, bool checked = false);
 	virtual void draw(AlloyContext* context) override;
 };
+class ToggleBox: public Widget {
+private:
+	TextLabelPtr checkLabel;
+	TextLabelPtr onLabel;
+	TextLabelPtr offLabel;
+	CompositePtr clickRegion;
+	bool isToggledOn;
+public:
+	inline bool getValue() {
+		return isToggledOn;
+	}
+	ToggleBox(const std::string& label, const AUnit2D& position,
+			const AUnit2D& dimensions, bool toggledOn = false);
+	virtual void draw(AlloyContext* context) override;
+};
 class SliderHandle: public Region {
 public:
 	SliderHandle(const std::string& name) :
@@ -290,6 +305,7 @@ typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
 typedef std::shared_ptr<ColorSelector> ColorSelectorPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
+typedef std::shared_ptr<ToggleBox> ToggleBoxPtr;
 typedef std::shared_ptr<Selection> SelectionPtr;
 typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 typedef std::shared_ptr<ProgressBar> ProgressBarPtr;

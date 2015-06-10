@@ -25,11 +25,14 @@
 #include "AlloyEnum.h"
 #include "AlloyMath.h"
 #include "AlloyUI.h"
+#include "AlloyUnits.h"
 #include "nanovg.h"
 #include "nanovg_gl.h"
 
 namespace aly {
 int pushScissor(NVGcontext* ctx, float x, float y, float w, float h);
+int pushScissor(NVGcontext* ctx, const box2px& bounds);
+int pushScissor(NVGcontext* ctx, const pixel2& pt,const pixel2& dims);
 int popScissor(NVGcontext* ctx);
 float drawText(NVGcontext* ctx, float x, float y, const char* string,
 		const FontStyle& style = FontStyle::Normal, const Color& foreground =
