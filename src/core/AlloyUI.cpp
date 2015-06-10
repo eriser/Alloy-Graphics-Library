@@ -30,8 +30,9 @@ const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
 const RGBA DEBUG_HIDDEN_COLOR = RGBA(128, 128, 128, 255);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
-const RGBA DEBUG_ON_TOP_COLOR = RGBA(200, 100, 0, 255);
-const RGBA DEBUG_ON_TOP_DOWN_COLOR = RGBA(200, 200, 0, 255);
+const RGBA DEBUG_ON_TOP_COLOR = RGBA(120, 120, 0, 255);
+const RGBA DEBUG_ON_TOP_DOWN_COLOR = RGBA(220, 220, 0, 255);
+const RGBA DEBUG_ON_TOP_HOVER_COLOR = RGBA(180, 180, 0, 255);
 const float Composite::scrollBarSize = 15.0f;
 const float TextField::PADDING = 2;
 bool Region::isVisible() {
@@ -111,7 +112,11 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 				c = DEBUG_DOWN_COLOR;
 			}
 		} else if (hover) {
-			c = DEBUG_HOVER_COLOR;
+			if (ontop) {
+				c = DEBUG_ON_TOP_HOVER_COLOR;
+			} else {
+				c = DEBUG_HOVER_COLOR;
+			}
 		} else if (ontop) {
 			c = DEBUG_ON_TOP_COLOR;
 		} else {
