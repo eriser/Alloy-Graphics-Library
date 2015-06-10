@@ -191,10 +191,15 @@ box2px Region::getCursorBounds() const {
 	return box;
 }
 Region* Composite::locate(const pixel2& cursor) {
-	for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
-		Region* r = (*iter)->locate(cursor);
-		if (r != nullptr)
-			return r;
+	if (isVisible()){
+		for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
+			Region* r = (*iter)->locate(cursor);
+			if (r != nullptr)
+				return r;
+		}
+		if (getCursorBounds().contains(cursor)) {
+			return this;
+		}
 	}
 	return nullptr;
 }

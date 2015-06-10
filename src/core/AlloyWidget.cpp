@@ -951,9 +951,11 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorWheel->setOrigin(Origin::TopCenter);
 	colorWheel->setVisible(false);
 	colorWheel->setColor(*colorLabel->backgroundColor);
+
+
+	add(colorWheel);
 	add(textLabel);
 	add(colorLabel);
-	add(colorWheel);
 }
 void ColorSelector::setColor(const Color& color) {
 	*colorLabel->backgroundColor = color;
