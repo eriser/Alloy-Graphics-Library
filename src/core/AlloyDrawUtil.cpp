@@ -27,11 +27,13 @@ int pushScissor(NVGcontext* ctx, float x, float y, float w, float h) {
 	nvgScissor(ctx, x, y, w, h);
 	return NVG_SCISSOR_STACK.size();
 }
-int pushScissor(NVGcontext* ctx, const box2px& bounds){
-	return pushScissor(ctx,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
+int pushScissor(NVGcontext* ctx, const box2px& bounds) {
+	return pushScissor(ctx, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y);
 }
-int pushScissor(NVGcontext* ctx, const pixel2& position,const pixel2& dimensions){
-	return pushScissor(ctx,position.x,position.y,dimensions.x,dimensions.y);
+int pushScissor(NVGcontext* ctx, const pixel2& position,
+		const pixel2& dimensions) {
+	return pushScissor(ctx, position.x, position.y, dimensions.x, dimensions.y);
 }
 
 int popScissor(NVGcontext* ctx) {

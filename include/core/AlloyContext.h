@@ -217,7 +217,7 @@ public:
 	void removeOnTopRegion(Region* region);
 
 	inline bool isOnTop(Region* region) const {
-		return (onTopRegion!=nullptr&&region==onTopRegion);
+		return (onTopRegion != nullptr && region == onTopRegion);
 	}
 	inline Region* getOnTopRegion() const {
 		return onTopRegion;

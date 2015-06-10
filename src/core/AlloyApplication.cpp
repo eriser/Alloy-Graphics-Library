@@ -182,14 +182,14 @@ void Application::drawDebugUI() {
 		}
 		if (context->mouseFocusRegion != nullptr) {
 			txt = MakeString() << "Mouse Focus ["
-					<< context->mouseFocusRegion->name<<"]";
+					<< context->mouseFocusRegion->name << "]";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
 		}
 		if (context->onTopRegion != nullptr) {
-			txt = MakeString() << "On Top ["
-					<< context->onTopRegion->name<<"]";
+			txt = MakeString() << "On Top [" << context->onTopRegion->name
+					<< "]";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
@@ -250,15 +250,22 @@ void Application::fireEvent(const InputEvent& event) {
 			if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
 				context->rightMouseButton = true;
 			}
-			context->mouseOverRegion=context->mouseFocusRegion = context->mouseDownRegion = context->locate(context->cursorPosition);
+			context->mouseOverRegion = context->mouseFocusRegion =
+					context->mouseDownRegion = context->locate(
+							context->cursorPosition);
 			if (context->mouseDownRegion != nullptr) {
-				context->cursorDownPosition = event.cursor - context->mouseDownRegion->getBoundsPosition();
+				context->cursorDownPosition = event.cursor
+						- context->mouseDownRegion->getBoundsPosition();
 			}
 		} else if (event.isUp()) {
-			if (context->mouseDownRegion!=nullptr&&context->mouseDownRegion->onMouseUp){
-				consumed |= context->mouseDownRegion->onMouseUp(context.get(),event);
+			if (context->mouseDownRegion != nullptr
+					&& context->mouseDownRegion->onMouseUp) {
+				consumed |= context->mouseDownRegion->onMouseUp(context.get(),
+						event);
 			}
-			if(context->mouseDownRegion!=nullptr&&context->getOnTopRegion()==context->mouseDownRegion&&context->mouseDownRegion->isDragEnabled()){
+			if (context->mouseDownRegion != nullptr
+					&& context->getOnTopRegion() == context->mouseDownRegion
+					&& context->mouseDownRegion->isDragEnabled()) {
 				context->removeOnTopRegion(context->mouseDownRegion);
 			}
 
@@ -270,7 +277,8 @@ void Application::fireEvent(const InputEvent& event) {
 	}
 
 	//Fire events
-	if (context->mouseDownRegion != nullptr &&event.type != InputType::MouseButton&& context->leftMouseButton
+	if (context->mouseDownRegion != nullptr
+			&& event.type != InputType::MouseButton && context->leftMouseButton
 			&& context->mouseDownRegion->isDragEnabled()) {
 		if (context->mouseDownRegion->onMouseDrag) {
 			consumed |= context->mouseDownRegion->onMouseDrag(context.get(),
@@ -283,13 +291,14 @@ void Application::fireEvent(const InputEvent& event) {
 		context->requestPack();
 	} else if (context->mouseOverRegion != nullptr) {
 		if (event.type == InputType::MouseButton) {
-			if(event.isDown()){
-				if (context->mouseOverRegion->onMouseDown){
-					consumed |= context->mouseOverRegion->onMouseDown(context.get(),
-							event);
-				}  else if(context->mouseDownRegion->isDragEnabled()) {
+			if (event.isDown()) {
+				if (context->mouseOverRegion->onMouseDown) {
+					consumed |= context->mouseOverRegion->onMouseDown(
+							context.get(), event);
+				} else if (context->mouseDownRegion->isDragEnabled()) {
 					context->setOnTopRegion(context->mouseDownRegion);
-					context->mouseDownRegion->setDragOffset(context->cursorPosition,
+					context->mouseDownRegion->setDragOffset(
+							context->cursorPosition,
 							context->cursorDownPosition);
 				}
 			}
@@ -299,13 +308,13 @@ void Application::fireEvent(const InputEvent& event) {
 			context->requestPack();
 		}
 		if (event.type == InputType::Cursor) {
-			if (context->mouseOverRegion->onMouseOver){
+			if (context->mouseOverRegion->onMouseOver) {
 				consumed |= context->mouseOverRegion->onMouseOver(context.get(),
 						event);
 			}
 		}
 	}
-	if (!consumed){
+	if (!consumed) {
 		context->fireListeners(event);
 	}
 }

@@ -160,14 +160,17 @@ bool AlloyContext::fireListeners(const InputEvent& event) {
 	return false;
 }
 void AlloyContext::setOnTopRegion(Region* region) {
-	if(region==nullptr)throw std::runtime_error("On top region cannot be null. use removeOnTopRegion() instead.");
+	if (region == nullptr)
+		throw std::runtime_error(
+				"On top region cannot be null. use removeOnTopRegion() instead.");
 	onTopRegion = region;
 	region->setVisible(true);
 }
 void AlloyContext::removeOnTopRegion(Region* region) {
-	if(region==nullptr)throw std::runtime_error("Remove on top region cannot be null.");
-	if(region==onTopRegion){
-		onTopRegion=nullptr;
+	if (region == nullptr)
+		throw std::runtime_error("Remove on top region cannot be null.");
+	if (region == onTopRegion) {
+		onTopRegion = nullptr;
 	}
 
 }
@@ -256,8 +259,9 @@ bool AlloyContext::isMouseContainedIn(const pixel2& pos,
 Region* AlloyContext::locate(const pixel2& cursor) const {
 	if (onTopRegion != nullptr) {
 		if (onTopRegion->isVisible()) {
-			Region* r=onTopRegion->locate(cursor);
-			if(r!=nullptr)return r;
+			Region* r = onTopRegion->locate(cursor);
+			if (r != nullptr)
+				return r;
 		}
 	}
 	return cursorLocator.locate(cursor);

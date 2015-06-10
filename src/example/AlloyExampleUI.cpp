@@ -112,12 +112,12 @@ bool ExampleUI::init(Composite& rootNode) {
 			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.07),
 					false));
 	ToggleBoxPtr togglebox = ToggleBoxPtr(
-			new ToggleBox("Toggle", CoordPX(200, 40.0), CoordPercent(0.4f, 0.07),
-					false));
+			new ToggleBox("Toggle", CoordPX(200, 40.0),
+					CoordPercent(0.4f, 0.07), false));
 	ColorSelectorPtr colorselect = ColorSelectorPtr(
 			new ColorSelector("Color", CoordPercent(0.6f, 0.5f),
 					CoordPX(200, 50)));
-	colorselect->setColor(Color(200,128,32));
+	colorselect->setColor(Color(200, 128, 32));
 	SelectionPtr dropdown =
 			SelectionPtr(
 					new Selection("Selection", CoordPercent(0.6, 0.1),

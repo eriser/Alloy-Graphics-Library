@@ -82,9 +82,9 @@ void CheckBox::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-		checkLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+		checkLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
-		checkLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
+		checkLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 	}
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -137,14 +137,17 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	onLabel = MakeTextLabel(
-			"ON",
-			CoordPercent(0.2f, 0.0f), CoordPercent(0.3f, 1.0f),FontType::Bold,UnitPerPX(1.0f,-4.0f),Application::getContext()->theme.LIGHT_TEXT,HorizontalAlignment::Center,VerticalAlignment::Middle);
-	offLabel = MakeTextLabel(
-			"OFF",
-			CoordPercent(0.5f, 0.0f), CoordPercent(0.3f, 1.0f),FontType::Bold,UnitPerPX(1.0f,-4.0f),Application::getContext()->theme.DARK_TEXT,HorizontalAlignment::Center,VerticalAlignment::Middle);
+	onLabel = MakeTextLabel("ON", CoordPercent(0.2f, 0.0f),
+			CoordPercent(0.3f, 1.0f), FontType::Bold, UnitPerPX(1.0f, -4.0f),
+			Application::getContext()->theme.LIGHT_TEXT,
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
+	offLabel = MakeTextLabel("OFF", CoordPercent(0.5f, 0.0f),
+			CoordPercent(0.3f, 1.0f), FontType::Bold, UnitPerPX(1.0f, -4.0f),
+			Application::getContext()->theme.DARK_TEXT,
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
 
-	clickRegion=MakeComposite("tog select",CoordPercent(1.0f, 0.0f),CoordPercent(0.42f, 1.0f));
+	clickRegion = MakeComposite("tog select", CoordPercent(1.0f, 0.0f),
+			CoordPercent(0.42f, 1.0f));
 	clickRegion->setOrigin(Origin::TopRight);
 	clickRegion->setAspectRule(AspectRule::FixedHeight);
 	clickRegion->add(onLabel);
@@ -211,9 +214,9 @@ void ToggleBox::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-		toggleLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+		toggleLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
-		toggleLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
+		toggleLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 	}
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -235,16 +238,16 @@ void ToggleBox::draw(AlloyContext* context) {
 
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, context->theme.NEUTRAL);
-	box2px clickbox =clickRegion->getBounds();
-	float radius=clickbox.dimensions.y/2;
+	box2px clickbox = clickRegion->getBounds();
+	float radius = clickbox.dimensions.y / 2;
 	nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
-			clickbox.dimensions.x, clickbox.dimensions.y,radius);
+			clickbox.dimensions.x, clickbox.dimensions.y, radius);
 	nvgFill(nvg);
 	float pos;
-	if(toggledOn){
-		pos=clickbox.position.x+clickbox.dimensions.x-radius;
+	if (toggledOn) {
+		pos = clickbox.position.x + clickbox.dimensions.x - radius;
 	} else {
-		pos=clickbox.position.x+radius;
+		pos = clickbox.position.x + radius;
 	}
 	if (context->isMouseOver(clickRegion.get())
 			|| context->isMouseOver(toggleLabel.get())) {
@@ -252,15 +255,13 @@ void ToggleBox::draw(AlloyContext* context) {
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
-				clickbox.dimensions.x, clickbox.dimensions.y,
-				radius);
+				clickbox.dimensions.x, clickbox.dimensions.y, radius);
 		nvgStroke(nvg);
 	}
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, context->theme.LIGHT);
-	nvgCircle(nvg, pos,clickbox.position.y+radius,radius-4);
+	nvgCircle(nvg, pos, clickbox.position.y + radius, radius - 4);
 	nvgFill(nvg);
-
 
 	Composite::draw(context);
 }
@@ -401,8 +402,8 @@ box2px SelectionBox::getBounds() const {
 
 	return bbox;
 }
-Region* SelectionBox::locate(const pixel2& cursor){
-	if(getBounds().contains(cursor)){
+Region* SelectionBox::locate(const pixel2& cursor) {
+	if (getBounds().contains(cursor)) {
 		return this;
 	} else {
 		return nullptr;
@@ -510,7 +511,6 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	add(selectionBox);
 	add(valueContainer);
 
-
 	selectionLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
@@ -524,7 +524,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					context->setOnTopRegion(selectionBox.get());
 					return true;
-				}  else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
+				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
 					context->removeOnTopRegion(selectionBox.get());
 					selectionBox->setVisible(false);
 				}
@@ -568,12 +568,12 @@ void Selection::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 
-		arrowLabel->foregroundColor=MakeColor(context->theme.HIGHLIGHT);
-		selectionLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+		arrowLabel->foregroundColor = MakeColor(context->theme.HIGHLIGHT);
+		selectionLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
 
-		arrowLabel->foregroundColor=MakeColor(context->theme.LIGHT_TEXT);
-		selectionLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
+		arrowLabel->foregroundColor = MakeColor(context->theme.LIGHT_TEXT);
+		selectionLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 	}
 
 	nvgBeginPath(nvg);
@@ -633,7 +633,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
-		return this->onMouseDrag(context,sliderHandle.get(),e);};
+				return this->onMouseDrag(context,sliderHandle.get(),e);};
 
 	add(
 			sliderLabel = MakeTextLabel(label,
@@ -779,12 +779,12 @@ VerticalSlider::VerticalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
 	sliderHandle->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
-		return this->onMouseDown(context,sliderHandle.get(),e);};
+				return this->onMouseDown(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
-		return this->onMouseDrag(context,sliderHandle.get(),e);};
+				return this->onMouseDrag(context,sliderHandle.get(),e);};
 
 	add(
 			sliderLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
@@ -907,7 +907,8 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			Application::getContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	colorLabel = MakeRegion("Color", CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f),
-			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f),Application::getContext()->theme.NEUTRAL,
+			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f),
+			Application::getContext()->theme.NEUTRAL,
 			Application::getContext()->theme.LIGHT, UnitPX(1.0f));
 	colorLabel->setAspectRatio(1.0f);
 	colorLabel->setAspectRule(AspectRule::FixedHeight);
@@ -971,54 +972,56 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 	this->onPack = [this]() {
 		this->updateWheel();
 	};
-	this->onMouseDown = [this](AlloyContext* context,const InputEvent& e) {
-		if(context->isOnTop(this)&&e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
-			float r2=distanceSqr(e.cursor,center);
-			if(r2<rInner*rInner) {
-				triangleSelected=true;
-				circleSelected=false;
-			} else if(r2<rOuter*rOuter) {
-				triangleSelected=false;
-				circleSelected=true;
-			} else {
-				circleSelected=false;
-				triangleSelected=false;
-			}
-			this->setColor(e.cursor);
-			return true;
-		}
-		return false;
-	};
-	this->onEvent = [this](AlloyContext* context,const InputEvent& e) {
-		if(context->isOnTop(this)){
-			if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
-				this->setColor(e.cursor);
-				return true;
-			} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
-				context->removeOnTopRegion(this);
-				setVisible(false);
-				return true;
-			} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())){
-				hsvColor.x+=e.scroll.y*0.01f;
-				if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
-				if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
-				selectedColor=HSVtoColor(hsvColor);
-				updateWheel();
-				return true;
-			}
-		}
-		return false;
-	};
+	this->onMouseDown =
+			[this](AlloyContext* context,const InputEvent& e) {
+				if(context->isOnTop(this)&&e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
+					float r2=distanceSqr(e.cursor,center);
+					if(r2<rInner*rInner) {
+						triangleSelected=true;
+						circleSelected=false;
+					} else if(r2<rOuter*rOuter) {
+						triangleSelected=false;
+						circleSelected=true;
+					} else {
+						circleSelected=false;
+						triangleSelected=false;
+					}
+					this->setColor(e.cursor);
+					return true;
+				}
+				return false;
+			};
+	this->onEvent =
+			[this](AlloyContext* context,const InputEvent& e) {
+				if(context->isOnTop(this)) {
+					if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
+						this->setColor(e.cursor);
+						return true;
+					} else if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
+						context->removeOnTopRegion(this);
+						setVisible(false);
+						return true;
+					} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())) {
+						hsvColor.x+=e.scroll.y*0.01f;
+						if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
+						if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
+						selectedColor=HSVtoColor(hsvColor);
+						updateWheel();
+						return true;
+					}
+				}
+				return false;
+			};
 	Application::addListener(this);
 }
 box2px ColorWheel::getBounds() const {
 	box2px bounds = Region::getBounds();
 	bounds.clamp(Application::getContext()->getViewport());
-	bounds.dimensions=aly::max(bounds.dimensions,pixel2(100,100));
+	bounds.dimensions = aly::max(bounds.dimensions, pixel2(100, 100));
 	return bounds;
 }
-Region* ColorWheel::locate(const pixel2& cursor){
-	if(getBounds().contains(cursor)){
+Region* ColorWheel::locate(const pixel2& cursor) {
+	if (getBounds().contains(cursor)) {
 		return this;
 	} else {
 		return nullptr;
@@ -1105,7 +1108,7 @@ void ColorWheel::drawOnTop(AlloyContext* context) {
 
 	NVGpaint paint;
 	nvgSave(nvg);
-	aeps = 0.5f / rOuter;// half a pixel arc length in radians (2pi cancels out).
+	aeps = 0.5f / rOuter; // half a pixel arc length in radians (2pi cancels out).
 	for (i = 0; i < 6; i++) {
 		float a0 = (float) i / 6.0f * NVG_PI * 2.0f - aeps;
 		float a1 = (float) (i + 1.0f) / 6.0f * NVG_PI * 2.0f + aeps;
@@ -1245,11 +1248,11 @@ void ColorSelector::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-		textLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
+		textLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 		colorLabel->borderWidth = UnitPX(2.0f);
 		colorLabel->borderColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
-		textLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
+		textLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 		colorLabel->borderWidth = UnitPX(1.0f);
 		colorLabel->borderColor = MakeColor(context->theme.NEUTRAL);
 	}

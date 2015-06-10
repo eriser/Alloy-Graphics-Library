@@ -52,8 +52,8 @@ bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	else
 		return false;
 }
-Region* Region::locate(const pixel2& cursor){
-	if(getBounds().contains(cursor)){
+Region* Region::locate(const pixel2& cursor) {
+	if (getBounds().contains(cursor)) {
 		return this;
 	} else {
 		return nullptr;
@@ -99,15 +99,14 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	NVGcontext* nvg = context->nvgContext;
 	pushScissor(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 			bounds.dimensions.y);
-	//pushScissor(nvg,bounds.position.x,bounds.position.y,bounds.dimensions.x,bounds.dimensions.y);
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 
 	Color c;
 	if (isVisible()) {
 		if (down) {
-			if(ontop){
-				c=DEBUG_ON_TOP_DOWN_COLOR;
+			if (ontop) {
+				c = DEBUG_ON_TOP_DOWN_COLOR;
 			} else {
 				c = DEBUG_DOWN_COLOR;
 			}
@@ -190,9 +189,10 @@ box2px Region::getCursorBounds() const {
 	return box;
 }
 Region* Composite::locate(const pixel2& cursor) {
-	for(auto iter=children.rbegin();iter!=children.rend();iter++){
-		Region* r=(*iter)->locate(cursor);
-		if(r!=nullptr)return r;
+	for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
+		Region* r = (*iter)->locate(cursor);
+		if (r != nullptr)
+			return r;
 	}
 	return nullptr;
 }
@@ -510,7 +510,7 @@ Composite::Composite(const std::string& name, const AUnit2D& pos,
 		Region(name, pos, dims) {
 }
 bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
-	if (isVisible()&&event.type == InputType::Scroll && isScrollEnabled()) {
+	if (isVisible() && event.type == InputType::Scroll && isScrollEnabled()) {
 		box2px bounds = getBounds();
 		if (bounds.contains(event.cursor)) {
 			if (event.scroll.y != 0) {
@@ -850,8 +850,9 @@ void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 	}
 }
 bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
-	if(isVisible()){
-		if (!context->isFocused(this) || fontSize <= 0)return false;
+	if (isVisible()) {
+		if (!context->isFocused(this) || fontSize <= 0)
+			return false;
 		switch (e.type) {
 		case InputType::MouseButton:
 			handleMouseInput(context, e);
