@@ -922,6 +922,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 					if(!context->isOnTop(colorWheel.get())) {
 						colorWheel->reset();
 						context->setOnTopRegion(colorWheel.get());
+						context->setDragObject(colorWheel.get());
 
 					} else {
 						context->removeOnTopRegion(colorWheel.get());
@@ -936,6 +937,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			if(!context->isOnTop(colorWheel.get())) {
 				colorWheel->reset();
 				context->setOnTopRegion(colorWheel.get());
+				context->setDragObject(colorWheel.get());
 			} else {
 				context->removeOnTopRegion(colorWheel.get());
 				colorWheel->setVisible(false);
