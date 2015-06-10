@@ -772,11 +772,11 @@ struct Theme {
 public:
 	Color HIGHLIGHT = Color(255, 255, 255);
 	Color SHADOW = Color(0, 0, 0);
-	Color LIGHT = Color(220, 220, 220);
+	Color LIGHT = Color(180, 180, 180);
 	Color DARK = Color(64, 64, 64);
-	Color NEUTRAL = Color(128, 128, 128);
+	Color NEUTRAL = Color(120, 120, 120);
 	Color DARK_TEXT = Color(64, 64, 64);
-	Color LIGHT_TEXT = Color(240, 240, 240);
+	Color LIGHT_TEXT = Color(230, 230, 230);
 	float CORNER_RADIUS = 5.0f;
 	Theme() {
 	}

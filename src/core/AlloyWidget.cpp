@@ -115,7 +115,7 @@ void CheckBox::draw(AlloyContext* context) {
 	if (context->isMouseOver(valueLabel.get())
 			|| context->isMouseOver(checkLabel.get())) {
 		nvgBeginPath(nvg);
-		nvgStrokeColor(nvg, context->theme.LIGHT_TEXT);
+		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
 				clickbox.dimensions.x, clickbox.dimensions.y,
@@ -249,7 +249,7 @@ void ToggleBox::draw(AlloyContext* context) {
 	if (context->isMouseOver(clickRegion.get())
 			|| context->isMouseOver(toggleLabel.get())) {
 		nvgBeginPath(nvg);
-		nvgStrokeColor(nvg, context->theme.LIGHT_TEXT);
+		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
 				clickbox.dimensions.x, clickbox.dimensions.y,
@@ -1240,11 +1240,11 @@ void ColorSelector::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-	}
-	if (context->isMouseOver(colorLabel.get())) {
+		textLabel->textColor=MakeColor(context->theme.HIGHLIGHT);
 		colorLabel->borderWidth = UnitPX(2.0f);
 		colorLabel->borderColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
+		textLabel->textColor=MakeColor(context->theme.LIGHT_TEXT);
 		colorLabel->borderWidth = UnitPX(1.0f);
 		colorLabel->borderColor = MakeColor(context->theme.NEUTRAL);
 	}
