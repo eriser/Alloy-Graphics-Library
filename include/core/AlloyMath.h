@@ -1389,10 +1389,20 @@ typedef box<float, 2> box2f;
 typedef box<float, 3> box3f;
 typedef box<float, 4> box4f;
 
+typedef box<double, 1> box1d;
+typedef box<double, 2> box2d;
+typedef box<double, 3> box3d;
+typedef box<double, 4> box4d;
+
 typedef box<int, 1> box1i;
 typedef box<int, 2> box2i;
 typedef box<int, 3> box3i;
 typedef box<int, 4> box4i;
+
+typedef box<uint32_t, 1> box1ui;
+typedef box<uint32_t, 2> box2ui;
+typedef box<uint32_t, 3> box3ui;
+typedef box<uint32_t, 4> box4ui;
 
 }
 ;
