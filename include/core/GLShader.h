@@ -37,15 +37,20 @@ public:
 	GLShader();
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
-	void initialize(std::vector<std::string>& attributes,
+	void initialize(const std::vector<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
-			const std::string& pGeomShaderString = "");
+			const std::string& pGeomShaderString);
+	void initialize(const std::vector<std::string>& attributes,
+			const std::string& pVertexShaderString,
+			const std::string& pFragmentShaderString){
+		initialize(attributes,pVertexShaderString,pFragmentShaderString,"");
+	}
 
-	GLShader(std::vector<std::string>& attributes,
+	GLShader(const std::vector<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
-			const std::string& pGeomShaderString = "") :
+			const std::string& pGeomShaderString) :
 			GLShader() {
 		initialize(attributes, pVertexShaderString, pFragmentShaderString,
 				pGeomShaderString);

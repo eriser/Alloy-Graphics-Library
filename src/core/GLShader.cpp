@@ -37,7 +37,7 @@ GLShader& GLShader::begin() {
 void GLShader::end() {
 	glUseProgram((GLuint) NULL);
 }
-void GLShader::initialize(std::vector<std::string>& pAttributeLocations,
+void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {

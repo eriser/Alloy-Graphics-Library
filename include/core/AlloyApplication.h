@@ -57,6 +57,9 @@ public:
 			context->addListener(region);
 		}
 	}
+	static inline std::string getFullPath(const std::string& partialFile){
+		return context->getFullPath(partialFile);
+	}
 	template<class A> std::shared_ptr<Tween>& addTween(AColor& out,
 			const Color& start, const Color& end, double duration, const A& a =
 					Linear()) {
@@ -72,9 +75,7 @@ public:
 			const A& a = Linear()) {
 		return context->addTween(out, start, end, duration, a);
 	}
-	std::string getFullPath(const std::string& partialFile) {
-		return context->getFullPath(partialFile);
-	}
+
 	inline std::shared_ptr<ImageGlyph> createImageGlyph(
 			const std::string& fileName, bool mipmap = false) {
 		return context->createImageGlyph(fileName);

@@ -18,17 +18,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#ifndef MESHVIEWER_H_
-#define MESHVIEWER_H_
-
-#include "Alloy.h"
-class MeshViewer: public aly::Application {
-private:
-	aly::GLShader matcapShader;
-public:
-	MeshViewer();
-	bool init(aly::Composite& rootNode);
-};
-
-#endif /* ALLOYEXAMPLEUI_H_ */
+#version 330
+in vec3 normal;
+in float mag;
+uniform sampler2D matcapTexture;
+uniform sampler2D colormapTexture;
+uniform float maxVelocity;
+uniform float minVelocity;
+uniform float colorMapValue;
+uniform int transparent;
+void main() {
+   vec3 normalized_normal = normalize(normal);
+   vec4 c=texture2D(matcapTexture,0.5f*normalized_normal.xy+0.5f);
+   if(maxVelocity>0.0&&maxVelocity-minVelocity>1E-6f){
+      float hue=clamp(mag,0.0,1.0);
+      vec4 colormap=texture2D(colormapTexture,vec2(((colorMapValue<0)?1.0-hue:hue),abs(colorMapValue)));
+      c=mix(c,colormap,0.5);
+    }
+    if(transparent>0){
+    	float w=dot(normalized_normal.xy,normalized_normal.xy);
+    	c.w=w;
+    	gl_FragColor=c;
+    } else {
+    	c.w=1.0;
+	    gl_FragColor=c;
+    }
+ }

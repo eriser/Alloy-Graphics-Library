@@ -18,17 +18,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#ifndef MESHVIEWER_H_
-#define MESHVIEWER_H_
-
-#include "Alloy.h"
-class MeshViewer: public aly::Application {
-private:
-	aly::GLShader matcapShader;
-public:
-	MeshViewer();
-	bool init(aly::Composite& rootNode);
-};
-
-#endif /* ALLOYEXAMPLEUI_H_ */
+#version 330
+layout(location = 0) in vec3 vp; // positions from mesh
+layout(location = 1) in vec3 vn; // normals from mesh
+layout(location = 2) in vec3 vel;
+uniform mat4 P, V, M; // proj, view, model matrices
+out vec3 normal;
+out float mag;
+uniform float maxVelocity;
+uniform float minVelocity;
+void main () {
+  mag =(length(vel)-minVelocity)/max(1E-10,maxVelocity-minVelocity);
+  normal = vec3 (V * M * vec4 (vn, 0.0));
+  gl_Position = P * V * M * vec4 (vp, 1.0);
+}

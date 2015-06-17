@@ -26,5 +26,12 @@ MeshViewer::MeshViewer() :
 		Application(1280, 720, "Mesh Viewer") {
 }
 bool MeshViewer::init(Composite& rootNode) {
+	Mesh mesh;
+	mesh.openMesh(getFullPath("models/armadillo.ply"));
+	std::cout<<"Mesh "<<" "<<mesh.mTriIndexes.size()<<" "<<mesh.mVertexes.size()<<std::endl;
+	std::cout<<"Bounding Box "<<mesh.getBoundingBox()<<std::endl;
+	matcapShader.initialize(std::vector<std::string>{"vp","vn"},
+			ReadTextFile(getFullPath("shaders/matcap.vert")),
+			ReadTextFile(getFullPath("shaders/matcap.frag")));
 	return true;
 }

@@ -28,7 +28,10 @@
 #include "AlloyUI.h"
 #include "AlloyWidget.h"
 #include "GLShader.h"
+#include "GLFrameBuffer.h"
 #include "AlloyContext.h"
 #include "AlloyApplication.h"
 #include "AlloyWorker.h"
+#include "AlloyMesh.h"
+
 #endif /* ALLOY_H_ */
