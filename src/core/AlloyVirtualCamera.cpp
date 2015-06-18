@@ -7,7 +7,7 @@
 namespace aly {
 const float VirtualCamera::sDeg2rad = M_PI / 180.0;
 VirtualCamera::VirtualCamera()
-    : mFov(65.0)
+    : mFov(60.0)
 	,mRw(float4x4::identity())
 	,mRm(float4x4::identity())
 	,mCameraTrans(0,0,0)
@@ -53,7 +53,7 @@ VirtualCamera::setSpeed(double zoomSpeed, double strafeSpeed, double tumblingSpe
 
 float4x4 perspectiveMatrix(const float &fovy, const float &aspect, const float &zNear, const float &zFar)
 {
-    float f = 1.0f/tanf(M_PI*fovy / 360.0f);
+    float f = 1.0f/tan(M_PI*fovy / 360.0f);
     float sx = f/aspect;
     float sy = f;
     float sz = -(zFar + zNear) / (zFar - zNear);
@@ -115,19 +115,10 @@ void VirtualCamera::aim(int x,int y,int width,int height,GLShader& shader){
 
         mProjection=Tcamera*transpose(perspectiveMatrix(mFov,aspectRatio,mNearPlane,mFarPlane));
         mView=Teye*S*mRw*T*mRm;
-
-        std::cout<<"T= "<<T<<std::endl;
-        std::cout<<"Teye= "<<Teye<<std::endl;
-        std::cout<<"S= "<<S<<std::endl;
-        std::cout<<"Projection "<<mProjection<<std::endl;
-        std::cout<<"View "<<mView<<std::endl;
-        std::cout<<"Model "<<mModel<<std::endl;
     }
-    shader.begin();
     shader.set("P",mProjection);
     shader.set("V",mView);
     shader.set("M",mModel);
-    shader.end();
     mNeedsDisplay = false;
 }
 
@@ -243,7 +234,7 @@ VirtualCamera::handleCursorEvent(float x, float y)
     if (mMouseDown && !mZoomMode) {
         mNeedsDisplay = true;
 		mRw=
-				MakeRotationY((float)(-dx*mTumblingSpeed*sDeg2rad))*
+				MakeRotationY((float)(dx*mTumblingSpeed*sDeg2rad))*
 				MakeRotationX((float)(dy*mTumblingSpeed*sDeg2rad))*mRw;
     } else if (mMouseDown && mZoomMode) {
         mNeedsDisplay = true;

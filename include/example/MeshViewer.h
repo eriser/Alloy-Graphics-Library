@@ -28,10 +28,13 @@ private:
 	aly::Mesh mesh;
 	aly::VirtualCamera camera;
 	aly::GLShader matcapShader;
+	aly::GLShader imageShader;
+	std::unique_ptr<aly::GLTextureRGBA> bgTexture,matcapTexture;
 public:
 	MeshViewer();
 	bool init(aly::Composite& rootNode) override;
 	void draw(const aly::DrawEvent3D& event) override;
+	void draw(const aly::DrawEvent2D& event) override;
 };
 
 #endif /* ALLOYEXAMPLEUI_H_ */

@@ -33,11 +33,9 @@ protected:
 public:
 	GLuint textureId = 0;
 	virtual void draw() override {
-		//std::cout << "Start Image Draw " << std::endl;
 		GLuint& vao = context->vaoImage.vao;
 		GLuint& positionBuffer = context->vaoImage.positionBuffer;
 		GLuint& uvBuffer = context->vaoImage.uvBuffer;
-		CHECK_GL_ERROR();
 		glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -48,7 +46,6 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-		CHECK_GL_ERROR();
 	}
 
 	virtual void update() override {

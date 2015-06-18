@@ -28,6 +28,7 @@
 #include "AlloyUI.h"
 #include "AlloyWidget.h"
 #include "GLShader.h"
+#include "GLTexture.h"
 #include "GLFrameBuffer.h"
 #include "AlloyContext.h"
 #include "AlloyApplication.h"

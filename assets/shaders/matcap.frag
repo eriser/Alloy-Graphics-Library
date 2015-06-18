@@ -20,11 +20,10 @@
  */
 #version 330
 in vec3 normal;
-//uniform sampler2D matcapTexture;
-//uniform sampler2D colormapTexture;
+uniform sampler2D matcapTexture;
 void main() {
-   //vec3 normalized_normal = normalize(normal);
-   //vec4 c=texture2D(matcapTexture,0.5f*normalized_normal.xy+0.5f);
-   //c.w=1.0;
-   gl_FragColor=vec4(1.0,0.0,0.0,1.0);
+   vec3 normalized_normal = normalize(normal);
+   vec4 c=texture2D(matcapTexture,0.5f*normalized_normal.xy+0.5f);
+   c.w=1.0;
+   gl_FragColor=c;
  }

@@ -35,11 +35,44 @@ bool MeshViewer::init(Composite& rootNode) {
     camera.setNearFarPlanes(0.01f,1000.0f);
     camera.lookAt(float3(0,0,0),1.0);
 	camera.setPose(MakeTransform(bbox,renderBBox));
-	std::cout<<"Bounding Box "<<camera.getPose()<<std::endl;
+	ImageRGBA bgImage;
+	ReadImageFromFile(getFullPath("images/sfsunset.png"),bgImage);
+	bgTexture=std::unique_ptr<GLTextureRGBA>(new GLTextureRGBA(bgImage,getContext()));
+	ImageRGBA matcapImage;
+	ReadImageFromFile(getFullPath("images/JG_Gold.png"),matcapImage);
+	matcapTexture=std::unique_ptr<GLTextureRGBA>(new GLTextureRGBA(matcapImage,getContext()));
 
 	matcapShader.initialize(std::vector<std::string>{"vp","vn"},
 			ReadTextFile(getFullPath("shaders/matcap.vert")),
 			ReadTextFile(getFullPath("shaders/matcap.frag")));
+
+	 imageShader.initialize(std::vector<std::string>{"vp","vn"},
+	 R"(
+	 #version 330
+	 in vec3 vp; 
+	 uniform vec2 imgPosition;
+	 uniform vec2 imgDimensions;
+	 uniform vec2 viewDimensions;
+	 out vec3 pos3d;
+	 void main() {
+	 pos3d=vp;
+	 vec2 pos=(vp.xy*imgDimensions+imgPosition);
+	 pos.x=2*pos.x/viewDimensions.x-1.0;
+	 pos.y=1.0-2*pos.y/viewDimensions.y;
+	 gl_Position = vec4(pos.x,pos.y,0,1);
+})",
+	 R"(
+	 #version 330
+	 in vec3 pos3d;
+	 uniform sampler2D textureImage;
+	 uniform vec2 imgDimensions;
+	 void main() {
+	 vec4 rgba=texture2D(textureImage,pos3d.xy);
+	 gl_FragColor=rgba;
+	 })");
+	bgTexture->update();
+	matcapTexture->update();
+	mesh.updateVertexNormals();
 	mesh.updateGL();
 	addListener(&camera);
 	return true;
@@ -47,7 +80,17 @@ bool MeshViewer::init(Composite& rootNode) {
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	matcapShader.begin();
 	camera.aim(getContext()->viewport,matcapShader);
+	imageShader.set("matcapTexture",*matcapTexture,0);
+
 	mesh.draw();
 	matcapShader.end();
 }
-
+void MeshViewer::draw(const aly::DrawEvent2D& event) {
+	imageShader.begin();
+	imageShader.set("textureImage",*bgTexture,0);
+	imageShader.set("imgPosition",float2(50,50));
+	imageShader.set("imgDimensions",float2(300,200));
+	imageShader.set("viewDimensions",float2(getContext()->viewport.dimensions));
+	bgTexture->draw();
+	imageShader.end();
+}

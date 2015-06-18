@@ -334,9 +334,7 @@ bool Mesh::openMesh(const std::string& file) {
 				if (face.nverts == 4) {
 					this->mQuadIndexes.append(uint4(face.verts[0],face.verts[1],face.verts[2],face.verts[3]));
 				} else if (face.nverts == 3) {
-					for (k = 0; k < face.nverts; k++) {
-						this->mTriIndexes.append(uint3(face.verts[0],face.verts[1],face.verts[2]));
-					}
+					this->mTriIndexes.append(uint3(face.verts[0],face.verts[1],face.verts[2]));
 				}
 			}
 		}							//if face
@@ -561,14 +559,15 @@ void Mesh::draw() {
 	} else if (glMesh.mQuadCount > 0) {
 		glDrawArrays(GL_TRIANGLES, 0, glMesh.mQuadCount);
 	}
+
 	if (glMesh.mTriangleIndexCount > 0) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.mTriIndexBuffer);
-		glDrawElements(GL_TRIANGLES, glMesh.mTriangleIndexCount, GL_UNSIGNED_INT,
-				NULL);
+		glDrawElements(GL_TRIANGLES, glMesh.mTriangleIndexCount, GL_UNSIGNED_INT,NULL);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	} else if (glMesh.mTriangleCount > 0) {
 		glDrawArrays(GL_TRIANGLES, 0, glMesh.mTriangleCount);
 	}
+
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
@@ -578,7 +577,6 @@ void Mesh::draw() {
 }
 
 void Mesh::updateGL() {
-	std::cout<<"Update GL"<<std::endl;
 	glMesh.mQuadCount = 0;
 	glMesh.mTriangleCount = 0;
 	glMesh.mTriangleIndexCount = 0;
@@ -594,7 +592,7 @@ void Mesh::updateGL() {
 		if (glIsBuffer(glMesh.mVertexBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create vertex buffer");
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * mVertexes.size(),
-				&mVertexes[0], GL_STATIC_DRAW);
+				mVertexes.ptr(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -608,7 +606,7 @@ void Mesh::updateGL() {
 			throw std::runtime_error("Error: Unable to create color buffer");
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * mVertexColors.size(),
-				&mVertexColors[0], GL_STATIC_DRAW);
+				mVertexColors.ptr(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -625,10 +623,9 @@ void Mesh::updateGL() {
 
 		// upload data
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				sizeof(GLuint) * mTriIndexes.size(), &mTriIndexes[0],
+				sizeof(GLuint) * mTriIndexes.size()*3, mTriIndexes.ptr(),
 				GL_STATIC_DRAW); // upload data
-
-		glMesh.mTriangleIndexCount = mTriIndexes.size();
+		glMesh.mTriangleIndexCount = mTriIndexes.size()*3;
 		// release buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
@@ -645,7 +642,7 @@ void Mesh::updateGL() {
 
 		// upload data
 		int sz = mQuadIndexes.size();
-		std::vector<GLuint> tmp(12 * (mQuadIndexes.size() / 4));
+		std::vector<GLuint> tmp(12 * mQuadIndexes.size());
 #pragma omp for
 		for (unsigned int i = 0; i < sz; i ++) {
 			int offset = 12 * i;
@@ -679,7 +676,7 @@ void Mesh::updateGL() {
 			throw std::runtime_error("Error: Unable to create normal buffer");
 
 		glBufferData(GL_ARRAY_BUFFER,
-				sizeof(GLfloat) * 3 * mVertexNormals.size(), &mVertexNormals[0],
+				sizeof(GLfloat) * 3 * mVertexNormals.size(), mVertexNormals.ptr(),
 				GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

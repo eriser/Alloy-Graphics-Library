@@ -43,7 +43,6 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		const std::string& pGeometryShaderString) {
 	if (pVertexShaderString.size() == 0 || pFragmentShaderString.size() == 0)
 		return throw std::runtime_error("No shader program specified.");
-	Application::getContext()->begin();
 	GLint lStatus;
 	char message[4096] = "";
 	mVertexShaderHandle = glCreateShader( GL_VERTEX_SHADER);
@@ -103,7 +102,6 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		throw std::runtime_error(
 				MakeString() << "Unable to link shaders ...\n" << message);
 	}
-	Application::getContext()->end();
 }
 
 GLShader::~GLShader() {
