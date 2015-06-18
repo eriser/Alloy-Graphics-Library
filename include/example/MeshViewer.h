@@ -25,10 +25,13 @@
 #include "Alloy.h"
 class MeshViewer: public aly::Application {
 private:
+	aly::Mesh mesh;
+	aly::VirtualCamera camera;
 	aly::GLShader matcapShader;
 public:
 	MeshViewer();
-	bool init(aly::Composite& rootNode);
+	bool init(aly::Composite& rootNode) override;
+	void draw(const aly::DrawEvent3D& event) override;
 };
 
 #endif /* ALLOYEXAMPLEUI_H_ */

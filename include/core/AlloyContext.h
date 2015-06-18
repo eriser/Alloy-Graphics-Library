@@ -151,6 +151,10 @@ struct InputEvent {
 		return ((mods & GLFW_MOD_ALT) != 0);
 	}
 };
+struct EventHandler {
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)=0;
+	virtual inline ~EventHandler(){};
+};
 class Composite;
 class AlloyContext {
 private:
@@ -178,7 +182,7 @@ private:
 	Region* mouseDownRegion = nullptr;
 	Region* mouseFocusRegion = nullptr;
 	Region* onTopRegion = nullptr;
-	std::list<Region*> listeners;
+	std::list<EventHandler*> listeners;
 public:
 	friend class Application;
 	const Theme theme;
@@ -192,10 +196,10 @@ public:
 	box2px getViewport() const {
 		return box2px(pixel2(viewport.position), pixel2(viewport.dimensions));
 	}
-	void addListener(Region* region) {
+	void addListener(EventHandler* region) {
 		listeners.push_back(region);
 	}
-	void removeListener(Region* region) {
+	void removeListener(EventHandler* region) {
 		listeners.remove(region);
 	}
 	inline pixel2 getCursorDownPosition() const {

@@ -51,7 +51,7 @@ PlyProperty MeshFaceProps[] = { // property information for a face
 		{ "texcoord", Float32, Float32, static_cast<int>(offsetof(plyFaceTexture, uvs)), 1, Uint8, Uint8,static_cast<int>(offsetof(plyFaceTexture, uvcount)) },
 		{ "velocities", Float32, Float32, static_cast<int>(offsetof(plyFaceTexture,velocity)), 1, Uint8, Uint8, static_cast<int>(offsetof(plyFaceTexture,nvels)) }, };
 Mesh::Mesh() :
-		mGL(), mPose(float4x4::identity()) {
+		glMesh(), mPose(float4x4::identity()) {
 }
 void Mesh::reset() {
 	mVertexes.clear();
@@ -535,39 +535,39 @@ void Mesh::mapOutOfBoundingBox(float voxelSize) {
 	}
 }
 void Mesh::draw() {
-	glBindVertexArray(mGL.mVao);
-	if (mGL.mVertexBuffer > 0) {
+	glBindVertexArray(glMesh.mVao);
+	if (glMesh.mVertexBuffer > 0) {
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, mGL.mVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glMesh.mVertexBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	if (mGL.mNormalBuffer > 0) {
+	if (glMesh.mNormalBuffer > 0) {
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, mGL.mNormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glMesh.mNormalBuffer);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	if (mGL.mColorBuffer > 0) {
+	if (glMesh.mColorBuffer > 0) {
 		glEnableVertexAttribArray(3);
-		glBindBuffer(GL_ARRAY_BUFFER, mGL.mColorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glMesh.mColorBuffer);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	if (mGL.mQuadIndexCount > 0) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGL.mQuadIndexBuffer);
-		glDrawElements(GL_TRIANGLES, mGL.mQuadIndexCount, GL_UNSIGNED_INT, NULL);
+	if (glMesh.mQuadIndexCount > 0) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.mQuadIndexBuffer);
+		glDrawElements(GL_TRIANGLES, glMesh.mQuadIndexCount, GL_UNSIGNED_INT, NULL);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	} else if (mGL.mQuadCount > 0) {
-		glDrawArrays(GL_TRIANGLES, 0, mGL.mQuadCount);
+	} else if (glMesh.mQuadCount > 0) {
+		glDrawArrays(GL_TRIANGLES, 0, glMesh.mQuadCount);
 	}
-	if (mGL.mTriangleIndexCount > 0) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGL.mTriIndexBuffer);
-		glDrawElements(GL_TRIANGLES, mGL.mTriangleIndexCount, GL_UNSIGNED_INT,
+	if (glMesh.mTriangleIndexCount > 0) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.mTriIndexBuffer);
+		glDrawElements(GL_TRIANGLES, glMesh.mTriangleIndexCount, GL_UNSIGNED_INT,
 				NULL);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	} else if (mGL.mTriangleCount > 0) {
-		glDrawArrays(GL_TRIANGLES, 0, mGL.mTriangleCount);
+	} else if (glMesh.mTriangleCount > 0) {
+		glDrawArrays(GL_TRIANGLES, 0, glMesh.mTriangleCount);
 	}
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -578,19 +578,20 @@ void Mesh::draw() {
 }
 
 void Mesh::updateGL() {
-	mGL.mQuadCount = 0;
-	mGL.mTriangleCount = 0;
-	mGL.mTriangleIndexCount = 0;
-	mGL.mQuadIndexCount = 0;
-	if (mGL.mVao == 0)
-		glGenVertexArrays(1, &mGL.mVao);
+	std::cout<<"Update GL"<<std::endl;
+	glMesh.mQuadCount = 0;
+	glMesh.mTriangleCount = 0;
+	glMesh.mTriangleIndexCount = 0;
+	glMesh.mQuadIndexCount = 0;
+	if (glMesh.mVao == 0)
+		glGenVertexArrays(1, &glMesh.mVao);
 
 	if (mVertexes.size() > 0) {
-		if (glIsBuffer(mGL.mVertexBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &mGL.mVertexBuffer);
-		glGenBuffers(1, &mGL.mVertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, mGL.mVertexBuffer);
-		if (glIsBuffer(mGL.mVertexBuffer) == GL_FALSE)
+		if (glIsBuffer(glMesh.mVertexBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &glMesh.mVertexBuffer);
+		glGenBuffers(1, &glMesh.mVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glMesh.mVertexBuffer);
+		if (glIsBuffer(glMesh.mVertexBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create vertex buffer");
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * mVertexes.size(),
 				&mVertexes[0], GL_STATIC_DRAW);
@@ -598,12 +599,12 @@ void Mesh::updateGL() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	if (mVertexColors.size() > 0) {
-		if (glIsBuffer(mGL.mColorBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &mGL.mColorBuffer);
+		if (glIsBuffer(glMesh.mColorBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &glMesh.mColorBuffer);
 
-		glGenBuffers(1, &mGL.mColorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, mGL.mColorBuffer);
-		if (glIsBuffer(mGL.mColorBuffer) == GL_FALSE)
+		glGenBuffers(1, &glMesh.mColorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glMesh.mColorBuffer);
+		if (glIsBuffer(glMesh.mColorBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create color buffer");
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * mVertexColors.size(),
@@ -613,13 +614,13 @@ void Mesh::updateGL() {
 	}
 	if (mTriIndexes.size() > 0) {
 		// clear old buffer
-		if (glIsBuffer(mGL.mTriIndexBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &mGL.mTriIndexBuffer);
+		if (glIsBuffer(glMesh.mTriIndexBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &glMesh.mTriIndexBuffer);
 
 		// gen new buffer
-		glGenBuffers(1, &mGL.mTriIndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGL.mTriIndexBuffer);
-		if (glIsBuffer(mGL.mTriIndexBuffer) == GL_FALSE)
+		glGenBuffers(1, &glMesh.mTriIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.mTriIndexBuffer);
+		if (glIsBuffer(glMesh.mTriIndexBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create index buffer");
 
 		// upload data
@@ -627,19 +628,19 @@ void Mesh::updateGL() {
 				sizeof(GLuint) * mTriIndexes.size(), &mTriIndexes[0],
 				GL_STATIC_DRAW); // upload data
 
-		mGL.mTriangleIndexCount = mTriIndexes.size();
+		glMesh.mTriangleIndexCount = mTriIndexes.size();
 		// release buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 	if (mQuadIndexes.size() > 0) {
 		// clear old buffer
-		if (glIsBuffer(mGL.mQuadIndexBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &mGL.mQuadIndexBuffer);
+		if (glIsBuffer(glMesh.mQuadIndexBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &glMesh.mQuadIndexBuffer);
 
 		// gen new buffer
-		glGenBuffers(1, &mGL.mQuadIndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGL.mQuadIndexBuffer);
-		if (glIsBuffer(mGL.mQuadIndexBuffer) == GL_FALSE)
+		glGenBuffers(1, &glMesh.mQuadIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.mQuadIndexBuffer);
+		if (glIsBuffer(glMesh.mQuadIndexBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create index buffer");
 
 		// upload data
@@ -664,17 +665,17 @@ void Mesh::updateGL() {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * tmp.size(),
 				&tmp[0], GL_STATIC_DRAW); // upload data
 
-		mGL.mQuadIndexCount = tmp.size();
+		glMesh.mQuadIndexCount = tmp.size();
 		// release buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 	if (mVertexNormals.size() > 0) {
-		if (glIsBuffer(mGL.mNormalBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &mGL.mNormalBuffer);
+		if (glIsBuffer(glMesh.mNormalBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &glMesh.mNormalBuffer);
 
-		glGenBuffers(1, &mGL.mNormalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, mGL.mNormalBuffer);
-		if (glIsBuffer(mGL.mNormalBuffer) == GL_FALSE)
+		glGenBuffers(1, &glMesh.mNormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glMesh.mNormalBuffer);
+		if (glIsBuffer(glMesh.mNormalBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create normal buffer");
 
 		glBufferData(GL_ARRAY_BUFFER,

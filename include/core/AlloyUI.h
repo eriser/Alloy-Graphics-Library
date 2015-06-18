@@ -34,7 +34,8 @@ namespace aly {
 bool SANITY_CHECK_UI();
 
 class Composite;
-struct Region {
+
+struct Region : public EventHandler{
 private:
 	box2px bounds;
 protected:
@@ -55,7 +56,7 @@ protected:
 public:
 	std::function<bool(AlloyContext*, const InputEvent& event)> onEvent;
 	const std::string name;
-	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event);
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event) override;
 	virtual inline bool isScrollEnabled() const {
 		return false;
 	}

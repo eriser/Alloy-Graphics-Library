@@ -1151,18 +1151,30 @@ template<class T> matrix<T, 4, 4> MakeRotationZ(T angle) {
 }
 template<class T> matrix<T, 4, 4> MakeTranslation(
 		const vec<T, 3>& translation) {
-	return matrix<T, 4, 4>(vec<T, 4>((T) 0), vec<T, 4>((T) 0), vec<T, 4>((T) 0),
+	return matrix<T, 4, 4>(vec<T, 4>((T) 1,(T) 0,(T) 0,(T) 0), vec<T, 4>((T) 0,(T) 1,(T) 0,(T) 0), vec<T, 4>((T) 0,(T) 0,(T) 1,(T) 0),
 			translation.xyzw());
+}
+template<class T> matrix<T, 4, 4> MakeTranslation(
+		const vec<T, 4>& translation) {
+	return matrix<T, 4, 4>(vec<T, 4>((T) 1,(T) 0,(T) 0,(T) 0), vec<T, 4>((T) 0,(T) 1,(T) 0,(T) 0), vec<T, 4>((T) 0,(T) 0,(T) 1,(T) 0),
+			translation);
 }
 template<class T> matrix<T, 4, 4> MakeScale(const vec<T, 3>& scale) {
 	return matrix<T, 4, 4>(vec<T, 4>(scale.x, 0, 0, 0),
 			vec<T, 4>(0, scale.y, 0, 0), vec<T, 4>(0, 0, scale.z, 0),
 			vec<T, 4>(0, 0, 0, 1));
 }
+template<class T> matrix<T, 4, 4> MakeScale(const vec<T, 4>& scale) {
+	return matrix<T, 4, 4>(vec<T, 4>(scale.x, 0, 0, 0),
+			vec<T, 4>(0, scale.y, 0, 0), vec<T, 4>(0, 0, scale.z, 0),
+			vec<T, 4>(0, 0, 0, scale.w));
+}
 template<class T> matrix<T, 4, 4> MakeScale(T scale) {
 	return matrix<T, 4, 4>(vec<T, 4>(scale, 0, 0, 0), vec<T, 4>(0, scale, 0, 0),
 			vec<T, 4>(0, 0, scale, 0), vec<T, 4>(0, 0, 0, 1));
 }
+
+
 template<class T> T Angle(const vec<T, 3>& v0, const vec<T, 3>& v1,
 		const vec<T, 3>& v2) {
 	vec<T, 3> v = v0 - v1;
@@ -1316,6 +1328,9 @@ template<class C, class R, class T, int M> std::basic_ostream<C, R> & operator <
 	return ss << "{min: " << v.position << ", max: "
 			<< v.position + v.dimensions << ", dimensions: " << v.dimensions
 			<< "}";
+}
+template<class T> matrix<T, 4, 4> MakeTransform(const box<T,3>& src,const box<T,3>& tar) {
+	return MakeTranslation(tar.position)*MakeScale(tar.dimensions/src.dimensions)*MakeTranslation(-src.position);
 }
 /////////////////////////
 // Convenience aliases //

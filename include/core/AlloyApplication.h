@@ -47,12 +47,12 @@ public:
 			throw std::runtime_error("Cannot get GLFW / NanoVG context.");
 		return context;
 	}
-	static inline void removeListener(Region* region) {
+	static inline void removeListener(EventHandler* region) {
 		if (context.get() != nullptr) {
 			context->removeListener(region);
 		}
 	}
-	static inline void addListener(Region* region) {
+	static inline void addListener(EventHandler* region) {
 		if (context.get() != nullptr) {
 			context->addListener(region);
 		}

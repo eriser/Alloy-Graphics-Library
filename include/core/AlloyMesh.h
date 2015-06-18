@@ -59,7 +59,7 @@ public:
 };
 class Mesh{
 	private:
-	GLMesh mGL;
+	GLMesh glMesh;
 	float4x4 mPose;
 	box3f mBoundingBox;
 	public:

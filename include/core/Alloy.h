@@ -33,5 +33,6 @@
 #include "AlloyApplication.h"
 #include "AlloyWorker.h"
 #include "AlloyMesh.h"
+#include "AlloyVirtualCamera.h"
 
 #endif /* ALLOY_H_ */

@@ -89,9 +89,20 @@ Application::Application(int w, int h, const std::string& title,
 void Application::draw() {
 	DrawEvent3D e3d;
 	DrawEvent2D e2d;
+
+	glClearColor(1.0,1.0,1.0,1.0);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 	draw(e3d);
-	draw(e2d);
+	CHECK_GL_ERROR();
+    glDisable(GL_DEPTH_TEST);
+    glViewport(context->viewport.position.x,context->viewport.position.y,context->viewport.dimensions.x,context->viewport.dimensions.y);
+    draw(e2d);
+	CHECK_GL_ERROR();
+
 	drawUI();
+	CHECK_GL_ERROR();
+
 	if (context->isDebugEnabled()) {
 		glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		drawDebugUI();

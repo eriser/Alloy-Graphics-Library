@@ -201,6 +201,13 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		throw std::runtime_error("Could not initialize GLEW.");
 	}
 	glGetError();
+    glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
+	glEnable( GL_BLEND );
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_POLYGON_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable( GL_MULTISAMPLE );
 	glViewport(0, 0, width, height);
 	viewport = box2i(int2(0, 0), int2(width, height));
 	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
