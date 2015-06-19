@@ -19,12 +19,15 @@
  * THE SOFTWARE.
  */
 
+
 #include "AlloyFileUtil.h"
 #include "AlloyContext.h"
 #include "AlloyUI.h"
+#include "AlloyDrawUtil.h"
 #include "nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION
 #include "nanovg_gl.h"
+
 #include <iostream>
 #include <chrono>
 int printOglError(const char *file, int line) {
@@ -66,23 +69,22 @@ int Font::getCursorPosition(const std::string & text, float fontSize,
 	}
 	return static_cast<int>(positions.size());
 }
-AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context, pixel height) :
+AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context,const  FontStyle& style,pixel height) :
 		Glyph(CodePointToUTF8(codePoint), GlyphType::Awesome, 0, height), codePoint(
-				codePoint) {
+				codePoint),style(style) {
 	NVGcontext* nvg = context->nvgContext;
 	nvgFontSize(nvg, height);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	width = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
 
 }
-void AwesomeGlyph::draw(const box2px& bounds, const Color& color,
+void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,const Color& bgColor,
 		AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	nvgFontSize(nvg, bounds.dimensions.y);
-	nvgFillColor(nvg, color);
+	nvgFontSize(nvg, height);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-	nvgText(nvg, bounds.position.x, bounds.position.y, name.c_str(), nullptr);
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	drawText(nvg,bounds.position+bounds.dimensions*0.5f,name,style,fgColor,bgColor,nullptr);
 }
 ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 		bool mipmap) :
@@ -103,7 +105,7 @@ ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 	width = (pixel) rgba.width;
 	height = (pixel) rgba.height;
 }
-void ImageGlyph::draw(const box2px& bounds, const Color& color,
+void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,const Color& bgColor,
 		AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
@@ -115,11 +117,11 @@ void ImageGlyph::draw(const box2px& bounds, const Color& color,
 			bounds.dimensions.y);
 	nvgFillPaint(nvg, imgPaint);
 	nvgFill(nvg);
-	if (color.a > 0) {
+	if (fgColor.a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 				bounds.dimensions.y);
-		nvgFillColor(nvg, Color(color));
+		nvgFillColor(nvg, Color(fgColor));
 		nvgFill(nvg);
 	}
 

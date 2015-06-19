@@ -504,7 +504,7 @@ box3f Mesh::updateBoundingBox() {
 		maxPt[1] = std::max(maxPtBatch[b][1], maxPt[1]);
 		maxPt[2] = std::max(maxPtBatch[b][2], maxPt[2]);
 	}
-	mBoundingBox=box3f(minPt, maxPt);
+	mBoundingBox=box3f(minPt, maxPt-minPt);
 	return mBoundingBox;
 }
 void Mesh::scale(float sc) {

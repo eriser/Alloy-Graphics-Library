@@ -26,13 +26,11 @@ MeshViewer::MeshViewer() :
 		Application(1280, 720, "Mesh Viewer") {
 }
 bool MeshViewer::init(Composite& rootNode) {
-
 	mesh.openMesh(getFullPath("models/armadillo.ply"));
-	std::cout<<"Mesh "<<" "<<mesh.mTriIndexes.size()<<" "<<mesh.mVertexes.size()<<std::endl;
 	box3f bbox=mesh.getBoundingBox();
-	box3f renderBBox=box3f(float3(-0.5,-0.5,-0.5),float3(0.5,0.5,0.5));
+	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
     camera.setSpeed(0.1, 0.002, 0.2);
-    camera.setNearFarPlanes(0.01f,1000.0f);
+    camera.setNearFarPlanes(0.01f,10.0f);
     camera.lookAt(float3(0,0,0),1.0);
 	camera.setPose(MakeTransform(bbox,renderBBox));
 	ImageRGBA bgImage;

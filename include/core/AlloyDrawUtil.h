@@ -26,8 +26,7 @@
 #include "AlloyMath.h"
 #include "AlloyUI.h"
 #include "AlloyUnits.h"
-#include "nanovg.h"
-#include "nanovg_gl.h"
+class NVGContext;
 
 namespace aly {
 int pushScissor(NVGcontext* ctx, float x, float y, float w, float h);

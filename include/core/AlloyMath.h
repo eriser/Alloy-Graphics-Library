@@ -28,6 +28,7 @@
 #include <tuple>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include "AlloyCommon.h"
 //#include "cereal/cereal.hpp"
 #define ALY_PI float(3.1415926535897932384626433832795)
@@ -578,6 +579,16 @@ template<class T, int M> vec<T, M> max(const vec<T, M> & l,
 	vec<T, M> result;
 	for (int m = 0; m < M; m++)
 		result[m] = std::max(l[m], r[m]);
+	return result;
+}
+template<class T, int M> T max(const vec<T, M> & l) {
+	T result=std::numeric_limits<T>::min();
+	for (int m = 0; m < M; m++)result = std::max(l[m], result);
+	return result;
+}
+template<class T, int M> T min(const vec<T, M> & l) {
+	T result=std::numeric_limits<T>::max();
+	for (int m = 0; m < M; m++)result = std::min(l[m], result);
 	return result;
 }
 template<class T, int M> vec<T, M> min(const vec<T, M> & l,
@@ -1330,7 +1341,9 @@ template<class C, class R, class T, int M> std::basic_ostream<C, R> & operator <
 			<< "}";
 }
 template<class T> matrix<T, 4, 4> MakeTransform(const box<T,3>& src,const box<T,3>& tar) {
-	return MakeTranslation(tar.position)*MakeScale(tar.dimensions/src.dimensions)*MakeTranslation(-src.position);
+	float scaleT=aly::min(tar.dimensions);
+	float scaleS=aly::max(src.dimensions);
+	return MakeTranslation((tar.position+0.5f*tar.dimensions))*MakeScale(scaleT/scaleS)*MakeTranslation(-(src.position+0.5f*src.dimensions));
 }
 /////////////////////////
 // Convenience aliases //

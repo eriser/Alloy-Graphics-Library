@@ -33,13 +33,14 @@ protected:
     float4x4 mRw,mRm;
     float4x4 mProjection,mView,mModel;
     float3 mCameraTrans;
+    float mMouseXPos;
+    float mMouseYPos;
     double mFov, mNearPlane, mFarPlane;
     float3 mLookAt, mEye;
     double mTumblingSpeed, mZoomSpeed, mStrafeSpeed;
     double mDistanceToObject;
     bool mMouseDown, mStartTumbling, mZoomMode, mChanged, mNeedsDisplay;
-    float mMouseXPos=0;
-    float mMouseYPos=0;
+
     void handleKeyEvent(GLFWwindow* win,int key, int action);
     void handleButtonEvent(int button, int action);
     void handleCursorEvent(float x, float y);

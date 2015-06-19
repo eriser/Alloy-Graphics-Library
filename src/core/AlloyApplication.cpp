@@ -365,7 +365,7 @@ void Application::onCursorEnter(int enter) {
 		context->mouseOverRegion = nullptr;
 		InputEvent e;
 		e.type = InputType::Cursor;
-		e.cursor = pixel2(-1, -1);
+		e.cursor = context->cursorPosition;
 		fireEvent(e);
 	} else {
 		context->hasFocus = true;
@@ -430,15 +430,16 @@ void Application::run(int swapInterval) {
 		throw std::runtime_error("Error occurred in application init()");
 	}
 	if (showDebugIcon) {
-		GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188),
+		GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188,FontStyle::Outline,20),
 				CoordPercent(1.0f, 1.0f), CoordPX(20, 20),
-				RGBA(64, 64, 64, 128), RGBA(255, 255, 255, 128));
+				RGBA(0,0,0,0), RGBA(64,64,64,128),RGBA(192,192,192,128),UnitPX(0));
+
 		debug->setOrigin(Origin::BottomRight);
 		debug->onMouseDown =
 				[this,debug](AlloyContext* context,const InputEvent& e) {
 					if(e.button==GLFW_MOUSE_BUTTON_LEFT) {
 						context->toggleDebug();
-						debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(255,255,255,128);
+						debug->foregroundColor=context->isDebugEnabled()?MakeColor(255,64,64,255):MakeColor(64,64,64,128);
 						context->setMouseFocusObject(nullptr);
 						return true;
 					}

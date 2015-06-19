@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 #include "AlloyDrawUtil.h"
+#include "nanovg.h"
 namespace aly {
 std::list<NVGscissorBounds> NVG_SCISSOR_STACK;
 int pushScissor(NVGcontext* ctx, float x, float y, float w, float h) {

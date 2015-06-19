@@ -26,6 +26,8 @@ VirtualCamera::VirtualCamera()
 	, mProjection(float4x4::identity())
 	, mView(float4x4::identity())
 	, mModel(float4x4::identity())
+	, mMouseXPos(0)
+	, mMouseYPos(0)
 {
 }
 
@@ -201,6 +203,8 @@ VirtualCamera::handleButtonEvent(int button, int action)
 }
 
 bool VirtualCamera::onEventHandler(AlloyContext* context, const InputEvent& event){
+
+	pixel2 lastPt=context->getCursorDownPosition();
 	switch(event.type){
 		case InputType::Cursor:
 			handleCursorEvent(event.cursor.x,event.cursor.y);
@@ -222,15 +226,13 @@ void
 VirtualCamera::handleCursorEvent(float x, float y)
 {
     if (mStartTumbling) {
-        mMouseXPos = x;
-        mMouseYPos = y;
+    	mMouseXPos=x;
+    	mMouseYPos=y;
         mStartTumbling = false;
     }
-
     float dx, dy;
     dx = x - mMouseXPos;
     dy = y - mMouseYPos;
-
     if (mMouseDown && !mZoomMode) {
         mNeedsDisplay = true;
 		mRw=
@@ -240,12 +242,10 @@ VirtualCamera::handleCursorEvent(float x, float y)
         mNeedsDisplay = true;
         float3 mUp=mRw.row(1).xyz();
         float3 mRight=mRw.row(0).xyz();
-        mLookAt +=(mRight*dx+dy*mUp) * (float)(mStrafeSpeed);
-
+        mLookAt +=(mRight*dx-dy*mUp) * (float)(mStrafeSpeed);
     }
-    mMouseXPos = x;
-    mMouseYPos = y;
-
+	mMouseXPos=x;
+	mMouseYPos=y;
     mChanged = true;
 }
 void VirtualCamera::handleScrollEvent(int pos)

@@ -1013,7 +1013,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		glyph->draw(bounds, *foregroundColor, context);
+		glyph->draw(bounds, *foregroundColor,*borderColor, context);
 	}
 
 	if (borderColor->a > 0) {
@@ -1041,7 +1041,7 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions, const Color& bgColor, const Color& fgColor,
+		const AUnit2D& dimensions,const Color& bgColor, const Color& fgColor,
 		const Color& borderColor, const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			new GlyphRegion(glyph->name));

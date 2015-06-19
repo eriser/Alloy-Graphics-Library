@@ -383,7 +383,7 @@ struct Color: public NVGcolor {
 		return Color(clamp(alpha * r, 0.0f, 1.0f), clamp(alpha * g, 0.0f, 1.0f),
 				clamp(alpha * b, 0.0f, 1.0f), a);
 	}
-	inline Color toOpposite(float alpha) const {
+	inline Color toOpposite() const {
 		return Color(1.0f - r, 1.0f - g, 1.0f - b, a);
 	}
 	inline Color toSemiTransparent(int alpha) const {
