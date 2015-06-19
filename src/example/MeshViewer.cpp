@@ -27,14 +27,30 @@ MeshViewer::MeshViewer() :
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.openMesh(getFullPath("models/armadillo.ply"));
-	box3f bbox=mesh.getBoundingBox();
 	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
-	camera.setPose(MakeTransform(bbox,renderBBox)*MakeRotationY((float)M_PI));
+	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox)*MakeRotationY((float)M_PI));
 	bgTexture.load(getFullPath("images/sfsunset.png"));
 	matcapTexture.load(getFullPath("images/JG_Gold.png"));
 	matcapShader.initialize(std::vector<std::string>{"vp","vn"},
-			ReadTextFile(getFullPath("shaders/matcap.vert")),
-			ReadTextFile(getFullPath("shaders/matcap.frag")));
+				R"(#version 330
+				layout(location = 0) in vec3 vp; // positions from mesh
+				layout(location = 1) in vec3 vn; // normals from mesh
+				uniform mat4 ProjMat, ViewMat, ModelMat; // proj, view, model matrices
+				out vec3 normal;
+				void main () {
+				  normal = vec3 (ViewMat * ModelMat * vec4 (vn, 0.0));
+				  gl_Position = ProjMat * ViewMat * ModelMat * vec4 (vp, 1.0);
+				})",
+				R"(#version 330
+				in vec3 normal;
+				uniform sampler2D matcapTexture;
+				void main() {
+				   vec3 normalized_normal = normalize(normal);
+				   vec4 c=texture2D(matcapTexture,0.5f*normalized_normal.xy+0.5f);
+				   c.w=1.0;
+				   gl_FragColor=c;
+				 }
+				)");
 
 	 imageShader.initialize(std::vector<std::string>{"vp","vn"},
 	 R"(
