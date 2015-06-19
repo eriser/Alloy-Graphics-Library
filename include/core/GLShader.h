@@ -167,11 +167,12 @@ public:
 		glUniform4i(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
 		return *this;
 	}
-	template<class T, int C, ImageType I> void set(const std::string& variable,
+	template<class T, int C, ImageType I> GLShader& set(const std::string& variable,
 			const GLTexture<T, C, I>& value, int id) {
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()), id);
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_2D, value.textureId);
+		return *this;
 	}
 	virtual GLShader& begin();
 	virtual void end();

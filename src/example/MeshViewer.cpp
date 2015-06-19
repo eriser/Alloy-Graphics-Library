@@ -62,17 +62,19 @@ bool MeshViewer::init(Composite& rootNode) {
 	return true;
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
-	matcapShader.begin();
-	matcapShader.set(camera,getContext()->getViewport());
-	matcapShader.set("matcapTexture",matcapTexture,0);
+	matcapShader
+		.begin()
+		.set(camera,getContext()->getViewport())
+		.set("matcapTexture",matcapTexture,0);
 	mesh.draw();
 	matcapShader.end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	imageShader.begin();
-	imageShader.set("textureImage",bgTexture,0);
-	imageShader.set("bounds",box2px(float2(30.0f,30.0f),float2(300.0f,200.0f)));
-	imageShader.set("viewport",getContext()->viewport);
+	imageShader
+			.begin()
+			.set("textureImage",bgTexture,0)
+			.set("bounds",box2px(float2(30.0f,30.0f),float2(300.0f,200.0f)))
+			.set("viewport",getContext()->viewport);
 	bgTexture.draw();
 	imageShader.end();
 }
