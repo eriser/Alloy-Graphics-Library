@@ -32,10 +32,10 @@ private:
 	GLuint mFragmentShaderHandle;
 	GLuint mGeometryShaderHandle;
 	GLuint mProgramHandle;
-
+	std::shared_ptr<AlloyContext> context=nullptr;
 public:
 	// Default constructor.
-	GLShader();
+	GLShader(std::shared_ptr<AlloyContext>& context);
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
 	void initialize(const std::vector<std::string>& attributes,
@@ -48,11 +48,11 @@ public:
 		initialize(attributes,pVertexShaderString,pFragmentShaderString,"");
 	}
 
-	GLShader(const std::vector<std::string>& attributes,
+	GLShader(std::shared_ptr<AlloyContext>& context,const std::vector<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
 			const std::string& pGeomShaderString) :
-			GLShader() {
+			GLShader(context) {
 		initialize(attributes, pVertexShaderString, pFragmentShaderString,
 				pGeomShaderString);
 	}

@@ -23,7 +23,8 @@
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
 MeshViewer::MeshViewer() :
-		Application(1280, 720, "Mesh Viewer"),bgTexture(getContext()),matcapTexture(getContext()) {
+		Application(1280, 720, "Mesh Viewer"),bgTexture(getContext()),matcapTexture(getContext()),
+		imageShader(getContext()),matcapShader(getContext()){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.openMesh(getFullPath("models/armadillo.ply"));

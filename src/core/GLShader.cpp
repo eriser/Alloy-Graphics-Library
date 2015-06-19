@@ -19,15 +19,14 @@
  * THE SOFTWARE.
  */
 #include "AlloyContext.h"
-#include "AlloyApplication.h"
 #include "GLShader.h"
 #include <iostream>
 
 namespace aly {
 
-GLShader::GLShader() :
+GLShader::GLShader(std::shared_ptr<AlloyContext>& context) :
 		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(
-				0), mProgramHandle(0) {
+				0), mProgramHandle(0),context(context) {
 
 }
 GLShader& GLShader::begin() {
@@ -52,7 +51,7 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 	glGetShaderiv(mVertexShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mVertexShaderHandle, sizeof(message), NULL, message);
-		Application::getContext()->end();
+		context->end();
 		throw std::runtime_error(
 				MakeString() << "Unable to compile vertex shader ...\n"
 						<< message);
@@ -64,7 +63,7 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 	glGetShaderiv(mFragmentShaderHandle, GL_COMPILE_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mFragmentShaderHandle, sizeof(message), NULL, message);
-		Application::getContext()->end();
+		context->end();
 		throw std::runtime_error(
 				MakeString() << "Unable to compile fragment shader ...\n"
 						<< message);
@@ -78,7 +77,7 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		if (lStatus != GL_TRUE) {
 			glGetInfoLogARB(mGeometryShaderHandle, sizeof(message), NULL,
 					message);
-			Application::getContext()->end();
+			context->end();
 			throw std::runtime_error(
 					MakeString() << "Unable to compile geometry shader ...\n"
 							<< message);
@@ -98,14 +97,14 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 	glGetProgramiv(mProgramHandle, GL_LINK_STATUS, &lStatus);
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mProgramHandle, sizeof(message), NULL, message);
-		Application::getContext()->end();
+		context->end();
 		throw std::runtime_error(
 				MakeString() << "Unable to link shaders ...\n" << message);
 	}
 }
 
 GLShader::~GLShader() {
-	Application::getContext()->begin();
+	context->begin();
 	glDetachShader(mProgramHandle, mFragmentShaderHandle);
 	glDeleteShader(mFragmentShaderHandle);
 	glDetachShader(mProgramHandle, mVertexShaderHandle);
@@ -113,6 +112,6 @@ GLShader::~GLShader() {
 	glDetachShader(mProgramHandle, mGeometryShaderHandle);
 	glDeleteShader(mGeometryShaderHandle);
 	glDeleteProgram(mProgramHandle);
-	Application::getContext()->end();
+	context->end();
 }
 }
