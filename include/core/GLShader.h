@@ -159,6 +159,14 @@ public:
 	    set("ModelMat",camera.mModel);
 		return *this;
 	}
+	inline GLShader& set(const std::string& variable, const box2px& value) {
+		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
+		return *this;
+	}
+	inline GLShader& set(const std::string& variable, const box2i& value) {
+		glUniform4i(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
+		return *this;
+	}
 	template<class T, int C, ImageType I> void set(const std::string& variable,
 			const GLTexture<T, C, I>& value, int id) {
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()), id);

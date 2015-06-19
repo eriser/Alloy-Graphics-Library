@@ -40,22 +40,18 @@ bool MeshViewer::init(Composite& rootNode) {
 	 R"(
 	 #version 330
 	 in vec3 vp; 
-	 uniform vec2 imgPosition;
-	 uniform vec2 imgDimensions;
-	 uniform vec2 viewDimensions;
+	 uniform vec4 bounds;
+	 uniform ivec4 viewport;
 	 out vec3 pos3d;
 	 void main() {
 	 pos3d=vp;
-	 vec2 pos=(vp.xy*imgDimensions+imgPosition);
-	 pos.x=2*pos.x/viewDimensions.x-1.0;
-	 pos.y=1.0-2*pos.y/viewDimensions.y;
-	 gl_Position = vec4(pos.x,pos.y,0,1);
+	 vec2 pos=vp.xy*bounds.zw+bounds.xy;
+	 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
 	 R"(
 	 #version 330
 	 in vec3 pos3d;
 	 uniform sampler2D textureImage;
-	 uniform vec2 imgDimensions;
 	 void main() {
 	 vec4 rgba=texture2D(textureImage,pos3d.xy);
 	 gl_FragColor=rgba;
@@ -75,9 +71,8 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader.begin();
 	imageShader.set("textureImage",bgTexture,0);
-	imageShader.set("imgPosition",float2(50,50));
-	imageShader.set("imgDimensions",float2(300,200));
-	imageShader.set("viewDimensions",float2(getContext()->viewport.dimensions));
+	imageShader.set("bounds",box2px(float2(30.0f,30.0f),float2(300.0f,200.0f)));
+	imageShader.set("viewport",getContext()->viewport);
 	bgTexture.draw();
 	imageShader.end();
 }
