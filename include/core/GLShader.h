@@ -159,7 +159,7 @@ public:
 	    set("ModelMat",camera.mModel);
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const box2px& value) {
+	inline GLShader& set(const std::string& variable, const box2f& value) {
 		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
 		return *this;
 	}
