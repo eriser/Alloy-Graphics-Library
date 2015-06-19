@@ -39,7 +39,7 @@ public:
 	virtual void update()=0;
 	virtual inline ~GLComponent() {
 	}
-	;
+
 	GLComponent(std::shared_ptr<AlloyContext>& context) :
 			context(context) {
 	}

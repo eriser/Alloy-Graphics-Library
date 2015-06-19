@@ -23,23 +23,15 @@
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
 MeshViewer::MeshViewer() :
-		Application(1280, 720, "Mesh Viewer") {
+		Application(1280, 720, "Mesh Viewer"),bgTexture(getContext()),matcapTexture(getContext()) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.openMesh(getFullPath("models/armadillo.ply"));
 	box3f bbox=mesh.getBoundingBox();
 	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
-    camera.setSpeed(0.1, 0.002, 0.2);
-    camera.setNearFarPlanes(0.01f,10.0f);
-    camera.lookAt(float3(0,0,0),1.0);
-	camera.setPose(MakeTransform(bbox,renderBBox));
-	ImageRGBA bgImage;
-	ReadImageFromFile(getFullPath("images/sfsunset.png"),bgImage);
-	bgTexture=std::unique_ptr<GLTextureRGBA>(new GLTextureRGBA(bgImage,getContext()));
-	ImageRGBA matcapImage;
-	ReadImageFromFile(getFullPath("images/JG_Gold.png"),matcapImage);
-	matcapTexture=std::unique_ptr<GLTextureRGBA>(new GLTextureRGBA(matcapImage,getContext()));
-
+	camera.setPose(MakeTransform(bbox,renderBBox)*MakeRotationY((float)M_PI));
+	bgTexture.load(getFullPath("images/sfsunset.png"));
+	matcapTexture.load(getFullPath("images/JG_Gold.png"));
 	matcapShader.initialize(std::vector<std::string>{"vp","vn"},
 			ReadTextFile(getFullPath("shaders/matcap.vert")),
 			ReadTextFile(getFullPath("shaders/matcap.frag")));
@@ -68,8 +60,6 @@ bool MeshViewer::init(Composite& rootNode) {
 	 vec4 rgba=texture2D(textureImage,pos3d.xy);
 	 gl_FragColor=rgba;
 	 })");
-	bgTexture->update();
-	matcapTexture->update();
 	mesh.updateVertexNormals();
 	mesh.updateGL();
 	addListener(&camera);
@@ -77,18 +67,17 @@ bool MeshViewer::init(Composite& rootNode) {
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	matcapShader.begin();
-	camera.aim(getContext()->viewport,matcapShader);
-	imageShader.set("matcapTexture",*matcapTexture,0);
-
+	matcapShader.set(camera,getContext()->getViewport());
+	matcapShader.set("matcapTexture",matcapTexture,0);
 	mesh.draw();
 	matcapShader.end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader.begin();
-	imageShader.set("textureImage",*bgTexture,0);
+	imageShader.set("textureImage",bgTexture,0);
 	imageShader.set("imgPosition",float2(50,50));
 	imageShader.set("imgDimensions",float2(300,200));
 	imageShader.set("viewDimensions",float2(getContext()->viewport.dimensions));
-	bgTexture->draw();
+	bgTexture.draw();
 	imageShader.end();
 }

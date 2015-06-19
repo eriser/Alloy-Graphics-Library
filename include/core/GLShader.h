@@ -22,6 +22,7 @@
 #define GLSHADER_H_
 #include "AlloyContext.h"
 #include "GLTexture.h"
+#include "AlloyVirtualCamera.h"
 #include <vector>
 #include <string>
 namespace aly {
@@ -149,6 +150,13 @@ public:
 		glUniformMatrix2fv(
 		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
 				value.ptr());
+		return *this;
+	}
+	inline GLShader& set(VirtualCamera& camera,const box2px& bounds){
+		camera.aim(bounds);
+	    set("ProjMat",camera.mProjection);
+	    set("ViewMat",camera.mView);
+	    set("ModelMat",camera.mModel);
 		return *this;
 	}
 	template<class T, int C, ImageType I> void set(const std::string& variable,

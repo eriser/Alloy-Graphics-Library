@@ -1,4 +1,6 @@
 #include "AlloyVirtualCamera.h"
+
+#include "GLShader.h"
 #include <cmath>
 #include <string>
 #include <list>
@@ -85,8 +87,8 @@ float4x4 lookAtMatrix(float3 eyePosition3D,float3 center3D, float3 upVector3D ){
    T(2,3)=-eyePosition3D[2];
    return transpose(matrix2)*T;
 }
-void VirtualCamera::aim(int x,int y,int width,int height,GLShader& shader){
-	double aspectRatio = (double)width / (double)height;
+void VirtualCamera::aim(const box2px& bounds){
+	double aspectRatio = (double)bounds.dimensions.x / (double)bounds.dimensions.y;
     if (mChanged) {
         mChanged = false;
         float4x4 Tinv=float4x4::identity();
@@ -118,9 +120,7 @@ void VirtualCamera::aim(int x,int y,int width,int height,GLShader& shader){
         mProjection=Tcamera*transpose(perspectiveMatrix(mFov,aspectRatio,mNearPlane,mFarPlane));
         mView=Teye*S*mRw*T*mRm;
     }
-    shader.set("P",mProjection);
-    shader.set("V",mView);
-    shader.set("M",mModel);
+
     mNeedsDisplay = false;
 }
 

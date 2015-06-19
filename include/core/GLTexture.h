@@ -235,19 +235,41 @@ public:
 	GLTexture(std::shared_ptr<AlloyContext>& context) :
 			GLComponent(context), textureId(0) {
 	}
+
 	GLTexture(int x, int y, int width, int height, int imageWidth,
 			int imageHeight, std::shared_ptr<AlloyContext>& context) :
 			GLComponent(context) {
 		textureImage.resize(imageWidth, imageHeight);
 		bounds = box2i( { x, y }, { width, height });
+		update();
 	}
 	GLTexture(const Image<T, C, I>& image,
 			std::shared_ptr<AlloyContext>& context) :
 			GLComponent(context) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
+		update();
 	}
-
+	void load(const Image<T, C, I>& image){
+		textureImage.set(image);
+		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
+		update();
+	}
+	void load(const Image<T, C, I>& image,int x, int y, int width, int height){
+		textureImage.set(image);
+		bounds = box2i( { x, y }, { width, height });
+		update();
+	}
+	void load(const std::string& fileName){
+		ReadImageFromFile(fileName,textureImage);
+		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
+		update();
+	}
+	void load(const std::string& fileName,int x, int y, int width, int height){
+		ReadImageFromFile(fileName,textureImage);
+		bounds = box2i( { x, y }, { width, height });
+		update();
+	}
 	virtual ~GLTexture() {
 		context->begin();
 		if (textureId) {

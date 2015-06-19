@@ -23,15 +23,13 @@
 #define ALLOYCAMERA_H_
 
 #include "AlloyMath.h"
-#include "GLShader.h"
-
+#include "AlloyContext.h"
 #include <fstream>
 namespace aly{
 class VirtualCamera: public EventHandler{
 protected:
     // Camera parameters
     float4x4 mRw,mRm;
-    float4x4 mProjection,mView,mModel;
     float3 mCameraTrans;
     float mMouseXPos;
     float mMouseYPos;
@@ -47,12 +45,9 @@ protected:
     void handleScrollEvent(int pos);
 public:
 
+    float4x4 mProjection,mView,mModel;
 	VirtualCamera();
-
-    void aim(int x,int y,int width,int height,GLShader& shader);
-    inline void aim(const box2i& box,GLShader& shader){
-    	aim(box.position.x,box.position.y,box.dimensions.x,box.dimensions.y,shader);
-    }
+    void aim(const aly::box2px& bounds);
     void setPose(const float4x4& m){
     	mModel=m;
     }
