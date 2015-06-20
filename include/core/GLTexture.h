@@ -30,9 +30,9 @@ namespace aly {
 template<class T, int C, ImageType I> class GLTexture: public GLComponent {
 protected:
 	Image<T, C, I> textureImage;
-	GLuint internalFormat = GL_DEPTH_COMPONENT;
-	GLuint externalFormat = GL_R32F;
-	GLuint dataType;
+	GLuint internalFormat = 0;
+	GLuint externalFormat = 0;
+	GLuint dataType = 0;
 	bool mipmap=false;
 public:
 	GLuint textureId = 0;
