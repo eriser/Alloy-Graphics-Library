@@ -28,17 +28,20 @@
 namespace aly {
 class Mesh;
 class GLShader {
-private:
+protected:
 	GLuint mVertexShaderHandle;
 	GLuint mFragmentShaderHandle;
 	GLuint mGeometryShaderHandle;
 	GLuint mProgramHandle;
 	bool shaderEnabled=false;
-	std::shared_ptr<AlloyContext> context=nullptr;
+	std::shared_ptr<AlloyContext> context;
 	void enableCheck(){
-		if(!shaderEnabled)throw std::runtime_error("Could not set shader parameter because shader is not enabled. Call  shader.begin() first.");
+		if(!shaderEnabled)throw std::runtime_error("Could not set shader parameter because shader is not enabled. Call shader.begin() first.");
 	}
 public:
+	std::shared_ptr<AlloyContext>& getContext(){
+		return context;
+	}
 	// Default constructor.
 	GLShader(std::shared_ptr<AlloyContext>& context);
 	virtual ~GLShader();
@@ -202,11 +205,11 @@ public:
 		return *this;
 	}
 
-	virtual GLShader& begin();
-	virtual GLShader& draw(const GLComponent& comp);
-	virtual GLShader& draw(const Mesh& mesh);
+	GLShader& begin();
+	GLShader& draw(const GLComponent& comp);
+	GLShader& draw(const Mesh& mesh);
 
-	virtual void end();
+	void end();
 	inline GLuint GetProgramHandle() const {
 		return mProgramHandle;
 	}

@@ -24,6 +24,7 @@
 #include "AlloyContext.h"
 #include "AlloyMath.h"
 #include "AlloyImage.h"
+#include "AlloyFileUtil.h"
 #include "GLComponent.h"
 namespace aly {
 template<class T, int C, ImageType I> class GLTexture: public GLComponent {

@@ -27,9 +27,8 @@ class MeshViewer: public aly::Application {
 private:
 	aly::Mesh mesh;
 	aly::VirtualCamera camera;
-	aly::GLShader matcapShader;
-	aly::GLShader imageShader;
-	aly::GLTextureRGBA bgTexture,matcapTexture;
+	std::shared_ptr<aly::MatcapShader> matcapShader;
+	std::shared_ptr<aly::ImageShader> imageShader;
 public:
 	MeshViewer();
 	bool init(aly::Composite& rootNode) override;

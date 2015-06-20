@@ -19,27 +19,31 @@
  * THE SOFTWARE.
  */
 
-#include "Alloy.h"
-#include "../../include/example/MeshViewer.h"
-using namespace aly;
-MeshViewer::MeshViewer() :
-		Application(1280, 720, "Mesh Viewer"),
-		mesh(getContext()){
+#ifndef COMMONSHADERS_H_
+#define COMMONSHADERS_H_
+
+#include "GLTexture.h"
+#include "GLShader.h"
+namespace aly{
+class VirtualCamera;
+class MatcapShader:  public GLShader{
+private:
+	GLTextureRGBA matcapTexture;
+public:
+	MatcapShader(const std::string& textureImage,std::shared_ptr<AlloyContext> contex);
+	void draw(const Mesh& mesh,VirtualCamera& camera,const box2px& bounds);
+	void draw(const Mesh& mesh,VirtualCamera& camera);
+};
+class ImageShader: public GLShader{
+private:
+	GLTextureRGBA imageTexture;
+public:
+	ImageShader(const std::string& textureImage,std::shared_ptr<AlloyContext> context);
+	void draw(const box2px& bounds);
+	void draw(const float2& location,const float2& dimensions);
+};
 }
-bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/armadillo.ply"));
-	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
-	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox));
-	matcapShader=std::shared_ptr<MatcapShader>(new MatcapShader(getFullPath("images/JG_Gold.png"),getContext()));
-	imageShader=std::shared_ptr<ImageShader>(new ImageShader(getFullPath("images/sfsunset.png"),getContext()));
-	mesh.updateVertexNormals();
-	mesh.transform(MakeRotationY((float)M_PI));
-	addListener(&camera);
-	return true;
-}
-void MeshViewer::draw(const aly::DrawEvent3D& event) {
-	matcapShader->draw(mesh,camera);
-}
-void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	imageShader->draw(float2(30.0f,30.0f),float2(300.0f,200.0f));
-}
+
+
+
+#endif /* COMMONSHADERS_H_ */
