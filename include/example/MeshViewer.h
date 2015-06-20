@@ -29,6 +29,7 @@ private:
 	aly::VirtualCamera camera;
 	std::shared_ptr<aly::MatcapShader> matcapShader;
 	std::shared_ptr<aly::ImageShader> imageShader;
+	aly::GLTextureRGBA exampleImage;
 public:
 	MeshViewer();
 	bool init(aly::Composite& rootNode) override;

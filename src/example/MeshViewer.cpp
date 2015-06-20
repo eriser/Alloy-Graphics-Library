@@ -24,14 +24,15 @@
 using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1280, 720, "Mesh Viewer"),
-		mesh(getContext()){
+		mesh(getContext()),exampleImage(getContext()){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/armadillo.ply"));
 	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox));
 	matcapShader=std::shared_ptr<MatcapShader>(new MatcapShader(getFullPath("images/JG_Gold.png"),getContext()));
-	imageShader=std::shared_ptr<ImageShader>(new ImageShader(getFullPath("images/sfsunset.png"),getContext()));
+	exampleImage.load(getFullPath("images/sfsunset.png"));
+	imageShader=std::shared_ptr<ImageShader>(new ImageShader(getContext()));
 	mesh.updateVertexNormals();
 	mesh.transform(MakeRotationY((float)M_PI));
 	addListener(&camera);
@@ -41,5 +42,5 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	matcapShader->draw(mesh,camera);
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	imageShader->draw(float2(30.0f,30.0f),float2(300.0f,200.0f));
+	imageShader->draw(exampleImage,float2(30.0f,30.0f),float2(300.0f,200.0f));
 }

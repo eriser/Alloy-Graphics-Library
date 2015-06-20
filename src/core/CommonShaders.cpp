@@ -56,8 +56,8 @@ namespace aly{
 	void MatcapShader::draw(const Mesh& mesh,VirtualCamera& camera){
 		draw(mesh,camera,getContext()->getViewport());
 	}
-	ImageShader::ImageShader(const std::string& textureImage,std::shared_ptr<AlloyContext> context):GLShader(context),imageTexture(context){
-		imageTexture.load(textureImage);
+	ImageShader::ImageShader(std::shared_ptr<AlloyContext> context):GLShader(context){
+
 		initialize(std::vector<std::string>{"vp","vn"},
 		 R"(
 		 #version 330
@@ -79,22 +79,7 @@ namespace aly{
 		 gl_FragColor=rgba;
 		 })");
 	}
-	void ImageShader::draw(const box2px& bounds){
-		begin().
-		set("textureImage",imageTexture,0).
-		set("bounds",box2px(float2(30.0f,30.0f),float2(300.0f,200.0f))).
-		set("viewport",context->viewport).
-		draw(imageTexture).
-		end();
-	}
-	void ImageShader::draw(const float2& location,const float2& dimensions){
-		begin().
-		set("textureImage",imageTexture,0).
-		set("bounds",box2px(location,dimensions)).
-		set("viewport",context->viewport).
-		draw(imageTexture).
-		end();
-	}
+
 }
 
 
