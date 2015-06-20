@@ -26,6 +26,7 @@
 #include <vector>
 #include <string>
 namespace aly {
+class Mesh;
 class GLShader {
 private:
 	GLuint mVertexShaderHandle;
@@ -174,7 +175,11 @@ public:
 		glBindTexture(GL_TEXTURE_2D, value.textureId);
 		return *this;
 	}
+
 	virtual GLShader& begin();
+	virtual GLShader& draw(const GLComponent& comp);
+	virtual GLShader& draw(const Mesh& mesh);
+
 	virtual void end();
 	inline GLuint GetProgramHandle() const {
 		return mProgramHandle;

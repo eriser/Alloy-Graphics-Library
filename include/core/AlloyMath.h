@@ -1345,6 +1345,39 @@ template<class T> matrix<T, 4, 4> MakeTransform(const box<T,3>& src,const box<T,
 	float scaleS=aly::max(src.dimensions);
 	return MakeTranslation((tar.position+0.5f*tar.dimensions))*MakeScale(scaleT/scaleS)*MakeTranslation(-(src.position+0.5f*src.dimensions));
 }
+template<class T> matrix<T, 4, 4> perspectiveMatrix(
+		const T &fovy, const T &aspect, const T &zNear, const T &zFar)
+{
+    T f = 1.0f/tan(M_PI*fovy / 360.0f);
+    T sx = f/aspect;
+    T sy = f;
+    T sz = -(zFar + zNear) / (zFar - zNear);
+    T pz = -(2.0f * zFar * zNear) / (zFar - zNear);
+    matrix<T, 4, 4> M=matrix<T, 4, 4>::zero();
+    M(0,0) = sx;
+    M(1,1) = sy;
+    M(2,2) = sz;
+    M(2,3) = -1.0f;
+    M(3,2) = pz;
+    return M;
+}
+template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,vec<T, 3> center3D, vec<T, 3> upVector3D ){
+   vec<T, 3> forward, side, up;
+   matrix<T, 4, 4> matrix2;
+   matrix<T, 4, 4> resultMatrix;
+   forward=normalize(center3D-eyePosition3D);
+   side=normalize(cross(forward,upVector3D));
+   up=cross(side,forward);
+   matrix2[0]=vec<T,4>(side,0.0f);
+   matrix2[1]=vec<T,4>(up,0.0f);
+   matrix2[2]=vec<T,4>(-forward,0.0f);
+   matrix2[3]=vec<T,4>(0,0,0,1);
+   matrix<T, 4, 4> M=matrix<T,4,4>::identity();
+   M(0,3)=-eyePosition3D[0];
+   M(1,3)=-eyePosition3D[1];
+   M(2,3)=-eyePosition3D[2];
+   return transpose(matrix2)*M;
+}
 /////////////////////////
 // Convenience aliases //
 /////////////////////////
@@ -1433,6 +1466,5 @@ typedef box<uint32_t, 3> box3ui;
 typedef box<uint32_t, 4> box4ui;
 
 }
-;
 
 #endif

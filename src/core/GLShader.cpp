@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 #include "AlloyContext.h"
+#include "AlloyMesh.h"
 #include "GLShader.h"
 #include <iostream>
 
@@ -35,6 +36,14 @@ GLShader& GLShader::begin() {
 }
 void GLShader::end() {
 	glUseProgram((GLuint) NULL);
+}
+GLShader& GLShader::draw(const GLComponent& comp){
+	comp.draw();
+	return *this;
+}
+GLShader& GLShader::draw(const Mesh& mesh){
+	draw(mesh.gl);
+	return *this;
 }
 void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,

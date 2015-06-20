@@ -22,79 +22,73 @@
 #define ALLOYMESH_H_
 
 #include <mutex>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GLFW/glfw3.h>
+#include "GLComponent.h"
 #include "AlloyMath.h"
 #include "AlloyVector.h"
 #include "AlloyImage.h"
+#include "AlloyContext.h"
 #include <vector>
 namespace aly {
-struct GLMesh{
+class Mesh;
+struct GLMesh: public GLComponent{
 public:
-	GLuint mVao;
-	GLuint mVertexBuffer;
-	GLuint mNormalBuffer;
-	GLuint mColorBuffer;
-	GLuint mTriIndexBuffer;
-	GLuint mQuadIndexBuffer;
-	GLuint mTriangleCount;
-	GLuint mQuadCount;
-	GLuint mTriangleIndexCount;
-	GLuint mQuadIndexCount;
-
-	GLMesh():
-		mVao(0),
-		mVertexBuffer(0),
-		mNormalBuffer(0),
-		mColorBuffer(0),
-		mTriIndexBuffer(0),
-		mQuadIndexBuffer(0),
-		mTriangleCount(0),
-		mQuadCount(0),
-		mTriangleIndexCount(0),
-		mQuadIndexCount(0){
-
-	}
+	GLuint vao;
+	GLuint vertexBuffer;
+	GLuint normalBuffer;
+	GLuint colorBuffer;
+	GLuint triIndexBuffer;
+	GLuint quadIndexBuffer;
+	GLuint triCount;
+	GLuint quadCount;
+	GLuint triIndexCount;
+	GLuint quadIndexCount;
+	Mesh& mesh;
+	virtual void draw() const override;
+	virtual void update() override;
+	GLMesh(Mesh& mesh,std::shared_ptr<AlloyContext>& context);
+	virtual ~GLMesh();
 };
-class Mesh{
+struct Mesh{
 	private:
-	GLMesh glMesh;
-	float4x4 mPose;
-	box3f mBoundingBox;
+	box3f boundingBox;
+	bool dirty=false;
 	public:
+		friend class GLMesh;
 		enum PrimitiveType {QUADS=4,TRIANGLES=3};
 
+		Vector3f vertexLocations;
+		Vector3f vertexNormals;
+		Vector4f vertexColors;
 
-		Vector3f mVertexes;
-		Vector3f mVertexNormals;
-		Vector4f mVertexColors;
+		Vector4ui quadIndexes;
+		Vector3ui triIndexes;
 
-		Vector4ui mQuadIndexes;
-		Vector3ui mTriIndexes;
-
-		Vector2f uvMap;
+		Vector2f textureMap;
 		Image4f textureImage;
-		Mesh();
-		inline box3f getBoundingBox() const {return mBoundingBox;}
+		float4x4 pose;
+		GLMesh gl;
+
+		Mesh(std::shared_ptr<AlloyContext>& context);
+		inline box3f getBoundingBox() const {return boundingBox;}
 		box3f updateBoundingBox();
-		void draw();
 		void scale(float sc);
 		float estimateVoxelSize(int stride=1);
-		inline void setPose(float4x4& pose){
-			mPose=pose;
+		void update();
+		void clear();
+		void setDirty(bool d){
+			this->dirty=d;
 		}
-		inline float4x4& getPose(){
-			return mPose;
+		bool isDirty(){
+			return dirty;
 		}
-		void updateGL();
-		void reset();
+		bool load(const std::string& file);
 		void updateVertexNormals(int SMOOTH_ITERATIONS=0,float DOT_TOLERANCE=0.75f);
 		void mapIntoBoundingBox(float voxelSize);
 		void mapOutOfBoundingBox(float voxelSize);
-		bool openMesh(const std::string& file);
 		bool save(const std::string& file);
 		~Mesh();
 };
+void ReadMeshFromFile(const std::string& file,Mesh& mesh);
+void WriteMeshToFile(const std::string& file,const Mesh& mesh);
 }
 #endif /* MESH_H_ */

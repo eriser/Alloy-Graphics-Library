@@ -32,7 +32,8 @@ protected:
 	GLuint internalFormat = GL_DEPTH_COMPONENT;
 public:
 	GLuint textureId = 0;
-	virtual void draw() override {
+	virtual void draw() const override {
+		context->begin();
 		GLuint& vao = context->vaoImage.vao;
 		GLuint& positionBuffer = context->vaoImage.positionBuffer;
 		GLuint& uvBuffer = context->vaoImage.uvBuffer;
@@ -46,9 +47,11 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+		context->end();
 	}
 
 	virtual void update() override {
+		context->begin();
 		if (textureId == 0) {
 			glGenTextures(1, &textureId);
 		}
@@ -197,7 +200,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture( GL_TEXTURE_2D, 0);
-
+		context->end();
 	}
 	Image<T, C, I>& read() {
 		context->begin();

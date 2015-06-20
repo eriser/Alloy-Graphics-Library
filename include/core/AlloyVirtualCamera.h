@@ -33,10 +33,10 @@ protected:
     float3 mCameraTrans;
     float mMouseXPos;
     float mMouseYPos;
-    double mFov, mNearPlane, mFarPlane;
+    float mFov, mNearPlane, mFarPlane;
     float3 mLookAt, mEye;
-    double mTumblingSpeed, mZoomSpeed, mStrafeSpeed;
-    double mDistanceToObject;
+    float mTumblingSpeed, mZoomSpeed, mStrafeSpeed;
+    float mDistanceToObject;
     bool mMouseDown, mStartTumbling, mZoomMode, mChanged, mNeedsDisplay;
 
     void handleKeyEvent(GLFWwindow* win,int key, int action);
@@ -58,14 +58,10 @@ public:
     	return mModel(0,0)*mDistanceToObject;
     }
     virtual bool onEventHandler(AlloyContext* context, const InputEvent& event) override;
-    bool saveConfig(const std::string& file=".pose_desc");
-    bool loadConfig(const std::string& file=".pose_desc");
-    void lookAt(const float3& p, double dist = 1.0);
     void setNearFarPlanes(double n, double f) { mNearPlane = n; mFarPlane = f; }
     void setFieldOfView(double degrees) { mFov = degrees; }
     void setSpeed(double zoomSpeed, double strafeSpeed, double tumblingSpeed);
-
-
+    void lookAt(const float3& p, double dist);
     void setDistanceToObject(double distance){
     	mDistanceToObject=distance;
     	mChanged = true;

@@ -23,11 +23,11 @@
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
 MeshViewer::MeshViewer() :
-		Application(1280, 720, "Mesh Viewer"),bgTexture(getContext()),matcapTexture(getContext()),
+		Application(1280, 720, "Mesh Viewer"),mesh(getContext()),bgTexture(getContext()),matcapTexture(getContext()),
 		imageShader(getContext()),matcapShader(getContext()){
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.openMesh(getFullPath("models/armadillo.ply"));
+	mesh.load(getFullPath("models/armadillo.ply"));
 	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox)*MakeRotationY((float)M_PI));
 	bgTexture.load(getFullPath("images/sfsunset.png"));
@@ -74,7 +74,6 @@ bool MeshViewer::init(Composite& rootNode) {
 	 gl_FragColor=rgba;
 	 })");
 	mesh.updateVertexNormals();
-	mesh.updateGL();
 	addListener(&camera);
 	return true;
 }
@@ -82,16 +81,15 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	matcapShader
 		.begin()
 		.set(camera,getContext()->getViewport())
-		.set("matcapTexture",matcapTexture,0);
-	mesh.draw();
-	matcapShader.end();
+		.set("matcapTexture",matcapTexture,0)
+		.draw(mesh).end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader
 			.begin()
 			.set("textureImage",bgTexture,0)
 			.set("bounds",box2px(float2(30.0f,30.0f),float2(300.0f,200.0f)))
-			.set("viewport",getContext()->viewport);
-	bgTexture.draw();
-	imageShader.end();
+			.set("viewport",getContext()->viewport)
+			.draw(bgTexture)
+			.end();
 }

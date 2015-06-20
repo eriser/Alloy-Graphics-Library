@@ -55,40 +55,9 @@ VirtualCamera::setSpeed(double zoomSpeed, double strafeSpeed, double tumblingSpe
 
 
 
-float4x4 perspectiveMatrix(const float &fovy, const float &aspect, const float &zNear, const float &zFar)
-{
-    float f = 1.0f/tan(M_PI*fovy / 360.0f);
-    float sx = f/aspect;
-    float sy = f;
-    float sz = -(zFar + zNear) / (zFar - zNear);
-    float pz = -(2.0f * zFar * zNear) / (zFar - zNear);
-    float4x4 M=float4x4::zero();
-    M(0,0) = sx;
-    M(1,1) = sy;
-    M(2,2) = sz;
-    M(2,3) = -1.0f;
-    M(3,2) = pz;
-    return M;
-}
-float4x4 lookAtMatrix(float3 eyePosition3D,float3 center3D, float3 upVector3D ){
-   float3 forward, side, up;
-   float4x4 matrix2;
-   float4x4 resultMatrix;
-   forward=normalize(center3D-eyePosition3D);
-   side=normalize(cross(forward,upVector3D));
-   up=cross(side,forward);
-   matrix2[0]=float4(side,0.0f);
-   matrix2[1]=float4(up,0.0f);
-   matrix2[2]=float4(-forward,0.0f);
-   matrix2[3]=float4(0,0,0,1);
-   float4x4 T=float4x4::identity();
-   T(0,3)=-eyePosition3D[0];
-   T(1,3)=-eyePosition3D[1];
-   T(2,3)=-eyePosition3D[2];
-   return transpose(matrix2)*T;
-}
+
 void VirtualCamera::aim(const box2px& bounds){
-	double aspectRatio = (double)bounds.dimensions.x / (double)bounds.dimensions.y;
+	float aspectRatio = bounds.dimensions.x / (float)bounds.dimensions.y;
     if (mChanged) {
         mChanged = false;
         float4x4 Tinv=float4x4::identity();
