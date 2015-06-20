@@ -46,6 +46,7 @@ protected:
 public:
 
     float4x4 mProjection,mView,mModel;
+    float4x4 mViewModel,mNormal;
 	VirtualCamera();
     void aim(const aly::box2px& bounds);
     void setPose(const float4x4& m){

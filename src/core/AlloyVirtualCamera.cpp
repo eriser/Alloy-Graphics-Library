@@ -88,6 +88,8 @@ void VirtualCamera::aim(const box2px& bounds){
 
         mProjection=Tcamera*transpose(perspectiveMatrix(mFov,aspectRatio,mNearPlane,mFarPlane));
         mView=Teye*S*mRw*T*mRm;
+        mViewModel=mView*mModel;
+        mNormal=transpose(inverse(mViewModel));
     }
 
     mNeedsDisplay = false;

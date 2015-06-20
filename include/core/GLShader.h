@@ -184,6 +184,9 @@ public:
 	    set("ProjMat",camera.mProjection);
 	    set("ViewMat",camera.mView);
 	    set("ModelMat",camera.mModel);
+	    set("ViewModelMat",camera.mViewModel);
+	    set("NormalMat",camera.mNormal);
+
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2f& value) {
