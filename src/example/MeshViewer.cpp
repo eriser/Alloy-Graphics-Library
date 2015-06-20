@@ -31,7 +31,8 @@ bool MeshViewer::init(Composite& rootNode) {
 	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox));
 	matcapShader=std::shared_ptr<MatcapShader>(new MatcapShader(getFullPath("images/JG_Gold.png"),getContext()));
-	exampleImage.load(getFullPath("images/sfsunset.png"));
+	exampleImage.load(getFullPath("images/sfsunset.png"),true);
+
 	imageShader=std::shared_ptr<ImageShader>(new ImageShader(getContext()));
 	mesh.updateVertexNormals();
 	mesh.transform(MakeRotationY((float)M_PI));
