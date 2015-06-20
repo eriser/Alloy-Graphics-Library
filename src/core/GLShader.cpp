@@ -31,11 +31,15 @@ GLShader::GLShader(std::shared_ptr<AlloyContext>& context) :
 
 }
 GLShader& GLShader::begin() {
+	context->begin();
 	glUseProgram(GetProgramHandle());
+	context->end();
 	return *this;
 }
 void GLShader::end() {
+	context->begin();
 	glUseProgram((GLuint) NULL);
+	context->end();
 }
 GLShader& GLShader::draw(const GLComponent& comp){
 	comp.draw();
@@ -49,6 +53,7 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {
+	context->begin();
 	if (pVertexShaderString.size() == 0 || pFragmentShaderString.size() == 0)
 		return throw std::runtime_error("No shader program specified.");
 	GLint lStatus;
@@ -110,6 +115,7 @@ void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
 		throw std::runtime_error(
 				MakeString() << "Unable to link shaders ...\n" << message);
 	}
+	context->end();
 }
 
 GLShader::~GLShader() {
