@@ -33,7 +33,11 @@ private:
 	GLuint mFragmentShaderHandle;
 	GLuint mGeometryShaderHandle;
 	GLuint mProgramHandle;
+	bool shaderEnabled=false;
 	std::shared_ptr<AlloyContext> context=nullptr;
+	void enableCheck(){
+		if(!shaderEnabled)throw std::runtime_error("Could not set shader parameter because shader is not enabled. Call  shader.begin() first.");
+	}
 public:
 	// Default constructor.
 	GLShader(std::shared_ptr<AlloyContext>& context);
@@ -58,102 +62,121 @@ public:
 				pGeomShaderString);
 	}
 	inline GLShader& set(const std::string& variable, float value) {
+		enableCheck();
 		glUniform1f(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int value) {
+		enableCheck();
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint32_t value) {
+		enableCheck();
 		glUniform1ui(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, float1 value) {
+		enableCheck();
 		glUniform1f(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int1 value) {
+		enableCheck();
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint1 value) {
+		enableCheck();
 		glUniform1ui(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, float2 value) {
+		enableCheck();
 		glUniform2f(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int2 value) {
+		enableCheck();
 		glUniform2i(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint2 value) {
+		enableCheck();
 		glUniform2ui(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y);
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, float3 value) {
+		enableCheck();
 		glUniform3f(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y, value.z);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int3 value) {
+		enableCheck();
 		glUniform3i(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y, value.z);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint3 value) {
+		enableCheck();
 		glUniform3ui(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y, value.z);
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, float4 value) {
+		enableCheck();
 		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y, value.z, value.w);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int4 value) {
+		enableCheck();
 		glUniform4i(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y, value.z, value.w);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint4 value) {
+		enableCheck();
 		glUniform4ui(glGetUniformLocation(mProgramHandle, variable.c_str()),
 				value.x, value.y, value.z, value.w);
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, const float4x4& value) {
+		enableCheck();
 		glUniformMatrix4fv(
 		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
 				value.ptr());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const float3x3& value) {
+		enableCheck();
 		glUniformMatrix3fv(
 		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
 				value.ptr());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const float2x2& value) {
+		enableCheck();
 		glUniformMatrix2fv(
 		glGetUniformLocation(mProgramHandle, variable.c_str()), 1, false,
 				value.ptr());
 		return *this;
 	}
 	inline GLShader& set(VirtualCamera& camera,const box2px& bounds){
+		enableCheck();
 		camera.aim(bounds);
 	    set("ProjMat",camera.mProjection);
 	    set("ViewMat",camera.mView);
@@ -161,15 +184,18 @@ public:
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2f& value) {
+		enableCheck();
 		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2i& value) {
+		enableCheck();
 		glUniform4i(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
 		return *this;
 	}
 	template<class T, int C, ImageType I> GLShader& set(const std::string& variable,
 			const GLTexture<T, C, I>& value, int id) {
+		enableCheck();
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()), id);
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_2D, value.textureId);

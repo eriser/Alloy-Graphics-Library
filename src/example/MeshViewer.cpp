@@ -84,7 +84,8 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 		.begin()
 		.set(camera,getContext()->getViewport())
 		.set("matcapTexture",matcapTexture,0)
-		.draw(mesh).end();
+		.draw(mesh)
+		.end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader

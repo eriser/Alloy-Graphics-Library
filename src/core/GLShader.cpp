@@ -33,11 +33,11 @@ GLShader::GLShader(std::shared_ptr<AlloyContext>& context) :
 GLShader& GLShader::begin() {
 	context->begin();
 	glUseProgram(GetProgramHandle());
-	context->end();
+	shaderEnabled=true;
 	return *this;
 }
 void GLShader::end() {
-	context->begin();
+	shaderEnabled=false;
 	glUseProgram((GLuint) NULL);
 	context->end();
 }
