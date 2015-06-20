@@ -580,6 +580,23 @@ void Mesh::scale(float sc) {
 	boundingBox.position = sc*boundingBox.position;
 	dirty=true;
 }
+void Mesh::transform(const float4x4& M) {
+#pragma omp for
+	for (size_t i = 0; i < vertexLocations.size(); i++) {
+		float4 pt=M*vertexLocations[i].xyzw();
+		vertexLocations[i] = pt.xyz()/pt.w;
+	}
+
+	if(vertexNormals.size()>0){
+		float3x3 NM=transpose(inverse(SubMatrix(M)));
+#pragma omp for
+		for (size_t i = 0; i < vertexLocations.size(); i++) {
+			vertexNormals[i] = NM*vertexNormals[i];
+		}
+	}
+	updateBoundingBox();
+	dirty=true;
+}
 void Mesh::mapIntoBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
 #pragma omp for

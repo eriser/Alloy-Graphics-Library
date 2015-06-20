@@ -29,7 +29,7 @@ MeshViewer::MeshViewer() :
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/armadillo.ply"));
 	box3f renderBBox=box3f(float3(-0.5f,-0.5f,-0.5f),float3(1.0f,1.0f,1.0f));
-	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox)*MakeRotationY((float)M_PI));
+	camera.setPose(MakeTransform(mesh.getBoundingBox(),renderBBox));
 	bgTexture.load(getFullPath("images/sfsunset.png"));
 	matcapTexture.load(getFullPath("images/JG_Gold.png"));
 	matcapShader.initialize(std::vector<std::string>{"vp","vn"},
@@ -73,7 +73,9 @@ bool MeshViewer::init(Composite& rootNode) {
 	 vec4 rgba=texture2D(textureImage,pos3d.xy);
 	 gl_FragColor=rgba;
 	 })");
-	mesh.updateVertexNormals();
+
+	 mesh.updateVertexNormals();
+	 mesh.transform(MakeRotationY((float)M_PI));
 	addListener(&camera);
 	return true;
 }

@@ -72,6 +72,7 @@ struct Mesh{
 		inline box3f getBoundingBox() const {return boundingBox;}
 		box3f updateBoundingBox();
 		void scale(float sc);
+		void transform(const float4x4& M);
 		float estimateVoxelSize(int stride=1);
 		void update();
 		void clear();
