@@ -29,7 +29,7 @@ private:
 	aly::VirtualCamera camera;
 	std::shared_ptr<aly::MatcapShader> matcapShader;
 	std::shared_ptr<aly::ImageShader> imageShader;
-	std::shared_ptr<aly::DepthAndNormalShader> dnpShader;
+	std::shared_ptr<aly::DepthAndNormalShader> depthAndNormalShader;
 	aly::GLFrameBuffer frameBuffer;
 	aly::GLTextureRGBA exampleImage;
 public:

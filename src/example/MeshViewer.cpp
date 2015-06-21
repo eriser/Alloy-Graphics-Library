@@ -35,7 +35,7 @@ bool MeshViewer::init(Composite& rootNode) {
 			new MatcapShader(getFullPath("images/JG_Gold.png"), getContext()));
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	imageShader = std::shared_ptr<ImageShader>(new ImageShader(getContext()));
-	dnpShader=std::shared_ptr<DepthAndNormalShader>(new DepthAndNormalShader(getContext()));
+	depthAndNormalShader=std::shared_ptr<DepthAndNormalShader>(new DepthAndNormalShader(getContext()));
 	frameBuffer.initialize(640,480);
 	mesh.updateVertexNormals();
 	mesh.transform(MakeRotationY((float) M_PI));
