@@ -60,6 +60,14 @@ public:
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };
+
+class EdgeDepthAndNormalShader: public GLShader {
+public:
+	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex);
+	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
+	void draw(const Mesh& mesh, VirtualCamera& camera);
+};
+
 }
 
 #endif /* COMMONSHADERS_H_ */
