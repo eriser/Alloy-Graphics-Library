@@ -33,7 +33,7 @@ public:
 	virtual void update() override;
 	virtual void draw() const override;
 	void initialize(int w,int h);
-	void begin();
+	void begin(bool clearColor=true,bool clearDepth=true);
 	void end();
 	int2 getDimensions(){
 		return int2(texture.width(),texture.height());

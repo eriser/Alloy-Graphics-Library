@@ -40,14 +40,18 @@ GLFrameBuffer::~GLFrameBuffer() {
 		glDeleteRenderbuffers(1, &mDepthBufferId);
 	context->end();
 }
-void GLFrameBuffer::begin() {
+void GLFrameBuffer::begin(bool clearColor,bool clearDepth) {
 	context->begin();
 	glViewport(0, 0,texture.width(),texture.height());
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	glClearColor(0,0,0,0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	GLuint flags=0;
+	if(clearColor)flags|=GL_COLOR_BUFFER_BIT;
+	if(clearDepth)flags|=GL_DEPTH_BUFFER_BIT;
+	glClear(flags);
 	CHECK_GL_ERROR();
 }
 void GLFrameBuffer::end() {
