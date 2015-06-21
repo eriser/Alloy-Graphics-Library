@@ -29,15 +29,15 @@ namespace aly{
 class VirtualCamera: public EventHandler{
 protected:
     // Camera parameters
-    float4x4 mRw,mRm;
-    float3 mCameraTrans;
-    float mMouseXPos;
-    float mMouseYPos;
-    float mFov, mNearPlane, mFarPlane;
-    float3 mLookAt, mEye;
-    float mTumblingSpeed, mZoomSpeed, mStrafeSpeed;
-    float mDistanceToObject;
-    bool mMouseDown, mStartTumbling, mZoomMode, mChanged, mNeedsDisplay;
+    float4x4 Rw,Rm;
+    float3 cameraTrans;
+    float mouseXPos;
+    float mouseYPos;
+    float fov, nearPlane, farPlane;
+    float3 lookAtPoint, eye;
+    float tumblingSpeed, zoomSpeed, strafeSpeed;
+    float distanceToObject;
+    bool mouseDown, startTumbling, zoomMode, changed, needsDisplay;
 
     void handleKeyEvent(GLFWwindow* win,int key, int action);
     void handleButtonEvent(int button, int action);
@@ -55,44 +55,38 @@ public:
     float4x4& getPose(){
     	return mModel;
     }
-    double getScale(){
-    	return mModel(0,0)*mDistanceToObject;
+    float getScale(){
+    	return mModel(0,0)*distanceToObject;
     }
     virtual bool onEventHandler(AlloyContext* context, const InputEvent& event) override;
-    void setNearFarPlanes(double n, double f) { mNearPlane = n; mFarPlane = f; }
-    void setFieldOfView(double degrees) { mFov = degrees; }
-    void setSpeed(double zoomSpeed, double strafeSpeed, double tumblingSpeed);
-    void lookAt(const float3& p, double dist);
-    void setDistanceToObject(double distance){
-    	mDistanceToObject=distance;
-    	mChanged = true;
-    	mNeedsDisplay=true;
+    void setNearFarPlanes(float n, float f) { nearPlane = n; farPlane = f; }
+    void setFieldOfView(float degrees) { fov = degrees; }
+    void setSpeed(float zoomSpeed, float strafeSpeed, float tumblingSpeed);
+    void lookAt(const float3& p, float dist);
+    void setDistanceToObject(float distance){
+    	distanceToObject=distance;
+    	changed = true;
+    	needsDisplay=true;
     }
-    void setLookAt(double x,double y, double z){
-        	mLookAt[0]=x;
-        	mLookAt[1]=y;
-        	mLookAt[2]=z;
-        	mChanged = true;
-        	mNeedsDisplay=true;
-        }
-    float nearPlane(){return mNearPlane;}
-    float farPlane(){return mFarPlane;}
-    bool needsDisplay() const { return mNeedsDisplay; }
-    void setNeedsDisplay(bool val){
-    	mNeedsDisplay=val;
+    void lookAt(const float3& p){
+        	lookAtPoint=p;
+        	changed = true;
+        	needsDisplay=true;
     }
+    float getNearPlane(){return nearPlane;}
+    float getFarPlane(){return farPlane;}
     float3 transform(float3& pt){
     	float4 ptp(pt[0],pt[1],pt[2],1.0f);
     	float4 p=mProjection*mView*mModel*ptp;
     	return float3(p[0]/p[3],p[1]/p[3],p[2]/p[3]);
     }
     void resetTranslation(){
-    	mCameraTrans=float3(0,0,0);
-    	mLookAt=float3(0,0,0);
+    	cameraTrans=float3(0,0,0);
+    	lookAtPoint=float3(0,0,0);
     }
 
-    void setZoom(double z){
-    	mDistanceToObject=z;
+    void setZoom(float z){
+    	distanceToObject=z;
     }
     static const float sDeg2rad;
 }; // class Camera

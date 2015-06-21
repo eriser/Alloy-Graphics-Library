@@ -9,48 +9,48 @@
 namespace aly {
 const float VirtualCamera::sDeg2rad = M_PI / 180.0;
 VirtualCamera::VirtualCamera()
-    : mFov(60.0)
-	,mRw(float4x4::identity())
-	,mRm(float4x4::identity())
-	,mCameraTrans(0,0,0)
-    , mNearPlane(0.1)
-    , mFarPlane(10000.0)
-    , mEye(double3(0.0, 0.0, -1.0))
-    , mTumblingSpeed(0.5)
-    , mZoomSpeed(0.2)
-    , mStrafeSpeed(0.001)
-    , mDistanceToObject(1.0)
-    , mMouseDown(false)
-    , mStartTumbling(false)
-    , mZoomMode(false)
-    , mChanged(true)
-    , mNeedsDisplay(true)
+    : fov(60.0)
+	,Rw(float4x4::identity())
+	,Rm(float4x4::identity())
+	,cameraTrans(0,0,0)
+    , nearPlane(0.1)
+    , farPlane(10000.0)
+    , eye(float3(0.0, 0.0, -1.0))
+    , tumblingSpeed(0.5)
+    , zoomSpeed(0.2)
+    , strafeSpeed(0.001)
+    , distanceToObject(1.0)
+    , mouseDown(false)
+    , startTumbling(false)
+    , zoomMode(false)
+    , changed(true)
+    , needsDisplay(true)
 	, mProjection(float4x4::identity())
 	, mView(float4x4::identity())
 	, mModel(float4x4::identity())
-	, mMouseXPos(0)
-	, mMouseYPos(0)
+	, mouseXPos(0)
+	, mouseYPos(0)
 {
 }
 
 
 void
-VirtualCamera::lookAt(const float3& p, double dist)
+VirtualCamera::lookAt(const float3& p, float dist)
 {
-    mLookAt = p;
-    mDistanceToObject = dist;
-    mChanged=true;
-    mNeedsDisplay = true;
+    lookAtPoint = p;
+    distanceToObject = dist;
+    changed=true;
+    needsDisplay = true;
 }
 
 
 
 void
-VirtualCamera::setSpeed(double zoomSpeed, double strafeSpeed, double tumblingSpeed)
+VirtualCamera::setSpeed(float zoomSpeed, float strafeSpeed, float tumblingSpeed)
 {
-    mZoomSpeed = std::max(0.0001, zoomSpeed);
-    mStrafeSpeed = std::max(0.0001, strafeSpeed);
-    mTumblingSpeed = std::max(0.01, tumblingSpeed);
+    zoomSpeed = std::max(0.0001f, zoomSpeed);
+    strafeSpeed = std::max(0.0001f, strafeSpeed);
+    tumblingSpeed = std::max(0.01f, tumblingSpeed);
 }
 
 
@@ -58,119 +58,119 @@ VirtualCamera::setSpeed(double zoomSpeed, double strafeSpeed, double tumblingSpe
 
 void VirtualCamera::aim(const box2px& bounds){
 	float aspectRatio = bounds.dimensions.x / (float)bounds.dimensions.y;
-    if (mChanged) {
-        mChanged = false;
+    if (changed) {
+        changed = false;
         float4x4 Tinv=float4x4::identity();
         float4x4 Teye=float4x4::identity();
         float4x4 S=float4x4::identity();
 
-        Tinv(0,3)=-mLookAt[0];
-        Tinv(1,3)=-mLookAt[1];
-        Tinv(2,3)=-mLookAt[2];
+        Tinv(0,3)=-lookAtPoint[0];
+        Tinv(1,3)=-lookAtPoint[1];
+        Tinv(2,3)=-lookAtPoint[2];
 
         float4x4 T=float4x4::identity();
-        T(0,3)=mLookAt[0];
-        T(1,3)=mLookAt[1];
-        T(2,3)=mLookAt[2];
+        T(0,3)=lookAtPoint[0];
+        T(1,3)=lookAtPoint[1];
+        T(2,3)=lookAtPoint[2];
 
-        Teye(0,3)=mEye[0];
-        Teye(1,3)=mEye[1];
-        Teye(2,3)=mEye[2];
+        Teye(0,3)=eye[0];
+        Teye(1,3)=eye[1];
+        Teye(2,3)=eye[2];
 
-        S(0,0)=mDistanceToObject;
-        S(1,1)=mDistanceToObject;
-        S(2,2)=mDistanceToObject;
+        S(0,0)=distanceToObject;
+        S(1,1)=distanceToObject;
+        S(2,2)=distanceToObject;
 
         float4x4 Tcamera=float4x4::identity();
-        Tcamera(0,3)=mCameraTrans[0];
-        Tcamera(1,3)=mCameraTrans[1];
-        Tcamera(2,3)=mCameraTrans[2];
+        Tcamera(0,3)=cameraTrans[0];
+        Tcamera(1,3)=cameraTrans[1];
+        Tcamera(2,3)=cameraTrans[2];
 
-        mProjection=Tcamera*transpose(perspectiveMatrix(mFov,aspectRatio,mNearPlane,mFarPlane));
-        mView=Teye*S*mRw*T*mRm;
+        mProjection=Tcamera*transpose(perspectiveMatrix(fov,aspectRatio,nearPlane,farPlane));
+        mView=Teye*S*Rw*T*Rm;
         mViewModel=mView*mModel;
         mNormal=transpose(inverse(mViewModel));
     }
 
-    mNeedsDisplay = false;
+    needsDisplay = false;
 }
 
 void VirtualCamera::handleKeyEvent(GLFWwindow* win,int key, int action)
 {
 	if((char)key=='A'){
-		mRm=MakeRotationY((float)(2*sDeg2rad))*mRm;
-		mChanged=true;
+		Rm=MakeRotationY((float)(2*sDeg2rad))*Rm;
+		changed=true;
 	} else if((char)key=='D'){
-		mRm=MakeRotationY((float)(-2*sDeg2rad))*mRm;
-		mChanged=true;
+		Rm=MakeRotationY((float)(-2*sDeg2rad))*Rm;
+		changed=true;
 	} else if((char)key=='S'){
-		mRm=MakeRotationX((float)(2*sDeg2rad))*mRm;
-		mChanged=true;
+		Rm=MakeRotationX((float)(2*sDeg2rad))*Rm;
+		changed=true;
 	} else if((char)key=='W'){
-		mRm=MakeRotationX((float)(-2*sDeg2rad))*mRm;
-		mChanged=true;
+		Rm=MakeRotationX((float)(-2*sDeg2rad))*Rm;
+		changed=true;
 	} else if((char)key=='R'){
-		mRm=float4x4::identity();
-		mRw=float4x4::identity();
-		mDistanceToObject=1.0;
-		mLookAt=float3(0,0,0);
-		mCameraTrans=float3(0,0,0);
-		mChanged=true;
+		Rm=float4x4::identity();
+		Rw=float4x4::identity();
+		distanceToObject=1.0;
+		lookAtPoint=float3(0,0,0);
+		cameraTrans=float3(0,0,0);
+		changed=true;
 	} else if(key==GLFW_KEY_UP){
-		mCameraTrans[1]-=0.025;
-		mChanged=true;
+		cameraTrans[1]-=0.025;
+		changed=true;
 	} else if(key==GLFW_KEY_DOWN){
-		mCameraTrans[1]+=0.025;
-		mChanged=true;
+		cameraTrans[1]+=0.025;
+		changed=true;
 	} else if(key==GLFW_KEY_LEFT){
-		mCameraTrans[0]-=0.025;
-		mChanged=true;
+		cameraTrans[0]-=0.025;
+		changed=true;
 	} else if(key==GLFW_KEY_RIGHT){
-		mCameraTrans[0]+=0.025;
-		mChanged=true;
+		cameraTrans[0]+=0.025;
+		changed=true;
 	} else if(key==GLFW_KEY_PAGE_UP){
-		mDistanceToObject =(1+mZoomSpeed)*mDistanceToObject;
-		mChanged=true;
+		distanceToObject =(1+zoomSpeed)*distanceToObject;
+		changed=true;
 	} else if(key==GLFW_KEY_PAGE_DOWN){
-		mDistanceToObject =(1-mZoomSpeed)*mDistanceToObject;
-		mChanged=true;
+		distanceToObject =(1-zoomSpeed)*distanceToObject;
+		changed=true;
 	} else{
 		if (glfwGetKey(win,key) == GLFW_PRESS) {
 			switch(key) {
 				case GLFW_KEY_SPACE:
-					mZoomMode = true;
+					zoomMode = true;
 					break;
 			}
 		} else if (glfwGetKey(win,key) == GLFW_RELEASE) {
 			switch(key) {
 				case GLFW_KEY_SPACE:
-					mZoomMode = false;
+					zoomMode = false;
 					break;
 			}
 		}
 	}
-    mChanged = true;
+    changed = true;
 }
 
 void
 VirtualCamera::handleButtonEvent(int button, int action)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) mMouseDown = true;
-        else if (action == GLFW_RELEASE) mMouseDown = false;
+        if (action == GLFW_PRESS) mouseDown = true;
+        else if (action == GLFW_RELEASE) mouseDown = false;
     } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
-            mMouseDown = true;
-            mZoomMode = true;
+            mouseDown = true;
+            zoomMode = true;
         } else if (action == GLFW_RELEASE) {
-            mMouseDown = false;
-            mZoomMode = false;
+            mouseDown = false;
+            zoomMode = false;
         }
     }
-    if (action == GLFW_RELEASE) mMouseDown = false;
+    if (action == GLFW_RELEASE) mouseDown = false;
 
-    mStartTumbling = true;
-    mChanged = true;
+    startTumbling = true;
+    changed = true;
 }
 
 bool VirtualCamera::onEventHandler(AlloyContext* context, const InputEvent& event){
@@ -196,33 +196,33 @@ bool VirtualCamera::onEventHandler(AlloyContext* context, const InputEvent& even
 void
 VirtualCamera::handleCursorEvent(float x, float y)
 {
-    if (mStartTumbling) {
-    	mMouseXPos=x;
-    	mMouseYPos=y;
-        mStartTumbling = false;
+    if (startTumbling) {
+    	mouseXPos=x;
+    	mouseYPos=y;
+        startTumbling = false;
     }
     float dx, dy;
-    dx = x - mMouseXPos;
-    dy = y - mMouseYPos;
-    if (mMouseDown && !mZoomMode) {
-        mNeedsDisplay = true;
-		mRw=
-				MakeRotationY((float)(dx*mTumblingSpeed*sDeg2rad))*
-				MakeRotationX((float)(dy*mTumblingSpeed*sDeg2rad))*mRw;
-    } else if (mMouseDown && mZoomMode) {
-        mNeedsDisplay = true;
-        float3 mUp=mRw.row(1).xyz();
-        float3 mRight=mRw.row(0).xyz();
-        mLookAt +=(mRight*dx-dy*mUp) * (float)(mStrafeSpeed);
+    dx = x - mouseXPos;
+    dy = y - mouseYPos;
+    if (mouseDown && !zoomMode) {
+        needsDisplay = true;
+		Rw=
+				MakeRotationY((float)(dx*tumblingSpeed*sDeg2rad))*
+				MakeRotationX((float)(dy*tumblingSpeed*sDeg2rad))*Rw;
+    } else if (mouseDown && zoomMode) {
+        needsDisplay = true;
+        float3 mUp=Rw.row(1).xyz();
+        float3 mRight=Rw.row(0).xyz();
+        lookAtPoint +=(mRight*dx-dy*mUp) * (float)(strafeSpeed);
     }
-	mMouseXPos=x;
-	mMouseYPos=y;
-    mChanged = true;
+	mouseXPos=x;
+	mouseYPos=y;
+    changed = true;
 }
 void VirtualCamera::handleScrollEvent(int pos)
 {
-    mDistanceToObject =(1-pos*mZoomSpeed)*mDistanceToObject;
-    mChanged = true;
-    mNeedsDisplay = true;
+    distanceToObject =(1-pos*zoomSpeed)*distanceToObject;
+    changed = true;
+    needsDisplay = true;
 }
 }
