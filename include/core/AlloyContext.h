@@ -188,6 +188,7 @@ private:
 	Region* mouseFocusRegion = nullptr;
 	Region* onTopRegion = nullptr;
 	std::list<EventHandler*> listeners;
+	static std::shared_ptr<AlloyContext> defaultContext;
 public:
 	friend class Application;
 	const Theme theme;
@@ -198,6 +199,9 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
+	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
+		return defaultContext;
+	}
 	box2px getViewport() const {
 		return box2px(pixel2(viewport.position), pixel2(viewport.dimensions));
 	}
@@ -334,6 +338,9 @@ public:
 	void makeCurrent();
 	~AlloyContext();
 };
+inline std::shared_ptr<AlloyContext>& AlloyDefaultContext(){
+	return AlloyContext::getDefaultContext();
+}
 typedef std::shared_ptr<Font> FontPtr;
 typedef std::shared_ptr<AwesomeGlyph> AwesomeGlyphPtr;
 typedef std::shared_ptr<ImageGlyph> ImageGlyphPtr;

@@ -46,6 +46,7 @@ int printOglError(const char *file, int line) {
 }
 namespace aly {
 std::mutex AlloyContext::contextLock;
+std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
 Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
 		name(name), file(file), nvg(context->nvgContext) {

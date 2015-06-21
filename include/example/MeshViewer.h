@@ -27,10 +27,15 @@ class MeshViewer: public aly::Application {
 private:
 	aly::Mesh mesh;
 	aly::VirtualCamera camera;
-	std::shared_ptr<aly::MatcapShader> matcapShader;
-	std::shared_ptr<aly::ImageShader> imageShader;
-	std::shared_ptr<aly::EdgeDepthAndNormalShader> edgeDepthAndNormalShader;
-	std::shared_ptr<aly::DepthAndNormalShader> depthAndNormalShader;
+
+	aly::MatcapShader matcapShader;
+	aly::ImageShader imageShader;
+	aly::EdgeEffectsShader effectsShader;
+	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
+	aly::DepthAndNormalShader depthAndNormalShader;
+	aly::DepthColorShader depthColorShader;
+	aly::NormalColorShader normalShader;
+
 	aly::GLFrameBuffer frameBuffer;
 	aly::GLTextureRGBA exampleImage;
 public:

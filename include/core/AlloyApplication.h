@@ -34,7 +34,7 @@ class Application {
 private:
 	bool showDebugIcon;
 	float frameRate = 0.0f;
-	static std::shared_ptr<AlloyContext> context;
+	static std::shared_ptr<AlloyContext>& context;
 	void drawUI();
 	void drawDebugUI();
 	void draw();
@@ -124,6 +124,9 @@ public:
 		context.reset();
 	}
 };
+inline std::shared_ptr<AlloyContext>& AlloyApplicationContext(){
+	return Application::getContext();
+}
 }
 
 #endif /* ALLOYAPPLICATION_H_ */

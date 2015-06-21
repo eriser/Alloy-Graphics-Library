@@ -33,12 +33,12 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	checkLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-			Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	valueLabel = MakeGlyphRegion(
-			Application::getContext()->createAwesomeGlyph(0xf00c),
+			AlloyApplicationContext()->createAwesomeGlyph(0xf00c),
 			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
-			Application::getContext()->theme.LIGHT_TEXT.toRGBA());
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA());
 	valueLabel->setOrigin(Origin::TopRight);
 	valueLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(checkLabel);
@@ -46,13 +46,13 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 	add(valueContainer);
 	this->valueLabel->foregroundColor =
 			(this->checked) ?
-					MakeColor(Application::getContext()->theme.LIGHT_TEXT) :
-					MakeColor(Application::getContext()->theme.DARK);
+					MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT) :
+					MakeColor(AlloyApplicationContext()->theme.DARK);
 	valueLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					this->checked=!this->checked;
-					this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.LIGHT_TEXT):MakeColor(Application::getContext()->theme.DARK);
+					this->valueLabel->foregroundColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
 					return true;
 				}
 				return false;
@@ -61,7 +61,7 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					this->checked=!this->checked;
-					this->valueLabel->foregroundColor=(this->checked)?MakeColor(Application::getContext()->theme.LIGHT_TEXT):MakeColor(Application::getContext()->theme.DARK);
+					this->valueLabel->foregroundColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
 					return true;
 				}
 				return false;
@@ -135,15 +135,15 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	toggleLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-			Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	onLabel = MakeTextLabel("ON", CoordPercent(0.2f, 0.0f),
 			CoordPercent(0.3f, 1.0f), FontType::Bold, UnitPerPX(1.0f, -4.0f),
-			Application::getContext()->theme.LIGHT_TEXT,
+			AlloyApplicationContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
 	offLabel = MakeTextLabel("OFF", CoordPercent(0.5f, 0.0f),
 			CoordPercent(0.3f, 1.0f), FontType::Bold, UnitPerPX(1.0f, -4.0f),
-			Application::getContext()->theme.DARK_TEXT,
+			AlloyApplicationContext()->theme.DARK_TEXT,
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
 
 	clickRegion = MakeComposite("tog select", CoordPercent(1.0f, 0.0f),
@@ -315,9 +315,9 @@ Button::Button(const std::string& label, const AUnit2D& position,
 		Widget(label) {
 	this->position = position;
 	this->dimensions = dimensions;
-	backgroundColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
-	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
-	borderColor = MakeColor(Application::getContext()->theme.LIGHT);
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
+	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
 }
@@ -385,7 +385,7 @@ void SelectionBox::draw(AlloyContext* context) {
 }
 box2px SelectionBox::getBounds() const {
 	box2px bounds = Region::getBounds();
-	AlloyContext* context = Application::getContext().get();
+	AlloyContext* context = AlloyApplicationContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	float entryHeight = std::min(
@@ -406,7 +406,7 @@ box2px SelectionBox::getCursorBounds() const {
 	box2px box = getBounds();
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		if (Application::getContext()->getOnTopRegion() != this) {
+		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}
@@ -487,26 +487,26 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	selectionLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-			Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	arrowLabel = MakeGlyphRegion(
-			Application::getContext()->createAwesomeGlyph(0xf13a),
+			AlloyApplicationContext()->createAwesomeGlyph(0xf13a),
 			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f),
-			Application::getContext()->theme.DARK.toRGBA(),
-			Application::getContext()->theme.LIGHT_TEXT.toRGBA());
+			AlloyApplicationContext()->theme.DARK.toRGBA(),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA());
 	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
 	selectionBox->fontSize = selectionLabel->fontSize;
 	selectionBox->backgroundColor = MakeColor(
-			Application::getContext()->theme.DARK);
+			AlloyApplicationContext()->theme.DARK);
 	selectionBox->borderColor = MakeColor(
-			Application::getContext()->theme.HIGHLIGHT);
+			AlloyApplicationContext()->theme.HIGHLIGHT);
 	selectionBox->borderWidth = UnitPX(1.0f);
 	selectionBox->textColor = MakeColor(
-			Application::getContext()->theme.LIGHT_TEXT);
+			AlloyApplicationContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor = MakeColor(
-			Application::getContext()->theme.DARK_TEXT);
+			AlloyApplicationContext()->theme.DARK_TEXT);
 	arrowLabel->setOrigin(Origin::TopRight);
 	arrowLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(selectionLabel);
@@ -608,15 +608,15 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
 	this->aspectRatio = 4.0f;
-	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
-	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
+	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	sliderHandle = std::shared_ptr<SliderHandle>(
 			new SliderHandle("Scroll Handle"));
 
 	sliderHandle->setPosition(CoordPercent(0.0, 0.0));
 	sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
 	sliderHandle->backgroundColor = MakeColor(
-			Application::getContext()->theme.LIGHT);
+			AlloyApplicationContext()->theme.LIGHT);
 	sliderHandle->setEnableDrag(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
@@ -626,7 +626,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	sliderTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
 
 	sliderTrack->backgroundColor = MakeColor(
-			Application::getContext()->theme.DARK);
+			AlloyApplicationContext()->theme.DARK);
 	sliderTrack->add(sliderHandle);
 	sliderTrack->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
@@ -644,7 +644,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					CoordPerPX(0.5f, 1.0f, 0,
 							-(handleSize - trackPadding * 0.75f)),
 					FontType::Bold, UnitPerPX(1.0f, 0),
-					Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Left, VerticalAlignment::Bottom));
 	add(
 			valueLabel = MakeTextLabel("Value",
@@ -652,7 +652,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					CoordPerPX(1.0f, 1.0f, -trackPadding,
 							-(handleSize - trackPadding * 0.75f)),
 					FontType::Normal, UnitPerPX(1.0f, -2),
-					Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Right, VerticalAlignment::Bottom));
 	add(sliderTrack);
 	this->onPack = [this]() {
@@ -758,15 +758,15 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
 	this->aspectRatio = 4.0f;
-	textColor = MakeColor(Application::getContext()->theme.DARK_TEXT);
-	borderColor = MakeColor(Application::getContext()->theme.HIGHLIGHT);
+	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	sliderHandle = std::shared_ptr<SliderHandle>(
 			new SliderHandle("Scroll Handle"));
 
 	sliderHandle->setPosition(CoordPercent(0.0, 0.0));
 	sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
 	sliderHandle->backgroundColor = MakeColor(
-			Application::getContext()->theme.LIGHT);
+			AlloyApplicationContext()->theme.LIGHT);
 	sliderHandle->setEnableDrag(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
@@ -776,7 +776,7 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4));
 
 	sliderTrack->backgroundColor = MakeColor(
-			Application::getContext()->theme.DARK);
+			AlloyApplicationContext()->theme.DARK);
 	sliderTrack->add(sliderHandle);
 	sliderTrack->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
@@ -793,13 +793,13 @@ VerticalSlider::VerticalSlider(const std::string& label,
 			sliderLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
 					CoordPercent(1.0f, 0.1f), FontType::Bold,
 					UnitPerPX(1.0f, 0),
-					Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Center, VerticalAlignment::Top));
 	add(
 			valueLabel = MakeTextLabel("Value", CoordPercent(0.0f, 1.0f),
 					CoordPercent(1.0f, 0.1f), FontType::Normal,
 					UnitPerPX(1.0f, -2),
-					Application::getContext()->theme.LIGHT_TEXT.toRGBA(),
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Center, VerticalAlignment::Bottom));
 	valueLabel->setOrigin(Origin::BottomLeft);
 	add(sliderTrack);
@@ -907,12 +907,12 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	textLabel = MakeTextLabel(name, CoordPercent(0.0f, 0.0f),
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-			Application::getContext()->theme.LIGHT_TEXT,
+			AlloyApplicationContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	colorLabel = MakeRegion("Color", CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f),
 			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f),
-			Application::getContext()->theme.NEUTRAL,
-			Application::getContext()->theme.LIGHT, UnitPX(1.0f));
+			AlloyApplicationContext()->theme.NEUTRAL,
+			AlloyApplicationContext()->theme.LIGHT, UnitPX(1.0f));
 	colorLabel->setAspectRatio(1.0f);
 	colorLabel->setAspectRule(AspectRule::FixedHeight);
 	colorLabel->setOrigin(Origin::TopRight);
@@ -1023,7 +1023,7 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 }
 box2px ColorWheel::getBounds() const {
 	box2px bounds = Region::getBounds();
-	bounds.clamp(Application::getContext()->getViewport());
+	bounds.clamp(AlloyApplicationContext()->getViewport());
 	bounds.dimensions = aly::max(bounds.dimensions, pixel2(100, 100));
 	return bounds;
 }
@@ -1031,7 +1031,7 @@ box2px ColorWheel::getCursorBounds() const {
 	box2px box = getBounds();
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		if (Application::getContext()->getOnTopRegion() != this) {
+		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}

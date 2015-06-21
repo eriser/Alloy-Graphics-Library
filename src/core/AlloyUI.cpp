@@ -45,7 +45,7 @@ bool Region::isVisible() {
 }
 void Region::setVisible(bool vis) {
 	visible = vis;
-	Application::getContext()->requestUpdateCursor();
+	AlloyApplicationContext()->requestUpdateCursor();
 }
 bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	if (isVisible() && onEvent)
@@ -189,7 +189,7 @@ box2px Region::getCursorBounds() const {
 	box2px box = bounds;
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		if (Application::getContext()->getOnTopRegion() != this) {
+		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}
@@ -287,10 +287,10 @@ void Composite::drawDebug(AlloyContext* context) {
 }
 
 void Composite::pack() {
-	pack(Application::getContext().get());
+	pack(AlloyApplicationContext().get());
 }
 void Composite::draw() {
-	draw(Application::getContext().get());
+	draw(AlloyApplicationContext().get());
 }
 void Composite::setVerticalScrollPosition(float fy) {
 

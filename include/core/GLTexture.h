@@ -257,19 +257,19 @@ public:
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
-	GLTexture(std::shared_ptr<AlloyContext>& context) :
+	GLTexture(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
 			GLComponent(context), textureId(0), mipmap(false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,
-			int imageHeight, std::shared_ptr<AlloyContext>& context) :
+			int imageHeight, std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
 			GLComponent(context) {
 		textureImage.resize(imageWidth, imageHeight);
 		bounds = box2i( { x, y }, { width, height });
 		update();
 	}
 	GLTexture(const Image<T, C, I>& image,
-			std::shared_ptr<AlloyContext>& context) :
+			std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
 			GLComponent(context) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });

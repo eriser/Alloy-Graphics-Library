@@ -22,22 +22,16 @@
 #include "Alloy.h"
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
-MeshViewer::MeshViewer() :
-		Application(1280, 720, "Mesh Viewer"), mesh(getContext()), exampleImage(
-				getContext()),frameBuffer(getContext()) {
+MeshViewer::MeshViewer():Application(1280, 720, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/icosahedron.ply"));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
-	matcapShader = std::shared_ptr<MatcapShader>(
-			new MatcapShader(getFullPath("images/JG_Gold.png"), getContext()));
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
-	imageShader = std::shared_ptr<ImageShader>(new ImageShader(getContext()));
-	depthAndNormalShader=std::shared_ptr<DepthAndNormalShader>(new DepthAndNormalShader(getContext()));
-	edgeDepthAndNormalShader=std::shared_ptr<EdgeDepthAndNormalShader>(new EdgeDepthAndNormalShader(getContext()));
 	frameBuffer.initialize(640,480);
+	camera.setNearFarPlanes(0.01,2.0f);
 	mesh.updateVertexNormals();
 	mesh.transform(MakeRotationY((float) M_PI));
 	addListener(&camera);
@@ -45,13 +39,11 @@ bool MeshViewer::init(Composite& rootNode) {
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	frameBuffer.begin();
-	matcapShader->draw(mesh, camera,frameBuffer.getViewport());
+	edgeDepthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
 	frameBuffer.end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	imageShader->draw(exampleImage, float2(30.0f, 30.0f),
+	imageShader.draw(exampleImage, float2(30.0f, 30.0f),
 			float2(300.0f, 200.0f),true);
-
-	imageShader->draw(frameBuffer.getTexture(), float2(400.0f, 120.0f),
-			float2(640,480));
+	effectsShader.draw(frameBuffer.getTexture(), float2(400.0f, 120.0f),float2(640,480));
 }

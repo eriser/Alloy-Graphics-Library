@@ -26,7 +26,7 @@
 #include <chrono>
 namespace aly {
 
-std::shared_ptr<AlloyContext> Application::context;
+std::shared_ptr<AlloyContext>& Application::context=AlloyContext::getDefaultContext();
 void Application::initInternal() {
 	rootNode.setBounds(CoordPercent(0.0f, 0.0f), CoordPercent(1.0f, 1.0f));
 	context->addAssetDirectory("assets/");
@@ -76,10 +76,10 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 			new Font(name, context->getFullPath(file), context.get()));
 }
 Application::Application(int w, int h, const std::string& title,
-		bool showDebugIcon) :
-		rootNode("Root"), showDebugIcon(showDebugIcon) {
+		bool showDebugIcon) :rootNode("Root"), showDebugIcon(showDebugIcon) {
+
 	if (context.get() == nullptr) {
-		context = std::shared_ptr<AlloyContext>(new AlloyContext(w, h, title));
+		context.reset(new AlloyContext(w, h, title));
 	} else {
 		throw std::runtime_error(
 				"Cannot instantiate more than one application.");

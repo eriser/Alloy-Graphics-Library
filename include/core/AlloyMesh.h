@@ -70,7 +70,7 @@ public:
 	float4x4 pose;
 	GLMesh gl;
 
-	Mesh(std::shared_ptr<AlloyContext>& context);
+	Mesh(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
 	inline box3f getBoundingBox() const {
 		return boundingBox;
 	}

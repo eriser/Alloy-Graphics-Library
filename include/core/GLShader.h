@@ -45,7 +45,8 @@ public:
 		return context;
 	}
 	// Default constructor.
-	GLShader(std::shared_ptr<AlloyContext>& context);
+	GLShader(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
+	GLShader();
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
 	void initialize(const std::vector<std::string>& attributes,

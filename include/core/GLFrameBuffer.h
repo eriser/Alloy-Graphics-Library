@@ -29,7 +29,7 @@ protected:
 	unsigned int mDepthBufferId;
 	GLTexture<float,4,ImageType::FLOAT> texture;
 public:
-	GLFrameBuffer(std::shared_ptr<AlloyContext> context);
+	GLFrameBuffer(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
 	virtual void update() override;
 	virtual void draw() const override;
 	void initialize(int w,int h);

@@ -43,10 +43,10 @@ public:
 	virtual inline ~GLComponent() {
 	}
 
-	GLComponent(std::shared_ptr<AlloyContext>& context) :
+	GLComponent(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
 			context(context) {
 	}
-	GLComponent(const box2i& b, AlloyContext* context) :
+	GLComponent(const box2i& b,std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
 			bounds(b), context(context) {
 	}
 
@@ -72,7 +72,7 @@ protected:
 		}
 	}
 public:
-	GLComponentGroup(std::shared_ptr<AlloyContext>& context) :
+	GLComponentGroup(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
 			GLComponent(context) {
 
 	}

@@ -32,13 +32,13 @@ private:
 	GLTextureRGBA matcapTexture;
 public:
 	MatcapShader(const std::string& textureImage,
-			std::shared_ptr<AlloyContext> contex);
+			std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };
 class ImageShader: public GLShader {
 public:
-	ImageShader(std::shared_ptr<AlloyContext> context);
+	ImageShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,bool flip=false) {
 		begin().set("flip",flip?1:0).set("textureImage", imageTexture, 0).set("bounds",
@@ -54,16 +54,37 @@ public:
 
 	}
 };
+class EdgeEffectsShader: public GLShader {
+public:
+	EdgeEffectsShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions);
+};
+
+class NormalColorShader: public GLShader {
+public:
+	NormalColorShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions);
+};
+
+class DepthColorShader: public GLShader {
+public:
+	DepthColorShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions);
+};
+
 class DepthAndNormalShader: public GLShader {
 public:
-	DepthAndNormalShader(std::shared_ptr<AlloyContext> contex);
+	DepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };
 
 class EdgeDepthAndNormalShader: public GLShader {
 public:
-	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex);
+	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };

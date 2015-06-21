@@ -26,7 +26,7 @@ int main() {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		//ExampleUI app;
-		//std::cout<<*Application::getContext()->getFont(FontType::Normal)<<std::endl;
+		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
 		MeshViewer app;
 		app.run(1);
 		return 0;
