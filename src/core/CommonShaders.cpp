@@ -257,8 +257,7 @@ uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture2D(textureImage,uv);
 if(rgba.w>0){
-float lum=clamp(abs(rgba.w),0.0f,1.0f);
-rgba=vec4(rgba.x*0.5+0.5,rgba.y*0.5+0.5,rgba.z,1.0);
+rgba=vec4(1.0,0.0,0.0,1.0);
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
@@ -298,6 +297,7 @@ vec4 rgba=texture2D(textureImage,uv);
 if(rgba.w>0){
 float lum=clamp(abs(rgba.w),0.0f,1.0f);
 rgba=vec4(rgba.x*0.5+0.5,rgba.y*0.5+0.5,rgba.z,1.0);
+
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
@@ -336,7 +336,8 @@ void main() {
 vec4 rgba=texture2D(textureImage,uv);
 if(rgba.w>0){
 float lum=clamp(abs(rgba.w),0.0f,1.0f);
-rgba=vec4(rgba.x*0.5+0.5,rgba.y*0.5+0.5,rgba.z,1.0);
+rgba=vec4(lum,lum,lum,1.0);
+
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }

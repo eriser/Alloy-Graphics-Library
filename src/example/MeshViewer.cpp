@@ -22,7 +22,7 @@
 #include "Alloy.h"
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
-MeshViewer::MeshViewer():Application(1280, 720, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
+MeshViewer::MeshViewer():Application(1280, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/icosahedron.ply"));
@@ -30,7 +30,7 @@ bool MeshViewer::init(Composite& rootNode) {
 			float3(1.0f, 1.0f, 1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
-	frameBuffer.initialize(640,480);
+	frameBuffer.initialize(480,480);
 	camera.setNearFarPlanes(0.01,2.0f);
 	mesh.updateVertexNormals();
 	mesh.transform(MakeRotationY((float) M_PI));
@@ -39,11 +39,13 @@ bool MeshViewer::init(Composite& rootNode) {
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	frameBuffer.begin();
-	edgeDepthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
+	depthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
 	frameBuffer.end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	imageShader.draw(exampleImage, float2(30.0f, 30.0f),
-			float2(300.0f, 200.0f),true);
-	effectsShader.draw(frameBuffer.getTexture(), float2(400.0f, 120.0f),float2(640,480));
+	imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
+	normalColorShader.draw(frameBuffer.getTexture(), float2(0.0f, 0.0f),float2(480,480));
+	depthColorShader.draw(frameBuffer.getTexture(), float2(480.0f, 0.0f),float2(480,480));
+	effectsShader.draw(frameBuffer.getTexture(), float2(0.0f, 480.0f),float2(480,480));
+
 }

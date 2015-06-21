@@ -34,7 +34,7 @@ private:
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
 	aly::DepthColorShader depthColorShader;
-	aly::NormalColorShader normalShader;
+	aly::NormalColorShader normalColorShader;
 
 	aly::GLFrameBuffer frameBuffer;
 	aly::GLTextureRGBA exampleImage;

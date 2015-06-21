@@ -45,7 +45,7 @@ public:
 	Mesh& mesh;
 	virtual void draw() const override;
 	virtual void update() override;
-	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context);
+	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
 	virtual ~GLMesh();
 };
 struct Mesh {
