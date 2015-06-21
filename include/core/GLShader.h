@@ -33,13 +33,15 @@ protected:
 	GLuint mFragmentShaderHandle;
 	GLuint mGeometryShaderHandle;
 	GLuint mProgramHandle;
-	bool shaderEnabled=false;
+	bool shaderEnabled = false;
 	std::shared_ptr<AlloyContext> context;
-	void enableCheck(){
-		if(!shaderEnabled)throw std::runtime_error("Could not set shader parameter because shader is not enabled. Call shader.begin() first.");
+	void enableCheck() {
+		if (!shaderEnabled)
+			throw std::runtime_error(
+					"Could not set shader parameter because shader is not enabled. Call shader.begin() first.");
 	}
 public:
-	std::shared_ptr<AlloyContext>& getContext(){
+	std::shared_ptr<AlloyContext>& getContext() {
 		return context;
 	}
 	// Default constructor.
@@ -52,11 +54,12 @@ public:
 			const std::string& pGeomShaderString);
 	void initialize(const std::vector<std::string>& attributes,
 			const std::string& pVertexShaderString,
-			const std::string& pFragmentShaderString){
-		initialize(attributes,pVertexShaderString,pFragmentShaderString,"");
+			const std::string& pFragmentShaderString) {
+		initialize(attributes, pVertexShaderString, pFragmentShaderString, "");
 	}
 
-	GLShader(std::shared_ptr<AlloyContext>& context,const std::vector<std::string>& attributes,
+	GLShader(std::shared_ptr<AlloyContext>& context,
+			const std::vector<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
 			const std::string& pGeomShaderString) :
@@ -178,29 +181,34 @@ public:
 				value.ptr());
 		return *this;
 	}
-	inline GLShader& set(VirtualCamera& camera,const box2px& bounds){
+	inline GLShader& set(VirtualCamera& camera, const box2px& bounds) {
 		enableCheck();
 		camera.aim(bounds);
-	    set("ProjMat",camera.mProjection);
-	    set("ViewMat",camera.mView);
-	    set("ModelMat",camera.mModel);
-	    set("ViewModelMat",camera.mViewModel);
-	    set("NormalMat",camera.mNormal);
+		set("ProjMat", camera.mProjection);
+		set("ViewMat", camera.mView);
+		set("ModelMat", camera.mModel);
+		set("ViewModelMat", camera.mViewModel);
+		set("NormalMat", camera.mNormal);
 
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2f& value) {
 		enableCheck();
-		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
+		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),
+				value.position.x, value.position.y, value.dimensions.x,
+				value.dimensions.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2i& value) {
 		enableCheck();
-		glUniform4i(glGetUniformLocation(mProgramHandle, variable.c_str()),value.position.x, value.position.y, value.dimensions.x, value.dimensions.y);
+		glUniform4i(glGetUniformLocation(mProgramHandle, variable.c_str()),
+				value.position.x, value.position.y, value.dimensions.x,
+				value.dimensions.y);
 		return *this;
 	}
-	template<class T, int C, ImageType I> GLShader& set(const std::string& variable,
-			const GLTexture<T, C, I>& value, int id) {
+	template<class T, int C, ImageType I> GLShader& set(
+			const std::string& variable, const GLTexture<T, C, I>& value,
+			int id) {
 		enableCheck();
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()), id);
 		glActiveTexture(GL_TEXTURE0 + id);

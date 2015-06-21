@@ -102,11 +102,11 @@ public:
 		data.resize(sz);
 		data.shrink_to_fit();
 	}
-	void resize(size_t sz,const vec<T,C>& val) {
-		data.resize(sz,val);
+	void resize(size_t sz, const vec<T, C>& val) {
+		data.resize(sz, val);
 		data.shrink_to_fit();
 	}
-	void append(const vec<T,C>& val){
+	void append(const vec<T, C>& val) {
 		data.push_back(val);
 	}
 	T* ptr() {
@@ -128,7 +128,7 @@ public:
 	vec<T, C>& operator[](const size_t i) {
 		return data[i];
 	}
-	inline void clear(){
+	inline void clear() {
 		data.clear();
 		data.shrink_to_fit();
 	}

@@ -35,7 +35,9 @@ protected:
 public:
 	friend class GLComponentGroup;
 	box2i bounds;
-	std::shared_ptr<AlloyContext>& getContext(){return context;}
+	std::shared_ptr<AlloyContext>& getContext() {
+		return context;
+	}
 	virtual void draw() const =0;
 	virtual void update()=0;
 	virtual inline ~GLComponent() {

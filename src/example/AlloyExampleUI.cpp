@@ -168,4 +168,3 @@ bool ExampleUI::init(Composite& rootNode) {
 	return true;
 }
 
-

@@ -52,8 +52,8 @@ Region* CursorLocator::locate(const pixel2& cursor) const {
 		return nullptr;
 	int2 query = clamp(int2(cursor / cellSize), lowerBounds, upperBounds);
 	for (Region* region : grid[(int) query.x][(int) query.y]) {
-		Region* over=region->locate(cursor);
-		if (over!=nullptr)
+		Region* over = region->locate(cursor);
+		if (over != nullptr)
 			return over;
 	}
 	return nullptr;

@@ -406,7 +406,7 @@ box2px SelectionBox::getCursorBounds() const {
 	box2px box = getBounds();
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		if(Application::getContext()->getOnTopRegion()!=this){
+		if (Application::getContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}
@@ -955,7 +955,6 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorWheel->setVisible(false);
 	colorWheel->setColor(*colorLabel->backgroundColor);
 
-
 	add(colorWheel);
 	add(textLabel);
 	add(colorLabel);
@@ -1032,7 +1031,7 @@ box2px ColorWheel::getCursorBounds() const {
 	box2px box = getBounds();
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		if(Application::getContext()->getOnTopRegion()!=this){
+		if (Application::getContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}

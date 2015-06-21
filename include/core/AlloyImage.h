@@ -148,11 +148,11 @@ public:
 		width = w;
 		height = h;
 	}
-	inline void clear(){
+	inline void clear() {
 		data.clear();
 		data.shrink_to_fit();
-		width=0;
-		height=0;
+		width = 0;
+		height = 0;
 	}
 	vec<T, C>* vecPtr() {
 		if (data.size() == 0)

@@ -33,7 +33,7 @@ protected:
 	GLuint internalFormat = 0;
 	GLuint externalFormat = 0;
 	GLuint dataType = 0;
-	bool mipmap=false;
+	bool mipmap = false;
 public:
 	GLuint textureId = 0;
 	virtual void draw() const override {
@@ -64,16 +64,16 @@ public:
 		case ImageType::FLOAT:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA32F;
-				externalFormat=GL_RGBA32F;
-				dataType=GL_FLOAT;
+				externalFormat = GL_RGBA32F;
+				dataType = GL_FLOAT;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB32F;
-				externalFormat=GL_RGB32F;
-				dataType=GL_FLOAT;
+				externalFormat = GL_RGB32F;
+				dataType = GL_FLOAT;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R32F;
-				externalFormat=GL_R32F;
-				dataType=GL_FLOAT;
+				externalFormat = GL_R32F;
+				dataType = GL_FLOAT;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -83,16 +83,16 @@ public:
 		case ImageType::UBYTE:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA;
-				externalFormat=GL_RGBA;
-				dataType=GL_UNSIGNED_BYTE;
+				externalFormat = GL_RGBA;
+				dataType = GL_UNSIGNED_BYTE;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB;
-				externalFormat=GL_RGB;
-				dataType=GL_UNSIGNED_BYTE;
+				externalFormat = GL_RGB;
+				dataType = GL_UNSIGNED_BYTE;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R;
-				externalFormat=GL_R;
-				dataType=GL_UNSIGNED_BYTE;
+				externalFormat = GL_R;
+				dataType = GL_UNSIGNED_BYTE;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -102,16 +102,16 @@ public:
 		case ImageType::USHORT:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA16UI;
-				externalFormat=GL_RGBA16UI;
-				dataType=GL_UNSIGNED_SHORT;
+				externalFormat = GL_RGBA16UI;
+				dataType = GL_UNSIGNED_SHORT;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB16UI;
-				externalFormat=GL_RGB16UI;
-				dataType=GL_UNSIGNED_SHORT;
+				externalFormat = GL_RGB16UI;
+				dataType = GL_UNSIGNED_SHORT;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R16UI;
-				externalFormat=GL_R16UI;
-				dataType=GL_UNSIGNED_SHORT;
+				externalFormat = GL_R16UI;
+				dataType = GL_UNSIGNED_SHORT;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -121,16 +121,16 @@ public:
 		case ImageType::UINT:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA32UI;
-				externalFormat=GL_RGBA32UI;
-				dataType=GL_UNSIGNED_INT;
+				externalFormat = GL_RGBA32UI;
+				dataType = GL_UNSIGNED_INT;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB32UI;
-				externalFormat=GL_RGB32UI;
-				dataType=GL_UNSIGNED_INT;
+				externalFormat = GL_RGB32UI;
+				dataType = GL_UNSIGNED_INT;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R32UI;
-				externalFormat=GL_R32UI;
-				dataType=GL_UNSIGNED_INT;
+				externalFormat = GL_R32UI;
+				dataType = GL_UNSIGNED_INT;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -140,16 +140,16 @@ public:
 		case ImageType::BYTE:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA;
-				externalFormat=GL_RGBA;
-				dataType=GL_BYTE;
+				externalFormat = GL_RGBA;
+				dataType = GL_BYTE;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB;
-				externalFormat=GL_RGB;
-				dataType=GL_BYTE;
+				externalFormat = GL_RGB;
+				dataType = GL_BYTE;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R;
-				externalFormat=GL_R;
-				dataType=GL_BYTE;
+				externalFormat = GL_R;
+				dataType = GL_BYTE;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -159,16 +159,16 @@ public:
 		case ImageType::SHORT:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA16I;
-				externalFormat=GL_RGBA16I;
-				dataType=GL_SHORT;
+				externalFormat = GL_RGBA16I;
+				dataType = GL_SHORT;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB16I;
-				externalFormat=GL_RGB16I;
-				dataType=GL_SHORT;
+				externalFormat = GL_RGB16I;
+				dataType = GL_SHORT;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R16I;
-				externalFormat=GL_R16I;
-				dataType=GL_SHORT;
+				externalFormat = GL_R16I;
+				dataType = GL_SHORT;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -178,16 +178,16 @@ public:
 		case ImageType::INT:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA32I;
-				externalFormat=GL_RGBA32I;
-				dataType=GL_INT;
+				externalFormat = GL_RGBA32I;
+				dataType = GL_INT;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB32I;
-				externalFormat=GL_RGB32I;
-				dataType=GL_INT;
+				externalFormat = GL_RGB32I;
+				dataType = GL_INT;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R32I;
-				externalFormat=GL_R32I;
-				dataType=GL_INT;
+				externalFormat = GL_R32I;
+				dataType = GL_INT;
 			} else {
 				throw std::runtime_error(
 						MakeString() << "Texture format not supported "
@@ -199,20 +199,22 @@ public:
 					MakeString() << "Texture format not supported "
 							<< textureImage.getTypeName());
 		}
-		if(mipmap){
-			gluBuild2DMipmaps(GL_TEXTURE_2D,internalFormat,
-					textureImage.width, textureImage.height, internalFormat,dataType, &textureImage[0]);
+		if (mipmap) {
+			gluBuild2DMipmaps(GL_TEXTURE_2D, internalFormat, textureImage.width,
+					textureImage.height, internalFormat, dataType,
+					&textureImage[0]);
 
 		} else {
-			glTexImage2D( GL_TEXTURE_2D, 0, internalFormat,
-					textureImage.width, textureImage.height, 0, externalFormat,
-					dataType, &textureImage[0]);
+			glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, textureImage.width,
+					textureImage.height, 0, externalFormat, dataType,
+					&textureImage[0]);
 		}
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,mipmap? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+				mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture( GL_TEXTURE_2D, 0);
 		context->end();
 	}
@@ -246,14 +248,14 @@ public:
 	inline int height() {
 		return textureImage.height;
 	}
-	inline void setEnableMipmap(bool enable){
-		mipmap=enable;
+	inline void setEnableMipmap(bool enable) {
+		mipmap = enable;
 	}
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
 	GLTexture(std::shared_ptr<AlloyContext>& context) :
-			GLComponent(context), textureId(0),mipmap(false) {
+			GLComponent(context), textureId(0), mipmap(false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,
@@ -270,26 +272,28 @@ public:
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
 		update();
 	}
-	void load(const Image<T, C, I>& image,bool mipmap=false){
+	void load(const Image<T, C, I>& image, bool mipmap = false) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
 		setEnableMipmap(mipmap);
 		update();
 	}
-	void load(const Image<T, C, I>& image,int x, int y, int width, int height,bool mipmap=false){
+	void load(const Image<T, C, I>& image, int x, int y, int width, int height,
+			bool mipmap = false) {
 		textureImage.set(image);
 		bounds = box2i( { x, y }, { width, height });
 		setEnableMipmap(mipmap);
 		update();
 	}
-	void load(const std::string& fileName,bool mipmap=false){
-		ReadImageFromFile(fileName,textureImage);
+	void load(const std::string& fileName, bool mipmap = false) {
+		ReadImageFromFile(fileName, textureImage);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
 		setEnableMipmap(mipmap);
 		update();
 	}
-	void load(const std::string& fileName,int x, int y, int width, int height,bool mipmap=false){
-		ReadImageFromFile(fileName,textureImage);
+	void load(const std::string& fileName, int x, int y, int width, int height,
+			bool mipmap = false) {
+		ReadImageFromFile(fileName, textureImage);
 		bounds = box2i( { x, y }, { width, height });
 		setEnableMipmap(mipmap);
 		update();

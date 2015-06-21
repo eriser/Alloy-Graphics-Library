@@ -20,23 +20,23 @@
  */
 #ifndef GLFRAMEBUFFER_H_
 #define GLFRAMEBUFFER_H_
-#include "GLShader.h"
+#include "GLTexture.h"
 namespace aly {
-/*
- class GLFrameBuffer {
- protected:
- unsigned int mFrameBufferId;
- unsigned int mDepthBufferId;
- public:
- GLFrameBuffer(int _x,int _y,int _width,int _height,int _imageWidth,int _imageHeight);
- GLFrameBuffer(){};
- virtual void updateGL();
- void begin();
- void end();
- virtual ~GLFrameBuffer();
 
- };
- */
+class GLFrameBuffer:public GLComponent{
+protected:
+	unsigned int mFrameBufferId;
+	unsigned int mDepthBufferId;
+	GLTexture<float,4,ImageType::FLOAT> texture;
+public:
+	GLFrameBuffer(std::shared_ptr<AlloyContext> context);
+	virtual void update() override;
+	virtual void draw() const override;
+	void begin();
+	void end();
+	virtual ~GLFrameBuffer();
+
+};
 
 } /* namespace imagesci */
 

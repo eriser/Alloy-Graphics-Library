@@ -86,8 +86,8 @@ struct Glyph {
 	virtual inline ~Glyph() {
 	}
 	;
-	virtual void draw(const box2px& bounds, const Color& fgColor,const Color& bgColor,
-			AlloyContext* context)=0;
+	virtual void draw(const box2px& bounds, const Color& fgColor,
+			const Color& bgColor, AlloyContext* context)=0;
 };
 struct ImageGlyph: public Glyph {
 	int handle;
@@ -96,15 +96,16 @@ struct ImageGlyph: public Glyph {
 			false);
 	ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 			bool mipmap = false);
-	void draw(const box2px& bounds,const Color& fgColor,const Color& bgColor, AlloyContext* context)
-			override;
+	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
+			AlloyContext* context) override;
 };
 struct AwesomeGlyph: public Glyph {
 	const int codePoint;
 	const FontStyle style;
-	AwesomeGlyph(int codePoint, AlloyContext* context,const FontStyle& style=FontStyle::Normal, pixel fontHeight = 32);
-	void draw(const box2px& bounds,const Color& fgColor,const Color& bgColor,AlloyContext* context)
-			override;
+	AwesomeGlyph(int codePoint, AlloyContext* context, const FontStyle& style =
+			FontStyle::Normal, pixel fontHeight = 32);
+	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
+			AlloyContext* context) override;
 };
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const Font & v) {
@@ -153,8 +154,11 @@ struct InputEvent {
 	}
 };
 struct EventHandler {
-	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)=0;
-	virtual inline ~EventHandler(){};
+	virtual bool onEventHandler(AlloyContext* context,
+			const InputEvent& event)=0;
+	virtual inline ~EventHandler() {
+	}
+	;
 };
 class Composite;
 class AlloyContext {
@@ -299,8 +303,10 @@ public:
 			bool mipmap = false) {
 		return std::shared_ptr<ImageGlyph>(new ImageGlyph(img, this));
 	}
-	inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint,const FontStyle& style=FontStyle::Normal,pixel height=32) {
-		std::shared_ptr<AwesomeGlyph> g=std::shared_ptr<AwesomeGlyph>(new AwesomeGlyph(codePoint, this,style,height));
+	inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint,
+			const FontStyle& style = FontStyle::Normal, pixel height = 32) {
+		std::shared_ptr<AwesomeGlyph> g = std::shared_ptr<AwesomeGlyph>(
+				new AwesomeGlyph(codePoint, this, style, height));
 		return g;
 	}
 	inline std::shared_ptr<Font>& getFont(FontType type) {

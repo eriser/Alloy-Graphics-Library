@@ -57,7 +57,7 @@ public:
 			context->addListener(region);
 		}
 	}
-	static inline std::string getFullPath(const std::string& partialFile){
+	static inline std::string getFullPath(const std::string& partialFile) {
 		return context->getFullPath(partialFile);
 	}
 	template<class A> std::shared_ptr<Tween>& addTween(AColor& out,
@@ -84,8 +84,9 @@ public:
 			bool mipmap = false) {
 		return context->createImageGlyph(img);
 	}
-	inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint,const FontStyle& style=FontStyle::Normal,pixel height=32) {
-		return context->createAwesomeGlyph(codePoint,style,height);
+	inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint,
+			const FontStyle& style = FontStyle::Normal, pixel height = 32) {
+		return context->createAwesomeGlyph(codePoint, style, height);
 	}
 	virtual void onWindowRefresh() {
 	}

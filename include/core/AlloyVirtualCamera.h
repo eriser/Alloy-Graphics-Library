@@ -25,70 +25,81 @@
 #include "AlloyMath.h"
 #include "AlloyContext.h"
 #include <fstream>
-namespace aly{
-class VirtualCamera: public EventHandler{
+namespace aly {
+class VirtualCamera: public EventHandler {
 protected:
-    // Camera parameters
-    float4x4 Rw,Rm;
-    float3 cameraTrans;
-    float mouseXPos;
-    float mouseYPos;
-    float fov, nearPlane, farPlane;
-    float3 lookAtPoint, eye;
-    float tumblingSpeed, zoomSpeed, strafeSpeed;
-    float distanceToObject;
-    bool mouseDown, startTumbling, zoomMode, changed, needsDisplay;
+	// Camera parameters
+	float4x4 Rw, Rm;
+	float3 cameraTrans;
+	float mouseXPos;
+	float mouseYPos;
+	float fov, nearPlane, farPlane;
+	float3 lookAtPoint, eye;
+	float tumblingSpeed, zoomSpeed, strafeSpeed;
+	float distanceToObject;
+	bool mouseDown, startTumbling, zoomMode, changed, needsDisplay;
 
-    void handleKeyEvent(GLFWwindow* win,int key, int action);
-    void handleButtonEvent(int button, int action);
-    void handleCursorEvent(float x, float y);
-    void handleScrollEvent(int pos);
+	void handleKeyEvent(GLFWwindow* win, int key, int action);
+	void handleButtonEvent(int button, int action);
+	void handleCursorEvent(float x, float y);
+	void handleScrollEvent(int pos);
 public:
 
-    float4x4 mProjection,mView,mModel;
-    float4x4 mViewModel,mNormal;
+	float4x4 mProjection, mView, mModel;
+	float4x4 mViewModel, mNormal;
 	VirtualCamera();
-    void aim(const aly::box2px& bounds);
-    void setPose(const float4x4& m){
-    	mModel=m;
-    }
-    float4x4& getPose(){
-    	return mModel;
-    }
-    float getScale(){
-    	return mModel(0,0)*distanceToObject;
-    }
-    virtual bool onEventHandler(AlloyContext* context, const InputEvent& event) override;
-    void setNearFarPlanes(float n, float f) { nearPlane = n; farPlane = f; }
-    void setFieldOfView(float degrees) { fov = degrees; }
-    void setSpeed(float zoomSpeed, float strafeSpeed, float tumblingSpeed);
-    void lookAt(const float3& p, float dist);
-    void setDistanceToObject(float distance){
-    	distanceToObject=distance;
-    	changed = true;
-    	needsDisplay=true;
-    }
-    void lookAt(const float3& p){
-        	lookAtPoint=p;
-        	changed = true;
-        	needsDisplay=true;
-    }
-    float getNearPlane(){return nearPlane;}
-    float getFarPlane(){return farPlane;}
-    float3 transform(float3& pt){
-    	float4 ptp(pt[0],pt[1],pt[2],1.0f);
-    	float4 p=mProjection*mView*mModel*ptp;
-    	return float3(p[0]/p[3],p[1]/p[3],p[2]/p[3]);
-    }
-    void resetTranslation(){
-    	cameraTrans=float3(0,0,0);
-    	lookAtPoint=float3(0,0,0);
-    }
+	void aim(const aly::box2px& bounds);
+	void setPose(const float4x4& m) {
+		mModel = m;
+	}
+	float4x4& getPose() {
+		return mModel;
+	}
+	float getScale() {
+		return mModel(0, 0) * distanceToObject;
+	}
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
+			override;
+	void setNearFarPlanes(float n, float f) {
+		nearPlane = n;
+		farPlane = f;
+	}
+	void setFieldOfView(float degrees) {
+		fov = degrees;
+	}
+	void setSpeed(float zoomSpeed, float strafeSpeed, float tumblingSpeed);
+	void lookAt(const float3& p, float dist);
+	void setDistanceToObject(float distance) {
+		distanceToObject = distance;
+		changed = true;
+		needsDisplay = true;
+	}
+	void lookAt(const float3& p) {
+		lookAtPoint = p;
+		changed = true;
+		needsDisplay = true;
+	}
+	float getNearPlane() {
+		return nearPlane;
+	}
+	float getFarPlane() {
+		return farPlane;
+	}
+	float3 transform(float3& pt) {
+		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
+		float4 p = mProjection * mView * mModel * ptp;
+		return float3(p[0] / p[3], p[1] / p[3], p[2] / p[3]);
+	}
+	void resetTranslation() {
+		cameraTrans = float3(0, 0, 0);
+		lookAtPoint = float3(0, 0, 0);
+	}
 
-    void setZoom(float z){
-    	distanceToObject=z;
-    }
-    static const float sDeg2rad;
-}; // class Camera
+	void setZoom(float z) {
+		distanceToObject = z;
+	}
+	static const float sDeg2rad;
+};
+// class Camera
 }
 #endif /* ALLOYCAMERA_H_ */

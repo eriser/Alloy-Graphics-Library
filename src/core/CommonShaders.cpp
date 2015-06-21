@@ -22,11 +22,13 @@
 #include "CommonShaders.h"
 #include "AlloyMesh.h"
 #include "AlloyVirtualCamera.h"
-namespace aly{
-	MatcapShader::MatcapShader(const std::string& textureImage,std::shared_ptr<AlloyContext> context):GLShader(context),matcapTexture(context){
-		matcapTexture.load(textureImage);
-		initialize(std::vector<std::string>{"vp","vn"},
-					R"(#version 330
+namespace aly {
+MatcapShader::MatcapShader(const std::string& textureImage,
+		std::shared_ptr<AlloyContext> context) :
+		GLShader(context), matcapTexture(context) {
+	matcapTexture.load(textureImage);
+	initialize(std::vector<std::string> { "vp", "vn" },
+			R"(#version 330
 					layout(location = 0) in vec3 vp; // positions from mesh
 					layout(location = 1) in vec3 vn; // normals from mesh
 					uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; // proj, view, model matrices
@@ -35,7 +37,7 @@ namespace aly{
 					  normal = vec3 (NormalMat * vec4 (vn, 0.0));
 					  gl_Position = ProjMat * ViewModelMat * vec4 (vp, 1.0);
 					})",
-					R"(#version 330
+			R"(#version 330
 					in vec3 normal;
 					uniform sampler2D matcapTexture;
 					void main() {
@@ -45,21 +47,20 @@ namespace aly{
 					   gl_FragColor=c;
 					 }
 					)");
-	}
-	void MatcapShader::draw(const Mesh& mesh,VirtualCamera& camera,const box2px& bounds){
-		begin().
-		set(camera,bounds).
-		set("matcapTexture",matcapTexture,0).
-		draw(mesh.gl).
-		end();
-	}
-	void MatcapShader::draw(const Mesh& mesh,VirtualCamera& camera){
-		draw(mesh,camera,getContext()->getViewport());
-	}
-	ImageShader::ImageShader(std::shared_ptr<AlloyContext> context):GLShader(context){
+}
+void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera,
+		const box2px& bounds) {
+	begin().set(camera, bounds).set("matcapTexture", matcapTexture, 0).draw(
+			mesh.gl).end();
+}
+void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
+	draw(mesh, camera, getContext()->getViewport());
+}
+ImageShader::ImageShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 
-		initialize(std::vector<std::string>{"vp","vn"},
-		 R"(
+	initialize(std::vector<std::string> { "vp", "vn" },
+			R"(
 		 #version 330
 		 in vec3 vp; 
 		 uniform vec4 bounds;
@@ -70,7 +71,7 @@ namespace aly{
 		 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 		 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 	})",
-		 R"(
+			R"(
 		 #version 330
 		 in vec3 pos3d;
 		 uniform sampler2D textureImage;
@@ -78,8 +79,7 @@ namespace aly{
 		 vec4 rgba=texture2D(textureImage,pos3d.xy);
 		 gl_FragColor=rgba;
 		 })");
-	}
-
 }
 
+}
 

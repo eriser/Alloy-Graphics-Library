@@ -30,7 +30,7 @@
 #include <vector>
 namespace aly {
 class Mesh;
-struct GLMesh: public GLComponent{
+struct GLMesh: public GLComponent {
 public:
 	GLuint vao;
 	GLuint vertexBuffer;
@@ -45,51 +45,56 @@ public:
 	Mesh& mesh;
 	virtual void draw() const override;
 	virtual void update() override;
-	GLMesh(Mesh& mesh,std::shared_ptr<AlloyContext>& context);
+	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context);
 	virtual ~GLMesh();
 };
-struct Mesh{
-	private:
+struct Mesh {
+private:
 	box3f boundingBox;
-	bool dirty=false;
-	public:
-		friend class GLMesh;
-		enum PrimitiveType {QUADS=4,TRIANGLES=3};
+	bool dirty = false;
+public:
+	friend class GLMesh;
+	enum PrimitiveType {
+		QUADS = 4, TRIANGLES = 3
+	};
 
-		Vector3f vertexLocations;
-		Vector3f vertexNormals;
-		Vector4f vertexColors;
+	Vector3f vertexLocations;
+	Vector3f vertexNormals;
+	Vector4f vertexColors;
 
-		Vector4ui quadIndexes;
-		Vector3ui triIndexes;
+	Vector4ui quadIndexes;
+	Vector3ui triIndexes;
 
-		Vector2f textureMap;
-		Image4f textureImage;
-		float4x4 pose;
-		GLMesh gl;
+	Vector2f textureMap;
+	Image4f textureImage;
+	float4x4 pose;
+	GLMesh gl;
 
-		Mesh(std::shared_ptr<AlloyContext>& context);
-		inline box3f getBoundingBox() const {return boundingBox;}
-		box3f updateBoundingBox();
-		void scale(float sc);
-		void transform(const float4x4& M);
-		float estimateVoxelSize(int stride=1);
-		void update();
-		void clear();
-		void setDirty(bool d){
-			this->dirty=d;
-		}
-		bool isDirty(){
-			return dirty;
-		}
-		bool load(const std::string& file);
-		void updateVertexNormals(int SMOOTH_ITERATIONS=0,float DOT_TOLERANCE=0.75f);
-		void mapIntoBoundingBox(float voxelSize);
-		void mapOutOfBoundingBox(float voxelSize);
-		bool save(const std::string& file);
-		~Mesh();
+	Mesh(std::shared_ptr<AlloyContext>& context);
+	inline box3f getBoundingBox() const {
+		return boundingBox;
+	}
+	box3f updateBoundingBox();
+	void scale(float sc);
+	void transform(const float4x4& M);
+	float estimateVoxelSize(int stride = 1);
+	void update();
+	void clear();
+	void setDirty(bool d) {
+		this->dirty = d;
+	}
+	bool isDirty() {
+		return dirty;
+	}
+	bool load(const std::string& file);
+	void updateVertexNormals(int SMOOTH_ITERATIONS = 0, float DOT_TOLERANCE =
+			0.75f);
+	void mapIntoBoundingBox(float voxelSize);
+	void mapOutOfBoundingBox(float voxelSize);
+	bool save(const std::string& file);
+	~Mesh();
 };
-void ReadMeshFromFile(const std::string& file,Mesh& mesh);
-void WriteMeshToFile(const std::string& file,const Mesh& mesh);
+void ReadMeshFromFile(const std::string& file, Mesh& mesh);
+void WriteMeshToFile(const std::string& file, const Mesh& mesh);
 }
 #endif /* MESH_H_ */

@@ -54,7 +54,7 @@ bool Region::onEventHandler(AlloyContext* context, const InputEvent& event) {
 		return false;
 }
 Region* Region::locate(const pixel2& cursor) {
-	if (isVisible()&&getCursorBounds().contains(cursor)) {
+	if (isVisible() && getCursorBounds().contains(cursor)) {
 		return this;
 	} else {
 		return nullptr;
@@ -189,14 +189,14 @@ box2px Region::getCursorBounds() const {
 	box2px box = bounds;
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
-		if(Application::getContext()->getOnTopRegion()!=this){
+		if (Application::getContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}
 	return box;
 }
 Region* Composite::locate(const pixel2& cursor) {
-	if (isVisible()){
+	if (isVisible()) {
 		for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
 			Region* r = (*iter)->locate(cursor);
 			if (r != nullptr)
@@ -1013,7 +1013,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		glyph->draw(bounds, *foregroundColor,*borderColor, context);
+		glyph->draw(bounds, *foregroundColor, *borderColor, context);
 	}
 
 	if (borderColor->a > 0) {
@@ -1041,7 +1041,7 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions,const Color& bgColor, const Color& fgColor,
+		const AUnit2D& dimensions, const Color& bgColor, const Color& fgColor,
 		const Color& borderColor, const AUnit1D& borderWidth) {
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			new GlyphRegion(glyph->name));

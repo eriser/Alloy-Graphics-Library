@@ -90,14 +90,15 @@ void Application::draw() {
 	DrawEvent3D e3d;
 	DrawEvent2D e2d;
 
-	glClearColor(1.0,1.0,1.0,1.0);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    draw(e3d);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	draw(e3d);
 	CHECK_GL_ERROR();
-    glDisable(GL_DEPTH_TEST);
-    glViewport(context->viewport.position.x,context->viewport.position.y,context->viewport.dimensions.x,context->viewport.dimensions.y);
-    draw(e2d);
+	glDisable(GL_DEPTH_TEST);
+	glViewport(context->viewport.position.x, context->viewport.position.y,
+			context->viewport.dimensions.x, context->viewport.dimensions.y);
+	draw(e2d);
 	CHECK_GL_ERROR();
 	drawUI();
 	if (context->isDebugEnabled()) {
@@ -430,9 +431,10 @@ void Application::run(int swapInterval) {
 		throw std::runtime_error("Error occurred in application init()");
 	}
 	if (showDebugIcon) {
-		GlyphRegionPtr debug = MakeGlyphRegion(createAwesomeGlyph(0xf188,FontStyle::Outline,20),
-				CoordPercent(1.0f, 1.0f), CoordPX(20, 20),
-				RGBA(0,0,0,0), RGBA(64,64,64,128),RGBA(192,192,192,128),UnitPX(0));
+		GlyphRegionPtr debug = MakeGlyphRegion(
+				createAwesomeGlyph(0xf188, FontStyle::Outline, 20),
+				CoordPercent(1.0f, 1.0f), CoordPX(20, 20), RGBA(0, 0, 0, 0),
+				RGBA(64, 64, 64, 128), RGBA(192, 192, 192, 128), UnitPX(0));
 
 		debug->setOrigin(Origin::BottomRight);
 		debug->onMouseDown =

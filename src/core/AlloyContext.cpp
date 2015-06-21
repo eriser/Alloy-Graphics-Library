@@ -19,7 +19,6 @@
  * THE SOFTWARE.
  */
 
-
 #include "AlloyFileUtil.h"
 #include "AlloyContext.h"
 #include "AlloyUI.h"
@@ -69,22 +68,24 @@ int Font::getCursorPosition(const std::string & text, float fontSize,
 	}
 	return static_cast<int>(positions.size());
 }
-AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context,const  FontStyle& style,pixel height) :
+AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context,
+		const FontStyle& style, pixel height) :
 		Glyph(CodePointToUTF8(codePoint), GlyphType::Awesome, 0, height), codePoint(
-				codePoint),style(style) {
+				codePoint), style(style) {
 	NVGcontext* nvg = context->nvgContext;
 	nvgFontSize(nvg, height);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	width = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
 
 }
-void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,const Color& bgColor,
-		AlloyContext* context) {
+void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
+		const Color& bgColor, AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	nvgFontSize(nvg, height);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
-	drawText(nvg,bounds.position+bounds.dimensions*0.5f,name,style,fgColor,bgColor,nullptr);
+	drawText(nvg, bounds.position + bounds.dimensions * 0.5f, name, style,
+			fgColor, bgColor, nullptr);
 }
 ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 		bool mipmap) :
@@ -105,8 +106,8 @@ ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 	width = (pixel) rgba.width;
 	height = (pixel) rgba.height;
 }
-void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,const Color& bgColor,
-		AlloyContext* context) {
+void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,
+		const Color& bgColor, AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
 			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y, 0.f,
@@ -203,13 +204,13 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		throw std::runtime_error("Could not initialize GLEW.");
 	}
 	glGetError();
-    glDepthFunc(GL_LESS);
-    glEnable(GL_DEPTH_TEST);
-	glEnable( GL_BLEND );
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glEnable( GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_POLYGON_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
-	glEnable( GL_MULTISAMPLE );
+	glEnable( GL_MULTISAMPLE);
 	glViewport(0, 0, width, height);
 	viewport = box2i(int2(0, 0), int2(width, height));
 	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);

@@ -27,25 +27,25 @@ namespace aly {
 
 GLShader::GLShader(std::shared_ptr<AlloyContext>& context) :
 		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(
-				0), mProgramHandle(0),context(context) {
+				0), mProgramHandle(0), context(context) {
 
 }
 GLShader& GLShader::begin() {
 	context->begin();
 	glUseProgram(GetProgramHandle());
-	shaderEnabled=true;
+	shaderEnabled = true;
 	return *this;
 }
 void GLShader::end() {
-	shaderEnabled=false;
+	shaderEnabled = false;
 	glUseProgram((GLuint) NULL);
 	context->end();
 }
-GLShader& GLShader::draw(const GLComponent& comp){
+GLShader& GLShader::draw(const GLComponent& comp) {
 	comp.draw();
 	return *this;
 }
-GLShader& GLShader::draw(const Mesh& mesh){
+GLShader& GLShader::draw(const Mesh& mesh) {
 	draw(mesh.gl);
 	return *this;
 }
