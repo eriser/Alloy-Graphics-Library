@@ -40,15 +40,15 @@ class ImageShader: public GLShader {
 public:
 	ImageShader(std::shared_ptr<AlloyContext> context);
 	template<class T, int C, ImageType I> void draw(
-			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
-		begin().set("textureImage", imageTexture, 0).set("bounds",
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,bool flip=false) {
+		begin().set("flip",flip?1:0).set("textureImage", imageTexture, 0).set("bounds",
 				box2px(float2(30.0f, 30.0f), float2(300.0f, 200.0f))).set(
 				"viewport", context->viewport).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const float2& location,
-			const float2& dimensions) {
-		begin().set("textureImage", imageTexture, 0).set("bounds",
+			const float2& dimensions,bool flip=false) {
+		begin().set("flip",flip?1:0).set("textureImage", imageTexture, 0).set("bounds",
 				box2px(location, dimensions)).set("viewport", context->viewport).draw(
 				imageTexture).end();
 

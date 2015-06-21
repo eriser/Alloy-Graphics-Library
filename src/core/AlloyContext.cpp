@@ -214,17 +214,22 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glViewport(0, 0, width, height);
 	viewport = box2i(int2(0, 0), int2(width, height));
 	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-	const float2 TextureCoords[6] = { float2(1.0f, 1.0f), float2(0.0f, 1.0f),
-			float2(0.0f, 0.0f), float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(
-					1.0f, 1.0f) };
-	const float3 PositionCoords[6] = { float3(1.0f, 1.0f, 0.0f), float3(0.0f,
-			1.0f, 0.0f), float3(0.0f, 0.0f, 0.0f), float3(0.0f, 0.0f, 0.0f),
-			float3(1.0f, 0.0f, 0.0f), float3(1.0f, 1.0f, 0.0f) };
+	const float2 TextureCoords[6] = {
+			float2(1.0f, 0.0f), float2(0.0f, 0.0f),
+			float2(0.0f, 1.0f), float2(0.0f, 1.0f),
+			float2(1.0f, 1.0f), float2(1.0f, 0.0f) };
+	const float3 PositionCoords[6] = {
+			float3(1.0f, 1.0f, 0.0f),
+			float3(0.0f, 1.0f, 0.0f),
+			float3(0.0f, 0.0f, 0.0f),
+			float3(0.0f, 0.0f, 0.0f),
+			float3(1.0f, 0.0f, 0.0f),
+			float3(1.0f, 1.0f, 0.0f) };
 	glGenVertexArrays(1, &vaoImage.vao);
 	glBindVertexArray(vaoImage.vao);
 	glGenBuffers(1, &vaoImage.positionBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vaoImage.positionBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 4, PositionCoords,
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 6, PositionCoords,
 	GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 

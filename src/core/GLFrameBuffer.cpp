@@ -28,7 +28,10 @@ GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
 	// TODO Auto-generated constructor stub
 
 }
-
+void GLFrameBuffer::initialize(int w,int h){
+	texture.load(Image4f(w,h),false);
+	update();
+}
 GLFrameBuffer::~GLFrameBuffer() {
 	context->begin();
 	if (mFrameBufferId != 0)
@@ -43,8 +46,9 @@ void GLFrameBuffer::begin() {
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glClearColor(0,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	CHECK_GL_ERROR();
 }
 void GLFrameBuffer::end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -54,6 +58,7 @@ void GLFrameBuffer::end() {
 			context->viewport.position.y,
 			context->viewport.dimensions.x,
 			context->viewport.dimensions.y);
+	CHECK_GL_ERROR();
 	context->end();
 }
 void GLFrameBuffer::draw() const {
@@ -69,18 +74,18 @@ void GLFrameBuffer::update() {
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texture.width(),texture.height());
 
-	glGenFramebuffers(1, &mFrameBufferId);
 	if(mFrameBufferId!=0){
-		glDeleteRenderbuffers(1,&mDepthBufferId);
+		glDeleteRenderbuffers(1,&mFrameBufferId);
 	}
+	glGenFramebuffers(1, &mFrameBufferId);
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-			GL_RENDERBUFFER, mDepthBufferId);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER, mFrameBufferId);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,texture.textureId, 0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	CHECK_GL_ERROR();
 	context->end();
 }
 }

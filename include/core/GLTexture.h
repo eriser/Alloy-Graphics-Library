@@ -45,9 +45,10 @@ public:
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
@@ -64,15 +65,15 @@ public:
 		case ImageType::FLOAT:
 			if (textureImage.channels == 4) {
 				internalFormat = GL_RGBA32F;
-				externalFormat = GL_RGBA32F;
+				externalFormat = GL_RGBA;
 				dataType = GL_FLOAT;
 			} else if (textureImage.channels == 3) {
 				internalFormat = GL_RGB32F;
-				externalFormat = GL_RGB32F;
+				externalFormat = GL_RGB;
 				dataType = GL_FLOAT;
 			} else if (textureImage.channels == 1) {
 				internalFormat = GL_R32F;
-				externalFormat = GL_R32F;
+				externalFormat = GL_R;
 				dataType = GL_FLOAT;
 			} else {
 				throw std::runtime_error(
@@ -210,6 +211,7 @@ public:
 					&textureImage[0]);
 		}
 
+		CHECK_GL_ERROR();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
@@ -217,6 +219,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture( GL_TEXTURE_2D, 0);
 		context->end();
+		CHECK_GL_ERROR();
 	}
 	Image<T, C, I>& read() {
 		context->begin();

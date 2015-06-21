@@ -25,40 +25,5 @@
 #include "GLShader.h"
 
 namespace aly {
-/*
- template<class T,int C,ImageType I> GLShader* GLTexture<T,C,I>::getShader(){
- if(imageShader==NULL){
- if(defaultShader.get()==nullptr){
- std::vector<std::string> attrib={"vp","uv"};
- defaultShader=std::unique_ptr<GLShader>(new GLShader(attrib,
- R"(
- #version 330
- in vec3 vp; 
- uniform vec2 IMG_POS;
- uniform vec2 IMG_DIMS;
- uniform vec2 SCREEN_DIMS;
- out vec3 pos3d;
- void main() {
- pos3d=vp;
- vec2 pos=(vp.xy*IMG_DIMS+IMG_POS);
- pos.x=2*pos.x/SCREEN_DIMS.x-1.0;
- pos.y=1.0-2*pos.y/SCREEN_DIMS.y;
- gl_Position = vec4(pos.x,pos.y,0,1);
- })",
- R"(
- #version 330
- in vec3 pos3d;
- uniform sampler2D textureImage;
- uniform vec2 IMG_DIMS;
- void main() {
- vec4 rgba=texture2D(textureImage,pos3d.xy);
- gl_FragColor=rgba;
- })"));
- }
- imageShader=defaultShader.get();
- }
- return imageShader;
- }
- */
 
 }

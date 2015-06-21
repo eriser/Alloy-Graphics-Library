@@ -59,24 +59,27 @@ void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
 ImageShader::ImageShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
 
-	initialize(std::vector<std::string> { "vp", "vn" },
+	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 		 #version 330
-		 in vec3 vp; 
+		 layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
 		 uniform vec4 bounds;
 		 uniform ivec4 viewport;
-		 out vec3 pos3d;
+uniform int flip;
+out vec2 uv;
 		 void main() {
-		 pos3d=vp;
+if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
 		 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 		 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 	})",
 			R"(
 		 #version 330
-		 in vec3 pos3d;
+in vec2 uv;
 		 uniform sampler2D textureImage;
+
 		 void main() {
-		 vec4 rgba=texture2D(textureImage,pos3d.xy);
+		 vec4 rgba=texture2D(textureImage,uv);
 		 gl_FragColor=rgba;
 		 })");
 }
