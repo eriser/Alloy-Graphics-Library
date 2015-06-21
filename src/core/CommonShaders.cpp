@@ -56,9 +56,44 @@ void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera,
 void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
 	draw(mesh, camera, getContext()->getViewport());
 }
-ImageShader::ImageShader(std::shared_ptr<AlloyContext> context) :
-		GLShader(context) {
 
+DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+	initialize(std::vector<std::string> { "vp", "vn" },
+			R"(#version 330
+				in vec3 vp; // positions from mesh
+				in vec3 vn; // normals from mesh
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; // proj, view, model matrices
+				out vec3 pos_eye;
+				out vec3 normal;
+				uniform float MIN_DEPTH;
+				uniform float MAX_DEPTH;
+				
+				void main () {
+				  vec4 pos = ViewModelMat * vec4 (vp, 1.0);
+				  normal = vec3 (NormalMat* vec4 (vn, 0.0));
+				  gl_Position = ProjMat * pos; 
+				  pos=pos/pos.w; 
+				  pos.z=(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
+				  pos_eye = pos.xyz;
+				
+				})",
+			R"(	#version 330
+				in vec3 normal;
+				in vec3 pos_eye;
+				void main() {
+					vec3 normalized_normal = normalize(normal);
+					gl_FragColor = vec4(normalized_normal.xyz,pos_eye.z);
+				}
+				)");
+}
+void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
+		const box2px& bounds) {
+	begin().set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
+}
+void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera) {
+	draw(mesh, camera, getContext()->getViewport());
+}
+ImageShader::ImageShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 		 #version 330

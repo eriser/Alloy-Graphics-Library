@@ -27,7 +27,7 @@ MeshViewer::MeshViewer() :
 				getContext()),frameBuffer(getContext()) {
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/armadillo.ply"));
+	mesh.load(getFullPath("models/icosahedron.ply"));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
@@ -35,6 +35,7 @@ bool MeshViewer::init(Composite& rootNode) {
 			new MatcapShader(getFullPath("images/JG_Gold.png"), getContext()));
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	imageShader = std::shared_ptr<ImageShader>(new ImageShader(getContext()));
+	dnpShader=std::shared_ptr<DepthAndNormalShader>(new DepthAndNormalShader(getContext()));
 	frameBuffer.initialize(640,480);
 	mesh.updateVertexNormals();
 	mesh.transform(MakeRotationY((float) M_PI));
@@ -50,6 +51,6 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader->draw(exampleImage, float2(30.0f, 30.0f),
 			float2(300.0f, 200.0f),true);
 
-	imageShader->draw(frameBuffer.getTexture(), float2(30.0f, 120.0f),
+	imageShader->draw(frameBuffer.getTexture(), float2(400.0f, 120.0f),
 			float2(640,480));
 }
