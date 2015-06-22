@@ -56,6 +56,12 @@ public:
 	float4x4& getPose() {
 		return mModel;
 	}
+	bool isDirty(){
+		return needsDisplay||changed;
+	}
+	void setDirty(bool d){
+		needsDisplay=d;
+	}
 	float getScale() {
 		return mModel(0, 0) * distanceToObject;
 	}
@@ -75,12 +81,10 @@ public:
 	void setDistanceToObject(float distance) {
 		distanceToObject = distance;
 		changed = true;
-		needsDisplay = true;
 	}
 	void lookAt(const float3& p) {
 		lookAtPoint = p;
 		changed = true;
-		needsDisplay = true;
 	}
 	float getNearPlane() {
 		return nearPlane;

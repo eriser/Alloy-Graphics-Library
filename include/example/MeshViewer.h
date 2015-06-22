@@ -39,6 +39,8 @@ private:
 
 	aly::GLFrameBuffer frameBuffer;
 	aly::GLTextureRGBA exampleImage;
+	float voxelSize;
+
 public:
 	MeshViewer();
 	bool init(aly::Composite& rootNode) override;

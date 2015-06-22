@@ -69,9 +69,8 @@ void VirtualCamera::aim(const box2px& bounds) {
 		mView = Teye * S * Rw * T * Rm;
 		mViewModel = mView * mModel;
 		mNormal = transpose(inverse(mViewModel));
+		needsDisplay=true;
 	}
-
-	needsDisplay = false;
 }
 float2 VirtualCamera::computeNormalizedDepthRange(const Mesh& mesh){
 	box3f bbox=mesh.getBoundingBox();
@@ -155,7 +154,6 @@ void VirtualCamera::handleButtonEvent(int button, int action) {
 	}
 	if (action == GLFW_RELEASE)
 		mouseDown = false;
-
 	startTumbling = true;
 	changed = true;
 }
@@ -191,22 +189,20 @@ void VirtualCamera::handleCursorEvent(float x, float y) {
 	dx = x - mouseXPos;
 	dy = y - mouseYPos;
 	if (mouseDown && !zoomMode) {
-		needsDisplay = true;
 		Rw = MakeRotationY((float) (dx * tumblingSpeed * sDeg2rad))
 				* MakeRotationX((float) (dy * tumblingSpeed * sDeg2rad)) * Rw;
+		changed = true;
 	} else if (mouseDown && zoomMode) {
-		needsDisplay = true;
 		float3 mUp = Rw.row(1).xyz();
 		float3 mRight = Rw.row(0).xyz();
 		lookAtPoint += (mRight * dx - dy * mUp) * (float) (strafeSpeed);
+		changed = true;
 	}
 	mouseXPos = x;
 	mouseYPos = y;
-	changed = true;
 }
 void VirtualCamera::handleScrollEvent(int pos) {
 	distanceToObject = (1 - pos * zoomSpeed) * distanceToObject;
 	changed = true;
-	needsDisplay = true;
 }
 }

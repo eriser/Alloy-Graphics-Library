@@ -25,29 +25,37 @@ using namespace aly;
 MeshViewer::MeshViewer():Application(1280, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/icosahedron.ply"));
+	mesh.load(getFullPath("models/armadillo.ply"));
 	mesh.scale(10.0f);
 	mesh.transform(MakeRotationY((float) M_PI));
-
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 	camera.setNearFarPlanes(0.01f,10.0f);
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
+	voxelSize=mesh.estimateVoxelSize(2);
+
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	frameBuffer.initialize(480,480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
+	std::cout<<"Voxel  Size "<<voxelSize<<" "<<camera.getScale()<<std::endl;
 	return true;
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
-	frameBuffer.begin();
-	edgeDepthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
-	frameBuffer.end();
+	if(camera.isDirty()){
+		frameBuffer.begin();
+		edgeDepthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
+		frameBuffer.end();
+		camera.setDirty(false);
+	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 	normalColorShader.draw(frameBuffer.getTexture(), float2(0.0f, 0.0f),float2(480,480));
-	depthColorShader.draw(frameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(480.0f, 0.0f),float2(480,480));
+	//depthColorShader.draw(frameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(480.0f, 0.0f),float2(480,480));
+	float2 dRange=camera.computeNormalizedDepthRange(mesh);
+	depthColorShader.draw(frameBuffer.getTexture(),float2(0.0f,0.1f*voxelSize*camera.getScale()), float2(480.0f, 0.0f),float2(480,480));
+
 	distanceFieldShader.draw(frameBuffer.getTexture(),8, float2(0.0f, 480.0f),float2(480,480));
 	//effectsShader.draw(frameBuffer.getTexture(), float2(480.0f, 480.0f),float2(480,480));
 

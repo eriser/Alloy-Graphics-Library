@@ -191,9 +191,9 @@ if(dist2<dist3){
 }
 					} 
     if (dist <DISTANCE_TOL){
-      gl_FragColor = vec4(outNorm,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+      gl_FragColor = vec4(outNorm,dist);
     } else {
-gl_FragColor = vec4(outNorm,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+gl_FragColor = vec4(outNorm,dist);
     }
 				})",
 				R"(	#version 330
