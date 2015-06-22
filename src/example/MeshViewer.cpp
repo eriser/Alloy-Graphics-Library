@@ -26,26 +26,29 @@ MeshViewer::MeshViewer():Application(1280, 960, "Mesh Viewer"),matcapShader(getF
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/icosahedron.ply"));
+	mesh.scale(10.0f);
+	mesh.transform(MakeRotationY((float) M_PI));
+
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
+	camera.setNearFarPlanes(0.01f,10.0f);
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	frameBuffer.initialize(480,480);
-	camera.setNearFarPlanes(0.01,2.0f);
 	mesh.updateVertexNormals();
-	mesh.transform(MakeRotationY((float) M_PI));
 	addListener(&camera);
 	return true;
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	frameBuffer.begin();
-	depthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
+	edgeDepthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
 	frameBuffer.end();
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 	normalColorShader.draw(frameBuffer.getTexture(), float2(0.0f, 0.0f),float2(480,480));
-	depthColorShader.draw(frameBuffer.getTexture(), float2(480.0f, 0.0f),float2(480,480));
-	effectsShader.draw(frameBuffer.getTexture(), float2(0.0f, 480.0f),float2(480,480));
+	depthColorShader.draw(frameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(480.0f, 0.0f),float2(480,480));
+	distanceFieldShader.draw(frameBuffer.getTexture(),8, float2(0.0f, 480.0f),float2(480,480));
+	//effectsShader.draw(frameBuffer.getTexture(), float2(480.0f, 480.0f),float2(480,480));
 
 }

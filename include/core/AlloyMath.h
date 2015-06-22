@@ -1332,6 +1332,9 @@ template<class T, int M> struct box {
 	inline vec<T, M> min() const {
 		return position;
 	}
+	inline vec<T, M> center() const {
+		return position+dimensions/(T)(2);
+	}
 	inline vec<T, M> clamp(const vec<T, M>& pt, const box<T, M>& parent) {
 		return aly::clamp(pt, parent.position,
 				parent.position + parent.dimensions - dimensions);
@@ -1362,8 +1365,8 @@ template<class T> matrix<T, 4, 4> perspectiveMatrix(const T &fovy,
 	M(0, 0) = sx;
 	M(1, 1) = sy;
 	M(2, 2) = sz;
-	M(2, 3) = -1.0f;
-	M(3, 2) = pz;
+	M(3, 2) = -1.0f;
+	M(2, 3) = pz;
 	return M;
 }
 template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,

@@ -71,8 +71,8 @@ public:
 class DepthColorShader: public GLShader {
 public:
 	DepthColorShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions);
+	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,const float2& location,const float2& dimensions);
 };
 
 class DepthAndNormalShader: public GLShader {
@@ -88,7 +88,12 @@ public:
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };
-
+class DistanceFieldShader: public GLShader {
+public:
+	DistanceFieldShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture,int distance, const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture,int distance, const float2& location,const float2& dimensions);
+};
 }
 
 #endif /* COMMONSHADERS_H_ */

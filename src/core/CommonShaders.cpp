@@ -88,27 +88,22 @@ DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context
 			R"(#version 330
 				in vec3 vp; // positions from mesh
 				in vec3 vn; // normals from mesh
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; // proj, view, model matrices
-				out vec3 pos_eye;
-				out vec3 normal;
-				uniform float MIN_DEPTH;
-				uniform float MAX_DEPTH;
-				
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				out vec3 normal;	
+out vec4 pos;			
 				void main () {
-				  vec4 pos = ViewModelMat * vec4 (vp, 1.0);
+pos=  ViewModelMat *vec4 (vp, 1.0);
+				  gl_Position =ProjMat*pos; 
 				  normal = vec3 (NormalMat* vec4 (vn, 0.0));
-				  gl_Position = ProjMat * pos; 
-				  pos=pos/pos.w; 
-				  pos.z=(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
-				  pos_eye = pos.xyz;
-				
 				})",
 			R"(	#version 330
 				in vec3 normal;
-				in vec3 pos_eye;
+in vec4 pos;
+				uniform float MIN_DEPTH;
+				uniform float MAX_DEPTH;
 				void main() {
 					vec3 normalized_normal = normalize(normal);
-					gl_FragColor = vec4(normalized_normal.xyz,pos_eye.z);
+					gl_FragColor = vec4(normalized_normal.xyz,(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 				}
 				)");
 }
@@ -136,8 +131,19 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 				uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
 				uniform float SCALE;
-				uniform float maxVelocity;
-				uniform float minVelocity;
+
+vec3 slerp(vec3 p0, vec3 p1, float t){
+  p0=normalize(p0);
+  p1=normalize(p1);
+  float dotp = dot(p0,p1);
+  if ((dotp > 0.9999) || (dotp<-0.9999)){
+    if (t<=0.5)return p0;
+    return p1;
+  }
+  float theta = acos(dotp * 3.141596535/180.0);
+  return ((p0*sin((1-t)*theta) + p1*sin(t*theta)) / sin(theta));
+}
+
 				void main(void) {
 				  vec3 line, vec, proj;
 				  float dist1,dist2,dist3,dist;
@@ -164,33 +170,31 @@ vec = vert - v1;
 				  tan3=cross(line,normal);
 				
 				  vec3 outNorm=normalize(normal);
-				  w1=clamp(1.0f-dist1/DISTANCE_TOL,0.0,1.0);
-				  w2=clamp(1.0f-dist2/DISTANCE_TOL,0.0,1.0);
-w3=clamp(1.0f-dist3/DISTANCE_TOL,0.0,1.0);
+				  w1=clamp(dist1/DISTANCE_TOL,0.0,1.0);
+				  w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
+w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
 					if(dist1<dist2){
 if(dist1<dist3){
 					  dist=dist1;
-					  outNorm=normalize(mix(normal,tan1,w1));
+					  outNorm=slerp(tan1,normal,w1);
 } else {
 					  dist=dist3;
-					  outNorm=normalize(mix(normal,tan3,w3));
+					  outNorm=slerp(tan3,normal,w3);
 }
 					} else {
 if(dist2<dist3){
 					  dist=dist2;
-					  outNorm=normalize(mix(normal,tan2,w2));
+					  outNorm=slerp(tan2,normal,w2);
 } else {
 					  dist=dist3;
-					  outNorm=normalize(mix(normal,tan3,w3));
+					  outNorm=slerp(tan3,normal,w3);
 }
 					} 
-					if (dist <DISTANCE_TOL&&normal.z>0.0){
-					  gl_FragColor = vec4(outNorm,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
-					} else {
-					  if(normal.z>0.0){
-						gl_FragColor = vec4(0.0,0.0,0.0,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
-					  } else discard;
-					}
+    if (dist <DISTANCE_TOL){
+      gl_FragColor = vec4(outNorm,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+    } else {
+gl_FragColor = vec4(outNorm,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+    }
 				})",
 				R"(	#version 330
 					layout (triangles) in;
@@ -252,27 +256,106 @@ gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			R"(
 #version 330
 in vec2 uv;
-const float PI=3.1415926535;
+uniform ivec2 imageSize;
+uniform int KERNEL_SIZE;
 uniform sampler2D textureImage;
+const int SCALE=2;
 void main() {
 vec4 rgba=texture2D(textureImage,uv);
+vec4 nrgba;
 if(rgba.w>0){
-rgba=vec4(1.0,0.0,0.0,1.0);
+float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
+	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
+if(nrgba.w<=0.0){
+      minDistance=min(minDistance,i*i+j*j);
+}
+	}
+}
+rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
 } else {
-rgba=vec4(0.0,0.0,0.0,1.0);
+float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
+	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
+if(nrgba.w>0.0){
+      minDistance=min(minDistance,i*i+j*j);
+}
+	}
+}
+rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
 }
 gl_FragColor=rgba;
 })");
 }
 void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds){
-	begin().set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("viewport", context->viewport).draw(
+	begin().set("KERNEL_SIZE",4).set("textureImage", imageTexture, 0).set("bounds",
+			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->viewport).draw(
 			imageTexture).end();
 }
 void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions){
 	draw(imageTexture,box2px(location,dimensions));
 }
 
+
+DistanceFieldShader::DistanceFieldShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+	initialize(std::vector<std::string> { "vp", "vt" },
+			R"(
+#version 330
+layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
+uniform vec4 bounds;
+uniform ivec4 viewport;
+out vec2 uv;
+void main() {
+uv=vt;
+vec2 pos=vp.xy*bounds.zw+bounds.xy;
+gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+})",
+			R"(
+#version 330
+in vec2 uv;
+uniform ivec2 imageSize;
+uniform int KERNEL_SIZE;
+uniform sampler2D textureImage;
+void main() {
+vec4 rgba=texture2D(textureImage,uv);
+vec4 nrgba;
+if(rgba.w>0){
+float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
+	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      nrgba=texture2D(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
+if(nrgba.w<=0.0){
+      minDistance=min(minDistance,i*i+j*j);
+}
+	}
+}
+rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
+} else {
+float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
+	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      nrgba=texture2D(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
+if(nrgba.w>0.0){
+      minDistance=min(minDistance,i*i+j*j);
+}
+	}
+}
+rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
+}
+gl_FragColor=rgba;
+})");
+}
+void DistanceFieldShader::draw(const GLTextureRGBAf& imageTexture,int distance, const box2px& bounds){
+	begin().set("KERNEL_SIZE",distance).set("textureImage", imageTexture, 0).set("bounds",
+			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->viewport).draw(
+			imageTexture).end();
+}
+void DistanceFieldShader::draw(const GLTextureRGBAf& imageTexture, int distance,const float2& location,const float2& dimensions){
+	draw(imageTexture,distance,box2px(location,dimensions));
+}
 NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
@@ -332,30 +415,34 @@ gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 in vec2 uv;
 const float PI=3.1415926535;
 uniform sampler2D textureImage;
+uniform float zMin;
+uniform float zMax;
 void main() {
 vec4 rgba=texture2D(textureImage,uv);
 if(rgba.w>0){
-float lum=clamp(abs(rgba.w),0.0f,1.0f);
-rgba=vec4(lum,lum,lum,1.0);
-
+	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
+	float r=max(0.0,1.0f-lum*2.0);
+	float b=min(2*lum-1.0,1.0);
+	float g=max(0.0,1-2.0*abs(2.0*lum-1.0));
+	rgba=vec4(r,g,b,1.0);
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
 gl_FragColor=rgba;
 })");
 }
-void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds){
-	begin().set("textureImage", imageTexture, 0).set("bounds",
+void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds){
+	begin().set("textureImage", imageTexture, 0).set("zMin",zRange.x),set("zMax",zRange.y).set("bounds",
 			bounds).set("viewport", context->viewport).draw(
 			imageTexture).end();
 }
-void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions){
-	draw(imageTexture,box2px(location,dimensions));
+void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions){
+	draw(imageTexture,zRange,box2px(location,dimensions));
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		const box2px& bounds) {
 	glDisable(GL_BLEND);
-	begin().set("DISTANCE_TOL",0.1f*camera.getScale()).set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
+	begin().set("DISTANCE_TOL",camera.getScale()).set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
 	glEnable(GL_BLEND);
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera) {

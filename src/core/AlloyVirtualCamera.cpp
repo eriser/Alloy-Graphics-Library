@@ -1,6 +1,7 @@
 #include "AlloyVirtualCamera.h"
 
 #include "GLShader.h"
+#include "AlloyMesh.h"
 #include <cmath>
 #include <string>
 #include <list>
@@ -63,9 +64,8 @@ void VirtualCamera::aim(const box2px& bounds) {
 		Tcamera(2, 3) = cameraTrans[2];
 
 		mProjection = Tcamera
-				* transpose(
-						perspectiveMatrix(fov, aspectRatio, nearPlane,
-								farPlane));
+				* perspectiveMatrix(fov, aspectRatio, nearPlane,
+								farPlane);
 		mView = Teye * S * Rw * T * Rm;
 		mViewModel = mView * mModel;
 		mNormal = transpose(inverse(mViewModel));
@@ -73,7 +73,15 @@ void VirtualCamera::aim(const box2px& bounds) {
 
 	needsDisplay = false;
 }
-
+float2 VirtualCamera::computeNormalizedDepthRange(const Mesh& mesh){
+	box3f bbox=mesh.getBoundingBox();
+	float4 center=bbox.center().xyzw();
+	float4 origin=inverse(mViewModel)*float4(0,0,0,1);
+	float3 ray=normalize(center.xyz()-origin.xyz()/origin.w);
+	float zMin=getNormalizedDepth(center-0.5f*bbox.dimensions.z*float4(ray,0));
+	float zMax=getNormalizedDepth(center+0.5f*bbox.dimensions.z*float4(ray,0));
+	return float2(zMin,zMax);
+}
 void VirtualCamera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 	if ((char) key == 'A') {
 		Rm = MakeRotationY((float) (2 * sDeg2rad)) * Rm;

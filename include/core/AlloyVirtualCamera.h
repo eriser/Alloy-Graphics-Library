@@ -26,6 +26,7 @@
 #include "AlloyContext.h"
 #include <fstream>
 namespace aly {
+class Mesh;
 class VirtualCamera: public EventHandler {
 protected:
 	// Camera parameters
@@ -63,9 +64,11 @@ public:
 	void setNearFarPlanes(float n, float f) {
 		nearPlane = n;
 		farPlane = f;
+		changed = true;
 	}
 	void setFieldOfView(float degrees) {
 		fov = degrees;
+		changed = true;
 	}
 	void setSpeed(float zoomSpeed, float strafeSpeed, float tumblingSpeed);
 	void lookAt(const float3& p, float dist);
@@ -82,6 +85,14 @@ public:
 	float getNearPlane() {
 		return nearPlane;
 	}
+	float getZRange() {
+		return farPlane-nearPlane;
+	}
+	float getNormalizedDepth(const float4& pt){
+		float4 out=mViewModel*pt;
+		return (-out.z-nearPlane)/(farPlane-nearPlane);
+	}
+	float2 computeNormalizedDepthRange(const Mesh& mesh);
 	float getFarPlane() {
 		return farPlane;
 	}
@@ -93,10 +104,12 @@ public:
 	void resetTranslation() {
 		cameraTrans = float3(0, 0, 0);
 		lookAtPoint = float3(0, 0, 0);
+		changed=true;
 	}
 
 	void setZoom(float z) {
 		distanceToObject = z;
+		changed=true;
 	}
 	static const float sDeg2rad;
 };
