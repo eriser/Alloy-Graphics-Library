@@ -22,10 +22,10 @@
 #include "Alloy.h"
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
-MeshViewer::MeshViewer():Application(1280, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
+MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/armadillo.ply"));
+	mesh.load(getFullPath("models/icosahedron.ply"));
 	mesh.scale(10.0f);
 	mesh.transform(MakeRotationY((float) M_PI));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
@@ -35,28 +35,36 @@ bool MeshViewer::init(Composite& rootNode) {
 	voxelSize=mesh.estimateVoxelSize(2);
 
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
-	frameBuffer.initialize(480,480);
+	edgeFrameBuffer.initialize(480,480);
+	depthFrameBuffer.initialize(480,480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
-	std::cout<<"Voxel  Size "<<voxelSize<<" "<<camera.getScale()<<std::endl;
 	return true;
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	if(camera.isDirty()){
-		frameBuffer.begin();
-		edgeDepthAndNormalShader.draw(mesh, camera,frameBuffer.getViewport());
-		frameBuffer.end();
+
+		edgeFrameBuffer.begin();
+		edgeDepthAndNormalShader.draw(mesh, camera,edgeFrameBuffer.getViewport());
+		edgeFrameBuffer.end();
+
+		depthFrameBuffer.begin();
+		depthAndNormalShader.draw(mesh, camera,depthFrameBuffer.getViewport());
+		depthFrameBuffer.end();
+
 		camera.setDirty(false);
 	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
-	normalColorShader.draw(frameBuffer.getTexture(), float2(0.0f, 0.0f),float2(480,480));
-	//depthColorShader.draw(frameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(480.0f, 0.0f),float2(480,480));
-	float2 dRange=camera.computeNormalizedDepthRange(mesh);
-	depthColorShader.draw(frameBuffer.getTexture(),float2(0.0f,0.1f*voxelSize*camera.getScale()), float2(480.0f, 0.0f),float2(480,480));
+	//imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
+	depthColorShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2( 0.0f,0.0f),float2(480,480));
+	normalColorShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, 480.0f),float2(480,480));
+	depthColorShader.draw(depthFrameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(960.0f, 0.0f),float2(480,480));
+	normalColorShader.draw(depthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480));
 
-	distanceFieldShader.draw(frameBuffer.getTexture(),8, float2(0.0f, 480.0f),float2(480,480));
+	float2 dRange=camera.computeNormalizedDepthRange(mesh);
+	outlineShader.draw(edgeFrameBuffer.getTexture(), float2(480.0f,0.0f),float2(480,480));
+	wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(480.0f, 480.0f),float2(480,480));
 	//effectsShader.draw(frameBuffer.getTexture(), float2(480.0f, 480.0f),float2(480,480));
 
 }

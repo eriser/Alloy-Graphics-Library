@@ -174,21 +174,21 @@ vec = vert - v1;
 				  w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
 w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
 					if(dist1<dist2){
-if(dist1<dist3){
-					  dist=dist1;
-					  outNorm=slerp(tan1,normal,w1);
-} else {
-					  dist=dist3;
-					  outNorm=slerp(tan3,normal,w3);
-}
+						if(dist1<dist3){
+						dist=dist1;
+						outNorm=slerp(tan1,normal,w1);
+						} else {
+						dist=dist3;
+						outNorm=slerp(tan3,normal,w3);
+						}
 					} else {
-if(dist2<dist3){
-					  dist=dist2;
-					  outNorm=slerp(tan2,normal,w2);
-} else {
-					  dist=dist3;
-					  outNorm=slerp(tan3,normal,w3);
-}
+						if(dist2<dist3){
+						dist=dist2;
+						outNorm=slerp(tan2,normal,w2);
+						} else {
+						dist=dist3;
+						outNorm=slerp(tan3,normal,w3);
+						}
 					} 
     if (dist <DISTANCE_TOL){
       gl_FragColor = vec4(outNorm,dist);
@@ -299,7 +299,7 @@ void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const float2& l
 }
 
 
-DistanceFieldShader::DistanceFieldShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+OutlineShader::OutlineShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -307,6 +307,7 @@ layout(location = 0) in vec3 vp;
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
 uniform ivec4 viewport;
+
 out vec2 uv;
 void main() {
 uv=vt;
@@ -319,6 +320,8 @@ in vec2 uv;
 uniform ivec2 imageSize;
 uniform int KERNEL_SIZE;
 uniform sampler2D textureImage;
+uniform vec4 innerColor,outerColor,edgeColor;
+float w;
 void main() {
 vec4 rgba=texture2D(textureImage,uv);
 vec4 nrgba;
@@ -332,7 +335,9 @@ if(nrgba.w<=0.0){
 }
 	}
 }
-rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
+w=sqrt(minDistance)/KERNEL_SIZE;
+if(w>0.99999)discard;
+rgba=mix(edgeColor,innerColor,w);
 } else {
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
@@ -343,18 +348,20 @@ if(nrgba.w>0.0){
 }
 	}
 }
-rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
+w=sqrt(minDistance)/KERNEL_SIZE;
+if(w>0.99999)discard;
+rgba=mix(edgeColor,outerColor,w);
 }
 gl_FragColor=rgba;
 })");
 }
-void DistanceFieldShader::draw(const GLTextureRGBAf& imageTexture,int distance, const box2px& bounds){
-	begin().set("KERNEL_SIZE",distance).set("textureImage", imageTexture, 0).set("bounds",
+void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds){
+	begin().set("KERNEL_SIZE",kernelSize).set("innerColor",innerGlowColor).set("outerColor",outerGlowColor).set("edgeColor",edgeColor).set("textureImage", imageTexture, 0).set("bounds",
 			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->viewport).draw(
 			imageTexture).end();
 }
-void DistanceFieldShader::draw(const GLTextureRGBAf& imageTexture, int distance,const float2& location,const float2& dimensions){
-	draw(imageTexture,distance,box2px(location,dimensions));
+void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const float2& location,const float2& dimensions){
+	draw(imageTexture,box2px(location,dimensions));
 }
 NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
@@ -437,6 +444,50 @@ void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, co
 			imageTexture).end();
 }
 void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions){
+	draw(imageTexture,zRange,box2px(location,dimensions));
+}
+
+
+WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+	initialize(std::vector<std::string> { "vp", "vt" },
+			R"(
+#version 330
+layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
+uniform vec4 bounds;
+uniform ivec4 viewport;
+out vec2 uv;
+void main() {
+uv=vt;
+vec2 pos=vp.xy*bounds.zw+bounds.xy;
+gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+})",
+			R"(
+#version 330
+in vec2 uv;
+const float PI=3.1415926535;
+uniform sampler2D textureImage;
+uniform float zMin;
+uniform float zMax;
+uniform vec4 edgeColor;
+uniform vec4 faceColor;
+void main() {
+vec4 rgba=texture2D(textureImage,uv);
+if(rgba.w>0){
+	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
+	rgba=mix(edgeColor,faceColor,smoothstep(0.0,1.0,lum>0.5?1.0:0.0));
+} else {
+rgba=vec4(0.0,0.0,0.0,1.0);
+}
+gl_FragColor=rgba;
+})");
+}
+void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds){
+	begin().set("textureImage", imageTexture, 0).set("edgeColor",edgeColor).set("faceColor",faceColor).set("zMin",zRange.x),set("zMax",zRange.y).set("bounds",
+			bounds).set("viewport", context->viewport).draw(
+			imageTexture).end();
+}
+void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions){
 	draw(imageTexture,zRange,box2px(location,dimensions));
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,

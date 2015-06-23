@@ -182,6 +182,12 @@ public:
 				value.ptr());
 		return *this;
 	}
+	inline GLShader& set(const std::string& variable, const aly::Color& value) {
+		enableCheck();
+		glUniform4f(glGetUniformLocation(mProgramHandle, variable.c_str()),
+				value.r, value.g, value.b, value.a);
+		return *this;
+	}
 	inline GLShader& set(VirtualCamera& camera, const box2px& bounds) {
 		enableCheck();
 		camera.aim(bounds);

@@ -35,9 +35,12 @@ private:
 	aly::DepthAndNormalShader depthAndNormalShader;
 	aly::DepthColorShader depthColorShader;
 	aly::NormalColorShader normalColorShader;
-	aly::DistanceFieldShader distanceFieldShader;
+	aly::OutlineShader outlineShader;
+	aly::WireframeShader wireframeShader;
 
-	aly::GLFrameBuffer frameBuffer;
+	aly::GLFrameBuffer edgeFrameBuffer;
+
+	aly::GLFrameBuffer depthFrameBuffer;
 	aly::GLTextureRGBA exampleImage;
 	float voxelSize;
 

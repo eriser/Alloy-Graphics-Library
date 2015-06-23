@@ -88,11 +88,43 @@ public:
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };
-class DistanceFieldShader: public GLShader {
+class WireframeShader: public GLShader {
+private:
+	aly::Color edgeColor=Color(1.0f,1.0f,1.0f,1.0f);
+	aly::Color faceColor=Color(1.0f,0.3f,0.1f,1.0f);
 public:
-	DistanceFieldShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture,int distance, const box2px& bounds);
-	void draw(const GLTextureRGBAf& imageTexture,int distance, const float2& location,const float2& dimensions);
+	inline void setEdgeColor(const Color& c){
+		edgeColor=c;
+	}
+	inline void setFaceColor(const Color& c){
+		faceColor=c;
+	}
+	WireframeShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,const float2& location,const float2& dimensions);
+};
+class OutlineShader: public GLShader {
+private:
+	int kernelSize=8;
+	aly::Color innerGlowColor=Color(1.0f,0.3f,0.1f,1.0f);
+	aly::Color outerGlowColor=Color(0.3f,1.0f,0.1f,1.0f);
+	aly::Color edgeColor=Color(1.0f,1.0f,1.0f,1.0f);
+public:
+	inline void setInnerGlowColor(const Color& c){
+		innerGlowColor=c;
+	}
+	inline void setOuterGlowColor(const Color& c){
+		outerGlowColor=c;
+	}
+	inline void setEdgeColor(const Color& c){
+		edgeColor=c;
+	}
+	inline void setExtent(int distance){
+		kernelSize=distance;
+	}
+	OutlineShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture,const box2px& bounds);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions);
 };
 }
 

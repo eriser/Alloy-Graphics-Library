@@ -191,7 +191,9 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES,8);
+	glfwWindowHint(GLFW_DEPTH_BITS,32);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 	window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 	if (!window) {
@@ -209,9 +211,6 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glEnable(GL_DEPTH_TEST);
 	glEnable( GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_POLYGON_SMOOTH);
-	glEnable(GL_LINE_SMOOTH);
-	glEnable( GL_MULTISAMPLE);
 	glViewport(0, 0, width, height);
 	viewport = box2i(int2(0, 0), int2(width, height));
 	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
