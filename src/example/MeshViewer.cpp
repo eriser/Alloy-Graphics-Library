@@ -25,7 +25,7 @@ using namespace aly;
 MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/cube.ply"));
+	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(10.0f);
 	mesh.transform(MakeRotationY((float)(0.25f*M_PI))*MakeRotationX((float)(0.25f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
