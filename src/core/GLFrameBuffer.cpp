@@ -25,7 +25,6 @@ namespace aly {
 
 GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
 		GLComponent(context),texture(context), mFrameBufferId(0), mDepthBufferId(0) {
-	// TODO Auto-generated constructor stub
 
 }
 void GLFrameBuffer::initialize(int w,int h){
@@ -47,7 +46,6 @@ void GLFrameBuffer::begin(bool clearColor,bool clearDepth) {
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	glClearColor(0,0,0,0);
-
 	GLuint flags=GL_STENCIL_BUFFER_BIT;
 	if(clearColor)flags|=GL_COLOR_BUFFER_BIT;
 	if(clearDepth)flags|=GL_DEPTH_BUFFER_BIT;
@@ -83,10 +81,9 @@ void GLFrameBuffer::update() {
 	}
 	glGenFramebuffers(1, &mFrameBufferId);
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
+	CHECK_GL_ERROR();
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER,  GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER, mFrameBufferId);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,texture.textureId, 0);
-
-
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,texture.getTextureId(), 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);

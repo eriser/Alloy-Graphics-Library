@@ -34,8 +34,22 @@ protected:
 	GLuint externalFormat = 0;
 	GLuint dataType = 0;
 	bool mipmap = false;
-public:
+	bool multisample=false;
 	GLuint textureId = 0;
+public:
+	GLuint getTextureId() const {
+		return textureId;
+	}
+	bool isMultiSample() const {
+		return (multisample&&!mipmap);
+	}
+	void bind() const {
+		if(isMultiSample()){
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE,textureId);
+		} else {
+			glBindTexture(GL_TEXTURE_2D,textureId);
+		}
+	}
 	virtual void draw() const override {
 		context->begin();
 		GLuint& vao = context->vaoImage.vao;
@@ -60,7 +74,6 @@ public:
 		if (textureId == 0) {
 			glGenTextures(1, &textureId);
 		}
-		glBindTexture( GL_TEXTURE_2D, textureId);
 		switch (textureImage.type) {
 		case ImageType::FLOAT:
 			if (textureImage.channels == 4) {
@@ -200,31 +213,47 @@ public:
 					MakeString() << "Texture format not supported "
 							<< textureImage.getTypeName());
 		}
+
+		CHECK_GL_ERROR();
 		if (mipmap) {
+			glBindTexture( GL_TEXTURE_2D, textureId);
 			gluBuild2DMipmaps(GL_TEXTURE_2D, internalFormat, textureImage.width,
 					textureImage.height, internalFormat, dataType,
 					&textureImage[0]);
 
 		} else {
-			glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, textureImage.width,
-					textureImage.height, 0, externalFormat, dataType,
-					&textureImage[0]);
+			if(multisample){
+				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,8,  internalFormat, textureImage.width,textureImage.height,true);
+				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, textureImage.width,textureImage.height, 0, externalFormat, dataType,&textureImage[0]);
+				//glBuf(GL_TEXTURE_2D,0, externalFormat, dataType,&textureImage[0],STATIC_DRAW);
+			} else {
+				glBindTexture( GL_TEXTURE_2D, textureId);
+				glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, textureImage.width,textureImage.height, 0, externalFormat, dataType,&textureImage[0]);
+			}
 		}
-
 		CHECK_GL_ERROR();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 				mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindTexture( GL_TEXTURE_2D, 0);
+		if(multisample&&!mipmap){
+			glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, 0);
+		} else {
+			glBindTexture( GL_TEXTURE_2D, 0);
+		}
 		context->end();
 		CHECK_GL_ERROR();
 	}
 	Image<T, C, I>& read() {
 		context->begin();
 		if (textureId) {
-			glBindTexture(GL_TEXTURE_2D, textureId);
+			if(multisample&&!mipmap){
+				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
+			}else {
+				glBindTexture(GL_TEXTURE_2D, textureId);
+			}
 			if (textureImage.channels == 4) {
 				glGetTexImage(GL_TEXTURE_2D, 0, internalFormat, GL_RGBA,
 						textureImage.ptr());
@@ -254,11 +283,14 @@ public:
 	inline void setEnableMipmap(bool enable) {
 		mipmap = enable;
 	}
+	inline void setEnableMultisample(bool enable) {
+		multisample = enable;
+	}
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
 	GLTexture(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
-			GLComponent(context), textureId(0), mipmap(false) {
+			GLComponent(context), multisample(false),textureId(0), mipmap(false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,

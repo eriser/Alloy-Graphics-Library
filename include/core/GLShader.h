@@ -219,7 +219,7 @@ public:
 		enableCheck();
 		glUniform1i(glGetUniformLocation(mProgramHandle, variable.c_str()), id);
 		glActiveTexture(GL_TEXTURE0 + id);
-		glBindTexture(GL_TEXTURE_2D, value.textureId);
+		value.bind();
 		return *this;
 	}
 

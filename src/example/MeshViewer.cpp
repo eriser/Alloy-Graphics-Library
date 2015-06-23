@@ -25,9 +25,9 @@ using namespace aly;
 MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/icosahedron.ply"));
+	mesh.load(getFullPath("models/cube.ply"));
 	mesh.scale(10.0f);
-	mesh.transform(MakeRotationY((float) M_PI));
+	mesh.transform(MakeRotationY((float)(0.25f*M_PI))*MakeRotationX((float)(0.25f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 	camera.setNearFarPlanes(0.01f,10.0f);
@@ -65,6 +65,6 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	float2 dRange=camera.computeNormalizedDepthRange(mesh);
 	outlineShader.draw(edgeFrameBuffer.getTexture(), float2(480.0f,0.0f),float2(480,480));
 	wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(480.0f, 480.0f),float2(480,480));
-	//effectsShader.draw(frameBuffer.getTexture(), float2(480.0f, 480.0f),float2(480,480));
+
 
 }

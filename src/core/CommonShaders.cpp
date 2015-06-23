@@ -131,6 +131,7 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 				uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
 				uniform float SCALE;
+uniform int IS_QUAD;
 
 vec3 slerp(vec3 p0, vec3 p1, float t){
   p0=normalize(p0);
@@ -174,7 +175,7 @@ vec = vert - v1;
 				  w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
 w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
 					if(dist1<dist2){
-						if(dist1<dist3){
+						if(IS_QUAD>0||dist1<dist3){
 						dist=dist1;
 						outNorm=slerp(tan1,normal,w1);
 						} else {
@@ -182,7 +183,7 @@ w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
 						outNorm=slerp(tan3,normal,w3);
 						}
 					} else {
-						if(dist2<dist3){
+						if(IS_QUAD>0||dist2<dist3){
 						dist=dist2;
 						outNorm=slerp(tan2,normal,w2);
 						} else {
@@ -493,7 +494,7 @@ void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  co
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		const box2px& bounds) {
 	glDisable(GL_BLEND);
-	begin().set("DISTANCE_TOL",camera.getScale()).set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
+	begin().set("DISTANCE_TOL",camera.getScale()).set("IS_QUAD",(mesh.quadIndexes.size()>0)?1:0),set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
 	glEnable(GL_BLEND);
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera) {
