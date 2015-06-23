@@ -32,6 +32,9 @@ namespace aly {
 class Mesh;
 struct GLMesh: public GLComponent {
 public:
+	enum class PrimitiveType {
+		ALL=0,QUADS = 4, TRIANGLES = 3,
+	};
 	GLuint vao;
 	GLuint vertexBuffer;
 	GLuint normalBuffer;
@@ -43,7 +46,9 @@ public:
 	GLuint triIndexCount;
 	GLuint quadIndexCount;
 	Mesh& mesh;
+
 	virtual void draw() const override;
+	virtual void draw(const PrimitiveType& type) const;
 	virtual void update() override;
 	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
 	virtual ~GLMesh();
@@ -54,9 +59,7 @@ private:
 	bool dirty = false;
 public:
 	friend class GLMesh;
-	enum PrimitiveType {
-		QUADS = 4, TRIANGLES = 3
-	};
+
 
 	Vector3f vertexLocations;
 	Vector3f vertexNormals;
@@ -74,6 +77,7 @@ public:
 	inline box3f getBoundingBox() const {
 		return boundingBox;
 	}
+	virtual void draw(const GLMesh::PrimitiveType& type) const;
 	box3f updateBoundingBox();
 	void scale(float sc);
 	void transform(const float4x4& M);

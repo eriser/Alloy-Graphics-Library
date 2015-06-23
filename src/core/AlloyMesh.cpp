@@ -74,6 +74,9 @@ PlyProperty MeshFaceProps[] = { // property information for a face
 						plyFaceTexture, velocity)), 1, Uint8, Uint8,
 				static_cast<int>(offsetof(plyFaceTexture, nvels)) }, };
 void GLMesh::draw() const {
+	draw(PrimitiveType::ALL);
+}
+void GLMesh::draw(const PrimitiveType& type) const {
 	if (mesh.isDirty()) {
 		mesh.update();
 		mesh.setDirty(false);
@@ -97,22 +100,25 @@ void GLMesh::draw() const {
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	if (quadIndexCount > 0) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
-		glDrawElements(GL_TRIANGLES, quadIndexCount, GL_UNSIGNED_INT, NULL);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	} else if (quadCount > 0) {
-		glDrawArrays(GL_TRIANGLES, 0, quadCount);
+	if(type!=GLMesh::PrimitiveType::TRIANGLES){
+		if (quadIndexCount > 0) {
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
+			glDrawElements(GL_TRIANGLES, quadIndexCount, GL_UNSIGNED_INT, NULL);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		} else if (quadCount > 0) {
+			glDrawArrays(GL_TRIANGLES, 0, quadCount);
+		}
 	}
 
-	if (triIndexCount > 0) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triIndexBuffer);
-		glDrawElements(GL_TRIANGLES, triIndexCount, GL_UNSIGNED_INT, NULL);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	} else if (triCount > 0) {
-		glDrawArrays(GL_TRIANGLES, 0, triCount);
+	if(type!=GLMesh::PrimitiveType::QUADS){
+		if (triIndexCount > 0) {
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triIndexBuffer);
+			glDrawElements(GL_TRIANGLES, triIndexCount, GL_UNSIGNED_INT, NULL);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		} else if (triCount > 0) {
+			glDrawArrays(GL_TRIANGLES, 0, triCount);
+		}
 	}
-
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
@@ -265,7 +271,9 @@ bool Mesh::load(const std::string& file) {
 		return false;
 	}
 }
-
+void Mesh::draw(const GLMesh::PrimitiveType& type) const {
+	gl.draw(type);
+}
 void Mesh::clear() {
 	vertexLocations.clear();
 	vertexNormals.clear();

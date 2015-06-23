@@ -108,15 +108,13 @@ in vec4 pos;
 				)");
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
-		const box2px& bounds) {
+		GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	begin().set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
+	begin().set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera,frameBuffer.getViewport()).draw(mesh.gl).end();
 	glEnable(GL_BLEND);
+	frameBuffer.end();
 }
-void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera) {
-	draw(mesh, camera, getContext()->getViewport());
-}
-
 EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vn" },
 			R"(	#version 330
@@ -492,14 +490,18 @@ void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  co
 	draw(imageTexture,zRange,box2px(location,dimensions));
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
-		const box2px& bounds) {
-	glDisable(GL_BLEND);
-	begin().set("DISTANCE_TOL",camera.getScale()).set("IS_QUAD",(mesh.quadIndexes.size()>0)?1:0),set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, bounds).draw(mesh.gl).end();
-	glEnable(GL_BLEND);
+		GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
+		glDisable(GL_BLEND);
+		if(mesh.quadIndexes.size()>0){
+			begin().set("DISTANCE_TOL",camera.getScale()).set("IS_QUAD",1),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::QUADS).end();
+		}
+		begin().set("DISTANCE_TOL",camera.getScale()).set("IS_QUAD",0),set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+
+		glEnable(GL_BLEND);
+	frameBuffer.end();
 }
-void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera) {
-	draw(mesh, camera, getContext()->getViewport());
-}
+
 
 }
 

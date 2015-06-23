@@ -23,10 +23,10 @@
 #include "AlloyContext.h"
 #include "GLTexture.h"
 #include "AlloyVirtualCamera.h"
+#include "AlloyMesh.h"
 #include <vector>
 #include <string>
 namespace aly {
-class Mesh;
 class GLShader {
 protected:
 	GLuint mVertexShaderHandle;
@@ -225,7 +225,7 @@ public:
 
 	GLShader& begin();
 	GLShader& draw(const GLComponent& comp);
-	GLShader& draw(const Mesh& mesh);
+	GLShader& draw(const Mesh& mesh,const GLMesh::PrimitiveType& type);
 
 	void end();
 	inline GLuint GetProgramHandle() const {

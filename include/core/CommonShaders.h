@@ -24,6 +24,7 @@
 
 #include "GLTexture.h"
 #include "GLShader.h"
+#include "GLFrameBuffer.h"
 #include "AlloyImage.h"
 namespace aly {
 class VirtualCamera;
@@ -78,15 +79,13 @@ public:
 class DepthAndNormalShader: public GLShader {
 public:
 	DepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
-	void draw(const Mesh& mesh, VirtualCamera& camera);
+	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer);
 };
 
 class EdgeDepthAndNormalShader: public GLShader {
 public:
 	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
-	void draw(const Mesh& mesh, VirtualCamera& camera);
+	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer);
 };
 class WireframeShader: public GLShader {
 private:

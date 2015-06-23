@@ -43,15 +43,8 @@ bool MeshViewer::init(Composite& rootNode) {
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	if(camera.isDirty()){
-
-		edgeFrameBuffer.begin();
-		edgeDepthAndNormalShader.draw(mesh, camera,edgeFrameBuffer.getViewport());
-		edgeFrameBuffer.end();
-
-		depthFrameBuffer.begin();
-		depthAndNormalShader.draw(mesh, camera,depthFrameBuffer.getViewport());
-		depthFrameBuffer.end();
-
+		edgeDepthAndNormalShader.draw(mesh, camera,edgeFrameBuffer);
+		depthAndNormalShader.draw(mesh, camera,depthFrameBuffer);
 		camera.setDirty(false);
 	}
 }
