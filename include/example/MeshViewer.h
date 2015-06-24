@@ -41,6 +41,8 @@ private:
 	aly::GLFrameBuffer edgeFrameBuffer;
 
 	aly::GLFrameBuffer depthFrameBuffer;
+	aly::GLFrameBuffer outlineFrameBuffer;
+	aly::GLFrameBuffer wireframeFrameBuffer;
 	aly::GLTextureRGBA exampleImage;
 	float voxelSize;
 

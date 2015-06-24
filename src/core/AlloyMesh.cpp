@@ -333,7 +333,6 @@ void GLMesh::update() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	std::cout<<"DONE UPDATE"<<std::endl;
 	context->end();
 }
 Mesh::Mesh(std::shared_ptr<AlloyContext>& context) :

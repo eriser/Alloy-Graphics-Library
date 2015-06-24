@@ -37,6 +37,8 @@ bool MeshViewer::init(Composite& rootNode) {
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	edgeFrameBuffer.initialize(480,480);
 	depthFrameBuffer.initialize(480,480);
+	outlineFrameBuffer.initialize(480,480);
+	wireframeFrameBuffer.initialize(480,480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 	return true;
@@ -45,7 +47,7 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	if(camera.isDirty()){
 		edgeDepthAndNormalShader.draw(mesh, camera,edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera,depthFrameBuffer);
-		camera.setDirty(false);
+
 	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
@@ -56,8 +58,22 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	normalColorShader.draw(depthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480));
 
 	float2 dRange=camera.computeNormalizedDepthRange(mesh);
-	outlineShader.draw(edgeFrameBuffer.getTexture(), float2(480.0f,0.0f),float2(480,480));
-	wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(480.0f, 480.0f),float2(480,480));
+	if(camera.isDirty()){
+		outlineFrameBuffer.begin();
+		CHECK_GL_ERROR();
+		outlineShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f,0.0f),float2(480,480),outlineFrameBuffer.getViewport());
+		CHECK_GL_ERROR();
+		outlineFrameBuffer.end();
+		CHECK_GL_ERROR();
+		wireframeFrameBuffer.begin();
+		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
+		wireframeFrameBuffer.end();
+		CHECK_GL_ERROR();
 
+	}
+	imageShader.draw(outlineFrameBuffer.getTexture(),float2( 480.0f,0.0f),float2(480,480));
+	imageShader.draw(wireframeFrameBuffer.getTexture(),float2( 480.0f,480.0f),float2(480,480));
+	CHECK_GL_ERROR();
 
+	camera.setDirty(false);
 }

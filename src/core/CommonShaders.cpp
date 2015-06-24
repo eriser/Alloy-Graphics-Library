@@ -65,7 +65,7 @@ ImageShader::ImageShader(std::shared_ptr<AlloyContext> context) :GLShader(contex
 		 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
 		 uniform vec4 bounds;
-		 uniform ivec4 viewport;
+		 uniform vec4 viewport;
 uniform int flip;
 out vec2 uv;
 		 void main() {
@@ -509,7 +509,7 @@ EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :GLS
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
-uniform ivec4 viewport;
+uniform vec4 viewport;
 out vec2 uv;
 void main() {
 uv=vt;
@@ -554,7 +554,7 @@ gl_FragColor=rgba;
 }
 void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds){
 	begin().set("KERNEL_SIZE",4).set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->viewport).draw(
+			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->getViewport()).draw(
 			imageTexture).end();
 }
 void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions){
@@ -569,7 +569,7 @@ OutlineShader::OutlineShader(std::shared_ptr<AlloyContext> context) :GLShader(co
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
-uniform ivec4 viewport;
+uniform vec4 viewport;
 
 out vec2 uv;
 void main() {
@@ -618,13 +618,13 @@ rgba=mix(edgeColor,outerColor,w);
 gl_FragColor=rgba;
 })");
 }
-void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds){
+void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,const box2px& viewport){
 	begin().set("KERNEL_SIZE",kernelSize).set("innerColor",innerGlowColor).set("outerColor",outerGlowColor).set("edgeColor",edgeColor).set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->viewport).draw(
+			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", viewport).draw(
 			imageTexture).end();
 }
-void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const float2& location,const float2& dimensions){
-	draw(imageTexture,box2px(location,dimensions));
+void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const float2& location,const float2& dimensions,const box2px& viewport){
+	draw(imageTexture,box2px(location,dimensions),viewport);
 }
 NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
@@ -633,7 +633,7 @@ NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :GLS
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
-uniform ivec4 viewport;
+uniform vec4 viewport;
 out vec2 uv;
 void main() {
 uv=vt;
@@ -659,7 +659,7 @@ gl_FragColor=rgba;
 }
 void NormalColorShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds){
 	begin().set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("viewport", context->viewport).draw(
+			bounds).set("viewport", context->getViewport()).draw(
 			imageTexture).end();
 }
 void NormalColorShader::draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions){
@@ -673,7 +673,7 @@ DepthColorShader::DepthColorShader(std::shared_ptr<AlloyContext> context) :GLSha
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
-uniform ivec4 viewport;
+uniform vec4 viewport;
 out vec2 uv;
 void main() {
 uv=vt;
@@ -703,7 +703,7 @@ gl_FragColor=rgba;
 }
 void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds){
 	begin().set("textureImage", imageTexture, 0).set("zMin",zRange.x),set("zMax",zRange.y).set("bounds",
-			bounds).set("viewport", context->viewport).draw(
+			bounds).set("viewport", context->getViewport()).draw(
 			imageTexture).end();
 }
 void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions){
@@ -718,7 +718,7 @@ WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :GLShade
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
-uniform ivec4 viewport;
+uniform vec4 viewport;
 out vec2 uv;
 void main() {
 uv=vt;
@@ -745,13 +745,13 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds){
+void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds,const box2px& viewport){
 	begin().set("textureImage", imageTexture, 0).set("edgeColor",edgeColor).set("faceColor",faceColor).set("zMin",zRange.x),set("zMax",zRange.y).set("bounds",
-			bounds).set("viewport", context->viewport).draw(
+			bounds).set("viewport", viewport).draw(
 			imageTexture).end();
 }
-void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions){
-	draw(imageTexture,zRange,box2px(location,dimensions));
+void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions,const box2px& viewport){
+	draw(imageTexture,zRange,box2px(location,dimensions),viewport);
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
