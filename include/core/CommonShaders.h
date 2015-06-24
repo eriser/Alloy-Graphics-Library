@@ -42,8 +42,7 @@ public:
 	ImageShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,bool flip=false) {
-		begin().set("flip",flip?1:0).set("textureImage", imageTexture, 0).set("bounds",
-				box2px(float2(30.0f, 30.0f), float2(300.0f, 200.0f))).set(
+		begin().set("flip",flip?1:0).set("textureImage", imageTexture, 0).set("bounds",bounds).set(
 				"viewport", context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
