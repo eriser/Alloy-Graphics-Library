@@ -142,11 +142,17 @@ DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context
                       v3 = (VM*vec4(p3,1)).xyz;
 					  
 					  
+if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
 					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
 					  EmitVertex();
-					  
+} else {	  
+					  gl_Position=PVM*vec4(p0,1);  
+					  vert = v0;
+					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+					  EmitVertex();
+}
 					  gl_Position=PVM*vec4(p1,1);  
 					  vert = v1;
 					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
@@ -157,12 +163,18 @@ DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context
 					  vert = v3;
 					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
 					  EmitVertex();
-					}
-
 			          gl_Position=PVM*vec4(p2,1);  
 					  vert = v2;
 					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
 					  EmitVertex();
+					} else {
+			          gl_Position=PVM*vec4(p2,1);  
+					  vert = v2;
+					  normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
+					  EmitVertex();
+					}
+
+
 
 					  EndPrimitive();
 
@@ -329,11 +341,17 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
                       v3 = (VM*vec4(p3,1)).xyz;
 					  
 					  
+if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
 					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
 					  EmitVertex();
-					  
+} else {	  
+					  gl_Position=PVM*vec4(p0,1);  
+					  vert = v0;
+					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+					  EmitVertex();
+}
 					  gl_Position=PVM*vec4(p1,1);  
 					  vert = v1;
 					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
@@ -344,14 +362,19 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 					  vert = v3;
 					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
 					  EmitVertex();
-					}
-
-			          gl_Position=PVM*vec4(p2,1);  
-					  vert = v2;
+					  gl_Position=PVM*vec4(p2,1);  
+					   vert = v2;
 					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
 					  EmitVertex();
 
-					  EndPrimitive();
+					} else {
+			          gl_Position=PVM*vec4(p2,1);  
+					  vert = v2;
+					  normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
+					  EmitVertex();
+					}
+					EndPrimitive();
+	
 
 					 })");
 }
