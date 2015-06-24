@@ -93,21 +93,31 @@ void GLMesh::draw(const PrimitiveType& type) const {
 		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
-
 	if (colorBuffer > 0) {
-		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
-	if(type!=GLMesh::PrimitiveType::TRIANGLES){
-		if (quadIndexCount > 0) {
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
-			glDrawElements(GL_TRIANGLES, quadIndexCount, GL_UNSIGNED_INT, NULL);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		} else if (quadCount > 0) {
-			glDrawArrays(GL_TRIANGLES, 0, quadCount);
+	for(int n=0;n<4;n++){
+		if (quadVertexBuffer[n] > 0) {
+			glEnableVertexAttribArray(3+n);
+			glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer[n]);
+			glVertexAttribPointer(3+n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		}
 	}
+	CHECK_GL_ERROR();
+	if(type!=GLMesh::PrimitiveType::TRIANGLES){
+		if (quadIndexCount > 0) {
+		//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
+		//	glDrawElements(GL_TRIANGLES, quadIndexCount, GL_UNSIGNED_INT, NULL);
+		//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		//} else if (quadCount > 0) {
+			glDrawArrays(GL_POINTS, 0, quadIndexCount);
+			CHECK_GL_ERROR();
+		}
+	}
+	CHECK_GL_ERROR();
+	/*
 	if(type!=GLMesh::PrimitiveType::QUADS){
 		if (triIndexCount > 0) {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triIndexBuffer);
@@ -117,18 +127,21 @@ void GLMesh::draw(const PrimitiveType& type) const {
 			glDrawArrays(GL_TRIANGLES, 0, triCount);
 		}
 	}
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(3);
+	*/
+
+	for(int i=0;i<7;i++){
+		glDisableVertexAttribArray(i);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	CHECK_GL_ERROR();
 	context->end();
 }
 GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		GLComponent(context), mesh(mesh), vao(0), vertexBuffer(0), normalBuffer(
 				0), colorBuffer(0), triIndexBuffer(0), quadIndexBuffer(0), triCount(
 				0), quadCount(0), triIndexCount(0), quadIndexCount(0) {
+	for(int n=0;n<4;n++)quadVertexBuffer[n]=0;
 }
 GLMesh::~GLMesh() {
 	context->begin();
@@ -176,11 +189,9 @@ void GLMesh::update() {
 		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 		if (glIsBuffer(colorBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create color buffer");
-
 		glBufferData(GL_ARRAY_BUFFER,
 				sizeof(GLfloat) * 3 * mesh.vertexColors.size(),
 				mesh.vertexColors.ptr(), GL_STATIC_DRAW);
-
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	if (mesh.triIndexes.size() > 0) {
@@ -205,21 +216,43 @@ void GLMesh::update() {
 	}
 	if (mesh.quadIndexes.size() > 0) {
 		// clear old buffer
-		if (glIsBuffer(quadIndexBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &quadIndexBuffer);
-
+		//if (glIsBuffer(quadIndexBuffer) == GL_TRUE)glDeleteBuffers(1, &quadIndexBuffer);
 		// gen new buffer
-		glGenBuffers(1, &quadIndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
-		if (glIsBuffer(quadIndexBuffer) == GL_FALSE)
-			throw std::runtime_error("Error: Unable to create index buffer");
+		//glGenBuffers(1, &quadIndexBuffer);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
+		//if (glIsBuffer(quadIndexBuffer) == GL_FALSE)throw std::runtime_error("Error: Unable to create index buffer");
 
-		// upload data
+		int offset=0;
+		std::vector<float3> quads[4];
+		for(int n=0;n<4;n++){
+			quads[n].resize(mesh.quadIndexes.size());
+			if (glIsBuffer(quadVertexBuffer[n]) == GL_TRUE)
+				glDeleteBuffers(1, &quadVertexBuffer[n]);
+			glGenBuffers(1, &quadVertexBuffer[n]);
+		}
+		for(uint4 face:mesh.quadIndexes.data){
+			for(int n=0;n<4;n++){
+				quads[n][offset]=mesh.vertexLocations[face[n]];
+			}
+			offset++;
+		}
+		for(int n=0;n<4;n++){
+			if (glIsBuffer(quadVertexBuffer[n]) == GL_TRUE)glDeleteBuffers(1, &quadVertexBuffer[n]);
+			glGenBuffers(1, &quadVertexBuffer[n]);
+			glBindBuffer(GL_ARRAY_BUFFER,quadVertexBuffer[n]);
+			glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat) * 3 * quads[n].size(),
+					quads[n].data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
+		CHECK_GL_ERROR();
+
+		quadIndexCount=mesh.quadIndexes.size();
+/*
 		int sz = mesh.quadIndexes.size();
 		std::vector<GLuint> tmp(12 * mesh.quadIndexes.size());
-#pragma omp for
+		offset=0;
 		for (unsigned int i = 0; i < sz; i++) {
-			int offset = 12 * i;
+			offset = 12 * i;
 			tmp[offset++] = mesh.quadIndexes[i][1];
 			tmp[offset++] = mesh.quadIndexes[i][2];
 			tmp[offset++] = mesh.quadIndexes[i][0];
@@ -233,12 +266,15 @@ void GLMesh::update() {
 			tmp[offset++] = mesh.quadIndexes[i][0];
 			tmp[offset++] = mesh.quadIndexes[i][2];
 		}
+
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * tmp.size(),
 				&tmp[0], GL_STATIC_DRAW); // upload data
 
 		quadIndexCount = tmp.size();
+
 		// release buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		*/
 	}
 	if (mesh.vertexNormals.size() > 0) {
 		if (glIsBuffer(normalBuffer) == GL_TRUE)

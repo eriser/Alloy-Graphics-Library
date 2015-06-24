@@ -118,6 +118,146 @@ void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vn" },
 			R"(	#version 330
+				//layout(location = 0) in vec3 vp;
+				layout(location = 1) in vec3 vn;
+				layout(location = 3) in vec3 vp0;
+				layout(location = 4) in vec3 vp1;
+				layout(location = 5) in vec3 vp2;
+				layout(location = 6) in vec3 vp3;
+				out VS_OUT {
+					vec3 p0;
+					vec3 p1;
+					vec3 p2;
+					vec3 p3;
+				} vs_out;
+				void main(void) {
+					vs_out.p0=vp0;
+					vs_out.p1=vp1;
+					vs_out.p2=vp2;
+					vs_out.p3=vp3;
+				})",
+			R"(	#version 330
+				in vec3 v0, v1, v2, v3;
+				in vec3 normal, vert;
+				uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				uniform float SCALE;
+				uniform int IS_QUAD;
+				
+				vec3 slerp(vec3 p0, vec3 p1, float t){
+				  p0=normalize(p0);
+				  p1=normalize(p1);
+				  float dotp = dot(p0,p1);
+				  if ((dotp > 0.9999) || (dotp<-0.9999)){
+					if (t<=0.5)return p0;
+					return p1;
+				  }
+				  float theta = acos(dotp * 3.141596535/180.0);
+				  return ((p0*sin((1-t)*theta) + p1*sin(t*theta)) / sin(theta));
+				}
+
+				void main(void) {
+				  vec3 line, vec, proj;
+				  float dists[4];
+				  vec3 tan[4];
+				  // compute minimum distance from current interpolated 3d vertex to triangle edges
+				  // edge v1-v0
+				  
+				  vec = vert - v0;
+				  line = normalize(v1 - v0);
+				  proj = dot(vec, line) * line;
+				  dists[0] = length (vec - proj);
+				  tan[0]=cross(line,normal);
+				  
+				  vec = vert - v1;
+                  line = normalize(v2 - v1);
+				  proj = dot(vec, line) * line;
+				  dists[1] = length (vec - proj);
+				  tan[1]=cross(line,normal);
+
+
+                  vec = vert - v2;
+				  line = normalize(v3 - v2); 
+				  proj = dot(vec, line) * line;
+				  dists[2] = length (vec - proj);
+				  tan[2]=cross(line,normal);
+
+				  line = normalize(v0 - v3); 
+                  vec = vert - v3;
+				  proj = dot(vec, line) * line;
+				  dists[3] = length (vec - proj);
+				  tan[3]=cross(line,normal);
+				
+				  vec3 outNorm=normalize(normal);
+                  
+                  float minDist=1E30;
+                  for(int n=0;n<4;n++){
+                     if(dists[n]<minDist){
+				       outNorm=slerp(tan[n],normal,clamp(dists[n]/DISTANCE_TOL,0.0,1.0));
+                       minDist=dists[n];
+                     }
+					}
+				if (minDist <DISTANCE_TOL){
+					gl_FragColor = vec4(outNorm,minDist);
+				} else {
+					gl_FragColor = vec4(outNorm,minDist);
+				}
+				})",
+				R"(	#version 330
+					layout (points) in;
+					layout (triangle_strip, max_vertices=4) out;
+					in VS_OUT {
+						vec3 p0;
+						vec3 p1;
+						vec3 p2;
+						vec3 p3;
+					} quad[];
+					out vec3 v0, v1, v2, v3;
+					out vec3 normal, vert;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+					void main() {
+					  mat4 PVM=ProjMat*ViewModelMat;
+					  mat4 VM=ViewModelMat;
+					  
+					  vec3 p0=quad[0].p0;
+					  vec3 p1=quad[0].p1;
+					  vec3 p2=quad[0].p2;
+                      vec3 p3=quad[0].p3;
+					
+					  v0 = (VM*vec4(p0,1)).xyz;
+					  v1 = (VM*vec4(p1,1)).xyz;
+					  v2 = (VM*vec4(p2,1)).xyz;
+                      v3 = (VM*vec4(p3,1)).xyz;
+					  
+					  
+					  gl_Position=PVM*vec4(p0,1);  
+					  vert = v0;
+					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
+					  EmitVertex();
+					  
+					  gl_Position=PVM*vec4(p1,1);  
+					  vert = v1;
+					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
+					  EmitVertex();
+
+					  gl_Position=PVM*vec4(p3,1);  
+					  vert = v3;
+					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
+					  EmitVertex();
+
+			          gl_Position=PVM*vec4(p2,1);  
+					  vert = v2;
+					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
+					  EmitVertex();
+
+					  EndPrimitive();
+
+					 })");
+}
+/*
+EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+	initialize(std::vector<std::string> { "vp", "vn" },
+			R"(	#version 330
 				in vec3 vp;
 				in vec3 vn;
 				void main(void) {
@@ -127,7 +267,7 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 				in vec3 v0, v1, v2;
 				in vec3 normal, vert;
 				uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
 				uniform float SCALE;
 uniform int IS_QUAD;
 
@@ -150,13 +290,13 @@ vec3 slerp(vec3 p0, vec3 p1, float t){
 				  vec3 tan1,tan2,tan3;
 				  // compute minimum distance from current interpolated 3d vertex to triangle edges
 				  // edge v1-v0
-				  
+
 				  vec = vert - v0;
 				  line = normalize(v1 - v0);
 				  proj = dot(vec, line) * line;
 				  dist1 = length (vec - proj);
 				  tan1=cross(line,normal);
-				  
+
 				  line = normalize(v0 - v2);
 				  proj = dot(vec, line) * line;
 				  dist2 = length (vec - proj);
@@ -167,7 +307,7 @@ vec = vert - v1;
 				  proj = dot(vec, line) * line;
 				  dist3 = length (vec - proj);
 				  tan3=cross(line,normal);
-				
+
 				  vec3 outNorm=normalize(normal);
 				  w1=clamp(dist1/DISTANCE_TOL,0.0,1.0);
 				  w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
@@ -188,7 +328,7 @@ w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
 						dist=dist3;
 						outNorm=slerp(tan3,normal,w3);
 						}
-					} 
+					}
     if (dist <DISTANCE_TOL){
       gl_FragColor = vec4(outNorm,dist);
     } else {
@@ -200,44 +340,44 @@ gl_FragColor = vec4(outNorm,dist);
 					layout (triangle_strip, max_vertices=3) out;
 					out vec3 v0, v1, v2;
 					out vec3 normal, vert;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
 					void main() {
 					  mat4 PVM=ProjMat*ViewModelMat;
 					  mat4 VM=ViewModelMat;
-					  
+
 					  vec3 v01 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
 					  vec3 v02 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
 					  vec3 fn =  normalize(cross( v01, v02 ));
 					  vec4 p0=gl_in[0].gl_Position;
 					  vec4 p1=gl_in[1].gl_Position;
 					  vec4 p2=gl_in[2].gl_Position;
-					
+
 					  v0 = (VM*p0).xyz;
 					  v1 = (VM*p1).xyz;
 					  v2 = (VM*p2).xyz;
-					  
-					  
-					  gl_Position=PVM*gl_in[0].gl_Position;  
+
+
+					  gl_Position=PVM*gl_in[0].gl_Position;
 					  vert = v0;
 					  normal = (VM*vec4(fn,0.0)).xyz;
 					  EmitVertex();
-					  
-					  
-					  gl_Position=PVM*gl_in[1].gl_Position;  
+
+
+					  gl_Position=PVM*gl_in[1].gl_Position;
 					  vert = v1;
 					  normal = (VM*vec4(fn,0.0)).xyz;
 					  EmitVertex();
-					  
-					   
-					  gl_Position=PVM*gl_in[2].gl_Position;  
+
+
+					  gl_Position=PVM*gl_in[2].gl_Position;
 					  vert = v2;
 					  normal = (VM*vec4(fn,0.0)).xyz;
 					  EmitVertex();
-					  
+
 					  EndPrimitive();
 					 })");
 }
-
+*/
 EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
