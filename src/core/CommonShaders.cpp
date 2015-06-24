@@ -58,7 +58,7 @@ void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
 }
 
 
-ImageShader::ImageShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+ImageShader::ImageShader(std::shared_ptr<AlloyContext> context,const ImageFilter& filter) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 		 #version 330
