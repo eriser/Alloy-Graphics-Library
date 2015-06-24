@@ -85,6 +85,90 @@ in vec2 uv;
 }
 DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vn" },
+			R"(	#version 330
+				//layout(location = 0) in vec3 vp;
+				layout(location = 1) in vec3 vn;
+				layout(location = 3) in vec3 vp0;
+				layout(location = 4) in vec3 vp1;
+				layout(location = 5) in vec3 vp2;
+				layout(location = 6) in vec3 vp3;
+				out VS_OUT {
+					vec3 p0;
+					vec3 p1;
+					vec3 p2;
+					vec3 p3;
+				} vs_out;
+				void main(void) {
+					vs_out.p0=vp0;
+					vs_out.p1=vp1;
+					vs_out.p2=vp2;
+					vs_out.p3=vp3;
+				})",
+				R"(	#version 330
+					in vec3 normal;
+	                in vec3 vert;
+					uniform float MIN_DEPTH;
+					uniform float MAX_DEPTH;
+					void main() {
+						vec3 normalized_normal = normalize(normal);
+						gl_FragColor = vec4(normalized_normal.xyz,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+					}
+					)",
+				R"(	#version 330
+					layout (points) in;
+					layout (triangle_strip, max_vertices=4) out;
+					in VS_OUT {
+						vec3 p0;
+						vec3 p1;
+						vec3 p2;
+						vec3 p3;
+					} quad[];
+					out vec3 v0, v1, v2, v3;
+					out vec3 normal, vert;
+					uniform int IS_QUAD;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+					void main() {
+					  mat4 PVM=ProjMat*ViewModelMat;
+					  mat4 VM=ViewModelMat;
+					  
+					  vec3 p0=quad[0].p0;
+					  vec3 p1=quad[0].p1;
+					  vec3 p2=quad[0].p2;
+                      vec3 p3=quad[0].p3;
+					
+					  v0 = (VM*vec4(p0,1)).xyz;
+					  v1 = (VM*vec4(p1,1)).xyz;
+					  v2 = (VM*vec4(p2,1)).xyz;
+                      v3 = (VM*vec4(p3,1)).xyz;
+					  
+					  
+					  gl_Position=PVM*vec4(p0,1);  
+					  vert = v0;
+					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
+					  EmitVertex();
+					  
+					  gl_Position=PVM*vec4(p1,1);  
+					  vert = v1;
+					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
+					  EmitVertex();
+
+					if(IS_QUAD!=0){
+					  gl_Position=PVM*vec4(p3,1);  
+					  vert = v3;
+					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
+					  EmitVertex();
+					}
+
+			          gl_Position=PVM*vec4(p2,1);  
+					  vert = v2;
+					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
+					  EmitVertex();
+
+					  EndPrimitive();
+
+					 })");
+	/*
+	initialize(std::vector<std::string> { "vp", "vn" },
 			R"(#version 330
 				in vec3 vp; // positions from mesh
 				in vec3 vn; // normals from mesh
@@ -106,12 +190,19 @@ in vec4 pos;
 					gl_FragColor = vec4(normalized_normal.xyz,(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 				}
 				)");
+	*/
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	begin().set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera,frameBuffer.getViewport()).draw(mesh.gl).end();
+	glDisable(GL_BLEND);
+	if(mesh.quadIndexes.size()>0){
+		begin().set("MIN_DEPTH",camera.getNearPlane()).set("IS_QUAD",1).set("MAX_DEPTH",camera.getFarPlane()).set(camera,frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::QUADS).end();
+	}
+	begin().set("MIN_DEPTH",camera.getNearPlane()).set("IS_QUAD",0).set("MAX_DEPTH",camera.getFarPlane()).set(camera,frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+
+	glEnable(GL_BLEND);
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
@@ -175,7 +266,7 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 				  dists[1] = length (vec - proj);
 				  tan[1]=cross(line,normal);
 
-
+				if(IS_QUAD!=0){
                   vec = vert - v2;
 				  line = normalize(v3 - v2); 
 				  proj = dot(vec, line) * line;
@@ -187,11 +278,18 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 				  proj = dot(vec, line) * line;
 				  dists[3] = length (vec - proj);
 				  tan[3]=cross(line,normal);
-				
+				} else {
+                  vec = vert - v2;
+				  line = normalize(v0 - v2); 
+				  proj = dot(vec, line) * line;
+				  dists[2] = length (vec - proj);
+				  tan[2]=cross(line,normal);
+				}
+
 				  vec3 outNorm=normalize(normal);
                   
                   float minDist=1E30;
-                  for(int n=0;n<4;n++){
+                  for(int n=0;n<3+IS_QUAD;n++){
                      if(dists[n]<minDist){
 				       outNorm=slerp(tan[n],normal,clamp(dists[n]/DISTANCE_TOL,0.0,1.0));
                        minDist=dists[n];
@@ -214,6 +312,7 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 					} quad[];
 					out vec3 v0, v1, v2, v3;
 					out vec3 normal, vert;
+					uniform int IS_QUAD;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
 					void main() {
 					  mat4 PVM=ProjMat*ViewModelMat;
@@ -240,10 +339,12 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
 					  EmitVertex();
 
+					if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p3,1);  
 					  vert = v3;
 					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
 					  EmitVertex();
+					}
 
 			          gl_Position=PVM*vec4(p2,1);  
 					  vert = v2;

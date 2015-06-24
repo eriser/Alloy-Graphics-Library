@@ -41,6 +41,7 @@ public:
 	GLuint colorBuffer;
 	GLuint triIndexBuffer;
 	GLuint quadIndexBuffer;
+	GLuint triVertexBuffer[3];
 	GLuint quadVertexBuffer[4];
 	GLuint triCount;
 	GLuint quadCount;
@@ -88,7 +89,7 @@ public:
 	void setDirty(bool d) {
 		this->dirty = d;
 	}
-	bool isDirty() {
+	inline bool isDirty() const {
 		return dirty;
 	}
 	bool load(const std::string& file);
