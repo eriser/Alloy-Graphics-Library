@@ -22,7 +22,8 @@
 #include "Alloy.h"
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
-MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png")){
+MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png"))
+,imageShader(getContext(),ImageShader::Filter::LARGE_BLUR){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));

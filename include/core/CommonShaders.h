@@ -40,10 +40,10 @@ public:
 
 class ImageShader: public GLShader {
 public:
-	enum class ImageFilter {
-		NONE,FXAA,GAUSSIAN
+	enum class Filter {
+		NONE,FXAA,SMALL_BLUR,LARGE_BLUR
 	};
-	ImageShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext(),const ImageFilter& filter=ImageFilter::NONE);
+	ImageShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext(),const Filter& filter=Filter::NONE);
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,bool flip=false) {
 		begin().set("flip",flip?1:0).set("textureImage", imageTexture, 0).set("bounds",bounds).set(

@@ -57,8 +57,10 @@ void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
 	draw(mesh, camera, getContext()->getViewport());
 }
 
-
-ImageShader::ImageShader(std::shared_ptr<AlloyContext> context,const ImageFilter& filter) :GLShader(context) {
+ImageShader::ImageShader(std::shared_ptr<AlloyContext> context,
+		const Filter& filter) :
+		GLShader(context) {
+	if(filter==Filter::NONE){
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 		 #version 330
@@ -66,24 +68,224 @@ ImageShader::ImageShader(std::shared_ptr<AlloyContext> context,const ImageFilter
 layout(location = 1) in vec2 vt; 
 		 uniform vec4 bounds;
 		 uniform vec4 viewport;
-uniform int flip;
-out vec2 uv;
-		 void main() {
-if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
-		 vec2 pos=vp.xy*bounds.zw+bounds.xy;
-		 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
-	})",
+		uniform int flip;
+		out vec2 uv;
+				 void main() {
+		if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
+				 vec2 pos=vp.xy*bounds.zw+bounds.xy;
+				 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+			})",
 			R"(
-		 #version 330
-in vec2 uv;
+				 #version 330
+		in vec2 uv;
 		 uniform sampler2D textureImage;
 
 		 void main() {
 		 vec4 rgba=texture2D(textureImage,uv);
 		 gl_FragColor=rgba;
 		 })");
+	} else if(filter==Filter::SMALL_BLUR){
+		initialize(std::vector<std::string> { "vp", "vt" },
+				R"(
+			 #version 330
+			 layout(location = 0) in vec3 vp; 
+	layout(location = 1) in vec2 vt; 
+			 uniform vec4 bounds;
+			 uniform vec4 viewport;
+			uniform int flip;
+			out vec2 uv;
+					 void main() {
+			if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
+					 vec2 pos=vp.xy*bounds.zw+bounds.xy;
+					 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+				})",
+				R"(
+					 #version 330
+			in vec2 uv;
+			 uniform sampler2D textureImage;
+			 void main() {
+                vec4 colors[9];
+				const float weights[9]=float[9](1,2,1,2,4,2,1,2,1);
+                vec4 rgba;
+				rgba =weights[0]*textureOffset(textureImage,uv, ivec2(-1,-1));
+				rgba+=weights[1]*textureOffset(textureImage,uv, ivec2( 0,-1));
+				rgba+=weights[2]*textureOffset(textureImage,uv, ivec2( 1,-1));
+				rgba+=weights[3]*textureOffset(textureImage,uv, ivec2(-1, 0));
+				rgba+=weights[4]*texture(textureImage,uv);
+				rgba+=weights[5]*textureOffset(textureImage,uv, ivec2( 1, 0));
+				rgba+=weights[6]*textureOffset(textureImage,uv, ivec2(-1, 1));
+				rgba+=weights[7]*textureOffset(textureImage,uv, ivec2( 0, 1));
+				rgba+=weights[8]*textureOffset(textureImage,uv, ivec2( 1, 1));
+				gl_FragColor=rgba/16.0;
+			 })");
+	} else if(filter==Filter::LARGE_BLUR){
+		initialize(std::vector<std::string> { "vp", "vt" },
+				R"(
+			 #version 330
+			 layout(location = 0) in vec3 vp; 
+	layout(location = 1) in vec2 vt; 
+			 uniform vec4 bounds;
+			 uniform vec4 viewport;
+			uniform int flip;
+			out vec2 uv;
+					 void main() {
+			if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
+					 vec2 pos=vp.xy*bounds.zw+bounds.xy;
+					 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+				})",
+				R"(
+					 #version 330
+			 in vec2 uv;
+			 uniform vec4 bounds;
+			 uniform sampler2D textureImage;
+			 void main() {
+                vec4 colors[9];
+				const float weights[25]=float[25](
+					1,4,6,4,1,
+					4,16,24,26,4,
+					6,24,36,24,6,
+					4,16,25,16,4,
+					1,4,6,4,1);
+                vec4 rgba=vec4(0,0,0,0);
+float sum=0.0;
+vec2 uvs;
+				for(int i=-1;i<=1;i++){
+					for(int j=-1;j<=1;j++){
+                        uvs=uv+1.5f*vec2(i,j)/bounds.zw; 	
+						rgba+=weights[0]*textureOffset(textureImage, uvs,  ivec2(-2,-2));
+						rgba+=weights[1]*textureOffset(textureImage, uvs,  ivec2(-1,-2));
+						rgba+=weights[2]*textureOffset(textureImage, uvs,  ivec2( 0,-2));
+						rgba+=weights[3]*textureOffset(textureImage, uvs,  ivec2( 1,-2));
+						rgba+=weights[4]*textureOffset(textureImage, uvs,  ivec2( 2,-2));
+
+						rgba+=weights[5]*textureOffset(textureImage, uvs,  ivec2(-2,-1));
+						rgba+=weights[6]*textureOffset(textureImage, uvs,  ivec2(-1,-1));
+						rgba+=weights[7]*textureOffset(textureImage, uvs,  ivec2( 0,-1));
+						rgba+=weights[8]*textureOffset(textureImage, uvs,  ivec2( 1,-1));
+						rgba+=weights[9]*textureOffset(textureImage, uvs,  ivec2( 2,-1));
+
+						rgba+=weights[10]*textureOffset(textureImage,uvs, ivec2(-2, 0));
+						rgba+=weights[11]*textureOffset(textureImage,uvs, ivec2(-1, 0));
+						rgba+=weights[12]*texture(textureImage,uvs);
+						rgba+=weights[13]*textureOffset(textureImage,uvs, ivec2( 1, 0));
+						rgba+=weights[14]*textureOffset(textureImage,uvs, ivec2( 2, 0));
+
+						rgba+=weights[15]*textureOffset(textureImage,uvs, ivec2(-2, 1));
+						rgba+=weights[16]*textureOffset(textureImage,uvs, ivec2(-1, 1));
+						rgba+=weights[17]*textureOffset(textureImage,uvs, ivec2( 0, 1));
+						rgba+=weights[18]*textureOffset(textureImage,uvs, ivec2( 1, 1));
+						rgba+=weights[19]*textureOffset(textureImage,uvs, ivec2( 2, 1));
+
+						rgba+=weights[20]*textureOffset(textureImage,uvs, ivec2(-2, 2));
+						rgba+=weights[21]*textureOffset(textureImage,uvs, ivec2(-1, 2));
+						rgba+=weights[22]*textureOffset(textureImage,uvs, ivec2( 0, 2));
+						rgba+=weights[23]*textureOffset(textureImage,uvs, ivec2( 1, 2));
+						rgba+=weights[24]*textureOffset(textureImage,uvs, ivec2( 2, 2));
+sum+=256.0;
+					}
+				}
+
+				gl_FragColor=rgba/sum;
+			 })");
+	} else if(filter==Filter::FXAA){
+		initialize(std::vector<std::string> { "vp", "vt" },
+				R"(
+ #version 330
+ layout(location = 0) in vec3 vp; 
+ layout(location = 1) in vec2 vt; 
+uniform float FXAA_SUBPIX_SHIFT = 1.0/4.0;
+uniform vec4 bounds;
+uniform vec4 viewport;
+uniform int flip;
+out vec4 posPos;
+void main() {
+ vec2 uv;
+ if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
+  posPos.xy = uv;
+  vec2 rcpFrame = vec2(1.0/bounds.z, 1.0/bounds.w);
+  posPos.zw = uv - (rcpFrame * (0.5 + FXAA_SUBPIX_SHIFT));
+  vec2 pos=vp.xy*bounds.zw+bounds.xy;
+  gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+})",
+				R"(
+#version 330
+uniform sampler2D tex0; // 0
+
+uniform vec4 bounds;
+uniform float FXAA_SPAN_MAX = 8.0;
+uniform float FXAA_REDUCE_MUL = 1.0/8.0;
+in vec4 posPos;
+#define FxaaInt2 ivec2
+#define FxaaFloat2 vec2
+#define FxaaTexLod0(t, p) textureLod(t, p, 0.0)
+#define FxaaTexOff(t, p, o, r) textureLodOffset(t, p, 0.0, o)
+ 
+vec3 FxaaPixelShader( 
+  vec4 posPos, // Output of FxaaVertexShader interpolated across screen.
+  sampler2D tex, // Input texture.
+  vec2 rcpFrame) // Constant {1.0/frameWidth, 1.0/frameHeight}.
+{   
+/*---------------------------------------------------------*/
+    #define FXAA_REDUCE_MIN   (1.0/128.0)
+    //#define FXAA_REDUCE_MUL   (1.0/8.0)
+    //#define FXAA_SPAN_MAX     8.0
+/*---------------------------------------------------------*/
+    vec3 rgbNW = FxaaTexLod0(tex, posPos.zw).xyz;
+    vec3 rgbNE = FxaaTexOff(tex, posPos.zw, FxaaInt2(1,0), rcpFrame.xy).xyz;
+    vec3 rgbSW = FxaaTexOff(tex, posPos.zw, FxaaInt2(0,1), rcpFrame.xy).xyz;
+    vec3 rgbSE = FxaaTexOff(tex, posPos.zw, FxaaInt2(1,1), rcpFrame.xy).xyz;
+    vec3 rgbM  = FxaaTexLod0(tex, posPos.xy).xyz;
+/*---------------------------------------------------------*/
+    vec3 luma = vec3(0.299, 0.587, 0.114);
+    float lumaNW = dot(rgbNW, luma);
+    float lumaNE = dot(rgbNE, luma);
+    float lumaSW = dot(rgbSW, luma);
+    float lumaSE = dot(rgbSE, luma);
+    float lumaM  = dot(rgbM,  luma);
+/*---------------------------------------------------------*/
+    float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
+    float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
+/*---------------------------------------------------------*/
+    vec2 dir; 
+    dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
+    dir.y =  ((lumaNW + lumaSW) - (lumaNE + lumaSE));
+/*---------------------------------------------------------*/
+    float dirReduce = max(
+        (lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * FXAA_REDUCE_MUL),
+        FXAA_REDUCE_MIN);
+    float rcpDirMin = 1.0/(min(abs(dir.x), abs(dir.y)) + dirReduce);
+    dir = min(FxaaFloat2( FXAA_SPAN_MAX,  FXAA_SPAN_MAX), 
+          max(FxaaFloat2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX), 
+          dir * rcpDirMin)) * rcpFrame.xy;
+/*--------------------------------------------------------*/
+    vec3 rgbA = (1.0/2.0) * (
+        FxaaTexLod0(tex, posPos.xy + dir * (1.0/3.0 - 0.5)).xyz +
+        FxaaTexLod0(tex, posPos.xy + dir * (2.0/3.0 - 0.5)).xyz);
+    vec3 rgbB = rgbA * (1.0/2.0) + (1.0/4.0) * (
+        FxaaTexLod0(tex, posPos.xy + dir * (0.0/3.0 - 0.5)).xyz +
+        FxaaTexLod0(tex, posPos.xy + dir * (3.0/3.0 - 0.5)).xyz);
+    float lumaB = dot(rgbB, luma);
+    if((lumaB < lumaMin) || (lumaB > lumaMax)) return rgbA;
+    return rgbB; }
+ 
+vec4 PostFX(sampler2D tex, float time)
+{
+  vec4 c = vec4(0.0);
+  vec2 rcpFrame = vec2(1.0/bounds.z, 1.0/bounds.w);
+  c.rgb = FxaaPixelShader(posPos, tex, rcpFrame);
+  c.a = texture2D(tex, posPos.xy).a;
+  return c;
 }
-DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+    
+void main() 
+{ 
+  gl_FragColor = PostFX(tex0, 0.0);
+})");
+	}
+}
+DepthAndNormalShader::DepthAndNormalShader(
+		std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vn" },
 			R"(	#version 330
 				//layout(location = 0) in vec3 vp;
@@ -104,7 +306,7 @@ DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context
 					vs_out.p2=vp2;
 					vs_out.p3=vp3;
 				})",
-				R"(	#version 330
+			R"(	#version 330
 					in vec3 normal;
 	                in vec3 vert;
 					uniform float MIN_DEPTH;
@@ -114,7 +316,7 @@ DepthAndNormalShader::DepthAndNormalShader(std::shared_ptr<AlloyContext> context
 						gl_FragColor = vec4(normalized_normal.xyz,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 					}
 					)",
-				R"(	#version 330
+			R"(	#version 330
 					layout (points) in;
 					layout (triangle_strip, max_vertices=4) out;
 					in VS_OUT {
@@ -180,45 +382,53 @@ if(IS_QUAD!=0){
 
 					 })");
 	/*
-	initialize(std::vector<std::string> { "vp", "vn" },
-			R"(#version 330
-				in vec3 vp; // positions from mesh
-				in vec3 vn; // normals from mesh
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
-				out vec3 normal;	
-out vec4 pos;			
-				void main () {
-pos=  ViewModelMat *vec4 (vp, 1.0);
-				  gl_Position =ProjMat*pos; 
-				  normal = vec3 (NormalMat* vec4 (vn, 0.0));
-				})",
-			R"(	#version 330
-				in vec3 normal;
-in vec4 pos;
-				uniform float MIN_DEPTH;
-				uniform float MAX_DEPTH;
-				void main() {
-					vec3 normalized_normal = normalize(normal);
-					gl_FragColor = vec4(normalized_normal.xyz,(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
-				}
-				)");
-	*/
+	 initialize(std::vector<std::string> { "vp", "vn" },
+	 R"(#version 330
+	 in vec3 vp; // positions from mesh
+	 in vec3 vn; // normals from mesh
+	 uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+	 out vec3 normal;	
+	 out vec4 pos;			
+	 void main () {
+	 pos=  ViewModelMat *vec4 (vp, 1.0);
+	 gl_Position =ProjMat*pos; 
+	 normal = vec3 (NormalMat* vec4 (vn, 0.0));
+	 })",
+	 R"(	#version 330
+	 in vec3 normal;
+	 in vec4 pos;
+	 uniform float MIN_DEPTH;
+	 uniform float MAX_DEPTH;
+	 void main() {
+	 vec3 normalized_normal = normalize(normal);
+	 gl_FragColor = vec4(normalized_normal.xyz,(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+	 }
+	 )");
+	 */
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glDisable(GL_BLEND);
-	if(mesh.quadIndexes.size()>0){
-		begin().set("MIN_DEPTH",camera.getNearPlane()).set("IS_QUAD",1).set("MAX_DEPTH",camera.getFarPlane()).set(camera,frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::QUADS).end();
+	if (mesh.quadIndexes.size() > 0) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
+				"MAX_DEPTH", camera.getFarPlane()).set(camera,
+				frameBuffer.getViewport()).draw(mesh,
+				GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("MIN_DEPTH",camera.getNearPlane()).set("IS_QUAD",0).set("MAX_DEPTH",camera.getFarPlane()).set(camera,frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+			"MAX_DEPTH", camera.getFarPlane()).set(camera,
+			frameBuffer.getViewport()).draw(mesh,
+			GLMesh::PrimitiveType::TRIANGLES).end();
 
 	glEnable(GL_BLEND);
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
-EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
+		std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vn" },
 			R"(	#version 330
 				//layout(location = 0) in vec3 vp;
@@ -313,7 +523,7 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext>
 					gl_FragColor = vec4(outNorm,minDist);
 				}
 				})",
-				R"(	#version 330
+			R"(	#version 330
 					layout (points) in;
 					layout (triangle_strip, max_vertices=4) out;
 					in VS_OUT {
@@ -379,130 +589,131 @@ if(IS_QUAD!=0){
 					 })");
 }
 /*
-EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vn" },
-			R"(	#version 330
-				in vec3 vp;
-				in vec3 vn;
-				void main(void) {
-				  gl_Position = vec4(vp,1.0);
-				})",
-			R"(	#version 330
-				in vec3 v0, v1, v2;
-				in vec3 normal, vert;
-				uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
-				uniform float SCALE;
-uniform int IS_QUAD;
+ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+ initialize(std::vector<std::string> { "vp", "vn" },
+ R"(	#version 330
+ in vec3 vp;
+ in vec3 vn;
+ void main(void) {
+ gl_Position = vec4(vp,1.0);
+ })",
+ R"(	#version 330
+ in vec3 v0, v1, v2;
+ in vec3 normal, vert;
+ uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
+ uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
+ uniform float SCALE;
+ uniform int IS_QUAD;
 
-vec3 slerp(vec3 p0, vec3 p1, float t){
-  p0=normalize(p0);
-  p1=normalize(p1);
-  float dotp = dot(p0,p1);
-  if ((dotp > 0.9999) || (dotp<-0.9999)){
-    if (t<=0.5)return p0;
-    return p1;
-  }
-  float theta = acos(dotp * 3.141596535/180.0);
-  return ((p0*sin((1-t)*theta) + p1*sin(t*theta)) / sin(theta));
-}
+ vec3 slerp(vec3 p0, vec3 p1, float t){
+ p0=normalize(p0);
+ p1=normalize(p1);
+ float dotp = dot(p0,p1);
+ if ((dotp > 0.9999) || (dotp<-0.9999)){
+ if (t<=0.5)return p0;
+ return p1;
+ }
+ float theta = acos(dotp * 3.141596535/180.0);
+ return ((p0*sin((1-t)*theta) + p1*sin(t*theta)) / sin(theta));
+ }
 
-				void main(void) {
-				  vec3 line, vec, proj;
-				  float dist1,dist2,dist3,dist;
-				  float w1,w2,w3;
-				  vec3 tan1,tan2,tan3;
-				  // compute minimum distance from current interpolated 3d vertex to triangle edges
-				  // edge v1-v0
+ void main(void) {
+ vec3 line, vec, proj;
+ float dist1,dist2,dist3,dist;
+ float w1,w2,w3;
+ vec3 tan1,tan2,tan3;
+ // compute minimum distance from current interpolated 3d vertex to triangle edges
+ // edge v1-v0
 
-				  vec = vert - v0;
-				  line = normalize(v1 - v0);
-				  proj = dot(vec, line) * line;
-				  dist1 = length (vec - proj);
-				  tan1=cross(line,normal);
+ vec = vert - v0;
+ line = normalize(v1 - v0);
+ proj = dot(vec, line) * line;
+ dist1 = length (vec - proj);
+ tan1=cross(line,normal);
 
-				  line = normalize(v0 - v2);
-				  proj = dot(vec, line) * line;
-				  dist2 = length (vec - proj);
-				  tan2=cross(line,normal);
+ line = normalize(v0 - v2);
+ proj = dot(vec, line) * line;
+ dist2 = length (vec - proj);
+ tan2=cross(line,normal);
 
-				  line = normalize(v2 - v1);
-vec = vert - v1;
-				  proj = dot(vec, line) * line;
-				  dist3 = length (vec - proj);
-				  tan3=cross(line,normal);
+ line = normalize(v2 - v1);
+ vec = vert - v1;
+ proj = dot(vec, line) * line;
+ dist3 = length (vec - proj);
+ tan3=cross(line,normal);
 
-				  vec3 outNorm=normalize(normal);
-				  w1=clamp(dist1/DISTANCE_TOL,0.0,1.0);
-				  w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
-w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
-					if(dist1<dist2){
-						if(IS_QUAD>0||dist1<dist3){
-						dist=dist1;
-						outNorm=slerp(tan1,normal,w1);
-						} else {
-						dist=dist3;
-						outNorm=slerp(tan3,normal,w3);
-						}
-					} else {
-						if(IS_QUAD>0||dist2<dist3){
-						dist=dist2;
-						outNorm=slerp(tan2,normal,w2);
-						} else {
-						dist=dist3;
-						outNorm=slerp(tan3,normal,w3);
-						}
-					}
-    if (dist <DISTANCE_TOL){
-      gl_FragColor = vec4(outNorm,dist);
-    } else {
-gl_FragColor = vec4(outNorm,dist);
-    }
-				})",
-				R"(	#version 330
-					layout (triangles) in;
-					layout (triangle_strip, max_vertices=3) out;
-					out vec3 v0, v1, v2;
-					out vec3 normal, vert;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
-					void main() {
-					  mat4 PVM=ProjMat*ViewModelMat;
-					  mat4 VM=ViewModelMat;
+ vec3 outNorm=normalize(normal);
+ w1=clamp(dist1/DISTANCE_TOL,0.0,1.0);
+ w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
+ w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
+ if(dist1<dist2){
+ if(IS_QUAD>0||dist1<dist3){
+ dist=dist1;
+ outNorm=slerp(tan1,normal,w1);
+ } else {
+ dist=dist3;
+ outNorm=slerp(tan3,normal,w3);
+ }
+ } else {
+ if(IS_QUAD>0||dist2<dist3){
+ dist=dist2;
+ outNorm=slerp(tan2,normal,w2);
+ } else {
+ dist=dist3;
+ outNorm=slerp(tan3,normal,w3);
+ }
+ }
+ if (dist <DISTANCE_TOL){
+ gl_FragColor = vec4(outNorm,dist);
+ } else {
+ gl_FragColor = vec4(outNorm,dist);
+ }
+ })",
+ R"(	#version 330
+ layout (triangles) in;
+ layout (triangle_strip, max_vertices=3) out;
+ out vec3 v0, v1, v2;
+ out vec3 normal, vert;
+ uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
+ void main() {
+ mat4 PVM=ProjMat*ViewModelMat;
+ mat4 VM=ViewModelMat;
 
-					  vec3 v01 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
-					  vec3 v02 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
-					  vec3 fn =  normalize(cross( v01, v02 ));
-					  vec4 p0=gl_in[0].gl_Position;
-					  vec4 p1=gl_in[1].gl_Position;
-					  vec4 p2=gl_in[2].gl_Position;
+ vec3 v01 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+ vec3 v02 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+ vec3 fn =  normalize(cross( v01, v02 ));
+ vec4 p0=gl_in[0].gl_Position;
+ vec4 p1=gl_in[1].gl_Position;
+ vec4 p2=gl_in[2].gl_Position;
 
-					  v0 = (VM*p0).xyz;
-					  v1 = (VM*p1).xyz;
-					  v2 = (VM*p2).xyz;
-
-
-					  gl_Position=PVM*gl_in[0].gl_Position;
-					  vert = v0;
-					  normal = (VM*vec4(fn,0.0)).xyz;
-					  EmitVertex();
+ v0 = (VM*p0).xyz;
+ v1 = (VM*p1).xyz;
+ v2 = (VM*p2).xyz;
 
 
-					  gl_Position=PVM*gl_in[1].gl_Position;
-					  vert = v1;
-					  normal = (VM*vec4(fn,0.0)).xyz;
-					  EmitVertex();
+ gl_Position=PVM*gl_in[0].gl_Position;
+ vert = v0;
+ normal = (VM*vec4(fn,0.0)).xyz;
+ EmitVertex();
 
 
-					  gl_Position=PVM*gl_in[2].gl_Position;
-					  vert = v2;
-					  normal = (VM*vec4(fn,0.0)).xyz;
-					  EmitVertex();
+ gl_Position=PVM*gl_in[1].gl_Position;
+ vert = v1;
+ normal = (VM*vec4(fn,0.0)).xyz;
+ EmitVertex();
 
-					  EndPrimitive();
-					 })");
-}
-*/
-EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+
+ gl_Position=PVM*gl_in[2].gl_Position;
+ vert = v2;
+ normal = (VM*vec4(fn,0.0)).xyz;
+ EmitVertex();
+
+ EndPrimitive();
+ })");
+ }
+ */
+EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -530,6 +741,7 @@ if(rgba.w>0){
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      
       nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
 if(nrgba.w<=0.0){
       minDistance=min(minDistance,i*i+j*j);
@@ -552,17 +764,19 @@ rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds){
-	begin().set("KERNEL_SIZE",4).set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", context->getViewport()).draw(
-			imageTexture).end();
+void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture,
+		const box2px& bounds) {
+	begin().set("KERNEL_SIZE", 4).set("textureImage", imageTexture, 0).set(
+			"bounds", bounds).set("imageSize", imageTexture.bounds.dimensions).set(
+			"viewport", context->getViewport()).draw(imageTexture).end();
 }
-void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions){
-	draw(imageTexture,box2px(location,dimensions));
+void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture,
+		const float2& location, const float2& dimensions) {
+	draw(imageTexture, box2px(location, dimensions));
 }
 
-
-OutlineShader::OutlineShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+OutlineShader::OutlineShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -618,15 +832,21 @@ rgba=mix(edgeColor,outerColor,w);
 gl_FragColor=rgba;
 })");
 }
-void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,const box2px& viewport){
-	begin().set("KERNEL_SIZE",kernelSize).set("innerColor",innerGlowColor).set("outerColor",outerGlowColor).set("edgeColor",edgeColor).set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("imageSize",imageTexture.bounds.dimensions).set("viewport", viewport).draw(
-			imageTexture).end();
+void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
+		const box2px& bounds, const box2px& viewport) {
+	begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
+			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
+			"textureImage", imageTexture, 0).set("bounds", bounds).set(
+			"imageSize", imageTexture.bounds.dimensions).set("viewport",
+			viewport).draw(imageTexture).end();
 }
-void OutlineShader::draw(const GLTextureRGBAf& imageTexture,const float2& location,const float2& dimensions,const box2px& viewport){
-	draw(imageTexture,box2px(location,dimensions),viewport);
+void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
+		const float2& location, const float2& dimensions,
+		const box2px& viewport) {
+	draw(imageTexture, box2px(location, dimensions), viewport);
 }
-NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -657,16 +877,18 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void NormalColorShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds){
-	begin().set("textureImage", imageTexture, 0).set("bounds",
-			bounds).set("viewport", context->getViewport()).draw(
-			imageTexture).end();
+void NormalColorShader::draw(const GLTextureRGBAf& imageTexture,
+		const box2px& bounds) {
+	begin().set("textureImage", imageTexture, 0).set("bounds", bounds).set(
+			"viewport", context->getViewport()).draw(imageTexture).end();
 }
-void NormalColorShader::draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions){
-	draw(imageTexture,box2px(location,dimensions));
+void NormalColorShader::draw(const GLTextureRGBAf& imageTexture,
+		const float2& location, const float2& dimensions) {
+	draw(imageTexture, box2px(location, dimensions));
 }
 
-DepthColorShader::DepthColorShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+DepthColorShader::DepthColorShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -701,17 +923,19 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds){
-	begin().set("textureImage", imageTexture, 0).set("zMin",zRange.x),set("zMax",zRange.y).set("bounds",
-			bounds).set("viewport", context->getViewport()).draw(
-			imageTexture).end();
+void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
+		const box2px& bounds) {
+	begin().set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
+			"zMax", zRange.y).set("bounds", bounds).set("viewport",
+			context->getViewport()).draw(imageTexture).end();
 }
-void DepthColorShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions){
-	draw(imageTexture,zRange,box2px(location,dimensions));
+void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
+		const float2& location, const float2& dimensions) {
+	draw(imageTexture, zRange, box2px(location, dimensions));
 }
 
-
-WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
+WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -745,27 +969,36 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange, const box2px& bounds,const box2px& viewport){
-	begin().set("textureImage", imageTexture, 0).set("edgeColor",edgeColor).set("faceColor",faceColor).set("zMin",zRange.x),set("zMax",zRange.y).set("bounds",
-			bounds).set("viewport", viewport).draw(
-			imageTexture).end();
+void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
+		const box2px& bounds, const box2px& viewport) {
+	begin().set("textureImage", imageTexture, 0).set("edgeColor", edgeColor).set(
+			"faceColor", faceColor).set("zMin", zRange.x), set("zMax", zRange.y).set(
+			"bounds", bounds).set("viewport", viewport).draw(imageTexture).end();
 }
-void WireframeShader::draw(const GLTextureRGBAf& imageTexture,float2 zRange,  const float2& location,const float2& dimensions,const box2px& viewport){
-	draw(imageTexture,zRange,box2px(location,dimensions),viewport);
+void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
+		const float2& location, const float2& dimensions,
+		const box2px& viewport) {
+	draw(imageTexture, zRange, box2px(location, dimensions), viewport);
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
-		glDisable(GL_BLEND);
-		if(mesh.quadIndexes.size()>0){
-			begin().set("DISTANCE_TOL",camera.getScale()).set("IS_QUAD",1),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::QUADS).end();
-		}
-		begin().set("DISTANCE_TOL",camera.getScale()).set("IS_QUAD",0),set("SCALE",camera.getScale()),set("MIN_DEPTH",camera.getNearPlane()).set("MAX_DEPTH",camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+	glDisable(GL_BLEND);
+	if (mesh.quadIndexes.size() > 0) {
+		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1), set(
+				"MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
+				mesh, GLMesh::PrimitiveType::QUADS).end();
+	}
+	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0), set(
+			"SCALE", camera.getScale()), set("MIN_DEPTH", camera.getNearPlane()).set(
+			"MAX_DEPTH", camera.getFarPlane()).set(camera,
+			frameBuffer.getViewport()).draw(mesh,
+			GLMesh::PrimitiveType::TRIANGLES).end();
 
-		glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
-
 
 }
 

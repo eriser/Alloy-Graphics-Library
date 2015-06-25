@@ -45,7 +45,7 @@ GLShader& GLShader::draw(const GLComponent& comp) {
 	comp.draw();
 	return *this;
 }
-GLShader& GLShader::draw(const Mesh& mesh,const GLMesh::PrimitiveType& type) {
+GLShader& GLShader::draw(const Mesh& mesh, const GLMesh::PrimitiveType& type) {
 	mesh.draw(type);
 	return *this;
 }

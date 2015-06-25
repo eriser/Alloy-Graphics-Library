@@ -24,11 +24,12 @@
 namespace aly {
 
 GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
-		GLComponent(context),texture(context), mFrameBufferId(0), mDepthBufferId(0) {
+		GLComponent(context), texture(context), mFrameBufferId(0), mDepthBufferId(
+				0) {
 
 }
-void GLFrameBuffer::initialize(int w,int h){
-	texture.load(Image4f(w,h),false);
+void GLFrameBuffer::initialize(int w, int h) {
+	texture.load(Image4f(w, h), false);
 	update();
 }
 GLFrameBuffer::~GLFrameBuffer() {
@@ -39,27 +40,26 @@ GLFrameBuffer::~GLFrameBuffer() {
 		glDeleteRenderbuffers(1, &mDepthBufferId);
 	context->end();
 }
-void GLFrameBuffer::begin(bool clearColor,bool clearDepth) {
+void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
 	context->begin();
-	glViewport(0, 0,texture.width(),texture.height());
+	glViewport(0, 0, texture.width(), texture.height());
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glClearColor(0,0,0,0);
-	GLuint flags=GL_STENCIL_BUFFER_BIT;
-	if(clearColor)flags|=GL_COLOR_BUFFER_BIT;
-	if(clearDepth)flags|=GL_DEPTH_BUFFER_BIT;
+	glClearColor(0, 0, 0, 0);
+	GLuint flags = GL_STENCIL_BUFFER_BIT;
+	if (clearColor)
+		flags |= GL_COLOR_BUFFER_BIT;
+	if (clearDepth)
+		flags |= GL_DEPTH_BUFFER_BIT;
 	glClear(flags);
 	CHECK_GL_ERROR();
 }
 void GLFrameBuffer::end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glViewport(
-			context->viewport.position.x,
-			context->viewport.position.y,
-			context->viewport.dimensions.x,
-			context->viewport.dimensions.y);
+	glViewport(context->viewport.position.x, context->viewport.position.y,
+			context->viewport.dimensions.x, context->viewport.dimensions.y);
 	CHECK_GL_ERROR();
 	context->end();
 }
@@ -69,21 +69,24 @@ void GLFrameBuffer::draw() const {
 void GLFrameBuffer::update() {
 	texture.update();
 	context->begin();
-	if(mDepthBufferId!=0){
-		glDeleteRenderbuffers(1,&mDepthBufferId);
+	if (mDepthBufferId != 0) {
+		glDeleteRenderbuffers(1, &mDepthBufferId);
 	}
 	glGenRenderbuffers(1, &mDepthBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
-	glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH32F_STENCIL8, texture.width(),texture.height());
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8,
+			texture.width(), texture.height());
 
-	if(mFrameBufferId!=0){
-		glDeleteRenderbuffers(1,&mFrameBufferId);
+	if (mFrameBufferId != 0) {
+		glDeleteRenderbuffers(1, &mFrameBufferId);
 	}
 	glGenFramebuffers(1, &mFrameBufferId);
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	CHECK_GL_ERROR();
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER,  GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER, mFrameBufferId);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,texture.getTextureId(), 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+			GL_RENDERBUFFER, mFrameBufferId);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+			texture.getTextureId(), 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
