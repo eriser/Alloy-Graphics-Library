@@ -588,130 +588,6 @@ if(IS_QUAD!=0){
 
 					 })");
 }
-/*
- EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> context) :GLShader(context) {
- initialize(std::vector<std::string> { "vp", "vn" },
- R"(	#version 330
- in vec3 vp;
- in vec3 vn;
- void main(void) {
- gl_Position = vec4(vp,1.0);
- })",
- R"(	#version 330
- in vec3 v0, v1, v2;
- in vec3 normal, vert;
- uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
- uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
- uniform float SCALE;
- uniform int IS_QUAD;
-
- vec3 slerp(vec3 p0, vec3 p1, float t){
- p0=normalize(p0);
- p1=normalize(p1);
- float dotp = dot(p0,p1);
- if ((dotp > 0.9999) || (dotp<-0.9999)){
- if (t<=0.5)return p0;
- return p1;
- }
- float theta = acos(dotp * 3.141596535/180.0);
- return ((p0*sin((1-t)*theta) + p1*sin(t*theta)) / sin(theta));
- }
-
- void main(void) {
- vec3 line, vec, proj;
- float dist1,dist2,dist3,dist;
- float w1,w2,w3;
- vec3 tan1,tan2,tan3;
- // compute minimum distance from current interpolated 3d vertex to triangle edges
- // edge v1-v0
-
- vec = vert - v0;
- line = normalize(v1 - v0);
- proj = dot(vec, line) * line;
- dist1 = length (vec - proj);
- tan1=cross(line,normal);
-
- line = normalize(v0 - v2);
- proj = dot(vec, line) * line;
- dist2 = length (vec - proj);
- tan2=cross(line,normal);
-
- line = normalize(v2 - v1);
- vec = vert - v1;
- proj = dot(vec, line) * line;
- dist3 = length (vec - proj);
- tan3=cross(line,normal);
-
- vec3 outNorm=normalize(normal);
- w1=clamp(dist1/DISTANCE_TOL,0.0,1.0);
- w2=clamp(dist2/DISTANCE_TOL,0.0,1.0);
- w3=clamp(dist3/DISTANCE_TOL,0.0,1.0);
- if(dist1<dist2){
- if(IS_QUAD>0||dist1<dist3){
- dist=dist1;
- outNorm=slerp(tan1,normal,w1);
- } else {
- dist=dist3;
- outNorm=slerp(tan3,normal,w3);
- }
- } else {
- if(IS_QUAD>0||dist2<dist3){
- dist=dist2;
- outNorm=slerp(tan2,normal,w2);
- } else {
- dist=dist3;
- outNorm=slerp(tan3,normal,w3);
- }
- }
- if (dist <DISTANCE_TOL){
- gl_FragColor = vec4(outNorm,dist);
- } else {
- gl_FragColor = vec4(outNorm,dist);
- }
- })",
- R"(	#version 330
- layout (triangles) in;
- layout (triangle_strip, max_vertices=3) out;
- out vec3 v0, v1, v2;
- out vec3 normal, vert;
- uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat;
- void main() {
- mat4 PVM=ProjMat*ViewModelMat;
- mat4 VM=ViewModelMat;
-
- vec3 v01 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
- vec3 v02 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
- vec3 fn =  normalize(cross( v01, v02 ));
- vec4 p0=gl_in[0].gl_Position;
- vec4 p1=gl_in[1].gl_Position;
- vec4 p2=gl_in[2].gl_Position;
-
- v0 = (VM*p0).xyz;
- v1 = (VM*p1).xyz;
- v2 = (VM*p2).xyz;
-
-
- gl_Position=PVM*gl_in[0].gl_Position;
- vert = v0;
- normal = (VM*vec4(fn,0.0)).xyz;
- EmitVertex();
-
-
- gl_Position=PVM*gl_in[1].gl_Position;
- vert = v1;
- normal = (VM*vec4(fn,0.0)).xyz;
- EmitVertex();
-
-
- gl_Position=PVM*gl_in[2].gl_Position;
- vert = v2;
- normal = (VM*vec4(fn,0.0)).xyz;
- EmitVertex();
-
- EndPrimitive();
- })");
- }
- */
 EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
@@ -958,11 +834,12 @@ uniform float zMin;
 uniform float zMax;
 uniform vec4 edgeColor;
 uniform vec4 faceColor;
+uniform float LINE_WIDTH;
 void main() {
 vec4 rgba=texture2D(textureImage,uv);
 if(rgba.w>0){
 	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
-	rgba=mix(edgeColor,faceColor,smoothstep(0.0,1.0,lum>0.5?1.0:0.0));
+	rgba=mix(edgeColor,faceColor,(lum>LINE_WIDTH?1.0:0.0));
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
@@ -971,7 +848,7 @@ gl_FragColor=rgba;
 }
 void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 		const box2px& bounds, const box2px& viewport) {
-	begin().set("textureImage", imageTexture, 0).set("edgeColor", edgeColor).set(
+	begin().set("textureImage", imageTexture, 0).set("LINE_WIDTH",lineWidth).set("edgeColor", edgeColor).set(
 			"faceColor", faceColor).set("zMin", zRange.x), set("zMax", zRange.y).set(
 			"bounds", bounds).set("viewport", viewport).draw(imageTexture).end();
 }

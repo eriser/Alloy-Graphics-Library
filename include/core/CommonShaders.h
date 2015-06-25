@@ -92,6 +92,7 @@ public:
 };
 class WireframeShader: public GLShader {
 private:
+	float lineWidth=0.25f;
 	aly::Color edgeColor=Color(1.0f,1.0f,1.0f,1.0f);
 	aly::Color faceColor=Color(1.0f,0.3f,0.1f,1.0f);
 public:
