@@ -187,6 +187,66 @@ sum+=256.0;
 
 				gl_FragColor=rgba/sum;
 			 })");
+	} else if(filter==Filter::MEDIUM_BLUR){
+		initialize(std::vector<std::string> { "vp", "vt" },
+				R"(
+			 #version 330
+			 layout(location = 0) in vec3 vp; 
+	layout(location = 1) in vec2 vt; 
+			 uniform vec4 bounds;
+			 uniform vec4 viewport;
+			uniform int flip;
+			out vec2 uv;
+					 void main() {
+			if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
+					 vec2 pos=vp.xy*bounds.zw+bounds.xy;
+					 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+				})",
+				R"(
+					 #version 330
+			 in vec2 uv;
+			 uniform vec4 bounds;
+			 uniform sampler2D textureImage;
+			 void main() {
+                vec4 colors[9];
+				const float weights[25]=float[25](
+					1,4,6,4,1,
+					4,16,24,26,4,
+					6,24,36,24,6,
+					4,16,25,16,4,
+					1,4,6,4,1);
+                vec4 rgba;	
+						rgba=weights[0]*textureOffset(textureImage,  uv,  ivec2(-2,-2));
+						rgba+=weights[1]*textureOffset(textureImage, uv,  ivec2(-1,-2));
+						rgba+=weights[2]*textureOffset(textureImage, uv,  ivec2( 0,-2));
+						rgba+=weights[3]*textureOffset(textureImage, uv,  ivec2( 1,-2));
+						rgba+=weights[4]*textureOffset(textureImage, uv,  ivec2( 2,-2));
+
+						rgba+=weights[5]*textureOffset(textureImage, uv,  ivec2(-2,-1));
+						rgba+=weights[6]*textureOffset(textureImage, uv,  ivec2(-1,-1));
+						rgba+=weights[7]*textureOffset(textureImage, uv,  ivec2( 0,-1));
+						rgba+=weights[8]*textureOffset(textureImage, uv,  ivec2( 1,-1));
+						rgba+=weights[9]*textureOffset(textureImage, uv,  ivec2( 2,-1));
+
+						rgba+=weights[10]*textureOffset(textureImage,uv, ivec2(-2, 0));
+						rgba+=weights[11]*textureOffset(textureImage,uv, ivec2(-1, 0));
+						rgba+=weights[12]*texture(textureImage,uv);
+						rgba+=weights[13]*textureOffset(textureImage,uv, ivec2( 1, 0));
+						rgba+=weights[14]*textureOffset(textureImage,uv, ivec2( 2, 0));
+
+						rgba+=weights[15]*textureOffset(textureImage,uv, ivec2(-2, 1));
+						rgba+=weights[16]*textureOffset(textureImage,uv, ivec2(-1, 1));
+						rgba+=weights[17]*textureOffset(textureImage,uv, ivec2( 0, 1));
+						rgba+=weights[18]*textureOffset(textureImage,uv, ivec2( 1, 1));
+						rgba+=weights[19]*textureOffset(textureImage,uv, ivec2( 2, 1));
+
+						rgba+=weights[20]*textureOffset(textureImage,uv, ivec2(-2, 2));
+						rgba+=weights[21]*textureOffset(textureImage,uv, ivec2(-1, 2));
+						rgba+=weights[22]*textureOffset(textureImage,uv, ivec2( 0, 2));
+						rgba+=weights[23]*textureOffset(textureImage,uv, ivec2( 1, 2));
+						rgba+=weights[24]*textureOffset(textureImage,uv, ivec2( 2, 2));
+				gl_FragColor=rgba/256.0;
+			 })");
 	} else if(filter==Filter::FXAA){
 		initialize(std::vector<std::string> { "vp", "vt" },
 				R"(

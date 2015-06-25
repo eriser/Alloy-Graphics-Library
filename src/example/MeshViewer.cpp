@@ -23,7 +23,7 @@
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
 MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png"))
-,imageShader(getContext(),ImageShader::Filter::LARGE_BLUR){
+,imageShader(getContext(),ImageShader::Filter::MEDIUM_BLUR){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
@@ -53,7 +53,6 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
-	//imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 	depthColorShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2( 0.0f,0.0f),float2(480,480));
 	normalColorShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, 480.0f),float2(480,480));
 	depthColorShader.draw(depthFrameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(960.0f, 0.0f),float2(480,480));
@@ -69,6 +68,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(),float2( 480.0f,0.0f),float2(480,480));
 	imageShader.draw(wireframeFrameBuffer.getTexture(),float2( 480.0f,480.0f),float2(480,480));
+	imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 
 
 	camera.setDirty(false);

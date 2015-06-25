@@ -41,7 +41,7 @@ public:
 class ImageShader: public GLShader {
 public:
 	enum class Filter {
-		NONE,FXAA,SMALL_BLUR,LARGE_BLUR
+		NONE,FXAA,SMALL_BLUR,MEDIUM_BLUR,LARGE_BLUR
 	};
 	ImageShader(std::shared_ptr<AlloyContext> context=AlloyDefaultContext(),const Filter& filter=Filter::NONE);
 	template<class T, int C, ImageType I> void draw(
