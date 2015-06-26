@@ -476,8 +476,6 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 	if(f==NULL){
 		throw std::runtime_error(MakeString()<<"Could not open "<<vstr.str().c_str()<<" for writing.");
 	}
-	fwrite(img.ptr(), img.typeSize(), img.size(), f);
-	/*
 	for(int c=0;c<img.channels;c++){
 		for(int j=0;j<img.height;j++){
 			for(int i=0;i<img.width;i++){
@@ -486,7 +484,6 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 			}
 		}
 	}
-	*/
 	fclose(f);
 	std::string typeName="";
 		switch (img.type) {
@@ -512,7 +509,7 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 	sstr << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	sstr << "<!-- MIPAV header file -->\n";
 	sstr
-			<< "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"4\">\n";
+			<< "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"3\">\n";
 	sstr << "	<Dataset-attributes>\n";
 	sstr << "		<Image-offset>0</Image-offset>\n";
 	sstr << "		<Data-type>"<<typeName<<"</Data-type>\n";
@@ -523,15 +520,19 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 	sstr << "		<Resolutions>\n";
 	sstr << "			<Resolution>1.0</Resolution>\n";
 	sstr << "			<Resolution>1.0</Resolution>\n";
+	sstr << "			<Resolution>1.0</Resolution>\n";
 	sstr << "		</Resolutions>\n";
 	sstr << "		<Slice-spacing>1.0</Slice-spacing>\n";
 	sstr << "		<Slice-thickness>0.0</Slice-thickness>\n";
+	sstr << "		<Units>Millimeters</Units>\n";
 	sstr << "		<Units>Millimeters</Units>\n";
 	sstr << "		<Units>Millimeters</Units>\n";
 	sstr << "		<Compression>none</Compression>\n";
 	sstr << "		<Orientation>Unknown</Orientation>\n";
 	sstr << "		<Subject-axis-orientation>Unknown</Subject-axis-orientation>\n";
 	sstr << "		<Subject-axis-orientation>Unknown</Subject-axis-orientation>\n";
+	sstr << "		<Subject-axis-orientation>Unknown</Subject-axis-orientation>\n";
+	sstr << "		<Origin>0.0</Origin>\n";
 	sstr << "		<Origin>0.0</Origin>\n";
 	sstr << "		<Origin>0.0</Origin>\n";
 	sstr << "		<Modality>Unknown Modality</Modality>\n";
