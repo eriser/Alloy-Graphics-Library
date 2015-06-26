@@ -247,27 +247,20 @@ public:
 		CHECK_GL_ERROR();
 	}
 	Image<T, C, I>& read() {
-		context->begin();
+
 		if (textureId) {
+			context->begin();
 			if(multisample&&!mipmap){
 				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
 			}else {
 				glBindTexture(GL_TEXTURE_2D, textureId);
 			}
-			if (textureImage.channels == 4) {
-				glGetTexImage(GL_TEXTURE_2D, 0, internalFormat, GL_RGBA,
-						textureImage.ptr());
-			} else if (textureImage.channels == 3) {
-				glGetTexImage(GL_TEXTURE_2D, 0, internalFormat, GL_RGB,
-						textureImage.ptr());
-			} else if (textureImage.channels == 1) {
-				glGetTexImage(GL_TEXTURE_2D, 0, internalFormat, GL_R,
-						textureImage.ptr());
-			}
+			//glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, type, pixels);
+			glGetTexImage(GL_TEXTURE_2D, 0,externalFormat,dataType,textureImage.ptr());
+			CHECK_GL_ERROR();
 			glBindTexture(GL_TEXTURE_2D, 0);
 			context->end();
 		} else {
-			context->end();
 			throw std::runtime_error(
 					"Count not read image, texture buffer not allocated.");
 		}

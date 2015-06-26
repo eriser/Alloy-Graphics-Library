@@ -21,7 +21,6 @@
 
 #ifndef ALLOYFILEUTIL_H_
 #define ALLOYFILEUTIL_H_
-#include "AlloyImage.h"
 #include <string>
 #include <vector>
 
@@ -47,10 +46,8 @@ std::string ReadTextFile(const std::string& str);
 std::vector<char> ReadBinaryFile(const std::string& str);
 bool FileExists(const std::string& name);
 std::string CodePointToUTF8(int cp);
-void WriteImageToFile(const std::string& file, const ImageRGBA& img);
-void WriteImageToFile(const std::string& file, const ImageRGB& img);
-void ReadImageFromFile(const std::string& file, ImageRGBA& img);
-void ReadImageFromFile(const std::string& file, ImageRGB& img);
+
+
 }
 
 #endif /* ALLOYFILEUTIL_H_ */

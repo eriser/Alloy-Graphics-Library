@@ -112,8 +112,8 @@ private:
 	std::vector<float3> sampleNormals;
 public:
 	AmbientOcclusionShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture,const box2px& bounds, VirtualCamera& camera);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions, VirtualCamera& camera);
+	void draw(const GLTextureRGBAf& imageTexture,const box2px& bounds, const box2px viewport,VirtualCamera& camera);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions, const box2px viewport,VirtualCamera& camera);
 };
 class OutlineShader: public GLShader {
 private:

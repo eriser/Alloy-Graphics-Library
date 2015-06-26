@@ -41,6 +41,8 @@ private:
 
 	aly::GLFrameBuffer edgeFrameBuffer;
 
+
+	aly::GLFrameBuffer occlusionFrameBuffer;
 	aly::GLFrameBuffer depthFrameBuffer;
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;

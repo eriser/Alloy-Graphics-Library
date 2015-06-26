@@ -879,6 +879,7 @@ uniform sampler2D textureImage;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
 uniform float u_radius;
+uniform vec2 focalLength;
 float random(vec2 uv,float seed){
   vec2 v=vec2(12.9898,78.233);
   return fract(sin(dot(uv ,vec2(cos(seed)*v.x-sin(6.28*seed)*v.y,cos(6.28*seed)*v.y+sin(6.28*seed)*v.x))) * 43758.5453+seed);
@@ -886,9 +887,20 @@ float random(vec2 uv,float seed){
 float random2(vec2 uv,float seed){
   return random(vec2(random(uv,1.0-seed),random(uv,seed)),seed);
 }
+float toZ(float ndc){
+	return -ndc * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH;
+}
+vec4 toWorld(vec2 uv,vec4 rgba){
+	float z=toZ(rgba.w);
+	return vec4(z*(2.0*uv.x-1)/focalLength.x,z*(2.0*uv.y-1)/focalLength.y, z, 1.0);	
+}
+vec2 toCamera(vec4 pt){
+	float z = pt.w;
+	return vec2((0.5*pt.x+0.5)*focalLength.x/z,(0.5*pt.y+0.5)*focalLength.y/z);	
+}
 #define KERNEL_SIZE )"<<sampleNormals.size()<<R"(
 #define CAP_MIN_DISTANCE 0.00001
-#define CAP_MAX_DISTANCE 0.01
+#define CAP_MAX_DISTANCE 0.005
 
 uniform vec3 u_kernel[KERNEL_SIZE];
 void main(void)
@@ -901,10 +913,9 @@ void main(void)
 		gl_FragColor = vec4( 0,0,0,0);
         return; 
     }
-	float z = -rgba.w * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH;
-	vec4 posProj = vec4(x, y, z, 1.0);	
+	vec4 posProj = toWorld(v_texCoord,rgba);	
 	vec3 normalView = 2*rgba.xyz-1.0;
-	vec3 randomVector = normalize(vec3(random2(v_texCoord,0.1367),random2(v_texCoord,0.4632),random2(v_texCoord,0.1928)));
+	vec3 randomVector = normalize(vec3(2*random2(v_texCoord,0.1367)-1,2*random2(v_texCoord,0.4632)-1,random2(v_texCoord,0.1928)));
 	vec3 tangentView = normalize(randomVector - dot(randomVector, normalView) * normalView);
 	
 	vec3 bitangentView = cross(normalView, tangentView);
@@ -914,8 +925,8 @@ void main(void)
 	{
 		vec3 sampleVectorView = kernelMatrix * u_kernel[i];	
 		vec4 samplePointNDC = posProj + u_radius * vec4(sampleVectorView, 0.0);
-		vec2 samplePointTexCoord = samplePointNDC.xy;   
-		float zSceneNDC = -texture(textureImage, samplePointTexCoord).w * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH;
+		vec2 samplePointTexCoord = toCamera(samplePointNDC);   
+		float zSceneNDC = toZ(texture(textureImage, samplePointTexCoord).w);
 		float delta = samplePointNDC.z - zSceneNDC;
 		if (delta > CAP_MIN_DISTANCE && delta < CAP_MAX_DISTANCE){
 			occlusion += 1.0;
@@ -927,20 +938,22 @@ void main(void)
 })");
 
 }
-void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,
+void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,const box2px viewport,
 		VirtualCamera& camera) {
+
 	begin().set("textureImage", imageTexture, 0)
 			.set("MIN_DEPTH",camera.getNearPlane())
 			.set("MAX_DEPTH", camera.getFarPlane())
+			.set("focalLength",camera.getFocalLength())
 			.set("bounds", bounds)
-			.set("viewport",context->getViewport())
+			.set("viewport",viewport)
 			.set("u_radius",sampleRadius)
 			.set("u_kernel",sampleNormals)
 			.draw(imageTexture).end();
 }
 void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions,VirtualCamera& camera) {
-	draw(imageTexture, box2px(location, dimensions),camera);
+		const float2& location, const float2& dimensions,const box2px viewport,VirtualCamera& camera) {
+	draw(imageTexture, box2px(location, dimensions),viewport,camera);
 }
 
 WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :

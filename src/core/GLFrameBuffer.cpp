@@ -41,6 +41,7 @@ GLFrameBuffer::~GLFrameBuffer() {
 	context->end();
 }
 void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
+	if(texture.width()*texture.height()==0)throw std::runtime_error("Framebuffer has not been initialized.");
 	context->begin();
 	glViewport(0, 0, texture.width(), texture.height());
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);

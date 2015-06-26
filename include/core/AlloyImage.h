@@ -22,9 +22,10 @@
 #define ALLOYIMAGE2D_H_INCLUDE_GUARD
 #include "AlloyCommon.h"
 #include "AlloyMath.h"
-
+#include "AlloyFileUtil.h"
 #include <vector>
 #include <functional>
+#include <fstream>
 namespace aly {
 bool SANITY_CHECK_IMAGE();
 enum class ImageType {
@@ -52,6 +53,8 @@ template<class L, class R> std::basic_ostream<L, R>& operator <<(
 	}
 	return ss;
 }
+template<class T, int C, ImageType I> class Image;
+template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& fileName,const Image<T,C,I>& img);
 template<class T, int C, ImageType I> struct Image {
 private:
 	std::vector<vec<T, C>> storage;
@@ -63,7 +66,9 @@ public:
 	uint64_t id;
 	const int channels = C;
 	const ImageType type = I;
-
+	void writeToXML(const std::string& fileName) const {
+		WriteImageToRawFile(fileName,*this);
+	}
 	void set(const T& val) {
 		data.assign(data.size(), vec<T, C>(val));
 	}
@@ -463,6 +468,85 @@ template<class T, int C, ImageType I> Image<T, C, I> operator/(
 	Transform(out, img1, img2, f);
 	return out;
 }
+template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& file,const Image<T,C,I>& img) {
+	std::ostringstream vstr;
+	std::string fileName=GetFileWithoutExtension(file);
+	vstr << fileName << ".raw";
+	FILE* f = fopen(vstr.str().c_str(), "wb");
+	if(f==NULL){
+		throw std::runtime_error(MakeString()<<"Could not open "<<vstr.str().c_str()<<" for writing.");
+	}
+	fwrite(img.ptr(), img.typeSize(), img.size(), f);
+	/*
+	for(int c=0;c<img.channels;c++){
+		for(int j=0;j<img.height;j++){
+			for(int i=0;i<img.width;i++){
+				T val=img(i,j)[c];
+				fwrite(&val, sizeof(float), 1, f);
+			}
+		}
+	}
+	*/
+	fclose(f);
+	std::string typeName="";
+		switch (img.type) {
+		case ImageType::BYTE:
+			typeName= "Byte";break;
+		case ImageType::UBYTE:
+			typeName= "Unsigned Byte";break;
+		case ImageType::SHORT:
+			typeName= "Short";break;
+		case ImageType::USHORT:
+			typeName= "Unsigned Short";break;
+		case ImageType::INT:
+			typeName= "Integer";break;
+		case ImageType::UINT:
+			typeName= "Unsigned Integer";break;
+		case ImageType::FLOAT:
+			typeName= "Float";break;
+		case ImageType::DOUBLE:
+			typeName= "Double";break;
+		}
+	//std::cout << vstr.str() << std::endl;
+	std::stringstream sstr;
+	sstr << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	sstr << "<!-- MIPAV header file -->\n";
+	sstr
+			<< "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"4\">\n";
+	sstr << "	<Dataset-attributes>\n";
+	sstr << "		<Image-offset>0</Image-offset>\n";
+	sstr << "		<Data-type>"<<typeName<<"</Data-type>\n";
+	sstr << "		<Endianess>Little</Endianess>\n";
+	sstr << "		<Extents>" << img.width << "</Extents>\n";
+	sstr << "		<Extents>" << img.height << "</Extents>\n";
+	sstr << "		<Extents>" << img.channels << "</Extents>\n";
+	sstr << "		<Resolutions>\n";
+	sstr << "			<Resolution>1.0</Resolution>\n";
+	sstr << "			<Resolution>1.0</Resolution>\n";
+	sstr << "		</Resolutions>\n";
+	sstr << "		<Slice-spacing>1.0</Slice-spacing>\n";
+	sstr << "		<Slice-thickness>0.0</Slice-thickness>\n";
+	sstr << "		<Units>Millimeters</Units>\n";
+	sstr << "		<Units>Millimeters</Units>\n";
+	sstr << "		<Compression>none</Compression>\n";
+	sstr << "		<Orientation>Unknown</Orientation>\n";
+	sstr << "		<Subject-axis-orientation>Unknown</Subject-axis-orientation>\n";
+	sstr << "		<Subject-axis-orientation>Unknown</Subject-axis-orientation>\n";
+	sstr << "		<Origin>0.0</Origin>\n";
+	sstr << "		<Origin>0.0</Origin>\n";
+	sstr << "		<Modality>Unknown Modality</Modality>\n";
+	sstr << "	</Dataset-attributes>\n";
+	sstr << "</image>\n";
+	std::ofstream myfile;
+	std::stringstream xmlFile;
+	xmlFile << fileName << ".xml";
+	myfile.open(xmlFile.str().c_str(), std::ios_base::out);
+	if(!myfile.is_open()){
+		throw std::runtime_error(MakeString()<<"Could not open "<<xmlFile<<" for writing.");
+	}
+	myfile << sstr.str();
+	myfile.close();
+}
 typedef Image<uint8_t, 4, ImageType::UBYTE> ImageRGBA;
 typedef Image<int, 4, ImageType::INT> ImageRGBAi;
 typedef Image<float, 4, ImageType::FLOAT> ImageRGBAf;
@@ -503,6 +587,11 @@ typedef Image<int16_t, 1, ImageType::SHORT> Image1s;
 typedef Image<int, 1, ImageType::INT> Image1i;
 typedef Image<uint32_t, 1, ImageType::UINT> Image1ui;
 typedef Image<float, 1, ImageType::FLOAT> Image1f;
+
+void WriteImageToFile(const std::string& file, const ImageRGBA& img);
+void WriteImageToFile(const std::string& file, const ImageRGB& img);
+void ReadImageFromFile(const std::string& file, ImageRGBA& img);
+void ReadImageFromFile(const std::string& file, ImageRGB& img);
 }
 ;
 

@@ -41,6 +41,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	depthFrameBuffer.initialize(480,480);
 	outlineFrameBuffer.initialize(480,480);
 	wireframeFrameBuffer.initialize(480,480);
+	occlusionFrameBuffer.initialize(480,480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 
@@ -69,10 +70,24 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		wireframeFrameBuffer.begin();
 		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
+
+
+		occlusionFrameBuffer.begin();
+		ambientOcclusionShader.draw(depthFrameBuffer.getTexture(),float2(0.0f, 0.0f),float2(480,480),occlusionFrameBuffer.getViewport(),camera);
+		occlusionFrameBuffer.end();
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(),float2( 480.0f,0.0f),float2(480,480));
 	imageShader.draw(wireframeFrameBuffer.getTexture(),float2( 480.0f,480.0f),float2(480,480));
-	ambientOcclusionShader.draw(depthFrameBuffer.getTexture(),float2(1440.0f, 0.0f),float2(480,480),camera);
+	imageShader.draw(occlusionFrameBuffer.getTexture(),float2(1440.0f, 0.0f),float2(480,480));
+	static bool once=true;
+	if(once){
+		wireframeFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/wire.xml");
+		outlineFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/outline.xml");
+		depthFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/depth.xml");
+		occlusionFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/occlusion.xml");
+
+		once=false;
+	}
 	//imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 	camera.setDirty(false);
 }

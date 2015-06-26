@@ -53,6 +53,9 @@ public:
 	void setPose(const float4x4& m) {
 		mModel = m;
 	}
+	inline float2 getFocalLength() const {
+		return float2(mProjection(0,0),mProjection(1,1));
+	}
 	float4x4& getPose() {
 		return mModel;
 	}
