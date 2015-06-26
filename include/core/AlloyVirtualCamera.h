@@ -89,8 +89,8 @@ public:
 	float getNearPlane() {
 		return nearPlane;
 	}
-	float getZRange() {
-		return farPlane-nearPlane;
+	float2 getZRange() {
+		return float2(nearPlane,farPlane);
 	}
 	float getNormalizedDepth(const float4& pt){
 		float4 out=mViewModel*pt;

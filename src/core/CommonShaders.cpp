@@ -441,30 +441,6 @@ if(IS_QUAD!=0){
 					  EndPrimitive();
 
 					 })");
-	/*
-	 initialize(std::vector<std::string> { "vp", "vn" },
-	 R"(#version 330
-	 in vec3 vp; // positions from mesh
-	 in vec3 vn; // normals from mesh
-	 uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
-	 out vec3 normal;	
-	 out vec4 pos;			
-	 void main () {
-	 pos=  ViewModelMat *vec4 (vp, 1.0);
-	 gl_Position =ProjMat*pos; 
-	 normal = vec3 (NormalMat* vec4 (vn, 0.0));
-	 })",
-	 R"(	#version 330
-	 in vec3 normal;
-	 in vec4 pos;
-	 uniform float MIN_DEPTH;
-	 uniform float MAX_DEPTH;
-	 void main() {
-	 vec3 normalized_normal = normalize(normal);
-	 gl_FragColor = vec4(normalized_normal.xyz,(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
-	 }
-	 )");
-	 */
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
@@ -769,7 +745,7 @@ gl_FragColor=rgba;
 })");
 }
 void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
-		const box2px& bounds, const box2px& viewport) {
+		const box2px& bounds,const box2px& viewport) {
 	begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
 			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
 			"textureImage", imageTexture, 0).set("bounds", bounds).set(
@@ -777,9 +753,8 @@ void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
 			viewport).draw(imageTexture).end();
 }
 void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions,
-		const box2px& viewport) {
-	draw(imageTexture, box2px(location, dimensions), viewport);
+		const float2& location, const float2& dimensions,const box2px& viewport) {
+	draw(imageTexture, box2px(location, dimensions),viewport);
 }
 NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
@@ -868,6 +843,104 @@ void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 		const float2& location, const float2& dimensions) {
 	draw(imageTexture, zRange, box2px(location, dimensions));
+}
+
+AmbientOcclusionShader::AmbientOcclusionShader(std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
+	int thetaInc=32;
+	int phiInc=4;
+	int index=0;
+	for(int j=0;j<phiInc;j++){
+		for(int i=0;i<thetaInc;i++){
+			float sp=sin(0.5f*ALY_PI*(j+0.5)/(float)phiInc);
+			float cp=cos(0.5f*ALY_PI*(j+0.5)/(float)phiInc);
+			float3 v=float3(cos(2*ALY_PI*i/(float)thetaInc)*cp,sin(2*ALY_PI*i/(float)thetaInc)*cp,-sp);
+			sampleNormals.push_back(v);
+		}
+	}
+	initialize(std::vector<std::string> { "vp", "vt" },
+			R"(
+#version 330
+
+layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
+uniform vec4 bounds;
+uniform vec4 viewport;
+out vec2 v_texCoord;
+void main() {
+v_texCoord=vt;
+vec2 pos=vp.xy*bounds.zw+bounds.xy;
+gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+})",
+			MakeString()<<R"(
+#version 330
+in vec2 v_texCoord;
+uniform sampler2D textureImage;
+uniform float MIN_DEPTH;
+uniform float MAX_DEPTH;
+uniform float u_radius;
+float random(vec2 uv,float seed){
+  vec2 v=vec2(12.9898,78.233);
+  return fract(sin(dot(uv ,vec2(cos(seed)*v.x-sin(6.28*seed)*v.y,cos(6.28*seed)*v.y+sin(6.28*seed)*v.x))) * 43758.5453+seed);
+}
+float random2(vec2 uv,float seed){
+  return random(vec2(random(uv,1.0-seed),random(uv,seed)),seed);
+}
+#define KERNEL_SIZE )"<<sampleNormals.size()<<R"(
+#define CAP_MIN_DISTANCE 0.00001
+#define CAP_MAX_DISTANCE 0.01
+
+uniform vec3 u_kernel[KERNEL_SIZE];
+void main(void)
+{
+	// Calculate out of the current fragment in screen space the view space position.
+	float x = v_texCoord.x;
+	float y = v_texCoord.y;
+	vec4 rgba=texture(textureImage, v_texCoord);
+    if(length(rgba.xyz)==0.0f){
+		gl_FragColor = vec4( 0,0,0,0);
+        return; 
+    }
+	float z = -rgba.w * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH;
+	vec4 posProj = vec4(x, y, z, 1.0);	
+	vec3 normalView = 2*rgba.xyz-1.0;
+	vec3 randomVector = normalize(vec3(random2(v_texCoord,0.1367),random2(v_texCoord,0.4632),random2(v_texCoord,0.1928)));
+	vec3 tangentView = normalize(randomVector - dot(randomVector, normalView) * normalView);
+	
+	vec3 bitangentView = cross(normalView, tangentView);
+	mat3 kernelMatrix = mat3(tangentView, bitangentView, normalView); 
+	float occlusion = 0.0;	
+	for (int i = 0; i < KERNEL_SIZE; i++)
+	{
+		vec3 sampleVectorView = kernelMatrix * u_kernel[i];	
+		vec4 samplePointNDC = posProj + u_radius * vec4(sampleVectorView, 0.0);
+		vec2 samplePointTexCoord = samplePointNDC.xy;   
+		float zSceneNDC = -texture(textureImage, samplePointTexCoord).w * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH;
+		float delta = samplePointNDC.z - zSceneNDC;
+		if (delta > CAP_MIN_DISTANCE && delta < CAP_MAX_DISTANCE){
+			occlusion += 1.0;
+		}
+	}
+	occlusion = 1.0 - occlusion / float(KERNEL_SIZE);
+	gl_FragColor = vec4(occlusion,occlusion,occlusion, 1.0);
+
+})");
+
+}
+void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,
+		VirtualCamera& camera) {
+	begin().set("textureImage", imageTexture, 0)
+			.set("MIN_DEPTH",camera.getNearPlane())
+			.set("MAX_DEPTH", camera.getFarPlane())
+			.set("bounds", bounds)
+			.set("viewport",context->getViewport())
+			.set("u_radius",sampleRadius)
+			.set("u_kernel",sampleNormals)
+			.draw(imageTexture).end();
+}
+void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
+		const float2& location, const float2& dimensions,VirtualCamera& camera) {
+	draw(imageTexture, box2px(location, dimensions),camera);
 }
 
 WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :

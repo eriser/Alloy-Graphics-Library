@@ -1391,6 +1391,9 @@ template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,
 // Convenience aliases //
 /////////////////////////
 
+typedef uint8_t ubyte;
+typedef int8_t byte;
+typedef uint32_t uint;
 typedef vec<uint8_t, 1> ubyte1;
 typedef vec<int8_t, 1> byte1;
 typedef vec<uint16_t, 1> ushort1;

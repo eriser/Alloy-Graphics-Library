@@ -34,6 +34,7 @@ private:
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
 	aly::DepthColorShader depthColorShader;
+	aly::AmbientOcclusionShader ambientOcclusionShader;
 	aly::NormalColorShader normalColorShader;
 	aly::OutlineShader outlineShader;
 	aly::WireframeShader wireframeShader;

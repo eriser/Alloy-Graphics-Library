@@ -106,6 +106,15 @@ public:
 	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,const box2px& bounds,const box2px& viewport);
 	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,const float2& location,const float2& dimensions,const box2px& viewport);
 };
+class AmbientOcclusionShader: public GLShader {
+private:
+	float sampleRadius=0.01f;
+	std::vector<float3> sampleNormals;
+public:
+	AmbientOcclusionShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	void draw(const GLTextureRGBAf& imageTexture,const box2px& bounds, VirtualCamera& camera);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions, VirtualCamera& camera);
+};
 class OutlineShader: public GLShader {
 private:
 	int kernelSize=8;
@@ -127,7 +136,7 @@ public:
 	}
 	OutlineShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
 	void draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,const box2px& viewport);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions,const box2px& viewport);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions, const box2px& viewport);
 };
 }
 

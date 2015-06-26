@@ -22,16 +22,17 @@
 #include "Alloy.h"
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
-MeshViewer::MeshViewer():Application(1440, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png"))
+MeshViewer::MeshViewer():Application(1920, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png"))
 ,imageShader(getContext(),ImageShader::Filter::MEDIUM_BLUR){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(10.0f);
-	mesh.transform(MakeRotationY((float)(0.25f*M_PI))*MakeRotationX((float)(0.25f*M_PI)));
+	mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 	camera.setNearFarPlanes(0.01f,10.0f);
+	camera.setDistanceToObject(0.75f);
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 	voxelSize=mesh.estimateVoxelSize(2);
 
@@ -42,6 +43,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	wireframeFrameBuffer.initialize(480,480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
+
 	camera.setDirty(true);
 	return true;
 }
@@ -53,23 +55,24 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
+	float2 dRange=camera.computeNormalizedDepthRange(mesh);
 	depthColorShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2( 0.0f,0.0f),float2(480,480));
 	normalColorShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, 480.0f),float2(480,480));
-	depthColorShader.draw(depthFrameBuffer.getTexture(),camera.computeNormalizedDepthRange(mesh), float2(960.0f, 0.0f),float2(480,480));
+	depthColorShader.draw(depthFrameBuffer.getTexture(),dRange, float2(960.0f, 0.0f),float2(480,480));
 	normalColorShader.draw(depthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480));
-	float2 dRange=camera.computeNormalizedDepthRange(mesh);
+
 	if(camera.isDirty()){
 		outlineFrameBuffer.begin();
 		outlineShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f,0.0f),float2(480,480),outlineFrameBuffer.getViewport());
 		outlineFrameBuffer.end();
+
 		wireframeFrameBuffer.begin();
 		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(),float2( 480.0f,0.0f),float2(480,480));
 	imageShader.draw(wireframeFrameBuffer.getTexture(),float2( 480.0f,480.0f),float2(480,480));
-	imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
-
-
+	ambientOcclusionShader.draw(depthFrameBuffer.getTexture(),float2(1440.0f, 0.0f),float2(480,480),camera);
+	//imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 	camera.setDirty(false);
 }
