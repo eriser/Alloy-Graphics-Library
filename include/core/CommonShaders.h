@@ -82,13 +82,13 @@ public:
 class DepthAndNormalShader: public GLShader {
 public:
 	DepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer);
+	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer,bool flatShading=false);
 };
 
 class EdgeDepthAndNormalShader: public GLShader {
 public:
 	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer);
+	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer,bool flatShading=false);
 };
 class WireframeShader: public GLShader {
 private:
@@ -108,7 +108,7 @@ public:
 };
 class AmbientOcclusionShader: public GLShader {
 private:
-	float sampleRadius=0.01f;
+	float sampleRadius=0.005f;
 	std::vector<float3> sampleNormals;
 public:
 	AmbientOcclusionShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());

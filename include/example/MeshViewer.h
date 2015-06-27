@@ -33,8 +33,9 @@ private:
 	aly::EdgeEffectsShader effectsShader;
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
-	aly::DepthColorShader depthColorShader;
 	aly::AmbientOcclusionShader ambientOcclusionShader;
+	aly::DepthColorShader depthColorShader;
+
 	aly::NormalColorShader normalColorShader;
 	aly::OutlineShader outlineShader;
 	aly::WireframeShader wireframeShader;
@@ -43,7 +44,8 @@ private:
 
 
 	aly::GLFrameBuffer occlusionFrameBuffer;
-	aly::GLFrameBuffer depthFrameBuffer;
+	aly::GLFrameBuffer flatDepthFrameBuffer;
+	aly::GLFrameBuffer smoothDepthFrameBuffer;
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;
 	aly::GLTextureRGBA exampleImage;

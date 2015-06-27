@@ -81,10 +81,6 @@ public:
 	}
 	void setSpeed(float zoomSpeed, float strafeSpeed, float tumblingSpeed);
 	void lookAt(const float3& p, float dist);
-	void setDistanceToObject(float distance) {
-		distanceToObject = distance;
-		changed = true;
-	}
 	void lookAt(const float3& p) {
 		lookAtPoint = p;
 		changed = true;

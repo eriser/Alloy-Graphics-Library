@@ -107,6 +107,14 @@ void GLMesh::draw(const PrimitiveType& type) const {
 					glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer[n]);
 					glVertexAttribPointer(3 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 				}
+
+			}
+			for (int n = 0; n < 4; n++) {
+				if (quadNormalBuffer[n] > 0) {
+					glEnableVertexAttribArray(7 + n);
+					glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer[n]);
+					glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
+				}
 			}
 			//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIndexBuffer);
 			//	glDrawElements(GL_TRIANGLES, quadIndexCount, GL_UNSIGNED_INT, NULL);
@@ -122,6 +130,13 @@ void GLMesh::draw(const PrimitiveType& type) const {
 				glEnableVertexAttribArray(3 + n);
 				glBindBuffer(GL_ARRAY_BUFFER, triVertexBuffer[n]);
 				glVertexAttribPointer(3 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			}
+		}
+		for (int n = 0; n < 3; n++) {
+			if (triNormalBuffer[n] > 0) {
+				glEnableVertexAttribArray(7 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, triNormalBuffer[n]);
+				glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			}
 		}
 		if (triIndexCount > 0) {
@@ -147,6 +162,10 @@ GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		quadVertexBuffer[n] = 0;
 	for (int n = 0; n < 3; n++)
 		triVertexBuffer[n] = 0;
+	for (int n = 0; n < 4; n++)
+		quadNormalBuffer[n] = 0;
+	for (int n = 0; n < 3; n++)
+		triNormalBuffer[n] = 0;
 }
 GLMesh::~GLMesh() {
 	context->begin();
@@ -167,6 +186,14 @@ GLMesh::~GLMesh() {
 	for (int n = 0; n < 3; n++)
 		if (glIsBuffer(triVertexBuffer[n]) == GL_TRUE)
 			glDeleteBuffers(1, &triVertexBuffer[n]);
+
+	for (int n = 0; n < 4; n++)
+		if (glIsBuffer(quadNormalBuffer[n]) == GL_TRUE)
+			glDeleteBuffers(1, &quadNormalBuffer[n]);
+	for (int n = 0; n < 3; n++)
+		if (glIsBuffer(triNormalBuffer[n]) == GL_TRUE)
+			glDeleteBuffers(1, &triNormalBuffer[n]);
+
 	if (vao != 0)
 		glDeleteVertexArrays(1, &vao);
 	context->end();
@@ -335,6 +362,58 @@ void GLMesh::update() {
 				GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		if(mesh.quadIndexes.size()>0){
+			int offset = 0;
+			std::vector<float3> quads[4];
+			for (int n = 0; n < 4; n++) {
+				quads[n].resize(mesh.quadIndexes.size());
+				if (glIsBuffer(quadNormalBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &quadNormalBuffer[n]);
+				glGenBuffers(1, &quadNormalBuffer[n]);
+			}
+			for (uint4 face : mesh.quadIndexes.data) {
+				for (int n = 0; n < 4; n++) {
+					quads[n][offset] = mesh.vertexNormals[face[n]];
+				}
+				offset++;
+			}
+			for (int n = 0; n < 4; n++) {
+				if (glIsBuffer(quadNormalBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &quadNormalBuffer[n]);
+				glGenBuffers(1, &quadNormalBuffer[n]);
+				glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer[n]);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * quads[n].size(),
+						quads[n].data(), GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+			CHECK_GL_ERROR();
+		}
+		if(mesh.triIndexes.size()>0){
+			int offset = 0;
+			std::vector<float3> tris[3];
+			for (int n = 0; n < 3; n++) {
+				tris[n].resize(mesh.triIndexes.size());
+				if (glIsBuffer(triNormalBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &triNormalBuffer[n]);
+				glGenBuffers(1, &triNormalBuffer[n]);
+			}
+			for (uint3 face : mesh.triIndexes.data) {
+				for (int n = 0; n < 3; n++) {
+					tris[n][offset] = mesh.vertexNormals[face[n]];
+				}
+				offset++;
+			}
+			for (int n = 0; n < 3; n++) {
+				if (glIsBuffer(triNormalBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &triNormalBuffer[n]);
+				glGenBuffers(1, &triNormalBuffer[n]);
+				glBindBuffer(GL_ARRAY_BUFFER, triNormalBuffer[n]);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * tris[n].size(),
+						tris[n].data(), GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+		}
 	}
 
 	context->end();
@@ -527,7 +606,7 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		float3 v1 = vertexLocations[verts.x];
 		float3 v2 = vertexLocations[verts.y];
 		float3 v3 = vertexLocations[verts.z];
-		float3 norm = cross((v2 - v1), (v3 - v1));
+		float3 norm = -cross((v2 - v1), (v3 - v1));
 		vertexNormals[verts.x] += norm;
 		vertexNormals[verts.y] += norm;
 		vertexNormals[verts.z] += norm;
@@ -539,10 +618,10 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		float3 v2 = vertexLocations[verts.y];
 		float3 v3 = vertexLocations[verts.z];
 		float3 v4 = vertexLocations[verts.w];
-		float3 norm = cross((v1 - pt), (v2 - pt));
-		norm += cross((v2 - pt), (v3 - pt));
-		norm += cross((v3 - pt), (v4 - pt));
-		norm += cross((v4 - pt), (v1 - pt));
+		float3 norm = -cross((v1 - pt), (v2 - pt));
+		norm += -cross((v2 - pt), (v3 - pt));
+		norm += -cross((v3 - pt), (v4 - pt));
+		norm += -cross((v4 - pt), (v1 - pt));
 		vertexNormals[verts.x] += norm;
 		vertexNormals[verts.y] += norm;
 		vertexNormals[verts.z] += norm;

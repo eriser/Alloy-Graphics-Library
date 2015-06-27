@@ -72,14 +72,13 @@ layout(location = 1) in vec2 vt;
 		out vec2 uv;
 				 void main() {
 		if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
-				 vec2 pos=vp.xy*bounds.zw+bounds.xy;
-				 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+		vec2 pos=vp.xy*bounds.zw+bounds.xy;
+	    gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			})",
 			R"(
-				 #version 330
-		in vec2 uv;
+		 #version 330
+		 in vec2 uv;
 		 uniform sampler2D textureImage;
-
 		 void main() {
 		 vec4 rgba=texture2D(textureImage,uv);
 		 gl_FragColor=rgba;
@@ -348,23 +347,37 @@ DepthAndNormalShader::DepthAndNormalShader(
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vn" },
 			R"(	#version 330
-				//layout(location = 0) in vec3 vp;
 				layout(location = 1) in vec3 vn;
+
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
+
+				layout(location = 7) in vec3 vn0;
+				layout(location = 8) in vec3 vn1;
+				layout(location = 9) in vec3 vn2;
+				layout(location = 10) in vec3 vn3;
+	
 				out VS_OUT {
 					vec3 p0;
 					vec3 p1;
 					vec3 p2;
 					vec3 p3;
+					vec3 n0;
+					vec3 n1;
+					vec3 n2;
+					vec3 n3;
 				} vs_out;
 				void main(void) {
 					vs_out.p0=vp0;
 					vs_out.p1=vp1;
 					vs_out.p2=vp2;
 					vs_out.p3=vp3;
+					vs_out.n0=vn0;
+					vs_out.n1=vn1;
+					vs_out.n2=vn2;
+					vs_out.n3=vn3;
 				})",
 			R"(	#version 330
 					in vec3 normal;
@@ -384,10 +397,15 @@ DepthAndNormalShader::DepthAndNormalShader(
 						vec3 p1;
 						vec3 p2;
 						vec3 p3;
+						vec3 n0;
+						vec3 n1;
+						vec3 n2;
+						vec3 n3;
 					} quad[];
 					out vec3 v0, v1, v2, v3;
 					out vec3 normal, vert;
 					uniform int IS_QUAD;
+                    uniform int IS_FLAT;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
 					void main() {
 					  mat4 PVM=ProjMat*ViewModelMat;
@@ -407,32 +425,56 @@ DepthAndNormalShader::DepthAndNormalShader(
 if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
+if(IS_FLAT!=0){
 					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
+} else {
+						normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+}
 					  EmitVertex();
 } else {	  
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
+if(IS_FLAT!=0){
 					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+} else {
+						normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+}
 					  EmitVertex();
 }
 					  gl_Position=PVM*vec4(p1,1);  
 					  vert = v1;
+if(IS_FLAT!=0){
 					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
+} else {
+						normal= (VM*vec4(quad[0].n1,0.0)).xyz;
+}
 					  EmitVertex();
 
 					if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p3,1);  
 					  vert = v3;
+if(IS_FLAT!=0){
 					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
+} else {
+						normal= (VM*vec4(quad[0].n3,0.0)).xyz;
+}
 					  EmitVertex();
 			          gl_Position=PVM*vec4(p2,1);  
 					  vert = v2;
+if(IS_FLAT!=0){
 					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
+} else {
+						normal= (VM*vec4(quad[0].n2,0.0)).xyz;
+}
 					  EmitVertex();
-					} else {
+} else {
 			          gl_Position=PVM*vec4(p2,1);  
+if(IS_FLAT!=0){
 					  vert = v2;
 					  normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
+} else {
+						normal= (VM*vec4(quad[0].n2,0.0)).xyz;
+}
 					  EmitVertex();
 					}
 
@@ -443,17 +485,17 @@ if(IS_QUAD!=0){
 					 })");
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& frameBuffer) {
+		GLFrameBuffer& frameBuffer,bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glDisable(GL_BLEND);
 	if (mesh.quadIndexes.size() > 0) {
-		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set("IS_FLAT",flatShading?1:0).set(
 				"MAX_DEPTH", camera.getFarPlane()).set(camera,
 				frameBuffer.getViewport()).draw(mesh,
 				GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set("IS_FLAT",flatShading?1:0).set(
 			"MAX_DEPTH", camera.getFarPlane()).set(camera,
 			frameBuffer.getViewport()).draw(mesh,
 			GLMesh::PrimitiveType::TRIANGLES).end();
@@ -780,7 +822,7 @@ void main() {
 vec4 rgba=texture2D(textureImage,uv);
 if(rgba.w>0){
 float lum=clamp(abs(rgba.w),0.0f,1.0f);
-rgba=vec4(rgba.x*0.5+0.5,rgba.y*0.5+0.5,rgba.z,1.0);
+rgba=vec4(-rgba.x*0.5+0.5,-rgba.y*0.5+0.5,-rgba.z,1.0);
 
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
@@ -848,12 +890,12 @@ void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 AmbientOcclusionShader::AmbientOcclusionShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
 	int thetaInc=32;
-	int phiInc=4;
+	int phiInc=8;
 	int index=0;
-	for(int j=0;j<phiInc;j++){
+	for(int j=1;j<phiInc;j++){
 		for(int i=0;i<thetaInc;i++){
-			float sp=sin(0.5f*ALY_PI*(j+0.5)/(float)phiInc);
-			float cp=cos(0.5f*ALY_PI*(j+0.5)/(float)phiInc);
+			float sp=sin(0.5f*ALY_PI*(j)/(float)phiInc);
+			float cp=cos(0.5f*ALY_PI*(j)/(float)phiInc);
 			float3 v=float3(cos(2*ALY_PI*i/(float)thetaInc)*cp,sin(2*ALY_PI*i/(float)thetaInc)*cp,-sp);
 			sampleNormals.push_back(v);
 		}
@@ -888,23 +930,24 @@ float random2(vec2 uv,float seed){
   return random(vec2(random(uv,1.0-seed),random(uv,seed)),seed);
 }
 float toZ(float ndc){
-	return -ndc * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH;
+	return -(ndc * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH);
 }
 vec4 toWorld(vec2 uv,vec4 rgba){
 	float z=toZ(rgba.w);
 	return vec4(z*(2.0*uv.x-1)/focalLength.x,z*(2.0*uv.y-1)/focalLength.y, z, 1.0);	
 }
 vec2 toCamera(vec4 pt){
-	float z = pt.w;
-	return vec2((0.5*pt.x+0.5)*focalLength.x/z,(0.5*pt.y+0.5)*focalLength.y/z);	
+	float z = pt.z;
+	return vec2(0.5*pt.x*focalLength.x/z+0.5,0.5*pt.y*focalLength.y/z+0.5);	
 }
 #define KERNEL_SIZE )"<<sampleNormals.size()<<R"(
-#define CAP_MIN_DISTANCE 0.00001
-#define CAP_MAX_DISTANCE 0.005
 
 uniform vec3 u_kernel[KERNEL_SIZE];
 void main(void)
 {
+   const float CAP_MIN_DISTANCE=0.001f;
+   const float CAP_MAX_DISTANCE=0.005f;
+
 	// Calculate out of the current fragment in screen space the view space position.
 	float x = v_texCoord.x;
 	float y = v_texCoord.y;
@@ -914,9 +957,9 @@ void main(void)
         return; 
     }
 	vec4 posProj = toWorld(v_texCoord,rgba);	
-	vec3 normalView = 2*rgba.xyz-1.0;
-	vec3 randomVector = normalize(vec3(2*random2(v_texCoord,0.1367)-1,2*random2(v_texCoord,0.4632)-1,random2(v_texCoord,0.1928)));
-	vec3 tangentView = normalize(randomVector - dot(randomVector, normalView) * normalView);
+	vec3 normalView = rgba.xyz;
+	vec3 randomVector = normalize(vec3(2*random2(v_texCoord,0.1367)-1,2*random2(v_texCoord,0.4632)-1,2*random2(v_texCoord,0.4632)-1));
+	vec3 tangentView =normalize(randomVector - dot(randomVector, normalView) * normalView);
 	
 	vec3 bitangentView = cross(normalView, tangentView);
 	mat3 kernelMatrix = mat3(tangentView, bitangentView, normalView); 
@@ -927,7 +970,7 @@ void main(void)
 		vec4 samplePointNDC = posProj + u_radius * vec4(sampleVectorView, 0.0);
 		vec2 samplePointTexCoord = toCamera(samplePointNDC);   
 		float zSceneNDC = toZ(texture(textureImage, samplePointTexCoord).w);
-		float delta = samplePointNDC.z - zSceneNDC;
+		float delta = zSceneNDC-samplePointNDC.z;
 		if (delta > CAP_MIN_DISTANCE && delta < CAP_MAX_DISTANCE){
 			occlusion += 1.0;
 		}
@@ -1004,16 +1047,16 @@ void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 	draw(imageTexture, zRange, box2px(location, dimensions), viewport);
 }
 void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& frameBuffer) {
+		GLFrameBuffer& frameBuffer,bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	if (mesh.quadIndexes.size() > 0) {
-		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1), set(
+		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set("IS_FLAT",flatShading?1:0).set(
 				"MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
 				mesh, GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0), set(
+	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0).set("IS_FLAT",flatShading?1:0).set(
 			"SCALE", camera.getScale()), set("MIN_DEPTH", camera.getNearPlane()).set(
 			"MAX_DEPTH", camera.getFarPlane()).set(camera,
 			frameBuffer.getViewport()).draw(mesh,
