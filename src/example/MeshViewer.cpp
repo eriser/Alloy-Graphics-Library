@@ -23,12 +23,12 @@
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
 MeshViewer::MeshViewer():Application(1920, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png"))
-,imageShader(getContext(),ImageShader::Filter::FXAA){
+,imageShader(getContext(),ImageShader::Filter::MEDIUM_BLUR){
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/armadillo.ply"));
+	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(10.0f);
-	//mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
+	mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 
@@ -74,7 +74,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		outlineFrameBuffer.end();
 
 		wireframeFrameBuffer.begin();
-		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
+		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,0.25*camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
 
 

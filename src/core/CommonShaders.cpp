@@ -345,10 +345,8 @@ void main()
 DepthAndNormalShader::DepthAndNormalShader(
 		std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vn" },
+	initialize(std::vector<std::string> { },
 			R"(	#version 330
-				layout(location = 1) in vec3 vn;
-
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
 				layout(location = 5) in vec3 vp2;
@@ -423,84 +421,84 @@ DepthAndNormalShader::DepthAndNormalShader(
 					  
 					  
 if(IS_QUAD!=0){
-					  gl_Position=PVM*vec4(p0,1);  
-					  vert = v0;
-if(IS_FLAT!=0){
-					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
+	gl_Position=PVM*vec4(p0,1);  
+	vert = v0;
+	if(IS_FLAT!=0){
+        vec3 pt=0.25*(p0+p1+p2+p3);
+        normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
+		normal = (VM*vec4(normalize(-normal),0.0)).xyz;
+	} else {
+		normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+	}
+	EmitVertex();
 } else {
-						normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+	gl_Position=PVM*vec4(p0,1);  
+	vert = v0;
+	if(IS_FLAT!=0){
+		normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+	} else {
+		normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+	}
+	EmitVertex();
 }
-					  EmitVertex();
-} else {	  
-					  gl_Position=PVM*vec4(p0,1);  
-					  vert = v0;
-if(IS_FLAT!=0){
-					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
-} else {
-						normal= (VM*vec4(quad[0].n0,0.0)).xyz;
-}
-					  EmitVertex();
-}
-					  gl_Position=PVM*vec4(p1,1);  
-					  vert = v1;
-if(IS_FLAT!=0){
-					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
-} else {
-						normal= (VM*vec4(quad[0].n1,0.0)).xyz;
-}
-					  EmitVertex();
-
-					if(IS_QUAD!=0){
-					  gl_Position=PVM*vec4(p3,1);  
-					  vert = v3;
-if(IS_FLAT!=0){
-					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
-} else {
-						normal= (VM*vec4(quad[0].n3,0.0)).xyz;
-}
-					  EmitVertex();
-			          gl_Position=PVM*vec4(p2,1);  
-					  vert = v2;
-if(IS_FLAT!=0){
-					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
-} else {
-						normal= (VM*vec4(quad[0].n2,0.0)).xyz;
-}
-					  EmitVertex();
-} else {
-			          gl_Position=PVM*vec4(p2,1);  
-if(IS_FLAT!=0){
-					  vert = v2;
-					  normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
-} else {
-						normal= (VM*vec4(quad[0].n2,0.0)).xyz;
-}
-					  EmitVertex();
-					}
-
-
-
-					  EndPrimitive();
-
-					 })");
+	gl_Position=PVM*vec4(p1,1);  
+	vert = v1;
+	if(IS_FLAT!=0){
+		//normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
+	} else {
+		normal= (VM*vec4(quad[0].n1,0.0)).xyz;
+	}
+	EmitVertex();
+	if(IS_QUAD!=0){
+		gl_Position=PVM*vec4(p3,1);  
+		vert = v3;
+		if(IS_FLAT!=0){
+			//normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
+		} else {
+			normal= (VM*vec4(quad[0].n3,0.0)).xyz;
+		}
+		EmitVertex();
+		gl_Position=PVM*vec4(p2,1);  
+		vert = v2;
+		if(IS_FLAT!=0){
+			//normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
+		} else {
+			normal= (VM*vec4(quad[0].n2,0.0)).xyz;
+		}
+		EmitVertex();
+		EndPrimitive();
+	} else {
+		gl_Position=PVM*vec4(p2,1);  
+		if(IS_FLAT!=0){
+			vert = v2;
+			//normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
+		} else {
+			normal= (VM*vec4(quad[0].n2,0.0)).xyz;
+		}
+		EmitVertex();
+		EndPrimitive();
+	}
+})");
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer,bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	glDisable(GL_BLEND);
 	if (mesh.quadIndexes.size() > 0) {
-		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set("IS_FLAT",flatShading?1:0).set(
-				"MAX_DEPTH", camera.getFarPlane()).set(camera,
-				frameBuffer.getViewport()).draw(mesh,
-				GLMesh::PrimitiveType::QUADS).end();
+		begin()
+				.set("MIN_DEPTH", camera.getNearPlane())
+				.set("IS_QUAD", 1)
+				.set("IS_FLAT",flatShading?1:0)
+				.set("MAX_DEPTH", camera.getFarPlane())
+				.set(camera,frameBuffer.getViewport())
+				.draw(mesh,GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set("IS_FLAT",flatShading?1:0).set(
-			"MAX_DEPTH", camera.getFarPlane()).set(camera,
-			frameBuffer.getViewport()).draw(mesh,
-			GLMesh::PrimitiveType::TRIANGLES).end();
-
-	glEnable(GL_BLEND);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+			.set("IS_QUAD", 0)
+			.set("IS_FLAT",flatShading?1:0)
+			.set("MAX_DEPTH", camera.getFarPlane())
+			.set(camera,frameBuffer.getViewport())
+			.draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
