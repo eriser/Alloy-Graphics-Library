@@ -88,6 +88,25 @@ public:
 class EdgeDepthAndNormalShader: public GLShader {
 public:
 	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer);
+};
+struct PhongLight{
+	Color ambientColor;
+	Color diffuseColor;
+	Color specularColor;
+	float specularPower;
+	bool castShadow=false;
+	bool attenuate=false;
+	bool orhtographic=false;
+	float2 fov;
+	int2 dimensions;
+};
+class PhongShader: public GLShader {
+public:
+	PhongShader(const std::vector<PhongLight>& lights,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	PhongShader(const PhongLight light,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext()):PhongShader(std::vector<PhongLight>{light},context){
+
+	}
 	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer,bool flatShading=false);
 };
 class WireframeShader: public GLShader {

@@ -505,14 +505,13 @@ void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
 		std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vn" },
+	initialize(std::vector<std::string> { },
 			R"(	#version 330
-				//layout(location = 0) in vec3 vp;
-				layout(location = 1) in vec3 vn;
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
+
 				out VS_OUT {
 					vec3 p0;
 					vec3 p1;
@@ -528,9 +527,8 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
 			R"(	#version 330
 				in vec3 v0, v1, v2, v3;
 				in vec3 normal, vert;
-				uniform float MIN_DEPTH;uniform float MAX_DEPTH;uniform float DISTANCE_TOL;
+				uniform float DISTANCE_TOL;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
-				uniform float SCALE;
 				uniform int IS_QUAD;
 				
 				vec3 slerp(vec3 p0, vec3 p1, float t){
@@ -630,7 +628,9 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
 if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
-					  normal = (VM*vec4(normalize(cross( p3-p0, p1-p0)),0.0)).xyz;
+					  vec3 pt=0.25*(p0+p1+p2+p3);
+					  normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
+
 					  EmitVertex();
 } else {	  
 					  gl_Position=PVM*vec4(p0,1);  
@@ -640,29 +640,42 @@ if(IS_QUAD!=0){
 }
 					  gl_Position=PVM*vec4(p1,1);  
 					  vert = v1;
-					  normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
 					  EmitVertex();
 
 					if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p3,1);  
 					  vert = v3;
-					  normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
 					  EmitVertex();
 					  gl_Position=PVM*vec4(p2,1);  
 					   vert = v2;
-					  normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
 					  EmitVertex();
 
 					} else {
 			          gl_Position=PVM*vec4(p2,1);  
 					  vert = v2;
-					  normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
 					  EmitVertex();
 					}
 					EndPrimitive();
 	
-
 					 })");
+}
+void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
+		GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	if (mesh.quadIndexes.size() > 0) {
+		begin() .set("DISTANCE_TOL", camera.getScale())
+				.set("IS_QUAD", 1)
+				.set(camera, frameBuffer.getViewport())
+				.draw(mesh, GLMesh::PrimitiveType::QUADS).end();
+	}
+	begin().set("DISTANCE_TOL", camera.getScale())
+			.set("IS_QUAD", 0)
+			.set(camera,frameBuffer.getViewport())
+			.draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
 }
 EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
@@ -695,9 +708,9 @@ for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       
       nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
-if(nrgba.w<=0.0){
-      minDistance=min(minDistance,i*i+j*j);
-}
+	  if(nrgba.w<=0.0){
+		  minDistance=min(minDistance,i*i+j*j);
+	  }
 	}
 }
 rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
@@ -706,10 +719,10 @@ float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
-if(nrgba.w>0.0){
-      minDistance=min(minDistance,i*i+j*j);
-}
-	}
+	  if(nrgba.w>0.0){
+        minDistance=min(minDistance,i*i+j*j);
+	  }
+   }
 }
 rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
 }
@@ -750,7 +763,7 @@ uniform ivec2 imageSize;
 uniform int KERNEL_SIZE;
 uniform sampler2D textureImage;
 uniform vec4 innerColor,outerColor,edgeColor;
-float w;
+float w=0;
 void main() {
 vec4 rgba=texture2D(textureImage,uv);
 vec4 nrgba;
@@ -765,7 +778,7 @@ if(nrgba.w<=0.0){
 	}
 }
 w=sqrt(minDistance)/KERNEL_SIZE;
-if(w>0.99999)discard;
+//if(w>0.99999)discard;
 rgba=mix(edgeColor,innerColor,w);
 } else {
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
@@ -778,7 +791,7 @@ if(nrgba.w>0.0){
 	}
 }
 w=sqrt(minDistance)/KERNEL_SIZE;
-if(w>0.99999)discard;
+//if(w>0.99999)discard;
 rgba=mix(edgeColor,outerColor,w);
 }
 gl_FragColor=rgba;
@@ -1044,25 +1057,7 @@ void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 		const box2px& viewport) {
 	draw(imageTexture, zRange, box2px(location, dimensions), viewport);
 }
-void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& frameBuffer,bool flatShading) {
-	frameBuffer.begin();
-	glDisable(GL_BLEND);
-	if (mesh.quadIndexes.size() > 0) {
-		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set("IS_FLAT",flatShading?1:0).set(
-				"MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
-				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
-				mesh, GLMesh::PrimitiveType::QUADS).end();
-	}
-	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0).set("IS_FLAT",flatShading?1:0).set(
-			"SCALE", camera.getScale()), set("MIN_DEPTH", camera.getNearPlane()).set(
-			"MAX_DEPTH", camera.getFarPlane()).set(camera,
-			frameBuffer.getViewport()).draw(mesh,
-			GLMesh::PrimitiveType::TRIANGLES).end();
 
-	glEnable(GL_BLEND);
-	frameBuffer.end();
-}
 
 }
 
