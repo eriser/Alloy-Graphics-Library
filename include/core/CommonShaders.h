@@ -157,6 +157,15 @@ public:
 		}
 		return lights[i];
 	}
+	const SimpleLight & operator [](int i) const {
+		return lights[i];
+	}
+	SimpleLight & operator [](int i) {
+		return lights[i];
+	}
+	inline int size() const {
+		return lights.size();
+	}
 	PhongShader(int numLights,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
 	PhongShader(const SimpleLight& light,std::shared_ptr<AlloyContext> context=AlloyDefaultContext()):PhongShader(1,context){
 		lights[0]=light;

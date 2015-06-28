@@ -37,7 +37,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 
 	voxelSize=mesh.estimateVoxelSize(2);
-    phongShader.getLight(0)=SimpleLight(
+    phongShader[0]=SimpleLight(
 			Color(0.5f,0.5f,0.5f,0.25f),
 			Color(1.0f,1.0f,1.0f,0.25f),
 			Color(0.8f,0.0f,0.0f,1.0f),
@@ -45,7 +45,7 @@ bool MeshViewer::init(Composite& rootNode) {
 			16.0f,
 			float3(0,0.0,2.0),
 			float3(0,1,0));
-    phongShader.getLight(0).moveWithCamera=false;
+    phongShader[0].moveWithCamera=false;
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	edgeFrameBuffer.initialize(480,480);
 	smoothDepthFrameBuffer.initialize(480,480);
