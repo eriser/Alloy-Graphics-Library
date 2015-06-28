@@ -208,6 +208,11 @@ public:
 		glUniform1uiv(getUniformLocation(variable),value.size(),value.data());
 		return *this;
 	}
+	inline GLShader& set(const std::string& variable, const std::vector<Color>& value) {
+		enableCheck();
+		glUniform4fv(getUniformLocation(variable),value.size(),(const float*)value.data());
+		return *this;
+	}
 	inline GLShader& set(const std::string& variable, int3 value) {
 		enableCheck();
 		glUniform3i(getUniformLocation(variable),
@@ -271,11 +276,11 @@ public:
 	inline GLShader& set(VirtualCamera& camera, const box2px& bounds) {
 		enableCheck();
 		camera.aim(bounds);
-		set("ProjMat", camera.mProjection);
-		set("ViewMat", camera.mView);
-		set("ModelMat", camera.mModel);
-		set("ViewModelMat", camera.mViewModel);
-		set("NormalMat", camera.mNormal);
+		set("ProjMat", camera.Projection);
+		set("ViewMat", camera.View);
+		set("ModelMat", camera.Model);
+		set("ViewModelMat", camera.ViewModel);
+		set("NormalMat", camera.NormalViewModel);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2f& value) {

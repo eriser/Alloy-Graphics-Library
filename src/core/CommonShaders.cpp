@@ -1009,7 +1009,127 @@ void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
 		const float2& location, const float2& dimensions,const box2px viewport,VirtualCamera& camera) {
 	draw(imageTexture, box2px(location, dimensions),viewport,camera);
 }
+PhongShader::PhongShader(int N,std::shared_ptr<AlloyContext> context):GLShader(context){
+	lights.resize(N);
+	initialize(std::vector<std::string> { "vp", "vt" },
+			R"(
+#version 330
+layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
+uniform vec4 bounds;
+uniform vec4 viewport;
+out vec2 uv;
+void main() {
+uv=vt;
+vec2 pos=vp.xy*bounds.zw+bounds.xy;
+gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+})",
+MakeString()<<R"(
+#version 330
+in vec2 uv;
+const float PI=3.1415926535;
+uniform sampler2D textureImage;
+uniform vec2 focalLength;
+uniform float MIN_DEPTH;
+uniform float MAX_DEPTH;
+const int MAX_LIGHTS=)"<<N<<R"(;
+uniform vec3 lightPositions[)"<<N<<R"(];
+uniform vec3 lightDirections[)"<<N<<R"(];
+uniform vec4 ambientColors[)"<<N<<R"(];
+uniform vec4 lambertianColors[)"<<N<<R"(];
+uniform vec4 diffuseColors[)"<<N<<R"(];
+uniform vec4 specularColors[)"<<N<<R"(];
+uniform float specularWeights[)"<<N<<R"(];
+float toZ(float ndc){
+	return -(ndc * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH);
+}
+vec4 toWorld(vec2 uv,vec4 rgba){
+	float z=toZ(rgba.w);
+	return vec4(z*(2.0*uv.x-1)/focalLength.x,z*(2.0*uv.y-1)/focalLength.y, z, 1.0);	
+}
+void main() {
+    vec4 rgba=texture2D(textureImage,uv);
+    if(rgba.w<=0.0)discard;
+	vec4 pt=toWorld(uv,rgba);
+	vec3 norm=rgba.xyz;
+	vec4 outColor=vec4(0,0,0,0);
+    float lsum=0.0;
+	for(int i=0;i<MAX_LIGHTS;i++){
+	  vec4 ambientColor=ambientColors[i];
+	  vec4 diffuseColor=diffuseColors[i];
+      vec4 lambertianColor=lambertianColors[i];
+	  vec4 specularColor=specularColors[i];
+	  float wsum=ambientColor.w+diffuseColor.w+specularColor.w+lambertianColor.w;
+      lsum+=wsum;
+	  if(wsum<=0.0f)continue;
+      vec3 specularDir = normalize(lightPositions[i] - pt.xyz);
+	  vec3 viewDir = -normalize(pt.xyz);
+	  vec3 reflectDir = reflect(-specularDir, norm);
+	  float diffuse = max(dot(lightDirections[i],norm), 0.0);
+      float lambert= max(dot(-specularDir,norm), 0.0);
+	  float specular=0.0;
+      if( specularWeights[i]>0.0&&specularColor.w>0.0){
+	    specular = pow(max(dot(reflectDir, viewDir), 0.0), specularWeights[i]);
+      }
+	  outColor+=(   ambientColor.w*ambientColor
+                  + diffuseColor.w*diffuse*diffuseColor
+                  + lambertianColor.w* lambert * lambertianColor 
+                  + specularColor.w* specular * specularColor);
+	}
+    outColor=outColor/lsum;
+    outColor.w=1.0;
+	gl_FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
+})");
 
+}
+
+void PhongShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,VirtualCamera& camera,const box2px& viewport){
+	begin();
+	 set("textureImage", imageTexture, 0).
+	 set("MIN_DEPTH",camera.getNearPlane()).
+	 set("MAX_DEPTH", camera.getFarPlane()).
+	 set("focalLength",camera.getFocalLength()).
+	 set("bounds", bounds).
+	 set("viewport", context->getViewport());
+
+	std::vector<Color> ambientColors;
+	std::vector<Color> diffuseColors;
+	std::vector<Color> lambertianColors;
+	std::vector<Color> specularColors;
+
+	std::vector<float> specularWeights;
+	std::vector<float3> lightDirections;
+	std::vector<float3> lightPositions;
+
+	for(SimpleLight& light:lights){
+		ambientColors.push_back(light.ambientColor);
+		diffuseColors.push_back(light.diffuseColor);
+		specularColors.push_back(light.specularColor);
+		lambertianColors.push_back(light.lambertianColor);
+        specularWeights.push_back(light.specularPower);
+        if(light.moveWithCamera){
+        	float3 pt=(camera.View*light.position.xyzw()).xyz();
+            lightPositions.push_back(pt);
+            float3 norm=normalize((camera.NormalView*float4(light.direction,0)).xyz());
+            lightDirections.push_back(norm);
+        } else {
+			lightPositions.push_back(light.position);
+			lightDirections.push_back(light.direction);
+        }
+	}
+	set("ambientColors",ambientColors).
+	set("diffuseColors",diffuseColors).
+	set("lambertianColors",lambertianColors).
+	set("specularColors",specularColors).
+	set("specularWeights",specularWeights).
+	set("lightPositions",lightPositions).
+	set("lightDirections",lightDirections).
+	draw(imageTexture).end();
+}
+void PhongShader::draw(const GLTextureRGBAf& imageTexture,const float2& location,const float2& dimensions,VirtualCamera& camera,const box2px& viewport){
+	draw(imageTexture, box2px(location, dimensions),camera, viewport);
+
+}
 WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },

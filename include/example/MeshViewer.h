@@ -39,7 +39,7 @@ private:
 	aly::NormalColorShader normalColorShader;
 	aly::OutlineShader outlineShader;
 	aly::WireframeShader wireframeShader;
-
+	aly::PhongShader phongShader;
 	aly::GLFrameBuffer edgeFrameBuffer;
 
 

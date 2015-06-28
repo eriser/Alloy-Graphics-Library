@@ -46,18 +46,18 @@ protected:
 	void handleScrollEvent(int pos);
 public:
 
-	float4x4 mProjection, mView, mModel;
-	float4x4 mViewModel, mNormal;
+	float4x4 Projection, View, Model;
+	float4x4 ViewModel, NormalViewModel,NormalView;
 	VirtualCamera();
 	void aim(const aly::box2px& bounds);
 	void setPose(const float4x4& m) {
-		mModel = m;
+		Model = m;
 	}
 	inline float2 getFocalLength() const {
-		return float2(mProjection(0,0),mProjection(1,1));
+		return float2(Projection(0,0),Projection(1,1));
 	}
 	float4x4& getPose() {
-		return mModel;
+		return Model;
 	}
 	bool isDirty(){
 		return needsDisplay||changed;
@@ -66,7 +66,7 @@ public:
 		needsDisplay=d;
 	}
 	float getScale() {
-		return mModel(0, 0) * distanceToObject;
+		return Model(0, 0) * distanceToObject;
 	}
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
@@ -92,7 +92,7 @@ public:
 		return float2(nearPlane,farPlane);
 	}
 	float getNormalizedDepth(const float4& pt){
-		float4 out=mViewModel*pt;
+		float4 out=ViewModel*pt;
 		return (-out.z-nearPlane)/(farPlane-nearPlane);
 	}
 	float2 computeNormalizedDepthRange(const Mesh& mesh);
@@ -101,7 +101,7 @@ public:
 	}
 	float3 transform(float3& pt) {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
-		float4 p = mProjection * mView * mModel * ptp;
+		float4 p = Projection * View * Model * ptp;
 		return float3(p[0] / p[3], p[1] / p[3], p[2] / p[3]);
 	}
 	void resetTranslation() {

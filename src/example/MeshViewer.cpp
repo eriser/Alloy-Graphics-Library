@@ -23,12 +23,12 @@
 #include "../../include/example/MeshViewer.h"
 using namespace aly;
 MeshViewer::MeshViewer():Application(1920, 960, "Mesh Viewer"),matcapShader(getFullPath("images/JG_Gold.png"))
-,imageShader(getContext(),ImageShader::Filter::MEDIUM_BLUR){
+,imageShader(getContext(),ImageShader::Filter::MEDIUM_BLUR),voxelSize(0.0f),phongShader(1){
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(10.0f);
-	mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
+	//mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 
@@ -37,7 +37,15 @@ bool MeshViewer::init(Composite& rootNode) {
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 
 	voxelSize=mesh.estimateVoxelSize(2);
-
+    phongShader.getLight(0)=SimpleLight(
+			Color(0.5f,0.5f,0.5f,0.25f),
+			Color(1.0f,1.0f,1.0f,0.25f),
+			Color(0.8f,0.0f,0.0f,1.0f),
+			Color(0.8f,0.0f,0.0f,1.0f),
+			16.0f,
+			float3(0,0.0,2.0),
+			float3(0,1,0));
+    phongShader.getLight(0).moveWithCamera=false;
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	edgeFrameBuffer.initialize(480,480);
 	smoothDepthFrameBuffer.initialize(480,480);
@@ -65,9 +73,10 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 
 	depthColorShader.draw(flatDepthFrameBuffer.getTexture(),dRange, float2(960.0f, 0.0f),float2(480,480));
 
-	normalColorShader.draw(flatDepthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480));
+	//normalColorShader.draw(flatDepthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480));
 	normalColorShader.draw(smoothDepthFrameBuffer.getTexture(),float2(1440.0f, 480.0f),float2(480,480));
 
+	phongShader.draw(smoothDepthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480),camera,getContext()->getViewport());
 	if(camera.isDirty()){
 		outlineFrameBuffer.begin();
 		outlineShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f,0.0f),float2(480,480),outlineFrameBuffer.getViewport());
@@ -76,7 +85,6 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		wireframeFrameBuffer.begin();
 		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,0.25*camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
-
 
 		occlusionFrameBuffer.begin();
 		ambientOcclusionShader.draw(flatDepthFrameBuffer.getTexture(),float2(0.0f, 0.0f),float2(480,480),occlusionFrameBuffer.getViewport(),camera);

@@ -14,8 +14,8 @@ VirtualCamera::VirtualCamera() :
 				0, 0, 0), nearPlane(0.1), farPlane(10000.0), eye(
 				float3(0.0, 0.0, -1.0)), tumblingSpeed(0.5), zoomSpeed(0.2), strafeSpeed(
 				0.001), distanceToObject(1.0), mouseDown(false), startTumbling(
-				false), zoomMode(false), changed(true), needsDisplay(true), mProjection(
-				float4x4::identity()), mView(float4x4::identity()), mModel(
+				false), zoomMode(false), changed(true), needsDisplay(true), Projection(
+				float4x4::identity()), View(float4x4::identity()), Model(
 				float4x4::identity()), mouseXPos(0), mouseYPos(0) {
 }
 
@@ -63,18 +63,19 @@ void VirtualCamera::aim(const box2px& bounds) {
 		Tcamera(1, 3) = cameraTrans[1];
 		Tcamera(2, 3) = cameraTrans[2];
 
-		mProjection = Tcamera
+		Projection = Tcamera
 				* perspectiveMatrix(fov, aspectRatio, nearPlane, farPlane);
-		mView = Teye * S * Rw * T * Rm;
-		mViewModel = mView * mModel;
-		mNormal = transpose(inverse(mViewModel));
+		View = Teye * S * Rw * T * Rm;
+		ViewModel = View * Model;
+		NormalViewModel = transpose(inverse(ViewModel));
+		NormalView = transpose(inverse(View));
 		needsDisplay = true;
 	}
 }
 float2 VirtualCamera::computeNormalizedDepthRange(const Mesh& mesh) {
 	box3f bbox = mesh.getBoundingBox();
 	float4 center = bbox.center().xyzw();
-	float4 origin = inverse(mViewModel) * float4(0, 0, 0, 1);
+	float4 origin = inverse(ViewModel) * float4(0, 0, 0, 1);
 	float3 ray = normalize(center.xyz() - origin.xyz() / origin.w);
 	float zMin = getNormalizedDepth(
 			center - 0.5f * bbox.dimensions.z * float4(ray, 0));

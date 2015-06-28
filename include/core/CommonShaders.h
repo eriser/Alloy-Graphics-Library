@@ -90,24 +90,79 @@ public:
 	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer);
 };
-struct PhongLight{
+struct SimpleLight{
 	Color ambientColor;
 	Color diffuseColor;
+	Color lambertianColor;
 	Color specularColor;
 	float specularPower;
 	bool castShadow=false;
 	bool attenuate=false;
-	bool orhtographic=false;
-	float2 fov;
-	int2 dimensions;
-};
-class PhongShader: public GLShader {
-public:
-	PhongShader(const std::vector<PhongLight>& lights,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
-	PhongShader(const PhongLight light,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext()):PhongShader(std::vector<PhongLight>{light},context){
+	bool orthographic=false;
+	bool moveWithCamera=false;
+	float2 focalLength;
+	float3 position;
+	float3 direction;
+	SimpleLight(
+			const Color& ambientColor,
+			const Color& diffuseColor,
+			const Color& lambertianColor,
+			const Color& specularColor,
+			const float& specularPower,
+			const float3& position,
+			const float3& direction,
+			const float2& focalLength=float2(0,0),
+			bool moveWithCamera=false,
+			bool castShadow=false,
+			bool orthographic=false,
+			bool attenuate=false):
+					ambientColor(ambientColor),
+					diffuseColor(diffuseColor),
+					lambertianColor(lambertianColor),
+					specularColor(specularColor),
+					specularPower(specularPower),
+					position(position),
+					direction(direction),
+					focalLength(focalLength),
+					moveWithCamera(moveWithCamera),
+					castShadow(castShadow),
+					orthographic(orthographic),
+					attenuate(attenuate)
+	{
 
 	}
-	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer,bool flatShading=false);
+	SimpleLight():
+				ambientColor(COLOR_NONE),
+				diffuseColor(COLOR_NONE),
+				lambertianColor(COLOR_NONE),
+				specularColor(COLOR_NONE),
+				specularPower(0.0f),
+				position(0.0f),
+				direction(0.0f),
+				focalLength(0.0f),
+				moveWithCamera(false),
+				castShadow(false),
+				orthographic(false),
+				attenuate(false){
+
+	}
+};
+class PhongShader: public GLShader {
+
+	std::vector<SimpleLight> lights;
+public:
+	inline SimpleLight& getLight(int i){
+		if(i>=lights.size()){
+			throw std::runtime_error("Light index out of range.");
+		}
+		return lights[i];
+	}
+	PhongShader(int numLights,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
+	PhongShader(const SimpleLight& light,std::shared_ptr<AlloyContext> context=AlloyDefaultContext()):PhongShader(1,context){
+		lights[0]=light;
+	}
+	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,VirtualCamera& camera,const box2px& viewport);
+	void draw(const GLTextureRGBAf& imageTexture, const float2& location,const float2& dimensions,VirtualCamera& camera,const box2px& viewport);
 };
 class WireframeShader: public GLShader {
 private:
