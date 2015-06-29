@@ -778,6 +778,7 @@ public:
 	Color DARK_TEXT = Color(64, 64, 64);
 	Color LIGHT_TEXT = Color(230, 230, 230);
 	float CORNER_RADIUS = 5.0f;
+	float2 SPACING=float2(4.0f,4.0f);
 	Theme() {
 	}
 	static const Theme Default;

@@ -191,7 +191,6 @@ public:
 };
 struct Composite: public Region {
 protected:
-	const pixel2 CELL_SPACING = pixel2(4, 2);
 	Orientation orientation = Orientation::Unspecified;
 	bool scrollEnabled = false;
 	bool roundCorners=false;

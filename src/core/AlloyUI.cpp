@@ -393,6 +393,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	}
 	pixel2 offset(0, 0);
 	scrollExtent = pixel2(0, 0);
+	pixel2 CELL_SPACING(AlloyApplicationContext()->theme.SPACING);
 	for (std::shared_ptr<Region>& region : children) {
 		if (orientation != Orientation::Unspecified) {
 			region->setPosition(CoordPX(offset));

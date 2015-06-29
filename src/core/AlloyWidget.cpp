@@ -1259,7 +1259,7 @@ void ColorWheel::draw(AlloyContext* context) {
 			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
 			context->theme.CORNER_RADIUS, 2,
 			context->theme.DARK.toSemiTransparent(0.0f),
-			context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+			context->theme.HIGHLIGHT);
 	nvgFillPaint(nvg, hightlightPaint);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
