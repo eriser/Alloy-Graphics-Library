@@ -965,15 +965,11 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorLabel->setAspectRatio(1.0f);
 	colorLabel->setAspectRule(AspectRule::FixedHeight);
 	colorLabel->setOrigin(Origin::TopRight);
-
 	colorWheel = ColorWheelPtr(
 			new ColorWheel("Color Wheel", CoordPX(0.0f, 0.0f),
 					CoordPercent(1.0f,1.0f)));
 	colorWheel->setAspectRatio(1.0);
 	colorWheel->setAspectRule(AspectRule::FixedHeight);
-
-
-
 	colorLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
 				if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -1007,8 +1003,8 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	};
 
 	colorSelectionPanel=MakeComposite("Color Selection Panel",
-			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),CoordPX(516, 300),
-			AlloyApplicationContext()->theme.DARK);
+			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),CoordPX(556, 300),
+			AlloyApplicationContext()->theme.LIGHT);
 	colorSelectionPanel->setOrigin(Origin::TopCenter);
 	colorSelectionPanel->setVisible(false);
 	colorSelectionPanel->setDetacted(true);
