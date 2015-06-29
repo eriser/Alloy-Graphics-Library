@@ -69,7 +69,7 @@ public:
 class CheckBox: public Widget {
 private:
 	TextLabelPtr checkLabel;
-	GlyphRegionPtr valueLabel;
+	TextLabelPtr valueLabel;
 	bool checked;
 public:
 	inline bool getValue() {

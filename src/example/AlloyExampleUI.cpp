@@ -30,14 +30,12 @@ bool ExampleUI::init(Composite& rootNode) {
 			CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
 			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
 			VerticalAlignment::Baseline);
-
 	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
 			CoordPX(200.0f, 50.0f), Theme::Default.DARK,
 			Theme::Default.LIGHT_TEXT);
 	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.1f, 0.8f),
 			CoordPX(200.0f, 50.0f), Theme::Default.LIGHT,
 			Theme::Default.DARK_TEXT);
-
 	ImageRGBA robotImg;
 	std::shared_ptr<ImageGlyph> img = createImageGlyph(
 			getFullPath("images/sfmarket.png"));

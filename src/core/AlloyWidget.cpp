@@ -35,16 +35,20 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	valueLabel = MakeGlyphRegion(
-			AlloyApplicationContext()->createAwesomeGlyph(0xf00c),
-			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), COLOR_NONE,
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA());
+	valueLabel = MakeTextLabel(
+				CodePointToUTF8(0xf00c),
+				CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f),
+				FontType::Icon,
+				UnitPercent(1.0f),
+				AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+				HorizontalAlignment::Center, VerticalAlignment::Middle);
+	valueLabel->setAspectRatio(1.0f);
 	valueLabel->setOrigin(Origin::TopRight);
 	valueLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(checkLabel);
 	valueContainer->add(valueLabel);
 	add(valueContainer);
-	this->valueLabel->foregroundColor =
+	this->valueLabel->textColor =
 			(this->checked) ?
 					MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT) :
 					MakeColor(AlloyApplicationContext()->theme.DARK);
@@ -52,7 +56,7 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					this->checked=!this->checked;
-					this->valueLabel->foregroundColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
+					this->valueLabel->textColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
 					return true;
 				}
 				return false;
@@ -61,7 +65,7 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					this->checked=!this->checked;
-					this->valueLabel->foregroundColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
+					this->valueLabel->textColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
 					return true;
 				}
 				return false;
@@ -496,8 +500,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			FontType::Icon,
 			UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-			HorizontalAlignment::Right, VerticalAlignment::Middle);
-
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
 	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
@@ -511,6 +514,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			AlloyApplicationContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK_TEXT);
+	arrowLabel->setAspectRatio(1.0f);
 	arrowLabel->setOrigin(Origin::TopRight);
 	arrowLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(selectionLabel);
