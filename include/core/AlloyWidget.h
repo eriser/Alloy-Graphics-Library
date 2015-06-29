@@ -263,12 +263,11 @@ public:
 struct ColorWheel: public Composite {
 protected:
 	Color selectedColor;
-	HSV hsvColor;
 	float2 tBounds[3];
 	float2 tPoints[3];
 	float rInner, rOuter;
 	float2 center;
-
+	HSV hsvColor;
 	bool triangleSelected = false;
 	bool circleSelected = false;
 	std::function<void(const Color& value)> onChangeEvent;

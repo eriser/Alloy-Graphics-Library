@@ -1157,10 +1157,11 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 						this->setColor(e.cursor);
 						return true;
 					} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())) {
+
 						hsvColor.x+=e.scroll.y*0.01f;
 						if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
 						if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
-						selectedColor=HSVtoColor(hsvColor);
+						setColor(HSVtoColor(hsvColor));
 						updateWheel();
 						if(onChangeEvent)onChangeEvent(selectedColor);
 						return true;
