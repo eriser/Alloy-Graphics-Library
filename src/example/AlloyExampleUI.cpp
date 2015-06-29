@@ -87,7 +87,6 @@ bool ExampleUI::init(Composite& rootNode) {
 	scrollTrack->add(scrollHandle);
 	iconr->setEnableDrag(true);
 
-	//comp->add(label);
 
 	ButtonPtr button1 = std::shared_ptr<Button>(
 			new Button("Click Me", CoordPX(10, 110), CoordPX(140, 50)));

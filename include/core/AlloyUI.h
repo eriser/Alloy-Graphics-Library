@@ -53,7 +53,18 @@ protected:
 	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	AUnit2D position = CoordPercent(0.0f, 0.0f);
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
+	bool detached=false;
 public:
+	friend class Composite;
+	void setDetacted(bool enable){
+		detached=enable;
+	}
+	inline bool hasParent(Region* region) const {
+		return (parent!=nullptr&&(parent==region||parent->hasParent(region)));
+	}
+	inline bool isDetached() const {
+		return (parent!=nullptr&&parent->isDetached())||detached;
+	}
 	std::function<bool(AlloyContext*, const InputEvent& event)> onEvent;
 	const std::string name;
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
@@ -183,6 +194,7 @@ protected:
 	const pixel2 CELL_SPACING = pixel2(4, 2);
 	Orientation orientation = Orientation::Unspecified;
 	bool scrollEnabled = false;
+	bool roundCorners=false;
 	static const float scrollBarSize;
 	pixel2 scrollExtent = pixel2(0, 0);
 	float horizontalScrollExtent = 0;
@@ -190,6 +202,7 @@ protected:
 	std::shared_ptr<ScrollTrack> verticalScrollTrack, horizontalScrollTrack;
 	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
 public:
+
 	std::vector<std::shared_ptr<Region>> children;
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
@@ -209,6 +222,9 @@ public:
 	}
 	void setScrollEnabled(bool enabled) {
 		scrollEnabled = enabled;
+	}
+	inline void setRoundCorners(bool round){
+		this->roundCorners=round;
 	}
 	virtual inline pixel2 drawOffset() const {
 		pixel2 offset = -scrollPosition

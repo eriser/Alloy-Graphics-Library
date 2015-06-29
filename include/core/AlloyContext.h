@@ -229,9 +229,7 @@ public:
 	void setOnTopRegion(Region* region);
 	void removeOnTopRegion(Region* region);
 
-	inline bool isOnTop(Region* region) const {
-		return (onTopRegion != nullptr && region == onTopRegion);
-	}
+
 	inline Region* getOnTopRegion() const {
 		return onTopRegion;
 	}
@@ -247,9 +245,7 @@ public:
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
 	}
-	inline bool isOnTop(Region* region) {
-		return (onTopRegion == region);
-	}
+	bool isOnTop(Region* region) const;
 	inline bool isMouseDrag(Region* region) {
 		return (mouseDownRegion == region && leftMouseButton);
 	}

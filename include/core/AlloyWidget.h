@@ -144,8 +144,12 @@ private:
 	std::shared_ptr<SliderTrack> sliderTrack;
 	std::function<std::string(const Number& value)> labelFormatter =
 			[](const Number& value) {return value.toString();};
+	std::function<void(const Number& value)> onChangeEvent;
 	void update();
 public:
+	double getBlendValue() const;
+	void setBlendValue(double value);
+
 	void setValue(double value);
 	inline void setValue(int value) {
 		setValue((double) value);
@@ -156,7 +160,9 @@ public:
 	const Number& getValue() {
 		return value;
 	}
-
+	inline void setOnChangeEvent(const std::function<void(const Number& value)>& func){
+		onChangeEvent=func;
+	}
 	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual bool onMouseDrag(AlloyContext* context, Region* region,
@@ -186,10 +192,12 @@ private:
 	TextLabelPtr valueLabel;
 	std::shared_ptr<SliderHandle> sliderHandle;
 	std::shared_ptr<SliderTrack> sliderTrack;
-	std::function<std::string(const Number& value)> labelFormatter =
-			[](const Number& value) {return value.toString();};
+	std::function<std::string(const Number& value)> labelFormatter =[](const Number& value) {return value.toString();};
+	std::function<void(const Number& value)> onChangeEvent;
 	void update();
 public:
+	double getBlendValue() const;
+	void setBlendValue(double value);
 	void setValue(double value);
 	inline void setValue(int value) {
 		setValue((double) value);
@@ -205,9 +213,10 @@ public:
 			const InputEvent& event) override;
 	virtual bool onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-
-	inline void setLabelFormatter(
-			const std::function<const std::string&(const Number& value)>& func) {
+	inline void setOnChangeEvent(const std::function<void(const Number& value)>& func){
+		onChangeEvent=func;
+	}
+	inline void setLabelFormatter(const std::function<std::string(const Number& value)>& func) {
 		labelFormatter = func;
 	}
 	VerticalSlider(const std::string& label, const AUnit2D& position,
@@ -279,11 +288,14 @@ protected:
 
 	bool triangleSelected = false;
 	bool circleSelected = false;
+	std::function<void(const Color& value)> onChangeEvent;
 	void updateWheel();
 public:
+	inline void setOnChangeEvent(const std::function<void(const Color& value)>& func){
+		onChangeEvent=func;
+	}
 	void reset();
 	virtual box2px getBounds() const override;
-	virtual box2px getCursorBounds() const override;
 	Color getSelectedColor() const {
 		return selectedColor;
 	}
@@ -291,11 +303,16 @@ public:
 	void setColor(const pixel2& cursor);
 	ColorWheel(const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
-	void drawOnTop(AlloyContext* context) override;
+	void draw(AlloyContext* context) override;
 };
 class ColorSelector: public Widget {
 	TextLabelPtr textLabel;
 	RegionPtr colorLabel;
+	CompositePtr colorSelectionPanel;
+	std::shared_ptr<VerticalSlider> redSlider;
+	std::shared_ptr<VerticalSlider> greenSlider;
+	std::shared_ptr<VerticalSlider> blueSlider;
+	std::shared_ptr<VerticalSlider> lumSlider;
 	std::shared_ptr<ColorWheel> colorWheel;
 public:
 	void setColor(const Color& color);

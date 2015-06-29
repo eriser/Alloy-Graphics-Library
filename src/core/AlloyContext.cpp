@@ -156,6 +156,9 @@ void AlloyContext::setDragObject(Region* region) {
 	mouseDownRegion = region;
 	cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
 }
+bool AlloyContext::isOnTop(Region* region) const {
+	return (onTopRegion!=nullptr&&(onTopRegion == region||region->hasParent(onTopRegion)));
+}
 bool AlloyContext::fireListeners(const InputEvent& event) {
 	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
 		if ((*iter)->onEventHandler(this, event))
