@@ -244,7 +244,7 @@ public:
 class Selection: public Widget {
 private:
 	TextLabelPtr selectionLabel;
-	GlyphRegionPtr arrowLabel;
+	TextLabelPtr arrowLabel;
 	std::shared_ptr<SelectionBox> selectionBox;
 	int selectedIndex = -1;
 public:

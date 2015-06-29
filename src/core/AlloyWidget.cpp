@@ -489,11 +489,15 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	arrowLabel = MakeGlyphRegion(
-			AlloyApplicationContext()->createAwesomeGlyph(0xf13a),
-			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f),
-			AlloyApplicationContext()->theme.DARK.toRGBA(),
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA());
+	arrowLabel = MakeTextLabel(
+			CodePointToUTF8(0xf13a),
+			CoordPercent(1.0f, 0.0f),
+			CoordPercent(0.0f, 1.0f),
+			FontType::Icon,
+			UnitPercent(1.0f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Right, VerticalAlignment::Middle);
+
 	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
@@ -571,11 +575,11 @@ void Selection::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
 
-		arrowLabel->foregroundColor = MakeColor(context->theme.HIGHLIGHT);
+		arrowLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 		selectionLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
 
-		arrowLabel->foregroundColor = MakeColor(context->theme.LIGHT_TEXT);
+		arrowLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 		selectionLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 	}
 
