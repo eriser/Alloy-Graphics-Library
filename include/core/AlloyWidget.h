@@ -130,27 +130,35 @@ public:
 	ProgressBar(const std::string& name, const AUnit2D& pt,
 			const AUnit2D& dims);
 };
-class HorizontalSlider: public Widget {
-private:
+class Slider: public Widget{
+protected:
 	AColor textColor;
 	AUnit1D fontSize;
 	Number value;
 	Number minValue;
 	Number maxValue;
-
 	TextLabelPtr sliderLabel;
 	TextLabelPtr valueLabel;
 	std::shared_ptr<SliderHandle> sliderHandle;
 	std::shared_ptr<SliderTrack> sliderTrack;
-	std::function<std::string(const Number& value)> labelFormatter =
-			[](const Number& value) {return value.toString();};
+	std::function<std::string(const Number& value)> labelFormatter;
 	std::function<void(const Number& value)> onChangeEvent;
-	void update();
+	virtual void update()=0;
 public:
+	Slider(const std::string& name ,const Number& min,const Number& max,const Number& val) :
+			Widget(name),minValue(min),maxValue(max),value(val) {
+		labelFormatter =
+					[](const Number& value) {return value.toString();};
+	}
+	Slider(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,const Number& min,const Number& max,const Number& val) :
+			Widget(name, pos, dims) ,minValue(min),maxValue(max),value(val){
+		labelFormatter =
+					[](const Number& value) {return value.toString();};
+	}
 	double getBlendValue() const;
 	void setBlendValue(double value);
 
-	void setValue(double value);
+	virtual void setValue(double value)=0;
 	inline void setValue(int value) {
 		setValue((double) value);
 	}
@@ -163,14 +171,19 @@ public:
 	inline void setOnChangeEvent(const std::function<void(const Number& value)>& func){
 		onChangeEvent=func;
 	}
+	inline void setLabelFormatter(const std::function<std::string(const Number& value)>& func) {
+		labelFormatter = func;
+	}
+};
+class HorizontalSlider: public Slider {
+protected:
+	virtual void update() override;
+public:
+	virtual void setValue(double value) override;
 	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual bool onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-	inline void setLabelFormatter(
-			const std::function<const std::string&(const Number& value)>& func) {
-		labelFormatter = func;
-	}
 	HorizontalSlider(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
 			const Number& maxValue = Float(1.0f),
@@ -180,45 +193,15 @@ public:
 	}
 };
 
-class VerticalSlider: public Widget {
-private:
-	AColor textColor;
-	AUnit1D fontSize;
-	Number value;
-	Number minValue;
-	Number maxValue;
-
-	TextLabelPtr sliderLabel;
-	TextLabelPtr valueLabel;
-	std::shared_ptr<SliderHandle> sliderHandle;
-	std::shared_ptr<SliderTrack> sliderTrack;
-	std::function<std::string(const Number& value)> labelFormatter =[](const Number& value) {return value.toString();};
-	std::function<void(const Number& value)> onChangeEvent;
-	void update();
+class VerticalSlider: public Slider {
+protected:
+	virtual void update() override;
 public:
-	double getBlendValue() const;
-	void setBlendValue(double value);
-	void setValue(double value);
-	inline void setValue(int value) {
-		setValue((double) value);
-	}
-	inline void setValue(float value) {
-		setValue((double) value);
-	}
-	const Number& getValue() {
-		return value;
-	}
-
+	virtual void setValue(double value) override;
 	virtual bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
 	virtual bool onMouseDrag(AlloyContext* context, Region* region,
 			const InputEvent& event) override;
-	inline void setOnChangeEvent(const std::function<void(const Number& value)>& func){
-		onChangeEvent=func;
-	}
-	inline void setLabelFormatter(const std::function<std::string(const Number& value)>& func) {
-		labelFormatter = func;
-	}
 	VerticalSlider(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
 			const Number& maxValue = Float(1.0f),

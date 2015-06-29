@@ -602,7 +602,7 @@ void Selection::draw(AlloyContext* context) {
 HorizontalSlider::HorizontalSlider(const std::string& label,
 		const AUnit2D& position, const AUnit2D& dimensions, const Number& min,
 		const Number& max, const Number& value) :
-		Widget(label), minValue(min), maxValue(max), value(value) {
+		Slider(label,min,max,value) {
 	this->position = position;
 	this->dimensions = dimensions;
 	float handleSize = 30.0f;
@@ -711,12 +711,12 @@ bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 	}
 	return false;
 }
-void HorizontalSlider::setBlendValue(double value) {
+void Slider::setBlendValue(double value) {
 	value=clamp(value,0.0,1.0);
 	setValue(value*(maxValue.toDouble()-minValue.toDouble())+minValue.toDouble());
 }
 
-double HorizontalSlider::getBlendValue() const {
+double Slider::getBlendValue() const {
 	return (value.toDouble()-minValue.toDouble())/(maxValue.toDouble()-minValue.toDouble());
 }
 bool HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
@@ -776,7 +776,7 @@ void HorizontalSlider::draw(AlloyContext* context) {
 VerticalSlider::VerticalSlider(const std::string& label,
 		const AUnit2D& position, const AUnit2D& dimensions, const Number& min,
 		const Number& max, const Number& value) :
-		Widget(label), minValue(min), maxValue(max), value(value) {
+		Slider(label,min,max,value) {
 	this->position = position;
 	this->dimensions = dimensions;
 	float handleSize = 30.0f;
@@ -843,14 +843,7 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	};
 	Application::addListener(this);
 }
-void VerticalSlider::setBlendValue(double value) {
-	value=clamp(value,0.0,1.0);
-	setValue(value*(maxValue.toDouble()-minValue.toDouble())+minValue.toDouble());
-}
 
-double VerticalSlider::getBlendValue() const {
-	return (value.toDouble()-minValue.toDouble())/(maxValue.toDouble()-minValue.toDouble());
-}
 void VerticalSlider::setValue(double value) {
 	double interp = 1.0f
 			- clamp(
@@ -1017,7 +1010,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			Float(0.5)));
 	redSlider->setLabelFormatter(
 			[](const Number& value) {
-				string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
+				std::string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
 				return  str;
 	});
 	redSlider->setOnChangeEvent([this](const Number& value){
