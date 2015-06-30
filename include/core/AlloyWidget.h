@@ -103,9 +103,8 @@ class SliderTrack: public Composite {
 protected:
 	const Orientation orientation;
 public:
-	SliderTrack(const std::string& name, Orientation orient) :
-			Composite(name), orientation(orient) {
-	}
+	Color startColor, endColor;
+	SliderTrack(const std::string& name, Orientation orientColor,const Color& st, const Color& ed);
 	virtual void draw(AlloyContext* context) override;
 };
 class ProgressBar: public Widget {
@@ -143,6 +142,10 @@ protected:
 	std::function<void(const Number& value)> onChangeEvent;
 	virtual void update()=0;
 public:
+	void setSliderColor(const Color& startColor, const Color& endColor) {
+		sliderTrack->startColor = startColor;
+		sliderTrack->endColor = endColor;
+	}
 	Slider(const std::string& name ,const Number& min,const Number& max,const Number& val) :
 			Widget(name),minValue(min),maxValue(max),value(val) {
 		labelFormatter =
@@ -285,6 +288,7 @@ public:
 	void draw(AlloyContext* context) override;
 };
 class ColorSelector: public Widget {
+private:
 	TextLabelPtr textLabel;
 	RegionPtr colorLabel;
 	CompositePtr colorSelectionPanel;
@@ -293,6 +297,7 @@ class ColorSelector: public Widget {
 	std::shared_ptr<VerticalSlider> blueSlider;
 	std::shared_ptr<VerticalSlider> lumSlider;
 	std::shared_ptr<ColorWheel> colorWheel;
+	void updateColorSliders(const Color& c);
 public:
 	void setColor(const Color& color);
 	Color getColor();

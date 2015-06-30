@@ -325,29 +325,40 @@ Button::Button(const std::string& label, const AUnit2D& position,
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
 }
+SliderTrack::SliderTrack(const std::string& name, Orientation orient, const Color& st, const Color& ed) :
+	Composite(name), orientation(orient),startColor(st),endColor(ed) {
+}
+
 void SliderTrack::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
+	float ax, ay, bx, by;
 	if (orientation == Orientation::Horizontal) {
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg, bounds.position.x + bounds.dimensions.y * 0.5f - 1,
-				bounds.position.y + bounds.dimensions.y * 0.5f);
+		nvgMoveTo(nvg, 
+				ax=(bounds.position.x + bounds.dimensions.y * 0.5f - 1),
+				ay=(bounds.position.y + bounds.dimensions.y * 0.5f));
 		nvgLineTo(nvg,
-				bounds.position.x - bounds.dimensions.y * 0.5f + 1
-						+ bounds.dimensions.x,
-				bounds.position.y + bounds.dimensions.y * 0.5f);
-		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
+				bx=(bounds.position.x - bounds.dimensions.y * 0.5f + 1+ bounds.dimensions.x),
+				by=(bounds.position.y + bounds.dimensions.y * 0.5f));
+		NVGpaint paint = nvgLinearGradient(nvg, ax, ay, bx, by,endColor, startColor);
+		nvgStrokePaint(nvg, paint);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStroke(nvg);
 	} else if (orientation == Orientation::Vertical) {
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
-				bounds.position.y + bounds.dimensions.x * 0.5f - 1);
-		nvgLineTo(nvg, bounds.position.x + bounds.dimensions.x * 0.5f,
-				bounds.position.y - bounds.dimensions.x * 0.5f + 1
-						+ bounds.dimensions.y);
-		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
+		nvgMoveTo(nvg, 
+			ax=(bounds.position.x + bounds.dimensions.x * 0.5f),
+			ay=(bounds.position.y + bounds.dimensions.x * 0.5f - 1));
+		nvgLineTo(nvg, 
+			bx=(bounds.position.x + bounds.dimensions.x * 0.5f),
+			by=(bounds.position.y - bounds.dimensions.x * 0.5f + 1+ bounds.dimensions.y)
+			);
+		NVGpaint paint = nvgLinearGradient(nvg, ax, ay, bx, by,
+			endColor,
+			startColor);
+		nvgStrokePaint(nvg, paint);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStroke(nvg);
@@ -629,7 +640,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	sliderHandle->setEnableDrag(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
-			new SliderTrack("Scroll Track", Orientation::Horizontal));
+			new SliderTrack("Scroll Track", Orientation::Horizontal, AlloyApplicationContext()->theme.HIGHLIGHT, AlloyApplicationContext()->theme.HIGHLIGHT));
 
 	sliderTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
 	sliderTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
@@ -803,7 +814,7 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderHandle->setEnableDrag(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
-			new SliderTrack("Scroll Track", Orientation::Vertical));
+			new SliderTrack("Scroll Track", Orientation::Vertical, AlloyApplicationContext()->theme.HIGHLIGHT, AlloyApplicationContext()->theme.HIGHLIGHT));
 
 	sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2));
 	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4));
@@ -1024,7 +1035,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		colorWheel->setColor(c);
 		HSV hsv=c.toHSV();
 		lumSlider->setValue(hsv.z);
-
+		updateColorSliders(c);
 	});
 
 	greenSlider=std::shared_ptr<VerticalSlider>(new VerticalSlider("G", CoordPX(0.0f, 0.0f),
@@ -1036,7 +1047,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		colorWheel->setColor(c);
 		HSV hsv=c.toHSV();
 		lumSlider->setValue(hsv.z);
-
+		updateColorSliders(c);
 	});
 	greenSlider->setLabelFormatter(
 			[](const Number& value) {
@@ -1052,6 +1063,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		colorWheel->setColor(c);
 		HSV hsv=c.toHSV();
 		lumSlider->setValue(hsv.z);
+		updateColorSliders(c);
 	});
 	blueSlider->setLabelFormatter(
 			[](const Number& value) {
@@ -1075,6 +1087,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		redSlider->setValue(c.r);
 		greenSlider->setValue(c.g);
 		blueSlider->setValue(c.b);
+		updateColorSliders(c);
 	});
 	colorWheel->setOnChangeEvent([this](const Color& c){
 
@@ -1083,6 +1096,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		blueSlider->setValue(c.b);
 		HSV hsv=c.toHSV();
 		lumSlider->setValue(hsv.z);
+		updateColorSliders(c);
 	});
 	colorSelectionPanel->setOrientation(Orientation::Horizontal);
 
@@ -1111,6 +1125,13 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 
 	setColor(*colorLabel->backgroundColor);
 }
+void ColorSelector::updateColorSliders(const Color& c) {
+	redSlider->setSliderColor(Color(0.0f, c.g, c.b), Color(1.0f, c.g, c.b));
+	greenSlider->setSliderColor(Color(c.r, 0.0f, c.b), Color(c.r, 1.0f, c.b));
+	blueSlider->setSliderColor(Color(c.r, c.g, 0.0f), Color(c.r, c.g, 1.0f));
+	HSV hsv = c.toHSV();
+	lumSlider->setSliderColor(HSVtoColor(HSV(hsv.x, hsv.y, 0.0f)), HSVtoColor(HSV(hsv.x, hsv.y, 1.0f)));
+}
 void ColorSelector::setColor(const Color& c) {
 	*colorLabel->backgroundColor = c;
 	HSV hsv=c.toHSV();
@@ -1119,6 +1140,7 @@ void ColorSelector::setColor(const Color& c) {
 	greenSlider->setValue(c.g);
 	blueSlider->setValue(c.b);
 	lumSlider->setValue(hsv.z);
+	updateColorSliders(c);
 }
 Color ColorSelector::getColor() {
 	return colorWheel->getSelectedColor();
