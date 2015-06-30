@@ -168,6 +168,7 @@ private:
 	static std::mutex contextLock;
 	GLFWwindow* current;
 	bool dirtyLayout = false;
+	bool dirtyUI = true;
 	bool dirtyCursorLocator = false;
 	bool dirtyCursor = false;
 	bool enableDebugInterface = false;
@@ -198,6 +199,7 @@ public:
 	box2i viewport;
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
+	int2 screenSize;
 	bool hasFocus = false;
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;

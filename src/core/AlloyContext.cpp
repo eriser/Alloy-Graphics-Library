@@ -197,7 +197,7 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 			[](int error, const char* desc) {std::cout<<"GLFW Error ["<<error<<"] "<<desc<<std::endl;});
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 	window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
@@ -218,7 +218,7 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0, 0, width, height);
 	viewport = box2i(int2(0, 0), int2(width, height));
-	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+	nvgContext = nvgCreateGL3( NVG_STENCIL_STROKES);//NVG_ANTIALIAS |
 	const float2 TextureCoords[6] = { float2(1.0f, 0.0f), float2(0.0f, 0.0f),
 			float2(0.0f, 1.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f), float2(
 					1.0f, 0.0f) };
@@ -251,6 +251,7 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
 	dpmm = double2(mode->width / (double) widthMM,
 			mode->height / (double) heightMM);
+	screenSize = int2(mode->width, mode->height);
 	int winWidth, winHeight, fbWidth, fbHeight;
 	glfwGetWindowSize(window, &winWidth, &winHeight);
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
@@ -341,6 +342,7 @@ void AlloyContext::update(Composite& rootNode) {
 		if (animator.step(animateElapsed)) {
 			dirtyLayout = true;
 		}
+		dirtyUI = true;
 	}
 	if (dirtyLayout) {
 		rootNode.pack(this);
@@ -348,7 +350,7 @@ void AlloyContext::update(Composite& rootNode) {
 		dirtyCursorLocator = true;
 		dirtyLayout = false;
 	}
-
+	
 }
 void AlloyContext::makeCurrent() {
 	std::lock_guard<std::mutex> lock(contextLock);

@@ -57,7 +57,11 @@ void Application::initInternal() {
 			[](GLFWwindow * window, int enter) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onCursorEnter(enter);} catch(...) {app->throwException(std::current_exception());}});
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
+		
 
+	imageShader = std::shared_ptr<ImageShader>(new ImageShader(context,ImageShader::Filter::NONE));
+	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(context));
+	uiFrameBuffer->initialize(context->screenSize.x,context->screenSize.y);
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
 		const std::string& partialFile) {
@@ -111,24 +115,25 @@ void Application::draw() {
 
 }
 void Application::drawUI() {
-	box2i& view = context->viewport;
-	glViewport(view.position.x, view.position.y, view.dimensions.x,
-			view.dimensions.y);
-	NVGcontext* nvg = context->nvgContext;
-	nvgBeginFrame(nvg, context->width(), context->height(),
+	if (context->dirtyUI) {
+		uiFrameBuffer->begin();
+		NVGcontext* nvg = context->nvgContext;
+		nvgBeginFrame(nvg, context->width(), context->height(),
 			context->pixelRatio);
-	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,
-			view.dimensions.y);
-	rootNode.draw(context.get());
-	nvgScissor(nvg, view.position.x, view.position.y, view.dimensions.x,
-			view.dimensions.y);
+		nvgScissor(nvg, 0, 0, context->width(), context->height());
+		rootNode.draw(context.get());
+		nvgScissor(nvg, 0, 0, context->width(), context->height());
 
-	Region* onTop = context->getOnTopRegion();
-	if (onTop != nullptr) {
-		if (onTop->isVisible())
-			onTop->draw(context.get());
+		Region* onTop = context->getOnTopRegion();
+		if (onTop != nullptr) {
+			if (onTop->isVisible())
+				onTop->draw(context.get());
+		}
+		nvgEndFrame(nvg);
+		uiFrameBuffer->end();
+		context->dirtyUI = false;
 	}
-	nvgEndFrame(nvg);
+	imageShader->draw(uiFrameBuffer->getTexture(),context->getViewport());
 }
 void Application::drawDebugUI() {
 	box2i& view = context->viewport;
@@ -324,7 +329,7 @@ void Application::fireEvent(const InputEvent& event) {
 		}
 	}
 	if (!consumed) {
-		context->fireListeners(event);
+		consumed=context->fireListeners(event);
 	}
 }
 

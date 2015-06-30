@@ -27,6 +27,7 @@
 #include "GLShader.h"
 #include "GLFrameBuffer.h"
 #include "AlloyUI.h"
+#include "CommonShaders.h"
 #include <memory>
 #include <list>
 namespace aly {
@@ -39,7 +40,9 @@ private:
 	void drawDebugUI();
 	void draw();
 	Composite rootNode;
+	std::shared_ptr<ImageShader> imageShader;
 	std::list<std::exception_ptr> caughtExceptions;
+	std::shared_ptr<GLFrameBuffer> uiFrameBuffer;
 	void initInternal();
 public:
 	static inline std::shared_ptr<AlloyContext>& getContext() {
