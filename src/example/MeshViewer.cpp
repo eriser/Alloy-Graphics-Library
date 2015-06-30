@@ -83,7 +83,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		outlineFrameBuffer.end();
 
 		wireframeFrameBuffer.begin();
-		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,0.25*camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
+		wireframeShader.draw(edgeFrameBuffer.getTexture(),float2(0.0f,0.25f*camera.getScale()), float2(0.0f, 0.0f),float2(480,480),wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
 
 		occlusionFrameBuffer.begin();
