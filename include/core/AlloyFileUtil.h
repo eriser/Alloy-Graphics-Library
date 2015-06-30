@@ -21,6 +21,9 @@
 
 #ifndef ALLOYFILEUTIL_H_
 #define ALLOYFILEUTIL_H_
+#ifndef NOMINMAX
+	#define NOMINMAX
+#endif
 #include <string>
 #include <vector>
 

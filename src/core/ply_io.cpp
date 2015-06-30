@@ -30,17 +30,18 @@
  WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
  */
-
+#include "ply_io.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 #include <list>
 #include <map>
 #include <iostream>
-#include "ply_io.h"
+#include <math.h>
 /* names of scalar types */
 
+#define min(x,y) ((x) < (y) ? (x) : (y))
+#define max(x,y) ((x) > (y) ? (x) : (y))
 char *property_type_names[] = { "invalid", "int8", "int16", "int32", "uint8",
 		"uint16", "uint32", "float32", "float64", };
 
@@ -82,7 +83,7 @@ void* myrealloc(void* ptr, size_t mem_size) {
 			return ptr;
 		} else {
 			void* newPtr = malloc(mem_size);
-			memcpy(newPtr, ptr, std::min(oldSize, mem_size));
+			memcpy(newPtr, ptr,min(oldSize, mem_size));
 			free(ptr);
 			OBJECT_MEMORY.erase(iter);
 			OBJECT_MEMORY[newPtr] = mem_size;

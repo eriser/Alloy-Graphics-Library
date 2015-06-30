@@ -25,16 +25,21 @@
     <ClCompile Include="..\..\src\core\AlloyCursorLocator.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDrawUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyFileUtil.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyImage.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyMesh.cpp" />
     <ClCompile Include="..\..\src\core\AlloySimulation.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUI.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUnits.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyVirtualCamera.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWidget.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWorker.cpp" />
+    <ClCompile Include="..\..\src\core\CommonShaders.cpp" />
     <ClCompile Include="..\..\src\core\GLComponent.cpp" />
     <ClCompile Include="..\..\src\core\GLFrameBuffer.cpp" />
     <ClCompile Include="..\..\src\core\GLShader.cpp" />
     <ClCompile Include="..\..\src\core\GLTexture.cpp" />
     <ClCompile Include="..\..\src\core\nanovg.cpp" />
+    <ClCompile Include="..\..\src\core\ply_io.cpp" />
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
@@ -51,12 +56,15 @@
     <ClInclude Include="..\..\include\core\AlloyFileUtil.h" />
     <ClInclude Include="..\..\include\core\AlloyImage.h" />
     <ClInclude Include="..\..\include\core\AlloyMath.h" />
+    <ClInclude Include="..\..\include\core\AlloyMesh.h" />
     <ClInclude Include="..\..\include\core\AlloySimulation.h" />
     <ClInclude Include="..\..\include\core\AlloyUI.h" />
     <ClInclude Include="..\..\include\core\AlloyUnits.h" />
     <ClInclude Include="..\..\include\core\AlloyVector.h" />
+    <ClInclude Include="..\..\include\core\AlloyVirtualCamera.h" />
     <ClInclude Include="..\..\include\core\AlloyWidget.h" />
     <ClInclude Include="..\..\include\core\AlloyWorker.h" />
+    <ClInclude Include="..\..\include\core\CommonShaders.h" />
     <ClInclude Include="..\..\include\core\fontstash.h" />
     <ClInclude Include="..\..\include\core\GLComponent.h" />
     <ClInclude Include="..\..\include\core\GLFrameBuffer.h" />
@@ -65,6 +73,7 @@
     <ClInclude Include="..\..\include\core\nanovg.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl_utils.h" />
+    <ClInclude Include="..\..\include\core\ply_io.h" />
     <ClInclude Include="..\..\include\core\stb_image.h" />
     <ClInclude Include="..\..\include\core\stb_truetype.h" />
   </ItemGroup>

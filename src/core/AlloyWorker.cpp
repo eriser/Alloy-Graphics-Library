@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 
+#include "AlloyMath.h"
 #include "AlloyWorker.h"
 namespace aly {
 Worker::Worker(const std::function<void()>& func) :
@@ -81,8 +82,10 @@ void RecurrentWorker::step() {
 		}
 		if (requestCancel)
 			break;
-		std::this_thread::sleep_until(
-				currentTime + std::chrono::milliseconds(timeout));
+		auto nextTime = std::chrono::steady_clock::now();
+		//sleep_until has different behavior on Linux and Windows. Use sleep_for instead.
+		long long ms=std::chrono::duration_cast<std::chrono::milliseconds>(nextTime - currentTime).count();
+		std::this_thread::sleep_for(std::chrono::milliseconds(aly::max(0,(int)(timeout-ms))));
 	}
 }
 }

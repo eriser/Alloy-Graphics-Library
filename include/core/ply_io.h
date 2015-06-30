@@ -33,6 +33,7 @@
 #define __PLY_H__
 
 #ifdef __cplusplus
+
 extern "C" {
 #endif
 

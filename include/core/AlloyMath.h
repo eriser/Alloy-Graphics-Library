@@ -21,14 +21,14 @@
 
 #ifndef ALLOYMATH_H_INCLUDE_GUARD
 #define ALLOYMATH_H_INCLUDE_GUARD
-
-#include <stdint.h>
+#undef _USE_MATH_DEFINES
 #undef USE_MATH_DEFINES
-#include <cmath>
+#include <stdint.h>
 #include <tuple>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <math.h>
 #include "AlloyCommon.h"
 //#include "cereal/cereal.hpp"
 #define ALY_PI float(3.1415926535897932384626433832795)
@@ -36,11 +36,14 @@
 #define ALY_PI_4 float(0.25f*ALY_PI)
 namespace aly {
 bool SANITY_CHECK_MATH();
-/////////////////////
-// Data structures //
-/////////////////////
-template<typename T> T clamp(T val, T min, T max) {
-	return std::min(std::max(val, min), max);
+template<typename T> T min(const T& x, const T& y) {
+	return ((x) < (y) ? (x) : (y));
+}
+template<typename T> T max(const T& x, const T& y) {
+	return ((x) > (y) ? (x) : (y));
+}
+template<typename T> T clamp(const T& val, const T& min, const T& max) {
+	return aly::min(aly::max(val, min), max);
 }
 
 // This is free and unencumbered software released into the public domain.
@@ -1356,7 +1359,7 @@ template<class T> matrix<T, 4, 4> MakeTransform(const box<T, 3>& src,
 }
 template<class T> matrix<T, 4, 4> perspectiveMatrix(const T &fovy,
 		const T &aspect, const T &zNear, const T &zFar) {
-	T f = 1.0f / tan(M_PI * fovy / 360.0f);
+	T f = 1.0f / tan(ALY_PI * fovy / 360.0f);
 	T sx = f / aspect;
 	T sy = f;
 	T sz = -(zFar + zNear) / (zFar - zNear);

@@ -2,8 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp" />
+    <ClCompile Include="..\..\src\example\main.cpp" />
+    <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\AlloyExampleUI.h" />
+    <ClInclude Include="..\..\include\example\MeshViewer.h" />
   </ItemGroup>
 </Project>

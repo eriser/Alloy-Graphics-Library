@@ -20,9 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp" />
+    <ClCompile Include="..\..\src\example\main.cpp" />
+    <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\AlloyExampleUI.h" />
+    <ClInclude Include="..\..\include\example\MeshViewer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\alloy\alloy.vcxproj">

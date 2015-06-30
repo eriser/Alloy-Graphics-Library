@@ -2,13 +2,12 @@
 
 #include "GLShader.h"
 #include "AlloyMesh.h"
-#include <cmath>
 #include <string>
 #include <list>
 #include <fstream>
 
 namespace aly {
-const float VirtualCamera::sDeg2rad = M_PI / 180.0;
+const float VirtualCamera::sDeg2rad = ALY_PI / 180.0;
 VirtualCamera::VirtualCamera() :
 		fov(60.0), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
 				0, 0, 0), nearPlane(0.1), farPlane(10000.0), eye(

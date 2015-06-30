@@ -313,6 +313,7 @@ public:
 		setEnableMipmap(mipmap);
 		update();
 	}
+	
 	void load(const std::string& fileName, bool mipmap = false) {
 		ReadImageFromFile(fileName, textureImage);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
