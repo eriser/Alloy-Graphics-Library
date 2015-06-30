@@ -1117,7 +1117,9 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 				}
 				return false;
 			};
-
+	colorSelectionPanel->onRemoveFromOnTop = [this]() {
+		colorSelectionPanel->setVisible(false);
+	};
 	Application::addListener(colorSelectionPanel.get());
 	add(textLabel);
 	add(colorLabel);

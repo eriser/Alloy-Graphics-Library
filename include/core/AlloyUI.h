@@ -102,6 +102,7 @@ public:
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 	std::function<void()> onPack;
+	std::function<void()> onRemoveFromOnTop;
 	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseDown;
 	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseUp;
 	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseOver;

@@ -170,6 +170,9 @@ void AlloyContext::setOnTopRegion(Region* region) {
 	if (region == nullptr)
 		throw std::runtime_error(
 				"On top region cannot be null. use removeOnTopRegion() instead.");
+	if (onTopRegion != nullptr) {
+		if (onTopRegion->onRemoveFromOnTop)onTopRegion->onRemoveFromOnTop();
+	}
 	onTopRegion = region;
 	region->setVisible(true);
 }
@@ -177,6 +180,7 @@ void AlloyContext::removeOnTopRegion(Region* region) {
 	if (region == nullptr)
 		throw std::runtime_error("Remove on top region cannot be null.");
 	if (region == onTopRegion) {
+		if(onTopRegion->onRemoveFromOnTop)onTopRegion->onRemoveFromOnTop();
 		onTopRegion = nullptr;
 	}
 
