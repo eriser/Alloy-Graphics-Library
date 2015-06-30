@@ -212,13 +212,7 @@ Region* Composite::locate(const pixel2& cursor) {
 	}
 	return nullptr;
 }
-void Composite::drawOnTop(AlloyContext* context) {
-	for (std::shared_ptr<Region>& region : children) {
-		if (region->isVisible()) {
-			region->drawOnTop(context);
-		}
-	}
-}
+
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();

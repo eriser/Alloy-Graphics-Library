@@ -126,7 +126,7 @@ void Application::drawUI() {
 	Region* onTop = context->getOnTopRegion();
 	if (onTop != nullptr) {
 		if (onTop->isVisible())
-			onTop->drawOnTop(context.get());
+			onTop->draw(context.get());
 	}
 	nvgEndFrame(nvg);
 }

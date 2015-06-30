@@ -56,12 +56,10 @@ class Button: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
-	void internalDraw(AlloyContext* context);
 public:
 	Button(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
-	virtual void drawOnTop(AlloyContext* context) override;
 	virtual inline ~Button() {
 	}
 	;
@@ -235,7 +233,6 @@ public:
 		selectedIndex = index;
 		label = (index >= 0) ? options[selectedIndex] : name;
 	}
-	void drawOnTop(AlloyContext* context) override;
 	void draw(AlloyContext* context) override;
 
 	SelectionBox(const std::string& name,

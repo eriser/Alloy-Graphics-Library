@@ -384,9 +384,6 @@ void SliderHandle::draw(AlloyContext* context) {
 	nvgStroke(nvg);
 
 }
-void SelectionBox::draw(AlloyContext* context) {
-
-}
 box2px SelectionBox::getBounds() const {
 	box2px bounds = Region::getBounds();
 	AlloyContext* context = AlloyApplicationContext().get();
@@ -416,7 +413,7 @@ box2px SelectionBox::getCursorBounds() const {
 	}
 	return box;
 }
-void SelectionBox::drawOnTop(AlloyContext* context) {
+void SelectionBox::draw(AlloyContext* context) {
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
@@ -502,6 +499,8 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
 	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
+	selectionBox->setDetacted(true);
+	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
 	selectionBox->fontSize = selectionLabel->fontSize;
@@ -526,6 +525,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					context->setOnTopRegion(selectionBox.get());
+					selectionBox->setVisible(true);
 					return true;
 				}
 				return false;
@@ -534,6 +534,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					context->setOnTopRegion(selectionBox.get());
+					selectionBox->setVisible(true);
 					return true;
 				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
 					context->removeOnTopRegion(selectionBox.get());
@@ -1272,7 +1273,7 @@ void ColorWheel::draw(AlloyContext* context) {
 	nvgFill(nvg);
 
 	int i;
-	float r0, r1, ax, ay, bx, by, cx, cy, aeps, r;
+	float  ax, ay, bx, by, aeps;
 
 	float hue = hsvColor.x;
 
@@ -1453,17 +1454,7 @@ void ColorSelector::draw(AlloyContext* context) {
 	nvgFill(nvg);
 	Composite::draw(context);
 }
-void Button::drawOnTop(AlloyContext* context) {
-	if (isDragEnabled() && context->isMouseDrag(this)) {
-		internalDraw(context);
-	}
-}
 void Button::draw(AlloyContext* context) {
-	if (!isDragEnabled() || !context->isMouseDrag(this)) {
-		internalDraw(context);
-	}
-}
-void Button::internalDraw(AlloyContext* context) {
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
