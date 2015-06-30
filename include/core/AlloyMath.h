@@ -244,7 +244,7 @@ template<class T, int M, int N> const matrix<T, M, N> Identity() {
 	if (once) {
 		for (int m = 0; m < M; m++) {
 			for (int n = 0; n < N; n++) {
-				Id(m, n) = (m == n) ? 1 : 0;
+				Id(m, n) = (T)((m == n) ? 1 : 0);
 			}
 		}
 		once = false;
@@ -1125,13 +1125,13 @@ template<class T> matrix<T, 4, 4> MakeRotationMatrix(const vec<T, 3>& axis,
 	matrix<T, 4, 4> M = Identity<T, 4, 4>();
 	T mag = length(axis);
 	if (mag >= 1E-6f) {
-		mag = 1.0 / mag;
+		mag = ((T)1.0) / mag;
 		T ax = axis[0] * mag;
 		T ay = axis[1] * mag;
 		T az = axis[2] * mag;
 		T sinTheta = (T) sin(angle);
 		T cosTheta = (T) cos(angle);
-		T t = 1.0 - cosTheta;
+		T t = (T)1.0 - cosTheta;
 
 		T xz = ax * az;
 		T xy = ax * ay;

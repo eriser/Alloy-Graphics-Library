@@ -35,11 +35,11 @@ public:
 	void initialize(int w,int h);
 	void begin(bool clearColor=true,bool clearDepth=true);
 	void end();
-	int2 getDimensions(){
+	int2 getDimensions() const {
 		return int2(texture.width(),texture.height());
 	}
-	box2px getViewport(){
-		return box2px(float2(0,0),float2(texture.width(),texture.height()));
+	box2px getViewport() const {
+		return box2px(pixel2(0.0f,0.0f),pixel2((pixel)texture.width(), (pixel)texture.height()));
 	}
 	GLTexture<float,4,ImageType::FLOAT>& getTexture(){
 		return texture;

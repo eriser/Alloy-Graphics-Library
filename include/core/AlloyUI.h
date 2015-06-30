@@ -33,7 +33,7 @@
 namespace aly {
 bool SANITY_CHECK_UI();
 
-class Composite;
+struct Composite;
 
 struct Region: public EventHandler {
 private:
@@ -55,7 +55,7 @@ protected:
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 	bool detached=false;
 public:
-	friend class Composite;
+	friend struct Composite;
 	void setDetacted(bool enable){
 		detached=enable;
 	}

@@ -26,7 +26,7 @@
 #include "AlloyContext.h"
 #include <fstream>
 namespace aly {
-class Mesh;
+struct Mesh;
 class VirtualCamera: public EventHandler {
 protected:
 	// Camera parameters

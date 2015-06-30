@@ -160,7 +160,7 @@ struct EventHandler {
 	}
 	;
 };
-class Composite;
+struct Composite;
 class AlloyContext {
 private:
 	std::list<std::string> assetDirectories;
@@ -190,22 +190,33 @@ private:
 	Region* onTopRegion = nullptr;
 	std::list<EventHandler*> listeners;
 	static std::shared_ptr<AlloyContext> defaultContext;
+	int2 viewSize;
+	int2 screenSize;
 public:
 	friend class Application;
 	const Theme theme;
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
 	ImageVAO vaoImage;
-	box2i viewport;
+	
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
-	int2 screenSize;
+
 	bool hasFocus = false;
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;
 	}
 	box2px getViewport() const {
-		return box2px(pixel2(viewport.position), pixel2(viewport.dimensions));
+		return box2px(pixel2(0.0f,0.0f), pixel2(viewSize));
+	}
+	pixel2 getScreenSize() const {
+		return pixel2(screenSize);
+	}
+	int getScreenWidth() {
+		return screenSize.x;
+	}
+	int getScreenHeight() {
+		return screenSize.y;
 	}
 	void addListener(EventHandler* region) {
 		listeners.push_back(region);
@@ -281,11 +292,17 @@ public:
 	std::shared_ptr<Font>& loadFont(FontType type, const std::string& name,
 			const std::string& partialFile);
 	std::string getFullPath(const std::string& partialFile);
-	inline int width() {
-		return viewport.dimensions.x;
+	inline int width() const {
+		return viewSize.x;
 	}
-	inline int height() {
-		return viewport.dimensions.y;
+	inline int height() const {
+		return viewSize.y;
+	}
+	inline int2 dimensions() const {
+		return viewSize;
+	}
+	inline int2 screenDimensions() const {
+		return screenSize;
 	}
 	inline const char* getFontName(FontType type) {
 		if (fonts[static_cast<int>(type)].get() == nullptr)

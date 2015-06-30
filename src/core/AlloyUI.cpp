@@ -138,7 +138,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgStroke(nvg);
 
 	nvgLineJoin(nvg, NVG_MITER);
-	nvgFontSize(nvg, FONT_SIZE_PX);
+	nvgFontSize(nvg, (float)FONT_SIZE_PX);
 	nvgFontFaceId(nvg, font);
 	nvgTextAlign(nvg, NVG_ALIGN_TOP | NVG_ALIGN_LEFT);
 	float twidth = std::ceil(
@@ -594,10 +594,10 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	}
 	switch (aspectRule) {
 	case AspectRule::FixedWidth:
-		bounds.dimensions = pixel2(d.x, d.x / aspectRatio);
+		bounds.dimensions = pixel2(d.x, d.x / (float)aspectRatio);
 		break;
 	case AspectRule::FixedHeight:
-		bounds.dimensions = pixel2(d.y * aspectRatio, d.y);
+		bounds.dimensions = pixel2(d.y * (float)aspectRatio, d.y);
 		break;
 	case AspectRule::Unspecified:
 	default:
@@ -651,8 +651,8 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 
 void Composite::pack(AlloyContext* context) {
 	if (parent == nullptr) {
-		pack(pixel2(context->viewport.position),
-				pixel2(context->viewport.dimensions), context->dpmm,
+		pack(pixel2(0,0),
+				pixel2(context->dimensions()), context->dpmm,
 				context->pixelRatio);
 	} else {
 		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
@@ -723,7 +723,7 @@ void TextLabel::draw(AlloyContext* context) {
 }
 void TextField::setValue(const std::string& text) {
 	this->value = text;
-	moveCursorTo(text.size());
+	moveCursorTo((int)text.size());
 }
 
 void TextField::erase() {
@@ -777,7 +777,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 	if (e.isDown()) {
 		switch (e.key) {
 		case GLFW_KEY_RIGHT:
-			if (cursorStart < value.size())
+			if (cursorStart < (int)value.size())
 				moveCursorTo(cursorStart + 1, e.isShiftDown());
 			break;
 		case GLFW_KEY_LEFT:
@@ -785,7 +785,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 				moveCursorTo(cursorStart - 1, e.isShiftDown());
 			break;
 		case GLFW_KEY_END:
-			moveCursorTo(value.size(), e.isShiftDown());
+			moveCursorTo((int)value.size(), e.isShiftDown());
 			break;
 		case GLFW_KEY_HOME:
 			moveCursorTo(0, e.isShiftDown());
@@ -808,7 +808,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 		case GLFW_KEY_A:
 			if (e.isControlDown()) {
 				cursorEnd = 0;
-				cursorStart = value.size();
+				cursorStart = (int)(value.size());
 			}
 			break;
 		case GLFW_KEY_C:
@@ -831,7 +831,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 				erase();
 				auto pasteText = glfwGetClipboardString(context->window);
 				value.insert(cursorStart, pasteText);
-				moveCursorTo(cursorStart + std::string(pasteText).size(),
+				moveCursorTo(cursorStart + (int)std::string(pasteText).size(),
 						e.isShiftDown());
 			}
 			break;
@@ -855,8 +855,8 @@ void TextField::handleMouseInput(AlloyContext* context, const InputEvent& e) {
 		if (e.isDown()) {
 			showCursor = true;
 			showDefaultLabel = false;
-			float shift = e.cursor.x - textOffsetX;
-			size_t cursorPos = fontFace->getCursorPosition(value, fontSize,
+			int shift = (int)(e.cursor.x - textOffsetX);
+			int cursorPos = fontFace->getCursorPosition(value, fontSize,
 					shift);
 			moveCursorTo(cursorPos);
 			dragging = true;
@@ -869,7 +869,7 @@ void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 	FontPtr fontFace = context->getFont(FontType::Bold);
 	box2px bounds = getBounds();
 	if (dragging) {
-		float shift = e.cursor.x - textOffsetX;
+		int shift = (int)(e.cursor.x - textOffsetX);
 		dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
 	}
 }
@@ -951,7 +951,7 @@ void TextField::draw(AlloyContext* context) {
 	positions.resize(
 			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
 					value.data() + value.size(), positions.data(),
-					positions.size()));
+					(int)positions.size()));
 	bool isFocused = context->isFocused(this);
 
 	if (cursorEnd != cursorStart) {

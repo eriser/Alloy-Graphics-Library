@@ -50,7 +50,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	ProgressBarPtr pbar = ProgressBarPtr(
 			new ProgressBar("Progress", CoordPercent(0.05f, 0.7f),
-					CoordPercent(0.4, 0.05f)));
+					CoordPercent(0.4f, 0.05f)));
 	progressTask = std::unique_ptr<aly::RecurrentWorker>(
 			new RecurrentWorker([pbar](uint64_t iter) {
 				//std::cout << "Iteration " << iter << std::endl;
@@ -81,7 +81,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			UnitPX(2.0f));
 	scrollHandle->setEnableDrag(true);
 	CompositePtr scrollTrack = MakeComposite("Scroll Track",
-			CoordPercent(0.2, 0.7), CoordPX(300, 30), RGBA(128, 128, 128, 255));
+			CoordPercent(0.2f, 0.7f), CoordPX(300, 30), RGBA(128, 128, 128, 255));
 	scrollTrack->add(scrollHandle);
 	iconr->setEnableDrag(true);
 
@@ -92,31 +92,31 @@ bool ExampleUI::init(Composite& rootNode) {
 	ButtonPtr button2 = std::shared_ptr<Button>(
 			new Button("Drag Me", CoordPX(10, 10), CoordPX(140, 50)));
 	HSliderPtr hslider1 = HSliderPtr(
-			new HorizontalSlider("Label A", CoordPerPX(0.1, 0.3, 0, 0),
+			new HorizontalSlider("Label A", CoordPerPX(0.1f, 0.3f, 0, 0),
 					CoordPX(200.0f, 40.0f), Integer(0), Integer(100),
 					Integer(70)));
 	HSliderPtr hslider2 = HSliderPtr(
-			new HorizontalSlider("Label B", CoordPercent(0.7, 0.7),
+			new HorizontalSlider("Label B", CoordPercent(0.7f, 0.7f),
 					CoordPX(200.0f, 50.0f)));
 
 	VSliderPtr vslider1 = VSliderPtr(
-			new VerticalSlider("Slider", CoordPerPX(0.85, 0.1, 0, 0),
+			new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
 					CoordPX(100.0f, 200.0f), Integer(0), Integer(100),
 					Integer(70)));
 
 	CheckBoxPtr checkbox = CheckBoxPtr(
-			new CheckBox("Check", CoordPX(200, 40.0), CoordPercent(0.4f, 0.07),
+			new CheckBox("Check", CoordPX(200.0f, 40.0f), CoordPercent(0.4f, 0.07f),
 					false));
 	ToggleBoxPtr togglebox = ToggleBoxPtr(
-			new ToggleBox("Toggle", CoordPX(200, 40.0),
-					CoordPercent(0.4f, 0.07), false));
+			new ToggleBox("Toggle", CoordPX(200.0f, 40.0f),
+					CoordPercent(0.4f, 0.07f), false));
 	ColorSelectorPtr colorselect = ColorSelectorPtr(
 			new ColorSelector("Color", CoordPercent(0.6f, 0.5f),
 					CoordPX(200, 50)));
 	colorselect->setColor(Color(200, 128, 32));
 	SelectionPtr dropdown =
 			SelectionPtr(
-					new Selection("Selection", CoordPercent(0.6, 0.1),
+					new Selection("Selection", CoordPercent(0.6f, 0.1f),
 							CoordPX(200, 30), std::vector<std::string> {
 									"Mission", "Bernal Heights", "Noe Valley",
 									"Telegraph Hill", "North Beach",

@@ -27,7 +27,7 @@
 #include <list>
 #include <mutex>
 namespace aly {
-class Region;
+struct Region;
 class CursorLocator {
 	static const int ROWS = 32;
 	static const int COLS = 18;

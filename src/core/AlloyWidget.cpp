@@ -401,12 +401,12 @@ box2px SelectionBox::getBounds() const {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	float entryHeight = std::min(
-			context->viewport.dimensions.y / (float) options.size(),
+			context->width() / (float) options.size(),
 			bounds.dimensions.y);
 	float boxHeight = (options.size()) * entryHeight;
 
 	float yOffset = std::min(bounds.position.y + boxHeight + entryHeight,
-			(float) context->viewport.dimensions.y) - boxHeight;
+			(float) context->height()) - boxHeight;
 
 	box2px bbox;
 	bbox.position = pixel2(bounds.position.x, yOffset);
@@ -660,9 +660,9 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	add(
 			sliderLabel = MakeTextLabel(label,
 					CoordPerPX(0.0f, 0.0f, trackPadding, 2.0f),
-					CoordPerPX(0.5f, 1.0f, 0,
+					CoordPerPX(0.5f, 1.0f, 0.0f,
 							-(handleSize - trackPadding * 0.75f)),
-					FontType::Bold, UnitPerPX(1.0f, 0),
+					FontType::Bold, UnitPerPX(1.0f, 0.0f),
 					AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 					HorizontalAlignment::Left, VerticalAlignment::Bottom));
 	add(
@@ -695,10 +695,10 @@ void HorizontalSlider::setValue(double value) {
 	double interp = clamp(
 			(value - minValue.toDouble())
 					/ (maxValue.toDouble() - minValue.toDouble()), 0.0, 1.0);
-	double xoff = sliderTrack->getBoundsPositionX()
+	float xoff = (float)(sliderTrack->getBoundsPositionX()
 			+ interp
 					* (sliderTrack->getBoundsDimensionsX()
-							- sliderHandle->getBoundsDimensionsX());
+							- sliderHandle->getBoundsDimensionsX()));
 	sliderHandle->setDragOffset(
 			pixel2(xoff, sliderHandle->getBoundsDimensionsY()),
 			pixel2(0.0f, 0.0f));
@@ -709,8 +709,8 @@ void HorizontalSlider::update() {
 			- sliderTrack->getBoundsPositionX())
 			/ (double) (sliderTrack->getBoundsDimensionsX()
 					- sliderHandle->getBoundsDimensionsX());
-	double val = (1.0 - interp) * minValue.toDouble()
-			+ interp * maxValue.toDouble();
+	float val =(float)( (1.0 - interp) * minValue.toDouble()
+			+ interp * maxValue.toDouble());
 	value.setValue(val);
 }
 bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
@@ -816,8 +816,8 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderTrack = std::shared_ptr<SliderTrack>(
 			new SliderTrack("Scroll Track", Orientation::Vertical, AlloyApplicationContext()->theme.HIGHLIGHT, AlloyApplicationContext()->theme.HIGHLIGHT));
 
-	sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2));
-	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4));
+	sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2.0f));
+	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4.0f));
 
 	sliderTrack->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
@@ -870,10 +870,10 @@ void VerticalSlider::setValue(double value) {
 					(value - minValue.toDouble())
 							/ (maxValue.toDouble() - minValue.toDouble()), 0.0,
 					1.0);
-	double yoff = sliderTrack->getBoundsPositionY()
+	float yoff =(float)( sliderTrack->getBoundsPositionY()
 			+ interp
 					* (sliderTrack->getBoundsDimensionsY()
-							- sliderHandle->getBoundsDimensionsY());
+							- sliderHandle->getBoundsDimensionsY()));
 	sliderHandle->setDragOffset(
 			pixel2(sliderHandle->getBoundsDimensionsX(), yoff),
 			pixel2(0.0f, 0.0f));
@@ -884,8 +884,8 @@ void VerticalSlider::update() {
 			- sliderTrack->getBoundsPositionY())
 			/ (double) (sliderTrack->getBoundsDimensionsY()
 					- sliderHandle->getBoundsDimensionsY());
-	double val = interp * minValue.toDouble()
-			+ (1.0 - interp) * maxValue.toDouble();
+	float val = (float)(interp * minValue.toDouble()
+			+ (1.0 - interp) * maxValue.toDouble());
 	value.setValue(val);
 }
 bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,

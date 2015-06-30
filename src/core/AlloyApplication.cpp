@@ -61,6 +61,7 @@ void Application::initInternal() {
 
 	imageShader = std::shared_ptr<ImageShader>(new ImageShader(context,ImageShader::Filter::NONE));
 	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(context));
+	std::cout << "Screen size " << context->screenSize << std::endl;
 	uiFrameBuffer->initialize(context->screenSize.x,context->screenSize.y);
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
@@ -101,8 +102,7 @@ void Application::draw() {
 	draw(e3d);
 	CHECK_GL_ERROR();
 	glDisable(GL_DEPTH_TEST);
-	glViewport(context->viewport.position.x, context->viewport.position.y,
-			context->viewport.dimensions.x, context->viewport.dimensions.y);
+	glViewport(0,0,context->width(),context->height());
 	draw(e2d);
 	CHECK_GL_ERROR();
 	drawUI();
@@ -117,12 +117,14 @@ void Application::draw() {
 void Application::drawUI() {
 	if (context->dirtyUI) {
 		uiFrameBuffer->begin();
+
+		glViewport(0, context->screenSize.y- context->height(), context->width(), context->height());
 		NVGcontext* nvg = context->nvgContext;
 		nvgBeginFrame(nvg, context->width(), context->height(),
-			context->pixelRatio);
-		nvgScissor(nvg, 0, 0, context->width(), context->height());
+			(float)context->pixelRatio);
+		nvgScissor(nvg, 0, 0, (float)context->width(), (float)context->height());
 		rootNode.draw(context.get());
-		nvgScissor(nvg, 0, 0, context->width(), context->height());
+		nvgScissor(nvg, 0, 0, (float)context->width(), (float)context->height());
 
 		Region* onTop = context->getOnTopRegion();
 		if (onTop != nullptr) {
@@ -133,32 +135,29 @@ void Application::drawUI() {
 		uiFrameBuffer->end();
 		context->dirtyUI = false;
 	}
-	imageShader->draw(uiFrameBuffer->getTexture(),context->getViewport());
+	imageShader->draw(uiFrameBuffer->getTexture(),pixel2(0,0),pixel2(context->screenSize));
 }
 void Application::drawDebugUI() {
-	box2i& view = context->viewport;
 	NVGcontext* nvg = context->nvgContext;
 	nvgBeginFrame(nvg, context->width(), context->height(),
-			context->pixelRatio);
+		(float)context->pixelRatio);
 	nvgResetScissor(nvg);
 	rootNode.drawDebug(context.get());
 	Region* onTop = context->getOnTopRegion();
 	if (onTop != nullptr) {
 		onTop->drawDebug(context.get());
 	}
-	int cr = context->theme.CORNER_RADIUS;
-	if (context->viewport.contains(
-			int2((int) context->cursorPosition.x,
-					(int) context->cursorPosition.y))) {
+	float cr = context->theme.CORNER_RADIUS;
+	if (context->getViewport().contains(context->cursorPosition)) {
 		nvgFontSize(nvg, 22);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		int alignment = 0;
-		if (context->cursorPosition.x < context->viewport.dimensions.x * 0.5f) {
+		if (context->cursorPosition.x < context->width() * 0.5f) {
 			alignment = NVG_ALIGN_LEFT;
 		} else {
 			alignment = NVG_ALIGN_RIGHT;
 		}
-		if (context->cursorPosition.y < context->viewport.dimensions.y * 0.5f) {
+		if (context->cursorPosition.y < context->height() * 0.5f) {
 			alignment |= NVG_ALIGN_TOP;
 		} else {
 			alignment |= NVG_ALIGN_BOTTOM;
@@ -335,9 +334,9 @@ void Application::fireEvent(const InputEvent& event) {
 
 void Application::onWindowSize(int width, int height) {
 	glViewport(0, 0, width, height);
-	if (context->viewport.dimensions.x != width
-			|| context->viewport.dimensions.y != height) {
-		context->viewport = box2i(int2(0, 0), int2(width, height));
+	if (context->width() != width
+			|| context->height() != height) {
+		context->viewSize= int2(width, height);
 		context->requestPack();
 	}
 }

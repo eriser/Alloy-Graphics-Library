@@ -53,7 +53,7 @@ template<class L, class R> std::basic_ostream<L, R>& operator <<(
 	}
 	return ss;
 }
-template<class T, int C, ImageType I> class Image;
+template<class T, int C, ImageType I> struct Image;
 template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& fileName,const Image<T,C,I>& img);
 template<class T, int C, ImageType I> struct Image {
 private:
@@ -104,31 +104,26 @@ public:
 	std::string getTypeName() const {
 		return MakeString() << type << channels;
 	}
-	const Image<T, C, I>& operator=(Image<T, C, I>& img) const {
-		return Image<T, C, I>(&data[0], img.width, img.height, img.x, img.y,
-				img.id);
-	}
-
 	const Image<T, C, I>& operator=(const Image<T, C, I>& img) const {
 		return Image<T, C, I>(&data[0], img.width, img.height, img.x, img.y,
 				img.id);
 	}
 
-	Image(int w, int h, int x = 0, int y = 0, int id = 0) :
+	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			width(w), height(h), x(x), y(x), id(id), data(storage) {
 		data.resize(w * h);
 		data.shrink_to_fit();
 	}
-	Image(T* ptr, int w, int h, int x = 0, int y = 0, int id = 0) :
+	Image(T* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			Image(w, h, x, y, id) {
 		set(ptr);
 	}
-	Image(vec<T, C>* ptr, int w, int h, int x = 0, int y = 0, int id = 0) :
+	Image(vec<T, C>* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			Image(w, h, x, y, id) {
 		set(ptr);
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
-			int id = 0) :
+		uint64_t id = 0) :
 			width(w), height(h), x(x), y(y), id(id), data(ref) {
 	}
 	Image() :

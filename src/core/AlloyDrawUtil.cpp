@@ -47,7 +47,7 @@ int popScissor(NVGcontext* ctx) {
 	} else {
 		nvgResetScissor(ctx);
 	}
-	return NVG_SCISSOR_STACK.size();
+	return (int)NVG_SCISSOR_STACK.size();
 }
 
 float drawText(NVGcontext* nvg, float x, float y, const char* txt,

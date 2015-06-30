@@ -267,10 +267,10 @@ public:
 		return textureImage;
 	}
 public:
-	inline int width() {
+	inline int width() const {
 		return textureImage.width;
 	}
-	inline int height() {
+	inline int height() const {
 		return textureImage.height;
 	}
 	inline void setEnableMipmap(bool enable) {

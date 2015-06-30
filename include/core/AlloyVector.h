@@ -66,9 +66,6 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	const Vector<T, C>& operator=(Vector<T, C>& img) const {
-		return Vector<T, C>(&img.data[0], img.size());
-	}
 
 	const Vector<T, C>& operator=(const Vector<T, C>& img) const {
 		return Vector<T, C>(&img.data[0], img.size());

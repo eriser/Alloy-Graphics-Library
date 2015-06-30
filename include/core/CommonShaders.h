@@ -164,7 +164,7 @@ public:
 		return lights[i];
 	}
 	inline int size() const {
-		return lights.size();
+		return (int)lights.size();
 	}
 	PhongShader(int numLights,std::shared_ptr<AlloyContext> contex=AlloyDefaultContext());
 	PhongShader(const SimpleLight& light,std::shared_ptr<AlloyContext> context=AlloyDefaultContext()):PhongShader(1,context){

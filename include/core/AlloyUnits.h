@@ -29,9 +29,9 @@
 #include <memory>
 #include <list>
 namespace aly {
-const float MM_TO_PIX = 1.0;
-const float DP_TO_PIX = 1.0 / 160.0;
-const float IN_TO_PIX = 25.4;
+const float MM_TO_PIX = 1.0f;
+const float DP_TO_PIX = 1.0f / 160.0f;
+const float IN_TO_PIX = 25.4f;
 const float PT_TO_PIX = 1.333333f;
 typedef float pixel;
 typedef vec<pixel, 2> pixel2;
@@ -478,6 +478,9 @@ struct UnitPX {
 	UnitPX(float x) :
 			value((pixel) x) {
 	}
+	UnitPX(double x) :
+		value((pixel)x) {
+	}
 	UnitPX(int x) :
 			value((pixel) x) {
 	}
@@ -526,6 +529,12 @@ struct UnitPerPX {
 	std::pair<UnitPercent, UnitPX> value;
 	UnitPerPX(float px, float x) :
 			value(UnitPercent(px), UnitPX(x)) {
+	}
+	UnitPerPX(float px, double x) :
+		value(UnitPercent(px), UnitPX(x)) {
+	}
+	UnitPerPX(float px, int x) :
+		value(UnitPercent(px), UnitPX(x)) {
 	}
 	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
 		return value.first.toPixels(screenSize, dpmm, pixelRatio)
@@ -592,6 +601,9 @@ struct CoordPX {
 	CoordPX(float x, float y) :
 			value((pixel) x, (pixel) y) {
 	}
+	CoordPX(double x, double y) :
+		value((pixel)x, (pixel)y) {
+	}
 	CoordPX(const pixel2& pix) :
 			value(pix) {
 	}
@@ -656,6 +668,12 @@ struct CoordPerPX {
 	std::pair<CoordPercent, CoordPX> value;
 	CoordPerPX(float px, float py, int x, int y) :
 			value(CoordPercent(px, py), CoordPX(x, y)) {
+	}
+	CoordPerPX(float px, float py, float x, float y) :
+		value(CoordPercent(px, py), CoordPX(x, y)) {
+	}
+	CoordPerPX(float px, float py, double x, double y) :
+		value(CoordPercent(px, py), CoordPX(x, y)) {
 	}
 	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
 		return value.first.toPixels(screenSize, dpmm, pixelRatio)

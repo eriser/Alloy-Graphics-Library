@@ -10,9 +10,9 @@ namespace aly {
 const float VirtualCamera::sDeg2rad = ALY_PI / 180.0;
 VirtualCamera::VirtualCamera() :
 		fov(60.0), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
-				0, 0, 0), nearPlane(0.1), farPlane(10000.0), eye(
-				float3(0.0, 0.0, -1.0)), tumblingSpeed(0.5), zoomSpeed(0.2), strafeSpeed(
-				0.001), distanceToObject(1.0), mouseDown(false), startTumbling(
+				0, 0, 0), nearPlane(0.1f), farPlane(10000.0f), eye(
+				float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(0.2f), strafeSpeed(
+				0.001f), distanceToObject(1.0), mouseDown(false), startTumbling(
 				false), zoomMode(false), changed(true), needsDisplay(true), Projection(
 				float4x4::identity()), View(float4x4::identity()), Model(
 				float4x4::identity()), mouseXPos(0), mouseYPos(0) {
@@ -103,16 +103,16 @@ void VirtualCamera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 		cameraTrans = float3(0, 0, 0);
 		changed = true;
 	} else if (key == GLFW_KEY_UP) {
-		cameraTrans[1] -= 0.025;
+		cameraTrans[1] -= 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_DOWN) {
-		cameraTrans[1] += 0.025;
+		cameraTrans[1] += 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_LEFT) {
-		cameraTrans[0] -= 0.025;
+		cameraTrans[0] -= 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_RIGHT) {
-		cameraTrans[0] += 0.025;
+		cameraTrans[0] += 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_PAGE_UP) {
 		distanceToObject = (1 + zoomSpeed) * distanceToObject;
@@ -171,7 +171,7 @@ bool VirtualCamera::onEventHandler(AlloyContext* context,
 		handleButtonEvent(event.button, event.action);
 		return true;
 	case InputType::Scroll:
-		handleScrollEvent(event.scroll.y);
+		handleScrollEvent((int)event.scroll.y);
 		return true;
 	case InputType::Key:
 		handleKeyEvent(context->window, event.key, event.action);

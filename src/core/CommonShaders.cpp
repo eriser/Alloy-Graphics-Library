@@ -42,7 +42,7 @@ MatcapShader::MatcapShader(const std::string& textureImage,
 					uniform sampler2D matcapTexture;
 					void main() {
 					   vec3 normalized_normal = normalize(normal);
-					   vec4 c=texture2D(matcapTexture,0.5f*normalized_normal.xy+0.5f);
+					   vec4 c=texture(matcapTexture,0.5f*normalized_normal.xy+0.5f);
 					   c.w=1.0;
 					   gl_FragColor=c;
 					 }
@@ -80,7 +80,7 @@ layout(location = 1) in vec2 vt;
 		 in vec2 uv;
 		 uniform sampler2D textureImage;
 		 void main() {
-		 vec4 rgba=texture2D(textureImage,uv);
+		 vec4 rgba=texture(textureImage,uv);
 		 gl_FragColor=rgba;
 		 })");
 	} else if(filter==Filter::SMALL_BLUR){
@@ -332,7 +332,7 @@ vec4 PostFX(sampler2D tex, float time)
   vec4 c = vec4(0.0);
   vec2 rcpFrame = vec2(1.0/bounds.z, 1.0/bounds.w);
   c.rgb = FxaaPixelShader(posPos, tex, rcpFrame);
-  c.a = texture2D(tex, posPos.xy).a;
+  c.a = texture(tex, posPos.xy).a;
   return c;
 }
     
@@ -700,14 +700,14 @@ uniform int KERNEL_SIZE;
 uniform sampler2D textureImage;
 const int SCALE=2;
 void main() {
-vec4 rgba=texture2D(textureImage,uv);
+vec4 rgba=texture(textureImage,uv);
 vec4 nrgba;
 if(rgba.w>0){
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       
-      nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
+      nrgba=texture(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
 	  if(nrgba.w<=0.0){
 		  minDistance=min(minDistance,i*i+j*j);
 	  }
@@ -718,7 +718,7 @@ rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
-      nrgba=texture2D(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
+      nrgba=texture(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
 	  if(nrgba.w>0.0){
         minDistance=min(minDistance,i*i+j*j);
 	  }
@@ -765,13 +765,13 @@ uniform sampler2D textureImage;
 uniform vec4 innerColor,outerColor,edgeColor;
 float w=0;
 void main() {
-vec4 rgba=texture2D(textureImage,uv);
+vec4 rgba=texture(textureImage,uv);
 vec4 nrgba;
 if(rgba.w>0){
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
-      nrgba=texture2D(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
+      nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
 if(nrgba.w<=0.0){
       minDistance=min(minDistance,i*i+j*j);
 }
@@ -784,7 +784,7 @@ rgba=mix(edgeColor,innerColor,w);
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
-      nrgba=texture2D(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
+      nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
 if(nrgba.w>0.0){
       minDistance=min(minDistance,i*i+j*j);
 }
@@ -830,7 +830,7 @@ in vec2 uv;
 const float PI=3.1415926535;
 uniform sampler2D textureImage;
 void main() {
-vec4 rgba=texture2D(textureImage,uv);
+vec4 rgba=texture(textureImage,uv);
 if(rgba.w>0){
 float lum=clamp(abs(rgba.w),0.0f,1.0f);
 rgba=vec4(-rgba.x*0.5+0.5,-rgba.y*0.5+0.5,-rgba.z,1.0);
@@ -874,7 +874,7 @@ uniform sampler2D textureImage;
 uniform float zMin;
 uniform float zMax;
 void main() {
-vec4 rgba=texture2D(textureImage,uv);
+vec4 rgba=texture(textureImage,uv);
 if(rgba.w>0){
 	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
 	float r=max(0.0,1.0f-lum*2.0);
@@ -1048,7 +1048,7 @@ vec4 toWorld(vec2 uv,vec4 rgba){
 	return vec4(z*(2.0*uv.x-1)/focalLength.x,z*(2.0*uv.y-1)/focalLength.y, z, 1.0);	
 }
 void main() {
-    vec4 rgba=texture2D(textureImage,uv);
+    vec4 rgba=texture(textureImage,uv);
     if(rgba.w<=0.0)discard;
 	vec4 pt=toWorld(uv,rgba);
 	vec3 norm=rgba.xyz;
@@ -1156,7 +1156,7 @@ uniform vec4 edgeColor;
 uniform vec4 faceColor;
 uniform float LINE_WIDTH;
 void main() {
-vec4 rgba=texture2D(textureImage,uv);
+vec4 rgba=texture(textureImage,uv);
 if(rgba.w>0){
 	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
 	rgba=mix(edgeColor,faceColor,(lum>LINE_WIDTH?1.0:0.0));

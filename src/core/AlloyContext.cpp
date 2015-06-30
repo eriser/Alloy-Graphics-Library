@@ -61,7 +61,7 @@ int Font::getCursorPosition(const std::string & text, float fontSize,
 	positions.resize(
 			nvgTextGlyphPositions(nvg, 0, 0, text.data(),
 					text.data() + text.size(), positions.data(),
-					positions.size()));
+				(int)positions.size()));
 	for (size_t i = 0; i < positions.size(); ++i) {
 		if (xCoord < positions[i].maxx) {
 			return i;
@@ -96,8 +96,8 @@ ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 			(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0);
 	int w, h;
 	nvgImageSize(context->nvgContext, handle, &w, &h);
-	width = w;
-	height = h;
+	width = (pixel)w;
+	height = (pixel)h;
 }
 ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 		bool mipmap) :
@@ -217,8 +217,8 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glEnable( GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0, 0, width, height);
-	viewport = box2i(int2(0, 0), int2(width, height));
-	nvgContext = nvgCreateGL3( NVG_STENCIL_STROKES);//NVG_ANTIALIAS |
+	viewSize=int2(width, height);
+	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 	const float2 TextureCoords[6] = { float2(1.0f, 0.0f), float2(0.0f, 0.0f),
 			float2(0.0f, 1.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f), float2(
 					1.0f, 0.0f) };
@@ -322,7 +322,7 @@ void AlloyContext::update(Composite& rootNode) {
 			endTime - lastCursorTime).count();
 	if (updateElapsed > UPDATE_LOCATOR_INTERVAL_SEC) {
 		if (dirtyCursorLocator) {
-			cursorLocator.reset(viewport.dimensions);
+			cursorLocator.reset(viewSize);
 			rootNode.update(&cursorLocator);
 			dirtyCursorLocator = false;
 			mouseOverRegion = locate(cursorPosition);

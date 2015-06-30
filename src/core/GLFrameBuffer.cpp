@@ -59,8 +59,7 @@ void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
 void GLFrameBuffer::end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glViewport(context->viewport.position.x, context->viewport.position.y,
-			context->viewport.dimensions.x, context->viewport.dimensions.y);
+	glViewport(0,0,context->width(), context->height());
 	CHECK_GL_ERROR();
 	context->end();
 }

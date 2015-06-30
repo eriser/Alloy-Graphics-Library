@@ -29,7 +29,7 @@
 #include "AlloyContext.h"
 #include <vector>
 namespace aly {
-class Mesh;
+struct Mesh;
 struct GLMesh: public GLComponent {
 public:
 	enum class PrimitiveType {
@@ -62,7 +62,7 @@ private:
 	box3f boundingBox;
 	bool dirty = false;
 public:
-	friend class GLMesh;
+	friend struct GLMesh;
 
 
 	Vector3f vertexLocations;

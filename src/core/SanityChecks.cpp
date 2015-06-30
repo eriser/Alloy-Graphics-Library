@@ -15,7 +15,7 @@ namespace aly {
 bool SANITY_CHECK_MATH() {
 	try {
 		std::cout << "Sanity Check .." << std::endl;
-		float4 pt(0.1, 5.3, 2.4, 6.7);
+		float4 pt(0.1f, 5.3f, 2.4f, 6.7f);
 		float4x4 M1(1.0f);
 		float4x4 M2( { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 		float4x4 M3 = { { 0, 1, 2, 3 }, { 4, 5, 6, 7 }, { 8, 9, 10, 11 }, { 12,
@@ -34,7 +34,7 @@ bool SANITY_CHECK_MATH() {
 
 		M2 = inverse(M2);
 		pt = pt.xyz().xy().xyz().xyzw();
-		float3 pt2(0.1, 0.4, 0.3);
+		float3 pt2(0.1f, 0.4f, 0.3f);
 		float3x4 M3r = SubRowMatrix(M3);
 		float4x3 M3c = SubColMatrix(M3);
 		float3x3 M3rc = SubMatrix(M3);
@@ -49,20 +49,20 @@ bool SANITY_CHECK_MATH() {
 		v = ceil(v - 0.2f);
 		v = abs(-v);
 		float4x4 T = MakeTranslation(float3(1, 2, 3));
-		float4x4 S = MakeScale(float3(0.1, 0.2, 0.3));
+		float4x4 S = MakeScale(float3(0.1f, 0.2f, 0.3f));
 		float4x4 S2 = MakeScale(0.1f);
 
-		float3 neg = -float3(0.1, 0.2, 0.3);
-		float single = float1(0.7);
+		float3 neg = -float3(0.1f, 0.2f, 0.3f);
+		float single = float1(0.7f);
 		float4x4 RX = MakeRotationX(0.3f);
 		float4x4 RY = MakeRotationY(0.7f);
 		float4x4 RZ = MakeRotationZ(0.5f);
 		float4x4 R = MakeRotationMatrix(normalize(float3(1, 1, 0)),
 				0.3333f * ALY_PI_2);
-		float angle = Angle(float3(0.1, 0.6, 0.2), float3(0, 0, 0),
-				SubMatrix(R) * float3(0.1, 0.6, 0.2));
+		float angle = Angle(float3(0.1f, 0.6f, 0.2f), float3(0, 0, 0),
+				SubMatrix(R) * float3(0.1f, 0.6f, 0.2f));
 		v = aly::max(v, pt.xyz());
-		float3 v2 = mix(v, float3(0, 3, 5), float3(0.1, 0.2, 0.5));
+		float3 v2 = mix(v, float3(0, 3, 5), float3(0.1f, 0.2f, 0.5));
 		float3 v3 = v2 * 2.0f - 1.0f;
 		v = mix(v2, v3, 0.7f);
 		return true;
@@ -105,9 +105,9 @@ bool SANITY_CHECK_LINALG() {
 		Vector4f im2;
 		im2.resize(32);
 		im2.apply(
-				[](size_t offset,float4& val) {val=float4(offset%8,0,-offset,1);});
+				[](size_t offset,float4& val) {val=float4((float)(offset%8),0.0f,-(float)offset,1);});
 		im1.apply(
-				[](size_t offset,float4& val) {val=float4(offset%8,(offset+7)%5,offset%3,1);});
+				[](size_t offset,float4& val) {val=float4((float)(offset%8), (float)((offset+7)%5),(float)(offset%3),1.0f);});
 		std::cout << im1 << std::endl;
 		std::cout << im2 << std::endl;
 		Vector4f im3 = -im1;

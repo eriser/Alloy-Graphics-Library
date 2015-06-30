@@ -279,7 +279,7 @@ void GLMesh::update() {
 
 		CHECK_GL_ERROR();
 
-		triIndexCount = mesh.triIndexes.size();
+		triIndexCount =(GLuint) mesh.triIndexes.size();
 
 	}
 	if (mesh.quadIndexes.size() > 0) {
@@ -315,7 +315,7 @@ void GLMesh::update() {
 		}
 		CHECK_GL_ERROR();
 
-		quadIndexCount = mesh.quadIndexes.size();
+		quadIndexCount = (GLuint)mesh.quadIndexes.size();
 		/*
 		 int sz = mesh.quadIndexes.size();
 		 std::vector<GLuint> tmp(12 * mesh.quadIndexes.size());
@@ -464,9 +464,9 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	}
 
 	// compute colors, if any
-	int numPts = mesh.vertexLocations.size();
+	int numPts =(int)( mesh.vertexLocations.size());
 
-	int numPolys = mesh.quadIndexes.size() / 4 + mesh.triIndexes.size() / 3;
+	int numPolys = (int)(mesh.quadIndexes.size() / 4 + mesh.triIndexes.size() / 3);
 
 	std::vector<unsigned char> pointColors;
 
@@ -547,13 +547,12 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	plyFaceTexture faceT;
 	int verts[256];
 	float2 uvs[3];
-	float vel[3];
 	face.verts = verts;
 	faceT.verts = verts;
 	faceT.uvs = (float*) uvs;
 	put_element_setup_ply(ply, "face");
 	if (usingTexture) {
-		int sz = mesh.quadIndexes.size() / 4;
+		int sz =(int)( mesh.quadIndexes.size() / 4);
 		for (int i = 0; i < sz; i++) {
 			faceT.nverts = 4;
 			faceT.uvcount = 8;
@@ -563,7 +562,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			}
 			put_element_ply(ply, (void *) &faceT);
 		}
-		sz = mesh.triIndexes.size() / 3;
+		sz =(int)( mesh.triIndexes.size() / 3);
 		for (int i = 0; i < sz; i++) {
 			faceT.nverts = 3;
 			faceT.uvcount = 6;
@@ -574,7 +573,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			put_element_ply(ply, (void *) &faceT);
 		}
 	} else {
-		int sz = mesh.quadIndexes.size() / 4;
+		int sz = (int)(mesh.quadIndexes.size() / 4);
 		for (int i = 0; i < sz; i++) {
 			for (j = 0; j < 4; j++) {
 				face.nverts = 4;
@@ -582,7 +581,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			}
 			put_element_ply(ply, (void *) &face);
 		}
-		sz = mesh.triIndexes.size() / 3;
+		sz = (int)(mesh.triIndexes.size() / 3);
 		for (int i = 0; i < sz; i++) {
 			for (j = 0; j < 3; j++) {
 				face.nverts = 3;
@@ -596,7 +595,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	free_ply(ply);
 }
 void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
-	uint32_t sz = triIndexes.size();
+	uint32_t sz = (uint32_t )triIndexes.size();
 	float3 pt;
 	vertexNormals.clear();
 	vertexNormals.resize(vertexLocations.size(), float3(0.0f));
@@ -610,8 +609,8 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		vertexNormals[verts.y] += norm;
 		vertexNormals[verts.z] += norm;
 	}
-	sz = quadIndexes.size();
-	for (int i = 0; i < sz; i++) {
+	sz = (uint32_t)quadIndexes.size();
+	for (uint32_t i = 0; i <sz; i++) {
 		uint4 verts = quadIndexes[i];
 		float3 v1 = vertexLocations[verts.x];
 		float3 v2 = vertexLocations[verts.y];
@@ -628,11 +627,10 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		vertexNormals[n] = normalize(vertexNormals[n]);
 	}
 	if (SMOOTH_ITERATIONS > 0) {
-		int vertCount = vertexLocations.size();
+		int vertCount =(int) vertexLocations.size();
 		std::vector<float3> tmp(vertCount);
 		std::vector<std::list<int>> vertNbrs(vertCount);
-		int indexCount = quadIndexes.size();
-		int v1, v2, v3, v4;
+		int indexCount = (int)quadIndexes.size();
 
 		for (int i = 0; i < indexCount; i++) {
 			uint4 verts = quadIndexes[i];
@@ -673,7 +671,7 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 float Mesh::estimateVoxelSize(int stride) {
 	int count = 0;
 	//float maxLength = 0.0f;
-	int sz = triIndexes.size();
+	int sz = (int)triIndexes.size();
 	float mEstimatedVoxelSize = 0.0f;
 	for (int i = 0; i < sz; i += stride) {
 		uint3 verts = triIndexes[i];
@@ -687,7 +685,7 @@ float Mesh::estimateVoxelSize(int stride) {
 		mEstimatedVoxelSize += e1 + e2 + e3;
 	}
 	count = sz / stride;
-	sz = quadIndexes.size();
+	sz = (int)(quadIndexes.size());
 	for (int i = 0; i < sz; i += stride) {
 		uint4 verts = quadIndexes[i];
 		float3 v1 = vertexLocations[verts.x];
@@ -723,12 +721,12 @@ box3f Mesh::updateBoundingBox() {
 			float3(std::numeric_limits<float>::min(),
 					std::numeric_limits<float>::min(),
 					std::numeric_limits<float>::min()));
-	int SZ = vertexLocations.size();
+	int SZ = (int)vertexLocations.size();
 	int batchSize = (SZ % BATCHES == 0) ? SZ / BATCHES : SZ / BATCHES + 1;
 #pragma omp for
 	for (int b = 0; b < BATCHES; b++) {
 		int sz = std::min(SZ, batchSize * (b + 1));
-		for (uint32_t idx = b * batchSize; idx < sz; idx++) {
+		for (uint32_t idx = b * batchSize; idx < (uint32_t)sz; idx++) {
 			float3& pt = vertexLocations[idx];
 			minPtBatch[b][0] = std::min(minPtBatch[b][0], pt[0]);
 			minPtBatch[b][1] = std::min(minPtBatch[b][1], pt[1]);
@@ -805,7 +803,7 @@ Mesh::~Mesh() {
 }
 
 void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
-	int i, j, k;
+	int i, j;
 	int numPts = 0, numPolys = 0;
 	// open a PLY file for reading
 	PlyFile *ply;
