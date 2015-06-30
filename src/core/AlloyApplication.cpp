@@ -329,6 +329,7 @@ void Application::fireEvent(const InputEvent& event) {
 	if (!consumed) {
 		consumed=context->fireListeners(event);
 	}
+	if (consumed)context->dirtyUI = true;
 }
 
 void Application::onWindowSize(int width, int height) {

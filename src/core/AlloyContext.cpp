@@ -335,14 +335,15 @@ void AlloyContext::update(Composite& rootNode) {
 			mouseOverRegion = locate(cursorPosition);
 			dirtyCursor = false;
 		}
+		dirtyUI = true;
 		lastCursorTime = endTime;
 	}
 	if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
 		lastAnimateTime = endTime;
 		if (animator.step(animateElapsed)) {
 			dirtyLayout = true;
+			dirtyUI = true;
 		}
-		dirtyUI = true;
 	}
 	if (dirtyLayout) {
 		rootNode.pack(this);

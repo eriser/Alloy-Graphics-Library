@@ -350,6 +350,9 @@ public:
 			const Theme& theme = Theme::Default);
 	bool begin();
 	bool end();
+	void repaintUI() {
+		dirtyUI = true;
+	}
 	void makeCurrent();
 	~AlloyContext();
 };
