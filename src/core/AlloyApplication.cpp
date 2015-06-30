@@ -61,7 +61,6 @@ void Application::initInternal() {
 
 	imageShader = std::shared_ptr<ImageShader>(new ImageShader(context,ImageShader::Filter::NONE));
 	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(context));
-	std::cout << "Screen size " << context->screenSize << std::endl;
 	uiFrameBuffer->initialize(context->screenSize.x,context->screenSize.y);
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
