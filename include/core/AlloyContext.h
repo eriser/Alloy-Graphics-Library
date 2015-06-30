@@ -174,7 +174,7 @@ private:
 	bool enableDebugInterface = false;
 	Animator animator;
 	CursorLocator cursorLocator;
-	const double ANIMATE_INTERVAL_SEC = 1.0 / 60.0;
+	const double ANIMATE_INTERVAL_SEC = 1.0 / 30.0;
 	const double UPDATE_LOCATOR_INTERVAL_SEC = 1.0 / 15.0;
 	const double UPDATE_CURSOR_INTERVAL_SEC = 1.0 / 30.0;
 	bool leftMouseButton = false;

@@ -64,7 +64,7 @@ int Font::getCursorPosition(const std::string & text, float fontSize,
 				(int)positions.size()));
 	for (size_t i = 0; i < positions.size(); ++i) {
 		if (xCoord < positions[i].maxx) {
-			return i;
+			return static_cast<int>(i);
 		}
 	}
 	return static_cast<int>(positions.size());

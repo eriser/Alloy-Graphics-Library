@@ -9,7 +9,7 @@
 namespace aly {
 const float VirtualCamera::sDeg2rad = ALY_PI / 180.0;
 VirtualCamera::VirtualCamera() :
-		fov(60.0), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
+		fov(60.0f), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
 				0, 0, 0), nearPlane(0.1f), farPlane(10000.0f), eye(
 				float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(0.2f), strafeSpeed(
 				0.001f), distanceToObject(1.0), mouseDown(false), startTumbling(
