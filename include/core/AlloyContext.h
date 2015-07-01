@@ -99,6 +99,12 @@ struct ImageGlyph: public Glyph {
 	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
 			AlloyContext* context) override;
 };
+struct CheckerboardGlyph : public Glyph {
+	int handle;
+	CheckerboardGlyph(int width, int height, int horizTiles, int vertTiles, AlloyContext* context, bool mipmap=false);
+	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
+		AlloyContext* context) override;
+};
 struct AwesomeGlyph: public Glyph {
 	const int codePoint;
 	const FontStyle style;

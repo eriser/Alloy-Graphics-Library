@@ -183,10 +183,7 @@ box2px Region::getBounds() const {
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
 	}
-	if(isDetached()){
-		box.clamp(AlloyApplicationContext()->getViewport());
-		box.dimensions = aly::max(box.dimensions, pixel2(10, 10));
-	}
+
 	return box;
 }
 box2px Region::getCursorBounds() const {
@@ -302,7 +299,6 @@ void Composite::setHorizontalScrollPosition(float fy) {
 }
 void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
-
 	Region::pack(pos, dims, dpmm, pixelRatio);
 	box2px bounds = getBounds();
 	if (parent != nullptr && parent->isScrollEnabled()) {
@@ -407,8 +403,8 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						- bounds.position - region->drawOffset(), scrollExtent);
 	}
 	if(!isScrollEnabled()){
-		bounds.dimensions.x=this->bounds.dimensions.x=std::max(offset.x-CELL_SPACING.x,bounds.dimensions.x);
-		bounds.dimensions.y=this->bounds.dimensions.y=std::max(offset.y-CELL_SPACING.y,bounds.dimensions.y);
+		if (orientation == Orientation::Horizontal)this->bounds.dimensions.x=bounds.dimensions.x=std::max(bounds.dimensions.x,offset.x-CELL_SPACING.x);
+		if (orientation == Orientation::Vertical)this->bounds.dimensions.y=bounds.dimensions.y=std::max(bounds.dimensions.y,offset.y-CELL_SPACING.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
 		float nudge =
@@ -603,11 +599,10 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	default:
 		bounds.dimensions = d;
 	}
-	if (clamp && parent != nullptr) {
-		bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),
+		if (clamp && parent != nullptr) {
+			bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),
 				parent->bounds.dimensions);
-	}
-
+		}
 	switch (origin) {
 	case Origin::TopLeft:
 		bounds.position = xy;
@@ -646,7 +641,10 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				ppos + parent->bounds.dimensions - bounds.dimensions);
 	}
 	dragOffset = xy - pos - computedPos;
-
+	if (detached) {
+		box2px vp = AlloyApplicationContext()->getViewport();
+		bounds.position=aly::clamp(bounds.position,vp.position,vp.position+vp.dimensions-bounds.dimensions);
+	}
 }
 
 void Composite::pack(AlloyContext* context) {

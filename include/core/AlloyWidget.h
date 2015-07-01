@@ -277,7 +277,6 @@ public:
 		onChangeEvent=func;
 	}
 	void reset();
-	virtual box2px getBounds() const override;
 	Color getSelectedColor() const {
 		return selectedColor;
 	}
@@ -290,12 +289,13 @@ public:
 class ColorSelector: public Widget {
 private:
 	TextLabelPtr textLabel;
-	RegionPtr colorLabel;
+	GlyphRegionPtr colorLabel;
 	CompositePtr colorSelectionPanel;
 	std::shared_ptr<VerticalSlider> redSlider;
 	std::shared_ptr<VerticalSlider> greenSlider;
 	std::shared_ptr<VerticalSlider> blueSlider;
 	std::shared_ptr<VerticalSlider> lumSlider;
+	std::shared_ptr<VerticalSlider> alphaSlider;
 	std::shared_ptr<ColorWheel> colorWheel;
 	void updateColorSliders(const Color& c);
 public:

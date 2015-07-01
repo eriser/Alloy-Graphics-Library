@@ -970,17 +970,23 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	colorLabel = MakeRegion("Color", CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f),
-			CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f),
-			AlloyApplicationContext()->theme.NEUTRAL,
-			AlloyApplicationContext()->theme.LIGHT, UnitPX(1.0f));
+
+
+	colorLabel = std::shared_ptr<GlyphRegion>(new GlyphRegion("Color"));
+	colorLabel->glyph = std::shared_ptr<CheckerboardGlyph>(new CheckerboardGlyph(128,128,8,8,AlloyApplicationContext().get()));
+	colorLabel->setPosition(CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f));
+	colorLabel->setDimensions(CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f));
+	colorLabel->backgroundColor = MakeColor(COLOR_BLACK);
+	colorLabel->foregroundColor = MakeColor(255,128,32,255);
+	colorLabel->borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	colorLabel->borderWidth = UnitPX(1.0f);
 	colorLabel->setAspectRatio(1.0f);
 	colorLabel->setAspectRule(AspectRule::FixedHeight);
 	colorLabel->setOrigin(Origin::TopRight);
 	colorWheel = ColorWheelPtr(
 			new ColorWheel("Color Wheel", CoordPX(0.0f, 0.0f),
-					CoordPercent(1.0f,1.0f)));
-	colorWheel->setAspectRatio(1.0);
+					CoordPerPX(1.0f,0.0f,0.0f,300.0f)));
+	colorWheel->setAspectRatio(1.0f);
 	colorWheel->setAspectRule(AspectRule::FixedHeight);
 	colorLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
@@ -1089,6 +1095,21 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		blueSlider->setValue(c.b);
 		updateColorSliders(c);
 	});
+
+	alphaSlider = std::shared_ptr<VerticalSlider>(new VerticalSlider("A", CoordPX(0.0f, 0.0f),
+		CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
+		Float(0.5)));
+	alphaSlider->setLabelFormatter(
+		[](const Number& value) {
+		string str = MakeString() << (int)std::floor(100.0f*value.toFloat()) << "%";
+		return  str;
+	});
+	alphaSlider->setOnChangeEvent([this](const Number& value) {
+		Color c = colorWheel->getSelectedColor();
+		c.a = value.toFloat();
+		colorWheel->setColor(c);
+		updateColorSliders(c);
+	});
 	colorWheel->setOnChangeEvent([this](const Color& c){
 
 		redSlider->setValue(c.r);
@@ -1106,6 +1127,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorSelectionPanel->add(greenSlider);
 	colorSelectionPanel->add(blueSlider);
 	colorSelectionPanel->add(lumSlider);
+	colorSelectionPanel->add(alphaSlider);
 	colorSelectionPanel->onEvent =
 			[this](AlloyContext* context,const InputEvent& e) {
 				if(context->isOnTop(colorSelectionPanel.get())) {
@@ -1125,7 +1147,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	add(colorLabel);
 	add(colorSelectionPanel);
 
-	setColor(*colorLabel->backgroundColor);
+	setColor(*colorLabel->foregroundColor);
 }
 void ColorSelector::updateColorSliders(const Color& c) {
 	redSlider->setSliderColor(Color(0.0f, c.g, c.b), Color(1.0f, c.g, c.b));
@@ -1133,15 +1155,18 @@ void ColorSelector::updateColorSliders(const Color& c) {
 	blueSlider->setSliderColor(Color(c.r, c.g, 0.0f), Color(c.r, c.g, 1.0f));
 	HSV hsv = c.toHSV();
 	lumSlider->setSliderColor(HSVtoColor(HSV(hsv.x, hsv.y, 0.0f)), HSVtoColor(HSV(hsv.x, hsv.y, 1.0f)));
+	alphaSlider->setSliderColor(Color(c.r, c.g, c.b,0.0f), Color(c.r, c.g, c.b,1.0f));
+
 }
 void ColorSelector::setColor(const Color& c) {
-	*colorLabel->backgroundColor = c;
+	*colorLabel->foregroundColor = c;
 	HSV hsv=c.toHSV();
 	colorWheel->setColor(c);
 	redSlider->setValue(c.r);
 	greenSlider->setValue(c.g);
 	blueSlider->setValue(c.b);
 	lumSlider->setValue(hsv.z);
+	alphaSlider->setValue(c.a);
 	updateColorSliders(c);
 }
 Color ColorSelector::getColor() {
@@ -1200,12 +1225,7 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 			};
 	Application::addListener(this);
 }
-box2px ColorWheel::getBounds() const {
-	box2px bounds = Region::getBounds();
-	bounds.clamp(AlloyApplicationContext()->getViewport());
-	bounds.dimensions = aly::max(bounds.dimensions, pixel2(100, 100));
-	return bounds;
-}
+
 
 
 void ColorWheel::updateWheel() {
@@ -1430,7 +1450,7 @@ void ColorSelector::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
 	if (colorWheel->isVisible()) {
-		*colorLabel->backgroundColor = colorWheel->getSelectedColor();
+		*colorLabel->foregroundColor = colorWheel->getSelectedColor();
 	}
 	if (hover) {
 		nvgBeginPath(nvg);

@@ -88,6 +88,7 @@ void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
 	drawText(nvg, bounds.position + bounds.dimensions * 0.5f, name, style,
 			fgColor, bgColor, nullptr);
 }
+
 ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 		bool mipmap) :
 		Glyph(GetFileNameWithoutExtension(file), GlyphType::Image, 0, 0), file(
@@ -127,6 +128,46 @@ void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,
 		nvgFill(nvg);
 	}
 
+}
+CheckerboardGlyph::CheckerboardGlyph(int width, int height, int horizTiles, int vertTiles, AlloyContext* context, bool mipmap):Glyph("image_rgba", GlyphType::Image,(pixel)width,(pixel)height) {
+		ImageRGBA img(width, height);
+		int cellWidth = width / horizTiles;
+		int cellHeight = height / vertTiles;
+		for (int i = 0;i < width;i++) {
+			for (int j = 0;j < height;j++) {
+				bool vt = (i / cellWidth) % 2 == 0;
+				bool ht = (j / cellHeight) % 2 == 0;
+				img(i, j) = (vt&&!ht||!vt&&ht)?RGBA(0,0,0,0): RGBA(255, 255, 255, 255);
+			}
+		}
+		handle = nvgCreateImageRGBA(context->nvgContext,width,height,(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0, img.ptr());
+}
+void CheckerboardGlyph::draw(const box2px& bounds, const Color& fgColor,
+	const Color& bgColor, AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
+		bounds.position.y, bounds.dimensions.x, bounds.dimensions.y, 0.f,
+		handle, 1.0f);
+	if (bgColor.a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+			bounds.dimensions.y);
+		nvgFillColor(nvg, Color(bgColor));
+		nvgFill(nvg);
+	}
+	nvgBeginPath(nvg);
+	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+		bounds.dimensions.y);
+	nvgFillPaint(nvg, imgPaint);
+	nvgFill(nvg);
+	if (fgColor.a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+			bounds.dimensions.y);
+		nvgFillColor(nvg, Color(fgColor));
+		nvgFill(nvg);
+	}
+	
 }
 void AlloyContext::addAssetDirectory(const std::string& dir) {
 	assetDirectories.push_back(dir);
