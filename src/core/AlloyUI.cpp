@@ -1023,7 +1023,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		glyph->draw(bounds, *foregroundColor, *borderColor, context);
+		glyph->draw(bounds, *foregroundColor, *backgroundColor, context);
 	}
 
 	if (borderColor->a > 0) {

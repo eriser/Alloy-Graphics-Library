@@ -267,7 +267,7 @@ protected:
 	float2 tPoints[3];
 	float rInner, rOuter;
 	float2 center;
-	HSV hsvColor;
+	HSVA hsvColor;
 	bool triangleSelected = false;
 	bool circleSelected = false;
 	std::function<void(const Color& value)> onChangeEvent;

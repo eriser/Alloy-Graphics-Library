@@ -973,7 +973,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 
 
 	colorLabel = std::shared_ptr<GlyphRegion>(new GlyphRegion("Color"));
-	colorLabel->glyph = std::shared_ptr<CheckerboardGlyph>(new CheckerboardGlyph(128,128,8,8,AlloyApplicationContext().get()));
+	colorLabel->glyph = std::shared_ptr<CheckerboardGlyph>(new CheckerboardGlyph(64,64,8,8,AlloyApplicationContext().get()));
 	colorLabel->setPosition(CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f));
 	colorLabel->setDimensions(CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f));
 	colorLabel->backgroundColor = MakeColor(COLOR_BLACK);
@@ -1086,9 +1086,9 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	});
 	lumSlider->setOnChangeEvent([this](const Number& value){
 		Color c=colorWheel->getSelectedColor();
-		HSV hsv=c.toHSV();
+		HSVA hsv=c.toHSVA();
 		hsv.z=value.toFloat();
-		c=HSVtoRGBf(hsv);
+		c=HSVAtoRGBAf(hsv);
 		colorWheel->setColor(c);
 		redSlider->setValue(c.r);
 		greenSlider->setValue(c.g);
@@ -1160,7 +1160,7 @@ void ColorSelector::updateColorSliders(const Color& c) {
 }
 void ColorSelector::setColor(const Color& c) {
 	*colorLabel->foregroundColor = c;
-	HSV hsv=c.toHSV();
+	HSVA hsv=c.toHSVA();
 	colorWheel->setColor(c);
 	redSlider->setValue(c.r);
 	greenSlider->setValue(c.g);
@@ -1215,7 +1215,7 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 						hsvColor.x+=e.scroll.y*0.01f;
 						if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
 						if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
-						setColor(HSVtoColor(hsvColor));
+						setColor(HSVAtoColor(hsvColor));
 						updateWheel();
 						if(onChangeEvent)onChangeEvent(selectedColor);
 						return true;
@@ -1253,7 +1253,7 @@ void ColorWheel::updateWheel() {
 }
 void ColorWheel::setColor(const Color& c) {
 	selectedColor = c;
-	hsvColor = c.toHSV();
+	hsvColor = c.toHSVA();
 	updateWheel();
 }
 void ColorWheel::setColor(const pixel2& cursor) {
@@ -1273,7 +1273,7 @@ void ColorWheel::setColor(const pixel2& cursor) {
 		HSVA hsv = Color(c).toHSVA();
 		hsvColor.y = hsv.y;
 		hsvColor.z = hsv.z;
-		selectedColor = HSVtoColor(hsvColor);
+		selectedColor = HSVAtoColor(hsvColor);
 		updateWheel();
 		if(onChangeEvent)onChangeEvent(selectedColor);
 	} else if (circleSelected) {
@@ -1282,7 +1282,7 @@ void ColorWheel::setColor(const pixel2& cursor) {
 		if (hsvColor.x < 0.0f) {
 			hsvColor.x += 1.0f;
 		}
-		selectedColor = HSVtoColor(hsvColor);
+		selectedColor = HSVAtoColor(hsvColor);
 		updateWheel();
 		if(onChangeEvent)onChangeEvent(selectedColor);
 	}
