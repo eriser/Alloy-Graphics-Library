@@ -1021,7 +1021,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	};
 
 	colorSelectionPanel=MakeComposite("Color Selection Panel",
-			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),CoordPX(556, 300),
+			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),CoordPX(300.0f+(60+AlloyApplicationContext()->theme.SPACING.x)*5, 300.0f),
 			AlloyApplicationContext()->theme.LIGHT);
 	colorSelectionPanel->setOrigin(Origin::TopCenter);
 	colorSelectionPanel->setVisible(false);
