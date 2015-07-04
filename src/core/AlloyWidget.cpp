@@ -973,7 +973,11 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 
 
 	colorLabel = std::shared_ptr<GlyphRegion>(new GlyphRegion("Color"));
-	colorLabel->glyph = std::shared_ptr<CheckerboardGlyph>(new CheckerboardGlyph(64,64,8,8,AlloyApplicationContext().get()));
+	static std::shared_ptr<CheckerboardGlyph> checkerboard;
+	if (checkerboard.get() == nullptr) {
+		checkerboard=std::shared_ptr<CheckerboardGlyph>(new CheckerboardGlyph(64, 64, 8, 8, AlloyApplicationContext().get()));
+	}
+	colorLabel->glyph = checkerboard;
 	colorLabel->setPosition(CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f));
 	colorLabel->setDimensions(CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f));
 	colorLabel->backgroundColor = MakeColor(COLOR_BLACK);
