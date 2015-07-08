@@ -1575,5 +1575,74 @@ void Button::draw(AlloyContext* context) {
 			nullptr);
 
 }
+ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region, const std::string& label, const AUnit2D& pos,
+	const AUnit2D& dims) {
+	expanded = false;
+	this->position = pos;
+	this->dimensions = dims;
+	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	this->setRoundCorners(true);
+	CompositePtr valueContainer = MakeComposite(label,
+		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
+		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+	selectionLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
+		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
+		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+		HorizontalAlignment::Left, VerticalAlignment::Middle);
+	//minus 0xf056
+	//plus 0xf055
+	arrowLabel = MakeTextLabel(
+		CodePointToUTF8(0xf055),
+		CoordPercent(1.0f, 0.0f),
+		CoordPercent(0.0f, 1.0f),
+		FontType::Icon,
+		UnitPercent(1.0f),
+		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+		HorizontalAlignment::Center, VerticalAlignment::Middle);
+
+	arrowLabel->setAspectRatio(1.0f);
+	arrowLabel->setOrigin(Origin::TopRight);
+	arrowLabel->setAspectRule(AspectRule::FixedHeight);
+	valueContainer->add(selectionLabel);
+	valueContainer->add(arrowLabel);
+	add(valueContainer);
+	selectionLabel->onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			//context->setOnTopRegion(selectionBox.get());
+			//selectionBox->setVisible(true);
+			return true;
+		}
+		return false;
+	};
+	arrowLabel->onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			//context->setOnTopRegion(selectionBox.get());
+			//selectionBox->setVisible(true);
+			return true;
+		}
+		else if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
+			//context->removeOnTopRegion(selectionBox.get());
+			//selectionBox->setVisible(false);
+		}
+		return false;
+	};
+
+}
+ExpandBar::ExpandBar(
+	const std::string& name,
+	const AUnit2D& pos,
+	const AUnit2D& dims):Widget(name,pos,dims) {
+	setOrientation(Orientation::Vertical);
+	setScrollEnabled(true);
+}
+void ExpandBar::add(const std::shared_ptr<Region>& region, const std::string& name, bool expanded) {
+	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(region,name,CoordPX(0,0),CoordPerPX(1.0f,0.0f,0.0f,30.0f)));
+	eregion->setExpanded(expanded);
+	regions.push_back(eregion);
+	Widget::add(eregion);
+	
+}
 }
 

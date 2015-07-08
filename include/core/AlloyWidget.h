@@ -305,6 +305,29 @@ public:
 			const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
+class ExpandRegion : public Composite {
+private:
+	std::shared_ptr<TextLabel> selectionLabel;
+	std::shared_ptr<TextLabel> arrowLabel;
+	std::shared_ptr<Region> region;
+	bool expanded;
+public:
+	void setExpanded(bool expanded) {
+		this->expanded = expanded;
+	}
+	ExpandRegion(const std::shared_ptr<Region>& region,const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims);
+};
+class ExpandBar : public Widget {
+private:
+	std::list<std::shared_ptr<ExpandRegion>> regions;
+public:
+	void add(const std::shared_ptr<Region>&, const std::string& name,bool expanded);
+	ExpandBar(
+		const std::string& name, 
+		const AUnit2D& pos,
+		const AUnit2D& dims);
+};
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
@@ -315,6 +338,8 @@ typedef std::shared_ptr<Selection> SelectionPtr;
 typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 typedef std::shared_ptr<ProgressBar> ProgressBarPtr;
 typedef std::shared_ptr<ColorWheel> ColorWheelPtr;
+typedef std::shared_ptr<ExpandBar> ExpandBarPtr;
+typedef std::shared_ptr<ExpandRegion> ExpandRegionPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

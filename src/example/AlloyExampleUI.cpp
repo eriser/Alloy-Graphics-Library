@@ -26,6 +26,7 @@ ExampleUI::ExampleUI() :
 		Application(1280, 720, "ExampleUI") {
 }
 bool ExampleUI::init(Composite& rootNode) {
+	/*
 	TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
 			CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
 			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
@@ -60,7 +61,7 @@ bool ExampleUI::init(Composite& rootNode) {
 					pbar->setValue("Task Complete.",1.0f);
 				}, 100));
 	progressTask->execute();
-	/*
+
 	 addTween(imgr->foregroundColor, Color(128, 128, 128, 255),
 	 Color(128, 128, 128, 0), 3.0, SineOut());
 
@@ -72,7 +73,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 Color(255, 255, 255, 255), 3.0, SineIn());
 	 addTween(iconr->getPosition(), CoordPX(100, 100), CoordPX(300, 100), 3.0,ExponentialOut());//->addCompleteEvent([](Tweenable* object) {std::cout<<"Finished Position Change! "<<std::endl;});
 	 addTween(label->fontSize, UnitPT(10.0f), UnitPT(30.0f), 1.0, Linear());
-	 */
+	
 	CompositePtr comp = MakeComposite("Rect 1", CoordPercent(0.5, 0.0),
 			CoordPercent(0.5f, 1.0f), Theme::Default.DARK);
 	comp->setOrientation(Orientation::Vertical);
@@ -83,7 +84,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	CompositePtr scrollTrack = MakeComposite("Scroll Track",
 			CoordPercent(0.2f, 0.7f), CoordPX(300, 30), RGBA(128, 128, 128, 255));
 	scrollTrack->add(scrollHandle);
-	iconr->setEnableDrag(true);
+	//iconr->setEnableDrag(true);
 
 
 	ButtonPtr button1 = std::shared_ptr<Button>(
@@ -144,24 +145,38 @@ bool ExampleUI::init(Composite& rootNode) {
 	comp->add(checkbox);
 	comp->add(togglebox);
 	button2->setEnableDrag(true);
+	*/
 	//button1->setEnableDrag(true);
-	rootNode.add(scrollPane);
+	//rootNode.add(scrollPane);
 
-	rootNode.add(comp);
+	//rootNode.add(comp);
 	//rootNode.add(imgr);
 	//rootNode.add(iconr);
 	//rootNode.add(scrollTrack);
-	rootNode.backgroundColor = MakeColor(Theme::Default.LIGHT);
-	rootNode.add(button2);
-	rootNode.add(hslider2);
-	rootNode.add(field1);
-	rootNode.add(field2);
-	rootNode.add(vslider1);
-	rootNode.add(pbar);
-	rootNode.add(colorselect);
+	//rootNode.backgroundColor = MakeColor(Theme::Default.LIGHT);
+	//rootNode.add(button2);
+	//rootNode.add(hslider2);
+	//rootNode.add(field1);
+	//rootNode.add(field2);
+	//rootNode.add(vslider1);
+	//rootNode.add(pbar);
+	//rootNode.add(colorselect);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
-	//std::cout<<"Label "<<label->bounds<<std::endl;
+
+	ExpandBarPtr expandBar = ExpandBarPtr(new ExpandBar("exapander",CoordPercent(0.7f,0.0f),CoordPercent(0.3f,1.0f)));
+	RegionPtr geomRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(geomRegion,"Geometry",false);
+	RegionPtr apprRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(apprRegion, "Appearence", false);
+	RegionPtr lightRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(lightRegion, "Lighting", false);
+	RegionPtr renderingRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(renderingRegion, "Rendering", false);
+	RegionPtr filterRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(filterRegion, "Filtering", false);
+
+	rootNode.add(expandBar);
 	return true;
 }
 
