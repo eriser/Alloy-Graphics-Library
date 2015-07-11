@@ -126,28 +126,28 @@ public:
 	AUnit2D& getDimensions() {
 		return dimensions;
 	}
-	virtual box2px getBounds() const;
-	virtual box2px getCursorBounds() const;
-	pixel2 getBoundsPosition() const {
-		return getBounds().position;
+	virtual box2px getBounds(bool includeOffset=true) const;
+	virtual box2px getCursorBounds(bool includeOffset = true) const;
+	pixel2 getBoundsPosition(bool includeOffset = true) const {
+		return getBounds(includeOffset).position;
 	}
-	pixel2 getBoundsDimensions() const {
-		return getBounds().dimensions;
+	pixel2 getBoundsDimensions(bool includeOffset = true) const {
+		return getBounds(includeOffset).dimensions;
 	}
 	pixel2 getDragOffset() const {
 		return dragOffset;
 	}
-	pixel getBoundsPositionX() const {
-		return getBounds().position.x;
+	pixel getBoundsPositionX(bool includeOffset = true) const {
+		return getBounds(includeOffset).position.x;
 	}
-	pixel getBoundsDimensionsX() const {
-		return getBounds().dimensions.x;
+	pixel getBoundsDimensionsX(bool includeOffset = true) const {
+		return getBounds(includeOffset).dimensions.x;
 	}
-	pixel getBoundsPositionY() const {
-		return getBounds().position.y;
+	pixel getBoundsPositionY(bool includeOffset = true) const {
+		return getBounds(includeOffset).position.y;
 	}
-	pixel getBoundsDimensionsY() const {
-		return getBounds().dimensions.y;
+	pixel getBoundsDimensionsY(bool includeOffset = true) const {
+		return getBounds(includeOffset).dimensions.y;
 	}
 	const AUnit2D& getPosition() const {
 		return position;
@@ -224,11 +224,11 @@ public:
 		this->roundCorners=round;
 	}
 	virtual inline pixel2 drawOffset() const {
-		pixel2 offset = -scrollPosition
-				* aly::max(pixel2(0, 0),
-						scrollExtent - Region::getBounds().dimensions);
-		if (parent != nullptr)
-			offset += parent->drawOffset();
+		pixel2 offset(0,0);
+		if (isScrollEnabled()) {
+			offset = -scrollPosition* aly::max(pixel2(0, 0), scrollExtent - getBoundsDimensions());
+		}
+		if (parent != nullptr)offset += parent->drawOffset();
 		return offset;
 	}
 

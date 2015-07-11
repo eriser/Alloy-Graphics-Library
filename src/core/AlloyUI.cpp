@@ -63,6 +63,7 @@ Region* Region::locate(const pixel2& cursor) {
 
 void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
@@ -178,17 +179,16 @@ void Region::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 }
-box2px Region::getBounds() const {
+box2px Region::getBounds(bool includeOffset) const {
 	box2px box = bounds;
-	if (parent != nullptr) {
+	if (parent != nullptr&&includeOffset) {
 		box.position += parent->drawOffset();
 	}
-
 	return box;
 }
-box2px Region::getCursorBounds() const {
+box2px Region::getCursorBounds(bool includeOffset) const {
 	box2px box = (isDetached()?getBounds():bounds);
-	if (parent != nullptr) {
+	if (parent != nullptr&&includeOffset) {
 		box.position += parent->drawOffset();
 		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
@@ -300,10 +300,8 @@ void Composite::setHorizontalScrollPosition(float fy) {
 void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
-	box2px bounds = getBounds();
-	if (parent != nullptr && parent->isScrollEnabled()) {
-		bounds.position -= drawOffset();
-	}
+	box2px bounds = getBounds(false);
+	
 	if (verticalScrollTrack.get() == nullptr && isScrollEnabled()) {
 		verticalScrollTrack = std::shared_ptr<ScrollTrack>(
 				new ScrollTrack("Vert Track", Orientation::Vertical));
@@ -582,8 +580,10 @@ void Region::update(CursorLocator* cursorLocator) {
 }
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
+
 	pixel2 computedPos = position.toPixels(dims, dpmm, pixelRatio);
 	pixel2 xy = pos + dragOffset + computedPos;
+	
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
 	if (aspectRatio < 0) {
 		aspectRatio = d.x / std::max((float) d.y, 0.0f);
@@ -599,10 +599,12 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	default:
 		bounds.dimensions = d;
 	}
-		if (clamp && parent != nullptr) {
-			bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),
-				parent->bounds.dimensions);
-		}
+	bounds.position = xy;
+	
+	if (clamp && parent != nullptr) {
+		bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),parent->bounds.dimensions);
+	}
+	
 	switch (origin) {
 	case Origin::TopLeft:
 		bounds.position = xy;
@@ -634,11 +636,12 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				- pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
 		break;
 	}
-
+	
 	if (clamp && parent != nullptr && !parent->isScrollEnabled()) {
 		pixel2 ppos = parent->getBoundsPosition();
+		pixel2 dims = parent->bounds.dimensions;
 		bounds.position = aly::clamp(bounds.position, ppos,
-				ppos + parent->bounds.dimensions - bounds.dimensions);
+				ppos + dims - bounds.dimensions);
 	}
 	dragOffset = xy - pos - computedPos;
 	if (detached) {
@@ -672,6 +675,7 @@ void Composite::add(Region* region) {
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
+	box2px pbounds = parent->getBounds();
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
@@ -694,6 +698,7 @@ void TextLabel::draw(AlloyContext* context) {
 		offset.x = bounds.dimensions.x - lineWidth;
 		break;
 	}
+
 	switch (verticalAlignment) {
 	case VerticalAlignment::Top:
 		offset.y = lineWidth;

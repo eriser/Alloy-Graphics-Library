@@ -223,8 +223,8 @@ public:
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::vector<std::string> options;
-	virtual box2px getBounds() const override;
-	virtual box2px getCursorBounds() const override;
+	virtual box2px getBounds(bool includeBounds=true) const override;
+	virtual box2px getCursorBounds(bool includeBounds = true) const override;
 	std::string getSelection(int index) {
 		return (selectedIndex >= 0) ? options[selectedIndex] : name;
 	}
@@ -315,14 +315,14 @@ public:
 	void setExpanded(bool expanded) {
 		this->expanded = expanded;
 	}
-	ExpandRegion(const std::shared_ptr<Region>& region,const std::string& name, const AUnit2D& pos,
+	ExpandRegion(const std::shared_ptr<Region>& region, const AUnit2D& pos,
 		const AUnit2D& dims);
 };
 class ExpandBar : public Widget {
 private:
 	std::list<std::shared_ptr<ExpandRegion>> regions;
 public:
-	void add(const std::shared_ptr<Region>&, const std::string& name,bool expanded);
+	void add(const std::shared_ptr<Region>&, bool expanded);
 	ExpandBar(
 		const std::string& name, 
 		const AUnit2D& pos,

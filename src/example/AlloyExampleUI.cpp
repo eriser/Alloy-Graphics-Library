@@ -166,15 +166,15 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	ExpandBarPtr expandBar = ExpandBarPtr(new ExpandBar("exapander",CoordPercent(0.7f,0.0f),CoordPercent(0.3f,1.0f)));
 	RegionPtr geomRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(geomRegion,"Geometry",false);
-	RegionPtr apprRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(apprRegion, "Appearence", false);
-	RegionPtr lightRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(lightRegion, "Lighting", false);
-	RegionPtr renderingRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(renderingRegion, "Rendering", false);
-	RegionPtr filterRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(filterRegion, "Filtering", false);
+	expandBar->add(geomRegion,false);
+	RegionPtr apprRegion = RegionPtr(new Region("Appearence", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(apprRegion, false);
+	RegionPtr lightRegion = RegionPtr(new Region("Lighting", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(lightRegion,  false);
+	RegionPtr renderingRegion = RegionPtr(new Region("Rendering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(renderingRegion, false);
+	RegionPtr filterRegion = RegionPtr(new Region("Filtering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(filterRegion,  false);
 
 	rootNode.add(expandBar);
 	return true;

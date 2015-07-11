@@ -395,8 +395,8 @@ void SliderHandle::draw(AlloyContext* context) {
 	nvgStroke(nvg);
 
 }
-box2px SelectionBox::getBounds() const {
-	box2px bounds = Region::getBounds();
+box2px SelectionBox::getBounds(bool includeBounds) const {
+	box2px bounds = Region::getBounds(includeBounds);
 	AlloyContext* context = AlloyApplicationContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
@@ -414,8 +414,8 @@ box2px SelectionBox::getBounds() const {
 
 	return bbox;
 }
-box2px SelectionBox::getCursorBounds() const {
-	box2px box = getBounds();
+box2px SelectionBox::getCursorBounds(bool includeBounds) const {
+	box2px box = getBounds(includeBounds);
 	if (parent != nullptr) {
 		box.position += parent->drawOffset();
 		if (AlloyApplicationContext()->getOnTopRegion() != this) {
@@ -1575,17 +1575,21 @@ void Button::draw(AlloyContext* context) {
 			nullptr);
 
 }
-ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region, const std::string& label, const AUnit2D& pos,
+ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D& pos,
 	const AUnit2D& dims) {
 	expanded = false;
 	this->position = pos;
 	this->dimensions = dims;
-	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
-	this->setRoundCorners(true);
-	CompositePtr valueContainer = MakeComposite(label,
-		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
-		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
-	selectionLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
+	//this->setOrientation(Orientation::Vertical);
+	//CompositePtr clickRegion = MakeComposite("click_region", CoordPX(0,0),CoordPerPX(1.0f,0.0f,-10.0f,40.0f));
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	setRoundCorners(true);
+	//region->setPosition(CoordPX(0, 40));
+	CompositePtr valueContainer = MakeComposite(MakeString()<<region->name<<"_container",
+		CoordPerPX(0.0f, 0.0f, 15.0f, 5.0f),
+		CoordPerPX(1.0f, 1.0f, -30.0f, -10.0f));
+	//clickRegion->add(valueContainer);
+	selectionLabel = MakeTextLabel(region->name, CoordPX(0.0f, 0.0f),
 		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Left, VerticalAlignment::Middle);
@@ -1606,6 +1610,7 @@ ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region, const std::str
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
 	add(valueContainer);
+	//add(region);
 	selectionLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -1637,11 +1642,16 @@ ExpandBar::ExpandBar(
 	setOrientation(Orientation::Vertical);
 	setScrollEnabled(true);
 }
-void ExpandBar::add(const std::shared_ptr<Region>& region, const std::string& name, bool expanded) {
-	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(region,name,CoordPX(0,0),CoordPerPX(1.0f,0.0f,0.0f,30.0f)));
+void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
+	region->backgroundColor=MakeColor(128,0,0);
+	region->borderColor = MakeColor(200, 200, 200);
+	region->borderWidth = UnitPX(2.0f);
+	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(region,CoordPX(0,0),CoordPerPX(1.0f,0.0f,0.0f,30.0f)));
 	eregion->setExpanded(expanded);
 	regions.push_back(eregion);
 	Widget::add(eregion);
+	Widget::add(region);
+	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
 	
 }
 }
