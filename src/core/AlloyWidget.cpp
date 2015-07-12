@@ -1575,28 +1575,28 @@ void Button::draw(AlloyContext* context) {
 			nullptr);
 
 }
+void ExpandRegion::setExpanded(bool visible) {
+	expanded = expanded;
+	contentRegion->setVisible(visible);
+	arrowLabel->label = (visible) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
+}
 ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D& pos,
-	const AUnit2D& dims) {
-	expanded = false;
+	const AUnit2D& dims):Composite(region->name + "_eregion") {
 	this->position = pos;
 	this->dimensions = dims;
-	//this->setOrientation(Orientation::Vertical);
-	//CompositePtr clickRegion = MakeComposite("click_region", CoordPX(0,0),CoordPerPX(1.0f,0.0f,-10.0f,40.0f));
+	this->contentRegion = region;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
-	//region->setPosition(CoordPX(0, 40));
 	CompositePtr valueContainer = MakeComposite(MakeString()<<region->name<<"_container",
 		CoordPerPX(0.0f, 0.0f, 15.0f, 5.0f),
 		CoordPerPX(1.0f, 1.0f, -30.0f, -10.0f));
-	//clickRegion->add(valueContainer);
 	selectionLabel = MakeTextLabel(region->name, CoordPX(0.0f, 0.0f),
 		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Left, VerticalAlignment::Middle);
-	//minus 0xf056
-	//plus 0xf055
+
 	arrowLabel = MakeTextLabel(
-		CodePointToUTF8(0xf055),
+		CodePointToUTF8(0xf056),
 		CoordPercent(1.0f, 0.0f),
 		CoordPercent(0.0f, 1.0f),
 		FontType::Icon,
@@ -1614,8 +1614,17 @@ ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D
 	selectionLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			//context->setOnTopRegion(selectionBox.get());
-			//selectionBox->setVisible(true);
+			bool visible = !contentRegion->isVisible();
+			setExpanded(visible);
+			return true;
+		}
+		return false;
+	};
+	this->onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			bool visible = !contentRegion->isVisible();
+			setExpanded(visible);
 			return true;
 		}
 		return false;
@@ -1623,17 +1632,13 @@ ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D
 	arrowLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			//context->setOnTopRegion(selectionBox.get());
-			//selectionBox->setVisible(true);
+			bool visible = !contentRegion->isVisible();
+			setExpanded(visible);
 			return true;
-		}
-		else if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
-			//context->removeOnTopRegion(selectionBox.get());
-			//selectionBox->setVisible(false);
 		}
 		return false;
 	};
-
+	setExpanded(false);
 }
 ExpandBar::ExpandBar(
 	const std::string& name,

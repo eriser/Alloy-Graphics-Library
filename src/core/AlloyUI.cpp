@@ -383,22 +383,23 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	scrollExtent = pixel2(0, 0);
 	pixel2 CELL_SPACING(AlloyApplicationContext()->theme.SPACING);
 	for (std::shared_ptr<Region>& region : children) {
+		if (!region->isVisible()) {
+			continue;
+		}
 		if (orientation != Orientation::Unspecified) {
 			region->setPosition(CoordPX(offset));
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
-		if (orientation == Orientation::Horizontal) {
-			offset.x += CELL_SPACING.x + region->getBoundsDimensionsX();
+			if (orientation == Orientation::Horizontal) {
+				offset.x += CELL_SPACING.x + region->getBoundsDimensionsX();
 
-		}
-		if (orientation == Orientation::Vertical) {
-			offset.y += CELL_SPACING.y + region->getBoundsDimensionsY();
-
-		}
-
+			}
+			if (orientation == Orientation::Vertical) {
+				offset.y += CELL_SPACING.y + region->getBoundsDimensionsY();
+			}
 		scrollExtent = max(
-				region->getBoundsDimensions() + region->getBoundsPosition()
-						- bounds.position - region->drawOffset(), scrollExtent);
+			region->getBoundsDimensions() + region->getBoundsPosition()
+			- bounds.position - region->drawOffset(), scrollExtent);
 	}
 	if(!isScrollEnabled()){
 		if (orientation == Orientation::Horizontal)this->bounds.dimensions.x=bounds.dimensions.x=std::max(bounds.dimensions.x,offset.x-CELL_SPACING.x);

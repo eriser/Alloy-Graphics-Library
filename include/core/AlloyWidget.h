@@ -309,12 +309,10 @@ class ExpandRegion : public Composite {
 private:
 	std::shared_ptr<TextLabel> selectionLabel;
 	std::shared_ptr<TextLabel> arrowLabel;
-	std::shared_ptr<Region> region;
+	std::shared_ptr<Region> contentRegion;
 	bool expanded;
 public:
-	void setExpanded(bool expanded) {
-		this->expanded = expanded;
-	}
+	void setExpanded(bool expanded);
 	ExpandRegion(const std::shared_ptr<Region>& region, const AUnit2D& pos,
 		const AUnit2D& dims);
 };
