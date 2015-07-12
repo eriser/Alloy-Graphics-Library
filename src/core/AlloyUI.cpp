@@ -386,8 +386,13 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		if (!region->isVisible()) {
 			continue;
 		}
-		if (orientation != Orientation::Unspecified) {
-			region->setPosition(CoordPX(offset));
+		if (orientation == Orientation::Vertical) {
+			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm, pixelRatio);
+			region->setPosition(CoordPX(pix.x,offset.y));
+		}
+		if (orientation == Orientation::Horizontal) {
+			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm, pixelRatio);
+			region->setPosition(CoordPX(offset.x,pix.y));
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 			if (orientation == Orientation::Horizontal) {

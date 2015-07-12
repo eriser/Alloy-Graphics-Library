@@ -1581,15 +1581,13 @@ void ExpandRegion::setExpanded(bool visible) {
 	arrowLabel->label = (visible) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
 }
 ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D& pos,
-	const AUnit2D& dims):Composite(region->name + "_eregion") {
-	this->position = pos;
-	this->dimensions = dims;
+	const AUnit2D& dims):Composite(region->name + "_eregion",pos,dims) {
 	this->contentRegion = region;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
 	CompositePtr valueContainer = MakeComposite(MakeString()<<region->name<<"_container",
-		CoordPerPX(0.0f, 0.0f, 15.0f, 5.0f),
-		CoordPerPX(1.0f, 1.0f, -30.0f, -10.0f));
+		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
+		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	selectionLabel = MakeTextLabel(region->name, CoordPX(0.0f, 0.0f),
 		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
@@ -1651,11 +1649,17 @@ void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 	region->backgroundColor=MakeColor(128,0,0);
 	region->borderColor = MakeColor(200, 200, 200);
 	region->borderWidth = UnitPX(2.0f);
-	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(region,CoordPX(0,0),CoordPerPX(1.0f,0.0f,0.0f,30.0f)));
+
+	CompositePtr container = MakeComposite("Content Container", CoordPX(12, 0), CoordPerPX(1.0f, 0.0f, -24.0f, 0.0f));
+	container->setOrientation(Orientation::Vertical);
+	container->add(region);
+	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(container,CoordPX(12,0),CoordPerPX(1.0f,0.0f,-24.0f,30.0f)));
+	
 	eregion->setExpanded(expanded);
 	regions.push_back(eregion);
 	Widget::add(eregion);
-	Widget::add(region);
+
+	Widget::add(container);
 	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
 	
 }
