@@ -53,11 +53,15 @@ protected:
 	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	AUnit2D position = CoordPercent(0.0f, 0.0f);
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
+	bool roundCorners=false;
 	bool detached=false;
 public:
 	friend struct Composite;
 	void setDetacted(bool enable){
 		detached=enable;
+	}
+	inline void setRoundCorners(bool round){
+		this->roundCorners=round;
 	}
 	inline bool hasParent(Region* region) const {
 		return (parent!=nullptr&&(parent==region||parent->hasParent(region)));
@@ -191,7 +195,7 @@ struct Composite: public Region {
 protected:
 	Orientation orientation = Orientation::Unspecified;
 	bool scrollEnabled = false;
-	bool roundCorners=false;
+
 	static const float scrollBarSize;
 	pixel2 scrollExtent = pixel2(0, 0);
 	float horizontalScrollExtent = 0;
@@ -220,9 +224,7 @@ public:
 	void setScrollEnabled(bool enabled) {
 		scrollEnabled = enabled;
 	}
-	inline void setRoundCorners(bool round){
-		this->roundCorners=round;
-	}
+
 	virtual inline pixel2 drawOffset() const {
 		pixel2 offset(0,0);
 		if (isScrollEnabled()) {

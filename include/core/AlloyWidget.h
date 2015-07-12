@@ -313,7 +313,7 @@ private:
 	bool expanded;
 public:
 	void setExpanded(bool expanded);
-	ExpandRegion(const std::shared_ptr<Region>& region, const AUnit2D& pos,
+	ExpandRegion(const std::string& name,const std::shared_ptr<Region>& region, const AUnit2D& pos,
 		const AUnit2D& dims);
 };
 class ExpandBar : public Widget {

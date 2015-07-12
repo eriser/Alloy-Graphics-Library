@@ -1575,20 +1575,20 @@ void Button::draw(AlloyContext* context) {
 			nullptr);
 
 }
-void ExpandRegion::setExpanded(bool visible) {
-	expanded = expanded;
-	contentRegion->setVisible(visible);
-	arrowLabel->label = (visible) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
+void ExpandRegion::setExpanded(bool expanded) {
+	this->expanded = expanded;
+	contentRegion->setVisible(expanded);
+	arrowLabel->label = (expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
 }
-ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D& pos,
-	const AUnit2D& dims):Composite(region->name + "_eregion",pos,dims) {
+ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>& region,  const AUnit2D& pos,
+	const AUnit2D& dims):Composite(name + "_eregion",pos,dims) {
 	this->contentRegion = region;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
-	CompositePtr valueContainer = MakeComposite(MakeString()<<region->name<<"_container",
+	CompositePtr valueContainer = MakeComposite(MakeString()<<name<<"_container",
 		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
-	selectionLabel = MakeTextLabel(region->name, CoordPX(0.0f, 0.0f),
+	selectionLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
 		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Left, VerticalAlignment::Middle);
@@ -1612,8 +1612,7 @@ ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D
 	selectionLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			bool visible = !contentRegion->isVisible();
-			setExpanded(visible);
+			setExpanded(!expanded);
 			return true;
 		}
 		return false;
@@ -1621,8 +1620,7 @@ ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D
 	this->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			bool visible = !contentRegion->isVisible();
-			setExpanded(visible);
+			setExpanded(!expanded);
 			return true;
 		}
 		return false;
@@ -1630,8 +1628,7 @@ ExpandRegion::ExpandRegion(const std::shared_ptr<Region>& region,  const AUnit2D
 	arrowLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			bool visible = !contentRegion->isVisible();
-			setExpanded(visible);
+			setExpanded(!expanded);
 			return true;
 		}
 		return false;
@@ -1646,14 +1643,16 @@ ExpandBar::ExpandBar(
 	setScrollEnabled(true);
 }
 void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
-	region->backgroundColor=MakeColor(128,0,0);
-	region->borderColor = MakeColor(200, 200, 200);
-	region->borderWidth = UnitPX(2.0f);
 
-	CompositePtr container = MakeComposite("Content Container", CoordPX(12, 0), CoordPerPX(1.0f, 0.0f, -24.0f, 0.0f));
+
+	CompositePtr container = MakeComposite("Content Container", CoordPX(Composite::scrollBarSize, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f*Composite::scrollBarSize, 0.0f));
 	container->setOrientation(Orientation::Vertical);
+	region->backgroundColor=MakeColor(AlloyApplicationContext()->theme.DARK);
+	region->borderColor = MakeColor(AlloyApplicationContext()->theme.NEUTRAL);
+	region->borderWidth = UnitPX(2.0f);
+	region->setRoundCorners(true);
 	container->add(region);
-	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(container,CoordPX(12,0),CoordPerPX(1.0f,0.0f,-24.0f,30.0f)));
+	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(region->name,container,CoordPX(Composite::scrollBarSize,0.0f),CoordPerPX(1.0f,0.0f,-2.0f*Composite::scrollBarSize,30.0f)));
 	
 	eregion->setExpanded(expanded);
 	regions.push_back(eregion);

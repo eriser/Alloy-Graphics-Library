@@ -27,7 +27,7 @@
 namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
-const RGBA DEBUG_HIDDEN_COLOR = RGBA(128, 128, 128, 255);
+const RGBA DEBUG_HIDDEN_COLOR = RGBA(128, 128, 128, 32);
 const RGBA DEBUG_HOVER_COLOR = RGBA(32, 200, 32, 255);
 const RGBA DEBUG_DOWN_COLOR = RGBA(200, 64, 32, 255);
 const RGBA DEBUG_ON_TOP_COLOR = RGBA(120, 120, 0, 255);
@@ -66,12 +66,26 @@ void Region::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
+
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
+		}
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+	if (backgroundColor->a > 0) {
+		nvgBeginPath(nvg);
+
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
@@ -79,10 +93,17 @@ void Region::draw(AlloyContext* context) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 				bounds.position.y + lineWidth * 0.5f,
 				bounds.dimensions.x - lineWidth,
 				bounds.dimensions.y - lineWidth);
+		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
@@ -217,16 +238,24 @@ void Composite::draw(AlloyContext* context) {
 	float y = bounds.position.y;
 	float w = bounds.dimensions.x;
 	float h = bounds.dimensions.y;
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
 	if (backgroundColor->a > 0) {
-		nvgBeginPath(nvg);
-		if(roundCorners){
-			nvgRoundedRect(nvg, x, y, w, h,context->theme.CORNER_RADIUS);
-		} else {
-			nvgRect(nvg, x, y, w, h);
+			nvgBeginPath(nvg);
+			if(roundCorners){
+				nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+						bounds.position.y + lineWidth * 0.5f,
+						bounds.dimensions.x - lineWidth,
+						bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+			} else {
+				nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+						bounds.position.y + lineWidth * 0.5f,
+						bounds.dimensions.x - lineWidth,
+						bounds.dimensions.y - lineWidth);
+			}
+			nvgFillColor(nvg, *backgroundColor);
+			nvgFill(nvg);
 		}
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
-	}
 	if (isScrollEnabled()) {
 		pushScissor(nvg, bounds.position.x, bounds.position.y,
 				bounds.dimensions.x, bounds.dimensions.y);
@@ -236,7 +265,26 @@ void Composite::draw(AlloyContext* context) {
 			region->draw(context);
 		}
 	}
+	if (borderColor->a > 0) {
 
+			nvgLineJoin(nvg, NVG_ROUND);
+			nvgBeginPath(nvg);
+			if(roundCorners){
+				nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+						bounds.position.y + lineWidth * 0.5f,
+						bounds.dimensions.x - lineWidth,
+						bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+			} else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
+			}
+			nvgStrokeColor(nvg, *borderColor);
+			nvgStrokeWidth(nvg, lineWidth);
+			nvgStroke(nvg);
+			nvgLineJoin(nvg, NVG_MITER);
+		}
 	if (isScrollEnabled() && verticalScrollTrack.get() != nullptr) {
 
 		if (scrollExtent.y > h) {
