@@ -28,7 +28,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <math.h>
+#include <cmath>
 #include "AlloyCommon.h"
 //#include "cereal/cereal.hpp"
 #define ALY_PI float(3.1415926535897932384626433832795)

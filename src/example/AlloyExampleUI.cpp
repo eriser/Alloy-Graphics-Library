@@ -165,15 +165,16 @@ bool ExampleUI::init(Composite& rootNode) {
 	//std::cout<<rootNode<<std::endl;
 
 	ExpandBarPtr expandBar = ExpandBarPtr(new ExpandBar("exapander",CoordPercent(0.7f,0.0f),CoordPercent(0.3f,1.0f)));
-	RegionPtr geomRegion = RegionPtr(new Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+
+	RegionPtr geomRegion = RegionPtr(new aly::Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(geomRegion,false);
-	RegionPtr apprRegion = RegionPtr(new Region("Appearence", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	RegionPtr apprRegion = RegionPtr(new aly::Region("Appearence", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(apprRegion, false);
-	RegionPtr lightRegion = RegionPtr(new Region("Lighting", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	RegionPtr lightRegion = RegionPtr(new aly::Region("Lighting", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(lightRegion,  false);
-	RegionPtr renderingRegion = RegionPtr(new Region("Rendering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	RegionPtr renderingRegion = RegionPtr(new aly::Region("Rendering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(renderingRegion, false);
-	RegionPtr filterRegion = RegionPtr(new Region("Filtering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	RegionPtr filterRegion = RegionPtr(new aly::Region("Filtering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(filterRegion,  false);
 
 	rootNode.add(expandBar);
