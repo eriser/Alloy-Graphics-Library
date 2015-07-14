@@ -166,8 +166,11 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	ExpandBarPtr expandBar = ExpandBarPtr(new ExpandBar("exapander",CoordPercent(0.7f,0.0f),CoordPercent(0.3f,1.0f)));
 
-	RegionPtr geomRegion = RegionPtr(new aly::Region("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(geomRegion,false);
+	CompositePtr geomRegion = CompositePtr(new aly::Composite("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	expandBar->add(geomRegion,true);
+
+	geomRegion->add(new FileSelector("Mesh File",CoordPX(0,0),CoordPerPX(1.0,0.0f,0.0f,30.0f)));
+
 	RegionPtr apprRegion = RegionPtr(new aly::Region("Appearence", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(apprRegion, false);
 	RegionPtr lightRegion = RegionPtr(new aly::Region("Lighting", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));

@@ -22,6 +22,7 @@
 #include "AlloyApplication.h"
 #include "AlloyWidget.h"
 #include "AlloyDrawUtil.h"
+#include <future>
 using namespace std;
 namespace aly {
 CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
@@ -1578,7 +1579,7 @@ void Button::draw(AlloyContext* context) {
 void ExpandRegion::setExpanded(bool expanded) {
 	this->expanded = expanded;
 	contentRegion->setVisible(expanded);
-	arrowLabel->label = (expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
+	arrowIcon->label = (expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
 }
 ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>& region,  const AUnit2D& pos,
 	const AUnit2D& dims):Composite(name + "_eregion",pos,dims) {
@@ -1593,7 +1594,7 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Left, VerticalAlignment::Middle);
 
-	arrowLabel = MakeTextLabel(
+	arrowIcon = MakeTextLabel(
 		CodePointToUTF8(0xf056),
 		CoordPercent(1.0f, 0.0f),
 		CoordPercent(0.0f, 1.0f),
@@ -1602,11 +1603,11 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Center, VerticalAlignment::Middle);
 
-	arrowLabel->setAspectRatio(1.0f);
-	arrowLabel->setOrigin(Origin::TopRight);
-	arrowLabel->setAspectRule(AspectRule::FixedHeight);
+	arrowIcon->setAspectRatio(1.0f);
+	arrowIcon->setOrigin(Origin::TopRight);
+	arrowIcon->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(selectionLabel);
-	valueContainer->add(arrowLabel);
+	valueContainer->add(arrowIcon);
 	add(valueContainer);
 	//add(region);
 	selectionLabel->onMouseDown =
@@ -1625,7 +1626,7 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 		}
 		return false;
 	};
-	arrowLabel->onMouseDown =
+	arrowIcon->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 			setExpanded(!expanded);
@@ -1635,6 +1636,64 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 	};
 	setExpanded(false);
 }
+
+FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AUnit2D& dims):Widget(name,pos,dims) {
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	setRoundCorners(true);
+	CompositePtr valueContainer = MakeComposite(MakeString()<<name<<"_container",
+		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
+		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+	selectionLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
+		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
+		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+		HorizontalAlignment::Left, VerticalAlignment::Middle);
+
+	openIcon = MakeTextLabel(
+		CodePointToUTF8(0xf115),
+		CoordPercent(1.0f, 0.0f),
+		CoordPercent(0.0f, 1.0f),
+		FontType::Icon,
+		UnitPercent(1.0f),
+		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+		HorizontalAlignment::Center, VerticalAlignment::Middle);
+
+	openIcon->setAspectRatio(1.0f);
+	openIcon->setOrigin(Origin::TopRight);
+	openIcon->setAspectRule(AspectRule::FixedHeight);
+	valueContainer->add(selectionLabel);
+	valueContainer->add(openIcon);
+	add(valueContainer);
+	selectionLabel->onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			openFileDialog();
+			 std::async(&FileSelector::openFileDialog,this,"");
+			return true;
+		}
+		return false;
+	};
+
+	Composite::onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			 std::async(&FileSelector::openFileDialog,this,"");
+			return true;
+		}
+		return false;
+	};
+
+	openIcon->onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			 std::async(&FileSelector::openFileDialog,this,"");
+			return true;
+		}
+		return false;
+	};
+}
+void FileSelector::openFileDialog(const std::string& workingDirectory){
+
+}
 ExpandBar::ExpandBar(
 	const std::string& name,
 	const AUnit2D& pos,
@@ -1643,8 +1702,6 @@ ExpandBar::ExpandBar(
 	setScrollEnabled(true);
 }
 void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
-
-
 	CompositePtr container = MakeComposite("Content Container", CoordPX(Composite::scrollBarSize, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f*Composite::scrollBarSize, 0.0f));
 	container->setOrientation(Orientation::Vertical);
 	region->backgroundColor=MakeColor(AlloyApplicationContext()->theme.DARK);
@@ -1660,7 +1717,10 @@ void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 
 	Widget::add(container);
 	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
-	
 }
+void ExpandBar::add(Region* region, bool expanded){
+	add(std::shared_ptr<Region>(region),expanded);
+}
+
 }
 

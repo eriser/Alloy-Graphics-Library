@@ -308,7 +308,7 @@ public:
 class ExpandRegion : public Composite {
 private:
 	std::shared_ptr<TextLabel> selectionLabel;
-	std::shared_ptr<TextLabel> arrowLabel;
+	std::shared_ptr<TextLabel> arrowIcon;
 	std::shared_ptr<Region> contentRegion;
 	bool expanded;
 public:
@@ -320,11 +320,23 @@ class ExpandBar : public Widget {
 private:
 	std::list<std::shared_ptr<ExpandRegion>> regions;
 public:
+	void add(Region* region,bool expanded);
 	void add(const std::shared_ptr<Region>&, bool expanded);
+
 	ExpandBar(
 		const std::string& name, 
 		const AUnit2D& pos,
 		const AUnit2D& dims);
+};
+class FileSelector : public Widget{
+private:
+	std::shared_ptr<TextLabel> selectionLabel;
+	std::shared_ptr<TextLabel> openIcon;
+	std::string fileLocation;
+public:
+	FileSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	void setFileLocation(const std::string& file);
+	void openFileDialog(const std::string& workingDirectory="");
 };
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
@@ -338,6 +350,8 @@ typedef std::shared_ptr<ProgressBar> ProgressBarPtr;
 typedef std::shared_ptr<ColorWheel> ColorWheelPtr;
 typedef std::shared_ptr<ExpandBar> ExpandBarPtr;
 typedef std::shared_ptr<ExpandRegion> ExpandRegionPtr;
+typedef std::shared_ptr<FileSelector> FileSelectorPtr;
+
 }
 
 #endif /* ALLOYWIDGET_H_ */
