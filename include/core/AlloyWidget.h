@@ -331,6 +331,7 @@ public:
 class FileSelector : public Widget{
 private:
 	std::shared_ptr<TextLabel> selectionLabel;
+	std::shared_ptr<TextLabel> fileLabel;
 	std::shared_ptr<TextLabel> openIcon;
 	std::string fileLocation;
 public:

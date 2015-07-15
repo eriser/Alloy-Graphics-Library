@@ -1651,11 +1651,11 @@ void FileSelector::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-		selectionLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
+		fileLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 		openIcon->textColor = MakeColor(context->theme.HIGHLIGHT);
 
 	} else {
-		selectionLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
+		fileLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 		openIcon->textColor = MakeColor(context->theme.LIGHT_TEXT);
 
 	}
@@ -1704,10 +1704,16 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	CompositePtr valueContainer = MakeComposite(MakeString()<<name<<"_container",
 		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
-	selectionLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
+
+	fileLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
 		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Left, VerticalAlignment::Middle);
+
+	selectionLabel = MakeTextLabel("None", CoordPX(0.0f,0.0f),
+			CoordPerPX(1.0f, 1.0f,-27.0f,0.0f), FontType::Normal, UnitPercent(0.8f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Right, VerticalAlignment::Middle);
 
 	openIcon = MakeTextLabel(
 		CodePointToUTF8(0xf115),
@@ -1721,6 +1727,7 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	openIcon->setAspectRatio(1.0f);
 	openIcon->setOrigin(Origin::TopRight);
 	openIcon->setAspectRule(AspectRule::FixedHeight);
+	valueContainer->add(fileLabel);
 	valueContainer->add(selectionLabel);
 	valueContainer->add(openIcon);
 	add(valueContainer);
@@ -1756,9 +1763,9 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 void FileSelector::setFileLocation(const std::string& file){
 	fileLocation=file;
 	if(file.length()>0){
-		selectionLabel->label="File: "+fileLocation;
+		selectionLabel->label=fileLocation;
 	} else {
-		selectionLabel->label="File: None";
+		selectionLabel->label="None";
 	}
 }
 void FileSelector::openFileDialog(const std::string& workingDirectory){
