@@ -337,6 +337,7 @@ public:
 	FileSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	void setFileLocation(const std::string& file);
 	void openFileDialog(const std::string& workingDirectory="");
+	virtual void draw(AlloyContext* context) override;
 };
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;

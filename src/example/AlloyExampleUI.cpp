@@ -171,7 +171,7 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	geomRegion->add(new FileSelector("Mesh File",CoordPX(0,0),CoordPerPX(1.0,0.0f,0.0f,30.0f)));
 
-	RegionPtr apprRegion = RegionPtr(new aly::Region("Appearence", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	RegionPtr apprRegion = RegionPtr(new aly::Region("Appearance", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(apprRegion, false);
 	RegionPtr lightRegion = RegionPtr(new aly::Region("Lighting", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(lightRegion,  false);

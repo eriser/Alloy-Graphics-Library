@@ -1636,7 +1636,68 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 	};
 	setExpanded(false);
 }
+void FileSelector::draw(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	bool hover = context->isMouseContainedIn(this);
+	if (hover) {
+		nvgBeginPath(nvg);
+		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
+				context->theme.HIGHLIGHT.toSemiTransparent(0));
+		nvgFillPaint(nvg, shadowPaint);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFill(nvg);
+		selectionLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
+		openIcon->textColor = MakeColor(context->theme.HIGHLIGHT);
 
+	} else {
+		selectionLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
+		openIcon->textColor = MakeColor(context->theme.LIGHT_TEXT);
+
+	}
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgFillColor(nvg, context->theme.DARK);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
+			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS, 2,
+			context->theme.DARK.toSemiTransparent(0), context->theme.HIGHLIGHT);
+	nvgFillPaint(nvg, hightlightPaint);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgFillColor(nvg, context->theme.NEUTRAL);
+	box2px clickbox = selectionLabel->getBounds();
+	nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
+			clickbox.dimensions.x, clickbox.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgFill(nvg);
+
+	if (context->isMouseOver(selectionLabel.get())
+			|| context->isMouseOver(openIcon.get())) {
+		nvgBeginPath(nvg);
+		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
+		nvgStrokeWidth(nvg, 2.0f);
+		nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
+				clickbox.dimensions.x, clickbox.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgStroke(nvg);
+	}
+
+	Composite::draw(context);
+}
 FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AUnit2D& dims):Widget(name,pos,dims) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
@@ -1690,6 +1751,15 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 		}
 		return false;
 	};
+	setFileLocation("");
+}
+void FileSelector::setFileLocation(const std::string& file){
+	fileLocation=file;
+	if(file.length()>0){
+		selectionLabel->label="File: "+fileLocation;
+	} else {
+		selectionLabel->label="File: None";
+	}
 }
 void FileSelector::openFileDialog(const std::string& workingDirectory){
 
