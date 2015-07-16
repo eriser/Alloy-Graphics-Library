@@ -83,12 +83,7 @@ void Region::draw(AlloyContext* context) {
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
-	if (backgroundColor->a > 0) {
-		nvgBeginPath(nvg);
 
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
-	}
 	if (borderColor->a > 0) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
@@ -267,24 +262,24 @@ void Composite::draw(AlloyContext* context) {
 	}
 	if (borderColor->a > 0) {
 
-			nvgLineJoin(nvg, NVG_ROUND);
-			nvgBeginPath(nvg);
-			if(roundCorners){
-				nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-						bounds.position.y + lineWidth * 0.5f,
-						bounds.dimensions.x - lineWidth,
-						bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
-			} else {
-			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+		nvgLineJoin(nvg, NVG_ROUND);
+		nvgBeginPath(nvg);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth);
-			}
-			nvgStrokeColor(nvg, *borderColor);
-			nvgStrokeWidth(nvg, lineWidth);
-			nvgStroke(nvg);
-			nvgLineJoin(nvg, NVG_MITER);
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
 		}
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+		nvgLineJoin(nvg, NVG_MITER);
+	}
 	if (isScrollEnabled() && verticalScrollTrack.get() != nullptr) {
 
 		if (scrollExtent.y > h) {
@@ -725,22 +720,50 @@ void Composite::add(const std::shared_ptr<Region>& region) {
 void Composite::add(Region* region) {
 	add(std::shared_ptr<Region>(region));
 }
-
-void TextLabel::draw(AlloyContext* context) {
+pixel2 TextLabel::getTextDimensions(AlloyContext* context){
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	box2px pbounds = parent->getBounds();
+
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
-	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
+	float tw= nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
+	return pixel2(tw,th);
+}
+void TextLabel::draw(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	box2px pbounds = parent->getBounds();
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	if (backgroundColor->a > 0) {
+		nvgBeginPath(nvg);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
+		}
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	nvgFontSize(nvg, th);
+	nvgFontFaceId(nvg, context->getFontHandle(fontType));
+	float tw= nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
+
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
 					| static_cast<int>(verticalAlignment));
 	pixel2 offset(0, 0);
-	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
 	switch (horizontalAlignment) {
 	case HorizontalAlignment::Left:
 		offset.x = lineWidth;
@@ -768,15 +791,26 @@ void TextLabel::draw(AlloyContext* context) {
 	drawText(nvg, bounds.position + offset, label, fontStyle, *textColor,
 			*textAltColor);
 	if (borderColor->a > 0) {
+
+		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 				bounds.position.y + lineWidth * 0.5f,
 				bounds.dimensions.x - lineWidth,
 				bounds.dimensions.y - lineWidth);
+		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
+		nvgLineJoin(nvg, NVG_MITER);
 	}
+
 }
 void TextField::setValue(const std::string& text) {
 	this->value = text;
@@ -1074,10 +1108,17 @@ void GlyphRegion::draw(AlloyContext* context) {
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
+		}
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
@@ -1086,14 +1127,24 @@ void GlyphRegion::draw(AlloyContext* context) {
 	}
 
 	if (borderColor->a > 0) {
+
+		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 				bounds.position.y + lineWidth * 0.5f,
 				bounds.dimensions.x - lineWidth,
 				bounds.dimensions.y - lineWidth);
+		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
+		nvgLineJoin(nvg, NVG_MITER);
 	}
 }
 std::shared_ptr<Composite> MakeComposite(const std::string& name,

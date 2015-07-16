@@ -169,8 +169,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	CompositePtr geomRegion = CompositePtr(new aly::Composite("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(geomRegion,true);
 
-	geomRegion->add(new FileSelector("Mesh File",CoordPX(0,0),CoordPerPX(1.0,0.0f,0.0f,30.0f)));
-
+	FileSelector* selector;
+	geomRegion->add(selector=new FileSelector("Mesh",CoordPX(0,0),CoordPerPX(1.0,0.0f,0.0f,30.0f)));
+	selector->setFileLocation("mesh.obj");
 	RegionPtr apprRegion = RegionPtr(new aly::Region("Appearance", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(apprRegion, false);
 	RegionPtr lightRegion = RegionPtr(new aly::Region("Lighting", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));

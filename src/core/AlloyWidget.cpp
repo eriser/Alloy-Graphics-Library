@@ -1640,6 +1640,18 @@ void FileSelector::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
+
+	box2px fileBounds=fileLabel->getBounds(false);
+	box2px openBounds=openIcon->getBounds(false);
+
+	pixel2 tdim=fileLabel->getTextDimensions(context);
+
+	box2px locationBounds=fileLocationLabel->getBounds(false);
+	float spacing=AlloyApplicationContext()->theme.SPACING.x;
+	fileLocationLabel->setBounds(
+			pixel2(fileBounds.position.x+tdim.x+spacing,locationBounds.position.y),
+			pixel2(openBounds.position.x-(fileBounds.position.x+tdim.x+spacing*2),locationBounds.dimensions.y));
+
 	if (hover) {
 		nvgBeginPath(nvg);
 		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
@@ -1679,13 +1691,13 @@ void FileSelector::draw(AlloyContext* context) {
 
 	nvgBeginPath(nvg);
 	nvgFillColor(nvg, context->theme.NEUTRAL);
-	box2px clickbox = selectionLabel->getBounds();
+	box2px clickbox = fileLocationLabel->getBounds();
 	nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
 			clickbox.dimensions.x, clickbox.dimensions.y,
 			context->theme.CORNER_RADIUS);
 	nvgFill(nvg);
 
-	if (context->isMouseOver(selectionLabel.get())
+	if (context->isMouseOver(fileLabel.get())
 			|| context->isMouseOver(openIcon.get())) {
 		nvgBeginPath(nvg);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
@@ -1710,11 +1722,13 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 		HorizontalAlignment::Left, VerticalAlignment::Middle);
 
-	selectionLabel = MakeTextLabel("None", CoordPX(0.0f,0.0f),
-			CoordPerPX(1.0f, 1.0f,-27.0f,0.0f), FontType::Normal, UnitPercent(0.8f),
+	fileLocationLabel = MakeTextLabel("None", CoordPX(0.0f,0.0f),
+			CoordPerPX(1.0f, 1.0f,0.0f,0.0f), FontType::Normal, UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-			HorizontalAlignment::Right, VerticalAlignment::Middle);
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
 
+	fileLocationLabel->setRoundCorners(true);
+	fileLocationLabel->backgroundColor=MakeColor(AlloyApplicationContext()->theme.SHADOW.toSemiTransparent(0.5f));
 	openIcon = MakeTextLabel(
 		CodePointToUTF8(0xf115),
 		CoordPercent(1.0f, 0.0f),
@@ -1728,10 +1742,10 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	openIcon->setOrigin(Origin::TopRight);
 	openIcon->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(fileLabel);
-	valueContainer->add(selectionLabel);
+	valueContainer->add(fileLocationLabel);
 	valueContainer->add(openIcon);
 	add(valueContainer);
-	selectionLabel->onMouseDown =
+	fileLocationLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 			openFileDialog();
@@ -1763,9 +1777,9 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 void FileSelector::setFileLocation(const std::string& file){
 	fileLocation=file;
 	if(file.length()>0){
-		selectionLabel->label=fileLocation;
+		fileLocationLabel->label=fileLocation;
 	} else {
-		selectionLabel->label="None";
+		fileLocationLabel->label="None";
 	}
 }
 void FileSelector::openFileDialog(const std::string& workingDirectory){

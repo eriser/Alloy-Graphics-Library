@@ -101,6 +101,13 @@ public:
 		setPosition(pt);
 		setDimensions(dim);
 	}
+	inline void setBounds(const pixel2& pt, const pixel2& dim) {
+		bounds.position=pt;
+		bounds.dimensions=dim;
+	}
+	inline void setBounds(const box2px& bbox) {
+		bounds=bbox;
+	}
 	AColor backgroundColor = MakeColor(COLOR_NONE);
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor borderColor = MakeColor(COLOR_NONE);
@@ -261,6 +268,8 @@ struct GlyphRegion: public Region {
 };
 
 struct TextLabel: public Region {
+public:
+	pixel2 getTextDimensions(AlloyContext* context);
 	HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left;
 	VerticalAlignment verticalAlignment = VerticalAlignment::Top;
 	FontStyle fontStyle = FontStyle::Normal;
