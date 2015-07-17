@@ -328,18 +328,35 @@ public:
 		const AUnit2D& pos,
 		const AUnit2D& dims);
 };
+class FileDialog: public Widget{
+private:
+	std::shared_ptr<TextField> fileLocation;
+	std::shared_ptr<Composite> directoryTree;
+	std::shared_ptr<Composite> directoryList;
+	std::shared_ptr<Button> openButton;
+	std::shared_ptr<Button> cancelButton;
+
+public:
+	FileDialog(
+			const std::string& name,
+			const AUnit2D& pos,
+			const AUnit2D& dims);
+
+};
 class FileSelector : public Widget{
 private:
 	std::shared_ptr<TextLabel> fileLocationLabel;
 	std::shared_ptr<TextLabel> fileLabel;
 	std::shared_ptr<TextLabel> openIcon;
+	std::shared_ptr<FileDialog> fileDialog;
 	std::string fileLocation;
 public:
 	FileSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	void setFileLocation(const std::string& file);
-	void openFileDialog(const std::string& workingDirectory="");
+	void openFileDialog(AlloyContext* context,const std::string& workingDirectory="");
 	virtual void draw(AlloyContext* context) override;
 };
+
 typedef std::shared_ptr<Button> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
@@ -353,6 +370,7 @@ typedef std::shared_ptr<ColorWheel> ColorWheelPtr;
 typedef std::shared_ptr<ExpandBar> ExpandBarPtr;
 typedef std::shared_ptr<ExpandRegion> ExpandRegionPtr;
 typedef std::shared_ptr<FileSelector> FileSelectorPtr;
+typedef std::shared_ptr<FileDialog> FileDialogPtr;
 
 }
 

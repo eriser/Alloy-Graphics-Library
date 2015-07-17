@@ -1716,6 +1716,15 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	CompositePtr valueContainer = MakeComposite(MakeString()<<name<<"_container",
 		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+	fileDialog=std::shared_ptr<FileDialog>(new FileDialog("Open File",
+			CoordPercent(0.0f,1.0f),CoordPerPX(1.0f,0.0f,0,320)));
+	fileDialog->setOrigin(Origin::TopLeft);
+	fileDialog->backgroundColor=MakeColor(128,0,0);
+	fileDialog->borderColor=MakeColor(255,255,255);
+	fileDialog->borderWidth=UnitPX(1.0f);
+	//fileDialog->setAspectRatio(1.0f);
+	//fileDialog->setAspectRule(AspectRule::FixedHeight);
+	fileDialog->setVisible(false);
 
 	fileLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
 		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
@@ -1745,11 +1754,11 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	valueContainer->add(fileLocationLabel);
 	valueContainer->add(openIcon);
 	add(valueContainer);
+	add(fileDialog);
 	fileLocationLabel->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			openFileDialog();
-			 std::async(&FileSelector::openFileDialog,this,"");
+			openFileDialog(context);
 			return true;
 		}
 		return false;
@@ -1758,7 +1767,7 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	Composite::onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			 std::async(&FileSelector::openFileDialog,this,"");
+			openFileDialog(context);
 			return true;
 		}
 		return false;
@@ -1767,7 +1776,7 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	openIcon->onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			 std::async(&FileSelector::openFileDialog,this,"");
+			openFileDialog(context);
 			return true;
 		}
 		return false;
@@ -1782,7 +1791,16 @@ void FileSelector::setFileLocation(const std::string& file){
 		fileLocationLabel->label="None";
 	}
 }
-void FileSelector::openFileDialog(const std::string& workingDirectory){
+void FileSelector::openFileDialog(AlloyContext* context,const std::string& workingDirectory){
+	if(!fileDialog->isVisible()){
+		fileDialog->setVisible(true);
+		context->setOnTopRegion(fileDialog.get());
+	} else {
+		context->removeOnTopRegion(fileDialog.get());
+		fileDialog->setVisible(false);
+	}
+}
+FileDialog::FileDialog(const std::string& name,const AUnit2D& pos,const AUnit2D& dims):Widget(name,pos,dims){
 
 }
 ExpandBar::ExpandBar(
