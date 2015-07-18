@@ -1719,7 +1719,7 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 
 	std::shared_ptr<Composite>& glassPanel=AlloyApplicationContext()->getGlassPanel();
 
-	fileDialog=std::shared_ptr<FileDialog>(new FileDialog("File Dialog",CoordPerPX(0.5,0.5,-320,-240),CoordPX(640,480)));
+	fileDialog=std::shared_ptr<FileDialog>(new FileDialog("File Dialog",CoordPerPX(0.5,0.5,-200,-150),CoordPX(400,300)));
 	fileDialog->setVisible(false);
 	fileDialog->backgroundColor=MakeColor(128,0,0);
 	fileDialog->borderColor=MakeColor(255,255,255);
