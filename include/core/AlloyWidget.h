@@ -23,6 +23,7 @@
 #define ALLOYWIDGET_H_
 
 #include "AlloyUI.h"
+
 namespace aly {
 class Widget: public Composite {
 public:
@@ -31,7 +32,6 @@ public:
 	}
 	Widget(const std::string& name, const AUnit2D& pos, const AUnit2D& dims) :
 			Composite(name, pos, dims) {
-
 	}
 
 	virtual bool onMouseOver(AlloyContext* context, Region* region,

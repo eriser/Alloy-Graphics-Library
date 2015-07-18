@@ -606,7 +606,7 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	return Region::onEventHandler(context, event);
 }
 void Composite::update(CursorLocator* cursorLocator) {
-	cursorLocator->add(this);
+	if(!ignoreCursorEvents)cursorLocator->add(this);
 	for (std::shared_ptr<Region>& region : children) {
 		region->update(cursorLocator);
 	}
@@ -625,7 +625,7 @@ void Composite::update(CursorLocator* cursorLocator) {
 }
 
 void Region::update(CursorLocator* cursorLocator) {
-	cursorLocator->add(this);
+	if(!ignoreCursorEvents)cursorLocator->add(this);
 }
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
@@ -714,7 +714,7 @@ void Composite::add(const std::shared_ptr<Region>& region) {
 	children.push_back(region);
 	if (region->parent != nullptr)
 		throw std::runtime_error(
-				"Cannot add child node because it already has a parent.");
+				MakeString()<<"Cannot add child node ["<<region->name<<"] to ["<<name<<"] because it already has a parent ["<<region->parent->name<<"].");
 	region->parent = this;
 }
 void Composite::add(Region* region) {

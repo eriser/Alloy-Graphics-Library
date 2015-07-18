@@ -195,7 +195,9 @@ private:
 	Region* mouseFocusRegion = nullptr;
 	Region* onTopRegion = nullptr;
 	std::list<EventHandler*> listeners;
+	std::shared_ptr<Composite> glassPanel;
 	static std::shared_ptr<AlloyContext> defaultContext;
+
 	int2 viewSize;
 	int2 screenSize;
 public:
@@ -204,10 +206,8 @@ public:
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
 	ImageVAO vaoImage;
-	
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
-
 	bool hasFocus = false;
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;
@@ -224,6 +224,7 @@ public:
 	int getScreenHeight() {
 		return screenSize.y;
 	}
+	std::shared_ptr<Composite>& getGlassPanel();
 	void addListener(EventHandler* region) {
 		listeners.push_back(region);
 	}

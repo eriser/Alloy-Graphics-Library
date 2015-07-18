@@ -312,7 +312,13 @@ bool AlloyContext::isMouseContainedIn(const pixel2& pos,
 		const pixel2& dims) const {
 	return ((box2px(pos, dims)).contains(cursorPosition));
 }
-
+std::shared_ptr<Composite>& AlloyContext::getGlassPanel(){
+	if(glassPanel.get()==nullptr){
+		glassPanel=std::shared_ptr<Composite>(new Composite("Glass Pane",CoordPX(0,0),CoordPercent(1.0f,1.0f)));
+		glassPanel->setIgnoreCursorEvents(true);
+	}
+	return glassPanel;
+}
 Region* AlloyContext::locate(const pixel2& cursor) const {
 	if (onTopRegion != nullptr) {
 		if (onTopRegion->isVisible()) {

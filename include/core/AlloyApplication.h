@@ -39,12 +39,13 @@ private:
 	void drawUI();
 	void drawDebugUI();
 	void draw();
-	Composite rootNode;
+	Composite rootRegion;
 	std::shared_ptr<ImageShader> imageShader;
 	std::list<std::exception_ptr> caughtExceptions;
 	std::shared_ptr<GLFrameBuffer> uiFrameBuffer;
 	void initInternal();
 public:
+
 	static inline std::shared_ptr<AlloyContext>& getContext() {
 		if (context.get() == nullptr)
 			throw std::runtime_error("Cannot get GLFW / NanoVG context.");

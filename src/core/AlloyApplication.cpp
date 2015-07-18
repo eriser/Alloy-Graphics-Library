@@ -22,6 +22,7 @@
 #include "AlloyApplication.h"
 #include "AlloyFileUtil.h"
 #include "AlloyDrawUtil.h"
+#include "AlloyWidget.h"
 #include <thread>
 #include <chrono>
 namespace aly {
@@ -29,7 +30,7 @@ namespace aly {
 std::shared_ptr<AlloyContext>& Application::context =
 		AlloyContext::getDefaultContext();
 void Application::initInternal() {
-	rootNode.setBounds(CoordPercent(0.0f, 0.0f), CoordPercent(1.0f, 1.0f));
+	rootRegion.setBounds(CoordPercent(0.0f, 0.0f), CoordPercent(1.0f, 1.0f));
 	context->addAssetDirectory("assets/");
 	context->addAssetDirectory("../assets/");
 	context->addAssetDirectory("../../assets/");
@@ -82,7 +83,7 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 }
 Application::Application(int w, int h, const std::string& title,
 		bool showDebugIcon) :
-		rootNode("Root"), showDebugIcon(showDebugIcon) {
+		rootRegion("Root"), showDebugIcon(showDebugIcon) {
 
 	if (context.get() == nullptr) {
 		context.reset(new AlloyContext(w, h, title));
@@ -122,7 +123,7 @@ void Application::drawUI() {
 		nvgBeginFrame(nvg, context->width(), context->height(),
 			(float)context->pixelRatio);
 		nvgScissor(nvg, 0, 0, (float)context->width(), (float)context->height());
-		rootNode.draw(context.get());
+		rootRegion.draw(context.get());
 		nvgScissor(nvg, 0, 0, (float)context->width(), (float)context->height());
 
 		Region* onTop = context->getOnTopRegion();
@@ -141,7 +142,7 @@ void Application::drawDebugUI() {
 	nvgBeginFrame(nvg, context->width(), context->height(),
 		(float)context->pixelRatio);
 	nvgResetScissor(nvg);
-	rootNode.drawDebug(context.get());
+	rootRegion.drawDebug(context.get());
 	Region* onTop = context->getOnTopRegion();
 	if (onTop != nullptr) {
 		onTop->drawDebug(context.get());
@@ -432,9 +433,10 @@ void Application::run(int swapInterval) {
 	const double POLL_INTERVAL_SEC = 0.5f;
 
 	context->makeCurrent();
-	if (!init(rootNode)) {
+	if (!init(rootRegion)) {
 		throw std::runtime_error("Error occurred in application init()");
 	}
+	rootRegion.add(getContext()->getGlassPanel());
 	if (showDebugIcon) {
 		GlyphRegionPtr debug = MakeGlyphRegion(
 				createAwesomeGlyph(0xf188, FontStyle::Outline, 20),
@@ -452,11 +454,11 @@ void Application::run(int swapInterval) {
 					}
 					return false;
 				};
-		rootNode.add(debug);
+		rootRegion.add(debug);
 	}
 
 	//First pack triggers computation of aspect ratios  for components.
-	rootNode.pack(context.get());
+	rootRegion.pack(context.get());
 
 	context->requestPack();
 	glfwSwapInterval(swapInterval);
@@ -468,7 +470,7 @@ void Application::run(int swapInterval) {
 			std::chrono::steady_clock::now();
 	do {
 		draw();
-		context->update(rootNode);
+		context->update(rootRegion);
 		double elapsed =
 				std::chrono::duration<double>(endTime - lastFpsTime).count();
 		frameCounter++;

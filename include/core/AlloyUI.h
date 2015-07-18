@@ -46,6 +46,7 @@ protected:
 	static uint64_t REGION_COUNTER;
 	bool visible = true;
 	bool dragEnabled = false;
+	bool ignoreCursorEvents=false;
 	Origin origin = Origin::TopLeft;
 	pixel2 dragOffset = pixel2(0, 0);
 
@@ -57,6 +58,9 @@ protected:
 	bool detached=false;
 public:
 	friend struct Composite;
+	void setIgnoreCursorEvents(bool ignore){
+		ignoreCursorEvents=ignore;
+	}
 	void setDetacted(bool enable){
 		detached=enable;
 	}
