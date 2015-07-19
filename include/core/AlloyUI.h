@@ -113,7 +113,6 @@ public:
 		bounds=bbox;
 	}
 	AColor backgroundColor = MakeColor(COLOR_NONE);
-	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor borderColor = MakeColor(COLOR_NONE);
 	AUnit1D borderWidth = UnitPX(2);
 	std::function<void()> onPack;

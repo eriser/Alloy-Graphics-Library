@@ -181,6 +181,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	RegionPtr filterRegion = RegionPtr(new aly::Region("Filtering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(filterRegion,  false);
 
+	rootNode.backgroundColor=MakeColor(COLOR_WHITE);
 	rootNode.add(expandBar);
 	return true;
 }

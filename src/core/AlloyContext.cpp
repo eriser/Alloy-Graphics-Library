@@ -82,10 +82,12 @@ AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context,
 void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
 		const Color& bgColor, AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	nvgFontSize(nvg, height);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
-	drawText(nvg, bounds.position + bounds.dimensions * 0.5f, name, style,
+	nvgFontSize(nvg, height);
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE|NVG_ALIGN_CENTER);
+	//float tw= nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
+
+	drawText(nvg, bounds.position + HALF_PIX(bounds.dimensions), name, style,
 			fgColor, bgColor, nullptr);
 }
 
@@ -316,6 +318,8 @@ std::shared_ptr<Composite>& AlloyContext::getGlassPanel(){
 	if(glassPanel.get()==nullptr){
 		glassPanel=std::shared_ptr<Composite>(new Composite("Glass Pane",CoordPX(0,0),CoordPercent(1.0f,1.0f)));
 		glassPanel->setIgnoreCursorEvents(true);
+		glassPanel->setVisible(false);
+		glassPanel->backgroundColor=MakeColor(theme.SHADOW.toSemiTransparent(0.5f));
 	}
 	return glassPanel;
 }

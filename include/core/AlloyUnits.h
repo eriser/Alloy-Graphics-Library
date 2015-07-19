@@ -29,13 +29,21 @@
 #include <memory>
 #include <list>
 namespace aly {
+
+typedef float pixel;
+
 const float MM_TO_PIX = 1.0f;
 const float DP_TO_PIX = 1.0f / 160.0f;
 const float IN_TO_PIX = 25.4f;
 const float PT_TO_PIX = 1.333333f;
-typedef float pixel;
+
 typedef vec<pixel, 2> pixel2;
 typedef box<pixel, 2> box2px;
+
+#define HALF_PIX(x) ((x)/(pixel)2)
+#define THIRD_PIX(x) ((x)/(pixel)3)
+#define QUATER_PIX(x) ((x)/(pixel)4)
+
 struct Tweenable {
 protected:
 	double t = 0;

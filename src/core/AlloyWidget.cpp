@@ -22,6 +22,7 @@
 #include "AlloyApplication.h"
 #include "AlloyWidget.h"
 #include "AlloyDrawUtil.h"
+#include "AlloyContext.h"
 #include <future>
 using namespace std;
 namespace aly {
@@ -36,13 +37,11 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	valueLabel = MakeTextLabel(
-				CodePointToUTF8(0xf00c),
-				CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f),
-				FontType::Icon,
-				UnitPercent(1.0f),
-				AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-				HorizontalAlignment::Center, VerticalAlignment::Middle);
+	valueLabel = MakeTextLabel(CodePointToUTF8(0xf00c),
+			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), FontType::Icon,
+			UnitPercent(1.0f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
 	valueLabel->setAspectRatio(1.0f);
 	valueLabel->setOrigin(Origin::TopRight);
 	valueLabel->setAspectRule(AspectRule::FixedHeight);
@@ -315,7 +314,7 @@ ProgressBar::ProgressBar(const std::string& name, const AUnit2D& pt,
 		Widget(name, pt, dims), value(0), label(name) {
 
 }
-Button::Button(const std::string& label, const AUnit2D& position,
+TextButton::TextButton(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions) :
 		Widget(label) {
 	this->position = position;
@@ -326,8 +325,135 @@ Button::Button(const std::string& label, const AUnit2D& position,
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
 }
-SliderTrack::SliderTrack(const std::string& name, Orientation orient, const Color& st, const Color& ed) :
-	Composite(name), orientation(orient),startColor(st),endColor(ed) {
+void TextButton::draw(AlloyContext* context) {
+	bool hover = context->isMouseOver(this);
+	bool down = context->isMouseDown(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	float lineWidth = 2.0f;
+
+	int xoff = 0;
+	int yoff = 0;
+	if (down) {
+		xoff = 2;
+		yoff = 2;
+	}
+	if (hover || down) {
+		if (!down) {
+			nvgBeginPath(nvg);
+			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+					bounds.position.y, bounds.dimensions.x - 2,
+					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
+					context->theme.SHADOW,
+					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+			nvgFillPaint(nvg, shadowPaint);
+			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+					bounds.dimensions.x, bounds.dimensions.y,
+					context->theme.CORNER_RADIUS);
+			nvgFill(nvg);
+		}
+
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+
+	} else {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
+				bounds.dimensions.x - 2, bounds.dimensions.y - 2,
+				context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+
+	if (hover) {
+
+		nvgBeginPath(nvg);
+		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
+				bounds.position.y + yoff, bounds.dimensions.x,
+				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
+				context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
+				context->theme.DARK);
+		nvgFillPaint(nvg, hightlightPaint);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFill(nvg);
+	}
+
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	nvgFontSize(nvg, th);
+	nvgFillColor(nvg, *textColor);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
+	this->aspectRatio = tw / th;
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	pixel2 offset(0, 0);
+	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
+			nullptr);
+
+}
+
+IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
+		const AUnit2D& position, const AUnit2D& dimensions) :
+		Widget("Icon", position, dimensions) {
+	this->position = position;
+	this->dimensions = dimensions;
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	iconGlyph = glyph;
+	this->aspectRule = AspectRule::FixedHeight;
+}
+void IconButton::draw(AlloyContext* context) {
+	bool hover = context->isMouseOver(this);
+	bool down = context->isMouseDown(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+
+	pixel2 center = bounds.position + HALF_PIX(bounds.dimensions);
+	pixel2 radii = HALF_PIX(bounds.dimensions);
+
+	float lineWidth = 2.0f;
+
+
+	nvgBeginPath(nvg);
+	NVGpaint shadowPaint = nvgRadialGradient(nvg, center.x + 1, center.y + 1,
+			radii.x - 2, radii.x + 2, context->theme.SHADOW,
+			context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+	nvgFillPaint(nvg, shadowPaint);
+	nvgEllipse(nvg, center.x + 1, center.y + 1, radii.x + 2, radii.y + 2);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgEllipse(nvg, center.x, center.y, radii.x, radii.y);
+	nvgFillColor(nvg, *backgroundColor);
+	nvgFill(nvg);
+
+	if(hover){
+		iconGlyph->draw(bounds, context->theme.HIGHLIGHT, *backgroundColor, context);
+	} else {
+		iconGlyph->draw(bounds,  context->theme.LIGHT_TEXT, *backgroundColor, context);
+
+	}
+	if (borderColor->a > 0) {
+		pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y,
+				context->dpmm.y, context->pixelRatio);
+		nvgBeginPath(nvg);
+		nvgEllipse(nvg, center.x, center.y, radii.x, radii.y);
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+	}
+
+}
+SliderTrack::SliderTrack(const std::string& name, Orientation orient,
+		const Color& st, const Color& ed) :
+		Composite(name), orientation(orient), startColor(st), endColor(ed) {
 }
 
 void SliderTrack::draw(AlloyContext* context) {
@@ -336,29 +462,28 @@ void SliderTrack::draw(AlloyContext* context) {
 	float ax, ay, bx, by;
 	if (orientation == Orientation::Horizontal) {
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg, 
-				ax=(bounds.position.x + bounds.dimensions.y * 0.5f - 1),
-				ay=(bounds.position.y + bounds.dimensions.y * 0.5f));
+		nvgMoveTo(nvg, ax =
+				(bounds.position.x + bounds.dimensions.y * 0.5f - 1),
+				ay = (bounds.position.y + bounds.dimensions.y * 0.5f));
 		nvgLineTo(nvg,
-				bx=(bounds.position.x - bounds.dimensions.y * 0.5f + 1+ bounds.dimensions.x),
-				by=(bounds.position.y + bounds.dimensions.y * 0.5f));
-		NVGpaint paint = nvgLinearGradient(nvg, ax, ay, bx, by,endColor, startColor);
+				bx = (bounds.position.x - bounds.dimensions.y * 0.5f + 1
+						+ bounds.dimensions.x),
+				by = (bounds.position.y + bounds.dimensions.y * 0.5f));
+		NVGpaint paint = nvgLinearGradient(nvg, ax, ay, bx, by, endColor,
+				startColor);
 		nvgStrokePaint(nvg, paint);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStroke(nvg);
 	} else if (orientation == Orientation::Vertical) {
 		nvgBeginPath(nvg);
-		nvgMoveTo(nvg, 
-			ax=(bounds.position.x + bounds.dimensions.x * 0.5f),
-			ay=(bounds.position.y + bounds.dimensions.x * 0.5f - 1));
-		nvgLineTo(nvg, 
-			bx=(bounds.position.x + bounds.dimensions.x * 0.5f),
-			by=(bounds.position.y - bounds.dimensions.x * 0.5f + 1+ bounds.dimensions.y)
-			);
-		NVGpaint paint = nvgLinearGradient(nvg, ax, ay, bx, by,
-			endColor,
-			startColor);
+		nvgMoveTo(nvg, ax = (bounds.position.x + bounds.dimensions.x * 0.5f),
+				ay = (bounds.position.y + bounds.dimensions.x * 0.5f - 1));
+		nvgLineTo(nvg, bx = (bounds.position.x + bounds.dimensions.x * 0.5f),
+				by = (bounds.position.y - bounds.dimensions.x * 0.5f + 1
+						+ bounds.dimensions.y));
+		NVGpaint paint = nvgLinearGradient(nvg, ax, ay, bx, by, endColor,
+				startColor);
 		nvgStrokePaint(nvg, paint);
 		nvgStrokeWidth(nvg, 10.0f);
 		nvgLineCap(nvg, NVG_ROUND);
@@ -401,8 +526,7 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 	AlloyContext* context = AlloyApplicationContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	float entryHeight = std::min(
-			context->width() / (float) options.size(),
+	float entryHeight = std::min(context->width() / (float) options.size(),
 			bounds.dimensions.y);
 	float boxHeight = (options.size()) * entryHeight;
 
@@ -502,11 +626,8 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
-	arrowLabel = MakeTextLabel(
-			CodePointToUTF8(0xf13a),
-			CoordPercent(1.0f, 0.0f),
-			CoordPercent(0.0f, 1.0f),
-			FontType::Icon,
+	arrowLabel = MakeTextLabel(CodePointToUTF8(0xf13a),
+			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), FontType::Icon,
 			UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
@@ -623,7 +744,7 @@ void Selection::draw(AlloyContext* context) {
 HorizontalSlider::HorizontalSlider(const std::string& label,
 		const AUnit2D& position, const AUnit2D& dimensions, const Number& min,
 		const Number& max, const Number& value) :
-		Slider(label,min,max,value) {
+		Slider(label, min, max, value) {
 	this->position = position;
 	this->dimensions = dimensions;
 	float handleSize = 30.0f;
@@ -641,7 +762,9 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	sliderHandle->setEnableDrag(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
-			new SliderTrack("Scroll Track", Orientation::Horizontal, AlloyApplicationContext()->theme.HIGHLIGHT, AlloyApplicationContext()->theme.HIGHLIGHT));
+			new SliderTrack("Scroll Track", Orientation::Horizontal,
+					AlloyApplicationContext()->theme.HIGHLIGHT,
+					AlloyApplicationContext()->theme.HIGHLIGHT));
 
 	sliderTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
 	sliderTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
@@ -653,7 +776,8 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
 	sliderHandle->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderHandle.get(),e);};
-	sliderHandle->onMouseUp =[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
+	sliderHandle->onMouseUp =
+			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
 				return this->onMouseDrag(context,sliderHandle.get(),e);};
@@ -678,25 +802,26 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	this->onPack = [this]() {
 		this->setValue(this->value.toDouble());
 	};
-	this->onEvent=[this](AlloyContext* context, const InputEvent& event) {
-		if(event.type==InputType::Scroll&&isVisible()&&context->isMouseContainedIn(this)){
-			double oldV=getBlendValue();
-			double newV=clamp(event.scroll.y*0.1f+oldV,0.0,1.0);
-			if(newV!=oldV){
-				this->setBlendValue(newV);
-				if(onChangeEvent)onChangeEvent(this->value);
-				return true;
-			}
-		}
-		return false;
-	};
+	this->onEvent =
+			[this](AlloyContext* context, const InputEvent& event) {
+				if(event.type==InputType::Scroll&&isVisible()&&context->isMouseContainedIn(this)) {
+					double oldV=getBlendValue();
+					double newV=clamp(event.scroll.y*0.1f+oldV,0.0,1.0);
+					if(newV!=oldV) {
+						this->setBlendValue(newV);
+						if(onChangeEvent)onChangeEvent(this->value);
+						return true;
+					}
+				}
+				return false;
+			};
 	Application::addListener(this);
 }
 void HorizontalSlider::setValue(double value) {
 	double interp = clamp(
 			(value - minValue.toDouble())
 					/ (maxValue.toDouble() - minValue.toDouble()), 0.0, 1.0);
-	float xoff = (float)(sliderTrack->getBoundsPositionX()
+	float xoff = (float) (sliderTrack->getBoundsPositionX()
 			+ interp
 					* (sliderTrack->getBoundsDimensionsX()
 							- sliderHandle->getBoundsDimensionsX()));
@@ -710,7 +835,7 @@ void HorizontalSlider::update() {
 			- sliderTrack->getBoundsPositionX())
 			/ (double) (sliderTrack->getBoundsDimensionsX()
 					- sliderHandle->getBoundsDimensionsX());
-	float val =(float)( (1.0 - interp) * minValue.toDouble()
+	float val = (float) ((1.0 - interp) * minValue.toDouble()
 			+ interp * maxValue.toDouble());
 	value.setValue(val);
 }
@@ -722,30 +847,36 @@ bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 					sliderHandle->getBoundsDimensions() * 0.5f);
 			context->setDragObject(sliderHandle.get());
 			update();
-			if(onChangeEvent)onChangeEvent(value);
+			if (onChangeEvent)
+				onChangeEvent(value);
 			return true;
 		} else if (region == sliderHandle.get()) {
 			update();
-			if(onChangeEvent)onChangeEvent(value);
+			if (onChangeEvent)
+				onChangeEvent(value);
 			return true;
 		}
 	}
 	return false;
 }
 void Slider::setBlendValue(double value) {
-	value=clamp(value,0.0,1.0);
-	setValue(value*(maxValue.toDouble()-minValue.toDouble())+minValue.toDouble());
+	value = clamp(value, 0.0, 1.0);
+	setValue(
+			value * (maxValue.toDouble() - minValue.toDouble())
+					+ minValue.toDouble());
 }
 
 double Slider::getBlendValue() const {
-	return (value.toDouble()-minValue.toDouble())/(maxValue.toDouble()-minValue.toDouble());
+	return (value.toDouble() - minValue.toDouble())
+			/ (maxValue.toDouble() - minValue.toDouble());
 }
 bool HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if (region == sliderHandle.get()) {
 		region->setDragOffset(event.cursor, context->getCursorDownPosition());
 		update();
-		if(onChangeEvent)onChangeEvent(value);
+		if (onChangeEvent)
+			onChangeEvent(value);
 		return true;
 	}
 	return false;
@@ -797,7 +928,7 @@ void HorizontalSlider::draw(AlloyContext* context) {
 VerticalSlider::VerticalSlider(const std::string& label,
 		const AUnit2D& position, const AUnit2D& dimensions, const Number& min,
 		const Number& max, const Number& value) :
-		Slider(label,min,max,value) {
+		Slider(label, min, max, value) {
 	this->position = position;
 	this->dimensions = dimensions;
 	float handleSize = 30.0f;
@@ -815,7 +946,9 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderHandle->setEnableDrag(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
-			new SliderTrack("Scroll Track", Orientation::Vertical, AlloyApplicationContext()->theme.HIGHLIGHT, AlloyApplicationContext()->theme.HIGHLIGHT));
+			new SliderTrack("Scroll Track", Orientation::Vertical,
+					AlloyApplicationContext()->theme.HIGHLIGHT,
+					AlloyApplicationContext()->theme.HIGHLIGHT));
 
 	sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2.0f));
 	sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4.0f));
@@ -828,7 +961,8 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderHandle->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
 				return this->onMouseDown(context,sliderHandle.get(),e);};
-	sliderHandle->onMouseUp =[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
+	sliderHandle->onMouseUp =
+			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
 				return this->onMouseDrag(context,sliderHandle.get(),e);};
@@ -850,18 +984,19 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	this->onPack = [this]() {
 		this->setValue(this->value.toDouble());
 	};
-	this->onEvent=[this](AlloyContext* context, const InputEvent& event) {
-		if(event.type==InputType::Scroll&&isVisible()&&context->isMouseContainedIn(this)){
-			double oldV=getBlendValue();
-			double newV=clamp(event.scroll.y*0.1f+getBlendValue(),0.0,1.0);
-			if(newV!=oldV){
-				this->setBlendValue(newV);
-				if(onChangeEvent)onChangeEvent(this->value);
-				return true;
-			}
-		}
-		return false;
-	};
+	this->onEvent =
+			[this](AlloyContext* context, const InputEvent& event) {
+				if(event.type==InputType::Scroll&&isVisible()&&context->isMouseContainedIn(this)) {
+					double oldV=getBlendValue();
+					double newV=clamp(event.scroll.y*0.1f+getBlendValue(),0.0,1.0);
+					if(newV!=oldV) {
+						this->setBlendValue(newV);
+						if(onChangeEvent)onChangeEvent(this->value);
+						return true;
+					}
+				}
+				return false;
+			};
 	Application::addListener(this);
 }
 
@@ -871,7 +1006,7 @@ void VerticalSlider::setValue(double value) {
 					(value - minValue.toDouble())
 							/ (maxValue.toDouble() - minValue.toDouble()), 0.0,
 					1.0);
-	float yoff =(float)( sliderTrack->getBoundsPositionY()
+	float yoff = (float) (sliderTrack->getBoundsPositionY()
 			+ interp
 					* (sliderTrack->getBoundsDimensionsY()
 							- sliderHandle->getBoundsDimensionsY()));
@@ -885,7 +1020,7 @@ void VerticalSlider::update() {
 			- sliderTrack->getBoundsPositionY())
 			/ (double) (sliderTrack->getBoundsDimensionsY()
 					- sliderHandle->getBoundsDimensionsY());
-	float val = (float)(interp * minValue.toDouble()
+	float val = (float) (interp * minValue.toDouble()
 			+ (1.0 - interp) * maxValue.toDouble());
 	value.setValue(val);
 }
@@ -897,11 +1032,13 @@ bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 					sliderHandle->getBoundsDimensions() * 0.5f);
 			context->setDragObject(sliderHandle.get());
 			update();
-			if(onChangeEvent)onChangeEvent(value);
+			if (onChangeEvent)
+				onChangeEvent(value);
 			return true;
 		} else if (region == sliderHandle.get()) {
 			update();
-			if(onChangeEvent)onChangeEvent(value);
+			if (onChangeEvent)
+				onChangeEvent(value);
 			return true;
 		}
 	}
@@ -912,7 +1049,8 @@ bool VerticalSlider::onMouseDrag(AlloyContext* context, Region* region,
 	if (region == sliderHandle.get()) {
 		region->setDragOffset(event.cursor, context->getCursorDownPosition());
 		update();
-		if(onChangeEvent)onChangeEvent(value);
+		if (onChangeEvent)
+			onChangeEvent(value);
 		return true;
 	}
 	return false;
@@ -972,17 +1110,18 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			AlloyApplicationContext()->theme.LIGHT_TEXT,
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 
-
 	colorLabel = std::shared_ptr<GlyphRegion>(new GlyphRegion("Color"));
 	static std::shared_ptr<CheckerboardGlyph> checkerboard;
 	if (checkerboard.get() == nullptr) {
-		checkerboard=std::shared_ptr<CheckerboardGlyph>(new CheckerboardGlyph(64, 64, 8, 8, AlloyApplicationContext().get()));
+		checkerboard = std::shared_ptr<CheckerboardGlyph>(
+				new CheckerboardGlyph(64, 64, 8, 8,
+						AlloyApplicationContext().get()));
 	}
 	colorLabel->glyph = checkerboard;
 	colorLabel->setPosition(CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f));
 	colorLabel->setDimensions(CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f));
 	colorLabel->backgroundColor = MakeColor(COLOR_BLACK);
-	colorLabel->foregroundColor = MakeColor(255,128,32,255);
+	colorLabel->foregroundColor = MakeColor(255, 128, 32, 255);
 	colorLabel->borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	colorLabel->borderWidth = UnitPX(1.0f);
 	colorLabel->setAspectRatio(1.0f);
@@ -990,7 +1129,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorLabel->setOrigin(Origin::TopRight);
 	colorWheel = ColorWheelPtr(
 			new ColorWheel("Color Wheel", CoordPX(0.0f, 0.0f),
-					CoordPerPX(1.0f,0.0f,0.0f,300.0f)));
+					CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f)));
 	colorWheel->setAspectRatio(1.0f);
 	colorWheel->setAspectRule(AspectRule::FixedHeight);
 	colorLabel->onMouseDown =
@@ -1025,22 +1164,27 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		return false;
 	};
 
-	colorSelectionPanel=MakeComposite("Color Selection Panel",
-			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),CoordPX(300.0f+(60+AlloyApplicationContext()->theme.SPACING.x)*5, 300.0f),
+	colorSelectionPanel = MakeComposite("Color Selection Panel",
+			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),
+			CoordPX(
+					300.0f
+							+ (60 + AlloyApplicationContext()->theme.SPACING.x)
+									* 5, 300.0f),
 			AlloyApplicationContext()->theme.LIGHT);
 	colorSelectionPanel->setOrigin(Origin::TopCenter);
 	colorSelectionPanel->setVisible(false);
 	colorSelectionPanel->setDetacted(true);
 	colorSelectionPanel->setRoundCorners(true);
-	redSlider=std::shared_ptr<VerticalSlider>(new VerticalSlider("R", CoordPX(0.0f, 0.0f),
-			CoordPerPX(0.0f,1.0f,60.0f,0.0f),   Float(0.0), Float(1.0),
-			Float(0.5)));
+	redSlider = std::shared_ptr<VerticalSlider>(
+			new VerticalSlider("R", CoordPX(0.0f, 0.0f),
+					CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
+					Float(0.5)));
 	redSlider->setLabelFormatter(
 			[](const Number& value) {
 				std::string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
-				return  str;
-	});
-	redSlider->setOnChangeEvent([this](const Number& value){
+				return str;
+			});
+	redSlider->setOnChangeEvent([this](const Number& value) {
 		Color c=colorWheel->getSelectedColor();
 		c.r=value.toFloat();
 		colorWheel->setColor(c);
@@ -1049,10 +1193,11 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		updateColorSliders(c);
 	});
 
-	greenSlider=std::shared_ptr<VerticalSlider>(new VerticalSlider("G", CoordPX(0.0f, 0.0f),
-			CoordPerPX(0.0f,1.0f,60.0f,0.0f),  Float(0.0), Float(1.0),
-			Float(0.5)));
-	greenSlider->setOnChangeEvent([this](const Number& value){
+	greenSlider = std::shared_ptr<VerticalSlider>(
+			new VerticalSlider("G", CoordPX(0.0f, 0.0f),
+					CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
+					Float(0.5)));
+	greenSlider->setOnChangeEvent([this](const Number& value) {
 		Color c=colorWheel->getSelectedColor();
 		c.g=value.toFloat();
 		colorWheel->setColor(c);
@@ -1060,15 +1205,15 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		lumSlider->setValue(hsv.z);
 		updateColorSliders(c);
 	});
-	greenSlider->setLabelFormatter(
-			[](const Number& value) {
-				string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
-				return  str;
+	greenSlider->setLabelFormatter([](const Number& value) {
+		string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
+		return str;
 	});
-	blueSlider=std::shared_ptr<VerticalSlider>(new VerticalSlider("B",CoordPX(0.0f, 0.0f),
-			CoordPerPX(0.0f,1.0f,60.0f,0.0f), Float(0.0), Float(1.0),
-			Float(0.5)));
-    blueSlider->setOnChangeEvent([this](const Number& value){
+	blueSlider = std::shared_ptr<VerticalSlider>(
+			new VerticalSlider("B", CoordPX(0.0f, 0.0f),
+					CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
+					Float(0.5)));
+	blueSlider->setOnChangeEvent([this](const Number& value) {
 		Color c=colorWheel->getSelectedColor();
 		c.b=value.toFloat();
 		colorWheel->setColor(c);
@@ -1076,20 +1221,19 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		lumSlider->setValue(hsv.z);
 		updateColorSliders(c);
 	});
-	blueSlider->setLabelFormatter(
-			[](const Number& value) {
-				string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
-				return  str;
+	blueSlider->setLabelFormatter([](const Number& value) {
+		string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
+		return str;
 	});
-	lumSlider=std::shared_ptr<VerticalSlider>(new VerticalSlider("L",CoordPX(0.0f, 0.0f),
-			CoordPerPX(0.0f,1.0f,60.0f,0.0f), Float(0.0), Float(1.0),
-						Float(0.5)));
-	lumSlider->setLabelFormatter(
-			[](const Number& value) {
-				string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
-				return  str;
+	lumSlider = std::shared_ptr<VerticalSlider>(
+			new VerticalSlider("L", CoordPX(0.0f, 0.0f),
+					CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
+					Float(0.5)));
+	lumSlider->setLabelFormatter([](const Number& value) {
+		string str=MakeString()<<(int)std::floor(100.0f*value.toFloat())<<"%";
+		return str;
 	});
-	lumSlider->setOnChangeEvent([this](const Number& value){
+	lumSlider->setOnChangeEvent([this](const Number& value) {
 		Color c=colorWheel->getSelectedColor();
 		HSVA hsv=c.toHSVA();
 		hsv.z=value.toFloat();
@@ -1101,21 +1245,22 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		updateColorSliders(c);
 	});
 
-	alphaSlider = std::shared_ptr<VerticalSlider>(new VerticalSlider("A", CoordPX(0.0f, 0.0f),
-		CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
-		Float(0.5)));
+	alphaSlider = std::shared_ptr<VerticalSlider>(
+			new VerticalSlider("A", CoordPX(0.0f, 0.0f),
+					CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
+					Float(0.5)));
 	alphaSlider->setLabelFormatter(
-		[](const Number& value) {
-		string str = MakeString() << (int)std::floor(100.0f*value.toFloat()) << "%";
-		return  str;
-	});
+			[](const Number& value) {
+				string str = MakeString() << (int)std::floor(100.0f*value.toFloat()) << "%";
+				return str;
+			});
 	alphaSlider->setOnChangeEvent([this](const Number& value) {
 		Color c = colorWheel->getSelectedColor();
 		c.a = value.toFloat();
 		colorWheel->setColor(c);
 		updateColorSliders(c);
 	});
-	colorWheel->setOnChangeEvent([this](const Color& c){
+	colorWheel->setOnChangeEvent([this](const Color& c) {
 
 		redSlider->setValue(c.r);
 		greenSlider->setValue(c.g);
@@ -1125,7 +1270,6 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		updateColorSliders(c);
 	});
 	colorSelectionPanel->setOrientation(Orientation::Horizontal);
-
 
 	colorSelectionPanel->add(colorWheel);
 	colorSelectionPanel->add(redSlider);
@@ -1159,13 +1303,15 @@ void ColorSelector::updateColorSliders(const Color& c) {
 	greenSlider->setSliderColor(Color(c.r, 0.0f, c.b), Color(c.r, 1.0f, c.b));
 	blueSlider->setSliderColor(Color(c.r, c.g, 0.0f), Color(c.r, c.g, 1.0f));
 	HSV hsv = c.toHSV();
-	lumSlider->setSliderColor(HSVtoColor(HSV(hsv.x, hsv.y, 0.0f)), HSVtoColor(HSV(hsv.x, hsv.y, 1.0f)));
-	alphaSlider->setSliderColor(Color(c.r, c.g, c.b,0.0f), Color(c.r, c.g, c.b,1.0f));
+	lumSlider->setSliderColor(HSVtoColor(HSV(hsv.x, hsv.y, 0.0f)),
+			HSVtoColor(HSV(hsv.x, hsv.y, 1.0f)));
+	alphaSlider->setSliderColor(Color(c.r, c.g, c.b, 0.0f),
+			Color(c.r, c.g, c.b, 1.0f));
 
 }
 void ColorSelector::setColor(const Color& c) {
 	*colorLabel->foregroundColor = c;
-	HSVA hsv=c.toHSVA();
+	HSVA hsv = c.toHSVA();
 	colorWheel->setColor(c);
 	redSlider->setValue(c.r);
 	greenSlider->setValue(c.g);
@@ -1231,8 +1377,6 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 	Application::addListener(this);
 }
 
-
-
 void ColorWheel::updateWheel() {
 	box2px bounds = getBounds();
 	float x = bounds.position.x;
@@ -1280,7 +1424,8 @@ void ColorWheel::setColor(const pixel2& cursor) {
 		hsvColor.z = hsv.z;
 		selectedColor = HSVAtoColor(hsvColor);
 		updateWheel();
-		if(onChangeEvent)onChangeEvent(selectedColor);
+		if (onChangeEvent)
+			onChangeEvent(selectedColor);
 	} else if (circleSelected) {
 		float2 vec = cursor - center;
 		hsvColor.x = (atan2(vec.y, vec.x)) / (2.0f * NVG_PI);
@@ -1289,7 +1434,8 @@ void ColorWheel::setColor(const pixel2& cursor) {
 		}
 		selectedColor = HSVAtoColor(hsvColor);
 		updateWheel();
-		if(onChangeEvent)onChangeEvent(selectedColor);
+		if (onChangeEvent)
+			onChangeEvent(selectedColor);
 	}
 }
 void ColorWheel::draw(AlloyContext* context) {
@@ -1322,7 +1468,7 @@ void ColorWheel::draw(AlloyContext* context) {
 	nvgFill(nvg);
 
 	int i;
-	float  ax, ay, bx, by, aeps;
+	float ax, ay, bx, by, aeps;
 
 	float hue = hsvColor.x;
 
@@ -1362,7 +1508,7 @@ void ColorWheel::draw(AlloyContext* context) {
 	nvgStrokeWidth(nvg, 2.0f);
 	nvgBeginPath(nvg);
 	nvgRect(nvg, rInner - 1, -3, rOuter - rInner + 2, 6);
-	nvgStrokeColor(nvg,context->theme.HIGHLIGHT.toSemiTransparent(0.9f));
+	nvgStrokeColor(nvg, context->theme.HIGHLIGHT.toSemiTransparent(0.9f));
 	nvgStroke(nvg);
 
 	paint = nvgBoxGradient(nvg, rInner - 3, -5, rOuter - rInner + 6, 10, 2, 4,
@@ -1436,7 +1582,7 @@ void ColorWheel::draw(AlloyContext* context) {
 	nvgStrokeWidth(nvg, 2.0f);
 	nvgBeginPath(nvg);
 	nvgCircle(nvg, ax, ay, 5);
-	nvgStrokeColor(nvg,context->theme.HIGHLIGHT.toSemiTransparent(0.9f));
+	nvgStrokeColor(nvg, context->theme.HIGHLIGHT.toSemiTransparent(0.9f));
 	nvgStroke(nvg);
 	paint = nvgRadialGradient(nvg, ax, ay, 7, 9, nvgRGBA(0, 0, 0, 64),
 			nvgRGBA(0, 0, 0, 0));
@@ -1503,105 +1649,33 @@ void ColorSelector::draw(AlloyContext* context) {
 	nvgFill(nvg);
 	Composite::draw(context);
 }
-void Button::draw(AlloyContext* context) {
-	bool hover = context->isMouseOver(this);
-	bool down = context->isMouseDown(this);
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
-	float lineWidth = 2.0f;
 
-	int xoff = 0;
-	int yoff = 0;
-	if (down) {
-		xoff = 2;
-		yoff = 2;
-	}
-	if (hover || down) {
-		if (!down) {
-			nvgBeginPath(nvg);
-			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-					bounds.position.y, bounds.dimensions.x - 2,
-					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
-					context->theme.SHADOW,
-					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-			nvgFillPaint(nvg, shadowPaint);
-			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-					bounds.dimensions.x, bounds.dimensions.y,
-					context->theme.CORNER_RADIUS);
-			nvgFill(nvg);
-		}
-
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
-
-	} else {
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
-				bounds.dimensions.x - 2, bounds.dimensions.y - 2,
-				context->theme.CORNER_RADIUS);
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
-	}
-
-	if (hover) {
-
-		nvgBeginPath(nvg);
-		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
-				bounds.position.y + yoff, bounds.dimensions.x,
-				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
-				context->theme.DARK);
-		nvgFillPaint(nvg, hightlightPaint);
-		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-	}
-
-	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
-	nvgFontSize(nvg, th);
-	nvgFillColor(nvg, *textColor);
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
-	this->aspectRatio = tw / th;
-	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
-	pixel2 offset(0, 0);
-	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
-			nullptr);
-
-}
 void ExpandRegion::setExpanded(bool expanded) {
 	this->expanded = expanded;
 	contentRegion->setVisible(expanded);
-	arrowIcon->label = (expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
+	arrowIcon->label =
+			(expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
 }
-ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>& region,  const AUnit2D& pos,
-	const AUnit2D& dims):Composite(name + "_eregion",pos,dims) {
+ExpandRegion::ExpandRegion(const std::string& name,
+		const std::shared_ptr<Region>& region, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Composite(name + "_eregion", pos, dims) {
 	this->contentRegion = region;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
-	CompositePtr valueContainer = MakeComposite(MakeString()<<name<<"_container",
-		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
-		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+	CompositePtr valueContainer = MakeComposite(
+			MakeString() << name << "_container",
+			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
+			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	selectionLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
-		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-		HorizontalAlignment::Left, VerticalAlignment::Middle);
+			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Left, VerticalAlignment::Middle);
 
-	arrowIcon = MakeTextLabel(
-		CodePointToUTF8(0xf056),
-		CoordPercent(1.0f, 0.0f),
-		CoordPercent(0.0f, 1.0f),
-		FontType::Icon,
-		UnitPercent(1.0f),
-		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-		HorizontalAlignment::Center, VerticalAlignment::Middle);
+	arrowIcon = MakeTextLabel(CodePointToUTF8(0xf056), CoordPercent(1.0f, 0.0f),
+			CoordPercent(0.0f, 1.0f), FontType::Icon, UnitPercent(1.0f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
 
 	arrowIcon->setAspectRatio(1.0f);
 	arrowIcon->setOrigin(Origin::TopRight);
@@ -1611,15 +1685,14 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 	add(valueContainer);
 	//add(region);
 	selectionLabel->onMouseDown =
-		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			setExpanded(!expanded);
-			return true;
-		}
-		return false;
-	};
-	this->onMouseDown =
-		[this](AlloyContext* context, const InputEvent& event) {
+			[this](AlloyContext* context, const InputEvent& event) {
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					setExpanded(!expanded);
+					return true;
+				}
+				return false;
+			};
+	this->onMouseDown = [this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 			setExpanded(!expanded);
 			return true;
@@ -1627,13 +1700,13 @@ ExpandRegion::ExpandRegion(const std::string& name,const std::shared_ptr<Region>
 		return false;
 	};
 	arrowIcon->onMouseDown =
-		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			setExpanded(!expanded);
-			return true;
-		}
-		return false;
-	};
+			[this](AlloyContext* context, const InputEvent& event) {
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					setExpanded(!expanded);
+					return true;
+				}
+				return false;
+			};
 	setExpanded(false);
 }
 void FileSelector::draw(AlloyContext* context) {
@@ -1641,16 +1714,20 @@ void FileSelector::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
 
-	box2px fileBounds=fileLabel->getBounds(false);
-	box2px openBounds=openIcon->getBounds(false);
+	box2px fileBounds = fileLabel->getBounds(false);
+	box2px openBounds = openIcon->getBounds(false);
 
-	pixel2 tdim=fileLabel->getTextDimensions(context);
+	pixel2 tdim = fileLabel->getTextDimensions(context);
 
-	box2px locationBounds=fileLocationLabel->getBounds(false);
-	float spacing=AlloyApplicationContext()->theme.SPACING.x;
+	box2px locationBounds = fileLocationLabel->getBounds(false);
+	float spacing = AlloyApplicationContext()->theme.SPACING.x;
 	fileLocationLabel->setBounds(
-			pixel2(fileBounds.position.x+tdim.x+spacing,locationBounds.position.y),
-			pixel2(openBounds.position.x-(fileBounds.position.x+tdim.x+spacing*2),locationBounds.dimensions.y));
+			pixel2(fileBounds.position.x + tdim.x + spacing,
+					locationBounds.position.y),
+			pixel2(
+					openBounds.position.x
+							- (fileBounds.position.x + tdim.x + spacing * 2),
+					locationBounds.dimensions.y));
 
 	if (hover) {
 		nvgBeginPath(nvg);
@@ -1710,42 +1787,42 @@ void FileSelector::draw(AlloyContext* context) {
 
 	Composite::draw(context);
 }
-FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AUnit2D& dims):Widget(name,pos,dims) {
+FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Widget(name, pos, dims) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
-	CompositePtr valueContainer = MakeComposite(MakeString()<<name<<"_container",
-		CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
-		CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
+	CompositePtr valueContainer = MakeComposite(
+			MakeString() << name << "_container",
+			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
+			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 
-	std::shared_ptr<Composite>& glassPanel=AlloyApplicationContext()->getGlassPanel();
+	std::shared_ptr<Composite>& glassPanel =
+			AlloyApplicationContext()->getGlassPanel();
 
-	fileDialog=std::shared_ptr<FileDialog>(new FileDialog("File Dialog",CoordPerPX(0.5,0.5,-200,-150),CoordPX(400,300)));
-	fileDialog->setVisible(false);
-	fileDialog->backgroundColor=MakeColor(128,0,0);
-	fileDialog->borderColor=MakeColor(255,255,255);
-	fileDialog->borderWidth=UnitPX(1.0f);
+	fileDialog = std::shared_ptr<FileDialog>(
+			new FileDialog("File Dialog", CoordPerPX(0.5, 0.5, -200, -150),
+					CoordPX(400, 300)));
 	glassPanel->add(fileDialog);
 
 	fileLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
-		CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-		HorizontalAlignment::Left, VerticalAlignment::Middle);
+			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Left, VerticalAlignment::Middle);
 
-	fileLocationLabel = MakeTextLabel("None", CoordPX(0.0f,0.0f),
-			CoordPerPX(1.0f, 1.0f,0.0f,0.0f), FontType::Normal, UnitPercent(1.0f),
+	fileLocationLabel = MakeTextLabel("None", CoordPX(0.0f, 0.0f),
+			CoordPerPX(1.0f, 1.0f, 0.0f, 0.0f), FontType::Normal,
+			UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
 
 	fileLocationLabel->setRoundCorners(true);
-	fileLocationLabel->backgroundColor=MakeColor(AlloyApplicationContext()->theme.SHADOW.toSemiTransparent(0.5f));
-	openIcon = MakeTextLabel(
-		CodePointToUTF8(0xf115),
-		CoordPercent(1.0f, 0.0f),
-		CoordPercent(0.0f, 1.0f),
-		FontType::Icon,
-		UnitPercent(1.0f),
-		AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-		HorizontalAlignment::Center, VerticalAlignment::Middle);
+	fileLocationLabel->backgroundColor = MakeColor(
+			AlloyApplicationContext()->theme.SHADOW.toSemiTransparent(0.5f));
+	openIcon = MakeTextLabel(CodePointToUTF8(0xf115), CoordPercent(1.0f, 0.0f),
+			CoordPercent(0.0f, 1.0f), FontType::Icon, UnitPercent(1.0f),
+			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			HorizontalAlignment::Center, VerticalAlignment::Middle);
 
 	openIcon->setAspectRatio(1.0f);
 	openIcon->setOrigin(Origin::TopRight);
@@ -1755,68 +1832,117 @@ FileSelector::FileSelector(const std::string& name,  const AUnit2D& pos,const AU
 	valueContainer->add(openIcon);
 	add(valueContainer);
 	fileLocationLabel->onMouseDown =
-		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			openFileDialog(context);
-			return true;
-		}
-		return false;
-	};
+			[this](AlloyContext* context, const InputEvent& event) {
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					openFileDialog(context);
+					return true;
+				}
+				return false;
+			};
 
 	Composite::onMouseDown =
-		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			openFileDialog(context);
-			return true;
-		}
-		return false;
-	};
+			[this](AlloyContext* context, const InputEvent& event) {
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					openFileDialog(context);
+					return true;
+				}
+				return false;
+			};
 
 	openIcon->onMouseDown =
-		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			openFileDialog(context);
-			return true;
-		}
-		return false;
-	};
+			[this](AlloyContext* context, const InputEvent& event) {
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					openFileDialog(context);
+					return true;
+				}
+				return false;
+			};
 	setFileLocation("");
 }
-void FileSelector::setFileLocation(const std::string& file){
-	fileLocation=file;
-	if(file.length()>0){
-		fileLocationLabel->label=fileLocation;
+void FileSelector::setFileLocation(const std::string& file) {
+	fileLocation = file;
+	if (file.length() > 0) {
+		fileLocationLabel->label = fileLocation;
 	} else {
-		fileLocationLabel->label="None";
+		fileLocationLabel->label = "None";
 	}
 }
-void FileSelector::openFileDialog(AlloyContext* context,const std::string& workingDirectory){
-	if(!fileDialog->isVisible()){
-		fileDialog->setVisible(true);
+void FileSelector::openFileDialog(AlloyContext* context,
+		const std::string& workingDirectory) {
+	if (!fileDialog->isVisible()) {
+		context->getGlassPanel()->setVisible(true);
 	} else {
-		fileDialog->setVisible(false);
+		context->getGlassPanel()->setVisible(false);
 	}
 }
-FileDialog::FileDialog(const std::string& name,const AUnit2D& pos,const AUnit2D& dims):Widget(name,pos,dims){
+FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Widget(name, pos, dims) {
+	cancelButton = std::shared_ptr<IconButton>(
+			new IconButton(
+					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
+							FontStyle::Normal, 21),
+					CoordPerPX(1.0, 0.0, -15, 15), CoordPX(30, 30)));
+	cancelButton->setOrigin(Origin::BottomLeft);
+	add(cancelButton);
+}
+void FileDialog::draw(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+
+	NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x,
+			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
+			context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+
+	nvgBeginPath(nvg);
+	nvgFillPaint(nvg, shadowPaint);
+
+	nvgRoundedRect(nvg, bounds.position.x + 2, bounds.position.y + 2,
+			bounds.dimensions.x + 2, bounds.dimensions.y + 2,
+			context->theme.CORNER_RADIUS);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgFillColor(nvg, context->theme.DARK);
+	nvgFill(nvg);
+
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+	nvgStrokeWidth(nvg, 1.0f);
+	nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
+	nvgStroke(nvg);
+
+	Composite::draw(context);
 
 }
-ExpandBar::ExpandBar(
-	const std::string& name,
-	const AUnit2D& pos,
-	const AUnit2D& dims):Widget(name,pos,dims) {
+ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Widget(name, pos, dims) {
 	setOrientation(Orientation::Vertical);
 	setScrollEnabled(true);
 }
 void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
-	CompositePtr container = MakeComposite("Content Container", CoordPX(Composite::scrollBarSize, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f*Composite::scrollBarSize, 0.0f));
+	CompositePtr container = MakeComposite("Content Container",
+			CoordPX(Composite::scrollBarSize, 0.0f),
+			CoordPerPX(1.0f, 0.0f, -2.0f * Composite::scrollBarSize, 0.0f));
 	container->setOrientation(Orientation::Vertical);
-	region->backgroundColor=MakeColor(AlloyApplicationContext()->theme.DARK);
+	region->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	region->borderColor = MakeColor(AlloyApplicationContext()->theme.NEUTRAL);
 	region->borderWidth = UnitPX(2.0f);
 	region->setRoundCorners(true);
 	container->add(region);
-	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(new ExpandRegion(region->name,container,CoordPX(Composite::scrollBarSize,0.0f),CoordPerPX(1.0f,0.0f,-2.0f*Composite::scrollBarSize,30.0f)));
-	
+	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(
+			new ExpandRegion(region->name, container,
+					CoordPX(Composite::scrollBarSize, 0.0f),
+					CoordPerPX(1.0f, 0.0f, -2.0f * Composite::scrollBarSize,
+							30.0f)));
+
 	eregion->setExpanded(expanded);
 	regions.push_back(eregion);
 	Widget::add(eregion);
@@ -1824,8 +1950,8 @@ void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 	Widget::add(container);
 	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
 }
-void ExpandBar::add(Region* region, bool expanded){
-	add(std::shared_ptr<Region>(region),expanded);
+void ExpandBar::add(Region* region, bool expanded) {
+	add(std::shared_ptr<Region>(region), expanded);
 }
 
 }

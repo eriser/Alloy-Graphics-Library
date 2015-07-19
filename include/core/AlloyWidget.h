@@ -52,17 +52,26 @@ public:
 	}
 
 };
-class Button: public Widget {
+class TextButton: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
 public:
-	Button(const std::string& label, const AUnit2D& position,
+	TextButton(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
-	virtual inline ~Button() {
+	virtual inline ~TextButton() {
 	}
-	;
+};
+class IconButton: public Widget {
+private:
+	std::shared_ptr<Glyph> iconGlyph;
+public:
+	IconButton(const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
+			const AUnit2D& dimensions);
+	virtual void draw(AlloyContext* context) override;
+	virtual inline ~IconButton() {
+	}
 };
 class CheckBox: public Widget {
 private:
@@ -333,10 +342,10 @@ private:
 	std::shared_ptr<TextField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
 	std::shared_ptr<Composite> directoryList;
-	std::shared_ptr<Button> openButton;
-	std::shared_ptr<Button> cancelButton;
-
+	std::shared_ptr<TextButton> openButton;
+	std::shared_ptr<IconButton> cancelButton;
 public:
+	virtual void draw(AlloyContext* context) override;
 	FileDialog(
 			const std::string& name,
 			const AUnit2D& pos,
@@ -357,7 +366,7 @@ public:
 	virtual void draw(AlloyContext* context) override;
 };
 
-typedef std::shared_ptr<Button> ButtonPtr;
+typedef std::shared_ptr<TextButton> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
 typedef std::shared_ptr<ColorSelector> ColorSelectorPtr;

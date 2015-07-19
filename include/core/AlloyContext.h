@@ -367,6 +367,7 @@ inline std::shared_ptr<AlloyContext>& AlloyDefaultContext(){
 	return AlloyContext::getDefaultContext();
 }
 typedef std::shared_ptr<Font> FontPtr;
+typedef std::shared_ptr<Glyph> GlyphPtr;
 typedef std::shared_ptr<AwesomeGlyph> AwesomeGlyphPtr;
 typedef std::shared_ptr<ImageGlyph> ImageGlyphPtr;
 
