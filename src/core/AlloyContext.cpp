@@ -85,8 +85,6 @@ void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgFontSize(nvg, height);
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE|NVG_ALIGN_CENTER);
-	//float tw= nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
-
 	drawText(nvg, bounds.position + HALF_PIX(bounds.dimensions), name, style,
 			fgColor, bgColor, nullptr);
 }

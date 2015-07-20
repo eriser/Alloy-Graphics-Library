@@ -63,6 +63,18 @@ public:
 	virtual inline ~TextButton() {
 	}
 };
+class TextIconButton: public Widget {
+private:
+	AColor textColor;
+	AUnit1D fontSize;
+	std::shared_ptr<Glyph> glyph;
+public:
+	TextIconButton(const std::string& label,const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
+			const AUnit2D& dimensions);
+	virtual void draw(AlloyContext* context) override;
+	virtual inline ~TextIconButton() {
+	}
+};
 class IconButton: public Widget {
 private:
 	std::shared_ptr<Glyph> iconGlyph;
@@ -344,6 +356,7 @@ private:
 	std::shared_ptr<Composite> directoryList;
 	std::shared_ptr<TextButton> openButton;
 	std::shared_ptr<IconButton> cancelButton;
+	std::shared_ptr<Composite> containerRegion;
 public:
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(

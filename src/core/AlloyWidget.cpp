@@ -399,6 +399,91 @@ void TextButton::draw(AlloyContext* context) {
 
 }
 
+TextIconButton::TextIconButton(const std::string& label,const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
+		const AUnit2D& dimensions) :glyph(glyph),Widget(label) {
+	this->position = position;
+	this->dimensions = dimensions;
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
+	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	fontSize = UnitPerPX(1.0f, -10);
+	this->aspectRule = AspectRule::FixedHeight;
+}
+void TextIconButton::draw(AlloyContext* context) {
+	bool hover = context->isMouseOver(this);
+	bool down = context->isMouseDown(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	float lineWidth = 2.0f;
+
+	int xoff = 0;
+	int yoff = 0;
+	if (down) {
+		xoff = 2;
+		yoff = 2;
+	}
+	if (hover || down) {
+		if (!down) {
+			nvgBeginPath(nvg);
+			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+					bounds.position.y, bounds.dimensions.x - 2,
+					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
+					context->theme.SHADOW,
+					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+			nvgFillPaint(nvg, shadowPaint);
+			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+					bounds.dimensions.x, bounds.dimensions.y,
+					context->theme.CORNER_RADIUS);
+			nvgFill(nvg);
+		}
+
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+
+	} else {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
+				bounds.dimensions.x - 2, bounds.dimensions.y - 2,
+				context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+
+	if (hover) {
+
+		nvgBeginPath(nvg);
+		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
+				bounds.position.y + yoff, bounds.dimensions.x,
+				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
+				context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
+				context->theme.DARK);
+		nvgFillPaint(nvg, hightlightPaint);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFill(nvg);
+	}
+
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	nvgFontSize(nvg, th);
+	nvgFillColor(nvg, *textColor);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
+	this->aspectRatio = tw / th;
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	pixel2 offset(0, 0);
+	nvgText(nvg,
+			bounds.position.x + bounds.dimensions.x / 2 + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
+			nullptr);
+	glyph->draw(bounds,*textColor,*backgroundColor,context);
+
+}
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
 		const AUnit2D& position, const AUnit2D& dimensions) :
 		Widget("Icon", position, dimensions) {
@@ -1801,7 +1886,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 			AlloyApplicationContext()->getGlassPanel();
 
 	fileDialog = std::shared_ptr<FileDialog>(
-			new FileDialog("File Dialog", CoordPerPX(0.5, 0.5, -200, -150),
+			new FileDialog("File Dialog", CoordPerPX(0.5, 0.5, -200+7.5f, -150-7.5f),
 					CoordPX(400, 300)));
 	glassPanel->add(fileDialog);
 
@@ -1878,17 +1963,21 @@ void FileSelector::openFileDialog(AlloyContext* context,
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		Widget(name, pos, dims) {
+	containerRegion=std::shared_ptr<Composite>(new Composite("Container",CoordPX(0,15),CoordPerPX(1.0,1.0,-15,-15)));
+
 	cancelButton = std::shared_ptr<IconButton>(
 			new IconButton(
 					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
 							FontStyle::Normal, 21),
-					CoordPerPX(1.0, 0.0, -15, 15), CoordPX(30, 30)));
+					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30)));
 	cancelButton->setOrigin(Origin::BottomLeft);
+
+	add(containerRegion);
 	add(cancelButton);
 }
 void FileDialog::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
+	box2px bounds = containerRegion->getBounds();
 
 	NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x,
 			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
@@ -1914,8 +2003,10 @@ void FileDialog::draw(AlloyContext* context) {
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
 			context->theme.CORNER_RADIUS);
-	nvgStrokeWidth(nvg, 1.0f);
-	nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y,
+			context->dpmm.y, context->pixelRatio);
+	nvgStrokeWidth(nvg, lineWidth);
+	nvgStrokeColor(nvg, context->theme.LIGHT);
 	nvgStroke(nvg);
 
 	Composite::draw(context);
