@@ -67,9 +67,9 @@ class TextIconButton: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
-	std::shared_ptr<Glyph> glyph;
+	std::string iconLabel;
 public:
-	TextIconButton(const std::string& label,const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
+	TextIconButton(const std::string& label,const std::string& iconString,const AUnit2D& position,
 			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~TextIconButton() {
@@ -354,7 +354,7 @@ private:
 	std::shared_ptr<TextField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
 	std::shared_ptr<Composite> directoryList;
-	std::shared_ptr<TextButton> openButton;
+	std::shared_ptr<TextIconButton> openButton;
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<Composite> containerRegion;
 public:

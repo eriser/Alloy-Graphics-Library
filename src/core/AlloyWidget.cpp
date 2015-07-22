@@ -399,15 +399,14 @@ void TextButton::draw(AlloyContext* context) {
 
 }
 
-TextIconButton::TextIconButton(const std::string& label,const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
-		const AUnit2D& dimensions) :glyph(glyph),Widget(label) {
+TextIconButton::TextIconButton(const std::string& label,const std::string& iconString, const AUnit2D& position,
+		const AUnit2D& dimensions) :iconLabel(iconString),Widget(label) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
-	this->aspectRule = AspectRule::FixedHeight;
 }
 void TextIconButton::draw(AlloyContext* context) {
 	bool hover = context->isMouseOver(this);
@@ -415,7 +414,6 @@ void TextIconButton::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 	float lineWidth = 2.0f;
-
 	int xoff = 0;
 	int yoff = 0;
 	if (down) {
@@ -470,19 +468,31 @@ void TextIconButton::draw(AlloyContext* context) {
 
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	nvgFontSize(nvg, th);
+
 	nvgFillColor(nvg, *textColor);
+
+	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
-	this->aspectRatio = tw / th;
-	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+	float iw = nvgTextBounds(nvg, 0, 0, iconLabel.c_str(), nullptr, nullptr);
+
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	float ww=tw+iw+AlloyApplicationContext()->theme.SPACING.x;
 	pixel2 offset(0, 0);
+
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
 	nvgText(nvg,
-			bounds.position.x + bounds.dimensions.x / 2 + xoff,
+			bounds.position.x + (bounds.dimensions.x-ww) / 2 + xoff,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
 			nullptr);
-	glyph->draw(bounds,*textColor,*backgroundColor,context);
 
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+	nvgText(nvg,
+			AlloyApplicationContext()->theme.SPACING.x+bounds.position.x + (bounds.dimensions.x-ww) / 2 +tw+ xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, iconLabel.c_str(),
+			nullptr);
 }
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
 		const AUnit2D& position, const AUnit2D& dimensions) :
@@ -1965,6 +1975,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		Widget(name, pos, dims) {
 	containerRegion=std::shared_ptr<Composite>(new Composite("Container",CoordPX(0,15),CoordPerPX(1.0,1.0,-15,-15)));
 
+	openButton=std::shared_ptr<TextIconButton>(new TextIconButton("Open",CodePointToUTF8(0xf115),CoordPercent(0.1f,0.5f),CoordPX(120,25)));
 	cancelButton = std::shared_ptr<IconButton>(
 			new IconButton(
 					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
@@ -1973,6 +1984,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	cancelButton->setOrigin(Origin::BottomLeft);
 
 	add(containerRegion);
+	add(openButton);
 	add(cancelButton);
 }
 void FileDialog::draw(AlloyContext* context) {
