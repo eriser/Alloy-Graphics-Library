@@ -498,6 +498,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 Region* BorderComposite::locate(const pixel2& cursor) {
 	if (isVisible()) {
 		for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
+			if(iter->get()==nullptr)continue;
 			Region* r = (*iter)->locate(cursor);
 			if (r != nullptr)
 				return r;
@@ -548,6 +549,7 @@ void BorderComposite::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y);
 	}
 	for (std::shared_ptr<Region>& region : children) {
+		if(region.get()==nullptr)continue;
 		if (region->isVisible()) {
 			region->draw(context);
 		}
@@ -598,6 +600,7 @@ BorderComposite::BorderComposite(const std::string& name, const AUnit2D& pos,
 void BorderComposite::update(CursorLocator* cursorLocator) {
 	if(!ignoreCursorEvents)cursorLocator->add(this);
 	for (std::shared_ptr<Region>& region : children) {
+		if(region.get()==nullptr)continue;
 		region->update(cursorLocator);
 	}
 }
@@ -607,6 +610,7 @@ void BorderComposite::drawDebug(AlloyContext* context) {
 	box2px bounds = getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
+		if(region.get()==nullptr)continue;
 		region->drawDebug(context);
 	}
 }
@@ -615,13 +619,15 @@ void BorderComposite::pack(const pixel2& pos, const pixel2& dims, const double2&
 		double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
 	box2px bounds = getBounds(false);
-	northRegion->pack(bounds.position, bounds.dimensions*float2(1.0f,northFraction), dpmm, pixelRatio);
-	southRegion->pack(bounds.position+bounds.dimensions*float2(0.0f,1.0f-southFraction), bounds.dimensions*float2(1.0f,southFraction), dpmm, pixelRatio);
-	eastRegion->pack(bounds.position+bounds.dimensions*float2(0.0f,northFraction), bounds.dimensions*float2(eastFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
-	westRegion->pack(bounds.position+bounds.dimensions*float2(1.0f-westFraction,northFraction), bounds.dimensions*float2(westFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
-	centerRegion->pack(bounds.position+bounds.dimensions*float2(eastFraction,northFraction), bounds.dimensions*float2(1.0f-eastFraction-westFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
+
+	if(northRegion.get()!=nullptr)northRegion->pack(bounds.position, bounds.dimensions*float2(1.0f,northFraction), dpmm, pixelRatio);
+	if(southRegion.get()!=nullptr)southRegion->pack(bounds.position+bounds.dimensions*float2(0.0f,1.0f-southFraction), bounds.dimensions*float2(1.0f,southFraction), dpmm, pixelRatio);
+	if(eastRegion.get()!=nullptr)eastRegion->pack(bounds.position+bounds.dimensions*float2(0.0f,northFraction), bounds.dimensions*float2(eastFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
+	if(westRegion.get()!=nullptr)westRegion->pack(bounds.position+bounds.dimensions*float2(1.0f-westFraction,northFraction), bounds.dimensions*float2(westFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
+	if(centerRegion.get()!=nullptr)centerRegion->pack(bounds.position+bounds.dimensions*float2(eastFraction,northFraction), bounds.dimensions*float2(1.0f-eastFraction-westFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
 
 	for (std::shared_ptr<Region>& region : children) {
+		if(region.get()==nullptr)continue;
 		if (region->onPack)region->onPack();
 	}
 	if (onPack)

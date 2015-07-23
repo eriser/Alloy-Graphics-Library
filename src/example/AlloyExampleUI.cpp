@@ -190,7 +190,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	bcomp->setNorth(north,0.1);
 	bcomp->setSouth(south,0.3);
 	bcomp->setEast(east,0.2);
-	bcomp->setWest(west,0.4);
+	//bcomp->setWest(west,0.4);
 	bcomp->setCenter(center);
 
 	rootNode.backgroundColor=MakeColor(Color(128,64,92));
