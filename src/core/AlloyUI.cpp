@@ -334,12 +334,7 @@ void Composite::pack() {
 void Composite::draw() {
 	draw(AlloyApplicationContext().get());
 }
-void Composite::setVerticalScrollPosition(float fy) {
 
-}
-void Composite::setHorizontalScrollPosition(float fy) {
-
-}
 void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
@@ -498,6 +493,197 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	if (onPack)
 		onPack();
 }
+
+
+Region* BorderComposite::locate(const pixel2& cursor) {
+	if (isVisible()) {
+		for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
+			Region* r = (*iter)->locate(cursor);
+			if (r != nullptr)
+				return r;
+		}
+		if (getCursorBounds().contains(cursor)) {
+			return this;
+		}
+	}
+	return nullptr;
+}
+void BorderComposite::pack(AlloyContext* context) {
+	if (parent == nullptr) {
+		pack(pixel2(0,0),
+				pixel2(context->dimensions()), context->dpmm,
+				context->pixelRatio);
+	} else {
+		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
+				context->dpmm, context->pixelRatio);
+	}
+}
+void BorderComposite::draw(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	if (backgroundColor->a > 0) {
+			nvgBeginPath(nvg);
+			if(roundCorners){
+				nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+						bounds.position.y + lineWidth * 0.5f,
+						bounds.dimensions.x - lineWidth,
+						bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+			} else {
+				nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+						bounds.position.y + lineWidth * 0.5f,
+						bounds.dimensions.x - lineWidth,
+						bounds.dimensions.y - lineWidth);
+			}
+			nvgFillColor(nvg, *backgroundColor);
+			nvgFill(nvg);
+		}
+	if (isScrollEnabled()) {
+		pushScissor(nvg, bounds.position.x, bounds.position.y,
+				bounds.dimensions.x, bounds.dimensions.y);
+	}
+	for (std::shared_ptr<Region>& region : children) {
+		if (region->isVisible()) {
+			region->draw(context);
+		}
+	}
+	if (borderColor->a > 0) {
+
+		nvgLineJoin(nvg, NVG_ROUND);
+		nvgBeginPath(nvg);
+		if(roundCorners){
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+		} else {
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
+		}
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+		nvgLineJoin(nvg, NVG_MITER);
+	}
+
+	if (isScrollEnabled()) {
+		popScissor(nvg);
+	}
+}
+BorderComposite::BorderComposite(const std::string& name) :
+		Region(name),
+		northRegion(children[0]),
+		southRegion(children[1]),
+		eastRegion(children[2]),
+		westRegion(children[3]),
+		centerRegion(children[4]){
+
+}
+BorderComposite::BorderComposite(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Region(name, pos, dims),
+		northRegion(children[0]),
+		southRegion(children[1]),
+		eastRegion(children[2]),
+		westRegion(children[3]),
+		centerRegion(children[4]) {
+}
+void BorderComposite::update(CursorLocator* cursorLocator) {
+	if(!ignoreCursorEvents)cursorLocator->add(this);
+	for (std::shared_ptr<Region>& region : children) {
+		region->update(cursorLocator);
+	}
+}
+
+void BorderComposite::drawDebug(AlloyContext* context) {
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
+	for (std::shared_ptr<Region>& region : children) {
+		region->drawDebug(context);
+	}
+}
+
+void BorderComposite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
+		double pixelRatio, bool clamp) {
+	Region::pack(pos, dims, dpmm, pixelRatio);
+	box2px bounds = getBounds(false);
+	for (std::shared_ptr<Region>& region : children) {
+		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
+	}
+	pixel2 psize(0,0);
+	if(eastRegion.get()!=nullptr){
+		psize.x+=eastRegion->bounds.dimensions.x;
+	}
+	if(westRegion.get()!=nullptr){
+		psize.x+=westRegion->bounds.dimensions.x;
+	}
+	if(northRegion.get()!=nullptr){
+		psize.y+=eastRegion->bounds.dimensions.y;
+	}
+	if(southRegion.get()!=nullptr){
+		psize.y+=westRegion->bounds.dimensions.y;
+	}
+	if(centerRegion.get()!=nullptr){
+		psize+=centerRegion->bounds.dimensions;
+		centerRegion->bounds.dimensions=(centerRegion->bounds.dimensions*dims)/psize;
+	}
+	if(northRegion.get()!=nullptr){
+		northRegion->bounds.dimensions.x=dims.x;
+		northRegion->bounds.dimensions.y=(northRegion->bounds.dimensions.y*dims.y)/psize.y;
+	}
+	if(southRegion.get()!=nullptr){
+		southRegion->bounds.dimensions.x=dims.x;
+		southRegion->bounds.dimensions.x=(southRegion->bounds.dimensions.y*dims.y)/psize.y;
+	}
+	if(eastRegion.get()!=nullptr){
+		eastRegion->bounds.dimensions.x=(eastRegion->bounds.dimensions.x*dims.x)/psize.x;
+		eastRegion->bounds.dimensions.y=centerRegion->bounds.dimensions.y;
+	}
+	if(westRegion.get()!=nullptr){
+		westRegion->bounds.dimensions.x=(westRegion->bounds.dimensions.x*dims.x)/psize.x;
+		westRegion->bounds.dimensions.y=centerRegion->bounds.dimensions.y;
+	}
+
+	if(eastRegion.get()!=nullptr){
+		eastRegion->bounds.position.x=0;
+		eastRegion->bounds.position.y=northRegion->bounds.dimensions.y;
+	}
+	if(westRegion.get()!=nullptr){
+		westRegion->bounds.position.x=0;
+		westRegion->bounds.position.y=northRegion->bounds.dimensions.y;
+	}
+	if(southRegion.get()!=nullptr){
+		southRegion->bounds.position.x=0;
+		southRegion->bounds.position.y=northRegion->bounds.dimensions.y+centerRegion->bounds.dimensions.y;
+	}
+	if(northRegion.get()!=nullptr){
+		northRegion->bounds.position=pixel2(0,0);
+	}
+	if(centerRegion.get()!=nullptr){
+		centerRegion->bounds.position.x=eastRegion->bounds.dimensions.x;
+		centerRegion->bounds.position.y=northRegion->bounds.dimensions.y;
+	}
+	for (std::shared_ptr<Region>& region : children) {
+		if (region->onPack)region->onPack();
+	}
+	if (onPack)
+		onPack();
+}
+void BorderComposite::pack() {
+	pack(AlloyApplicationContext().get());
+}
+void BorderComposite::draw() {
+	draw(AlloyApplicationContext().get());
+}
+
 void ScrollHandle::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	float x = bounds.position.x;
@@ -845,6 +1031,10 @@ void TextField::clear() {
 
 TextField::TextField(const std::string& name) :
 		Region(name), label(name), value("") {
+	Application::addListener(this);
+	lastTime = std::chrono::high_resolution_clock::now();
+}
+TextField::TextField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions):Region(name,position,dimensions),label(name),value(""){
 	Application::addListener(this);
 	lastTime = std::chrono::high_resolution_clock::now();
 }

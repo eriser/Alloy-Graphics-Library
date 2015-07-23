@@ -67,9 +67,9 @@ class TextIconButton: public Widget {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
-	std::string iconLabel;
+	std::string iconCodeString;
 public:
-	TextIconButton(const std::string& label,const std::string& iconString,const AUnit2D& position,
+	TextIconButton(const std::string& label,int iconCode,const AUnit2D& position,
 			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~TextIconButton() {

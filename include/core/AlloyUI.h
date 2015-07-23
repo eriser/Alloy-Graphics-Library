@@ -34,7 +34,7 @@ namespace aly {
 bool SANITY_CHECK_UI();
 
 struct Composite;
-
+struct BorderComposite;
 struct Region: public EventHandler {
 private:
 	box2px bounds;
@@ -58,6 +58,7 @@ protected:
 	bool detached=false;
 public:
 	friend struct Composite;
+	friend struct BorderComposite;
 	void setIgnoreCursorEvents(bool ignore){
 		ignoreCursorEvents=ignore;
 	}
@@ -219,8 +220,6 @@ public:
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
 	Composite(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
-	void setVerticalScrollPosition(float fy);
-	void setHorizontalScrollPosition(float fx);
 	virtual Region* locate(const pixel2& cursor) override;
 
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
@@ -252,6 +251,43 @@ public:
 	void pack(AlloyContext* context);
 	virtual void add(const std::shared_ptr<Region>& region);
 	void add(Region* region); //After add(), composite will own region and be responsible for destroying it.
+	void pack();
+	void draw();
+};
+
+struct BorderComposite: public Region {
+protected:
+	std::array<std::shared_ptr<Region>,5> children;
+	std::shared_ptr<Region>& northRegion;
+	std::shared_ptr<Region>& southRegion;
+	std::shared_ptr<Region>& eastRegion;
+	std::shared_ptr<Region>& westRegion;
+	std::shared_ptr<Region>& centerRegion;
+public:
+	BorderComposite(const std::string& name = MakeString() << "c" << std::setw(8)<< std::setfill('0') << (REGION_COUNTER++));
+	BorderComposite(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
+	virtual Region* locate(const pixel2& cursor) override;
+	virtual void draw(AlloyContext* context) override;
+	virtual void drawDebug(AlloyContext* context) override;
+	virtual void update(CursorLocator* cursorLocator) override;
+	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,double pixelRatio, bool clamp = false) override;
+	void pack(AlloyContext* context);
+	inline void setNorth(const std::shared_ptr<Region>& region){
+		northRegion=region;
+	}
+	inline void setSouth(const std::shared_ptr<Region>& region){
+		southRegion=region;
+	}
+	inline void setEast(const std::shared_ptr<Region>& region){
+		eastRegion=region;
+	}
+	inline void setWest(const std::shared_ptr<Region>& region){
+		westRegion=region;
+	}
+	inline void setCenter(const std::shared_ptr<Region>& region){
+		centerRegion=region;
+	}
+
 	void pack();
 	void draw();
 };
@@ -317,6 +353,7 @@ public:
 	TextField(
 			const std::string& name = MakeString() << "t" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
+	TextField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	void setValue(const std::string& value);
 	std::string getValue() const {
