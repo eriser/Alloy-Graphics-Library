@@ -181,7 +181,20 @@ bool ExampleUI::init(Composite& rootNode) {
 	RegionPtr filterRegion = RegionPtr(new aly::Region("Filtering", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(filterRegion,  false);
 
-	rootNode.backgroundColor=MakeColor(COLOR_WHITE);
+	BorderCompositePtr bcomp=std::shared_ptr<BorderComposite>(new BorderComposite("Border Layout",CoordPX(0,0),CoordPercent(0.7f,1.0f)));
+	RegionPtr north=MakeRegion("North",CoordPX(0,0),CoordPercent(1.0,1.0),Color(255,0,0),COLOR_NONE,UnitPX(0));
+	RegionPtr south=MakeRegion("South",CoordPX(0,0),CoordPercent(1.0,1.0),Color(0,255,0),COLOR_NONE,UnitPX(0));
+	RegionPtr east=MakeRegion("East",CoordPX(0,0),CoordPercent(1.0,1.0),Color(255,255,0),COLOR_NONE,UnitPX(0));
+	RegionPtr west=MakeRegion("West",CoordPX(0,0),CoordPercent(1.0,1.0),Color(255,0,255),COLOR_NONE,UnitPX(0));
+	RegionPtr center=MakeRegion("Center",CoordPX(0,0),CoordPercent(1.0,1.0),Color(0,255,255),COLOR_NONE,UnitPX(0));
+	bcomp->setNorth(north,0.1);
+	bcomp->setSouth(south,0.3);
+	bcomp->setEast(east,0.2);
+	bcomp->setWest(west,0.4);
+	bcomp->setCenter(center);
+
+	rootNode.backgroundColor=MakeColor(Color(128,64,92));
+	rootNode.add(bcomp);
 	rootNode.add(expandBar);
 	return true;
 }

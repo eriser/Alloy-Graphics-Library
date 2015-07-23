@@ -262,6 +262,7 @@ protected:
 	std::shared_ptr<Region>& southRegion;
 	std::shared_ptr<Region>& eastRegion;
 	std::shared_ptr<Region>& westRegion;
+	float northFraction=0,southFraction=0,eastFraction=0,westFraction=0;
 	std::shared_ptr<Region>& centerRegion;
 public:
 	BorderComposite(const std::string& name = MakeString() << "c" << std::setw(8)<< std::setfill('0') << (REGION_COUNTER++));
@@ -272,17 +273,21 @@ public:
 	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
-	inline void setNorth(const std::shared_ptr<Region>& region){
+	inline void setNorth(const std::shared_ptr<Region>& region,float fraction){
 		northRegion=region;
+		northFraction=fraction;
 	}
-	inline void setSouth(const std::shared_ptr<Region>& region){
+	inline void setSouth(const std::shared_ptr<Region>& region,float fraction){
 		southRegion=region;
+		southFraction=fraction;
 	}
-	inline void setEast(const std::shared_ptr<Region>& region){
+	inline void setEast(const std::shared_ptr<Region>& region,float fraction){
 		eastRegion=region;
+		eastFraction=fraction;
 	}
-	inline void setWest(const std::shared_ptr<Region>& region){
+	inline void setWest(const std::shared_ptr<Region>& region,float fraction){
 		westRegion=region;
+		westFraction=fraction;
 	}
 	inline void setCenter(const std::shared_ptr<Region>& region){
 		centerRegion=region;
@@ -457,6 +462,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 typedef std::shared_ptr<TextLabel> TextLabelPtr;
 typedef std::shared_ptr<TextField> TextFieldPtr;
 typedef std::shared_ptr<Composite> CompositePtr;
+typedef std::shared_ptr<BorderComposite> BorderCompositePtr;
 typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
 typedef std::shared_ptr<Region> RegionPtr;
 }
