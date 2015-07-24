@@ -1266,7 +1266,12 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		glyph->draw(bounds, *foregroundColor, *backgroundColor, context);
+		box2px b=bounds;
+		b.position.x=bounds.position.x + lineWidth * 0.5f;
+		b.position.y=bounds.position.y + lineWidth * 0.5f;
+		b.dimensions.x=bounds.dimensions.x - lineWidth;
+		b.dimensions.y=bounds.dimensions.y - lineWidth;
+		glyph->draw(b, *foregroundColor, *backgroundColor, context);
 	}
 
 	if (borderColor->a > 0) {
