@@ -168,13 +168,12 @@ bool ExampleUI::init(Composite& rootNode) {
 	//rootNode.add(scrollTrack);
 	//rootNode.backgroundColor = MakeColor(Theme::Default.LIGHT);
 	rootNode.add(button2);
-	//rootNode.add(button1);
-	rootNode.add(hslider2);
+	//rootNode.add(hslider2);
 
 	//rootNode.add(hslider1);
 	//rootNode.add(field1);
 	//rootNode.add(field2);
-	rootNode.add(vslider1);
+	//rootNode.add(vslider1);
 	//rootNode.add(pbar);
 	//rootNode.add(colorselect);
 	//getContext()->toggleDebug();

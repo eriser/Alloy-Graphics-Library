@@ -353,7 +353,7 @@ public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
-	~TextField();
+	virtual inline ~TextField(){}
 	TextField(
 			const std::string& name = MakeString() << "t" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));

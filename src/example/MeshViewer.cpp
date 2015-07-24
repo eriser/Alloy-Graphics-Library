@@ -54,7 +54,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	wireframeFrameBuffer.initialize(480,480);
 	occlusionFrameBuffer.initialize(480,480);
 	mesh.updateVertexNormals();
-	//addListener(&camera);
+	addListener(&camera);
 
 	camera.setDirty(true);
 	return true;

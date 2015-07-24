@@ -23,7 +23,9 @@
 #include "AlloyContext.h"
 #include "AlloyUI.h"
 #include "AlloyDrawUtil.h"
+#include "AlloyApplication.h"
 #include "nanovg.h"
+
 #define NANOVG_GL3_IMPLEMENTATION
 #include "nanovg_gl.h"
 
@@ -203,7 +205,7 @@ bool AlloyContext::isOnTop(Region* region) const {
 bool AlloyContext::fireListeners(const InputEvent& event) {
 	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
 		EventHandler* handler=*iter;
-		if ((*iter)->onEventHandler(this, event))
+		if (handler->onEventHandler(this, event))
 			return true;
 	}
 	return false;
@@ -220,12 +222,7 @@ void AlloyContext::removeListener(EventHandler* region) {
 	}
 }
 EventHandler::~EventHandler(){
-
-	AlloyContext* ctx=AlloyDefaultContext().get();
-	if(ctx!=nullptr){
-		ctx->removeListener(this);
-	}
-
+	Application::removeListener(this);
 }
 void AlloyContext::setOnTopRegion(Region* region) {
 	if (region == nullptr)

@@ -193,12 +193,13 @@ private:
 	Region* mouseDownRegion = nullptr;
 	Region* mouseFocusRegion = nullptr;
 	Region* onTopRegion = nullptr;
-	std::vector<EventHandler*> listeners;
+	std::list<EventHandler*> listeners;
 	std::shared_ptr<Composite> glassPanel;
 	static std::shared_ptr<AlloyContext> defaultContext;
-
 	int2 viewSize;
 	int2 screenSize;
+	void addListener(EventHandler* region);
+	void removeListener(EventHandler* region);
 public:
 	friend class Application;
 	const Theme theme;
@@ -224,8 +225,7 @@ public:
 		return screenSize.y;
 	}
 	std::shared_ptr<Composite>& getGlassPanel();
-	void addListener(EventHandler* region);
-	void removeListener(EventHandler* region);
+
 	inline pixel2 getCursorDownPosition() const {
 		return cursorDownPosition;
 	}

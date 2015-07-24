@@ -994,9 +994,6 @@ TextField::TextField(const std::string& name,const AUnit2D& position,const AUnit
 	Application::addListener(this);
 	lastTime = std::chrono::high_resolution_clock::now();
 }
-TextField::~TextField() {
-	Application::removeListener(this);
-}
 void TextField::handleCharacterInput(AlloyContext* context,
 		const InputEvent& e) {
 	if (e.codepoint < 128 && isprint(e.codepoint) && !e.isControlDown()) {
