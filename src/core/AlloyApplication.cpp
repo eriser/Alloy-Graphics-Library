@@ -321,7 +321,7 @@ void Application::fireEvent(const InputEvent& event) {
 			context->requestPack();
 		}
 		if (event.type == InputType::Cursor) {
-			if (context->mouseOverRegion->onMouseOver) {
+			if (context->mouseOverRegion!=nullptr&&context->mouseOverRegion->onMouseOver) {
 				consumed |= context->mouseOverRegion->onMouseOver(context.get(),
 						event);
 			}

@@ -95,7 +95,6 @@ public:
 	inline void setDimensions(const AUnit2D& dims) {
 		dimensions = dims;
 	}
-
 	inline void setAspectRule(const AspectRule& aspect) {
 		aspectRule = aspect;
 	}
@@ -182,9 +181,9 @@ public:
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
 	bool isVisible();
-	virtual inline ~Region() {
+	virtual ~Region(){
+
 	}
-	;
 };
 struct ScrollHandle: public Region {
 public:

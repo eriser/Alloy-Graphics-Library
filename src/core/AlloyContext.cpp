@@ -202,10 +202,30 @@ bool AlloyContext::isOnTop(Region* region) const {
 }
 bool AlloyContext::fireListeners(const InputEvent& event) {
 	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
+		EventHandler* handler=*iter;
 		if ((*iter)->onEventHandler(this, event))
 			return true;
 	}
 	return false;
+}
+void AlloyContext::addListener(EventHandler* region) {
+	listeners.push_back(region);
+}
+void AlloyContext::removeListener(EventHandler* region) {
+	for(auto iter=listeners.begin();iter!=listeners.end();iter++){
+		if(region==*iter){
+			listeners.erase(iter);
+			break;
+		}
+	}
+}
+EventHandler::~EventHandler(){
+
+	AlloyContext* ctx=AlloyDefaultContext().get();
+	if(ctx!=nullptr){
+		ctx->removeListener(this);
+	}
+
 }
 void AlloyContext::setOnTopRegion(Region* region) {
 	if (region == nullptr)

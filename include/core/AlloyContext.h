@@ -162,11 +162,10 @@ struct InputEvent {
 struct EventHandler {
 	virtual bool onEventHandler(AlloyContext* context,
 			const InputEvent& event)=0;
-	virtual inline ~EventHandler() {
-	}
-	;
+	virtual ~EventHandler();
 };
 struct Composite;
+struct Region;
 class AlloyContext {
 private:
 	std::list<std::string> assetDirectories;
@@ -194,7 +193,7 @@ private:
 	Region* mouseDownRegion = nullptr;
 	Region* mouseFocusRegion = nullptr;
 	Region* onTopRegion = nullptr;
-	std::list<EventHandler*> listeners;
+	std::vector<EventHandler*> listeners;
 	std::shared_ptr<Composite> glassPanel;
 	static std::shared_ptr<AlloyContext> defaultContext;
 
@@ -225,12 +224,8 @@ public:
 		return screenSize.y;
 	}
 	std::shared_ptr<Composite>& getGlassPanel();
-	void addListener(EventHandler* region) {
-		listeners.push_back(region);
-	}
-	void removeListener(EventHandler* region) {
-		listeners.remove(region);
-	}
+	void addListener(EventHandler* region);
+	void removeListener(EventHandler* region);
 	inline pixel2 getCursorDownPosition() const {
 		return cursorDownPosition;
 	}
