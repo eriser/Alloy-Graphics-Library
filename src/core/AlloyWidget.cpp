@@ -1972,7 +1972,7 @@ void FileSelector::openFileDialog(AlloyContext* context,
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		Widget(name, pos, dims) {
-	containerRegion=std::shared_ptr<Composite>(new Composite("Container",CoordPX(0,15),CoordPerPX(1.0,1.0,-15,-15)));
+	containerRegion=std::shared_ptr<BorderComposite>(new BorderComposite("Container",CoordPX(0,15),CoordPerPX(1.0,1.0,-15,-15)));
 
 	openButton=std::shared_ptr<TextIconButton>(new TextIconButton("Open",0xf115,CoordPerPX(1.0f,1.0f,-7.0f,-7.0f),CoordPX(100,30)));
 	openButton->setOrigin(Origin::BottomRight);
@@ -1985,8 +1985,18 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30)));
 	cancelButton->setOrigin(Origin::BottomLeft);
 
-	containerRegion->add(fileLocation);
-	containerRegion->add(openButton);
+	containerRegion->setNorth(fileLocation,0.15f);
+	containerRegion->setSouth(openButton,0.15f);
+
+	directoryTree=std::shared_ptr<Composite>(new Composite("Container",CoordPX(7,0),CoordPerPX(1.0,1.0,-7,0)));
+	directoryList=std::shared_ptr<Composite>(new Composite("Container",CoordPX(7,0),CoordPerPX(1.0f,1.0,-14.0f,0.0f)));
+
+	directoryList->backgroundColor=MakeColor(0,0,128);
+	directoryTree->backgroundColor=MakeColor(128,0,0);
+	containerRegion->setWest(directoryTree,0.3f);
+	containerRegion->setCenter(directoryList);
+
+
 	add(containerRegion);
 
 	add(cancelButton);

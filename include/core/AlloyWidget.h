@@ -356,7 +356,7 @@ private:
 	std::shared_ptr<Composite> directoryList;
 	std::shared_ptr<TextIconButton> openButton;
 	std::shared_ptr<IconButton> cancelButton;
-	std::shared_ptr<Composite> containerRegion;
+	std::shared_ptr<BorderComposite> containerRegion;
 public:
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(

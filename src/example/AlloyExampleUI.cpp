@@ -26,7 +26,7 @@ ExampleUI::ExampleUI() :
 		Application(1280, 720, "ExampleUI") {
 }
 bool ExampleUI::init(Composite& rootNode) {
-
+/*
 	TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
 			CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
 			RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
@@ -178,7 +178,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	//rootNode.add(colorselect);
 	//getContext()->toggleDebug();
 	//std::cout<<rootNode<<std::endl;
-/*
+	  */
+
 	ExpandBarPtr expandBar = ExpandBarPtr(new ExpandBar("exapander",CoordPercent(0.7f,0.0f),CoordPercent(0.3f,1.0f)));
 
 	CompositePtr geomRegion = CompositePtr(new aly::Composite("Geometry", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
@@ -211,7 +212,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor=MakeColor(Color(128,64,92));
 	rootNode.add(bcomp);
 	rootNode.add(expandBar);
-	*/
+
 	return true;
 }
 
