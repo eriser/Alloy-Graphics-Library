@@ -66,10 +66,10 @@ template<class T> struct vec<T, 1> {
 			x(T(r.x)) {
 	}
 	const T & operator [](int i) const {
-		return &x;
+		return x;
 	}
 	T & operator [](int i) {
-		return &x;
+		return x;
 	}
 	operator T() const {
 		return x;
