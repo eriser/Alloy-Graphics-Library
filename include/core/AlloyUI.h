@@ -329,7 +329,7 @@ public:
 	virtual void draw(AlloyContext* context) override;
 };
 struct TextField: public Region {
-private:
+protected:
 	bool showDefaultLabel = true;
 	std::string label;
 	std::string value;
@@ -359,12 +359,25 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++));
 	TextField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
-	void setValue(const std::string& value);
+	virtual void setValue(const std::string& value);
 	std::string getValue() const {
 		return value;
 	}
 	std::function<void(TextField*)> onTextEntered;
 	std::function<void(TextField*)> onKeyInput;
+};
+struct FileField: public TextField {
+public:
+	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
+	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
+			override;
+	virtual inline ~FileField(){}
+	FileField(
+			const std::string& name = MakeString() << "t" << std::setw(8)
+					<< std::setfill('0') << (REGION_COUNTER++));
+	FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
+	virtual void draw(AlloyContext* context) override;
+	virtual void setValue(const std::string& value);
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,

@@ -1236,6 +1236,145 @@ void TextField::draw(AlloyContext* context) {
 		showDefaultLabel = true;
 	}
 }
+FileField::FileField(const std::string& name) :
+		TextField(name){
+}
+FileField::FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions):
+		TextField(name,position,dimensions){
+}
+void FileField::setValue(const std::string& text) {
+	this->value = text;
+	moveCursorTo((int)text.size());
+}
+bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
+	if (isVisible()) {
+		if (!context->isFocused(this) || fontSize <= 0)
+			return false;
+		switch (e.type) {
+		case InputType::MouseButton:
+			handleMouseInput(context, e);
+			break;
+		case InputType::Character:
+			handleCharacterInput(context, e);
+			break;
+		case InputType::Key:
+			handleKeyInput(context, e);
+			break;
+		case InputType::Cursor:
+			handleCursorInput(context, e);
+			break;
+		}
+	}
+	return Region::onEventHandler(context, e);
+}
+void FileField::draw(AlloyContext* context) {
+
+	float ascender, descender, lineh;
+	std::vector<NVGglyphPosition> positions(value.size());
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	float x = bounds.position.x;
+	float y = bounds.position.y;
+	float w = bounds.dimensions.x;
+	float h = bounds.dimensions.y;
+
+	if (backgroundColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	double elapsed =
+			std::chrono::duration<double>(currentTime - lastTime).count();
+	if (elapsed >= 0.5f) {
+		showCursor = !showCursor;
+		lastTime = currentTime;
+	}
+	textOffsetX = x + 2.0f * lineWidth + PADDING;
+	float textY = y;
+
+	NVGpaint bg = nvgBoxGradient(nvg, x + 1, y + 3, w - 2 * PADDING,
+			h - 2 * PADDING, context->theme.CORNER_RADIUS, 4,
+			context->theme.HIGHLIGHT.toSemiTransparent(0.5f),
+			context->theme.SHADOW.toSemiTransparent(0.5f));
+	nvgBeginPath(nvg);
+	nvgRoundedRect(nvg, x + PADDING, y + PADDING, w - 2 * PADDING,
+			h - 2 * PADDING, context->theme.CORNER_RADIUS);
+	nvgFillPaint(nvg, bg);
+	nvgFill(nvg);
+
+	fontSize = std::max(8.0f, h - 4 * PADDING);
+	nvgFontSize(nvg, fontSize);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
+	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,
+			nullptr);
+	if (!showDefaultLabel) {
+		textOffsetX = textOffsetX
+				+ std::min((w - 3.0f * PADDING - 2.0f * lineWidth) - twidth,
+						0.0f);
+	}
+	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
+
+	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+	positions.resize(
+			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
+					value.data() + value.size(), positions.data(),
+					(int)positions.size()));
+	bool isFocused = context->isFocused(this);
+
+	if (cursorEnd != cursorStart) {
+		int lo = std::min(cursorEnd, cursorStart), hi = std::max(cursorEnd,
+				cursorStart);
+		float x0 = lo ? positions[lo - 1].maxx - 1 : textOffsetX;
+		float x1 = hi ? positions[hi - 1].maxx - 1 : textOffsetX;
+
+		nvgBeginPath(nvg);
+		nvgRect(nvg, x0, textY + (h - lineh) / 2 + PADDING, x1 - x0,
+				lineh - 2 * PADDING);
+		nvgFillColor(nvg,
+				isFocused ?
+						context->theme.DARK.toSemiTransparent(0.5f) :
+						context->theme.DARK.toSemiTransparent(0.25f));
+		nvgFill(nvg);
+	}
+
+	if (showDefaultLabel) {
+		nvgFillColor(nvg, backgroundColor->toDarker(0.75f));
+		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
+	} else {
+		nvgFillColor(nvg, *textColor);
+		nvgText(nvg, textOffsetX, textY + h / 2, value.c_str(), NULL);
+	}
+	if (isFocused && showCursor) {
+		nvgBeginPath(nvg);
+		float xOffset =
+				cursorStart ?
+						positions[cursorStart - 1].maxx - 1 : (textOffsetX);
+		nvgMoveTo(nvg, xOffset, textY + h / 2 - lineh / 2 + PADDING);
+		nvgLineTo(nvg, xOffset, textY + h / 2 + lineh / 2 - PADDING);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgLineCap(nvg, NVG_ROUND);
+		nvgStrokeColor(nvg, context->theme.SHADOW);
+		nvgStroke(nvg);
+	}
+	popScissor(nvg);
+	if (borderColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2 * lineWidth,
+				h - 2 * lineWidth, context->theme.CORNER_RADIUS);
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStroke(nvg);
+	}
+	if (!isFocused && value.size() == 0) {
+		showDefaultLabel = true;
+	}
+}
 void GlyphRegion::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name,
