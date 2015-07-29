@@ -151,7 +151,7 @@ bool SANITY_CHECK_FILE_IO() {
 	try {
 		std::cout << RemoveTrailingSlash("/usr/local/bin/") << "::"
 				<< RemoveTrailingSlash("/usr/local/bin/") << std::endl;
-		std::vector<std::string> files = GetDirectoryListing("./images/");
+		std::vector<std::string> files = GetDirectoryFileListing("./images/");
 
 		for (std::string f : files) {
 			ImageRGB im1;

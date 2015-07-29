@@ -367,6 +367,8 @@ public:
 	std::function<void(TextField*)> onKeyInput;
 };
 struct FileField: public TextField {
+protected:
+	std::vector<std::string> segmentedPath;
 public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
@@ -377,7 +379,7 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++));
 	FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
-	virtual void setValue(const std::string& value);
+	virtual void setValue(const std::string& value) override;
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,

@@ -1977,7 +1977,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	openButton=std::shared_ptr<TextIconButton>(new TextIconButton("Open",0xf115,CoordPerPX(1.0f,1.0f,-7.0f,-7.0f),CoordPX(100,30)));
 	openButton->setOrigin(Origin::BottomRight);
 
-	fileLocation=std::shared_ptr<TextField>(new TextField("File Location",CoordPX(7,7),CoordPerPX(1.0f,0.0f,-14.0f,30.0f)));
+	fileLocation=std::shared_ptr<FileField>(new FileField("File Location",CoordPX(7,7),CoordPerPX(1.0f,0.0f,-14.0f,30.0f)));
 	cancelButton = std::shared_ptr<IconButton>(
 			new IconButton(
 					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,

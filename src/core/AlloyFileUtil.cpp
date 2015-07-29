@@ -82,7 +82,42 @@ std::string CodePointToUTF8(int cp) {
 	}
 	return std::string(str);
 }
+std::vector<std::string> split(const std::string &str, char delim) {
+  std::stringstream ss;
+  std::vector<std::string> elems;
+  std::string delimString="";
+  delimString+=delim;
+  std::string comp;
+  for(char c:str){
+	  if(c==delim){
+		  comp=ss.str();
+		  if(comp.size()>0){
+			  elems.push_back(comp);
+			  ss.str("");
+		  }
+		  elems.push_back(delimString);
+	  } else {
+		  ss<<c;
+	  }
+  }
+  comp=ss.str();
+  if(comp.size()>0){
+	  elems.push_back(comp);
+  }
+  return elems;
 
+}
+std::vector<std::string> splitPath(const std::string& file){
+	const char c=PATH_SEPARATOR.c_str()[0];
+	return split(file,c);
+}
+std::string concat(const std::vector<std::string>& list){
+	std::stringstream ss;
+	for(std::string str:list){
+		ss<<str;
+	}
+	return ss.str();
+}
 std::string ReadTextFile(const std::string& str) {
 	std::ifstream myfile;
 	myfile.open(str);
@@ -119,6 +154,53 @@ bool FileExists(const std::string& name) {
 	return false;
 }
 
+std::vector<std::string> autoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions){
+	std::vector<std::string> suggestions=list;
+#ifdef WINDOWS
+	//use case insenstive complete on windows.
+	std::sort(suggestions.begin(),suggestions.end(),
+			[](const std::string& first, const std::string& second){
+				return std::lexicographical_compare(first.begin(),first.end(),second.begin(),second.end(),
+						[](char c1, char c2){ return (std::tolower(c1)<std::tolower(c2)); });
+			}
+	);
+#else
+	std::sort(suggestions.begin(),suggestions.end(),
+			[](const std::string& first, const std::string& second){
+				return std::lexicographical_compare(first.begin(),first.end(),second.begin(),second.end());
+			}
+	);
+#endif
+	if(maxSuggestions>=0){
+		if(suggestions.size()>maxSuggestions){
+			suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
+		}
+		return suggestions;
+	} else {
+		return suggestions;
+	}
+}
+bool mycomp (char c1, char c2)
+{ return std::tolower(c1)<std::tolower(c2); }
+
+int main () {
+  char foo[]="Apple";
+  char bar[]="apartment";
+
+  std::cout << std::boolalpha;
+
+  std::cout << "Comparing foo and bar lexicographically (foo<bar):\n";
+
+  std::cout << "Using default comparison (operator<): ";
+  std::cout << std::lexicographical_compare(foo,foo+5,bar,bar+9);
+  std::cout << '\n';
+
+  std::cout << "Using mycomp as comparison object: ";
+  std::cout << std::lexicographical_compare(foo,foo+5,bar,bar+9,mycomp);
+  std::cout << '\n';
+
+  return 0;
+}
 std::string GetFileExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos)
 		return fileName.substr(fileName.find_last_of(".") + 1);
@@ -169,8 +251,7 @@ std::string GetFileDirectoryPath(const std::string& fileName) {
 }
 
 #ifndef WINDOWS
-//Only works on Linux for NOW!
-std::vector<std::string> GetDirectoryListing(const std::string& dirName,
+std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
 	std::vector<std::string> files;
 	dirent* dp;
@@ -191,6 +272,29 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
+std::vector<std::pair<std::string,FileType>> GetDirectoryListing(const std::string& dirName) {
+	std::vector<std::pair<std::string,FileType>> files;
+	dirent* dp;
+	std::string cleanPath = RemoveTrailingSlash(dirName) + PATH_SEPARATOR;
+	DIR* dirp = opendir(cleanPath.c_str());
+	while ((dp = readdir(dirp)) != NULL) {
+		string fileName(dp->d_name);
+		FileType type=FileType::Unknown;
+		if (dp->d_type==DT_REG){
+			type=FileType::File;
+		} else if (dp->d_type==DT_DIR){
+			type=FileType::Directory;
+		}  else if (dp->d_type==DT_LNK){
+			type=FileType::Link;
+		}
+		if(type!=FileType::Unknown){
+			files.push_back(std::pair<std::string,FileType>(cleanPath + fileName,type));
+		}
+	}
+	closedir(dirp);
+	std::sort(files.begin(), files.end());
+	return files;
+}
 #else 
 
 std::wstring ToWString(const std::string& str) {
@@ -205,7 +309,7 @@ std::string ToString(const std::wstring& str) {
 	return narrow;
 }
 
-std::vector<std::string> GetDirectoryListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
+std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
 	WIN32_FIND_DATAW fd;
 	std::string path = RemoveTrailingSlash(dirName);
 	std::wstring query = ToWString(path + PATH_SEPARATOR+string("*"));

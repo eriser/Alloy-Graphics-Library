@@ -1244,6 +1244,7 @@ FileField::FileField(const std::string& name,const AUnit2D& position,const AUnit
 }
 void FileField::setValue(const std::string& text) {
 	this->value = text;
+	segmentedPath=splitPath(value);
 	moveCursorTo((int)text.size());
 }
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
@@ -1258,12 +1259,28 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			handleCharacterInput(context, e);
 			break;
 		case InputType::Key:
+
+			if (e.isDown()) {
+				if(e.key==GLFW_KEY_TAB){
+					showCursor=true;
+					std::string root=GetFileDirectoryPath(value);
+					std::vector<std::string> listing=GetDirectoryFileListing(value);
+					std::cout<<"File: "<<value<<std::endl;
+					std::cout<<"Root: "<<root<<" "<<listing.size()<<std::endl;
+					std::vector<std::string> results=autoComplete(GetFileName(value),listing);
+					for(std::string file:results){
+						std::cout<<"FILE "<<GetFileName(file)<<std::endl;
+					}
+					break;
+				}
+			}
 			handleKeyInput(context, e);
 			break;
 		case InputType::Cursor:
 			handleCursorInput(context, e);
 			break;
 		}
+		segmentedPath=splitPath(value);
 	}
 	return Region::onEventHandler(context, e);
 }
@@ -1347,8 +1364,39 @@ void FileField::draw(AlloyContext* context) {
 		nvgFillColor(nvg, backgroundColor->toDarker(0.75f));
 		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
 	} else {
+
+		float xOffset=textOffsetX;
+		std::stringstream path;
+		bool underline;
+		for(std::string comp:segmentedPath){
+			path<<comp;
+			underline=false;
+			if(comp==PATH_SEPARATOR){
+				nvgFillColor(nvg, *textColor);
+			} else {
+				if(FileExists(path.str())){
+					underline=true;
+					nvgFillColor(nvg,  context->theme.LINK);
+				} else {
+					nvgFillColor(nvg, context->theme.DARK);
+				}
+			}
+			nvgText(nvg, xOffset, textY + h / 2, comp.c_str(), NULL);
+			float lastOffset=xOffset;
+			xOffset+= nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,nullptr);
+			if(underline){
+				nvgBeginPath(nvg);
+				nvgStrokeWidth(nvg,2.0f);
+				nvgStrokeColor(nvg,  textColor->toSemiTransparent(0.75f));
+				nvgMoveTo(nvg,lastOffset,textY+fontSize+1);
+				nvgLineTo(nvg,xOffset,textY+fontSize+1);
+				nvgStroke(nvg);
+			}
+		}
+		/*
 		nvgFillColor(nvg, *textColor);
 		nvgText(nvg, textOffsetX, textY + h / 2, value.c_str(), NULL);
+	*/
 	}
 	if (isFocused && showCursor) {
 		nvgBeginPath(nvg);

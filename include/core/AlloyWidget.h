@@ -351,7 +351,7 @@ public:
 };
 class FileDialog: public Widget{
 private:
-	std::shared_ptr<TextField> fileLocation;
+	std::shared_ptr<FileField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
 	std::shared_ptr<Composite> directoryList;
 	std::shared_ptr<TextIconButton> openButton;
