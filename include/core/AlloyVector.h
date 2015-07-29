@@ -363,10 +363,15 @@ template<class T, int C> vec<T, C> dotVec(Vector<T, C>& a, Vector<T, C>& b) {
 				MakeString() << "Vector dimensions do not match. " << a.size()
 						<< "!=" << b.size());
 	size_t sz = a.size();
-#pragma omp parallel for reduction(+:ans)
-	for (size_t i = 0; i < sz; i++) {
-		ans += a[i] * b[i];
-	}
+#pragma omp parallel for
+        for(int c=0;c<C;c++){
+            T cans=0;
+#pragma omp parallel for reduction(+:cans)
+            for (size_t i = 0; i < sz; i++) {
+                    cans += a[i][c] * b[i][c];
+            }
+             ans[c]=cans;
+        }
 	return ans;
 }
 template<class T, int C> T dot(Vector<T, C>& a, Vector<T, C>& b) {
@@ -405,15 +410,21 @@ template<class T, int C> T lengthL1(Vector<T, C>& a) {
 template<class T, int C> vec<T, C> lengthVecL1(Vector<T, C>& a) {
 	vec<T, C> ans((T) 0);
 	size_t sz = a.size();
-#pragma omp parallel for reduction(+:ans)
-	for (size_t i = 0; i < sz; i++) {
-		ans += abs(a[i]);
+#pragma omp parallel for
+	for(int c=0;c<C;c++){
+            T cans=0;
+            #pragma omp parallel for reduction(+:cans)
+            for (size_t i = 0; i < sz; i++) {
+                    cans += std::abs(a[i][c]);
+            }
+            ans[c]=cans;
 	}
 	return ans;
 }
 template<class T, int C> vec<T, C> maxVec(Vector<T, C>& a) {
 	vec<T, C> ans((T) 0);
 	size_t sz = a.size();
+#pragma omp parallel for
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::min());
 #pragma omp parallel for reduction(max:tmp)
@@ -429,6 +440,7 @@ template<class T, int C> vec<T, C> maxVec(Vector<T, C>& a) {
 template<class T, int C> vec<T, C> minVec(Vector<T, C>& a) {
 	vec<T, C> ans((T) 0);
 	size_t sz = a.size();
+#pragma omp parallel for
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::max());
 #pragma omp parallel for reduction(min:tmp)
@@ -471,13 +483,18 @@ template<class T, int C> T length(Vector<T, C>& a) {
 	return std::sqrt(lengthSqr(a));
 }
 template<class T, int C> vec<T, C> lengthVecSqr(Vector<T, C>& a) {
-	vec<T, C> ans((T) 0);
-	size_t sz = a.size();
-#pragma omp parallel for reduction(+:ans)
-	for (size_t i = 0; i < sz; i++) {
-		ans += a[i] * a[i];
-	}
-	return ans;
+        vec<T, C> ans((T) 0);
+        size_t sz = a.size();
+#pragma omp parallel for
+        for(int c=0;c<C;c++){
+            T cans=0;
+            #pragma omp parallel for reduction(+:cans)
+            for (size_t i = 0; i < sz; i++) {
+                    cans += a[i][c]*a[i][c];
+            }
+            ans[c]=cans;
+        }
+        return ans;
 }
 template<class T, int C> vec<T, C> lengthVec(Vector<T, C>& a) {
 	return sqrt(lengthVecSqr(a));
