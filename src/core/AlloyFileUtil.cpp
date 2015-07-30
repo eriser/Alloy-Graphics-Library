@@ -108,7 +108,7 @@ std::vector<std::string> split(const std::string &str, char delim) {
 
 }
 std::vector<std::string> splitPath(const std::string& file){
-	const char c=PATH_SEPARATOR.c_str()[0];
+	const char c=ALY_PATH_SEPARATOR.c_str()[0];
 	return split(file,c);
 }
 std::string concat(const std::vector<std::string>& list){
@@ -154,7 +154,7 @@ bool FileExists(const std::string& name) {
 	return false;
 }
 
-std::vector<std::string> autoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions){
+std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions){
 	std::vector<std::string> suggestions=list;
 #ifdef WINDOWS
 	//use case insenstive complete on windows.
@@ -173,33 +173,20 @@ std::vector<std::string> autoComplete(const std::string& str,const std::vector<s
 #endif
 	if(maxSuggestions>=0){
 		if(suggestions.size()>maxSuggestions){
-			suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
+
+			for(size_t index=maxSuggestions;index<suggestions.size();index++){
+				std::string entry=suggestions[index];
+				if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end())){
+					suggestions.erase(suggestions.begin(),suggestions.begin()+index);
+					suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
+					break;
+				}
+			}
 		}
 		return suggestions;
 	} else {
 		return suggestions;
 	}
-}
-bool mycomp (char c1, char c2)
-{ return std::tolower(c1)<std::tolower(c2); }
-
-int main () {
-  char foo[]="Apple";
-  char bar[]="apartment";
-
-  std::cout << std::boolalpha;
-
-  std::cout << "Comparing foo and bar lexicographically (foo<bar):\n";
-
-  std::cout << "Using default comparison (operator<): ";
-  std::cout << std::lexicographical_compare(foo,foo+5,bar,bar+9);
-  std::cout << '\n';
-
-  std::cout << "Using mycomp as comparison object: ";
-  std::cout << std::lexicographical_compare(foo,foo+5,bar,bar+9,mycomp);
-  std::cout << '\n';
-
-  return 0;
 }
 std::string GetFileExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos)
@@ -208,23 +195,23 @@ std::string GetFileExtension(const std::string& fileName) {
 }
 
 std::string GetFileName(const std::string& fileName) {
-	if (fileName.find_last_of(PATH_SEPARATOR) != string::npos)return fileName.substr(fileName.find_last_of(PATH_SEPARATOR) + 1);
+	if (fileName.find_last_of(ALY_PATH_SEPARATOR) != string::npos)return fileName.substr(fileName.find_last_of(ALY_PATH_SEPARATOR) + 1);
 	return fileName;
 }
 std::string RemoveTrailingSlash(const std::string& file) {
-	if (file.find_last_of(PATH_SEPARATOR) != string::npos) {
-		size_t end =file.find_last_of(PATH_SEPARATOR);
+	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos) {
+		size_t end =file.find_last_of(ALY_PATH_SEPARATOR);
 		return file.substr(0, end);
 	}
 	return file;
 }
 std::string ConcatPath(const std::string& dir, const std::string& file) {
-	return RemoveTrailingSlash(dir) + PATH_SEPARATOR+file;
+	return RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR+file;
 }
 std::string GetFileNameWithoutExtension(const std::string& fileName) {
 	if (fileName.find_last_of(".") != string::npos
-			&& fileName.find_last_of(PATH_SEPARATOR) != string::npos) {
-		size_t start = fileName.find_last_of(PATH_SEPARATOR) + 1;
+			&& fileName.find_last_of(ALY_PATH_SEPARATOR) != string::npos) {
+		size_t start = fileName.find_last_of(ALY_PATH_SEPARATOR) + 1;
 		size_t end = fileName.find_last_of(".");
 		return fileName.substr(start, end - start);
 	}
@@ -243,8 +230,8 @@ std::string ReplaceFileExtension(const std::string& file,
 	return GetFileWithoutExtension(file) + "." + ext;
 }
 std::string GetFileDirectoryPath(const std::string& fileName) {
-	if (fileName.find_last_of(PATH_SEPARATOR) != string::npos) {
-		size_t end = fileName.find_last_of(PATH_SEPARATOR);
+	if (fileName.find_last_of(ALY_PATH_SEPARATOR) != string::npos) {
+		size_t end = fileName.find_last_of(ALY_PATH_SEPARATOR);
 		return fileName.substr(0, end);
 	}
 	return fileName;
@@ -255,7 +242,7 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
 	std::vector<std::string> files;
 	dirent* dp;
-	std::string cleanPath = RemoveTrailingSlash(dirName) + PATH_SEPARATOR;
+	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
 	DIR* dirp = opendir(cleanPath.c_str());
 	while ((dp = readdir(dirp)) != NULL) {
 		string fileName(dp->d_name);
@@ -272,10 +259,17 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
-std::vector<std::pair<std::string,FileType>> GetDirectoryListing(const std::string& dirName) {
+std::string GetRootDirectory(const std::string& file){
+	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos&&file.find_last_of(ALY_PATH_SEPARATOR)==file.size()-1) {
+		return file;
+	} else {
+		return GetFileDirectoryPath(file)+ALY_PATH_SEPARATOR;
+	}
+}
+std::vector<std::pair<std::string,FileType>> GetDirectoryListingAndTypes(const std::string& dirName) {
 	std::vector<std::pair<std::string,FileType>> files;
 	dirent* dp;
-	std::string cleanPath = RemoveTrailingSlash(dirName) + PATH_SEPARATOR;
+	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
 	DIR* dirp = opendir(cleanPath.c_str());
 	while ((dp = readdir(dirp)) != NULL) {
 		string fileName(dp->d_name);
@@ -288,7 +282,27 @@ std::vector<std::pair<std::string,FileType>> GetDirectoryListing(const std::stri
 			type=FileType::Link;
 		}
 		if(type!=FileType::Unknown){
-			files.push_back(std::pair<std::string,FileType>(cleanPath + fileName,type));
+			if(fileName!=".."&&fileName!="."){
+				files.push_back(std::pair<std::string,FileType>(cleanPath + fileName,type));
+			}
+		}
+	}
+	closedir(dirp);
+	std::sort(files.begin(), files.end());
+	return files;
+}
+std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
+	std::vector<std::string> files;
+	dirent* dp;
+	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
+	DIR* dirp = opendir(cleanPath.c_str());
+	while ((dp = readdir(dirp)) != NULL) {
+		string fileName(dp->d_name);
+		FileType type=FileType::Unknown;
+		if (dp->d_type==DT_REG||dp->d_type==DT_DIR||dp->d_type==DT_LNK){
+			if(fileName!=".."&&fileName!="."){
+				files.push_back(cleanPath + fileName);
+			}
 		}
 	}
 	closedir(dirp);
@@ -312,7 +326,7 @@ std::string ToString(const std::wstring& str) {
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
 	WIN32_FIND_DATAW fd;
 	std::string path = RemoveTrailingSlash(dirName);
-	std::wstring query = ToWString(path + PATH_SEPARATOR+string("*"));
+	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR+string("*"));
 	HANDLE h = FindFirstFileW(query.c_str(), &fd);
 	if (h == INVALID_HANDLE_VALUE) {
 		return std::vector<std::string>();
@@ -324,7 +338,7 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,cons
 		{
 			if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
 				if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
-					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) list.push_back(path + PATH_SEPARATOR + fileName);
+					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
 				}
 			}
 		}

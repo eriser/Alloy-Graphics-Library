@@ -182,14 +182,14 @@ std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,
 }
 std::string AlloyContext::getFullPath(const std::string& partialFile) {
 	for (std::string& dir : assetDirectories) {
-		std::string fullPath = RemoveTrailingSlash(dir) + PATH_SEPARATOR+partialFile;
+		std::string fullPath = RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR+partialFile;
 		if (FileExists(fullPath)) {
 			return fullPath;
 		}
 	}
 	std::cout<<"Could not find \""<<partialFile<<"\"\nThis is where I looked:"<<std::endl;
 	for (std::string& dir : assetDirectories) {
-		std::string fullPath=RemoveTrailingSlash(dir) +PATH_SEPARATOR +partialFile;
+		std::string fullPath=RemoveTrailingSlash(dir) +ALY_PATH_SEPARATOR +partialFile;
 		std::cout<<"\""<<fullPath<<"\""<<std::endl;
 	}
 	throw std::runtime_error(MakeString()<<"Could not find \""<<partialFile<<"\"");

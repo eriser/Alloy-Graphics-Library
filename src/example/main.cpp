@@ -20,15 +20,29 @@
  */
 #include "../../include/example/AlloyExampleUI.h"
 #include "../../include/example/MeshViewer.h"
+#include "AlloyFileUtil.h"
 using namespace aly;
 int main() {
+	/*
+	std::vector<std::string> fileTest={"/","/var/tmp/","/var/tmp","/usr/lib/up"};
+	for(std::string str:fileTest){
+		std::vector<std::string> listing;
+		std::string rootDir=GetRootDirectory(str);
+		std::cout<<str<<" ROOT "<<rootDir<<std::endl;
+		std::vector<std::string> files=GetDirectoryListing(rootDir);
+		std::vector<std::string> suggestions=AutoComplete(str,files,5);
+		int i=0;
+		for(std::string suggestion:suggestions){
+			std::cout<<i++<<") "<<suggestion<<std::endl;
+		}
+	}
+	*/
 	try {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
-		ExampleUI app;
+		//ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
-		//MeshViewer app;
-
+		MeshViewer app;
 		app.run(0);
 		return 0;
 	} catch (std::exception& e) {

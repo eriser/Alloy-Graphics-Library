@@ -1267,7 +1267,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 					std::vector<std::string> listing=GetDirectoryFileListing(value);
 					std::cout<<"File: "<<value<<std::endl;
 					std::cout<<"Root: "<<root<<" "<<listing.size()<<std::endl;
-					std::vector<std::string> results=autoComplete(GetFileName(value),listing);
+					std::vector<std::string> results=AutoComplete(GetFileName(value),listing);
 					for(std::string file:results){
 						std::cout<<"FILE "<<GetFileName(file)<<std::endl;
 					}
@@ -1371,7 +1371,7 @@ void FileField::draw(AlloyContext* context) {
 		for(std::string comp:segmentedPath){
 			path<<comp;
 			underline=false;
-			if(comp==PATH_SEPARATOR){
+			if(comp==ALY_PATH_SEPARATOR){
 				nvgFillColor(nvg, *textColor);
 			} else {
 				if(FileExists(path.str())){

@@ -29,15 +29,16 @@
 
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
-#define PATH_SEPARATOR std::string("\\")
+#define ALY_PATH_SEPARATOR std::string("\\")
 #else
-#define PATH_SEPARATOR std::string("/")
+#define ALY_PATH_SEPARATOR std::string("/")
 #endif
 bool SANITY_CHECK_FILE_IO();
 enum class FileType{Unknown,File,Directory,Link};
 std::string GetFileExtension(const std::string& fileName);
 std::string GetFileWithoutExtension(const std::string& file);
 std::string GetFileNameWithoutExtension(const std::string& file);
+std::string GetRootDirectory(const std::string& dir);
 std::string ReplaceFileExtension(const std::string& file,
 		const std::string& ext);
 std::string GetFileDirectoryPath(const std::string& file);
@@ -46,7 +47,8 @@ std::string RemoveTrailingSlash(const std::string& file);
 std::string ConcatPath(const std::string& dir, const std::string& file);
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext = "", const std::string& mask = "");
-std::vector<std::pair<std::string,FileType>> GetDirectoryListing(const std::string& dirName);
+std::vector<std::pair<std::string,FileType>> GetDirectoryListingAndTypes(const std::string& dirName);
+std::vector<std::string> GetDirectoryListing(const std::string& dirName);
 std::string ReadTextFile(const std::string& str);
 std::vector<char> ReadBinaryFile(const std::string& str);
 bool FileExists(const std::string& name);
@@ -54,7 +56,7 @@ std::string CodePointToUTF8(int cp);
 std::vector<std::string> split(const std::string& str,char c);
 std::vector<std::string> splitPath(const std::string& file);
 std::string concat(const std::vector<std::string>& list);
-std::vector<std::string> autoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions=-1);
+std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions=-1);
 }
 
 #endif /* ALLOYFILEUTIL_H_ */
