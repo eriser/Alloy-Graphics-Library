@@ -466,7 +466,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	// compute colors, if any
 	int numPts =(int)( mesh.vertexLocations.size());
 
-	int numPolys = (int)(mesh.quadIndexes.size() / 4 + mesh.triIndexes.size() / 3);
+	int numPolys = (int)(mesh.quadIndexes.size() + mesh.triIndexes.size());
 
 	std::vector<unsigned char> pointColors;
 
