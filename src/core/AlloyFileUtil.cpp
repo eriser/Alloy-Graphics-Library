@@ -183,10 +183,10 @@ std::vector<std::string> AutoComplete(const std::string& str,const std::vector<s
 					if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end())){
 #endif
 					suggestions.erase(suggestions.begin(),suggestions.begin()+index);
-					suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
 					break;
 				}
 			}
+			suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
 		}
 		return suggestions;
 	} else {
@@ -264,7 +264,7 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
-std::string GetRootDirectory(const std::string& file){
+std::string GetParentDirectory(const std::string& file){
 	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos&&file.find_last_of(ALY_PATH_SEPARATOR)==file.size()-1) {
 		return file;
 	} else {

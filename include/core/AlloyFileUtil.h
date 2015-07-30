@@ -38,7 +38,7 @@ enum class FileType{Unknown,File,Directory,Link};
 std::string GetFileExtension(const std::string& fileName);
 std::string GetFileWithoutExtension(const std::string& file);
 std::string GetFileNameWithoutExtension(const std::string& file);
-std::string GetRootDirectory(const std::string& dir);
+std::string GetParentDirectory(const std::string& dir);
 std::string ReplaceFileExtension(const std::string& file,
 		const std::string& ext);
 std::string GetFileDirectoryPath(const std::string& file);
