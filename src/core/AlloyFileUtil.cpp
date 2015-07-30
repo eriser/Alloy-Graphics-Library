@@ -176,7 +176,12 @@ std::vector<std::string> AutoComplete(const std::string& str,const std::vector<s
 
 			for(size_t index=maxSuggestions;index<suggestions.size();index++){
 				std::string entry=suggestions[index];
-				if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end())){
+#ifdef WINDOWS
+				if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end(),
+						[](char c1, char c2){ return (std::tolower(c1)<std::tolower(c2)); })){
+#else
+					if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end())){
+#endif
 					suggestions.erase(suggestions.begin(),suggestions.begin()+index);
 					suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
 					break;
