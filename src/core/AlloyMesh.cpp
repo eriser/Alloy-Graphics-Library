@@ -552,7 +552,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	faceT.uvs = (float*) uvs;
 	put_element_setup_ply(ply, "face");
 	if (usingTexture) {
-		int sz =(int)( mesh.quadIndexes.size() / 4);
+		int sz =(int)( mesh.quadIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			faceT.nverts = 4;
 			faceT.uvcount = 8;
@@ -562,7 +562,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			}
 			put_element_ply(ply, (void *) &faceT);
 		}
-		sz =(int)( mesh.triIndexes.size() / 3);
+		sz =(int)( mesh.triIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			faceT.nverts = 3;
 			faceT.uvcount = 6;
@@ -573,7 +573,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			put_element_ply(ply, (void *) &faceT);
 		}
 	} else {
-		int sz = (int)(mesh.quadIndexes.size() / 4);
+		int sz = (int)(mesh.quadIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			for (j = 0; j < 4; j++) {
 				face.nverts = 4;
@@ -581,7 +581,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			}
 			put_element_ply(ply, (void *) &face);
 		}
-		sz = (int)(mesh.triIndexes.size() / 3);
+		sz = (int)(mesh.triIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			for (j = 0; j < 3; j++) {
 				face.nverts = 3;
