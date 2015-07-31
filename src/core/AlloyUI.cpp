@@ -1719,7 +1719,10 @@ void SelectionBox::draw(AlloyContext* context) {
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	pushScissor(nvg,bounds);
+	box2px sbounds=bounds;
+	sbounds.position.x+=TextField::PADDING;
+	sbounds.dimensions.x-=2*TextField::PADDING;
+
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	int elements =
@@ -1768,6 +1771,7 @@ void SelectionBox::draw(AlloyContext* context) {
 		selectedIndex = newSelectedIndex;
 	}
 	offset = pixel2(0, 0);
+
 	for (index = selectionOffset; index < N; index++) {
 		std::string& label = options[index];
 		if (index == selectedIndex) {
@@ -1780,13 +1784,16 @@ void SelectionBox::draw(AlloyContext* context) {
 		}
 		nvgFillColor(nvg, *textColor);
 
+		pushScissor(nvg,sbounds);
 		nvgText(nvg,
 				bounds.position.x + offset.x + lineWidth + TextField::PADDING,
 				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(),
 				nullptr);
+		popScissor(nvg);
 		offset.y += entryHeight;
 	}
 	updateLock.unlock();
+
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
@@ -1797,7 +1804,6 @@ void SelectionBox::draw(AlloyContext* context) {
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
 	}
-	popScissor(nvg);
 }
 SelectionBox::SelectionBox(const std::string& name,
 		const std::vector<std::string>& labels) :
