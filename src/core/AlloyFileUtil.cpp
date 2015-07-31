@@ -222,9 +222,9 @@ std::string GetFileName(const std::string& fileName) {
 	return fileName;
 }
 std::string RemoveTrailingSlash(const std::string& file) {
-	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos) {
-		size_t end =file.find_last_of(ALY_PATH_SEPARATOR);
-		return file.substr(0, end);
+	size_t pos=file.find_last_of(ALY_PATH_SEPARATOR);
+	if (pos != string::npos&&pos==file.size()-1) {
+		return file.substr(0, pos);
 	}
 	return file;
 }

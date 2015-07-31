@@ -1345,7 +1345,11 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 					std::vector<std::string> suggestions = AutoComplete(value,
 							listing);
 					if(suggestions.size()==1){
-						this->setValue(suggestions[0]);
+						if(IsDirectory(suggestions[0])){
+							this->setValue(RemoveTrailingSlash(suggestions[0])+ALY_PATH_SEPARATOR);
+						} else {
+							this->setValue(suggestions[0]);
+						}
 						context->removeOnTopRegion(selectionBox.get());
 						selectionBox->setVisible(false);
 					} else {
