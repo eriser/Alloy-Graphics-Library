@@ -232,36 +232,6 @@ public:
 	virtual inline ~VerticalSlider() {
 	}
 };
-struct SelectionBox: public Region {
-protected:
-	int selectedIndex = -1;
-	std::string label;
-	void updateBox(AlloyContext* context);
-public:
-	FontStyle fontStyle = FontStyle::Normal;
-	FontType fontType = FontType::Normal;
-	AUnit1D fontSize = UnitPX(14);
-	AColor textColor = MakeColor(COLOR_WHITE);
-	AColor textAltColor = MakeColor(COLOR_BLACK);
-	std::vector<std::string> options;
-	virtual box2px getBounds(bool includeBounds=true) const override;
-	virtual box2px getCursorBounds(bool includeBounds = true) const override;
-	std::string getSelection(int index) {
-		return (selectedIndex >= 0) ? options[selectedIndex] : name;
-	}
-	int getSelectedIndex() const {
-		return selectedIndex;
-	}
-
-	void setSelectedIndex(int index) {
-		selectedIndex = index;
-		label = (index >= 0) ? options[selectedIndex] : name;
-	}
-	void draw(AlloyContext* context) override;
-
-	SelectionBox(const std::string& name,
-			const std::vector<std::string>& options);
-};
 class Selection: public Widget {
 private:
 	TextLabelPtr selectionLabel;
@@ -386,7 +356,6 @@ typedef std::shared_ptr<ColorSelector> ColorSelectorPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
 typedef std::shared_ptr<ToggleBox> ToggleBoxPtr;
 typedef std::shared_ptr<Selection> SelectionPtr;
-typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 typedef std::shared_ptr<ProgressBar> ProgressBarPtr;
 typedef std::shared_ptr<ColorWheel> ColorWheelPtr;
 typedef std::shared_ptr<ExpandBar> ExpandBarPtr;

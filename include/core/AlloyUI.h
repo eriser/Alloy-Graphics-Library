@@ -328,7 +328,7 @@ public:
 	}
 	virtual void draw(AlloyContext* context) override;
 };
-struct TextField: public Region {
+struct TextField: public Composite {
 protected:
 	bool showDefaultLabel = true;
 	std::string label;
@@ -348,8 +348,9 @@ protected:
 	int cursorStart = 0, cursorEnd = 0;
 	bool dragging = false;
 
-	static const float PADDING;
 public:
+
+	static const float PADDING;
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
@@ -366,17 +367,48 @@ public:
 	std::function<void(TextField*)> onTextEntered;
 	std::function<void(TextField*)> onKeyInput;
 };
+struct SelectionBox: public Region {
+protected:
+	int selectedIndex = -1;
+	std::string label;
+	void updateBox(AlloyContext* context);
+public:
+	FontStyle fontStyle = FontStyle::Normal;
+	FontType fontType = FontType::Normal;
+	AColor textColor = MakeColor(COLOR_WHITE);
+	AColor textAltColor = MakeColor(COLOR_BLACK);
+	std::function<bool(SelectionBox*)> onSelect;
+	std::vector<std::string> options;
+
+	virtual box2px getBounds(bool includeBounds=true) const override;
+	virtual box2px getCursorBounds(bool includeBounds = true) const override;
+	std::string getSelection(int index) {
+		return (selectedIndex >= 0) ? options[selectedIndex] : name;
+	}
+	int getSelectedIndex() const {
+		return selectedIndex;
+	}
+
+	void setSelectedIndex(int index) {
+		selectedIndex = index;
+		label = (index >= 0) ? options[selectedIndex] : name;
+	}
+	void draw(AlloyContext* context) override;
+
+	SelectionBox(const std::string& name,
+			const std::vector<std::string>& options=std::vector<std::string>());
+};
+
 struct FileField: public TextField {
 protected:
 	std::vector<std::string> segmentedPath;
+	std::shared_ptr<SelectionBox> selectionBox;
 public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
 	virtual inline ~FileField(){}
-	FileField(
-			const std::string& name = MakeString() << "t" << std::setw(8)
-					<< std::setfill('0') << (REGION_COUNTER++));
+
 	FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual void setValue(const std::string& value) override;
@@ -476,6 +508,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 typedef std::shared_ptr<TextLabel> TextLabelPtr;
 typedef std::shared_ptr<TextField> TextFieldPtr;
 typedef std::shared_ptr<Composite> CompositePtr;
+typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 typedef std::shared_ptr<BorderComposite> BorderCompositePtr;
 typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
 typedef std::shared_ptr<Region> RegionPtr;

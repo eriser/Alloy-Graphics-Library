@@ -615,99 +615,7 @@ void SliderHandle::draw(AlloyContext* context) {
 	nvgStroke(nvg);
 
 }
-box2px SelectionBox::getBounds(bool includeBounds) const {
-	box2px bounds = Region::getBounds(includeBounds);
-	AlloyContext* context = AlloyApplicationContext().get();
-	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
-	float entryHeight = std::min(context->width() / (float) options.size(),
-			bounds.dimensions.y);
-	float boxHeight = (options.size()) * entryHeight;
 
-	float yOffset = std::min(bounds.position.y + boxHeight + entryHeight,
-			(float) context->height()) - boxHeight;
-
-	box2px bbox;
-	bbox.position = pixel2(bounds.position.x, yOffset);
-	bbox.dimensions = pixel2(bounds.dimensions.x, boxHeight);
-
-	return bbox;
-}
-box2px SelectionBox::getCursorBounds(bool includeBounds) const {
-	box2px box = getBounds(includeBounds);
-	if (parent != nullptr) {
-		box.position += parent->drawOffset();
-		if (AlloyApplicationContext()->getOnTopRegion() != this) {
-			box.intersect(parent->getCursorBounds());
-		}
-	}
-	return box;
-}
-void SelectionBox::draw(AlloyContext* context) {
-	context->setDragObject(this);
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
-	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
-	float entryHeight = bounds.dimensions.y / options.size();
-	if (backgroundColor->a > 0) {
-		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
-	}
-
-	float th = entryHeight - 2;
-	nvgFontSize(nvg, th);
-	nvgFillColor(nvg, *textColor);
-
-	float tw = 0.0f;
-	for (std::string& label : options) {
-		tw = std::max(tw,
-				nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr));
-	}
-	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	pixel2 offset(0, 0);
-
-	nvgFillColor(nvg, context->theme.DARK);
-	int index = 0;
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
-
-	selectedIndex = -1;
-	for (std::string& label : options) {
-		if (context->isMouseContainedIn(bounds.position + offset,
-				pixel2(bounds.dimensions.x, entryHeight))) {
-			nvgBeginPath(nvg);
-			nvgRect(nvg, bounds.position.x + offset.x,
-					bounds.position.y + offset.y, bounds.dimensions.x,
-					entryHeight);
-			nvgFillColor(nvg, context->theme.NEUTRAL);
-			nvgFill(nvg);
-			selectedIndex = index;
-		}
-		index++;
-		nvgFillColor(nvg, *textColor);
-		nvgText(nvg, bounds.position.x + offset.x + lineWidth,
-				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(),
-				nullptr);
-		offset.y += entryHeight;
-	}
-	if (borderColor->a > 0) {
-		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
-		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg, lineWidth);
-		nvgStroke(nvg);
-	}
-}
-SelectionBox::SelectionBox(const std::string& name,
-		const std::vector<std::string>& labels) :
-		Region(name), options(labels), label(name) {
-}
 Selection::Selection(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, const std::vector<std::string>& options) :
 		Widget(label) {
@@ -730,7 +638,6 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
-	selectionBox->fontSize = selectionLabel->fontSize;
 	selectionBox->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 	selectionBox->borderColor = MakeColor(

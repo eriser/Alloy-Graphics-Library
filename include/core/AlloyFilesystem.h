@@ -2004,10 +2004,8 @@ void directory_get_files(const string_t& pattern,
 	fullpath.directory_get_files(pattern, str_results);
 	results.clear();
 
-	std::vector<string_t>::iterator it = str_results.begin();
-	std::vector<string_t>::iterator itEnd = str_results.end();
-	for (; it != itEnd; ++it) {
-		results.push_back(fullpath / *it);
+	for (string_t str:str_results) {
+		results.push_back(fullpath / str);
 	}
 }
 
@@ -2040,10 +2038,8 @@ void directory_get_subdirs(const string_t& pattern,
 	fullpath.directory_get_subdirs(pattern, str_results);
 	results.clear();
 
-	std::vector<string_t>::iterator it = str_results.begin();
-	std::vector<string_t>::iterator itEnd = str_results.end();
-	for (; it != itEnd; ++it) {
-		results.push_back(fullpath / *it);
+	for (string_t str:str_results) {
+		results.push_back(fullpath / str);
 	}
 }
 
@@ -2070,10 +2066,7 @@ void directory_scan_subdirs_for_files_helper(const string_t& pattern,
 
 	directory_get_subdirs(dir_results);
 
-	std::vector<basic_path>::iterator it = dir_results.begin();
-	std::vector<basic_path>::iterator itEnd = dir_results.end();
-	for (; it != itEnd; ++it) {
-		basic_path& path = *it;
+	for (basic_path& path:dir_results) {
 		path.directory_scan_subdirs_for_files_helper(pattern, results);
 	}
 }

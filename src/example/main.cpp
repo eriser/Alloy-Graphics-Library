@@ -24,7 +24,7 @@
 using namespace aly;
 int main() {
 
-	std::vector<std::string> fileTest={"/","/var/tmp/","/var/tmp","/usr/lib/up"};
+	std::vector<std::string> fileTest={"/","/v","/var/tmp/","/var/tmp","/usr/lib/up"};
 	for(std::string str:fileTest){
 		std::vector<std::string> listing;
 		std::string rootDir=GetParentDirectory(str);

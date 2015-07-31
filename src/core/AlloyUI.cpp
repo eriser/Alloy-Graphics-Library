@@ -24,6 +24,7 @@
 #include "AlloyApplication.h"
 #include "AlloyDrawUtil.h"
 #include "AlloyFileUtil.h"
+#include "AlloyFilesystem.h"
 namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
@@ -69,11 +70,12 @@ void Region::draw(AlloyContext* context) {
 
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
 			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
@@ -88,16 +90,17 @@ void Region::draw(AlloyContext* context) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -155,7 +158,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	nvgStroke(nvg);
 
 	nvgLineJoin(nvg, NVG_MITER);
-	nvgFontSize(nvg, (float)FONT_SIZE_PX);
+	nvgFontSize(nvg, (float) FONT_SIZE_PX);
 	nvgFontFaceId(nvg, font);
 	nvgTextAlign(nvg, NVG_ALIGN_TOP | NVG_ALIGN_LEFT);
 	float twidth = std::ceil(
@@ -197,14 +200,14 @@ void Region::drawDebug(AlloyContext* context) {
 }
 box2px Region::getBounds(bool includeOffset) const {
 	box2px box = bounds;
-	if (parent != nullptr&&includeOffset) {
+	if (parent != nullptr && includeOffset) {
 		box.position += parent->drawOffset();
 	}
 	return box;
 }
 box2px Region::getCursorBounds(bool includeOffset) const {
-	box2px box = (isDetached()?getBounds():bounds);
-	if (parent != nullptr&&includeOffset) {
+	box2px box = (isDetached() ? getBounds() : bounds);
+	if (parent != nullptr && includeOffset) {
 		box.position += parent->drawOffset();
 		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
@@ -236,21 +239,22 @@ void Composite::draw(AlloyContext* context) {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
-			nvgBeginPath(nvg);
-			if(roundCorners){
-				nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-						bounds.position.y + lineWidth * 0.5f,
-						bounds.dimensions.x - lineWidth,
-						bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
-			} else {
-				nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-						bounds.position.y + lineWidth * 0.5f,
-						bounds.dimensions.x - lineWidth,
-						bounds.dimensions.y - lineWidth);
-			}
-			nvgFillColor(nvg, *backgroundColor);
-			nvgFill(nvg);
+		nvgBeginPath(nvg);
+		if (roundCorners) {
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
+		} else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
 	if (isScrollEnabled()) {
 		pushScissor(nvg, bounds.position.x, bounds.position.y,
 				bounds.dimensions.x, bounds.dimensions.y);
@@ -264,16 +268,17 @@ void Composite::draw(AlloyContext* context) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -339,7 +344,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
 	box2px bounds = getBounds(false);
-	
+
 	if (verticalScrollTrack.get() == nullptr && isScrollEnabled()) {
 		verticalScrollTrack = std::shared_ptr<ScrollTrack>(
 				new ScrollTrack("Vert Track", Orientation::Vertical));
@@ -425,28 +430,34 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			continue;
 		}
 		if (orientation == Orientation::Vertical) {
-			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm, pixelRatio);
-			region->setPosition(CoordPX(pix.x,offset.y));
+			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm,
+					pixelRatio);
+			region->setPosition(CoordPX(pix.x, offset.y));
 		}
 		if (orientation == Orientation::Horizontal) {
-			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm, pixelRatio);
-			region->setPosition(CoordPX(offset.x,pix.y));
+			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm,
+					pixelRatio);
+			region->setPosition(CoordPX(offset.x, pix.y));
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
-			if (orientation == Orientation::Horizontal) {
-				offset.x += CELL_SPACING.x + region->getBoundsDimensionsX();
+		if (orientation == Orientation::Horizontal) {
+			offset.x += CELL_SPACING.x + region->getBoundsDimensionsX();
 
-			}
-			if (orientation == Orientation::Vertical) {
-				offset.y += CELL_SPACING.y + region->getBoundsDimensionsY();
-			}
+		}
+		if (orientation == Orientation::Vertical) {
+			offset.y += CELL_SPACING.y + region->getBoundsDimensionsY();
+		}
 		scrollExtent = max(
-			region->getBoundsDimensions() + region->getBoundsPosition()
-			- bounds.position - region->drawOffset(), scrollExtent);
+				region->getBoundsDimensions() + region->getBoundsPosition()
+						- bounds.position - region->drawOffset(), scrollExtent);
 	}
-	if(!isScrollEnabled()){
-		if (orientation == Orientation::Horizontal)this->bounds.dimensions.x=bounds.dimensions.x=std::max(bounds.dimensions.x,offset.x-CELL_SPACING.x);
-		if (orientation == Orientation::Vertical)this->bounds.dimensions.y=bounds.dimensions.y=std::max(bounds.dimensions.y,offset.y-CELL_SPACING.y);
+	if (!isScrollEnabled()) {
+		if (orientation == Orientation::Horizontal)
+			this->bounds.dimensions.x = bounds.dimensions.x = std::max(
+					bounds.dimensions.x, offset.x - CELL_SPACING.x);
+		if (orientation == Orientation::Vertical)
+			this->bounds.dimensions.y = bounds.dimensions.y = std::max(
+					bounds.dimensions.y, offset.y - CELL_SPACING.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
 		float nudge =
@@ -494,11 +505,11 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		onPack();
 }
 
-
 Region* BorderComposite::locate(const pixel2& cursor) {
 	if (isVisible()) {
 		for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
-			if(iter->get()==nullptr)continue;
+			if (iter->get() == nullptr)
+				continue;
 			Region* r = (*iter)->locate(cursor);
 			if (r != nullptr)
 				return r;
@@ -511,8 +522,7 @@ Region* BorderComposite::locate(const pixel2& cursor) {
 }
 void BorderComposite::pack(AlloyContext* context) {
 	if (parent == nullptr) {
-		pack(pixel2(0,0),
-				pixel2(context->dimensions()), context->dpmm,
+		pack(pixel2(0, 0), pixel2(context->dimensions()), context->dpmm,
 				context->pixelRatio);
 	} else {
 		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
@@ -529,27 +539,29 @@ void BorderComposite::draw(AlloyContext* context) {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
-			nvgBeginPath(nvg);
-			if(roundCorners){
-				nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-						bounds.position.y + lineWidth * 0.5f,
-						bounds.dimensions.x - lineWidth,
-						bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
-			} else {
-				nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-						bounds.position.y + lineWidth * 0.5f,
-						bounds.dimensions.x - lineWidth,
-						bounds.dimensions.y - lineWidth);
-			}
-			nvgFillColor(nvg, *backgroundColor);
-			nvgFill(nvg);
+		nvgBeginPath(nvg);
+		if (roundCorners) {
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
+		} else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
 	if (isScrollEnabled()) {
 		pushScissor(nvg, bounds.position.x, bounds.position.y,
 				bounds.dimensions.x, bounds.dimensions.y);
 	}
 	for (std::shared_ptr<Region>& region : children) {
-		if(region.get()==nullptr)continue;
+		if (region.get() == nullptr)
+			continue;
 		if (region->isVisible()) {
 			region->draw(context);
 		}
@@ -558,16 +570,17 @@ void BorderComposite::draw(AlloyContext* context) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -580,27 +593,22 @@ void BorderComposite::draw(AlloyContext* context) {
 	}
 }
 BorderComposite::BorderComposite(const std::string& name) :
-		Region(name),
-		northRegion(children[0]),
-		southRegion(children[1]),
-		eastRegion(children[2]),
-		westRegion(children[3]),
-		centerRegion(children[4]){
+		Region(name), northRegion(children[0]), southRegion(children[1]), eastRegion(
+				children[2]), westRegion(children[3]), centerRegion(children[4]) {
 
 }
 BorderComposite::BorderComposite(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Region(name, pos, dims),
-		northRegion(children[0]),
-		southRegion(children[1]),
-		eastRegion(children[2]),
-		westRegion(children[3]),
-		centerRegion(children[4]) {
+		Region(name, pos, dims), northRegion(children[0]), southRegion(
+				children[1]), eastRegion(children[2]), westRegion(children[3]), centerRegion(
+				children[4]) {
 }
 void BorderComposite::update(CursorLocator* cursorLocator) {
-	if(!ignoreCursorEvents)cursorLocator->add(this);
+	if (!ignoreCursorEvents)
+		cursorLocator->add(this);
 	for (std::shared_ptr<Region>& region : children) {
-		if(region.get()==nullptr)continue;
+		if (region.get() == nullptr)
+			continue;
 		region->update(cursorLocator);
 	}
 }
@@ -610,25 +618,60 @@ void BorderComposite::drawDebug(AlloyContext* context) {
 	box2px bounds = getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
-		if(region.get()==nullptr)continue;
+		if (region.get() == nullptr)
+			continue;
 		region->drawDebug(context);
 	}
 }
 
-void BorderComposite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
-		double pixelRatio, bool clamp) {
+void BorderComposite::pack(const pixel2& pos, const pixel2& dims,
+		const double2& dpmm, double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
 	box2px bounds = getBounds(false);
 
-	if(northRegion.get()!=nullptr)northRegion->pack(bounds.position, bounds.dimensions*float2(1.0f,northFraction), dpmm, pixelRatio);
-	if(southRegion.get()!=nullptr)southRegion->pack(bounds.position+bounds.dimensions*float2(0.0f,1.0f-southFraction), bounds.dimensions*float2(1.0f,southFraction), dpmm, pixelRatio);
-	if(westRegion.get()!=nullptr)westRegion->pack(bounds.position+bounds.dimensions*float2(0.0f,northFraction), bounds.dimensions*float2(westFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
-	if(eastRegion.get()!=nullptr)eastRegion->pack(bounds.position+bounds.dimensions*float2(1.0f-eastFraction,northFraction), bounds.dimensions*float2(eastFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
-	if(centerRegion.get()!=nullptr)centerRegion->pack(bounds.position+bounds.dimensions*float2(westFraction,northFraction), bounds.dimensions*float2(1.0f-eastFraction-westFraction,1.0f-northFraction-southFraction), dpmm, pixelRatio);
+	if (northRegion.get() != nullptr)
+		northRegion->pack(bounds.position,
+				bounds.dimensions * float2(1.0f, northFraction), dpmm,
+				pixelRatio);
+	if (southRegion.get() != nullptr)
+		southRegion->pack(
+				bounds.position
+						+ bounds.dimensions
+								* float2(0.0f, 1.0f - southFraction),
+				bounds.dimensions * float2(1.0f, southFraction), dpmm,
+				pixelRatio);
+	if (westRegion.get() != nullptr)
+		westRegion->pack(
+				bounds.position
+						+ bounds.dimensions * float2(0.0f, northFraction),
+				bounds.dimensions
+						* float2(westFraction,
+								1.0f - northFraction - southFraction), dpmm,
+				pixelRatio);
+	if (eastRegion.get() != nullptr)
+		eastRegion->pack(
+				bounds.position
+						+ bounds.dimensions
+								* float2(1.0f - eastFraction, northFraction),
+				bounds.dimensions
+						* float2(eastFraction,
+								1.0f - northFraction - southFraction), dpmm,
+				pixelRatio);
+	if (centerRegion.get() != nullptr)
+		centerRegion->pack(
+				bounds.position
+						+ bounds.dimensions
+								* float2(westFraction, northFraction),
+				bounds.dimensions
+						* float2(1.0f - eastFraction - westFraction,
+								1.0f - northFraction - southFraction), dpmm,
+				pixelRatio);
 
 	for (std::shared_ptr<Region>& region : children) {
-		if(region.get()==nullptr)continue;
-		if (region->onPack)region->onPack();
+		if (region.get() == nullptr)
+			continue;
+		if (region->onPack)
+			region->onPack();
 	}
 	if (onPack)
 		onPack();
@@ -720,7 +763,8 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	if (isVisible() && event.type == InputType::Scroll && isScrollEnabled()) {
 		box2px bounds = getBounds();
 		if (bounds.contains(event.cursor)) {
-			if (event.scroll.y != 0&&verticalScrollHandle.get()!=nullptr&&verticalScrollHandle->isVisible()) {
+			if (event.scroll.y != 0 && verticalScrollHandle.get() != nullptr
+					&& verticalScrollHandle->isVisible()) {
 				verticalScrollHandle->addDragOffset(
 						pixel2(-10.0f * event.scroll));
 				this->scrollPosition.y =
@@ -731,7 +775,8 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 												- (float) this->verticalScrollHandle->getBounds().dimensions.y);
 				return true;
 			}
-			if (event.scroll.x != 0&&horizontalScrollHandle.get()!=nullptr&&horizontalScrollHandle->isVisible()) {
+			if (event.scroll.x != 0 && horizontalScrollHandle.get() != nullptr
+					&& horizontalScrollHandle->isVisible()) {
 				horizontalScrollHandle->addDragOffset(
 						pixel2(-10.0f * event.scroll));
 				this->scrollPosition.x =
@@ -748,7 +793,8 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	return Region::onEventHandler(context, event);
 }
 void Composite::update(CursorLocator* cursorLocator) {
-	if(!ignoreCursorEvents)cursorLocator->add(this);
+	if (!ignoreCursorEvents)
+		cursorLocator->add(this);
 	for (std::shared_ptr<Region>& region : children) {
 		region->update(cursorLocator);
 	}
@@ -767,35 +813,37 @@ void Composite::update(CursorLocator* cursorLocator) {
 }
 
 void Region::update(CursorLocator* cursorLocator) {
-	if(!ignoreCursorEvents)cursorLocator->add(this);
+	if (!ignoreCursorEvents)
+		cursorLocator->add(this);
 }
 void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 
 	pixel2 computedPos = position.toPixels(dims, dpmm, pixelRatio);
 	pixel2 xy = pos + dragOffset + computedPos;
-	
+
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
 	if (aspectRatio < 0) {
 		aspectRatio = d.x / std::max((float) d.y, 0.0f);
 	}
 	switch (aspectRule) {
 	case AspectRule::FixedWidth:
-		bounds.dimensions = pixel2(d.x, d.x / (float)aspectRatio);
+		bounds.dimensions = pixel2(d.x, d.x / (float) aspectRatio);
 		break;
 	case AspectRule::FixedHeight:
-		bounds.dimensions = pixel2(d.y * (float)aspectRatio, d.y);
+		bounds.dimensions = pixel2(d.y * (float) aspectRatio, d.y);
 		break;
 	case AspectRule::Unspecified:
 	default:
 		bounds.dimensions = d;
 	}
 	bounds.position = xy;
-	
+
 	if (clamp && parent != nullptr) {
-		bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),parent->bounds.dimensions);
+		bounds.dimensions = aly::clamp(bounds.dimensions, pixel2(0, 0),
+				parent->bounds.dimensions);
 	}
-	
+
 	switch (origin) {
 	case Origin::TopLeft:
 		bounds.position = xy;
@@ -827,7 +875,7 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				- pixel2(bounds.dimensions.x / (pixel) 2, bounds.dimensions.y);
 		break;
 	}
-	
+
 	if (clamp && parent != nullptr && !parent->isScrollEnabled()) {
 		pixel2 ppos = parent->getBoundsPosition();
 		pixel2 dims = parent->bounds.dimensions;
@@ -837,14 +885,14 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	dragOffset = xy - pos - computedPos;
 	if (detached) {
 		box2px vp = AlloyApplicationContext()->getViewport();
-		bounds.position=aly::clamp(bounds.position,vp.position,vp.position+vp.dimensions-bounds.dimensions);
+		bounds.position = aly::clamp(bounds.position, vp.position,
+				vp.position + vp.dimensions - bounds.dimensions);
 	}
 }
 
 void Composite::pack(AlloyContext* context) {
 	if (parent == nullptr) {
-		pack(pixel2(0,0),
-				pixel2(context->dimensions()), context->dpmm,
+		pack(pixel2(0, 0), pixel2(context->dimensions()), context->dpmm,
 				context->pixelRatio);
 	} else {
 		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
@@ -856,13 +904,16 @@ void Composite::add(const std::shared_ptr<Region>& region) {
 	children.push_back(region);
 	if (region->parent != nullptr)
 		throw std::runtime_error(
-				MakeString()<<"Cannot add child node ["<<region->name<<"] to ["<<name<<"] because it already has a parent ["<<region->parent->name<<"].");
+				MakeString() << "Cannot add child node [" << region->name
+						<< "] to [" << name
+						<< "] because it already has a parent ["
+						<< region->parent->name << "].");
 	region->parent = this;
 }
 void Composite::add(Region* region) {
 	add(std::shared_ptr<Region>(region));
 }
-pixel2 TextLabel::getTextDimensions(AlloyContext* context){
+pixel2 TextLabel::getTextDimensions(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 
@@ -870,8 +921,8 @@ pixel2 TextLabel::getTextDimensions(AlloyContext* context){
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
-	float tw= nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
-	return pixel2(tw,th);
+	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
+	return pixel2(tw, th);
 }
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -881,11 +932,12 @@ void TextLabel::draw(AlloyContext* context) {
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
 			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
@@ -900,7 +952,7 @@ void TextLabel::draw(AlloyContext* context) {
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
-	float tw= nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
+	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
 
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
@@ -936,16 +988,17 @@ void TextLabel::draw(AlloyContext* context) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -956,7 +1009,7 @@ void TextLabel::draw(AlloyContext* context) {
 }
 void TextField::setValue(const std::string& text) {
 	this->value = text;
-	moveCursorTo((int)text.size());
+	moveCursorTo((int) text.size());
 }
 
 void TextField::erase() {
@@ -986,11 +1039,13 @@ void TextField::clear() {
 }
 
 TextField::TextField(const std::string& name) :
-		Region(name), label(name), value("") {
+		Composite(name), label(name), value("") {
 	Application::addListener(this);
 	lastTime = std::chrono::high_resolution_clock::now();
 }
-TextField::TextField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions):Region(name,position,dimensions),label(name),value(""){
+TextField::TextField(const std::string& name, const AUnit2D& position,
+		const AUnit2D& dimensions) :
+		Composite(name, position, dimensions), label(name), value("") {
 	Application::addListener(this);
 	lastTime = std::chrono::high_resolution_clock::now();
 }
@@ -1011,7 +1066,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 	if (e.isDown()) {
 		switch (e.key) {
 		case GLFW_KEY_RIGHT:
-			if (cursorStart < (int)value.size())
+			if (cursorStart < (int) value.size())
 				moveCursorTo(cursorStart + 1, e.isShiftDown());
 			break;
 		case GLFW_KEY_LEFT:
@@ -1019,7 +1074,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 				moveCursorTo(cursorStart - 1, e.isShiftDown());
 			break;
 		case GLFW_KEY_END:
-			moveCursorTo((int)value.size(), e.isShiftDown());
+			moveCursorTo((int) value.size(), e.isShiftDown());
 			break;
 		case GLFW_KEY_HOME:
 			moveCursorTo(0, e.isShiftDown());
@@ -1042,7 +1097,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 		case GLFW_KEY_A:
 			if (e.isControlDown()) {
 				cursorEnd = 0;
-				cursorStart = (int)(value.size());
+				cursorStart = (int) (value.size());
 			}
 			break;
 		case GLFW_KEY_C:
@@ -1065,7 +1120,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 				erase();
 				auto pasteText = glfwGetClipboardString(context->window);
 				value.insert(cursorStart, pasteText);
-				moveCursorTo(cursorStart + (int)std::string(pasteText).size(),
+				moveCursorTo(cursorStart + (int) std::string(pasteText).size(),
 						e.isShiftDown());
 			}
 			break;
@@ -1089,9 +1144,8 @@ void TextField::handleMouseInput(AlloyContext* context, const InputEvent& e) {
 		if (e.isDown()) {
 			showCursor = true;
 			showDefaultLabel = false;
-			int shift = (int)(e.cursor.x - textOffsetX);
-			int cursorPos = fontFace->getCursorPosition(value, fontSize,
-					shift);
+			int shift = (int) (e.cursor.x - textOffsetX);
+			int cursorPos = fontFace->getCursorPosition(value, fontSize, shift);
 			moveCursorTo(cursorPos);
 			dragging = true;
 		} else {
@@ -1103,7 +1157,7 @@ void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 	FontPtr fontFace = context->getFont(FontType::Bold);
 	box2px bounds = getBounds();
 	if (dragging) {
-		int shift = (int)(e.cursor.x - textOffsetX);
+		int shift = (int) (e.cursor.x - textOffsetX);
 		dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
 	}
 }
@@ -1185,7 +1239,7 @@ void TextField::draw(AlloyContext* context) {
 	positions.resize(
 			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
 					value.data() + value.size(), positions.data(),
-					(int)positions.size()));
+					(int) positions.size()));
 	bool isFocused = context->isFocused(this);
 
 	if (cursorEnd != cursorStart) {
@@ -1236,16 +1290,36 @@ void TextField::draw(AlloyContext* context) {
 		showDefaultLabel = true;
 	}
 }
-FileField::FileField(const std::string& name) :
-		TextField(name){
-}
-FileField::FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions):
-		TextField(name,position,dimensions){
+FileField::FileField(const std::string& name, const AUnit2D& position,
+		const AUnit2D& dimensions) :
+		TextField(name, position, dimensions) {
+	selectionBox = SelectionBoxPtr(new SelectionBox(label));
+	selectionBox->setDetacted(true);
+	selectionBox->setVisible(false);
+	selectionBox->setPosition(CoordPerPX(0.0f, 0.0f, 2.0f, 0.0f));
+	selectionBox->setDimensions(CoordPerPX(1.0f, 0.8f, -4.0f, 0.0f));
+	selectionBox->backgroundColor = MakeColor(
+			AlloyApplicationContext()->theme.DARK);
+	selectionBox->borderColor = MakeColor(
+			AlloyApplicationContext()->theme.HIGHLIGHT);
+	selectionBox->borderWidth = UnitPX(1.0f);
+	selectionBox->textColor = MakeColor(
+			AlloyApplicationContext()->theme.LIGHT_TEXT);
+	selectionBox->textAltColor = MakeColor(
+			AlloyApplicationContext()->theme.DARK_TEXT);
+	add(selectionBox);
+	selectionBox->onSelect=[this](SelectionBox* box){
+		selectionBox->setVisible(false);
+		AlloyApplicationContext()->removeOnTopRegion(box);
+		std::string path=GetParentDirectory(this->getValue());
+		this->setValue(path+box->getSelection(box->getSelectedIndex()));
+		return false;
+	};
 }
 void FileField::setValue(const std::string& text) {
 	this->value = text;
-	segmentedPath=splitPath(value);
-	moveCursorTo((int)text.size());
+	segmentedPath = splitPath(value);
+	moveCursorTo((int) text.size());
 }
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 	if (isVisible()) {
@@ -1261,14 +1335,32 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 		case InputType::Key:
 
 			if (e.isDown()) {
-				if(e.key==GLFW_KEY_TAB){
-					showCursor=true;
-					std::string root=GetParentDirectory(value);
-					std::cout<<"File: "<<value<<" :: "<<root<<std::endl;
-					std::vector<std::string> listing=GetDirectoryListing(root);
-					std::vector<std::string> suggestions=AutoComplete(GetFileName(value),listing,5);
-					for(std::string file:suggestions){
-						std::cout<<"FILE "<<GetFileName(file)<<std::endl;
+				if (e.key == GLFW_KEY_TAB) {
+					showCursor = true;
+					std::string root = GetParentDirectory(value);
+					std::vector<std::string> listing = GetDirectoryListing(
+							root);
+					std::vector<std::string> suggestions = AutoComplete(value,
+							listing, 8);
+					std::vector<std::string>& labels = selectionBox->options;
+					labels.clear();
+					for (std::string f : suggestions) {
+						if (filesystem::internal::is_directory(f)) {
+							labels.push_back(GetFileName(f) + ALY_PATH_SEPARATOR);
+						} else {
+							labels.push_back(GetFileName(f));
+						}
+					}
+					if (labels.size() > 0) {
+						box2px bounds = getBounds();
+						selectionBox->pack(bounds.position, bounds.dimensions,
+								context->dpmm, context->pixelRatio, false);
+						context->setOnTopRegion(selectionBox.get());
+						selectionBox->setVisible(true);
+						selectionBox->setSelectedIndex(0);
+					} else {
+						context->removeOnTopRegion(selectionBox.get());
+						selectionBox->setVisible(false);
 					}
 					break;
 				}
@@ -1279,7 +1371,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			handleCursorInput(context, e);
 			break;
 		}
-		segmentedPath=splitPath(value);
+		segmentedPath = splitPath(value);
 	}
 	return Region::onEventHandler(context, e);
 }
@@ -1340,7 +1432,7 @@ void FileField::draw(AlloyContext* context) {
 	positions.resize(
 			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
 					value.data() + value.size(), positions.data(),
-					(int)positions.size()));
+					(int) positions.size()));
 	bool isFocused = context->isFocused(this);
 
 	if (cursorEnd != cursorStart) {
@@ -1364,38 +1456,35 @@ void FileField::draw(AlloyContext* context) {
 		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
 	} else {
 
-		float xOffset=textOffsetX;
+		float xOffset = textOffsetX;
 		std::stringstream path;
 		bool underline;
-		for(std::string comp:segmentedPath){
-			path<<comp;
-			underline=false;
-			if(comp==ALY_PATH_SEPARATOR){
+		for (std::string comp : segmentedPath) {
+			path << comp;
+			underline = false;
+			if (comp == ALY_PATH_SEPARATOR) {
 				nvgFillColor(nvg, *textColor);
 			} else {
-				if(FileExists(path.str())){
+				if(FileExists(path.str())) {
 					underline=true;
-					nvgFillColor(nvg,  context->theme.LINK);
+					nvgFillColor(nvg, context->theme.LINK);
 				} else {
 					nvgFillColor(nvg, context->theme.DARK);
 				}
 			}
 			nvgText(nvg, xOffset, textY + h / 2, comp.c_str(), NULL);
-			float lastOffset=xOffset;
-			xOffset+= nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,nullptr);
-			if(underline){
+			float lastOffset = xOffset;
+			xOffset += nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,
+					nullptr);
+			if (underline) {
 				nvgBeginPath(nvg);
-				nvgStrokeWidth(nvg,2.0f);
-				nvgStrokeColor(nvg,  textColor->toSemiTransparent(0.75f));
-				nvgMoveTo(nvg,lastOffset,textY+fontSize+1);
-				nvgLineTo(nvg,xOffset,textY+fontSize+1);
+				nvgStrokeWidth(nvg, 2.0f);
+				nvgStrokeColor(nvg, textColor->toSemiTransparent(0.75f));
+				nvgMoveTo(nvg, lastOffset, textY + fontSize + 1);
+				nvgLineTo(nvg, xOffset, textY + fontSize + 1);
 				nvgStroke(nvg);
 			}
 		}
-		/*
-		nvgFillColor(nvg, *textColor);
-		nvgText(nvg, textOffsetX, textY + h / 2, value.c_str(), NULL);
-	*/
 	}
 	if (isFocused && showCursor) {
 		nvgBeginPath(nvg);
@@ -1421,6 +1510,7 @@ void FileField::draw(AlloyContext* context) {
 	if (!isFocused && value.size() == 0) {
 		showDefaultLabel = true;
 	}
+
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -1437,11 +1527,12 @@ void GlyphRegion::draw(AlloyContext* context) {
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
 			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
@@ -1452,11 +1543,11 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 	if (glyph.get() != nullptr) {
-		box2px b=bounds;
-		b.position.x=bounds.position.x + lineWidth * 0.5f;
-		b.position.y=bounds.position.y + lineWidth * 0.5f;
-		b.dimensions.x=bounds.dimensions.x - lineWidth;
-		b.dimensions.y=bounds.dimensions.y - lineWidth;
+		box2px b = bounds;
+		b.position.x = bounds.position.x + lineWidth * 0.5f;
+		b.position.y = bounds.position.y + lineWidth * 0.5f;
+		b.dimensions.x = bounds.dimensions.x - lineWidth;
+		b.dimensions.y = bounds.dimensions.y - lineWidth;
 		glyph->draw(b, *foregroundColor, *backgroundColor, context);
 	}
 
@@ -1464,16 +1555,17 @@ void GlyphRegion::draw(AlloyContext* context) {
 
 		nvgLineJoin(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
-		if(roundCorners){
+		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
 					bounds.position.y + lineWidth * 0.5f,
 					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,context->theme.CORNER_RADIUS);
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
 		} else {
-		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -1570,6 +1662,152 @@ std::shared_ptr<Region> MakeRegion(const std::string& name,
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
 	return region;
+}
+box2px SelectionBox::getBounds(bool includeBounds) const {
+	box2px bounds = Region::getBounds(includeBounds);
+	AlloyContext* context = AlloyApplicationContext().get();
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	float entryHeight = std::min(context->height() / (float) options.size(),
+			bounds.dimensions.y);
+	float boxHeight = (options.size()) * entryHeight;
+	float parentHeight =
+			(parent != nullptr) ? parent->getBoundsDimensionsY() : 0.0f;
+	float yOffset = std::min(bounds.position.y + boxHeight + parentHeight,
+			(float) context->height()) - boxHeight;
+
+	box2px bbox;
+	bbox.position = pixel2(bounds.position.x, yOffset);
+	bbox.dimensions = pixel2(bounds.dimensions.x, boxHeight);
+
+	return bbox;
+}
+box2px SelectionBox::getCursorBounds(bool includeBounds) const {
+	box2px box = getBounds(includeBounds);
+	if (parent != nullptr) {
+		box.position += parent->drawOffset();
+		if (AlloyApplicationContext()->getOnTopRegion() != this) {
+			box.intersect(parent->getCursorBounds());
+		}
+	}
+	return box;
+}
+void SelectionBox::draw(AlloyContext* context) {
+	context->setDragObject(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+	float entryHeight = bounds.dimensions.y / options.size();
+	if (backgroundColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+
+	float th = entryHeight - 2;
+	nvgFontSize(nvg, th);
+	nvgFillColor(nvg, *textColor);
+
+	float tw = 0.0f;
+	for (std::string& label : options) {
+		tw = std::max(tw,
+				nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr));
+	}
+	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+	pixel2 offset(0, 0);
+
+	nvgFillColor(nvg, context->theme.DARK);
+	int index = 0;
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
+
+	int newSelectedIndex = -1;
+	for (std::string& label : options) {
+		if (context->isMouseContainedIn(bounds.position + offset,
+				pixel2(bounds.dimensions.x, entryHeight))) {
+			newSelectedIndex = index;
+			break;
+		}
+		index++;
+		offset.y += entryHeight;
+	}
+	if (newSelectedIndex >= 0) {
+		selectedIndex = newSelectedIndex;
+	}
+	index = 0;
+	offset = pixel2(0, 0);
+	for (std::string& label : options) {
+		if (index == selectedIndex) {
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x + offset.x,
+					bounds.position.y + offset.y, bounds.dimensions.x,
+					entryHeight);
+			nvgFillColor(nvg, context->theme.NEUTRAL);
+			nvgFill(nvg);
+		}
+		index++;
+		nvgFillColor(nvg, *textColor);
+		nvgText(nvg,
+				bounds.position.x + offset.x + lineWidth + TextField::PADDING,
+				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(),
+				nullptr);
+		offset.y += entryHeight;
+	}
+	if (borderColor->a > 0) {
+		nvgBeginPath(nvg);
+		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+	}
+}
+SelectionBox::SelectionBox(const std::string& name,
+		const std::vector<std::string>& labels) :
+		Region(name), options(labels), label(name) {
+	onEvent =
+			[this](AlloyContext* context, const InputEvent& event) {
+				if(context->isOnTop(this)&&this->isVisible()) {
+					if(event.type==InputType::Key&&event.isDown()) {
+						if(event.key==GLFW_KEY_UP) {
+							if(selectedIndex<0) {
+								this->setSelectedIndex(options.size()-1);
+							} else {
+								this->setSelectedIndex((selectedIndex-1+options.size())%options.size());
+							}
+							return true;
+						} else if(event.key==GLFW_KEY_DOWN) {
+							if(selectedIndex<0) {
+								this->setSelectedIndex(0);
+							} else {
+								this->setSelectedIndex((selectedIndex+1)%options.size());
+							}
+							return true;
+						} else if(event.key==GLFW_KEY_ENTER) {
+							if(selectedIndex>=0) {
+								if(this->onSelect) {
+									return this->onSelect(this);
+								}
+								return true;
+							}
+						}
+					} else if(event.type==InputType::MouseButton&&event.isDown()&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
+						if(selectedIndex>=0&&AlloyApplicationContext()->isMouseOver(this)) {
+							if(this->onSelect) {
+								return this->onSelect(this);
+							}
+							return true;
+						}
+					}
+				}
+
+				return false;
+			};
+	Application::addListener(this);
 }
 }
 ;
