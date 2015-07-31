@@ -1327,7 +1327,9 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			return false;
 		switch (e.type) {
 		case InputType::MouseButton:
+
 			handleMouseInput(context, e);
+
 			break;
 		case InputType::Character:
 			handleCharacterInput(context, e);
@@ -1344,6 +1346,8 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 							listing);
 					if(suggestions.size()==1){
 						this->setValue(suggestions[0]);
+						context->removeOnTopRegion(selectionBox.get());
+						selectionBox->setVisible(false);
 					} else {
 						std::vector<std::string>& labels = selectionBox->options;
 						labels.clear();
@@ -1819,11 +1823,17 @@ SelectionBox::SelectionBox(const std::string& name,
 							this->setVisible(false);
 						}
 					} else if(event.type==InputType::MouseButton&&event.isDown()&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
-						if(selectedIndex>=0&&AlloyApplicationContext()->isMouseOver(this)) {
-							if(this->onSelect) {
-								return this->onSelect(this);
+						if(AlloyApplicationContext()->isMouseOver(this)) {
+							if(selectedIndex>=0){
+								if(this->onSelect) {
+									return this->onSelect(this);
+								}
 							}
 							return true;
+						} else {
+							setSelectedIndex(-1);
+							AlloyApplicationContext()->removeOnTopRegion(this);
+							this->setVisible(false);
 						}
 					} else if(event.type==InputType::Scroll){
 						if(maxDisplayEntries>=0){
