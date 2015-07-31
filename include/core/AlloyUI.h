@@ -374,7 +374,9 @@ protected:
 	int maxDisplayEntries=-1;
 	int selectionOffset=0;
 	void updateBox(AlloyContext* context);
+
 public:
+	std::mutex updateLock;
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
 	AColor textColor = MakeColor(COLOR_WHITE);

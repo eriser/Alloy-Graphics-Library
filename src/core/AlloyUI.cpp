@@ -1356,6 +1356,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 						selectionBox->setVisible(false);
 					} else {
 						std::vector<std::string>& labels = selectionBox->options;
+						selectionBox->updateLock.lock();
 						labels.clear();
 						for (std::string f : suggestions) {
 							if (IsDirectory(f)) {
@@ -1365,6 +1366,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 								labels.push_back(GetFileName(f));
 							}
 						}
+						selectionBox->updateLock.unlock();
 						if (labels.size() > 0) {
 							box2px bounds = getBounds();
 							selectionBox->pack(bounds.position,
@@ -1717,6 +1719,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
+	pushScissor(nvg,bounds);
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	int elements =
@@ -1745,7 +1748,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	nvgFillColor(nvg, context->theme.DARK);
 	int index = 0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
-
+	updateLock.lock();
 	int N = options.size();
 
 	if (maxDisplayEntries >= 0) {
@@ -1775,12 +1778,14 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFill(nvg);
 		}
 		nvgFillColor(nvg, *textColor);
+
 		nvgText(nvg,
 				bounds.position.x + offset.x + lineWidth + TextField::PADDING,
 				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(),
 				nullptr);
 		offset.y += entryHeight;
 	}
+	updateLock.unlock();
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
@@ -1791,6 +1796,7 @@ void SelectionBox::draw(AlloyContext* context) {
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
 	}
+	popScissor(nvg);
 }
 SelectionBox::SelectionBox(const std::string& name,
 		const std::vector<std::string>& labels) :
@@ -1798,6 +1804,7 @@ SelectionBox::SelectionBox(const std::string& name,
 	onEvent =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if(context->isOnTop(this)&&this->isVisible()) {
+					std::lock_guard<std::mutex>(this->updateLock);
 					if(event.type==InputType::Key&&event.isDown()) {
 						if(event.key==GLFW_KEY_UP) {
 							if(selectedIndex<0) {
@@ -1851,8 +1858,10 @@ SelectionBox::SelectionBox(const std::string& name,
 						this->setVisible(false);
 					} else if(event.type==InputType::Scroll) {
 						if(maxDisplayEntries>=0) {
-							selectionOffset=aly::clamp(selectionOffset-(int)event.scroll.y,0,(int)options.size()-maxDisplayEntries);
-							return true;
+							if(options.size()>maxDisplayEntries){
+								selectionOffset=aly::clamp(selectionOffset-(int)event.scroll.y,0,(int)options.size()-maxDisplayEntries);
+								return true;
+							}
 						}
 					}
 				}
