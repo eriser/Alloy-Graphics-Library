@@ -1360,6 +1360,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 									context->dpmm, context->pixelRatio, false);
 							context->setOnTopRegion(selectionBox.get());
 							selectionBox->setVisible(true);
+							selectionBox->setSelectionOffset(0);
 							selectionBox->setSelectedIndex(0);
 						} else {
 							context->removeOnTopRegion(selectionBox.get());
@@ -1822,6 +1823,11 @@ SelectionBox::SelectionBox(const std::string& name,
 							if(this->onSelect) {
 								return this->onSelect(this);
 							}
+							return true;
+						}
+					} else if(event.type==InputType::Scroll){
+						if(maxDisplayEntries>=0){
+							selectionOffset=aly::clamp(selectionOffset-(int)event.scroll.y,0,(int)options.size()-maxDisplayEntries);
 							return true;
 						}
 					}

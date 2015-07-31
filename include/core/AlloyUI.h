@@ -384,6 +384,7 @@ public:
 	void setMaxDisplayEntries(int mx){
 		maxDisplayEntries=mx;
 	}
+
 	virtual box2px getBounds(bool includeBounds=true) const override;
 	virtual box2px getCursorBounds(bool includeBounds = true) const override;
 	std::string getSelection(int index) {
@@ -392,7 +393,9 @@ public:
 	int getSelectedIndex() const {
 		return selectedIndex;
 	}
-
+	inline void setSelectionOffset(bool offset){
+		selectionOffset=offset;
+	}
 	void setSelectedIndex(int index) {
 		selectedIndex = index;
 		if(index<0){

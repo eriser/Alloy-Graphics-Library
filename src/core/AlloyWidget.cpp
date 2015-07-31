@@ -660,6 +660,8 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					context->setOnTopRegion(selectionBox.get());
 					selectionBox->setVisible(true);
+					selectionBox->setSelectionOffset(0);
+					selectionBox->setSelectedIndex(0);
 					return true;
 				}
 				return false;
@@ -669,6 +671,8 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					context->setOnTopRegion(selectionBox.get());
 					selectionBox->setVisible(true);
+					selectionBox->setSelectionOffset(0);
+					selectionBox->setSelectedIndex(0);
 					return true;
 				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
 					context->removeOnTopRegion(selectionBox.get());
