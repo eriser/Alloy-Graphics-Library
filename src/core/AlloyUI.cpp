@@ -1355,8 +1355,8 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 						context->removeOnTopRegion(selectionBox.get());
 						selectionBox->setVisible(false);
 					} else {
-						std::vector<std::string>& labels = selectionBox->options;
 						selectionBox->updateLock.lock();
+						std::vector<std::string>& labels = selectionBox->options;
 						labels.clear();
 						for (std::string f : suggestions) {
 							if (IsDirectory(f)) {
@@ -1690,7 +1690,7 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	int elements =
-			(maxDisplayEntries > 0) ? maxDisplayEntries : (int) options.size();
+			(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
 	float entryHeight = std::min(context->height() / (float) elements,
 			bounds.dimensions.y);
 	float boxHeight = (elements) * entryHeight;
@@ -1723,7 +1723,8 @@ void SelectionBox::draw(AlloyContext* context) {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	int elements =
-			(maxDisplayEntries > 0) ? maxDisplayEntries : (int) options.size();
+			(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
+
 	float entryHeight = bounds.dimensions.y / elements;
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
@@ -1752,7 +1753,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	int N = options.size();
 
 	if (maxDisplayEntries >= 0) {
-		N = selectionOffset + maxDisplayEntries;
+		N = std::min(selectionOffset + maxDisplayEntries,(int)options.size());
 	}
 	int newSelectedIndex = -1;
 	for (index = selectionOffset; index < N; index++) {
