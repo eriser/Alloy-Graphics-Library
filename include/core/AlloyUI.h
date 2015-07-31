@@ -371,6 +371,8 @@ struct SelectionBox: public Region {
 protected:
 	int selectedIndex = -1;
 	std::string label;
+	int maxDisplayEntries=-1;
+	int selectionOffset=0;
 	void updateBox(AlloyContext* context);
 public:
 	FontStyle fontStyle = FontStyle::Normal;
@@ -379,7 +381,9 @@ public:
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::function<bool(SelectionBox*)> onSelect;
 	std::vector<std::string> options;
-
+	void setMaxDisplayEntries(int mx){
+		maxDisplayEntries=mx;
+	}
 	virtual box2px getBounds(bool includeBounds=true) const override;
 	virtual box2px getCursorBounds(bool includeBounds = true) const override;
 	std::string getSelection(int index) {
@@ -391,7 +395,12 @@ public:
 
 	void setSelectedIndex(int index) {
 		selectedIndex = index;
-		label = (index >= 0) ? options[selectedIndex] : name;
+		if(index<0){
+			label=name;
+			selectionOffset=0;
+		} else {
+			label=options[selectedIndex];
+		}
 	}
 	void draw(AlloyContext* context) override;
 

@@ -28,8 +28,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FILESYSTEM_H__
-#define _FILESYSTEM_H__
+#ifndef _ALLOYFILESYSTEM_H__
+#define _ALLOYFILESYSTEM_H__
 
 #include <cassert>
 #include <string>

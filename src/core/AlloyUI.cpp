@@ -24,7 +24,6 @@
 #include "AlloyApplication.h"
 #include "AlloyDrawUtil.h"
 #include "AlloyFileUtil.h"
-#include "AlloyFilesystem.h"
 namespace aly {
 uint64_t Region::REGION_COUNTER = 0;
 const RGBA DEBUG_STROKE_COLOR = RGBA(32, 32, 200, 255);
@@ -1307,6 +1306,7 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 			AlloyApplicationContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK_TEXT);
+	selectionBox->setMaxDisplayEntries(8);
 	add(selectionBox);
 	selectionBox->onSelect=[this](SelectionBox* box){
 		selectionBox->setVisible(false);
@@ -1341,26 +1341,30 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 					std::vector<std::string> listing = GetDirectoryListing(
 							root);
 					std::vector<std::string> suggestions = AutoComplete(value,
-							listing, 8);
-					std::vector<std::string>& labels = selectionBox->options;
-					labels.clear();
-					for (std::string f : suggestions) {
-						if (filesystem::internal::is_directory(f)) {
-							labels.push_back(GetFileName(f) + ALY_PATH_SEPARATOR);
-						} else {
-							labels.push_back(GetFileName(f));
-						}
-					}
-					if (labels.size() > 0) {
-						box2px bounds = getBounds();
-						selectionBox->pack(bounds.position, bounds.dimensions,
-								context->dpmm, context->pixelRatio, false);
-						context->setOnTopRegion(selectionBox.get());
-						selectionBox->setVisible(true);
-						selectionBox->setSelectedIndex(0);
+							listing);
+					if(suggestions.size()==1){
+						this->setValue(suggestions[0]);
 					} else {
-						context->removeOnTopRegion(selectionBox.get());
-						selectionBox->setVisible(false);
+						std::vector<std::string>& labels = selectionBox->options;
+						labels.clear();
+						for (std::string f : suggestions) {
+							if (IsDirectory(f)) {
+								labels.push_back(GetFileName(f) + ALY_PATH_SEPARATOR);
+							} else {
+								labels.push_back(GetFileName(f));
+							}
+						}
+						if (labels.size() > 0) {
+							box2px bounds = getBounds();
+							selectionBox->pack(bounds.position, bounds.dimensions,
+									context->dpmm, context->pixelRatio, false);
+							context->setOnTopRegion(selectionBox.get());
+							selectionBox->setVisible(true);
+							selectionBox->setSelectedIndex(0);
+						} else {
+							context->removeOnTopRegion(selectionBox.get());
+							selectionBox->setVisible(false);
+						}
 					}
 					break;
 				}
@@ -1476,6 +1480,7 @@ void FileField::draw(AlloyContext* context) {
 			float lastOffset = xOffset;
 			xOffset += nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,
 					nullptr);
+			/*
 			if (underline) {
 				nvgBeginPath(nvg);
 				nvgStrokeWidth(nvg, 2.0f);
@@ -1484,6 +1489,7 @@ void FileField::draw(AlloyContext* context) {
 				nvgLineTo(nvg, xOffset, textY + fontSize + 1);
 				nvgStroke(nvg);
 			}
+			*/
 		}
 	}
 	if (isFocused && showCursor) {
@@ -1668,9 +1674,10 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 	AlloyContext* context = AlloyApplicationContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	float entryHeight = std::min(context->height() / (float) options.size(),
+	int elements=(maxDisplayEntries>0)?maxDisplayEntries:(int)options.size();
+	float entryHeight = std::min(context->height() / (float) elements,
 			bounds.dimensions.y);
-	float boxHeight = (options.size()) * entryHeight;
+	float boxHeight = (elements) * entryHeight;
 	float parentHeight =
 			(parent != nullptr) ? parent->getBoundsDimensionsY() : 0.0f;
 	float yOffset = std::min(bounds.position.y + boxHeight + parentHeight,
@@ -1698,7 +1705,8 @@ void SelectionBox::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	float entryHeight = bounds.dimensions.y / options.size();
+	int elements=(maxDisplayEntries>0)?maxDisplayEntries:(int)options.size();
+	float entryHeight = bounds.dimensions.y / elements;
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
@@ -1707,7 +1715,7 @@ void SelectionBox::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 
-	float th = entryHeight - 2;
+	float th = entryHeight - TextField::PADDING;
 	nvgFontSize(nvg, th);
 	nvgFillColor(nvg, *textColor);
 
@@ -1723,22 +1731,26 @@ void SelectionBox::draw(AlloyContext* context) {
 	int index = 0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
 
+	int N=options.size();
+
+	if(maxDisplayEntries>=0){
+		N=selectionOffset+maxDisplayEntries;
+	}
 	int newSelectedIndex = -1;
-	for (std::string& label : options) {
+	for (index=selectionOffset;index<N;index++) {
 		if (context->isMouseContainedIn(bounds.position + offset,
 				pixel2(bounds.dimensions.x, entryHeight))) {
 			newSelectedIndex = index;
 			break;
 		}
-		index++;
 		offset.y += entryHeight;
 	}
 	if (newSelectedIndex >= 0) {
 		selectedIndex = newSelectedIndex;
 	}
-	index = 0;
 	offset = pixel2(0, 0);
-	for (std::string& label : options) {
+	for (index=selectionOffset;index<N;index++) {
+		std::string& label = options[index];
 		if (index == selectedIndex) {
 			nvgBeginPath(nvg);
 			nvgRect(nvg, bounds.position.x + offset.x,
@@ -1747,7 +1759,6 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFillColor(nvg, context->theme.NEUTRAL);
 			nvgFill(nvg);
 		}
-		index++;
 		nvgFillColor(nvg, *textColor);
 		nvgText(nvg,
 				bounds.position.x + offset.x + lineWidth + TextField::PADDING,
@@ -1777,14 +1788,20 @@ SelectionBox::SelectionBox(const std::string& name,
 							if(selectedIndex<0) {
 								this->setSelectedIndex(options.size()-1);
 							} else {
-								this->setSelectedIndex((selectedIndex-1+options.size())%options.size());
+								this->setSelectedIndex(std::max(0,selectedIndex-1));
+							}
+							if(maxDisplayEntries>=0&&selectedIndex>0&&(selectedIndex<selectionOffset||selectedIndex>=selectionOffset+maxDisplayEntries)){
+								selectionOffset=std::max(0,selectedIndex+1-maxDisplayEntries);
 							}
 							return true;
 						} else if(event.key==GLFW_KEY_DOWN) {
 							if(selectedIndex<0) {
 								this->setSelectedIndex(0);
 							} else {
-								this->setSelectedIndex((selectedIndex+1)%options.size());
+								this->setSelectedIndex(std::min((int)options.size()-1,selectedIndex+1));
+							}
+							if(maxDisplayEntries>=0&&selectedIndex>0&&(selectedIndex<selectionOffset||selectedIndex>=selectionOffset+maxDisplayEntries)){
+								selectionOffset=std::max(0,selectedIndex+1-maxDisplayEntries);
 							}
 							return true;
 						} else if(event.key==GLFW_KEY_ENTER) {
@@ -1794,6 +1811,11 @@ SelectionBox::SelectionBox(const std::string& name,
 								}
 								return true;
 							}
+
+						} else if(event.key==GLFW_KEY_ESCAPE) {
+							setSelectedIndex(-1);
+							AlloyApplicationContext()->removeOnTopRegion(this);
+							this->setVisible(false);
 						}
 					} else if(event.type==InputType::MouseButton&&event.isDown()&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
 						if(selectedIndex>=0&&AlloyApplicationContext()->isMouseOver(this)) {

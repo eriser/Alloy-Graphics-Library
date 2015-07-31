@@ -696,6 +696,19 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 				}
 				return false;
 			};
+	selectionBox->onSelect=[this](SelectionBox* box){
+		AlloyApplicationContext()->removeOnTopRegion(selectionBox.get());
+		selectionBox->setVisible(false);
+		int newSelection=selectionBox->getSelectedIndex();
+		if(newSelection<0) {
+			selectionBox->setSelectedIndex(selectedIndex);
+		} else {
+			selectedIndex=selectionBox->getSelectedIndex();
+			selectionBox->setSelectedIndex(selectedIndex);
+		}
+		selectionLabel->label=this->getSelection();
+		return true;
+	};
 }
 
 void Selection::draw(AlloyContext* context) {

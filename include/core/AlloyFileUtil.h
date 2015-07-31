@@ -26,7 +26,6 @@
 #endif
 #include <string>
 #include <vector>
-
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")
@@ -52,6 +51,8 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName);
 std::string ReadTextFile(const std::string& str);
 std::vector<char> ReadBinaryFile(const std::string& str);
 bool FileExists(const std::string& name);
+bool IsDirectory(const std::string& file);
+bool IsFile(const std::string& file);
 std::string CodePointToUTF8(int cp);
 std::vector<std::string> split(const std::string& str,char c);
 std::vector<std::string> splitPath(const std::string& file);

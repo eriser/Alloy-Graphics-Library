@@ -24,8 +24,9 @@
 #include <fstream>
 #include <vector>
 #include "stdint.h"
-#include "AlloyCommon.h"
 #include "AlloyFileUtil.h"
+#include "AlloyCommon.h"
+#include "AlloyFilesystem.h"
 #if defined(WIN32) || defined(_WIN32)
 
 #include <windows.h>
@@ -145,14 +146,18 @@ std::vector<char> ReadBinaryFile(const std::string& str) {
 		throw runtime_error(MakeString() << "Could not open " << str);
 }
 bool FileExists(const std::string& name) {
-	std::ifstream file(name, ios::in | ios::binary);
-	if (file.is_open()) {
-		file.close();
-		return true;
+	try {
+		return (filesystem::internal::exists(name));
+	} catch(std::exception& e){
+		 return false;
 	}
-	return false;
 }
-
+bool IsDirectory(const std::string& file){
+	return FileExists(file)&&filesystem::internal::is_directory(file);
+}
+bool IsFile(const std::string& file){
+	return FileExists(file)&&filesystem::internal::is_file(file);
+}
 std::vector<std::string> AutoComplete(const std::string& str,
 		const std::vector<std::string>& list, int maxSuggestions) {
 	std::vector<std::string> suggestions = list;
