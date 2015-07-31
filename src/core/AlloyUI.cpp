@@ -1308,7 +1308,7 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 			AlloyApplicationContext()->theme.DARK_TEXT);
 	selectionBox->setMaxDisplayEntries(8);
 	add(selectionBox);
-	selectionBox->onSelect=[this](SelectionBox* box){
+	selectionBox->onSelect = [this](SelectionBox* box) {
 		selectionBox->setVisible(false);
 		AlloyApplicationContext()->removeOnTopRegion(box);
 		std::string path=GetParentDirectory(this->getValue());
@@ -1344,9 +1344,11 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 							root);
 					std::vector<std::string> suggestions = AutoComplete(value,
 							listing);
-					if(suggestions.size()==1){
-						if(IsDirectory(suggestions[0])){
-							this->setValue(RemoveTrailingSlash(suggestions[0])+ALY_PATH_SEPARATOR);
+					if (suggestions.size() == 1) {
+						if (IsDirectory(suggestions[0])) {
+							this->setValue(
+									RemoveTrailingSlash(
+											suggestions[0])+ALY_PATH_SEPARATOR);
 						} else {
 							this->setValue(suggestions[0]);
 						}
@@ -1357,15 +1359,17 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 						labels.clear();
 						for (std::string f : suggestions) {
 							if (IsDirectory(f)) {
-								labels.push_back(GetFileName(f) + ALY_PATH_SEPARATOR);
+								labels.push_back(
+										GetFileName(f) + ALY_PATH_SEPARATOR);
 							} else {
 								labels.push_back(GetFileName(f));
 							}
 						}
 						if (labels.size() > 0) {
 							box2px bounds = getBounds();
-							selectionBox->pack(bounds.position, bounds.dimensions,
-									context->dpmm, context->pixelRatio, false);
+							selectionBox->pack(bounds.position,
+									bounds.dimensions, context->dpmm,
+									context->pixelRatio, false);
 							context->setOnTopRegion(selectionBox.get());
 							selectionBox->setVisible(true);
 							selectionBox->setSelectionOffset(0);
@@ -1490,15 +1494,15 @@ void FileField::draw(AlloyContext* context) {
 			xOffset += nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,
 					nullptr);
 			/*
-			if (underline) {
-				nvgBeginPath(nvg);
-				nvgStrokeWidth(nvg, 2.0f);
-				nvgStrokeColor(nvg, textColor->toSemiTransparent(0.75f));
-				nvgMoveTo(nvg, lastOffset, textY + fontSize + 1);
-				nvgLineTo(nvg, xOffset, textY + fontSize + 1);
-				nvgStroke(nvg);
-			}
-			*/
+			 if (underline) {
+			 nvgBeginPath(nvg);
+			 nvgStrokeWidth(nvg, 2.0f);
+			 nvgStrokeColor(nvg, textColor->toSemiTransparent(0.75f));
+			 nvgMoveTo(nvg, lastOffset, textY + fontSize + 1);
+			 nvgLineTo(nvg, xOffset, textY + fontSize + 1);
+			 nvgStroke(nvg);
+			 }
+			 */
 		}
 	}
 	if (isFocused && showCursor) {
@@ -1683,7 +1687,8 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 	AlloyContext* context = AlloyApplicationContext().get();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	int elements=(maxDisplayEntries>0)?maxDisplayEntries:(int)options.size();
+	int elements =
+			(maxDisplayEntries > 0) ? maxDisplayEntries : (int) options.size();
 	float entryHeight = std::min(context->height() / (float) elements,
 			bounds.dimensions.y);
 	float boxHeight = (elements) * entryHeight;
@@ -1714,7 +1719,8 @@ void SelectionBox::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-	int elements=(maxDisplayEntries>0)?maxDisplayEntries:(int)options.size();
+	int elements =
+			(maxDisplayEntries > 0) ? maxDisplayEntries : (int) options.size();
 	float entryHeight = bounds.dimensions.y / elements;
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
@@ -1740,13 +1746,13 @@ void SelectionBox::draw(AlloyContext* context) {
 	int index = 0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
 
-	int N=options.size();
+	int N = options.size();
 
-	if(maxDisplayEntries>=0){
-		N=selectionOffset+maxDisplayEntries;
+	if (maxDisplayEntries >= 0) {
+		N = selectionOffset + maxDisplayEntries;
 	}
 	int newSelectedIndex = -1;
-	for (index=selectionOffset;index<N;index++) {
+	for (index = selectionOffset; index < N; index++) {
 		if (context->isMouseContainedIn(bounds.position + offset,
 				pixel2(bounds.dimensions.x, entryHeight))) {
 			newSelectedIndex = index;
@@ -1758,7 +1764,7 @@ void SelectionBox::draw(AlloyContext* context) {
 		selectedIndex = newSelectedIndex;
 	}
 	offset = pixel2(0, 0);
-	for (index=selectionOffset;index<N;index++) {
+	for (index = selectionOffset; index < N; index++) {
 		std::string& label = options[index];
 		if (index == selectedIndex) {
 			nvgBeginPath(nvg);
@@ -1799,7 +1805,7 @@ SelectionBox::SelectionBox(const std::string& name,
 							} else {
 								this->setSelectedIndex(std::max(0,selectedIndex-1));
 							}
-							if(maxDisplayEntries>=0&&selectedIndex>0&&(selectedIndex<selectionOffset||selectedIndex>=selectionOffset+maxDisplayEntries)){
+							if(maxDisplayEntries>=0&&selectedIndex>0&&(selectedIndex<selectionOffset||selectedIndex>=selectionOffset+maxDisplayEntries)) {
 								selectionOffset=std::max(0,selectedIndex+1-maxDisplayEntries);
 							}
 							return true;
@@ -1809,7 +1815,7 @@ SelectionBox::SelectionBox(const std::string& name,
 							} else {
 								this->setSelectedIndex(std::min((int)options.size()-1,selectedIndex+1));
 							}
-							if(maxDisplayEntries>=0&&selectedIndex>0&&(selectedIndex<selectionOffset||selectedIndex>=selectionOffset+maxDisplayEntries)){
+							if(maxDisplayEntries>=0&&selectedIndex>0&&(selectedIndex<selectionOffset||selectedIndex>=selectionOffset+maxDisplayEntries)) {
 								selectionOffset=std::max(0,selectedIndex+1-maxDisplayEntries);
 							}
 							return true;
@@ -1828,7 +1834,7 @@ SelectionBox::SelectionBox(const std::string& name,
 						}
 					} else if(event.type==InputType::MouseButton&&event.isDown()&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
 						if(AlloyApplicationContext()->isMouseOver(this)) {
-							if(selectedIndex>=0){
+							if(selectedIndex>=0) {
 								if(this->onSelect) {
 									return this->onSelect(this);
 								}
@@ -1839,8 +1845,12 @@ SelectionBox::SelectionBox(const std::string& name,
 							AlloyApplicationContext()->removeOnTopRegion(this);
 							this->setVisible(false);
 						}
-					} else if(event.type==InputType::Scroll){
-						if(maxDisplayEntries>=0){
+					} else if(event.type==InputType::MouseButton&&event.isDown()&&event.button==GLFW_MOUSE_BUTTON_RIGHT) {
+						setSelectedIndex(-1);
+						AlloyApplicationContext()->removeOnTopRegion(this);
+						this->setVisible(false);
+					} else if(event.type==InputType::Scroll) {
+						if(maxDisplayEntries>=0) {
 							selectionOffset=aly::clamp(selectionOffset-(int)event.scroll.y,0,(int)options.size()-maxDisplayEntries);
 							return true;
 						}
