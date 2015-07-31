@@ -1263,12 +1263,11 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			if (e.isDown()) {
 				if(e.key==GLFW_KEY_TAB){
 					showCursor=true;
-					std::string root=GetFileDirectoryPath(value);
-					std::vector<std::string> listing=GetDirectoryFileListing(value);
-					std::cout<<"File: "<<value<<std::endl;
-					std::cout<<"Root: "<<root<<" "<<listing.size()<<std::endl;
-					std::vector<std::string> results=AutoComplete(GetFileName(value),listing);
-					for(std::string file:results){
+					std::string root=GetParentDirectory(value);
+					std::cout<<"File: "<<value<<" :: "<<root<<std::endl;
+					std::vector<std::string> listing=GetDirectoryListing(root);
+					std::vector<std::string> suggestions=AutoComplete(GetFileName(value),listing,5);
+					for(std::string file:suggestions){
 						std::cout<<"FILE "<<GetFileName(file)<<std::endl;
 					}
 					break;

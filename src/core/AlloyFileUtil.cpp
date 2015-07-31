@@ -35,7 +35,6 @@
 #include <dirent.h>
 #endif
 
-
 #include <stdexcept>
 using namespace std;
 
@@ -83,38 +82,38 @@ std::string CodePointToUTF8(int cp) {
 	return std::string(str);
 }
 std::vector<std::string> split(const std::string &str, char delim) {
-  std::stringstream ss;
-  std::vector<std::string> elems;
-  std::string delimString="";
-  delimString+=delim;
-  std::string comp;
-  for(char c:str){
-	  if(c==delim){
-		  comp=ss.str();
-		  if(comp.size()>0){
-			  elems.push_back(comp);
-			  ss.str("");
-		  }
-		  elems.push_back(delimString);
-	  } else {
-		  ss<<c;
-	  }
-  }
-  comp=ss.str();
-  if(comp.size()>0){
-	  elems.push_back(comp);
-  }
-  return elems;
+	std::stringstream ss;
+	std::vector<std::string> elems;
+	std::string delimString = "";
+	delimString += delim;
+	std::string comp;
+	for (char c : str) {
+		if (c == delim) {
+			comp = ss.str();
+			if (comp.size() > 0) {
+				elems.push_back(comp);
+				ss.str("");
+			}
+			elems.push_back(delimString);
+		} else {
+			ss << c;
+		}
+	}
+	comp = ss.str();
+	if (comp.size() > 0) {
+		elems.push_back(comp);
+	}
+	return elems;
 
 }
-std::vector<std::string> splitPath(const std::string& file){
-	const char c=ALY_PATH_SEPARATOR.c_str()[0];
+std::vector<std::string> splitPath(const std::string& file) {
+	const char c = ALY_PATH_SEPARATOR.c_str()[0];
 	return split(file,c);
 }
-std::string concat(const std::vector<std::string>& list){
+std::string concat(const std::vector<std::string>& list) {
 	std::stringstream ss;
-	for(std::string str:list){
-		ss<<str;
+	for (std::string str : list) {
+		ss << str;
 	}
 	return ss.str();
 }
@@ -154,53 +153,67 @@ bool FileExists(const std::string& name) {
 	return false;
 }
 
-std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions){
-	std::vector<std::string> suggestions=list;
+std::vector<std::string> AutoComplete(const std::string& str,
+		const std::vector<std::string>& list, int maxSuggestions) {
+	std::vector<std::string> suggestions = list;
 #ifdef WINDOWS
 	//use case insenstive complete on windows.
 	std::sort(suggestions.begin(),suggestions.end(),
-			[](const std::string& first, const std::string& second){
+			[](const std::string& first, const std::string& second) {
 				return std::lexicographical_compare(first.begin(),first.end(),second.begin(),second.end(),
-						[](char c1, char c2){ return (std::tolower(c1)<std::tolower(c2)); });
+						[](char c1, char c2) {return (std::tolower(c1)<std::tolower(c2));});
 			}
 	);
 #else
-	std::sort(suggestions.begin(),suggestions.end(),
-			[](const std::string& first, const std::string& second){
+	std::sort(suggestions.begin(), suggestions.end(),
+			[](const std::string& first, const std::string& second) {
 				return std::lexicographical_compare(first.begin(),first.end(),second.begin(),second.end());
-			}
-	);
+			});
 #endif
-	if(maxSuggestions>=0){
-		if(suggestions.size()>maxSuggestions){
 
-			for(size_t index=maxSuggestions;index<suggestions.size();index++){
-				std::string entry=suggestions[index];
+	for (size_t index = 0; index < suggestions.size(); index++) {
+		std::string entry = suggestions[index];
 #ifdef WINDOWS
-				if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end(),
-						[](char c1, char c2){ return (std::tolower(c1)<std::tolower(c2)); })){
+		if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end(),
+						[](char c1, char c2) {return (std::tolower(c1)<std::tolower(c2));})) {
 #else
-					if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end())){
+		if (std::lexicographical_compare(str.begin(), str.end(), entry.begin(),
+				entry.end())) {
 #endif
-					suggestions.erase(suggestions.begin(),suggestions.begin()+index);
-					break;
-				}
-			}
-			suggestions.erase(suggestions.begin()+maxSuggestions,suggestions.end());
+			suggestions.erase(suggestions.begin(), suggestions.begin() + index);
+			break;
 		}
-		return suggestions;
-	} else {
-		return suggestions;
 	}
+
+	if (maxSuggestions > 0 && suggestions.size() > 0) {
+		suggestions.erase(
+				suggestions.begin()
+						+ std::min((size_t) maxSuggestions, suggestions.size()),
+				suggestions.end());
+	}
+	return suggestions;
 }
 std::string GetFileExtension(const std::string& fileName) {
-	if (fileName.find_last_of(".") != string::npos)
-		return fileName.substr(fileName.find_last_of(".") + 1);
+	size_t pos = fileName.find_last_of(".");
+	if (pos != string::npos) {
+		if (pos == fileName.size() - 1) {
+			return "";
+		} else {
+			return fileName.substr(pos + 1);
+		}
+	}
 	return string("");
 }
 
 std::string GetFileName(const std::string& fileName) {
-	if (fileName.find_last_of(ALY_PATH_SEPARATOR) != string::npos)return fileName.substr(fileName.find_last_of(ALY_PATH_SEPARATOR) + 1);
+	size_t pos = fileName.find_last_of(ALY_PATH_SEPARATOR);
+	if ( pos!= string::npos) {
+		if(pos==fileName.size()-1) {
+			return "";
+		} else {
+			return fileName.substr(pos+ 1);
+		}
+	}
 	return fileName;
 }
 std::string RemoveTrailingSlash(const std::string& file) {
@@ -264,36 +277,41 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
-std::string GetParentDirectory(const std::string& file){
+std::string GetParentDirectory(const std::string& file) {
 	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos&&file.find_last_of(ALY_PATH_SEPARATOR)==file.size()-1) {
 		return file;
 	} else {
 		return GetFileDirectoryPath(file)+ALY_PATH_SEPARATOR;
 	}
 }
-std::vector<std::pair<std::string,FileType>> GetDirectoryListingAndTypes(const std::string& dirName) {
-	std::vector<std::pair<std::string,FileType>> files;
+std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(
+		const std::string& dirName) {
+	std::vector<std::pair<std::string, FileType>> files;
 	dirent* dp;
 	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
 	DIR* dirp = opendir(cleanPath.c_str());
-	while ((dp = readdir(dirp)) != NULL) {
-		string fileName(dp->d_name);
-		FileType type=FileType::Unknown;
-		if (dp->d_type==DT_REG){
-			type=FileType::File;
-		} else if (dp->d_type==DT_DIR){
-			type=FileType::Directory;
-		}  else if (dp->d_type==DT_LNK){
-			type=FileType::Link;
-		}
-		if(type!=FileType::Unknown){
-			if(fileName!=".."&&fileName!="."){
-				files.push_back(std::pair<std::string,FileType>(cleanPath + fileName,type));
+	if (dirp) {
+		while ((dp = readdir(dirp)) != NULL) {
+			string fileName(dp->d_name);
+			FileType type = FileType::Unknown;
+			if (dp->d_type == DT_REG) {
+				type = FileType::File;
+			} else if (dp->d_type == DT_DIR) {
+				type = FileType::Directory;
+			} else if (dp->d_type == DT_LNK) {
+				type = FileType::Link;
+			}
+			if (type != FileType::Unknown) {
+				if (fileName != ".." && fileName != ".") {
+					files.push_back(
+							std::pair<std::string, FileType>(
+									cleanPath + fileName, type));
+				}
 			}
 		}
+		closedir(dirp);
+		std::sort(files.begin(), files.end());
 	}
-	closedir(dirp);
-	std::sort(files.begin(), files.end());
 	return files;
 }
 std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
@@ -301,17 +319,20 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 	dirent* dp;
 	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
 	DIR* dirp = opendir(cleanPath.c_str());
-	while ((dp = readdir(dirp)) != NULL) {
-		string fileName(dp->d_name);
-		FileType type=FileType::Unknown;
-		if (dp->d_type==DT_REG||dp->d_type==DT_DIR||dp->d_type==DT_LNK){
-			if(fileName!=".."&&fileName!="."){
-				files.push_back(cleanPath + fileName);
+	if (dirp) {
+		while ((dp = readdir(dirp)) != NULL) {
+			string fileName(dp->d_name);
+			FileType type = FileType::Unknown;
+			if (dp->d_type == DT_REG || dp->d_type == DT_DIR
+					|| dp->d_type == DT_LNK) {
+				if (fileName != ".." && fileName != ".") {
+					files.push_back(cleanPath + fileName);
+				}
 			}
 		}
+		closedir(dirp);
+		std::sort(files.begin(), files.end());
 	}
-	closedir(dirp);
-	std::sort(files.begin(), files.end());
 	return files;
 }
 #else 
@@ -352,7 +373,6 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,cons
 	return list;
 }
 #endif
-
 
 }
 
