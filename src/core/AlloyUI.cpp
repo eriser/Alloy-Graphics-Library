@@ -1821,15 +1821,15 @@ void SelectionBox::draw(AlloyContext* context) {
 					bounds.position.y - downArrow->height / 2),
 			pixel2(downArrow->width, downArrow->height));
 
-	if (maxDisplayEntries >= 0) {
-
+	if (maxDisplayEntries >= 0 && options.size() > maxDisplayEntries) {
 		if (selectionOffset > 0) {
 			nvgBeginPath(nvg);
 			nvgFillColor(nvg, context->theme.DARK);
 			nvgCircle(nvg, bounds.position.x + bounds.dimensions.x,
-					bounds.position.y, upArrow->height / 2 );
+					bounds.position.y, upArrow->height / 2);
 			nvgFill(nvg);
-			upArrow->draw(upArrowBox, context->theme.HIGHLIGHT, COLOR_NONE, context);
+			upArrow->draw(upArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
+					context);
 		}
 
 		if (selectionOffset < options.size() - maxDisplayEntries) {
@@ -1837,7 +1837,7 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFillColor(nvg, context->theme.DARK);
 			nvgCircle(nvg, bounds.position.x + bounds.dimensions.x,
 					bounds.position.y + bounds.dimensions.y,
-					downArrow->height / 2 );
+					downArrow->height / 2);
 			nvgFill(nvg);
 			downArrow->draw(downArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
 					context);
@@ -1884,7 +1884,18 @@ SelectionBox::SelectionBox(const std::string& name,
 								}
 								return true;
 							}
-
+						} else if(event.key==GLFW_KEY_PAGE_UP) {
+							if(maxDisplayEntries>0) {
+								selectionOffset=0;
+								scrollingUp=false;
+								return true;
+							}
+						} else if(event.key==GLFW_KEY_PAGE_DOWN) {
+							if(maxDisplayEntries>0) {
+								selectionOffset=options.size()-maxDisplayEntries;
+								scrollingDown=false;
+								return true;
+							}
 						} else if(event.key==GLFW_KEY_ESCAPE) {
 							setSelectedIndex(-1);
 							AlloyApplicationContext()->removeOnTopRegion(this);
