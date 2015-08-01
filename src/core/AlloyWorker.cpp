@@ -84,9 +84,43 @@ void RecurrentWorker::step() {
 			break;
 		auto nextTime = std::chrono::steady_clock::now();
 		//sleep_until has different behavior on Linux and Windows. Use sleep_for instead.
-		long long ms=std::chrono::duration_cast<std::chrono::milliseconds>(nextTime - currentTime).count();
-		std::this_thread::sleep_for(std::chrono::milliseconds(aly::max(0,(int)(timeout-ms))));
+		long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				nextTime - currentTime).count();
+		std::this_thread::sleep_for(
+				std::chrono::milliseconds(aly::max(0, (int) (timeout - ms))));
 	}
+}
+
+Timer::Timer(const std::function<void()>& successFunc,
+		const std::function<void()>& failureFunc, long timeout,
+		long samplingTime) :
+		Worker(successFunc, failureFunc), timeout(timeout), samplingTime(
+				samplingTime) {
+
+}
+
+void Timer::task() {
+	running = true;
+	requestCancel = false;
+	complete=false;
+	auto currentTime = std::chrono::steady_clock::now();
+	while (!requestCancel) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(samplingTime));
+		auto nextTime = std::chrono::steady_clock::now();
+		long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				nextTime - currentTime).count();
+		if (ms >= timeout)
+			break;
+	}
+	if (requestCancel) {
+		if(endTask)endTask();
+		complete=false;
+	} else {
+		if(executionTask)executionTask();
+		complete = true;
+	}
+	running = false;
+	requestCancel = false;
 }
 }
 

@@ -1690,7 +1690,9 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	int elements =
-			(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
+			(maxDisplayEntries > 0) ?
+					std::min(maxDisplayEntries, (int) options.size()) :
+					(int) options.size();
 	float entryHeight = std::min(context->height() / (float) elements,
 			bounds.dimensions.y);
 	float boxHeight = (elements) * entryHeight;
@@ -1716,17 +1718,20 @@ box2px SelectionBox::getCursorBounds(bool includeBounds) const {
 	return box;
 }
 void SelectionBox::draw(AlloyContext* context) {
+
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	box2px sbounds=bounds;
-	sbounds.position.x+=TextField::PADDING;
-	sbounds.dimensions.x-=2*TextField::PADDING;
+	box2px sbounds = bounds;
+	sbounds.position.x += TextField::PADDING;
+	sbounds.dimensions.x -= 2 * TextField::PADDING;
 
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	int elements =
-			(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
+			(maxDisplayEntries > 0) ?
+					std::min(maxDisplayEntries, (int) options.size()) :
+					(int) options.size();
 
 	float entryHeight = bounds.dimensions.y / elements;
 	if (backgroundColor->a > 0) {
@@ -1756,7 +1761,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	int N = options.size();
 
 	if (maxDisplayEntries >= 0) {
-		N = std::min(selectionOffset + maxDisplayEntries,(int)options.size());
+		N = std::min(selectionOffset + maxDisplayEntries, (int) options.size());
 	}
 	int newSelectedIndex = -1;
 	for (index = selectionOffset; index < N; index++) {
@@ -1784,7 +1789,7 @@ void SelectionBox::draw(AlloyContext* context) {
 		}
 		nvgFillColor(nvg, *textColor);
 
-		pushScissor(nvg,sbounds);
+		pushScissor(nvg, sbounds);
 		nvgText(nvg,
 				bounds.position.x + offset.x + lineWidth + TextField::PADDING,
 				bounds.position.y + entryHeight / 2 + offset.y, label.c_str(),
@@ -1865,9 +1870,55 @@ SelectionBox::SelectionBox(const std::string& name,
 						this->setVisible(false);
 					} else if(event.type==InputType::Scroll) {
 						if(maxDisplayEntries>=0) {
-							if(options.size()>maxDisplayEntries){
+							if(options.size()>maxDisplayEntries) {
 								selectionOffset=aly::clamp(selectionOffset-(int)event.scroll.y,0,(int)options.size()-maxDisplayEntries);
 								return true;
+							}
+						}
+					} else if(event.type==InputType::Cursor) {
+						box2px bounds=this->getBounds();
+						int elements =
+						(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
+						float entryHeight = bounds.dimensions.y / elements;
+
+						box2px lastBounds=bounds,firstBounds=bounds;
+						lastBounds.position.y=bounds.position.y+bounds.dimensions.y-entryHeight;
+						lastBounds.dimensions.y=entryHeight;
+						firstBounds.dimensions.y=entryHeight;
+						bool cancel=false;
+						if(lastBounds.contains(event.cursor)) {
+							if(downTimer.get()==nullptr) {
+								downTimer=std::shared_ptr<Timer>(new Timer([this] {
+													double deltaT=100;
+													while(selectionOffset<options.size()-maxDisplayEntries) {
+														this->selectionOffset++;
+														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
+														deltaT=std::max(deltaT,0.75*deltaT);
+													}
+												},nullptr,1000,30));
+								downTimer->execute();
+							}
+						} else {
+							if(downTimer.get()!=nullptr) {
+								downTimer.reset();
+							}
+						}
+						if(firstBounds.contains(event.cursor)) {
+							if(upTimer.get()==nullptr) {
+								std::cout<<"Create timer"<<std::endl;
+								upTimer=std::shared_ptr<Timer>(new Timer([this] {
+													double deltaT=100;
+													while(selectionOffset>0) {
+														this->selectionOffset--;
+														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
+														deltaT=std::max(deltaT,0.75*deltaT);
+													}
+												},nullptr,1000,30));
+								upTimer->execute();
+							}
+						} else {
+							if(upTimer.get()!=nullptr) {
+								upTimer.reset();
 							}
 						}
 					}

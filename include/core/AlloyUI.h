@@ -24,6 +24,7 @@
 #include "AlloyMath.h"
 #include "AlloyContext.h"
 #include "AlloyUnits.h"
+#include "AlloyWorker.h"
 #include "nanovg.h"
 #include  "GLTexture.h"
 #include <iostream>
@@ -373,6 +374,7 @@ protected:
 	std::string label;
 	int maxDisplayEntries=-1;
 	int selectionOffset=0;
+	std::shared_ptr<Timer> downTimer,upTimer;
 	void updateBox(AlloyContext* context);
 
 public:
@@ -417,6 +419,7 @@ struct FileField: public TextField {
 protected:
 	std::vector<std::string> segmentedPath;
 	std::shared_ptr<SelectionBox> selectionBox;
+
 public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)

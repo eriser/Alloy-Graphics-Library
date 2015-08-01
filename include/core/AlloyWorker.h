@@ -33,7 +33,7 @@ protected:
 	bool running = false;
 	bool complete = false;
 	bool requestCancel = false;
-	void task();
+	virtual void task();
 	void done();
 public:
 	inline bool isRunning() const {
@@ -65,6 +65,19 @@ public:
 			long milliseconds);
 	RecurrentWorker(const std::function<bool(uint64_t iteration)>& func,
 			const std::function<void()>& end, long milliseconds);
+};
+class Timer: public Worker {
+protected:
+	long timeout;
+	long samplingTime;
+	virtual void task() override;
+public:
+	void setTimeout(long milliseconds) {
+		timeout = milliseconds;
+	}
+	Timer(const std::function<void()>& successFunc,
+			const std::function<void()>& failureFunc, long milliseconds,
+			long samplingTime);
 };
 typedef std::shared_ptr<Worker> WorkerTaskPtr;
 }
