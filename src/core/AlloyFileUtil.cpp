@@ -137,7 +137,7 @@ std::vector<char> ReadBinaryFile(const std::string& str) {
 	ifstream file(str, ios::in | ios::binary | ios::ate);
 	if (file.is_open()) {
 		size = file.tellg();
-		std::vector<char> memblock((size_t)size);
+		std::vector<char> memblock((size_t) size);
 		file.seekg(0, ios::beg);
 		file.read(memblock.data(), size);
 		file.close();
@@ -148,15 +148,15 @@ std::vector<char> ReadBinaryFile(const std::string& str) {
 bool FileExists(const std::string& name) {
 	try {
 		return (filesystem::internal::exists(name));
-	} catch(...){
-		 return false;
+	} catch (...) {
+		return false;
 	}
 }
-bool IsDirectory(const std::string& file){
-	return FileExists(file)&&filesystem::internal::is_directory(file);
+bool IsDirectory(const std::string& file) {
+	return FileExists(file) && filesystem::internal::is_directory(file);
 }
-bool IsFile(const std::string& file){
-	return FileExists(file)&&filesystem::internal::is_file(file);
+bool IsFile(const std::string& file) {
+	return FileExists(file) && filesystem::internal::is_file(file);
 }
 std::vector<std::string> AutoComplete(const std::string& str,
 		const std::vector<std::string>& list, int maxSuggestions) {
@@ -224,7 +224,7 @@ std::string GetFileName(const std::string& fileName) {
 	return fileName;
 }
 std::string RemoveTrailingSlash(const std::string& file) {
-	size_t pos=file.find_last_of(ALY_PATH_SEPARATOR);
+	size_t pos = file.find_last_of(ALY_PATH_SEPARATOR);
 	if (pos != string::npos&&pos==file.size()-1) {
 		return file.substr(0, pos);
 	}
@@ -378,7 +378,7 @@ std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(const 
 				files.push_back(std::pair<std::string, FileType>(path + ALY_PATH_SEPARATOR + fileName, FileType::Unknown));
 			}
 		}
-	} while (FindNextFile(h, &fd));
+	}while (FindNextFile(h, &fd));
 	FindClose(h);
 	return files;
 }
@@ -395,9 +395,9 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 		std::string fileName = ToString(fd.cFileName);
 		if (fileName != "." && fileName != "..")
 		{
-			 list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+			list.push_back(path + ALY_PATH_SEPARATOR + fileName);
 		}
-	} while (FindNextFile(h, &fd));
+	}while (FindNextFile(h, &fd));
 	FindClose(h);
 	return list;
 }
