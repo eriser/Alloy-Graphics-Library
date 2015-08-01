@@ -152,7 +152,7 @@ class PhongShader: public GLShader {
 	std::vector<SimpleLight> lights;
 public:
 	inline SimpleLight& getLight(int i){
-		if(i>=lights.size()){
+		if(i>=(int)lights.size()){
 			throw std::runtime_error("Light index out of range.");
 		}
 		return lights[i];

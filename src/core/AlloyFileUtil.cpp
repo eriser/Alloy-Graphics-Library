@@ -137,7 +137,7 @@ std::vector<char> ReadBinaryFile(const std::string& str) {
 	ifstream file(str, ios::in | ios::binary | ios::ate);
 	if (file.is_open()) {
 		size = file.tellg();
-		std::vector<char> memblock(size);
+		std::vector<char> memblock((size_t)size);
 		file.seekg(0, ios::beg);
 		file.read(memblock.data(), size);
 		file.close();
@@ -148,7 +148,7 @@ std::vector<char> ReadBinaryFile(const std::string& str) {
 bool FileExists(const std::string& name) {
 	try {
 		return (filesystem::internal::exists(name));
-	} catch(std::exception& e){
+	} catch(...){
 		 return false;
 	}
 }
@@ -162,11 +162,13 @@ std::vector<std::string> AutoComplete(const std::string& str,
 		const std::vector<std::string>& list, int maxSuggestions) {
 	std::vector<std::string> suggestions = list;
 #ifdef WINDOWS
+
+	static const std::locale local;
 	//use case insenstive complete on windows.
 	std::sort(suggestions.begin(),suggestions.end(),
 			[](const std::string& first, const std::string& second) {
 				return std::lexicographical_compare(first.begin(),first.end(),second.begin(),second.end(),
-						[](char c1, char c2) {return (std::tolower(c1)<std::tolower(c2));});
+						[](char c1, char c2) {return (std::tolower(c1,local)<std::tolower(c2,local));});
 			}
 	);
 #else
@@ -180,7 +182,7 @@ std::vector<std::string> AutoComplete(const std::string& str,
 		std::string entry = suggestions[index];
 #ifdef WINDOWS
 		if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end(),
-						[](char c1, char c2) {return (std::tolower(c1)<std::tolower(c2));})) {
+						[](char c1, char c2) {return (std::tolower(c1,local)<std::tolower(c2,local));})) {
 #else
 		if (std::lexicographical_compare(str.begin(), str.end(), entry.begin(),
 				entry.end())) {
@@ -259,7 +261,14 @@ std::string GetFileDirectoryPath(const std::string& fileName) {
 	}
 	return fileName;
 }
-
+std::string GetParentDirectory(const std::string& file) {
+	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos&&file.find_last_of(ALY_PATH_SEPARATOR) == file.size() - 1) {
+		return file;
+	}
+	else {
+		return GetFileDirectoryPath(file) + ALY_PATH_SEPARATOR;
+	}
+}
 #ifndef WINDOWS
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
@@ -281,13 +290,6 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 	closedir(dirp);
 	std::sort(files.begin(), files.end());
 	return files;
-}
-std::string GetParentDirectory(const std::string& file) {
-	if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos&&file.find_last_of(ALY_PATH_SEPARATOR)==file.size()-1) {
-		return file;
-	} else {
-		return GetFileDirectoryPath(file)+ALY_PATH_SEPARATOR;
-	}
 }
 std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(
 		const std::string& dirName) {
@@ -353,7 +355,52 @@ std::string ToString(const std::wstring& str) {
 	std::string narrow = converter.to_bytes(str);
 	return narrow;
 }
-
+std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(const std::string& dirName) {
+	std::vector<std::pair<std::string, FileType>> files;
+	WIN32_FIND_DATAW fd;
+	std::string path = RemoveTrailingSlash(dirName);
+	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return files;
+	}
+	do {
+		std::string fileName = ToString(fd.cFileName);
+		if (fileName != "." && fileName != "..")
+		{
+			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				files.push_back(std::pair<std::string,FileType>(path + ALY_PATH_SEPARATOR + fileName,FileType::Directory));
+			}
+			else if (fd.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) {
+				files.push_back(std::pair<std::string, FileType>(path + ALY_PATH_SEPARATOR + fileName, FileType::File));
+			}
+			else {
+				files.push_back(std::pair<std::string, FileType>(path + ALY_PATH_SEPARATOR + fileName, FileType::Unknown));
+			}
+		}
+	} while (FindNextFile(h, &fd));
+	FindClose(h);
+	return files;
+}
+std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
+	WIN32_FIND_DATAW fd;
+	std::string path = RemoveTrailingSlash(dirName);
+	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return std::vector<std::string>();
+	}
+	std::vector<std::string> list;
+	do {
+		std::string fileName = ToString(fd.cFileName);
+		if (fileName != "." && fileName != "..")
+		{
+			 list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+		}
+	} while (FindNextFile(h, &fd));
+	FindClose(h);
+	return list;
+}
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
 	WIN32_FIND_DATAW fd;
 	std::string path = RemoveTrailingSlash(dirName);
