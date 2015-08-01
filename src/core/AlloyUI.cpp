@@ -1875,7 +1875,7 @@ SelectionBox::SelectionBox(const std::string& name,
 								return true;
 							}
 						}
-					} else if(event.type==InputType::Cursor&&maxDisplayEntries>options.size()) {
+					} else if(event.type==InputType::Cursor&&options.size()>maxDisplayEntries) {
 						box2px bounds=this->getBounds();
 						int elements =
 						(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
