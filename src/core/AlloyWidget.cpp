@@ -399,8 +399,9 @@ void TextButton::draw(AlloyContext* context) {
 
 }
 
-TextIconButton::TextIconButton(const std::string& label,int iconCode, const AUnit2D& position,
-		const AUnit2D& dimensions) :iconCodeString(CodePointToUTF8(iconCode)),Widget(label) {
+TextIconButton::TextIconButton(const std::string& label, int iconCode,
+		const AUnit2D& position, const AUnit2D& dimensions) :
+		iconCodeString(CodePointToUTF8(iconCode)), Widget(label) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -474,24 +475,25 @@ void TextIconButton::draw(AlloyContext* context) {
 	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
 
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-	float iw = nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr, nullptr);
+	float iw = nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr,
+			nullptr);
 
-	float ww=tw+iw+AlloyApplicationContext()->theme.SPACING.x;
+	float ww = tw + iw + AlloyApplicationContext()->theme.SPACING.x;
 	pixel2 offset(0, 0);
 
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
 
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-	nvgText(nvg,
-			bounds.position.x + (bounds.dimensions.x-ww) / 2 + xoff,
+	nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + xoff,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
 			nullptr);
 
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgText(nvg,
-			AlloyApplicationContext()->theme.SPACING.x+bounds.position.x + (bounds.dimensions.x-ww) / 2 +tw+ xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff, iconCodeString.c_str(),
-			nullptr);
+			AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
+					+ (bounds.dimensions.x - ww) / 2 + tw + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff,
+			iconCodeString.c_str(), nullptr);
 }
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
 		const AUnit2D& position, const AUnit2D& dimensions) :
@@ -514,7 +516,6 @@ void IconButton::draw(AlloyContext* context) {
 
 	float lineWidth = 2.0f;
 
-
 	nvgBeginPath(nvg);
 	NVGpaint shadowPaint = nvgRadialGradient(nvg, center.x + 1, center.y + 1,
 			radii.x - 2, radii.x + 2, context->theme.SHADOW,
@@ -528,10 +529,12 @@ void IconButton::draw(AlloyContext* context) {
 	nvgFillColor(nvg, *backgroundColor);
 	nvgFill(nvg);
 
-	if(hover){
-		iconGlyph->draw(bounds, context->theme.HIGHLIGHT, *backgroundColor, context);
+	if (hover) {
+		iconGlyph->draw(bounds, context->theme.HIGHLIGHT, *backgroundColor,
+				context);
 	} else {
-		iconGlyph->draw(bounds,  context->theme.LIGHT_TEXT, *backgroundColor, context);
+		iconGlyph->draw(bounds, context->theme.LIGHT_TEXT, *backgroundColor,
+				context);
 
 	}
 	if (borderColor->a > 0) {
@@ -700,7 +703,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 				}
 				return false;
 			};
-	selectionBox->onSelect=[this](SelectionBox* box){
+	selectionBox->onSelect = [this](SelectionBox* box) {
 		AlloyApplicationContext()->removeOnTopRegion(selectionBox.get());
 		selectionBox->setVisible(false);
 		int newSelection=selectionBox->getSelectedIndex();
@@ -1819,7 +1822,8 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 			AlloyApplicationContext()->getGlassPanel();
 
 	fileDialog = std::shared_ptr<FileDialog>(
-			new FileDialog("File Dialog", CoordPerPX(0.5, 0.5, -200+7.5f, -150-7.5f),
+			new FileDialog("File Dialog",
+					CoordPerPX(0.5, 0.5, -200 + 7.5f, -150 - 7.5f),
 					CoordPX(400, 300)));
 	glassPanel->add(fileDialog);
 
@@ -1893,15 +1897,121 @@ void FileSelector::openFileDialog(AlloyContext* context,
 		context->getGlassPanel()->setVisible(false);
 	}
 }
+FileEntry::FileEntry(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Region(name, pos, dims), fileLocation(""), fileName(""), fileType(
+				FileType::File) {
+	this->backgroundColor = MakeColor(255, 0, 0);
+}
+void FileEntry::setValue(const std::string& fileLocation,
+		const std::string& fileName, const FileType& fileType) {
+	this->fileLocation = fileLocation;
+	this->fileName = fileName;
+	this->fileType = fileType;
+}
+void FileEntry::draw(AlloyContext* context) {
+	bool hover = context->isMouseOver(this);
+	bool down = context->isMouseDown(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+	float lineWidth = 2.0f;
+	int xoff = 0;
+	int yoff = 0;
+	if (down) {
+		xoff = 2;
+		yoff = 2;
+	}
+	if (hover || down) {
+		if (!down) {
+			nvgBeginPath(nvg);
+			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
+					bounds.position.y, bounds.dimensions.x - 2,
+					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
+					context->theme.SHADOW,
+					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
+			nvgFillPaint(nvg, shadowPaint);
+			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
+					bounds.dimensions.x, bounds.dimensions.y,
+					context->theme.CORNER_RADIUS);
+			nvgFill(nvg);
+		}
+
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+
+	} else {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
+				bounds.dimensions.x - 2, bounds.dimensions.y - 2,
+				context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+
+	if (hover) {
+
+		nvgBeginPath(nvg);
+		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
+				bounds.position.y + yoff, bounds.dimensions.x,
+				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
+				context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
+				context->theme.DARK);
+		nvgFillPaint(nvg, hightlightPaint);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
+				bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+		nvgFill(nvg);
+	}
+	/*
+	nvgFillColor(nvg, context->theme.DARK_TEXT);
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
+
+	nvgFontSize(nvg, th);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
+
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+	float iw = nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr,
+			nullptr);
+
+	float ww = tw + iw + AlloyApplicationContext()->theme.SPACING.x;
+	pixel2 offset(0, 0);
+
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
+
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
+			nullptr);
+
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+	nvgText(nvg,
+			AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
+					+ (bounds.dimensions.x - ww) / 2 + tw + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff,
+			iconCodeString.c_str(), nullptr);
+	*/
+}
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		Widget(name, pos, dims) {
-	containerRegion=std::shared_ptr<BorderComposite>(new BorderComposite("Container",CoordPX(0,15),CoordPerPX(1.0,1.0,-15,-15)));
+	containerRegion = std::shared_ptr<BorderComposite>(
+			new BorderComposite("Container", CoordPX(0, 15),
+					CoordPerPX(1.0, 1.0, -15, -15)));
 
-	openButton=std::shared_ptr<TextIconButton>(new TextIconButton("Open",0xf115,CoordPerPX(1.0f,1.0f,-7.0f,-7.0f),CoordPX(100,30)));
+	openButton = std::shared_ptr<TextIconButton>(
+			new TextIconButton("Open", 0xf115,
+					CoordPerPX(1.0f, 1.0f, -7.0f, -7.0f), CoordPX(100, 30)));
 	openButton->setOrigin(Origin::BottomRight);
 
-	fileLocation=std::shared_ptr<FileField>(new FileField("File Location",CoordPX(7,7),CoordPerPX(1.0f,0.0f,-14.0f,30.0f)));
+	fileLocation = std::shared_ptr<FileField>(
+			new FileField("File Location", CoordPX(7, 7),
+					CoordPerPX(1.0f, 0.0f, -14.0f, 30.0f)));
 	cancelButton = std::shared_ptr<IconButton>(
 			new IconButton(
 					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
@@ -1909,17 +2019,31 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30)));
 	cancelButton->setOrigin(Origin::BottomLeft);
 
-	containerRegion->setNorth(fileLocation,0.15f);
-	containerRegion->setSouth(openButton,0.15f);
+	containerRegion->setNorth(fileLocation, 0.15f);
+	containerRegion->setSouth(openButton, 0.15f);
 
-	directoryTree=std::shared_ptr<Composite>(new Composite("Container",CoordPX(7,0),CoordPerPX(1.0,1.0,-7,0)));
-	directoryList=std::shared_ptr<Composite>(new Composite("Container",CoordPX(7,0),CoordPerPX(1.0f,1.0,-14.0f,0.0f)));
+	directoryTree = std::shared_ptr<Composite>(
+			new Composite("Container", CoordPX(7, 0),
+					CoordPerPX(1.0, 1.0, -7, 0)));
+	directoryList = std::shared_ptr<Composite>(
+			new Composite("Container", CoordPX(7, 0),
+					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
 
-	directoryList->backgroundColor=MakeColor(0,0,128);
-	directoryTree->backgroundColor=MakeColor(128,0,0);
-	containerRegion->setWest(directoryTree,0.3f);
+	for (int i = 0; i < 10; i++) {
+		fileEntries.push_back(
+				std::shared_ptr<FileEntry>(
+						new FileEntry(MakeString() << "Entry " << i,
+								CoordPX(0, 0),
+								CoordPerPX(1.0f, 0.0f, 0.0f, 30.0f))));
+	}
+
+	for (std::shared_ptr<FileEntry>& entry : fileEntries) {
+		directoryList->add(entry);
+	}
+	directoryList->setOrientation(Orientation::Vertical);
+	directoryList->setScrollEnabled(true);
+	containerRegion->setWest(directoryTree, 0.3f);
 	containerRegion->setCenter(directoryList);
-
 
 	add(containerRegion);
 
@@ -1953,8 +2077,8 @@ void FileDialog::draw(AlloyContext* context) {
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
 			context->theme.CORNER_RADIUS);
-	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y,
-			context->dpmm.y, context->pixelRatio);
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+			context->pixelRatio);
 	nvgStrokeWidth(nvg, lineWidth);
 	nvgStrokeColor(nvg, context->theme.LIGHT);
 	nvgStroke(nvg);

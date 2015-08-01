@@ -277,6 +277,7 @@ public:
 			const AUnit2D& dims);
 	void draw(AlloyContext* context) override;
 };
+
 class ColorSelector: public Widget {
 private:
 	TextLabelPtr textLabel;
@@ -319,6 +320,16 @@ public:
 		const AUnit2D& pos,
 		const AUnit2D& dims);
 };
+class FileEntry: public Region{
+private:
+	std::string fileLocation;
+	std::string fileName;
+	FileType fileType;
+public:
+	FileEntry(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	virtual void draw(AlloyContext* context) override;
+	void setValue(const std::string& fileLocation,const std::string& fileName,const FileType& fileType);
+};
 class FileDialog: public Widget{
 private:
 	std::shared_ptr<FileField> fileLocation;
@@ -327,6 +338,7 @@ private:
 	std::shared_ptr<TextIconButton> openButton;
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;
+	std::vector<std::shared_ptr<FileEntry>> fileEntries;
 public:
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(

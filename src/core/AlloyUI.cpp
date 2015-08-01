@@ -1830,6 +1830,11 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFill(nvg);
 			upArrow->draw(upArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
 					context);
+			if(upArrowBox.contains(AlloyApplicationContext()->cursorPosition)){
+				if(selectionOffset>0){
+					selectionOffset--;
+				}
+			}
 		}
 
 		if (selectionOffset < options.size() - maxDisplayEntries) {
@@ -1841,6 +1846,11 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFill(nvg);
 			downArrow->draw(downArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
 					context);
+			if(downArrowBox.contains(AlloyApplicationContext()->cursorPosition)){
+				if(selectionOffset<options.size()-maxDisplayEntries){
+					selectionOffset++;
+				}
+			}
 		}
 	}
 
@@ -1921,6 +1931,14 @@ SelectionBox::SelectionBox(const std::string& name,
 					} else if(event.type==InputType::Scroll) {
 						if(maxDisplayEntries>=0) {
 							if(options.size()>maxDisplayEntries) {
+								if(downTimer.get()!=nullptr) {
+									scrollingDown=false;
+									downTimer.reset();
+								}
+								if(upTimer.get()!=nullptr) {
+									scrollingUp=false;
+									upTimer.reset();
+								}
 								selectionOffset=aly::clamp(selectionOffset-(int)event.scroll.y,0,(int)options.size()-maxDisplayEntries);
 								return true;
 							}
