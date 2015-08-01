@@ -1875,7 +1875,7 @@ SelectionBox::SelectionBox(const std::string& name,
 								return true;
 							}
 						}
-					} else if(event.type==InputType::Cursor) {
+					} else if(event.type==InputType::Cursor&&maxDisplayEntries>options.size()) {
 						box2px bounds=this->getBounds();
 						int elements =
 						(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
@@ -1889,13 +1889,13 @@ SelectionBox::SelectionBox(const std::string& name,
 						if(lastBounds.contains(event.cursor)) {
 							if(downTimer.get()==nullptr) {
 								downTimer=std::shared_ptr<Timer>(new Timer([this] {
-													double deltaT=100;
-													while(selectionOffset<options.size()-maxDisplayEntries) {
+													double deltaT=200;
+													while(selectionOffset<options.size()-maxDisplayEntries&&selectedIndex==selectionOffset+maxDisplayEntries-1) {
 														this->selectionOffset++;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
-														deltaT=std::max(deltaT,0.75*deltaT);
+														deltaT=std::max(30.0,0.75*deltaT);
 													}
-												},nullptr,1000,30));
+												},nullptr,500,30));
 								downTimer->execute();
 							}
 						} else {
@@ -1905,15 +1905,14 @@ SelectionBox::SelectionBox(const std::string& name,
 						}
 						if(firstBounds.contains(event.cursor)) {
 							if(upTimer.get()==nullptr) {
-								std::cout<<"Create timer"<<std::endl;
 								upTimer=std::shared_ptr<Timer>(new Timer([this] {
-													double deltaT=100;
-													while(selectionOffset>0) {
+													double deltaT=200;
+													while(selectionOffset>0&&selectedIndex==selectionOffset) {
 														this->selectionOffset--;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
-														deltaT=std::max(deltaT,0.75*deltaT);
+														deltaT=std::max(30.0,0.75*deltaT);
 													}
-												},nullptr,1000,30));
+												},nullptr,500,30));
 								upTimer->execute();
 							}
 						} else {
