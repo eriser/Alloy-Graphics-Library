@@ -53,6 +53,7 @@
     <ClInclude Include="..\..\include\core\AlloyCursorLocator.h" />
     <ClInclude Include="..\..\include\core\AlloyDrawUtil.h" />
     <ClInclude Include="..\..\include\core\AlloyEnum.h" />
+    <ClInclude Include="..\..\include\core\AlloyFilesystem.h" />
     <ClInclude Include="..\..\include\core\AlloyFileUtil.h" />
     <ClInclude Include="..\..\include\core\AlloyImage.h" />
     <ClInclude Include="..\..\include\core\AlloyMath.h" />

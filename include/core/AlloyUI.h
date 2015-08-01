@@ -30,6 +30,7 @@
 #include <iostream>
 #include <memory>
 #include <list>
+#include <array>
 #include <vector>
 namespace aly {
 bool SANITY_CHECK_UI();

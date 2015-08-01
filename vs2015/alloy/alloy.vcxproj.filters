@@ -179,5 +179,8 @@
     <ClInclude Include="..\..\include\core\ply_io.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyFilesystem.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
