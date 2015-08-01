@@ -1355,7 +1355,6 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 						context->removeOnTopRegion(selectionBox.get());
 						selectionBox->setVisible(false);
 					} else {
-						selectionBox->updateLock.lock();
 						std::vector<std::string>& labels = selectionBox->options;
 						labels.clear();
 						for (std::string f : suggestions) {
@@ -1366,7 +1365,6 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 								labels.push_back(GetFileName(f));
 							}
 						}
-						selectionBox->updateLock.unlock();
 						if (labels.size() > 0) {
 							box2px bounds = getBounds();
 							selectionBox->pack(bounds.position,
@@ -1757,7 +1755,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	nvgFillColor(nvg, context->theme.DARK);
 	int index = 0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
-	updateLock.lock();
+
 	int N = options.size();
 
 	if (maxDisplayEntries >= 0) {
@@ -1797,7 +1795,6 @@ void SelectionBox::draw(AlloyContext* context) {
 		popScissor(nvg);
 		offset.y += entryHeight;
 	}
-	updateLock.unlock();
 
 	if (borderColor->a > 0) {
 		nvgBeginPath(nvg);
@@ -1809,14 +1806,56 @@ void SelectionBox::draw(AlloyContext* context) {
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgStroke(nvg);
 	}
+
+	box2px downArrowBox(
+			pixel2(
+					bounds.position.x + bounds.dimensions.x
+							- downArrow->width / 2,
+					bounds.position.y + bounds.dimensions.y
+							- downArrow->height / 2),
+			pixel2(downArrow->width, downArrow->height));
+	box2px upArrowBox(
+			pixel2(
+					bounds.position.x + bounds.dimensions.x
+							- downArrow->width / 2,
+					bounds.position.y - downArrow->height / 2),
+			pixel2(downArrow->width, downArrow->height));
+
+	if (maxDisplayEntries >= 0) {
+
+		if (selectionOffset > 0) {
+			nvgBeginPath(nvg);
+			nvgFillColor(nvg, context->theme.DARK);
+			nvgCircle(nvg, bounds.position.x + bounds.dimensions.x,
+					bounds.position.y, upArrow->height / 2 );
+			nvgFill(nvg);
+			upArrow->draw(upArrowBox, context->theme.HIGHLIGHT, COLOR_NONE, context);
+		}
+
+		if (selectionOffset < options.size() - maxDisplayEntries) {
+			nvgBeginPath(nvg);
+			nvgFillColor(nvg, context->theme.DARK);
+			nvgCircle(nvg, bounds.position.x + bounds.dimensions.x,
+					bounds.position.y + bounds.dimensions.y,
+					downArrow->height / 2 );
+			nvgFill(nvg);
+			downArrow->draw(downArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
+					context);
+		}
+	}
+
 }
 SelectionBox::SelectionBox(const std::string& name,
 		const std::vector<std::string>& labels) :
 		Region(name), options(labels), label(name) {
+
+	downArrow = AlloyApplicationContext()->createAwesomeGlyph(0xf0ab,
+			FontStyle::Normal, 14);
+	upArrow = AlloyApplicationContext()->createAwesomeGlyph(0xf0aa,
+			FontStyle::Normal, 14);
 	onEvent =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if(context->isOnTop(this)&&this->isVisible()) {
-					std::lock_guard<std::mutex>(this->updateLock);
 					if(event.type==InputType::Key&&event.isDown()) {
 						if(event.key==GLFW_KEY_UP) {
 							if(selectedIndex<0) {
@@ -1890,10 +1929,11 @@ SelectionBox::SelectionBox(const std::string& name,
 							if(downTimer.get()==nullptr) {
 								downTimer=std::shared_ptr<Timer>(new Timer([this] {
 													double deltaT=200;
-													while(selectionOffset<options.size()-maxDisplayEntries&&selectedIndex==selectionOffset+maxDisplayEntries-1) {
+													while(selectionOffset<options.size()-maxDisplayEntries&&selectedIndex==selectionOffset+maxDisplayEntries-1) {//
 														this->selectionOffset++;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 														deltaT=std::max(30.0,0.75*deltaT);
+														selectedIndex=selectionOffset+maxDisplayEntries-1;
 													}
 												},nullptr,500,30));
 								downTimer->execute();
@@ -1911,6 +1951,7 @@ SelectionBox::SelectionBox(const std::string& name,
 														this->selectionOffset--;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 														deltaT=std::max(30.0,0.75*deltaT);
+														selectedIndex=selectionOffset;
 													}
 												},nullptr,500,30));
 								upTimer->execute();

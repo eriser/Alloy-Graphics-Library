@@ -375,10 +375,10 @@ protected:
 	int maxDisplayEntries=-1;
 	int selectionOffset=0;
 	std::shared_ptr<Timer> downTimer,upTimer;
+	std::shared_ptr<AwesomeGlyph> downArrow,upArrow;
 	void updateBox(AlloyContext* context);
 
 public:
-	std::mutex updateLock;
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
 	AColor textColor = MakeColor(COLOR_WHITE);
