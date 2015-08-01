@@ -372,8 +372,9 @@ struct SelectionBox: public Region {
 protected:
 	int selectedIndex = -1;
 	std::string label;
-	int maxDisplayEntries=-1;
+	int maxDisplayEntries=8;
 	int selectionOffset=0;
+	bool scrollingDown=false,scrollingUp=false;
 	std::shared_ptr<Timer> downTimer,upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow,upArrow;
 	void updateBox(AlloyContext* context);

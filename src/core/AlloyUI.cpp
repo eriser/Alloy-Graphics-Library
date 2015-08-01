@@ -1306,7 +1306,7 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 			AlloyApplicationContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK_TEXT);
-	selectionBox->setMaxDisplayEntries(8);
+
 	add(selectionBox);
 	selectionBox->onSelect = [this](SelectionBox* box) {
 		selectionBox->setVisible(false);
@@ -1929,17 +1929,18 @@ SelectionBox::SelectionBox(const std::string& name,
 							if(downTimer.get()==nullptr) {
 								downTimer=std::shared_ptr<Timer>(new Timer([this] {
 													double deltaT=200;
-													while(selectionOffset<options.size()-maxDisplayEntries&&selectedIndex==selectionOffset+maxDisplayEntries-1) {//
+													scrollingDown=true;
+													while(scrollingDown&&selectionOffset<options.size()-maxDisplayEntries) {
 														this->selectionOffset++;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 														deltaT=std::max(30.0,0.75*deltaT);
-														selectedIndex=selectionOffset+maxDisplayEntries-1;
 													}
 												},nullptr,500,30));
 								downTimer->execute();
 							}
 						} else {
 							if(downTimer.get()!=nullptr) {
+								scrollingDown=false;
 								downTimer.reset();
 							}
 						}
@@ -1947,17 +1948,18 @@ SelectionBox::SelectionBox(const std::string& name,
 							if(upTimer.get()==nullptr) {
 								upTimer=std::shared_ptr<Timer>(new Timer([this] {
 													double deltaT=200;
-													while(selectionOffset>0&&selectedIndex==selectionOffset) {
+													scrollingUp=true;
+													while(scrollingUp&&selectionOffset>0) {
 														this->selectionOffset--;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 														deltaT=std::max(30.0,0.75*deltaT);
-														selectedIndex=selectionOffset;
 													}
 												},nullptr,500,30));
 								upTimer->execute();
 							}
 						} else {
 							if(upTimer.get()!=nullptr) {
+								scrollingUp=false;
 								upTimer.reset();
 							}
 						}
