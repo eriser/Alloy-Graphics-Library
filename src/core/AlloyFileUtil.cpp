@@ -116,27 +116,28 @@ std::string FormatSize(size_t size) {
 	static const size_t tb = ((size_t) 1 << (size_t) 40);
 
 	if (size < kb) {
-		return MakeString() << std::setw(5)<<std::setfill(' ') << size << " B ";
+		return MakeString() << std::setw(5) << std::setfill(' ') << size
+				<< " B ";
 	} else if (size < mb) {
 		if (size % kb == 0) {
-			return MakeString() << std::setw(5)<<std::setfill(' ') << (size >> (size_t) 10)
-					<< " KB";
+			return MakeString() << std::setw(5) << std::setfill(' ')
+					<< (size >> (size_t) 10) << " KB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)
 					<< size / (double) kb << " KB";
 		}
 	} else if (size < gb) {
 		if (size % mb == 0) {
-			return MakeString() << std::setw(5)<<std::setfill(' ') << (size >> (size_t) 20)
-					<< " MB";
+			return MakeString() << std::setw(5) << std::setfill(' ')
+					<< (size >> (size_t) 20) << " MB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)
 					<< size / (double) mb << " MB";
 		}
 	} else if (size < tb) {
 		if (size % gb == 0) {
-			return MakeString() << std::setw(5)<<std::setfill(' ') << (size >> (size_t) 30)
-					<< " GB";
+			return MakeString() << std::setw(5) << std::setfill(' ')
+					<< (size >> (size_t) 30) << " GB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)
 					<< size / (double) gb << " GB";
@@ -375,6 +376,21 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
+
+FileDescription GetFileDescription(const std::string& fileLocation) {
+	if(!FileExists(fileLocation))return FileDescription();
+	struct stat attrib;
+	stat(fileLocation.c_str(), &attrib);
+	FileType type =
+			IsDirectory(fileLocation) ? FileType::Directory : FileType::File;
+	size_t fileSize = attrib.st_size;
+	std::time_t creationTime = attrib.st_ctim.tv_sec;
+	std::time_t accessTime = attrib.st_atim.tv_sec;
+	std::time_t modifiedTime = attrib.st_mtim.tv_sec;
+	bool readOnly = attrib.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+	return FileDescription(fileLocation, type, fileSize, readOnly, creationTime,
+			accessTime, modifiedTime);
+}
 std::vector<FileDescription> GetDirectoryDescriptionListing(
 		const std::string& dirName) {
 	std::vector<FileDescription> files;
@@ -450,6 +466,28 @@ std::time_t FileTimeToTime(const FILETIME& ft) {
 	ull.LowPart = ft.dwLowDateTime;
 	ull.HighPart = ft.dwHighDateTime;
 	return std::time_t(ull.QuadPart / 100000000ULL - 1164);
+}
+FileDescription GetFileDescription(const std::string& fileLocation) {
+	std::wstring query = ToWString(fileLocation);
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return FileDescription();
+	}
+	FileType fileType = FileType::Unknown;
+	if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+		fileType = FileType::Directory;
+	} else if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
+		fileType = FileType::File;
+	}
+	std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
+	std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
+	std::time_t accessTime = FileTimeToTime(fd.ftLastAccessTime);
+	ULARGE_INTEGER ull;
+	ull.LowPart = fd.nFileSizeLow;
+	ull.HighPart = fd.nFileSizeHigh;
+	size_t fileSize = (size_t)ull.QuadPart;
+	FindClose(h);
+	return FileDescription(fileLocation, fileType, fileSize, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY, creationTime, accessTime, modifiedTime);
 }
 std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& dirName) {
 	std::vector<FileDescription> files;

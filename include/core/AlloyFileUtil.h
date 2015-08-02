@@ -22,7 +22,7 @@
 #ifndef ALLOYFILEUTIL_H_
 #define ALLOYFILEUTIL_H_
 #ifndef NOMINMAX
-	#define NOMINMAX
+#define NOMINMAX
 #endif
 #include <string>
 #include <vector>
@@ -37,8 +37,12 @@ namespace aly {
 #define ALY_PATH_SEPARATOR std::string("/")
 #endif
 bool SANITY_CHECK_FILE_IO();
-enum class FileType{Unknown,File,Directory};
-enum class FileAttribute{ Compressed,Hidden };
+enum class FileType {
+	Unknown, File, Directory
+};
+enum class FileAttribute {
+	Compressed, Hidden
+};
 
 struct FileDescription {
 	std::string fileLocation;
@@ -48,19 +52,31 @@ struct FileDescription {
 	std::time_t creationTime;
 	std::time_t lastAccessTime;
 	std::time_t lastModifiedTime;
-	FileDescription(const std::string& fileLocation, FileType fileType,size_t fileSize, bool readOnly, std::time_t creationTime, std::time_t lastAccessTime,std::time_t lastModifiedTime)
-	:fileLocation(fileLocation),fileType(fileType),fileSize(fileSize),readOnly(readOnly),creationTime(creationTime),lastAccessTime(lastAccessTime),lastModifiedTime(lastModifiedTime){
+	FileDescription(const std::string& fileLocation, FileType fileType,
+			size_t fileSize, bool readOnly, std::time_t creationTime,
+			std::time_t lastAccessTime, std::time_t lastModifiedTime) :
+			fileLocation(fileLocation), fileType(fileType), fileSize(fileSize), readOnly(
+					readOnly), creationTime(creationTime), lastAccessTime(
+					lastAccessTime), lastModifiedTime(lastModifiedTime) {
 
 	}
-	FileDescription(){}
+	FileDescription() :
+			fileLocation(""), fileType(FileType::Unknown), fileSize(0), readOnly(
+					false), creationTime(0), lastAccessTime(0), lastModifiedTime(
+					0) {
+	}
 	bool operator<(const FileDescription& fd) const {
-		return std::lexicographical_compare(fileLocation.begin(),fileLocation.end(),fd.fileLocation.begin(),fd.fileLocation.end());
+		return std::lexicographical_compare(fileLocation.begin(),
+				fileLocation.end(), fd.fileLocation.begin(),
+				fd.fileLocation.end());
 	}
 	bool operator<(FileDescription& fd) {
-		return std::lexicographical_compare(fileLocation.begin(),fileLocation.end(),fd.fileLocation.begin(),fd.fileLocation.end());
+		return std::lexicographical_compare(fileLocation.begin(),
+				fileLocation.end(), fd.fileLocation.begin(),
+				fd.fileLocation.end());
 	}
 };
-
+FileDescription GetFileDescription(const std::string& fileLocation);
 std::string GetFileExtension(const std::string& fileName);
 std::string GetFileWithoutExtension(const std::string& file);
 std::string GetFileNameWithoutExtension(const std::string& file);
@@ -73,7 +89,8 @@ std::string RemoveTrailingSlash(const std::string& file);
 std::string ConcatPath(const std::string& dir, const std::string& file);
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext = "", const std::string& mask = "");
-std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& dirName);
+std::vector<FileDescription> GetDirectoryDescriptionListing(
+		const std::string& dirName);
 std::vector<std::string> GetDirectoryListing(const std::string& dirName);
 std::string ReadTextFile(const std::string& str);
 std::vector<char> ReadBinaryFile(const std::string& str);
@@ -81,26 +98,40 @@ bool FileExists(const std::string& name);
 bool IsDirectory(const std::string& file);
 bool IsFile(const std::string& file);
 std::string CodePointToUTF8(int cp);
-std::vector<std::string> split(const std::string& str,char c);
+std::vector<std::string> split(const std::string& str, char c);
 std::vector<std::string> splitPath(const std::string& file);
 std::string concat(const std::vector<std::string>& list);
 std::string FormatTime(const std::time_t& time);
 std::string FormatDate(const std::time_t& time);
 std::string FormatDateAndTime(const std::time_t& time);
 std::string FormatSize(size_t size);
-std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions=-1);
+std::vector<std::string> AutoComplete(const std::string& str,
+		const std::vector<std::string>& list, int maxSuggestions = -1);
 
-template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ostream<C, R> & ss, const FileType& type) {
-	switch(type){
-	case FileType::Directory:ss<<"Directory";break;
-	case FileType::File:ss<<"File";break;
-	default:ss<<"Unknown";
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const FileType& type) {
+	switch (type) {
+	case FileType::Directory:
+		ss << "Directory";
+		break;
+	case FileType::File:
+		ss << "File";
+		break;
+	default:
+		ss << "Unknown";
 	}
 	return ss;
 }
 
-template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ostream<C, R> & ss, const FileDescription& fd) {
-	ss<<GetFileName(fd.fileLocation)<<" "<<fd.fileType<<" "<<((fd.readOnly)?"Read/Write":"Read Only")<<" "<<FormatSize(fd.fileSize)<<" Created: "<<FormatDate(fd.creationTime)<<" Last Access: "<<FormatDate(fd.lastAccessTime)<<" Last Modified: "<<FormatDate(fd.lastModifiedTime);
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const FileDescription& fd) {
+	ss << GetFileName(fd.fileLocation) << " " << fd.fileType << " "
+			<< ((fd.readOnly) ? "Read/Write" : "Read Only") << " "
+			<< FormatSize(fd.fileSize) << " Created: "
+			<< FormatDate(fd.creationTime) << " Last Access: "
+			<< FormatDate(fd.lastAccessTime) << " Last Modified: "
+			<< FormatDate(fd.lastModifiedTime);
 	return ss;
-}}
+}
+}
 #endif /* ALLOYFILEUTIL_H_ */
