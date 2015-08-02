@@ -24,6 +24,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
+#include <ios>
 namespace aly {
 struct MakeString {
 	std::ostringstream ss;
@@ -31,6 +33,7 @@ struct MakeString {
 		return ss.str();
 	}
 	template<class T> MakeString & operator <<(const T & val) {
+		ss.setf(std::ios::fixed, std::ios::floatfield);
 		ss << val;
 		return *this;
 	}

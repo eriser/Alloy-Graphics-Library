@@ -24,6 +24,7 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>
+#include <ios>
 #include "stdint.h"
 #include "AlloyFileUtil.h"
 #include "AlloyCommon.h"
@@ -107,6 +108,38 @@ std::vector<std::string> split(const std::string &str, char delim) {
 	}
 	return elems;
 
+}
+std::string FormatSize(size_t size) {
+	size_t kb = ((size_t)2 << (size_t)10);
+	size_t mb = ((size_t)2 << (size_t)20);
+	size_t gb = ((size_t)2 << (size_t)30);
+	size_t tb = ((size_t)2 << (size_t)40);
+
+	
+	if (size < kb) {
+		return  MakeString() << std::setprecision(4)<<size << " B";
+	} else if (size < gb) {
+		if (size%kb == 0) {
+			return MakeString() << std::setw(4) << (size>>(size_t)10) << " KB";
+		}
+		else {
+			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)kb << " KB";
+		}
+	}  else if (size < tb) {
+		if (size%kb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t)20) << " GB";
+		}
+		else {
+			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)gb << " GB";
+		}
+	}  else {
+		if (size%kb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t)30) << " TB";
+		}
+		else {
+			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)tb << " TB";
+		}
+	}
 }
 std::string FormatTime(const std::time_t& t) {
 	struct tm* timed = localtime(&t);
@@ -413,13 +446,18 @@ std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& d
 			FileType fileType = FileType::Unknown;
 			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 				fileType = FileType::Directory;
-			} else if (fd.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) {
+			} else if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
 				fileType = FileType::File;
 			} 
-			std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
-			std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
-			files.push_back(FileDescription(fileLocation, fileType, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY,creationTime,modifiedTime ));
-			fd.ftCreationTime;
+			if (fileType != FileType::Unknown) {
+				std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
+				std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
+				ULARGE_INTEGER ull;
+				ull.LowPart = fd.nFileSizeLow;
+				ull.HighPart = fd.nFileSizeHigh;
+				size_t fileSize = (size_t)ull.QuadPart;
+				files.push_back(FileDescription(fileLocation, fileType, fileSize, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY, creationTime, modifiedTime));
+			}
 		}
 	}while (FindNextFile(h, &fd));
 	FindClose(h);

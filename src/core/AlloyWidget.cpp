@@ -1907,6 +1907,8 @@ void FileEntry::setValue(const FileDescription& description) {
 	this->fileDescription = description;
 	iconCodeString = (fileDescription.fileType == FileType::Directory) ? CodePointToUTF8(0xf07b) : CodePointToUTF8(0xf15b);
 	fileName = GetFileName(fileDescription.fileLocation);
+	fileSize = FormatSize(fileDescription.fileSize);
+	std::cout << fileName<<" : " << fileSize << std::endl;
 	creationTime = FormatDateAndTime(fileDescription.creationTime);
 	lastModifiedTime = FormatDateAndTime(fileDescription.lastModifiedTime);
 	this->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
@@ -2043,7 +2045,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
 
-	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing("C:\\");
+	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing("C:\\Users\\blake\\Documents\\github\\alloy\\");
 	int i = 0;
 	std::cout << "Descriptions " << descriptions.size() << std::endl;
 	for (FileDescription& fd:descriptions) {

@@ -40,11 +40,12 @@ enum class FileAttribute{ Compressed,Hidden };
 struct FileDescription {
 	std::string fileLocation;
 	FileType fileType;
+	size_t fileSize;
 	bool readOnly;
 	std::time_t creationTime;
 	std::time_t lastModifiedTime;
-	FileDescription(const std::string& fileLocation, FileType fileType, bool readOnly, std::time_t creationTime, std::time_t lastModifiedTime)
-	:fileLocation(fileLocation),fileType(fileType),readOnly(readOnly),creationTime(creationTime),lastModifiedTime(lastModifiedTime){
+	FileDescription(const std::string& fileLocation, FileType fileType,size_t fileSize, bool readOnly, std::time_t creationTime, std::time_t lastModifiedTime)
+	:fileLocation(fileLocation),fileType(fileType),fileSize(fileSize),readOnly(readOnly),creationTime(creationTime),lastModifiedTime(lastModifiedTime){
 
 	}
 	FileDescription(){}
@@ -75,6 +76,7 @@ std::string concat(const std::vector<std::string>& list);
 std::string FormatTime(const std::time_t& time);
 std::string FormatDate(const std::time_t& time);
 std::string FormatDateAndTime(const std::time_t& time);
+std::string FormatSize(size_t size);
 std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions=-1);
 }
 
