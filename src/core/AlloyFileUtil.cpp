@@ -110,10 +110,10 @@ std::vector<std::string> split(const std::string &str, char delim) {
 
 }
 std::string FormatSize(size_t size) {
-	size_t kb = ((size_t)2 << (size_t)10);
-	size_t mb = ((size_t)2 << (size_t)20);
-	size_t gb = ((size_t)2 << (size_t)30);
-	size_t tb = ((size_t)2 << (size_t)40);
+	static const size_t kb = ((size_t)1 << (size_t)10);
+	static const size_t mb = ((size_t)1 << (size_t)20);
+	static const size_t gb = ((size_t)1 << (size_t)30);
+	static const size_t tb = ((size_t)1 << (size_t)40);
 
 	
 	if (size < kb) {
