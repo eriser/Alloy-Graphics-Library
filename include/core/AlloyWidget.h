@@ -322,13 +322,19 @@ public:
 };
 class FileEntry: public Region{
 private:
-	std::string fileLocation;
+	FileDescription fileDescription;
+	std::string iconCodeString;
 	std::string fileName;
-	FileType fileType;
+	std::string creationTime;
+	std::string lastModifiedTime;
+	bool selected;
+	AUnit1D fontSize;
 public:
+	void setSelected(bool selected);
+	bool isSelected();
 	FileEntry(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
-	void setValue(const std::string& fileLocation,const std::string& fileName,const FileType& fileType);
+	void setValue(const FileDescription& fileDescription);
 };
 class FileDialog: public Widget{
 private:
@@ -339,12 +345,15 @@ private:
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;
 	std::vector<std::shared_ptr<FileEntry>> fileEntries;
+	bool enableMultiSelection=false;
 public:
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(
 			const std::string& name,
 			const AUnit2D& pos,
 			const AUnit2D& dims);
+	void setEnableMultiSelection(bool enable);
+	bool isMultiSelectionEnabled();
 
 };
 class FileSelector : public Widget{

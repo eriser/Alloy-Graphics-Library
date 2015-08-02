@@ -42,7 +42,7 @@ int main() {
 		ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
 		//MeshViewer app;
-		app.run(0);
+		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;

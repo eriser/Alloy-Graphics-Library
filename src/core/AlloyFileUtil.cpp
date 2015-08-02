@@ -23,6 +23,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <iomanip>
 #include "stdint.h"
 #include "AlloyFileUtil.h"
 #include "AlloyCommon.h"
@@ -106,6 +107,45 @@ std::vector<std::string> split(const std::string &str, char delim) {
 	}
 	return elems;
 
+}
+std::string FormatTime(const std::time_t& t) {
+	struct tm* timed = localtime(&t);
+	int hour = timed->tm_hour;
+
+	std::cout << "HOUR " << hour << std::endl;
+	if (hour == 0) {
+		hour = 12;
+	}
+	else if (hour > 12) {
+		hour -= 12;
+	}
+	return MakeString() << std::setw(2) << std::setfill(' ') << hour << ":" << std::setw(2) << std::setfill(' ') << timed->tm_min << " " << ((timed->tm_hour >= 12) ? "pm" : "am");
+}
+std::string FormatDate(const std::time_t& t) {
+	struct tm* timed = localtime(&t);
+	int hour = timed->tm_hour;
+
+	std::cout << "HOUR " << hour << std::endl;
+	if (hour == 0) {
+		hour = 12;
+	}
+	else if (hour > 12) {
+		hour -= 12;
+	}
+	return MakeString() <<std::setw(2) << std::setfill('0') << timed->tm_mon << "/" << std::setw(2) << std::setfill('0') << timed->tm_mday << "/" << timed->tm_year + 1900;
+}
+std::string FormatDateAndTime(const std::time_t& t) {
+	struct tm* timed = localtime(&t);
+	int hour = timed->tm_hour;
+
+	std::cout << "HOUR " << hour << std::endl;
+	if (hour == 0) {
+		hour = 12;
+	}
+	else if (hour > 12) {
+		hour -= 12;
+	}
+	return MakeString() << std::setw(2) << std::setfill(' ') << hour << ":" << std::setw(2) << std::setfill(' ') << timed->tm_min << " " << ((timed->tm_hour >= 12) ? "pm" : "am") << " " << std::setw(2) << std::setfill('0') << timed->tm_mon << "/" << std::setw(2) << std::setfill('0') << timed->tm_mday << "/" << timed->tm_year + 1900;
 }
 std::vector<std::string> splitPath(const std::string& file) {
 	const char c = ALY_PATH_SEPARATOR.c_str()[0];
@@ -291,7 +331,7 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 	std::sort(files.begin(), files.end());
 	return files;
 }
-std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(
+std::vector<FileDescription> GetDirectoryDescriptionListing(
 		const std::string& dirName) {
 	std::vector<std::pair<std::string, FileType>> files;
 	dirent* dp;
@@ -355,8 +395,14 @@ std::string ToString(const std::wstring& str) {
 	std::string narrow = converter.to_bytes(str);
 	return narrow;
 }
-std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(const std::string& dirName) {
-	std::vector<std::pair<std::string, FileType>> files;
+std::time_t FileTimeToTime(const FILETIME& ft) {
+	ULARGE_INTEGER ull;
+	ull.LowPart = ft.dwLowDateTime;
+	ull.HighPart = ft.dwHighDateTime;
+	return std::time_t(ull.QuadPart / 100000000ULL - 1164);
+}
+std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& dirName) {
+	std::vector<FileDescription> files;
 	WIN32_FIND_DATAW fd;
 	std::string path = RemoveTrailingSlash(dirName);
 	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
@@ -368,15 +414,17 @@ std::vector<std::pair<std::string, FileType>> GetDirectoryListingAndTypes(const 
 		std::string fileName = ToString(fd.cFileName);
 		if (fileName != "." && fileName != "..")
 		{
+			std::string fileLocation = path + ALY_PATH_SEPARATOR + fileName;
+			FileType fileType = FileType::Unknown;
 			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-				files.push_back(std::pair<std::string,FileType>(path + ALY_PATH_SEPARATOR + fileName,FileType::Directory));
-			}
-			else if (fd.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) {
-				files.push_back(std::pair<std::string, FileType>(path + ALY_PATH_SEPARATOR + fileName, FileType::File));
-			}
-			else {
-				files.push_back(std::pair<std::string, FileType>(path + ALY_PATH_SEPARATOR + fileName, FileType::Unknown));
-			}
+				fileType = FileType::Directory;
+			} else if (fd.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) {
+				fileType = FileType::File;
+			} 
+			std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
+			std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
+			files.push_back(FileDescription(fileLocation, fileType, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY,creationTime,modifiedTime ));
+			fd.ftCreationTime;
 		}
 	}while (FindNextFile(h, &fd));
 	FindClose(h);

@@ -801,8 +801,10 @@ public:
 	Color LIGHT = Color(180, 180, 180);
 	Color DARK = Color(64, 64, 64);
 	Color NEUTRAL = Color(120, 120, 120);
-	Color DARK_TEXT = Color(64, 64, 64);
 	Color LIGHT_TEXT = Color(230, 230, 230);
+	Color DARK_TEXT = Color(64, 64, 64);
+	Color NEUTRAL_TEXT = Color(120, 120, 120);
+
 	Color LINK=Color(128,0,0);
 	float CORNER_RADIUS = 5.0f;
 	float2 SPACING=float2(4.0f,4.0f);

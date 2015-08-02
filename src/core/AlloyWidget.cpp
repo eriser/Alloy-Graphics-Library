@@ -1899,21 +1899,35 @@ void FileSelector::openFileDialog(AlloyContext* context,
 }
 FileEntry::FileEntry(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Region(name, pos, dims), fileLocation(""), fileName(""), fileType(
-				FileType::File) {
-	this->backgroundColor = MakeColor(255, 0, 0);
+		Region(name, pos, dims), fileDescription(), fontSize(UnitPercent(0.8f)){
+	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	this->selected = false;
 }
-void FileEntry::setValue(const std::string& fileLocation,
-		const std::string& fileName, const FileType& fileType) {
-	this->fileLocation = fileLocation;
-	this->fileName = fileName;
-	this->fileType = fileType;
+void FileEntry::setValue(const FileDescription& description) {
+	this->fileDescription = description;
+	iconCodeString = (fileDescription.fileType == FileType::Directory) ? CodePointToUTF8(0xf07b) : CodePointToUTF8(0xf15b);
+	fileName = GetFileName(fileDescription.fileLocation);
+	creationTime = FormatDateAndTime(fileDescription.creationTime);
+	lastModifiedTime = FormatDateAndTime(fileDescription.lastModifiedTime);
+	this->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
+		this->setSelected(!isSelected());
+		return true;
+	};
+
+}
+void  FileEntry::setSelected(bool selected) {
+	this->selected = selected;
+}
+bool FileEntry::isSelected() {
+	return selected;
 }
 void FileEntry::draw(AlloyContext* context) {
+	box2px bounds = getBounds();
+	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
+	
+
 	float lineWidth = 2.0f;
 	int xoff = 0;
 	int yoff = 0;
@@ -1922,80 +1936,80 @@ void FileEntry::draw(AlloyContext* context) {
 		yoff = 2;
 	}
 	if (hover || down) {
-		if (!down) {
-			nvgBeginPath(nvg);
-			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-					bounds.position.y, bounds.dimensions.x - 2,
-					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
-					context->theme.SHADOW,
-					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-			nvgFillPaint(nvg, shadowPaint);
-			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-					bounds.dimensions.x, bounds.dimensions.y,
-					context->theme.CORNER_RADIUS);
-			nvgFill(nvg);
-		}
-
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
-		nvgFillColor(nvg, *backgroundColor);
+		if (selected) {
+			nvgFillColor(nvg, context->theme.LINK);
+		}
+		else {
+			nvgFillColor(nvg, context->theme.NEUTRAL);
+		}
 		nvgFill(nvg);
-
 	} else {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
 				bounds.dimensions.x - 2, bounds.dimensions.y - 2,
 				context->theme.CORNER_RADIUS);
-		nvgFillColor(nvg, *backgroundColor);
+		if (selected) {
+			nvgFillColor(nvg, context->theme.LINK);
+		}
+		else {
+			nvgFillColor(nvg, context->theme.LIGHT);
+		}
 		nvgFill(nvg);
 	}
 
-	if (hover) {
-
-		nvgBeginPath(nvg);
-		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
-				bounds.position.y + yoff, bounds.dimensions.x,
-				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
-				context->theme.DARK);
-		nvgFillPaint(nvg, hightlightPaint);
-		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-	}
-	/*
-	nvgFillColor(nvg, context->theme.DARK_TEXT);
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
-
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
-
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	float iw = nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr,
 			nullptr);
 
-	float ww = tw + iw + AlloyApplicationContext()->theme.SPACING.x;
 	pixel2 offset(0, 0);
+	
+	if (selected) {
+		if (hover) {
 
-	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
+			nvgFillColor(nvg, context->theme.HIGHLIGHT);
+		}
+		else {
+			nvgFillColor(nvg, context->theme.LIGHT_TEXT);
+		}
+	}
+	else {
+		if (hover) {
 
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-	nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
-			nullptr);
+			nvgFillColor(nvg, context->theme.HIGHLIGHT);
+		}
+		else {
+			nvgFillColor(nvg, context->theme.DARK_TEXT);
+		}
+	}
 
+	box2px labelBounds = getCursorBounds();
+	pushScissor(nvg,labelBounds);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgText(nvg,
-			AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
-					+ (bounds.dimensions.x - ww) / 2 + tw + xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff,
-			iconCodeString.c_str(), nullptr);
-	*/
+		AlloyApplicationContext()->theme.SPACING.x + bounds.position.x + xoff,
+		bounds.position.y + bounds.dimensions.y / 2 + yoff,
+		iconCodeString.c_str(), nullptr);
+
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	nvgText(nvg, 2*AlloyApplicationContext()->theme.SPACING.x+bounds.position.x +iw + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, fileName.c_str(),
+			nullptr);
+	popScissor(nvg);
+}	
+void FileDialog::setEnableMultiSelection(bool enable) {
+	enableMultiSelection = enable;
+}
+bool FileDialog::isMultiSelectionEnabled() {
+	return enableMultiSelection;
 }
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
@@ -2029,12 +2043,18 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
 
-	for (int i = 0; i < 10; i++) {
+	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing("C:\\");
+	int i = 0;
+	std::cout << "Descriptions " << descriptions.size() << std::endl;
+	for (FileDescription& fd:descriptions) {
+		FileEntry* entry= new FileEntry(MakeString() << "Entry " << i,
+			CoordPX(0, 0),
+			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 30.0f));
 		fileEntries.push_back(
 				std::shared_ptr<FileEntry>(
-						new FileEntry(MakeString() << "Entry " << i,
-								CoordPX(0, 0),
-								CoordPerPX(1.0f, 0.0f, 0.0f, 30.0f))));
+						entry));
+		entry->setValue(fd);
+		i++;
 	}
 
 	for (std::shared_ptr<FileEntry>& entry : fileEntries) {

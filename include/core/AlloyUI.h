@@ -378,7 +378,6 @@ protected:
 	bool scrollingDown=false,scrollingUp=false;
 	std::shared_ptr<Timer> downTimer,upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow,upArrow;
-	void updateBox(AlloyContext* context);
 
 public:
 	FontStyle fontStyle = FontStyle::Normal;

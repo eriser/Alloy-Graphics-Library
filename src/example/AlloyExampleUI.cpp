@@ -203,9 +203,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	RegionPtr east=MakeRegion("East",CoordPX(0,0),CoordPercent(1.0,1.0),Color(255,255,0),COLOR_NONE,UnitPX(0));
 	RegionPtr west=MakeRegion("West",CoordPX(0,0),CoordPercent(1.0,1.0),Color(255,0,255),COLOR_NONE,UnitPX(0));
 	RegionPtr center=MakeRegion("Center",CoordPX(0,0),CoordPercent(1.0,1.0),Color(0,255,255),COLOR_NONE,UnitPX(0));
-	bcomp->setNorth(north,0.1);
-	bcomp->setSouth(south,0.3);
-	bcomp->setEast(east,0.2);
+	bcomp->setNorth(north,0.1f);
+	bcomp->setSouth(south,0.3f);
+	bcomp->setEast(east,0.2f);
 	//bcomp->setWest(west,0.4);
 	bcomp->setCenter(center);
 

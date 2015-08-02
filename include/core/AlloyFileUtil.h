@@ -26,6 +26,7 @@
 #endif
 #include <string>
 #include <vector>
+#include <ctime>
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")
@@ -33,7 +34,21 @@ namespace aly {
 #define ALY_PATH_SEPARATOR std::string("/")
 #endif
 bool SANITY_CHECK_FILE_IO();
-enum class FileType{Unknown,File,Directory,Link};
+enum class FileType{Unknown,File,Directory};
+enum class FileAttribute{ Compressed,Hidden };
+
+struct FileDescription {
+	std::string fileLocation;
+	FileType fileType;
+	bool readOnly;
+	std::time_t creationTime;
+	std::time_t lastModifiedTime;
+	FileDescription(const std::string& fileLocation, FileType fileType, bool readOnly, std::time_t creationTime, std::time_t lastModifiedTime)
+	:fileLocation(fileLocation),fileType(fileType),readOnly(readOnly),creationTime(creationTime),lastModifiedTime(lastModifiedTime){
+
+	}
+	FileDescription(){}
+};
 std::string GetFileExtension(const std::string& fileName);
 std::string GetFileWithoutExtension(const std::string& file);
 std::string GetFileNameWithoutExtension(const std::string& file);
@@ -46,7 +61,7 @@ std::string RemoveTrailingSlash(const std::string& file);
 std::string ConcatPath(const std::string& dir, const std::string& file);
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext = "", const std::string& mask = "");
-std::vector<std::pair<std::string,FileType>> GetDirectoryListingAndTypes(const std::string& dirName);
+std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& dirName);
 std::vector<std::string> GetDirectoryListing(const std::string& dirName);
 std::string ReadTextFile(const std::string& str);
 std::vector<char> ReadBinaryFile(const std::string& str);
@@ -57,6 +72,9 @@ std::string CodePointToUTF8(int cp);
 std::vector<std::string> split(const std::string& str,char c);
 std::vector<std::string> splitPath(const std::string& file);
 std::string concat(const std::vector<std::string>& list);
+std::string FormatTime(const std::time_t& time);
+std::string FormatDate(const std::time_t& time);
+std::string FormatDateAndTime(const std::time_t& time);
 std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions=-1);
 }
 
