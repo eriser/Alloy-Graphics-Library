@@ -1891,6 +1891,7 @@ void FileSelector::setFileLocation(const std::string& file) {
 }
 void FileSelector::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
+	fileDialog->setValue(workingDirectory);
 	if (!fileDialog->isVisible()) {
 		context->getGlassPanel()->setVisible(true);
 	} else {
@@ -2154,7 +2155,13 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 
 		return false;
 	};
-	setSelectedFile(ALY_PATH_SEPARATOR);
+}
+void  FileDialog::setValue(const std::string& file) {
+	fileLocation->setValue(file);
+	setSelectedFile(file);
+}
+std::string  FileDialog::getValue() const {
+	return fileLocation->getValue();
 }
 void FileDialog::setFileSelectionType(FileType type) {
 	fileType = type;

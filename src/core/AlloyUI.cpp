@@ -1325,13 +1325,17 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 void FileField::setValue(const std::string& text) {
 	if (text != this->value) {
 		this->value = text;
-		if (text.size() > 16) {
-			this->label = std::string("..") + ALY_PATH_SEPARATOR + GetFileName(text);
+		if (text.size() == 0) {
+			label = name;
 		}
 		else {
-			this->label = text;
+			if (text.size() > 16) {
+				this->label = std::string("..") + ALY_PATH_SEPARATOR + GetFileName(text);
+			}
+			else {
+				this->label = text;
+			}
 		}
-
 		segmentedPath = splitPath(value);
 		moveCursorTo((int)text.size());
 	}

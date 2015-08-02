@@ -368,6 +368,8 @@ public:
 	void setEnableMultiSelection(bool enable);
 	void setFileSelectionType(FileType type);
 	bool isMultiSelectionEnabled();
+	void setValue(const std::string& file);
+	std::string getValue() const;
 
 };
 class FileSelector : public Widget{
@@ -380,7 +382,7 @@ private:
 public:
 	FileSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	void setFileLocation(const std::string& file);
-	void openFileDialog(AlloyContext* context,const std::string& workingDirectory="");
+	void openFileDialog(AlloyContext* context,const std::string& workingDirectory=ALY_PATH_SEPARATOR);
 	virtual void draw(AlloyContext* context) override;
 };
 
