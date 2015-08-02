@@ -43,6 +43,7 @@ private:
 	std::shared_ptr<ImageShader> imageShader;
 	std::list<std::exception_ptr> caughtExceptions;
 	std::shared_ptr<GLFrameBuffer> uiFrameBuffer;
+
 	void initInternal();
 public:
 

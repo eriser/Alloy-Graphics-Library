@@ -214,6 +214,10 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 	}
 	return box;
 }
+void Composite::clear() {
+	AlloyApplicationContext()->addDeferredTask(
+		[this] {this->children.clear();});
+}
 Region* Composite::locate(const pixel2& cursor) {
 	if (isVisible()) {
 		for (auto iter = children.rbegin(); iter != children.rend(); iter++) {
@@ -1292,6 +1296,7 @@ void TextField::draw(AlloyContext* context) {
 FileField::FileField(const std::string& name, const AUnit2D& position,
 		const AUnit2D& dimensions) :
 		TextField(name, position, dimensions) {
+	showDefaultLabel = true;
 	selectionBox = SelectionBoxPtr(new SelectionBox(label));
 	selectionBox->setDetacted(true);
 	selectionBox->setVisible(false);
@@ -1306,7 +1311,6 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 			AlloyApplicationContext()->theme.LIGHT_TEXT);
 	selectionBox->textAltColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK_TEXT);
-
 	add(selectionBox);
 	selectionBox->onSelect = [this](SelectionBox* box) {
 		selectionBox->setVisible(false);
@@ -1317,9 +1321,18 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 	};
 }
 void FileField::setValue(const std::string& text) {
-	this->value = text;
-	segmentedPath = splitPath(value);
-	moveCursorTo((int) text.size());
+	if (text != this->value) {
+		this->value = text;
+		if (text.size() > 16) {
+			this->label = std::string("..") + ALY_PATH_SEPARATOR + GetFileName(text);
+		}
+		else {
+			this->label = text;
+		}
+
+		segmentedPath = splitPath(value);
+		moveCursorTo((int)text.size());
+	}
 }
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 	if (isVisible()) {
@@ -1337,6 +1350,12 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 		case InputType::Key:
 
 			if (e.isDown()) {
+				if (e.key == GLFW_KEY_ENTER) {
+					if (onSelect) {
+						onSelect(this);
+						return  true;
+					}
+				} else 
 				if (e.key == GLFW_KEY_TAB) {
 					showCursor = true;
 					std::string root = GetParentDirectory(value);
@@ -1469,10 +1488,9 @@ void FileField::draw(AlloyContext* context) {
 	}
 
 	if (showDefaultLabel) {
-		nvgFillColor(nvg, backgroundColor->toDarker(0.75f));
+		nvgFillColor(nvg, context->theme.DARK);
 		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
 	} else {
-
 		float xOffset = textOffsetX;
 		std::stringstream path;
 		bool underline;
@@ -1756,7 +1774,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	int index = 0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
 
-	int N = options.size();
+	int N = (int)options.size();
 
 	if (maxDisplayEntries >= 0) {
 		N = std::min(selectionOffset + maxDisplayEntries, (int) options.size());
@@ -1869,7 +1887,7 @@ SelectionBox::SelectionBox(const std::string& name,
 					if(event.type==InputType::Key&&event.isDown()) {
 						if(event.key==GLFW_KEY_UP) {
 							if(selectedIndex<0) {
-								this->setSelectedIndex(options.size()-1);
+								this->setSelectedIndex((int)options.size()-1);
 							} else {
 								this->setSelectedIndex(std::max(0,selectedIndex-1));
 							}
@@ -1902,7 +1920,7 @@ SelectionBox::SelectionBox(const std::string& name,
 							}
 						} else if(event.key==GLFW_KEY_PAGE_DOWN) {
 							if(maxDisplayEntries>0) {
-								selectionOffset=options.size()-maxDisplayEntries;
+								selectionOffset=(int)options.size()-maxDisplayEntries;
 								scrollingDown=false;
 								return true;
 							}

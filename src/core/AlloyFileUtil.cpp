@@ -233,7 +233,7 @@ std::vector<char> ReadBinaryFile(const std::string& str) {
 bool FileExists(const std::string& name) {
 	try {
 		return (filesystem::internal::exists(name));
-	} catch (...) {
+	} catch (exception&) {
 		return false;
 	}
 }
@@ -469,6 +469,7 @@ std::time_t FileTimeToTime(const FILETIME& ft) {
 }
 FileDescription GetFileDescription(const std::string& fileLocation) {
 	std::wstring query = ToWString(fileLocation);
+	WIN32_FIND_DATAW fd;
 	HANDLE h = FindFirstFileW(query.c_str(), &fd);
 	if (h == INVALID_HANDLE_VALUE) {
 		return FileDescription();

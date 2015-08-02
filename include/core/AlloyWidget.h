@@ -320,9 +320,9 @@ public:
 		const AUnit2D& pos,
 		const AUnit2D& dims);
 };
+class FileDialog;
 class FileEntry: public Region{
 private:
-	FileDescription fileDescription;
 	std::string iconCodeString;
 	std::string fileName;
 	std::string creationTime;
@@ -331,15 +331,19 @@ private:
 	std::string fileSize;
 	bool selected;
 	AUnit1D fontSize;
+	FileDialog* dialog;
 public:
+	FileDescription fileDescription;
 	void setSelected(bool selected);
 	bool isSelected();
-	FileEntry(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	FileEntry(FileDialog* dialog,const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 	void setValue(const FileDescription& fileDescription);
 };
 class FileDialog: public Widget{
 private:
+
+	std::list<FileEntry*> lastSelected;
 	std::shared_ptr<FileField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
 	std::shared_ptr<Composite> directoryList;
@@ -348,13 +352,21 @@ private:
 	std::shared_ptr<BorderComposite> containerRegion;
 	std::vector<std::shared_ptr<FileEntry>> fileEntries;
 	bool enableMultiSelection=false;
+	FileType fileType = FileType::File;
+	void setSelectedFile(const std::string& file);
+	bool onMouseDown(FileEntry* entry, AlloyContext* context, const InputEvent& e);
+	bool onMouseOver(FileEntry* entry, AlloyContext* context, const InputEvent& e);
+	bool onMouseDrag(FileEntry* entry, AlloyContext* context, const InputEvent& e);
+	bool onMouseUp(FileEntry* entry, AlloyContext* context, const InputEvent& e);
 public:
+	friend  class FileEntry;
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(
 			const std::string& name,
 			const AUnit2D& pos,
 			const AUnit2D& dims);
 	void setEnableMultiSelection(bool enable);
+	void setFileSelectionType(FileType type);
 	bool isMultiSelectionEnabled();
 
 };

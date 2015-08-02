@@ -47,7 +47,7 @@ int printOglError(const char *file, int line) {
 	return retCode;
 }
 namespace aly {
-std::mutex AlloyContext::contextLock;
+std::mutex AlloyContext::contextLock,taskLock;
 std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
 Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
@@ -319,6 +319,21 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	lastCursorTime = std::chrono::steady_clock::now();
 	lastUpdateTime = std::chrono::steady_clock::now();
 }
+void AlloyContext::addDeferredTask(const std::function<void()>& func) {
+	std::lock_guard<std::mutex> guard(taskLock);
+	deferredTasks.push_back(func);
+}
+bool AlloyContext::executeDeferredTasks() {
+	std::lock_guard<std::mutex> guard(taskLock);
+	if (deferredTasks.size() > 0) {
+		for (std::function<void()>& func : deferredTasks) {
+			func();
+		}
+		deferredTasks.clear();
+		return true;
+	}
+	return false;
+}
 bool AlloyContext::isMouseContainedIn(Region* region) const {
 	return (region->getBounds().contains(cursorPosition));
 }
@@ -386,6 +401,15 @@ void AlloyContext::update(Composite& rootNode) {
 			endTime - lastAnimateTime).count();
 	double cursorElapsed = std::chrono::duration<double>(
 			endTime - lastCursorTime).count();
+	if (deferredTasks.size() > 0) {
+		executeDeferredTasks();
+		cursorLocator.reset(viewSize);
+		rootNode.update(&cursorLocator);
+		dirtyCursorLocator = false;
+		mouseOverRegion = locate(cursorPosition);
+		dirtyCursor = false;
+		dirtyLayout = true;
+	}
 	if (updateElapsed > UPDATE_LOCATOR_INTERVAL_SEC) {
 		if (dirtyCursorLocator) {
 			cursorLocator.reset(viewSize);

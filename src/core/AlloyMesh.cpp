@@ -423,7 +423,7 @@ bool Mesh::load(const std::string& file) {
 	try {
 		ReadMeshFromFile(file, *this);
 		return true;
-	} catch (exception& e) {
+	} catch (exception&) {
 		return false;
 	}
 }
@@ -443,7 +443,7 @@ bool Mesh::save(const std::string& file) {
 	try {
 		WriteMeshToFile(file, *this);
 		return true;
-	} catch (exception& e) {
+	} catch (exception&) {
 		return false;
 	}
 }

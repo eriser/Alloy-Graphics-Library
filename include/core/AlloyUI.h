@@ -214,9 +214,9 @@ protected:
 	pixel2 scrollPosition = pixel2(0, 0);
 	std::shared_ptr<ScrollTrack> verticalScrollTrack, horizontalScrollTrack;
 	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
-public:
-
 	std::vector<std::shared_ptr<Region>> children;
+public:
+	void clear();
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
@@ -420,13 +420,12 @@ struct FileField: public TextField {
 protected:
 	std::vector<std::string> segmentedPath;
 	std::shared_ptr<SelectionBox> selectionBox;
-
 public:
+	std::function<void(FileField* filed)> onSelect;
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
 	virtual inline ~FileField(){}
-
 	FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual void setValue(const std::string& value) override;

@@ -197,6 +197,7 @@ private:
 	Region* onTopRegion = nullptr;
 	std::list<EventHandler*> listeners;
 	std::shared_ptr<Composite> glassPanel;
+	std::list < std::function<void()>> deferredTasks;
 	static std::shared_ptr<AlloyContext> defaultContext;
 	int2 viewSize;
 	int2 screenSize;
@@ -226,6 +227,8 @@ public:
 	int getScreenHeight() {
 		return screenSize.y;
 	}
+	void addDeferredTask(const std::function<void()>& func);
+	bool executeDeferredTasks();
 	std::shared_ptr<Composite>& getGlassPanel();
 
 	inline pixel2 getCursorDownPosition() const {
