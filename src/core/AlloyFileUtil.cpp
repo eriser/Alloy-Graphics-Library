@@ -118,23 +118,30 @@ std::string FormatSize(size_t size) {
 	
 	if (size < kb) {
 		return  MakeString() << std::setprecision(4)<<size << " B";
-	} else if (size < gb) {
+	} else if (size < mb) {
 		if (size%kb == 0) {
 			return MakeString() << std::setw(4) << (size>>(size_t)10) << " KB";
 		}
 		else {
 			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)kb << " KB";
 		}
-	}  else if (size < tb) {
-		if (size%kb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t)20) << " GB";
+	} else if (size < gb) {
+		if (size%mb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t)20) << " MB";
+		}
+		else {
+			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)gb << " GB";
+		}
+	} else if (size < tb) {
+		if (size%gb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t)30) << " GB";
 		}
 		else {
 			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)gb << " GB";
 		}
 	}  else {
-		if (size%kb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t)30) << " TB";
+		if (size%tb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t)40) << " TB";
 		}
 		else {
 			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)tb << " TB";
