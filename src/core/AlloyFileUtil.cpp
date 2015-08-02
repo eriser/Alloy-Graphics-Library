@@ -396,136 +396,139 @@ std::vector<FileDescription> GetDirectoryDescriptionListing(
 				}
 				struct stat attrib;
 				stat(fileLocation.c_str(), &attrib);
-			size_t fileSize=attrib.st_size;
-			std::time_t creationTime=attrib.st_ctim.tv_sec;
-			std::time_t accessTime=attrib.st_atim.tv_sec;
-			std::time_t modifiedTime=attrib.st_mtim.tv_sec;
-			bool readOnly=attrib.st_mode& (S_IRWXU | S_IRWXG | S_IRWXO);
-			files.push_back(FileDescription(fileLocation,type,fileSize,readOnly,creationTime,accessTime,modifiedTime));
-		}
-	}
-	closedir(dirp);
-	std::sort(files.begin(), files.end());
-}
-return files;
-}
-std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
-std::vector<std::string> files;
-dirent* dp;
-std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
-DIR* dirp = opendir(cleanPath.c_str());
-if (dirp) {
-	while ((dp = readdir(dirp)) != NULL) {
-		string fileName(dp->d_name);
-		FileType type = FileType::Unknown;
-		if (dp->d_type == DT_REG || dp->d_type == DT_DIR || dp->d_type == DT_LNK) {
-			if (fileName != ".." && fileName != ".") {
-				files.push_back(cleanPath + fileName);
+				size_t fileSize = attrib.st_size;
+				std::time_t creationTime = attrib.st_ctim.tv_sec;
+				std::time_t accessTime = attrib.st_atim.tv_sec;
+				std::time_t modifiedTime = attrib.st_mtim.tv_sec;
+				bool readOnly = attrib.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+				files.push_back(
+						FileDescription(fileLocation, type, fileSize, readOnly,
+								creationTime, accessTime, modifiedTime));
 			}
 		}
+		closedir(dirp);
+		std::sort(files.begin(), files.end());
 	}
-	closedir(dirp);
-	std::sort(files.begin(), files.end());
+	return files;
 }
-return files;
+std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
+	std::vector<std::string> files;
+	dirent* dp;
+	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
+	DIR* dirp = opendir(cleanPath.c_str());
+	if (dirp) {
+		while ((dp = readdir(dirp)) != NULL) {
+			string fileName(dp->d_name);
+			FileType type = FileType::Unknown;
+			if (dp->d_type == DT_REG || dp->d_type == DT_DIR
+					|| dp->d_type == DT_LNK) {
+				if (fileName != ".." && fileName != ".") {
+					files.push_back(cleanPath + fileName);
+				}
+			}
+		}
+		closedir(dirp);
+		std::sort(files.begin(), files.end());
+	}
+	return files;
 }
 #else 
 
 std::wstring ToWString(const std::string& str) {
-std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-std::wstring wide = converter.from_bytes(str);
-return wide;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::wstring wide = converter.from_bytes(str);
+	return wide;
 }
 
 std::string ToString(const std::wstring& str) {
-std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-std::string narrow = converter.to_bytes(str);
-return narrow;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::string narrow = converter.to_bytes(str);
+	return narrow;
 }
 std::time_t FileTimeToTime(const FILETIME& ft) {
-ULARGE_INTEGER ull;
-ull.LowPart = ft.dwLowDateTime;
-ull.HighPart = ft.dwHighDateTime;
-return std::time_t(ull.QuadPart / 100000000ULL - 1164);
+	ULARGE_INTEGER ull;
+	ull.LowPart = ft.dwLowDateTime;
+	ull.HighPart = ft.dwHighDateTime;
+	return std::time_t(ull.QuadPart / 100000000ULL - 1164);
 }
 std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& dirName) {
-std::vector<FileDescription> files;
-WIN32_FIND_DATAW fd;
-std::string path = RemoveTrailingSlash(dirName);
-std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
-HANDLE h = FindFirstFileW(query.c_str(), &fd);
-if (h == INVALID_HANDLE_VALUE) {
-	return files;
-}
-do {
-	std::string fileName = ToString(fd.cFileName);
-	if (fileName != "." && fileName != "..")
-	{
-		std::string fileLocation = path + ALY_PATH_SEPARATOR + fileName;
-		FileType fileType = FileType::Unknown;
-		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			fileType = FileType::Directory;
-		} else if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
-			fileType = FileType::File;
-		}
-		if (fileType != FileType::Unknown) {
-			std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
-			std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
-			std::time_t accessTime = FileTimeToTime(fd.ftLastAccessTime);
-			ULARGE_INTEGER ull;
-			ull.LowPart = fd.nFileSizeLow;
-			ull.HighPart = fd.nFileSizeHigh;
-			size_t fileSize = (size_t)ull.QuadPart;
-			files.push_back(FileDescription(fileLocation, fileType, fileSize, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY, creationTime, accessTime, modifiedTime));
-		}
+	std::vector<FileDescription> files;
+	WIN32_FIND_DATAW fd;
+	std::string path = RemoveTrailingSlash(dirName);
+	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return files;
 	}
-}while (FindNextFile(h, &fd));
-FindClose(h);
-return files;
-}
-std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
-WIN32_FIND_DATAW fd;
-std::string path = RemoveTrailingSlash(dirName);
-std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
-HANDLE h = FindFirstFileW(query.c_str(), &fd);
-if (h == INVALID_HANDLE_VALUE) {
-	return std::vector<std::string>();
-}
-std::vector<std::string> list;
-do {
-	std::string fileName = ToString(fd.cFileName);
-	if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
+	do {
+		std::string fileName = ToString(fd.cFileName);
 		if (fileName != "." && fileName != "..")
 		{
-			list.push_back(path + ALY_PATH_SEPARATOR + fileName);
-		}
-	}
-}while (FindNextFile(h, &fd));
-FindClose(h);
-return list;
-}
-std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
-WIN32_FIND_DATAW fd;
-std::string path = RemoveTrailingSlash(dirName);
-std::wstring query = ToWString(path + ALY_PATH_SEPARATOR+string("*"));
-HANDLE h = FindFirstFileW(query.c_str(), &fd);
-if (h == INVALID_HANDLE_VALUE) {
-	return std::vector<std::string>();
-}
-std::vector<std::string> list;
-do {
-	std::string fileName = ToString(fd.cFileName);
-	if (fileName != "." && fileName != "..")
-	{
-		if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
-			if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
-				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)&& !(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+			std::string fileLocation = path + ALY_PATH_SEPARATOR + fileName;
+			FileType fileType = FileType::Unknown;
+			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+				fileType = FileType::Directory;
+			} else if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
+				fileType = FileType::File;
+			}
+			if (fileType != FileType::Unknown) {
+				std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
+				std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
+				std::time_t accessTime = FileTimeToTime(fd.ftLastAccessTime);
+				ULARGE_INTEGER ull;
+				ull.LowPart = fd.nFileSizeLow;
+				ull.HighPart = fd.nFileSizeHigh;
+				size_t fileSize = (size_t)ull.QuadPart;
+				files.push_back(FileDescription(fileLocation, fileType, fileSize, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY, creationTime, accessTime, modifiedTime));
 			}
 		}
+	}while (FindNextFile(h, &fd));
+	FindClose(h);
+	return files;
+}
+std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
+	WIN32_FIND_DATAW fd;
+	std::string path = RemoveTrailingSlash(dirName);
+	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return std::vector<std::string>();
 	}
-}while (FindNextFile(h, &fd));
-FindClose(h);
-return list;
+	std::vector<std::string> list;
+	do {
+		std::string fileName = ToString(fd.cFileName);
+		if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
+			if (fileName != "." && fileName != "..")
+			{
+				list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+			}
+		}
+	}while (FindNextFile(h, &fd));
+	FindClose(h);
+	return list;
+}
+std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
+	WIN32_FIND_DATAW fd;
+	std::string path = RemoveTrailingSlash(dirName);
+	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR+string("*"));
+	HANDLE h = FindFirstFileW(query.c_str(), &fd);
+	if (h == INVALID_HANDLE_VALUE) {
+		return std::vector<std::string>();
+	}
+	std::vector<std::string> list;
+	do {
+		std::string fileName = ToString(fd.cFileName);
+		if (fileName != "." && fileName != "..")
+		{
+			if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
+				if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
+					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)&& !(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+				}
+			}
+		}
+	}while (FindNextFile(h, &fd));
+	FindClose(h);
+	return list;
 }
 #endif
 

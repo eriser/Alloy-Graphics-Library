@@ -36,10 +36,10 @@ int main() {
 			std::cout<<i++<<") "<<suggestion<<std::endl;
 		}
 	}
-	*/
+
 	for(FileDescription& fd:GetDirectoryDescriptionListing(ALY_PATH_SEPARATOR)){
 		std::cout<<fd<<std::endl;
-	}
+	}*/
 	try {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();

@@ -327,6 +327,7 @@ private:
 	std::string fileName;
 	std::string creationTime;
 	std::string lastModifiedTime;
+	std::string lastAccessTime;
 	std::string fileSize;
 	bool selected;
 	AUnit1D fontSize;

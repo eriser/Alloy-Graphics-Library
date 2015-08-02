@@ -1908,9 +1908,10 @@ void FileEntry::setValue(const FileDescription& description) {
 	iconCodeString = (fileDescription.fileType == FileType::Directory) ? CodePointToUTF8(0xf07b) : CodePointToUTF8(0xf15b);
 	fileName = GetFileName(fileDescription.fileLocation);
 	fileSize = FormatSize(fileDescription.fileSize);
-	std::cout << fileName<<" : " << fileSize << std::endl;
 	creationTime = FormatDateAndTime(fileDescription.creationTime);
+	lastAccessTime = FormatDateAndTime(fileDescription.lastModifiedTime);
 	lastModifiedTime = FormatDateAndTime(fileDescription.lastModifiedTime);
+	std::cout<<description<<std::endl;
 	this->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
 		this->setSelected(!isSelected());
 		return true;
