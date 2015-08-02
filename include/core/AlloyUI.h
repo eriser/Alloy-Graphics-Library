@@ -183,9 +183,7 @@ public:
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
 	bool isVisible();
-	virtual ~Region(){
-
-	}
+	virtual ~Region();
 };
 struct ScrollHandle: public Region {
 public:

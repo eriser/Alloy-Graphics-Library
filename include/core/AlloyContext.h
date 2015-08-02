@@ -212,6 +212,7 @@ public:
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
+	void clearEvents(Region* region);
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;
 	}

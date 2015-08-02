@@ -353,6 +353,12 @@ std::shared_ptr<Composite>& AlloyContext::getGlassPanel(){
 	}
 	return glassPanel;
 }
+void AlloyContext::clearEvents(Region* region) {
+	if (mouseOverRegion == region)mouseOverRegion = nullptr;
+	if (mouseDownRegion == region)mouseDownRegion = nullptr;
+	if (mouseFocusRegion == region)mouseFocusRegion = nullptr;
+	if (onTopRegion == region)region = nullptr;
+}
 Region* AlloyContext::locate(const pixel2& cursor) const {
 	if (onTopRegion != nullptr) {
 		if (onTopRegion->isVisible()) {

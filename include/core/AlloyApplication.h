@@ -57,6 +57,11 @@ public:
 			context->removeListener(region);
 		}
 	}
+	static inline void clearEvents(Region* region) {
+		if (context.get() != nullptr) {
+			context->clearEvents(region);
+		}
+	}
 	static inline void addListener(EventHandler* region) {
 		if (context.get() != nullptr) {
 			context->addListener(region);

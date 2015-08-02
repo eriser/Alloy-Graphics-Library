@@ -7,7 +7,7 @@
 #include <fstream>
 
 namespace aly {
-const float VirtualCamera::sDeg2rad = ALY_PI / 180.0;
+const float VirtualCamera::sDeg2rad = ALY_PI / 180.0f;
 VirtualCamera::VirtualCamera() :
 		fov(60.0f), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
 				0, 0, 0), nearPlane(0.1f), farPlane(10000.0f), eye(

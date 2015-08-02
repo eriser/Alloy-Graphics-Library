@@ -193,6 +193,9 @@ Region::Region(const std::string& name, const AUnit2D& pos, const AUnit2D& dims)
 		position(pos), dimensions(dims), name(name) {
 
 }
+Region::~Region() {
+	Application::clearEvents(this);
+}
 void Region::drawDebug(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
@@ -215,8 +218,7 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 	return box;
 }
 void Composite::clear() {
-	AlloyApplicationContext()->addDeferredTask(
-		[this] {this->children.clear();});
+	AlloyApplicationContext()->addDeferredTask([this] {this->children.clear();});
 }
 Region* Composite::locate(const pixel2& cursor) {
 	if (isVisible()) {
