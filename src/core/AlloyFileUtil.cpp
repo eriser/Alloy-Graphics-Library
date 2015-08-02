@@ -116,10 +116,10 @@ std::string FormatSize(size_t size) {
 	static const size_t tb = ((size_t) 1 << (size_t) 40);
 
 	if (size < kb) {
-		return MakeString() << std::setw(4)<<std::setfill(' ') << size << " B";
+		return MakeString() << std::setw(5)<<std::setfill(' ') << size << " B ";
 	} else if (size < mb) {
 		if (size % kb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t) 10)
+			return MakeString() << std::setw(5)<<std::setfill(' ') << (size >> (size_t) 10)
 					<< " KB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)
@@ -127,7 +127,7 @@ std::string FormatSize(size_t size) {
 		}
 	} else if (size < gb) {
 		if (size % mb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t) 20)
+			return MakeString() << std::setw(5)<<std::setfill(' ') << (size >> (size_t) 20)
 					<< " MB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)
@@ -135,7 +135,7 @@ std::string FormatSize(size_t size) {
 		}
 	} else if (size < tb) {
 		if (size % gb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t) 30)
+			return MakeString() << std::setw(5)<<std::setfill(' ') << (size >> (size_t) 30)
 					<< " GB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)
@@ -143,7 +143,7 @@ std::string FormatSize(size_t size) {
 		}
 	} else {
 		if (size % tb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t) 40)
+			return MakeString() << std::setw(5) << (size >> (size_t) 40)
 					<< " TB";
 		} else {
 			return MakeString() << std::setw(5) << std::setprecision(2)

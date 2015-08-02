@@ -100,7 +100,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ost
 }
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ostream<C, R> & ss, const FileDescription& fd) {
-	ss<<GetFileName(fd.fileLocation)<<" "<<fd.fileType<<" "<<((fd.readOnly)?"Read/Write":"Read Only")<<FormatSize(fd.fileSize)<<" Created: "<<FormatDate(fd.creationTime)<<" Last Access: "<<FormatDate(fd.lastAccessTime)<<" Last Modified: "<<FormatDate(fd.lastModifiedTime);
+	ss<<GetFileName(fd.fileLocation)<<" "<<fd.fileType<<" "<<((fd.readOnly)?"Read/Write":"Read Only")<<" "<<FormatSize(fd.fileSize)<<" Created: "<<FormatDate(fd.creationTime)<<" Last Access: "<<FormatDate(fd.lastAccessTime)<<" Last Modified: "<<FormatDate(fd.lastModifiedTime);
 	return ss;
 }}
 #endif /* ALLOYFILEUTIL_H_ */
