@@ -481,9 +481,11 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 	std::vector<std::string> list;
 	do {
 		std::string fileName = ToString(fd.cFileName);
-		if (fileName != "." && fileName != "..")
-		{
-			list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+		if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
+			if (fileName != "." && fileName != "..")
+			{
+				list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+			}
 		}
 	}while (FindNextFile(h, &fd));
 	FindClose(h);
@@ -504,7 +506,7 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,cons
 		{
 			if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
 				if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
-					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)&& !(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
 				}
 			}
 		}

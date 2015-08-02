@@ -2045,7 +2045,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
 
-	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing("C:\\Users\\blake\\Documents\\github\\alloy\\");
+	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing("C:\\");
 	int i = 0;
 	std::cout << "Descriptions " << descriptions.size() << std::endl;
 	for (FileDescription& fd:descriptions) {
