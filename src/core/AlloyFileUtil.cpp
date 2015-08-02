@@ -112,7 +112,6 @@ std::string FormatTime(const std::time_t& t) {
 	struct tm* timed = localtime(&t);
 	int hour = timed->tm_hour;
 
-	std::cout << "HOUR " << hour << std::endl;
 	if (hour == 0) {
 		hour = 12;
 	}
@@ -124,8 +123,6 @@ std::string FormatTime(const std::time_t& t) {
 std::string FormatDate(const std::time_t& t) {
 	struct tm* timed = localtime(&t);
 	int hour = timed->tm_hour;
-
-	std::cout << "HOUR " << hour << std::endl;
 	if (hour == 0) {
 		hour = 12;
 	}
@@ -137,8 +134,6 @@ std::string FormatDate(const std::time_t& t) {
 std::string FormatDateAndTime(const std::time_t& t) {
 	struct tm* timed = localtime(&t);
 	int hour = timed->tm_hour;
-
-	std::cout << "HOUR " << hour << std::endl;
 	if (hour == 0) {
 		hour = 12;
 	}
