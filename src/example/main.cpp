@@ -23,7 +23,7 @@
 #include "AlloyFileUtil.h"
 using namespace aly;
 int main() {
-
+/*
 	std::vector<std::string> fileTest={"/","/v","/var/tmp/","/var/tmp","/usr/lib/up"};
 	for(std::string str:fileTest){
 		std::vector<std::string> listing;
@@ -35,6 +35,10 @@ int main() {
 		for(std::string suggestion:suggestions){
 			std::cout<<i++<<") "<<suggestion<<std::endl;
 		}
+	}
+	*/
+	for(FileDescription& fd:GetDirectoryDescriptionListing(ALY_PATH_SEPARATOR)){
+		std::cout<<fd<<std::endl;
 	}
 	try {
 		//SANITY_CHECK_IMAGE();

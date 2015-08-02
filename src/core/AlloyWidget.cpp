@@ -2045,9 +2045,8 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
 
-	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing("C:\\");
+	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(ALY_PATH_SEPARATOR);
 	int i = 0;
-	std::cout << "Descriptions " << descriptions.size() << std::endl;
 	for (FileDescription& fd:descriptions) {
 		FileEntry* entry= new FileEntry(MakeString() << "Entry " << i,
 			CoordPX(0, 0),

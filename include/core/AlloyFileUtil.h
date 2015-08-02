@@ -27,6 +27,9 @@
 #include <string>
 #include <vector>
 #include <ctime>
+#include <algorithm>
+#include <string>
+#include <iostream>
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")
@@ -43,13 +46,21 @@ struct FileDescription {
 	size_t fileSize;
 	bool readOnly;
 	std::time_t creationTime;
+	std::time_t lastAccessTime;
 	std::time_t lastModifiedTime;
-	FileDescription(const std::string& fileLocation, FileType fileType,size_t fileSize, bool readOnly, std::time_t creationTime, std::time_t lastModifiedTime)
-	:fileLocation(fileLocation),fileType(fileType),fileSize(fileSize),readOnly(readOnly),creationTime(creationTime),lastModifiedTime(lastModifiedTime){
+	FileDescription(const std::string& fileLocation, FileType fileType,size_t fileSize, bool readOnly, std::time_t creationTime, std::time_t lastAccessTime,std::time_t lastModifiedTime)
+	:fileLocation(fileLocation),fileType(fileType),fileSize(fileSize),readOnly(readOnly),creationTime(creationTime),lastAccessTime(lastAccessTime),lastModifiedTime(lastModifiedTime){
 
 	}
 	FileDescription(){}
+	bool operator<(const FileDescription& fd) const {
+		return std::lexicographical_compare(fileLocation.begin(),fileLocation.end(),fd.fileLocation.begin(),fd.fileLocation.end());
+	}
+	bool operator<(FileDescription& fd) {
+		return std::lexicographical_compare(fileLocation.begin(),fileLocation.end(),fd.fileLocation.begin(),fd.fileLocation.end());
+	}
 };
+
 std::string GetFileExtension(const std::string& fileName);
 std::string GetFileWithoutExtension(const std::string& file);
 std::string GetFileNameWithoutExtension(const std::string& file);
@@ -78,6 +89,18 @@ std::string FormatDate(const std::time_t& time);
 std::string FormatDateAndTime(const std::time_t& time);
 std::string FormatSize(size_t size);
 std::vector<std::string> AutoComplete(const std::string& str,const std::vector<std::string>& list,int maxSuggestions=-1);
+
+template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ostream<C, R> & ss, const FileType& type) {
+	switch(type){
+	case FileType::Directory:ss<<"Directory";break;
+	case FileType::File:ss<<"File";break;
+	default:ss<<"Unknown";
+	}
+	return ss;
 }
 
+template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ostream<C, R> & ss, const FileDescription& fd) {
+	ss<<GetFileName(fd.fileLocation)<<" "<<fd.fileType<<" "<<((fd.readOnly)?"Read/Write":"Read Only")<<FormatSize(fd.fileSize)<<" Created: "<<FormatDate(fd.creationTime)<<" Last Access: "<<FormatDate(fd.lastAccessTime)<<" Last Modified: "<<FormatDate(fd.lastModifiedTime);
+	return ss;
+}}
 #endif /* ALLOYFILEUTIL_H_ */

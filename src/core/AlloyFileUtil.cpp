@@ -110,41 +110,44 @@ std::vector<std::string> split(const std::string &str, char delim) {
 
 }
 std::string FormatSize(size_t size) {
-	static const size_t kb = ((size_t)1 << (size_t)10);
-	static const size_t mb = ((size_t)1 << (size_t)20);
-	static const size_t gb = ((size_t)1 << (size_t)30);
-	static const size_t tb = ((size_t)1 << (size_t)40);
+	static const size_t kb = ((size_t) 1 << (size_t) 10);
+	static const size_t mb = ((size_t) 1 << (size_t) 20);
+	static const size_t gb = ((size_t) 1 << (size_t) 30);
+	static const size_t tb = ((size_t) 1 << (size_t) 40);
 
-	
 	if (size < kb) {
-		return  MakeString() << std::setprecision(4)<<size << " B";
+		return MakeString() << std::setprecision(4) << size << " B";
 	} else if (size < mb) {
-		if (size%kb == 0) {
-			return MakeString() << std::setw(4) << (size>>(size_t)10) << " KB";
-		}
-		else {
-			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)kb << " KB";
+		if (size % kb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t) 10)
+					<< " KB";
+		} else {
+			return MakeString() << std::setw(5) << std::setprecision(2)
+					<< size / (double) kb << " KB";
 		}
 	} else if (size < gb) {
-		if (size%mb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t)20) << " MB";
-		}
-		else {
-			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)gb << " GB";
+		if (size % mb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t) 20)
+					<< " MB";
+		} else {
+			return MakeString() << std::setw(5) << std::setprecision(2)
+					<< size / (double) gb << " MB";
 		}
 	} else if (size < tb) {
-		if (size%gb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t)30) << " GB";
+		if (size % gb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t) 30)
+					<< " GB";
+		} else {
+			return MakeString() << std::setw(5) << std::setprecision(2)
+					<< size / (double) gb << " GB";
 		}
-		else {
-			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)gb << " GB";
-		}
-	}  else {
-		if (size%tb == 0) {
-			return MakeString() << std::setw(4) << (size >> (size_t)40) << " TB";
-		}
-		else {
-			return MakeString() << std::setw(5) << std::setprecision(2) << size / (double)tb << " TB";
+	} else {
+		if (size % tb == 0) {
+			return MakeString() << std::setw(4) << (size >> (size_t) 40)
+					<< " TB";
+		} else {
+			return MakeString() << std::setw(5) << std::setprecision(2)
+					<< size / (double) tb << " TB";
 		}
 	}
 }
@@ -154,33 +157,39 @@ std::string FormatTime(const std::time_t& t) {
 
 	if (hour == 0) {
 		hour = 12;
-	}
-	else if (hour > 12) {
+	} else if (hour > 12) {
 		hour -= 12;
 	}
-	return MakeString() << std::setw(2) << std::setfill(' ') << hour << ":" << std::setw(2) << std::setfill(' ') << timed->tm_min << " " << ((timed->tm_hour >= 12) ? "pm" : "am");
+	return MakeString() << std::setw(2) << std::setfill(' ') << hour << ":"
+			<< std::setw(2) << std::setfill(' ') << timed->tm_min << " "
+			<< ((timed->tm_hour >= 12) ? "pm" : "am");
 }
 std::string FormatDate(const std::time_t& t) {
 	struct tm* timed = localtime(&t);
 	int hour = timed->tm_hour;
 	if (hour == 0) {
 		hour = 12;
-	}
-	else if (hour > 12) {
+	} else if (hour > 12) {
 		hour -= 12;
 	}
-	return MakeString() <<std::setw(2) << std::setfill('0') << timed->tm_mon << "/" << std::setw(2) << std::setfill('0') << timed->tm_mday << "/" << timed->tm_year + 1900;
+	return MakeString() << std::setw(2) << std::setfill('0') << timed->tm_mon
+			<< "/" << std::setw(2) << std::setfill('0') << timed->tm_mday << "/"
+			<< timed->tm_year + 1900;
 }
 std::string FormatDateAndTime(const std::time_t& t) {
 	struct tm* timed = localtime(&t);
 	int hour = timed->tm_hour;
 	if (hour == 0) {
 		hour = 12;
-	}
-	else if (hour > 12) {
+	} else if (hour > 12) {
 		hour -= 12;
 	}
-	return MakeString() << std::setw(2) << std::setfill(' ') << hour << ":" << std::setw(2) << std::setfill(' ') << timed->tm_min << " " << ((timed->tm_hour >= 12) ? "pm" : "am") << " " << std::setw(2) << std::setfill('0') << timed->tm_mon << "/" << std::setw(2) << std::setfill('0') << timed->tm_mday << "/" << timed->tm_year + 1900;
+	return MakeString() << std::setw(2) << std::setfill(' ') << hour << ":"
+			<< std::setw(2) << std::setfill(' ') << timed->tm_min << " "
+			<< ((timed->tm_hour >= 12) ? "pm" : "am") << " " << std::setw(2)
+			<< std::setfill('0') << timed->tm_mon << "/" << std::setw(2)
+			<< std::setfill('0') << timed->tm_mday << "/"
+			<< timed->tm_year + 1900;
 }
 std::vector<std::string> splitPath(const std::string& file) {
 	const char c = ALY_PATH_SEPARATOR.c_str()[0];
@@ -368,151 +377,155 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 }
 std::vector<FileDescription> GetDirectoryDescriptionListing(
 		const std::string& dirName) {
-	std::vector<std::pair<std::string, FileType>> files;
+	std::vector<FileDescription> files;
 	dirent* dp;
 	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
 	DIR* dirp = opendir(cleanPath.c_str());
 	if (dirp) {
 		while ((dp = readdir(dirp)) != NULL) {
 			string fileName(dp->d_name);
-			FileType type = FileType::Unknown;
-			if (dp->d_type == DT_REG) {
-				type = FileType::File;
-			} else if (dp->d_type == DT_DIR) {
-				type = FileType::Directory;
-			} else if (dp->d_type == DT_LNK) {
-				type = FileType::Link;
-			}
-			if (type != FileType::Unknown) {
-				if (fileName != ".." && fileName != ".") {
-					files.push_back(
-							std::pair<std::string, FileType>(
-									cleanPath + fileName, type));
+
+			if (fileName != ".." && fileName != ".") {
+				std::string fileLocation = cleanPath + fileName;
+
+				FileType type = FileType::Unknown;
+				if (dp->d_type & DT_REG) {
+					type = FileType::File;
+				} else if (dp->d_type & DT_DIR) {
+					type = FileType::Directory;
 				}
-			}
+				struct stat attrib;
+				stat(fileLocation.c_str(), &attrib);
+			size_t fileSize=attrib.st_size;
+			std::time_t creationTime=attrib.st_ctim.tv_sec;
+			std::time_t accessTime=attrib.st_atim.tv_sec;
+			std::time_t modifiedTime=attrib.st_mtim.tv_sec;
+			bool readOnly=attrib.st_mode& (S_IRWXU | S_IRWXG | S_IRWXO);
+			files.push_back(FileDescription(fileLocation,type,fileSize,readOnly,creationTime,accessTime,modifiedTime));
 		}
-		closedir(dirp);
-		std::sort(files.begin(), files.end());
 	}
-	return files;
+	closedir(dirp);
+	std::sort(files.begin(), files.end());
+}
+return files;
 }
 std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
-	std::vector<std::string> files;
-	dirent* dp;
-	std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
-	DIR* dirp = opendir(cleanPath.c_str());
-	if (dirp) {
-		while ((dp = readdir(dirp)) != NULL) {
-			string fileName(dp->d_name);
-			FileType type = FileType::Unknown;
-			if (dp->d_type == DT_REG || dp->d_type == DT_DIR
-					|| dp->d_type == DT_LNK) {
-				if (fileName != ".." && fileName != ".") {
-					files.push_back(cleanPath + fileName);
-				}
+std::vector<std::string> files;
+dirent* dp;
+std::string cleanPath = RemoveTrailingSlash(dirName) + ALY_PATH_SEPARATOR;
+DIR* dirp = opendir(cleanPath.c_str());
+if (dirp) {
+	while ((dp = readdir(dirp)) != NULL) {
+		string fileName(dp->d_name);
+		FileType type = FileType::Unknown;
+		if (dp->d_type == DT_REG || dp->d_type == DT_DIR || dp->d_type == DT_LNK) {
+			if (fileName != ".." && fileName != ".") {
+				files.push_back(cleanPath + fileName);
 			}
 		}
-		closedir(dirp);
-		std::sort(files.begin(), files.end());
 	}
-	return files;
+	closedir(dirp);
+	std::sort(files.begin(), files.end());
+}
+return files;
 }
 #else 
 
 std::wstring ToWString(const std::string& str) {
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-	std::wstring wide = converter.from_bytes(str);
-	return wide;
+std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+std::wstring wide = converter.from_bytes(str);
+return wide;
 }
 
 std::string ToString(const std::wstring& str) {
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-	std::string narrow = converter.to_bytes(str);
-	return narrow;
+std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+std::string narrow = converter.to_bytes(str);
+return narrow;
 }
 std::time_t FileTimeToTime(const FILETIME& ft) {
-	ULARGE_INTEGER ull;
-	ull.LowPart = ft.dwLowDateTime;
-	ull.HighPart = ft.dwHighDateTime;
-	return std::time_t(ull.QuadPart / 100000000ULL - 1164);
+ULARGE_INTEGER ull;
+ull.LowPart = ft.dwLowDateTime;
+ull.HighPart = ft.dwHighDateTime;
+return std::time_t(ull.QuadPart / 100000000ULL - 1164);
 }
 std::vector<FileDescription> GetDirectoryDescriptionListing(const std::string& dirName) {
-	std::vector<FileDescription> files;
-	WIN32_FIND_DATAW fd;
-	std::string path = RemoveTrailingSlash(dirName);
-	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
-	HANDLE h = FindFirstFileW(query.c_str(), &fd);
-	if (h == INVALID_HANDLE_VALUE) {
-		return files;
-	}
-	do {
-		std::string fileName = ToString(fd.cFileName);
-		if (fileName != "." && fileName != "..")
-		{
-			std::string fileLocation = path + ALY_PATH_SEPARATOR + fileName;
-			FileType fileType = FileType::Unknown;
-			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-				fileType = FileType::Directory;
-			} else if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
-				fileType = FileType::File;
-			} 
-			if (fileType != FileType::Unknown) {
-				std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
-				std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
-				ULARGE_INTEGER ull;
-				ull.LowPart = fd.nFileSizeLow;
-				ull.HighPart = fd.nFileSizeHigh;
-				size_t fileSize = (size_t)ull.QuadPart;
-				files.push_back(FileDescription(fileLocation, fileType, fileSize, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY, creationTime, modifiedTime));
-			}
-		}
-	}while (FindNextFile(h, &fd));
-	FindClose(h);
+std::vector<FileDescription> files;
+WIN32_FIND_DATAW fd;
+std::string path = RemoveTrailingSlash(dirName);
+std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
+HANDLE h = FindFirstFileW(query.c_str(), &fd);
+if (h == INVALID_HANDLE_VALUE) {
 	return files;
 }
-std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
-	WIN32_FIND_DATAW fd;
-	std::string path = RemoveTrailingSlash(dirName);
-	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
-	HANDLE h = FindFirstFileW(query.c_str(), &fd);
-	if (h == INVALID_HANDLE_VALUE) {
-		return std::vector<std::string>();
-	}
-	std::vector<std::string> list;
-	do {
-		std::string fileName = ToString(fd.cFileName);
-		if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
-			if (fileName != "." && fileName != "..")
-			{
-				list.push_back(path + ALY_PATH_SEPARATOR + fileName);
-			}
+do {
+	std::string fileName = ToString(fd.cFileName);
+	if (fileName != "." && fileName != "..")
+	{
+		std::string fileLocation = path + ALY_PATH_SEPARATOR + fileName;
+		FileType fileType = FileType::Unknown;
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+			fileType = FileType::Directory;
+		} else if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
+			fileType = FileType::File;
 		}
-	}while (FindNextFile(h, &fd));
-	FindClose(h);
-	return list;
-}
-std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
-	WIN32_FIND_DATAW fd;
-	std::string path = RemoveTrailingSlash(dirName);
-	std::wstring query = ToWString(path + ALY_PATH_SEPARATOR+string("*"));
-	HANDLE h = FindFirstFileW(query.c_str(), &fd);
-	if (h == INVALID_HANDLE_VALUE) {
-		return std::vector<std::string>();
+		if (fileType != FileType::Unknown) {
+			std::time_t creationTime = FileTimeToTime(fd.ftCreationTime);
+			std::time_t modifiedTime = FileTimeToTime(fd.ftLastWriteTime);
+			std::time_t accessTime = FileTimeToTime(fd.ftLastAccessTime);
+			ULARGE_INTEGER ull;
+			ull.LowPart = fd.nFileSizeLow;
+			ull.HighPart = fd.nFileSizeHigh;
+			size_t fileSize = (size_t)ull.QuadPart;
+			files.push_back(FileDescription(fileLocation, fileType, fileSize, fd.dwFileAttributes&&FILE_ATTRIBUTE_READONLY, creationTime, accessTime, modifiedTime));
+		}
 	}
-	std::vector<std::string> list;
-	do {
-		std::string fileName = ToString(fd.cFileName);
+}while (FindNextFile(h, &fd));
+FindClose(h);
+return files;
+}
+std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
+WIN32_FIND_DATAW fd;
+std::string path = RemoveTrailingSlash(dirName);
+std::wstring query = ToWString(path + ALY_PATH_SEPARATOR + string("*"));
+HANDLE h = FindFirstFileW(query.c_str(), &fd);
+if (h == INVALID_HANDLE_VALUE) {
+	return std::vector<std::string>();
+}
+std::vector<std::string> list;
+do {
+	std::string fileName = ToString(fd.cFileName);
+	if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
 		if (fileName != "." && fileName != "..")
 		{
-			if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
-				if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
-					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)&& !(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
-				}
+			list.push_back(path + ALY_PATH_SEPARATOR + fileName);
+		}
+	}
+}while (FindNextFile(h, &fd));
+FindClose(h);
+return list;
+}
+std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,const std::string& ext, const std::string& mask) {
+WIN32_FIND_DATAW fd;
+std::string path = RemoveTrailingSlash(dirName);
+std::wstring query = ToWString(path + ALY_PATH_SEPARATOR+string("*"));
+HANDLE h = FindFirstFileW(query.c_str(), &fd);
+if (h == INVALID_HANDLE_VALUE) {
+	return std::vector<std::string>();
+}
+std::vector<std::string> list;
+do {
+	std::string fileName = ToString(fd.cFileName);
+	if (fileName != "." && fileName != "..")
+	{
+		if (ext.length() == 0 || GetFileExtension(fileName) == ext) {
+			if (mask.length() == 0|| (mask.length() > 0&& fileName.find(mask) < fileName.length())) {
+				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)&& !(fd.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) list.push_back(path + ALY_PATH_SEPARATOR + fileName);
 			}
 		}
-	}while (FindNextFile(h, &fd));
-	FindClose(h);
-	return list;
+	}
+}while (FindNextFile(h, &fd));
+FindClose(h);
+return list;
 }
 #endif
 
