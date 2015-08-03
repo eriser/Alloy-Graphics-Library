@@ -96,10 +96,10 @@ struct SimpleLight{
 	Color lambertianColor;
 	Color specularColor;
 	float specularPower;
-	bool castShadow=false;
-	bool attenuate=false;
-	bool orthographic=false;
-	bool moveWithCamera=false;
+	bool castShadow;
+	bool attenuate;
+	bool orthographic;
+	bool moveWithCamera;
 	float2 focalLength;
 	float3 position;
 	float3 direction;
