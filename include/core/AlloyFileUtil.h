@@ -29,7 +29,9 @@
 #include <ctime>
 #include <algorithm>
 #include <string>
+#include <cstring>
 #include <iostream>
+#include <sstream>
 #include "sha2.h"
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
@@ -112,31 +114,7 @@ std::string FormatSize(size_t size);
 static inline bool is_base64(unsigned char c) {
 	return (isalnum(c) || (c == '+') || (c == '-'));
 }
-template<class T>  std::string HashCode(std::vector<T> data, HashMethod method=HashMethod::SHA256) {
-	std::string str = EncodeBase64(data);
-	std::vector<unsigned char> hashOut;
-	std::string hashCode="";
-	switch (method) {
-		case HashMethod::SHA224:	
-			hashOut.resize(SHA224_DIGEST_SIZE);
-			sha224((unsigned char *)str.c_str(), str.size(), hashOut.data());
-		break;
-		case HashMethod::SHA256:
-			hashOut.resize(SHA256_DIGEST_SIZE);
-			sha256((unsigned char *)str.c_str(), str.size(), hashOut.data());
-			break;
-		case HashMethod::SHA384:
-			hashOut.resize(SHA384_DIGEST_SIZE);
-			sha384((unsigned char *)str.c_str(), str.size(), hashOut.data());
-			break;
-		case HashMethod::SHA512:
-			hashOut.resize(SHA512_DIGEST_SIZE);
-			sha512((unsigned char *)str.c_str(), str.size(), hashOut.data());		
-			break;
-	}
-	hashCode = EncodeBase64(hashOut);
-	return hashCode;
-}
+
 template<class T> std::string EncodeBase64(const std::vector<T>& in) {
 	int i = 0;
 	int j = 0;
@@ -178,7 +156,31 @@ template<class T> std::string EncodeBase64(const std::vector<T>& in) {
 	}
 	return bufferOut.str();
 }
-
+template<class T>  std::string HashCode(std::vector<T> data, HashMethod method=HashMethod::SHA256) {
+	std::string str = EncodeBase64(data);
+	std::vector<unsigned char> hashOut;
+	std::string hashCode="";
+	switch (method) {
+		case HashMethod::SHA224:
+			hashOut.resize(SHA224_DIGEST_SIZE);
+			sha224((unsigned char *)str.c_str(), str.size(), hashOut.data());
+		break;
+		case HashMethod::SHA256:
+			hashOut.resize(SHA256_DIGEST_SIZE);
+			sha256((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			break;
+		case HashMethod::SHA384:
+			hashOut.resize(SHA384_DIGEST_SIZE);
+			sha384((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			break;
+		case HashMethod::SHA512:
+			hashOut.resize(SHA512_DIGEST_SIZE);
+			sha512((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			break;
+	}
+	hashCode = EncodeBase64(hashOut);
+	return hashCode;
+}
 template<class T> void  DecodeBase64(const std::string& encoded_string, std::vector<T>& out) {
 	static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
 	size_t in_len = encoded_string.size();

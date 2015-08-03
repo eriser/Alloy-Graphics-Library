@@ -67,7 +67,7 @@ public:
 	int height;
 	int x, y;
 	uint64_t id;
-	static const int channels = C;
+	const int channels = C;
 	const ImageType type = I;
 	std::string updateHashCode() {
 		hashCode =HashCode(data);

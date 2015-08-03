@@ -35,7 +35,7 @@ private:
 	std::vector<vec<T, C>> storage;
 public:
 	std::vector<vec<T, C>>& data;
-	static const int channels = C;
+	const int channels = C;
 	template <class Archive> void serialize(Archive & archive) {
 		archive(data);
 	}
