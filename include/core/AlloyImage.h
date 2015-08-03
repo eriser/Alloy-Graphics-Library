@@ -69,8 +69,8 @@ public:
 	uint64_t id;
 	const int channels = C;
 	const ImageType type = I;
-	std::string updateHashCode() {
-		hashCode =HashCode(data);
+	std::string updateHashCode(HashMethod method=HashMethod::SHA256) {
+		hashCode =HashCode(data,method);
 		return hashCode;
 	}
 	std::string getHashCode() {

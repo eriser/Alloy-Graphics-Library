@@ -41,6 +41,7 @@
     <ClCompile Include="..\..\src\core\nanovg.cpp" />
     <ClCompile Include="..\..\src\core\ply_io.cpp" />
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
+    <ClCompile Include="..\..\src\core\sha1.cpp" />
     <ClCompile Include="..\..\src\core\sha2.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="..\..\include\core\nanovg_gl.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl_utils.h" />
     <ClInclude Include="..\..\include\core\ply_io.h" />
+    <ClInclude Include="..\..\include\core\sha1.h" />
     <ClInclude Include="..\..\include\core\sha2.h" />
     <ClInclude Include="..\..\include\core\stb_image.h" />
     <ClInclude Include="..\..\include\core\stb_truetype.h" />

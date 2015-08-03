@@ -28,6 +28,8 @@
 #include <iomanip>
 #include <limits>
 #include "cereal/types/vector.hpp"
+#include "cereal/types/string.hpp"
+
 namespace aly {
 bool SANITY_CHECK_LINALG();
 template<class T, int C> struct Vector {
@@ -36,9 +38,21 @@ private:
 public:
 	std::vector<vec<T, C>>& data;
 	const int channels = C;
-	template <class Archive> void serialize(Archive & archive) {
-		archive(data);
+
+	template <class Archive>
+	void save(Archive & archive) const
+	{
+		archive(EncodeBase64(data));
 	}
+
+	template <class Archive>
+	void load(Archive & archive)
+	{ 
+		std::string str;
+		archive(str);
+		DecodeBase64(str);
+	}
+
 	void set(const T& val) {
 		data.assign(data.size(), vec<T, C>(val));
 	}

@@ -28,6 +28,10 @@
 #include <iostream>
 #include <memory>
 #include <list>
+#include "cereal/types/polymorphic.hpp"
+#include "cereal/types/memory.hpp"
+#include "cereal/types/tuple.hpp"
+
 namespace aly {
 
 typedef float pixel;
@@ -125,6 +129,16 @@ private:
 	};
 public:
 	std::shared_ptr<Interface> impl;
+	/*
+	template<class Archive> void save (Archive& archive) const {
+		if (impl.get()) {
+			archive(impl->value);
+		}
+	}
+	template<class Archive> void load(Archive& archive) {
+		archive(impl);
+	}
+	*/
 	Number() {
 	}
 	Number(const Number & r) :
@@ -186,6 +200,9 @@ struct Integer {
 private:
 	int value = 0;
 public:
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	int toInteger() const {
 		return value;
 	}
@@ -216,6 +233,9 @@ struct Float {
 private:
 	float value = 0;
 public:
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	int toInteger() const {
 		return (int) value;
 	}
@@ -245,6 +265,9 @@ struct Double {
 private:
 	double value = 0;
 public:
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	int toInteger() const {
 		return (int) value;
 	}
@@ -266,10 +289,17 @@ public:
 	void setValue(int other) {
 		value = (double) other;
 	}
-	Double(float value) :
+	Double(double value) :
 			value(value) {
 	}
 };
+
+/*
+CEREAL_REGISTER_TYPE(aly::Double)
+CEREAL_REGISTER_TYPE(aly::Float)
+CEREAL_REGISTER_TYPE(aly::Integer)
+
+*/
 class AUnit1D {
 public:
 	struct Interface {
@@ -328,6 +358,9 @@ public:
 	}
 };
 struct Color: public NVGcolor {
+	template<class Archive> void serialize(Archive& archive) {
+		archive(r,g,b,a);
+	}
 	Color() :
 			NVGcolor() {
 	}
@@ -473,6 +506,9 @@ public:
 };
 struct UnitDP {
 	int value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitDP(int x) :
 			value(x) {
 	}
@@ -483,6 +519,9 @@ struct UnitDP {
 
 struct UnitPX {
 	pixel value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPX(float x) :
 			value((pixel) x) {
 	}
@@ -499,6 +538,9 @@ struct UnitPX {
 
 struct UnitPT {
 	float value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPT(float x) :
 			value(x) {
 	}
@@ -508,6 +550,9 @@ struct UnitPT {
 };
 struct UnitMM {
 	float value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitMM(float x) :
 			value(x) {
 	}
@@ -517,6 +562,9 @@ struct UnitMM {
 };
 struct UnitIN {
 	float value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitIN(float x) :
 			value(x) {
 	}
@@ -526,6 +574,9 @@ struct UnitIN {
 };
 struct UnitPercent {
 	float value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPercent(float x) :
 			value(x) {
 	}
@@ -535,6 +586,9 @@ struct UnitPercent {
 };
 struct UnitPerPX {
 	std::pair<UnitPercent, UnitPX> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPerPX(float px, float x) :
 			value(UnitPercent(px), UnitPX(x)) {
 	}
@@ -551,6 +605,9 @@ struct UnitPerPX {
 };
 struct UnitPerPT {
 	std::pair<UnitPercent, UnitPT> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPerPT(float px, float x) :
 			value(UnitPercent(px), UnitPT(x)) {
 	}
@@ -561,6 +618,9 @@ struct UnitPerPT {
 };
 struct UnitPerMM {
 	std::pair<UnitPercent, UnitMM> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPerMM(float px, float x) :
 			value(UnitPercent(px), UnitMM(x)) {
 	}
@@ -571,6 +631,9 @@ struct UnitPerMM {
 };
 struct UnitPerIN {
 	std::pair<UnitPercent, UnitIN> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	UnitPerIN(float px, float x) :
 			value(UnitPercent(px), UnitIN(x)) {
 	}
@@ -596,6 +659,9 @@ struct UnitTween: public AUnit1D::Interface, Tweenable {
 };
 struct CoordDP {
 	int2 value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordDP(int x, int y) :
 			value(x, y) {
 	}
@@ -606,6 +672,9 @@ struct CoordDP {
 };
 struct CoordPX {
 	pixel2 value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPX(float x, float y) :
 			value((pixel) x, (pixel) y) {
 	}
@@ -624,6 +693,9 @@ struct CoordPX {
 };
 struct CoordMM {
 	float2 value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordMM(float x, float y) :
 			value(x, y) {
 	}
@@ -634,6 +706,9 @@ struct CoordMM {
 };
 struct CoordPT {
 	float2 value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPT(float x, float y) :
 			value(x, y) {
 	}
@@ -644,6 +719,9 @@ struct CoordPT {
 };
 struct CoordIN {
 	float2 value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordIN(float x, float y) :
 			value(x, y) {
 	}
@@ -654,6 +732,9 @@ struct CoordIN {
 };
 struct CoordPercent {
 	float2 value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPercent(float x, float y) :
 			value(x, y) {
 	}
@@ -664,6 +745,9 @@ struct CoordPercent {
 };
 struct CoordPerDP {
 	std::pair<CoordPercent, CoordDP> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPerDP(float px, float py, int x, int y) :
 			value(CoordPercent(px, py), CoordDP(x, y)) {
 	}
@@ -674,6 +758,9 @@ struct CoordPerDP {
 };
 struct CoordPerPX {
 	std::pair<CoordPercent, CoordPX> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPerPX(float px, float py, int x, int y) :
 			value(CoordPercent(px, py), CoordPX(x, y)) {
 	}
@@ -690,6 +777,9 @@ struct CoordPerPX {
 };
 struct CoordPerPT {
 	std::pair<CoordPercent, CoordPT> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPerPT(float px, float py, float x, float y) :
 			value(CoordPercent(px, py), CoordPT(x, y)) {
 	}
@@ -700,6 +790,9 @@ struct CoordPerPT {
 };
 struct CoordPerMM {
 	std::pair<CoordPercent, CoordMM> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPerMM(float px, float py, float x, float y) :
 			value(CoordPercent(px, py), CoordMM(x, y)) {
 	}
@@ -710,6 +803,9 @@ struct CoordPerMM {
 };
 struct CoordPerIN {
 	std::pair<CoordPercent, CoordIN> value;
+	template<class Archive> void serialize(Archive& archive) {
+		archive(value);
+	}
 	CoordPerIN(float px, float py, float x, float y) :
 			value(CoordPercent(px, py), CoordIN(x, y)) {
 	}

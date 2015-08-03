@@ -32,6 +32,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include "sha1.h"
 #include "sha2.h"
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
@@ -47,7 +48,7 @@ enum class FileAttribute {
 	Compressed, Hidden
 };
 enum class HashMethod {
-	SHA224=224, SHA256=256, SHA384=384,  SHA512=512
+	SHA1=1,SHA224=224, SHA256=256, SHA384=384,  SHA512=512
 };
 struct FileDescription {
 	std::string fileLocation;
@@ -115,7 +116,7 @@ static inline bool is_base64(unsigned char c) {
 	return (isalnum(c) || (c == '+') || (c == '-'));
 }
 
-template<class T> std::string EncodeBase64(const std::vector<T>& in) {
+template<class T> std::string EncodeBase64(const std::vector<T>& in,bool pad=true) {
 	int i = 0;
 	int j = 0;
 	static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
@@ -151,8 +152,10 @@ template<class T> std::string EncodeBase64(const std::vector<T>& in) {
 		for (j = 0; (j < i + 1); j++)
 			bufferOut<<base64_chars[char_array_4[j]];
 
-		while ((i++ < 3))
-			bufferOut<<"=";
+		if (pad) {
+			while ((i++ < 3))
+				bufferOut << "=";
+		}
 	}
 	return bufferOut.str();
 }
@@ -161,24 +164,30 @@ template<class T>  std::string HashCode(std::vector<T> data, HashMethod method=H
 	std::vector<unsigned char> hashOut;
 	std::string hashCode="";
 	switch (method) {
+	case HashMethod::SHA1:
+			hashCode = sha1(str);
+	break;
 		case HashMethod::SHA224:
 			hashOut.resize(SHA224_DIGEST_SIZE);
-			sha224((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			sha224((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			hashCode = EncodeBase64(hashOut, false);
 		break;
 		case HashMethod::SHA256:
 			hashOut.resize(SHA256_DIGEST_SIZE);
-			sha256((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			sha256((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			hashCode = EncodeBase64(hashOut, false);
 			break;
 		case HashMethod::SHA384:
 			hashOut.resize(SHA384_DIGEST_SIZE);
-			sha384((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			sha384((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			hashCode = EncodeBase64(hashOut, false);
 			break;
 		case HashMethod::SHA512:
 			hashOut.resize(SHA512_DIGEST_SIZE);
-			sha512((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			sha512((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			hashCode = EncodeBase64(hashOut,false);
 			break;
 	}
-	hashCode = EncodeBase64(hashOut);
 	return hashCode;
 }
 template<class T> void  DecodeBase64(const std::string& encoded_string, std::vector<T>& out) {
@@ -216,7 +225,7 @@ template<class T> void  DecodeBase64(const std::string& encoded_string, std::vec
 		for (j = 0; (j < i - 1); j++)bufferOut.push_back(char_array_3[j]);
 	}
 	out.resize(bufferOut.size()/sizeof(T));
-	std::memcpy(out.data(), bufferOut.data(), out.size());
+	std::memcpy(out.data(), bufferOut.data(),sizeof(T)*out.size());
 }
 std::vector<std::string> AutoComplete(const std::string& str,
 		const std::vector<std::string>& list, int maxSuggestions = -1);
