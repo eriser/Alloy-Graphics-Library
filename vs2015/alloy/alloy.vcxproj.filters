@@ -84,7 +84,7 @@
     <ClCompile Include="..\..\src\core\ply_io.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\sha2.c">
+    <ClCompile Include="..\..\src\core\sha2.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

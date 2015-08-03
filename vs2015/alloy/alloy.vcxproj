@@ -41,7 +41,7 @@
     <ClCompile Include="..\..\src\core\nanovg.cpp" />
     <ClCompile Include="..\..\src\core\ply_io.cpp" />
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
-    <ClCompile Include="..\..\src\core\sha2.c" />
+    <ClCompile Include="..\..\src\core\sha2.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
