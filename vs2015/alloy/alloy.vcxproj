@@ -41,6 +41,7 @@
     <ClCompile Include="..\..\src\core\nanovg.cpp" />
     <ClCompile Include="..\..\src\core\ply_io.cpp" />
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
+    <ClCompile Include="..\..\src\core\sha2.c" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
@@ -75,6 +76,7 @@
     <ClInclude Include="..\..\include\core\nanovg_gl.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl_utils.h" />
     <ClInclude Include="..\..\include\core\ply_io.h" />
+    <ClInclude Include="..\..\include\core\sha2.h" />
     <ClInclude Include="..\..\include\core\stb_image.h" />
     <ClInclude Include="..\..\include\core\stb_truetype.h" />
   </ItemGroup>
@@ -228,6 +230,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include\core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

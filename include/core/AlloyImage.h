@@ -22,7 +22,9 @@
 #define ALLOYIMAGE2D_H_INCLUDE_GUARD
 #include "AlloyCommon.h"
 #include "AlloyMath.h"
+#include "sha2.h"
 #include "AlloyFileUtil.h"
+#include "cereal/types/vector.hpp"
 #include <vector>
 #include <functional>
 #include <fstream>
@@ -58,14 +60,26 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 template<class T, int C, ImageType I> struct Image {
 private:
 	std::vector<vec<T, C>> storage;
+	std::string hashCode;
 public:
 	std::vector<vec<T, C>>& data;
 	int width;
 	int height;
 	int x, y;
 	uint64_t id;
-	const int channels = C;
+	static const int channels = C;
 	const ImageType type = I;
+	std::string updateHashCode() {
+		hashCode =HashCode(data);
+		return hashCode;
+	}
+	std::string getHashCode() {
+		return hashCode;
+	}
+	template <class Archive> void serialize (Archive & archive) {
+		archive(id, width, height, x, y, hashCode);
+	}
+
 	void writeToXML(const std::string& fileName) const {
 		WriteImageToRawFile(fileName,*this);
 	}

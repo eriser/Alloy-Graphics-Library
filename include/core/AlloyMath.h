@@ -36,6 +36,7 @@
 #define ALY_PI_4 float(0.25f*ALY_PI)
 namespace aly {
 bool SANITY_CHECK_MATH();
+bool SANITY_CHECK_CEREAL();
 template<typename T> T min(const T& x, const T& y) {
 	return ((x) < (y) ? (x) : (y));
 }
@@ -195,6 +196,10 @@ template<class T> struct vec<T, 4> {
 	explicit vec(T s = (T) 0) :
 			x(s), y(s), z(s), w(s) {
 	}
+	template<class Archive> void serialize(Archive & archive)
+	{
+		archive(x, y, z, w);
+	}
 	template<class U> explicit vec(const vec<U, 4> & r) :
 			x(T(r.x)), y(T(r.y)), z(T(r.z)), w(T(r.w)) {
 	}
@@ -223,9 +228,7 @@ template<class T> struct vec<T, 4> {
 		return (std::make_tuple(x, y, z, w)
 				< std::make_tuple(r.x, r.y, r.z, r.w));
 	}
-	template<class Archive> void serialize(Archive & archive) {
-		archive(x, y, z, w);
-	}
+
 
 };
 template<class T> vec<T, 3> vec<T, 2>::xyz() const {
@@ -297,11 +300,13 @@ template<class T, int M, int N> const matrix<T, M, N - 1> SubColMatrix(
 		}
 	}
 	return B;
-}
-;
+};
 template<class T, int M> struct matrix<T, M, 2> {
 	typedef vec<T, M> C;
 	C x, y;
+	template<class Archive> void serialize(Archive & archive) {
+		archive(x,y);
+	}
 	matrix(const T (&A)[M * 2]) {
 		for (int m = 0; m < M; m++) {
 			x[m] = A[m * 2];
@@ -355,7 +360,9 @@ template<class T, int M> struct matrix<T, M, 2> {
 template<class T, int M> struct matrix<T, M, 3> {
 	typedef vec<T, M> C;
 	C x, y, z;
-
+	template<class Archive> void serialize(Archive & archive) {
+		archive(x, y,z);
+	}
 	matrix() {
 	}
 	matrix(const T (&A)[M * 3]) {
@@ -410,7 +417,9 @@ template<class T, int M> struct matrix<T, M, 3> {
 template<class T, int M> struct matrix<T, M, 4> {
 	typedef vec<T, M> C;
 	C x, y, z, w;
-
+	template<class Archive> void serialize(Archive & archive) {
+		archive(x, y, z,w);
+	}
 	matrix() {
 	}
 	matrix(const T (&A)[M * 4]) {

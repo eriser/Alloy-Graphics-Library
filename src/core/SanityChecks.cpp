@@ -9,7 +9,11 @@
 #include "AlloyVector.h"
 #include "AlloyFileUtil.h"
 #include "AlloyUI.h"
+#include "cereal/archives/xml.hpp"
+#include "cereal/archives/json.hpp"
+#include "cereal/archives/binary.hpp"
 #include <iostream>
+#include <fstream>
 namespace aly {
 
 bool SANITY_CHECK_MATH() {
@@ -71,6 +75,38 @@ bool SANITY_CHECK_MATH() {
 		return false;
 	}
 
+}
+bool SANITY_CHECK_CEREAL() {
+	std::ofstream os("data.xml");
+	cereal::XMLOutputArchive archiver(os);
+	float4 v1(1, 2, 3, 4);
+	float3 v2(1, 2, 3);
+	float2 v3(1, 2);
+	float1 v4(1);
+	float4x4 MR1 = MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.333f)*MakeTranslation(float4(89,43,21,1));
+	float3x3 MR2 = SubMatrix(MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.1f)*MakeTranslation(float4(89, 43, 21, 1)));
+	float4x3 MR3 = SubColMatrix(MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.1f)*MakeTranslation(float4(89, 43, 21, 1)));
+	
+
+	Image4f im1(32,24);
+	std::srand(10832145);
+	for (int i = 0;i < im1.width;i++) {
+		for (int j = 0;j < im1.height;j++) {
+			im1(i, j) = float4((float)i,(float)j, (std::rand() % 256) / (256.0f),1.0f);
+		}
+	}
+	Vector4f data(16);
+	for (int i = 0;i < data.size();i++) {
+		data[i] = float4((float)i, -(float)i, 0.0f, 1.0f);
+	}
+	im1.updateHashCode();
+	archiver(v1, v2, v3, v4, MR1, MR2, MR3,im1,data);
+	//std::cout << "Data Size " << im1.size() << std::endl;
+	std::string val=EncodeBase64(im1.data);
+	DecodeBase64(val, im1.data);
+	//std::cout << "Data Size " << im1.data.size() << std::endl;
+	//getchar();
+	return true;
 }
 bool SANITY_CHECK_IMAGE() {
 	try {

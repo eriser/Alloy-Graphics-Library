@@ -43,10 +43,11 @@ int main() {
 	try {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
-		ExampleUI app;
+		SANITY_CHECK_CEREAL();
+		//ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
 		//MeshViewer app;
-		app.run(1);
+		//app.run(1);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;

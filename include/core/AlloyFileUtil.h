@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include "sha2.h"
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")
@@ -43,7 +44,9 @@ enum class FileType {
 enum class FileAttribute {
 	Compressed, Hidden
 };
-
+enum class HashMethod {
+	SHA224=224, SHA256=256, SHA384=384,  SHA512=512
+};
 struct FileDescription {
 	std::string fileLocation;
 	FileType fileType;
@@ -105,6 +108,114 @@ std::string FormatTime(const std::time_t& time);
 std::string FormatDate(const std::time_t& time);
 std::string FormatDateAndTime(const std::time_t& time);
 std::string FormatSize(size_t size);
+
+static inline bool is_base64(unsigned char c) {
+	return (isalnum(c) || (c == '+') || (c == '-'));
+}
+template<class T>  std::string HashCode(std::vector<T> data, HashMethod method=HashMethod::SHA256) {
+	std::string str = EncodeBase64(data);
+	std::vector<unsigned char> hashOut;
+	std::string hashCode="";
+	switch (method) {
+		case HashMethod::SHA224:	
+			hashOut.resize(SHA224_DIGEST_SIZE);
+			sha224((unsigned char *)str.c_str(), str.size(), hashOut.data());
+		break;
+		case HashMethod::SHA256:
+			hashOut.resize(SHA256_DIGEST_SIZE);
+			sha256((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			break;
+		case HashMethod::SHA384:
+			hashOut.resize(SHA384_DIGEST_SIZE);
+			sha384((unsigned char *)str.c_str(), str.size(), hashOut.data());
+			break;
+		case HashMethod::SHA512:
+			hashOut.resize(SHA512_DIGEST_SIZE);
+			sha512((unsigned char *)str.c_str(), str.size(), hashOut.data());		
+			break;
+	}
+	hashCode = EncodeBase64(hashOut);
+	return hashCode;
+}
+template<class T> std::string EncodeBase64(const std::vector<T>& in) {
+	int i = 0;
+	int j = 0;
+	static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
+	unsigned char char_array_3[3];
+	unsigned char char_array_4[4];
+	size_t idx = 0;
+	uint8_t* bytes_to_encode = (uint8_t*)in.data();
+	size_t in_len = in.size()*sizeof(T);
+	std::stringstream bufferOut;
+	while (in_len--) {
+		char_array_3[i++] = bytes_to_encode[idx++];
+		if (i == 3) {
+			char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+			char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+			char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+			char_array_4[3] = char_array_3[2] & 0x3f;
+
+			for (i = 0; (i < 4); i++)
+				bufferOut<<base64_chars[char_array_4[i]];
+			i = 0;
+		}
+	}
+	if (i)
+	{
+		for (j = i; j < 3; j++)
+			char_array_3[j] = '\0';
+
+		char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+		char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+		char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+		char_array_4[3] = char_array_3[2] & 0x3f;
+
+		for (j = 0; (j < i + 1); j++)
+			bufferOut<<base64_chars[char_array_4[j]];
+
+		while ((i++ < 3))
+			bufferOut<<"=";
+	}
+	return bufferOut.str();
+}
+
+template<class T> void  DecodeBase64(const std::string& encoded_string, std::vector<T>& out) {
+	static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
+	size_t in_len = encoded_string.size();
+	size_t i = 0;
+	size_t j = 0;
+	size_t in_ = 0;
+	unsigned char char_array_4[4], char_array_3[3];
+	std::vector<uint8_t> bufferOut;
+	while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+		char_array_4[i++] = encoded_string[in_]; in_++;
+		if (i == 4) {
+			for (i = 0; i < 4; i++)
+				char_array_4[i] = static_cast<unsigned char>(base64_chars.find(char_array_4[i]));
+
+			char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+			char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+			char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+			for (i = 0; (i < 3); i++)
+				bufferOut.push_back(char_array_3[i]);
+			i = 0;
+		}
+	}
+
+	if (i) {
+		for (j = i; j < 4; j++)
+			char_array_4[j] = 0;
+		for (j = 0; j < 4; j++)
+			char_array_4[j] = static_cast<unsigned char>(base64_chars.find(char_array_4[j]));
+		char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+		char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+		char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+		for (j = 0; (j < i - 1); j++)bufferOut.push_back(char_array_3[j]);
+	}
+	out.resize(bufferOut.size()/sizeof(T));
+	std::memcpy(out.data(), bufferOut.data(), out.size());
+}
 std::vector<std::string> AutoComplete(const std::string& str,
 		const std::vector<std::string>& list, int maxSuggestions = -1);
 
