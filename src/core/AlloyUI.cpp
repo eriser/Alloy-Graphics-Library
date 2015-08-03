@@ -1323,13 +1323,14 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 	};
 }
 void FileField::setValue(const std::string& text) {
+	const int PREFERRED_TEXT_WIDTH = 32;
 	if (text != this->value) {
 		this->value = text;
 		if (text.size() == 0) {
 			label = name;
 		}
 		else {
-			if (text.size() > 16) {
+			if (text.size() > PREFERRED_TEXT_WIDTH) {
 				this->label = std::string("..") + ALY_PATH_SEPARATOR + GetFileName(text);
 			}
 			else {

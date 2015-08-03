@@ -954,7 +954,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const UnitPercent & v) {
-	return ss << v.value * 100 << "%";
+	return ss << v.value * 100 << " %";
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const AUnit1D& v) {
@@ -1004,7 +1004,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const CoordPercent & v) {
-	return ss << "(" << v.value.x * 100 << "%, " << v.value.y * 100 << "%)";
+	return ss << "(" << v.value.x * 100 << " %, " << v.value.y * 100 << " %)";
 }
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const AUnit2D& v) {

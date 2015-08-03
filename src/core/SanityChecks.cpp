@@ -142,7 +142,7 @@ bool SANITY_CHECK_CEREAL() {
 		cereal::BinaryOutputArchive archiver(os);
 		archiver(v1, v2, v3, v4, MR1, MR2, MR3, im1, data);
 	}
-	std::cout << "Hit any key ..." << std::endl;
+	//std::cout << "Hit any key ..." << std::endl;
 	//std::cout << "Data Size " << im1.data.size() << std::endl;
 	//getchar();
 	return true;
