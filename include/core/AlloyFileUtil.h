@@ -169,22 +169,22 @@ template<class T>  std::string HashCode(std::vector<T> data, HashMethod method=H
 	break;
 		case HashMethod::SHA224:
 			hashOut.resize(SHA224_DIGEST_SIZE);
-			sha224((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			sha224((unsigned char *)str.c_str(), str.size(), hashOut.data());
 			hashCode = EncodeBase64(hashOut, false);
 		break;
 		case HashMethod::SHA256:
 			hashOut.resize(SHA256_DIGEST_SIZE);
-			sha256((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			sha256((unsigned char *)str.c_str(), str.size(), hashOut.data());
 			hashCode = EncodeBase64(hashOut, false);
 			break;
 		case HashMethod::SHA384:
 			hashOut.resize(SHA384_DIGEST_SIZE);
-			sha384((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			sha384((unsigned char *)str.c_str(), str.size(), hashOut.data());
 			hashCode = EncodeBase64(hashOut, false);
 			break;
 		case HashMethod::SHA512:
 			hashOut.resize(SHA512_DIGEST_SIZE);
-			sha512((unsigned char *)str.c_str(), (uint32_t)str.size(), hashOut.data());
+			sha512((unsigned char *)str.c_str(), str.size(), hashOut.data());
 			hashCode = EncodeBase64(hashOut,false);
 			break;
 	}
