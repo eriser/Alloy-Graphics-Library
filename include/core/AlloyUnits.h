@@ -125,20 +125,20 @@ private:
 		virtual void setValue(double val) {
 			value.setValue(val);
 		}
-
 	};
-public:
 	std::shared_ptr<Interface> impl;
-	/*
-	template<class Archive> void save (Archive& archive) const {
+public:
+	template<class Archive> void save(Archive& archive) const {
 		if (impl.get()) {
-			archive(impl->value);
+			archive(impl->toString());
+		}
+		else {
+			archive("");
 		}
 	}
 	template<class Archive> void load(Archive& archive) {
-		archive(impl);
+
 	}
-	*/
 	Number() {
 	}
 	Number(const Number & r) :
@@ -321,8 +321,9 @@ private:
 			return MakeString() << value;
 		}
 	};
-public:
 	std::shared_ptr<Interface> impl;
+public:
+
 
 	// Can construct or assign any type that implements the implicit interface (According to Sterling)
 	AUnit1D() {
@@ -355,6 +356,17 @@ public:
 		if (impl.get() == nullptr)
 			throw std::runtime_error("Unit value has not been defined.");
 		return impl->toString();
+	}
+	template<class Archive> void save(Archive& archive) const {
+		if (impl.get()) {
+			std::string str = MakeString() << *this;
+			archive(str);
+		}
+		else {
+			archive("");
+		}
+	}
+	template<class Archive> void load(Archive& archive) {
 	}
 };
 struct Color: public NVGcolor {
@@ -502,6 +514,17 @@ public:
 		if (impl.get() == nullptr)
 			throw std::runtime_error("Coord value has not been defined.");
 		return impl->toString();
+	}
+	template<class Archive> void save(Archive& archive) const {
+		if (impl.get()) {
+			std::string str = MakeString() << *this;
+			archive(str);
+		}
+		else {
+			archive("");
+		}
+	}
+	template<class Archive> void load(Archive& archive) {
 	}
 };
 struct UnitDP {

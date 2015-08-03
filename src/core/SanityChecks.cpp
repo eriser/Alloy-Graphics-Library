@@ -116,12 +116,16 @@ bool SANITY_CHECK_CEREAL() {
 	Integer value1(4);
 	Double value2(3.14159);
 	Float value3(3.14f);
-	Float value4(1.22222f);
-	Number num = value4;
+	Number num = Float(1.222f);
+	AUnit1D unit1 = UnitPerPT(0.5f,3.0f);
+	AUnit2D unit2 = CoordPerPX(0.5f,0.3f, 3.0f,10.0f);
+	AUnit1D unit3 = UnitDP(0.2f);
+	AUnit2D unit4 = CoordMM(100,200);
+
 	{
 		std::ofstream os("nums.xml");
 		cereal::XMLOutputArchive archiver(os);
-		archiver(value1,value2,value3);
+		archiver(value1,value2,value3,num,unit1,unit2,unit3,unit4);
 	}
 	{
 		std::ofstream os("data.xml");
