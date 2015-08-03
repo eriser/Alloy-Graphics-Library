@@ -44,12 +44,7 @@
 #define SHA384_BLOCK_SIZE  SHA512_BLOCK_SIZE
 #define SHA224_BLOCK_SIZE  SHA256_BLOCK_SIZE
 
-#ifndef SHA2_TYPES
-#define SHA2_TYPES
-typedef unsigned char uint8;
-typedef unsigned int  uint32;
-typedef unsigned long long uint64;
-#endif
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,14 +54,14 @@ typedef struct {
 	size_t tot_len;
 	size_t len;
     unsigned char block[2 * SHA256_BLOCK_SIZE];
-    uint32 h[8];
+    uint32_t h[8];
 } sha256_ctx;
 
 typedef struct {
 	size_t tot_len;
 	size_t len;
     unsigned char block[2 * SHA512_BLOCK_SIZE];
-    uint64 h[8];
+    uint64_t h[8];
 } sha512_ctx;
 
 typedef sha512_ctx sha384_ctx;
