@@ -50,7 +50,7 @@ public:
 	{ 
 		std::string str;
 		archive(str);
-		DecodeBase64(str);
+		DecodeBase64(str,data);
 	}
 
 	void set(const T& val) {
