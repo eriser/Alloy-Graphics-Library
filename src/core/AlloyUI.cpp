@@ -535,6 +535,62 @@ void BorderComposite::pack(AlloyContext* context) {
 				context->dpmm, context->pixelRatio);
 	}
 }
+void BorderComposite::setNorth(const std::shared_ptr<Region>& region,
+                float fraction) {
+    if (region->parent != nullptr)
+            throw std::runtime_error(
+                            MakeString() << "Cannot add child node [" << region->name
+                                            << "] to [" << name
+                                            << "] because it already has a parent ["
+                                            << region->parent->name << "].");
+        northRegion = region;
+        northRegion->parent=this;
+        northFraction = fraction;
+}
+void BorderComposite::setSouth(const std::shared_ptr<Region>& region,
+                float fraction) {
+    if (region->parent != nullptr)
+            throw std::runtime_error(
+                            MakeString() << "Cannot add child node [" << region->name
+                                            << "] to [" << name
+                                            << "] because it already has a parent ["
+                                            << region->parent->name << "].");
+        southRegion = region;
+        southRegion->parent=this;
+        southFraction = fraction;
+}
+void BorderComposite::setEast(const std::shared_ptr<Region>& region, float fraction) {
+    if (region->parent != nullptr)
+            throw std::runtime_error(
+                            MakeString() << "Cannot add child node [" << region->name
+                                            << "] to [" << name
+                                            << "] because it already has a parent ["
+                                            << region->parent->name << "].");
+        eastRegion = region;
+        eastRegion->parent=this;
+        eastFraction = fraction;
+}
+void BorderComposite::setWest(const std::shared_ptr<Region>& region, float fraction) {
+    if (region->parent != nullptr)
+            throw std::runtime_error(
+                            MakeString() << "Cannot add child node [" << region->name
+                                            << "] to [" << name
+                                            << "] because it already has a parent ["
+                                            << region->parent->name << "].");
+        westRegion = region;
+        westRegion->parent=this;
+        westFraction = fraction;
+}
+void BorderComposite::setCenter(const std::shared_ptr<Region>& region) {
+    if (region->parent != nullptr)
+            throw std::runtime_error(
+                            MakeString() << "Cannot add child node [" << region->name
+                                            << "] to [" << name
+                                            << "] because it already has a parent ["
+                                            << region->parent->name << "].");
+        centerRegion = region;
+        centerRegion->parent=this;
+}
 void BorderComposite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
@@ -633,8 +689,7 @@ void BorderComposite::drawDebug(AlloyContext* context) {
 void BorderComposite::pack(const pixel2& pos, const pixel2& dims,
 		const double2& dpmm, double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
-	box2px bounds = getBounds(false);
-
+	box2px bounds = getBounds();
 	if (northRegion.get() != nullptr)
 		northRegion->pack(bounds.position,
 				bounds.dimensions * float2(1.0f, northFraction), dpmm,
@@ -916,6 +971,7 @@ void Composite::add(const std::shared_ptr<Region>& region) {
 						<< region->parent->name << "].");
 	region->parent = this;
 }
+
 void Composite::add(Region* region) {
 	add(std::shared_ptr<Region>(region));
 }
