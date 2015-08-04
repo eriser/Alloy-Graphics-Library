@@ -166,6 +166,7 @@ GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		triNormalBuffer[n] = 0;
 }
 GLMesh::~GLMesh() {
+	if (context.get() == nullptr)return;
 	context->begin();
 	if (glIsBuffer(vertexBuffer) == GL_TRUE)
 		glDeleteBuffers(1, &vertexBuffer);
@@ -197,6 +198,7 @@ GLMesh::~GLMesh() {
 	context->end();
 }
 void GLMesh::update() {
+	if (context.get() == nullptr)return;
 	context->begin();
 	quadCount = 0;
 	triCount = 0;

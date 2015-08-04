@@ -77,7 +77,7 @@ public:
 		return hashCode;
 	}
 	template <class Archive> void serialize (Archive & archive) {
-		archive(id, width, height, x, y, hashCode);
+		archive(CEREAL_NVP(id), CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(hashCode));
 	}
 
 	void writeToXML(const std::string& fileName) const {

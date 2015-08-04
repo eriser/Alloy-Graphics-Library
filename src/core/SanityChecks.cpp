@@ -9,6 +9,7 @@
 #include "AlloyVector.h"
 #include "AlloyFileUtil.h"
 #include "AlloyUI.h"
+#include "AlloyMesh.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
 #include "cereal/archives/binary.hpp"
@@ -82,6 +83,7 @@ bool SANITY_CHECK_CEREAL() {
 	float3 v2(1, 2, 3);
 	float2 v3(1, 2);
 	float1 v4(1);
+	
 	float4x4 MR1 = MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.333f)*MakeTranslation(float4(89, 43, 21, 1));
 	float3x3 MR2 = SubMatrix(MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.1f)*MakeTranslation(float4(89, 43, 21, 1)));
 	float4x3 MR3 = SubColMatrix(MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.1f)*MakeTranslation(float4(89, 43, 21, 1)));
@@ -116,6 +118,7 @@ bool SANITY_CHECK_CEREAL() {
 	Integer value1(4);
 	Double value2(3.14159);
 	Float value3(3.14f);
+	Color c(0.5f,0.4f,0.1f,1.0f);
 	Number num = Float(1.222f);
 	AUnit1D unit1 = UnitPerPT(0.5f,3.0f);
 	AUnit2D unit2 = CoordPerPX(0.5f,0.3f, 3.0f,10.0f);
@@ -125,7 +128,7 @@ bool SANITY_CHECK_CEREAL() {
 	{
 		std::ofstream os("nums.xml");
 		cereal::XMLOutputArchive archiver(os);
-		archiver(value1,value2,value3,num,unit1,unit2,unit3,unit4);
+		archiver(value1,value2,value3,num,c,unit1,unit2,unit3,unit4);
 	}
 	{
 		std::ofstream os("data.xml");
@@ -141,6 +144,14 @@ bool SANITY_CHECK_CEREAL() {
 		std::ofstream os("data.bin");
 		cereal::BinaryOutputArchive archiver(os);
 		archiver(v1, v2, v3, v4, MR1, MR2, MR3, im1, data);
+	}
+	{
+
+		Mesh mesh;
+		ReadMeshFromFile("assets/models/monkey.ply",mesh);
+		std::ofstream os("monkey.json");
+		cereal::JSONOutputArchive archiver(os);
+		archiver(cereal::make_nvp("monkey",mesh));
 	}
 	//std::cout << "Hit any key ..." << std::endl;
 	//std::cout << "Data Size " << im1.data.size() << std::endl;

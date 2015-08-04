@@ -64,7 +64,6 @@ private:
 public:
 	friend struct GLMesh;
 
-
 	Vector3f vertexLocations;
 	Vector3f vertexNormals;
 	Vector4f vertexColors;
@@ -75,6 +74,12 @@ public:
 	Vector2f textureMap;
 	Image4f textureImage;
 	float4x4 pose;
+
+	template <class Archive> void serialize(Archive & archive)
+	{
+		archive(CEREAL_NVP(pose), CEREAL_NVP(vertexLocations), CEREAL_NVP(vertexNormals), CEREAL_NVP(vertexColors), CEREAL_NVP(quadIndexes), CEREAL_NVP(triIndexes),CEREAL_NVP(textureMap), CEREAL_NVP(textureImage));
+	}
+
 	GLMesh gl;
 
 	Mesh(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());

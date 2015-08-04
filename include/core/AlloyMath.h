@@ -30,7 +30,8 @@
 #include <limits>
 #include <cmath>
 #include "AlloyCommon.h"
-//#include "cereal/cereal.hpp"
+
+#include "cereal/cereal.hpp"
 #define ALY_PI float(3.1415926535897932384626433832795)
 #define ALY_PI_2 float(0.5f*ALY_PI)
 #define ALY_PI_4 float(0.25f*ALY_PI)
@@ -89,7 +90,7 @@ template<class T> struct vec<T, 1> {
 		return (x > r.x);
 	}
 	template<class Archive> void serialize(Archive & archive) {
-		archive(x);
+		archive(CEREAL_NVP(x));
 	}
 };
 // A vector with exactly M elements, each of which is an instance of type T. Can also be thought of as an M x 1 matrix.
@@ -131,7 +132,7 @@ template<class T> struct vec<T, 2> {
 		return (std::make_tuple(x, y) < std::make_tuple(r.x, r.y));
 	}
 	template<class Archive> void serialize(Archive & archive) {
-		archive(x, y);
+		archive(CEREAL_NVP(x), CEREAL_NVP(y));
 	}
 
 };
@@ -177,7 +178,7 @@ template<class T> struct vec<T, 3> {
 		return (std::make_tuple(x, y, z) < std::make_tuple(r.x, r.y, r.z));
 	}
 	template<class Archive> void serialize(Archive & archive) {
-		archive(x, y, z);
+		archive(CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z));
 	}
 
 };
@@ -198,7 +199,7 @@ template<class T> struct vec<T, 4> {
 	}
 	template<class Archive> void serialize(Archive & archive)
 	{
-		archive(x, y, z, w);
+		archive(CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z), CEREAL_NVP(w));
 	}
 	template<class U> explicit vec(const vec<U, 4> & r) :
 			x(T(r.x)), y(T(r.y)), z(T(r.z)), w(T(r.w)) {
@@ -305,7 +306,7 @@ template<class T, int M> struct matrix<T, M, 2> {
 	typedef vec<T, M> C;
 	C x, y;
 	template<class Archive> void serialize(Archive & archive) {
-		archive(x,y);
+		archive(CEREAL_NVP(x), CEREAL_NVP(y));
 	}
 	matrix(const T (&A)[M * 2]) {
 		for (int m = 0; m < M; m++) {
@@ -361,7 +362,7 @@ template<class T, int M> struct matrix<T, M, 3> {
 	typedef vec<T, M> C;
 	C x, y, z;
 	template<class Archive> void serialize(Archive & archive) {
-		archive(x, y,z);
+		archive(CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z));
 	}
 	matrix() {
 	}
@@ -418,7 +419,7 @@ template<class T, int M> struct matrix<T, M, 4> {
 	typedef vec<T, M> C;
 	C x, y, z, w;
 	template<class Archive> void serialize(Archive & archive) {
-		archive(x, y, z,w);
+		archive(CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z), CEREAL_NVP(w));
 	}
 	matrix() {
 	}

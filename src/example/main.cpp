@@ -43,7 +43,7 @@ int main() {
 	try {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
-		//SANITY_CHECK_CEREAL();
+		SANITY_CHECK_CEREAL();
 		ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
 		//MeshViewer app;
