@@ -85,7 +85,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 			getContext()->getViewport());
 	if (camera.isDirty()) {
 		outlineFrameBuffer.begin();
-		outlineShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, 0.0f),
+		outlineShader.draw(flatDepthFrameBuffer.getTexture(), float2(0.0f, 0.0f),
 				float2(480, 480), outlineFrameBuffer.getViewport());
 		outlineFrameBuffer.end();
 

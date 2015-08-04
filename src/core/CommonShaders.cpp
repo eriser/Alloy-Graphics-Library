@@ -760,8 +760,8 @@ float w=0;
 void main() {
 vec4 rgba=texture(textureImage,uv);
 vec4 nrgba;
-if(rgba.w>0){
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+if(rgba.w>0){
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
@@ -771,10 +771,9 @@ if(nrgba.w<=0.0){
 	}
 }
 w=sqrt(minDistance)/KERNEL_SIZE;
-//if(w>0.99999)discard;
 rgba=mix(edgeColor,innerColor,w);
 } else {
-float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
