@@ -3,25 +3,9 @@
 #include "AlloyFileUtil.h"
 #include "AlloyMath.h"
 #include "stb_image.h"
-#include <random>
+
 #include <png.h>
 namespace aly {
-	template<class T, int C, ImageType I>  std::string Image<T,C,I>::updateHashCode(size_t MAX_SAMPLES,HashMethod method) {
-        if(MAX_SAMPLES==0){
-            hashCode = HashCode(data, method);
-        } else {
-            const size_t seed=8743128921;
-            std::mt19937 mt(seed);
-            std::uniform_int_distribution<size_t> wSampler(0,width);
-            std::uniform_int_distribution<size_t> hSampler(0,height);
-            std::vector<vec<T, C>> sample(MAX_SAMPLES);
-            for(int i=0;i<MAX_SAMPLES;i++){
-                sample[i]=(*this)(wSampler(mt),hSampler(mt));
-            }
-            hashCode = HashCode(sample, method);
-        }
-        return hashCode;
-}
 void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
 	std::string file = ReplaceFileExtension(_file, "png");
 	int width = image.width;

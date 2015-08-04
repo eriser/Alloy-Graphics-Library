@@ -28,6 +28,7 @@
 #include <vector>
 #include <functional>
 #include <fstream>
+#include <random>
 namespace aly {
 bool SANITY_CHECK_IMAGE();
 enum class ImageType {
@@ -233,7 +234,23 @@ public:
 		}
 	}
 };
-
+template<class T, int C, ImageType I>  std::string Image<T, C, I>::updateHashCode(size_t MAX_SAMPLES, HashMethod method) {
+	if (MAX_SAMPLES == 0) {
+		hashCode = HashCode(data, method);
+	}
+	else {
+		const size_t seed = 8743128921;
+		std::mt19937 mt(seed);
+		std::uniform_int_distribution<int> wSampler(0, width-1);
+		std::uniform_int_distribution<int> hSampler(0, height-1);
+		std::vector<vec<T, C>> sample(MAX_SAMPLES);
+		for (int i = 0;i<MAX_SAMPLES;i++) {
+			sample[i] = this->operator()(wSampler(mt), hSampler(mt));
+		}
+		hashCode = HashCode(sample, method);
+	}
+	return hashCode;
+}
 template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 		Image<T, C, I>& im2,
 		const std::function<void(vec<T, C>&, vec<T, C>&)>& func) {
