@@ -281,27 +281,15 @@ public:
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
-	inline void setNorth(const std::shared_ptr<Region>& region,
-			float fraction) {
-		northRegion = region;
-		northFraction = fraction;
-	}
-	inline void setSouth(const std::shared_ptr<Region>& region,
-			float fraction) {
-		southRegion = region;
-		southFraction = fraction;
-	}
-	inline void setEast(const std::shared_ptr<Region>& region, float fraction) {
-		eastRegion = region;
-		eastFraction = fraction;
-	}
-	inline void setWest(const std::shared_ptr<Region>& region, float fraction) {
-		westRegion = region;
-		westFraction = fraction;
-	}
-	inline void setCenter(const std::shared_ptr<Region>& region) {
-		centerRegion = region;
-	}
+	void setNorth(const std::shared_ptr<Region>& region,
+			float fraction);
+        void setSouth(const std::shared_ptr<Region>& region,
+                        float fraction);
+        void setEast(const std::shared_ptr<Region>& region,
+                         float fraction);
+        void setWest(const std::shared_ptr<Region>& region,
+                         float fraction);
+        void setCenter(const std::shared_ptr<Region>& region);
 
 	void pack();
 	void draw();
