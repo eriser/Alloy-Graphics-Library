@@ -364,6 +364,9 @@ namespace aly {
 		template<class T> AUnit1D & operator =(const T & value) {
 			return *this = AUnit1D(value);
 		}
+		std::string virtual type() const {
+			return impl->type();
+		}
 		// Implicit interface
 		pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
 			if (impl.get() == nullptr)
@@ -516,6 +519,9 @@ namespace aly {
 		}
 		template<class T> AUnit2D & operator =(const T & value) {
 			return *this = AUnit2D(value);
+		}
+		std::string virtual type() const {
+			return impl->type();
 		}
 		// Implicit interface
 		pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
