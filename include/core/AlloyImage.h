@@ -31,7 +31,7 @@
 namespace aly {
 bool SANITY_CHECK_IMAGE();
 enum class ImageType {
-	BYTE, UBYTE, SHORT, USHORT, INT, UINT, FLOAT, DOUBLE
+	BYTE=0, UBYTE=1, SHORT=2, USHORT=3, INT=4, UINT=5, FLOAT=6, DOUBLE=7
 };
 template<class L, class R> std::basic_ostream<L, R>& operator <<(
 		std::basic_ostream<L, R> & ss, const ImageType& type) {
