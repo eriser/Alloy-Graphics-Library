@@ -5,7 +5,7 @@
 #include "stb_image.h"
 
 #include <png.h>
-namespace aly{
+namespace aly {
 void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
 	std::string file = ReplaceFileExtension(_file, "png");
 	int width = image.width;

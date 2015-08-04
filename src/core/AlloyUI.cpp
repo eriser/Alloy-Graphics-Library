@@ -218,7 +218,8 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 	return box;
 }
 void Composite::clear() {
-	AlloyApplicationContext()->addDeferredTask([this] {this->children.clear();});
+	AlloyApplicationContext()->addDeferredTask(
+			[this] {this->children.clear();});
 }
 Region* Composite::locate(const pixel2& cursor) {
 	if (isVisible()) {
@@ -1328,17 +1329,16 @@ void FileField::setValue(const std::string& text) {
 		this->value = text;
 		if (text.size() == 0) {
 			label = name;
-		}
-		else {
+		} else {
 			if (text.size() > PREFERRED_TEXT_WIDTH) {
-				this->label = std::string("..") + ALY_PATH_SEPARATOR + GetFileName(text);
+				this->label = std::string("..") + ALY_PATH_SEPARATOR+ GetFileName(text);
 			}
 			else {
 				this->label = text;
 			}
 		}
 		segmentedPath = splitPath(value);
-		moveCursorTo((int)text.size());
+		moveCursorTo((int) text.size());
 	}
 }
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
@@ -1360,10 +1360,9 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 				if (e.key == GLFW_KEY_ENTER) {
 					if (onSelect) {
 						onSelect(this);
-						return  true;
+						return true;
 					}
-				} else 
-				if (e.key == GLFW_KEY_TAB) {
+				} else if (e.key == GLFW_KEY_TAB) {
 					showCursor = true;
 					std::string root = GetParentDirectory(value);
 					std::vector<std::string> listing = GetDirectoryListing(
@@ -1781,7 +1780,7 @@ void SelectionBox::draw(AlloyContext* context) {
 	int index = 0;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
 
-	int N = (int)options.size();
+	int N = (int) options.size();
 
 	if (maxDisplayEntries >= 0) {
 		N = std::min(selectionOffset + maxDisplayEntries, (int) options.size());
@@ -1855,8 +1854,9 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFill(nvg);
 			upArrow->draw(upArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
 					context);
-			if(upArrowBox.contains(AlloyApplicationContext()->cursorPosition)){
-				if(selectionOffset>0){
+			if (upArrowBox.contains(
+					AlloyApplicationContext()->cursorPosition)) {
+				if (selectionOffset > 0) {
 					selectionOffset--;
 				}
 			}
@@ -1871,8 +1871,9 @@ void SelectionBox::draw(AlloyContext* context) {
 			nvgFill(nvg);
 			downArrow->draw(downArrowBox, context->theme.HIGHLIGHT, COLOR_NONE,
 					context);
-			if(downArrowBox.contains(AlloyApplicationContext()->cursorPosition)){
-				if(selectionOffset<options.size()-maxDisplayEntries){
+			if (downArrowBox.contains(
+					AlloyApplicationContext()->cursorPosition)) {
+				if (selectionOffset < options.size() - maxDisplayEntries) {
 					selectionOffset++;
 				}
 			}

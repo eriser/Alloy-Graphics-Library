@@ -47,7 +47,7 @@ int printOglError(const char *file, int line) {
 	return retCode;
 }
 namespace aly {
-std::mutex AlloyContext::contextLock,taskLock;
+std::mutex AlloyContext::contextLock, taskLock;
 std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
 Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
@@ -63,7 +63,7 @@ int Font::getCursorPosition(const std::string & text, float fontSize,
 	positions.resize(
 			nvgTextGlyphPositions(nvg, 0, 0, text.data(),
 					text.data() + text.size(), positions.data(),
-				(int)positions.size()));
+					(int) positions.size()));
 	for (size_t i = 0; i < positions.size(); ++i) {
 		if (xCoord < positions[i].maxx) {
 			return static_cast<int>(i);
@@ -86,7 +86,7 @@ void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
 	NVGcontext* nvg = context->nvgContext;
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgFontSize(nvg, height);
-	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE|NVG_ALIGN_CENTER);
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
 	drawText(nvg, bounds.position + HALF_PIX(bounds.dimensions), name, style,
 			fgColor, bgColor, nullptr);
 }
@@ -99,8 +99,8 @@ ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 			(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0);
 	int w, h;
 	nvgImageSize(context->nvgContext, handle, &w, &h);
-	width = (pixel)w;
-	height = (pixel)h;
+	width = (pixel) w;
+	height = (pixel) h;
 }
 ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 		bool mipmap) :
@@ -131,45 +131,50 @@ void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,
 	}
 
 }
-CheckerboardGlyph::CheckerboardGlyph(int width, int height, int horizTiles, int vertTiles, AlloyContext* context, bool mipmap):Glyph("image_rgba", GlyphType::Image,(pixel)width,(pixel)height) {
-		ImageRGBA img(width, height);
-		int cellWidth = width / horizTiles;
-		int cellHeight = height / vertTiles;
-		for (int i = 0;i < width;i++) {
-			for (int j = 0;j < height;j++) {
-				bool vt = (i / cellWidth) % 2 == 0;
-				bool ht = (j / cellHeight) % 2 == 0;
-				img(i, j) = (vt&&!ht||!vt&&ht)?RGBA(0,0,0,0): RGBA(255, 255, 255, 255);
-			}
+CheckerboardGlyph::CheckerboardGlyph(int width, int height, int horizTiles,
+		int vertTiles, AlloyContext* context, bool mipmap) :
+		Glyph("image_rgba", GlyphType::Image, (pixel) width, (pixel) height) {
+	ImageRGBA img(width, height);
+	int cellWidth = width / horizTiles;
+	int cellHeight = height / vertTiles;
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			bool vt = (i / cellWidth) % 2 == 0;
+			bool ht = (j / cellHeight) % 2 == 0;
+			img(i, j) =
+					(vt && !ht || !vt && ht) ?
+							RGBA(0, 0, 0, 0) : RGBA(255, 255, 255, 255);
 		}
-		handle = nvgCreateImageRGBA(context->nvgContext,width,height,(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0, img.ptr());
+	}
+	handle = nvgCreateImageRGBA(context->nvgContext, width, height,
+			(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0, img.ptr());
 }
 void CheckerboardGlyph::draw(const box2px& bounds, const Color& fgColor,
-	const Color& bgColor, AlloyContext* context) {
+		const Color& bgColor, AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
-		bounds.position.y, bounds.dimensions.x, bounds.dimensions.y, 0.f,
-		handle, 1.0f);
+			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y, 0.f,
+			handle, 1.0f);
 	if (bgColor.a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y);
+				bounds.dimensions.y);
 		nvgFillColor(nvg, Color(bgColor));
 		nvgFill(nvg);
 	}
 	nvgBeginPath(nvg);
 	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-		bounds.dimensions.y);
+			bounds.dimensions.y);
 	nvgFillPaint(nvg, imgPaint);
 	nvgFill(nvg);
 	if (fgColor.a > 0) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y);
+				bounds.dimensions.y);
 		nvgFillColor(nvg, Color(fgColor));
 		nvgFill(nvg);
 	}
-	
+
 }
 void AlloyContext::addAssetDirectory(const std::string& dir) {
 	assetDirectories.push_back(dir);
@@ -200,11 +205,12 @@ void AlloyContext::setDragObject(Region* region) {
 	cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
 }
 bool AlloyContext::isOnTop(Region* region) const {
-	return (onTopRegion!=nullptr&&(onTopRegion == region||region->hasParent(onTopRegion)));
+	return (onTopRegion != nullptr
+			&& (onTopRegion == region || region->hasParent(onTopRegion)));
 }
 bool AlloyContext::fireListeners(const InputEvent& event) {
 	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
-		EventHandler* handler=*iter;
+		EventHandler* handler = *iter;
 		if (handler->onEventHandler(this, event))
 			return true;
 	}
@@ -214,14 +220,14 @@ void AlloyContext::addListener(EventHandler* region) {
 	listeners.push_back(region);
 }
 void AlloyContext::removeListener(EventHandler* region) {
-	for(auto iter=listeners.begin();iter!=listeners.end();iter++){
-		if(region==*iter){
+	for (auto iter = listeners.begin(); iter != listeners.end(); iter++) {
+		if (region == *iter) {
 			listeners.erase(iter);
 			break;
 		}
 	}
 }
-EventHandler::~EventHandler(){
+EventHandler::~EventHandler() {
 	Application::removeListener(this);
 }
 void AlloyContext::setOnTopRegion(Region* region) {
@@ -229,7 +235,8 @@ void AlloyContext::setOnTopRegion(Region* region) {
 		throw std::runtime_error(
 				"On top region cannot be null. use removeOnTopRegion() instead.");
 	if (onTopRegion != nullptr) {
-		if (onTopRegion->onRemoveFromOnTop)onTopRegion->onRemoveFromOnTop();
+		if (onTopRegion->onRemoveFromOnTop)
+			onTopRegion->onRemoveFromOnTop();
 	}
 	onTopRegion = region;
 	region->setVisible(true);
@@ -238,7 +245,8 @@ void AlloyContext::removeOnTopRegion(Region* region) {
 	if (region == nullptr)
 		throw std::runtime_error("Remove on top region cannot be null.");
 	if (region == onTopRegion) {
-		if(onTopRegion->onRemoveFromOnTop)onTopRegion->onRemoveFromOnTop();
+		if (onTopRegion->onRemoveFromOnTop)
+			onTopRegion->onRemoveFromOnTop();
 		onTopRegion = nullptr;
 	}
 
@@ -275,7 +283,7 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glEnable( GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0, 0, width, height);
-	viewSize=int2(width, height);
+	viewSize = int2(width, height);
 	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 	const float2 TextureCoords[6] = { float2(1.0f, 0.0f), float2(0.0f, 0.0f),
 			float2(0.0f, 1.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f), float2(
@@ -344,20 +352,27 @@ bool AlloyContext::isMouseContainedIn(const pixel2& pos,
 		const pixel2& dims) const {
 	return ((box2px(pos, dims)).contains(cursorPosition));
 }
-std::shared_ptr<Composite>& AlloyContext::getGlassPanel(){
-	if(glassPanel.get()==nullptr){
-		glassPanel=std::shared_ptr<Composite>(new Composite("Glass Pane",CoordPX(0,0),CoordPercent(1.0f,1.0f)));
+std::shared_ptr<Composite>& AlloyContext::getGlassPanel() {
+	if (glassPanel.get() == nullptr) {
+		glassPanel = std::shared_ptr<Composite>(
+				new Composite("Glass Pane", CoordPX(0, 0),
+						CoordPercent(1.0f, 1.0f)));
 		glassPanel->setIgnoreCursorEvents(true);
 		glassPanel->setVisible(false);
-		glassPanel->backgroundColor=MakeColor(theme.SHADOW.toSemiTransparent(0.5f));
+		glassPanel->backgroundColor = MakeColor(
+				theme.SHADOW.toSemiTransparent(0.5f));
 	}
 	return glassPanel;
 }
 void AlloyContext::clearEvents(Region* region) {
-	if (mouseOverRegion == region)mouseOverRegion = nullptr;
-	if (mouseDownRegion == region)mouseDownRegion = nullptr;
-	if (mouseFocusRegion == region)mouseFocusRegion = nullptr;
-	if (onTopRegion == region)region = nullptr;
+	if (mouseOverRegion == region)
+		mouseOverRegion = nullptr;
+	if (mouseDownRegion == region)
+		mouseDownRegion = nullptr;
+	if (mouseFocusRegion == region)
+		mouseFocusRegion = nullptr;
+	if (onTopRegion == region)
+		region = nullptr;
 }
 Region* AlloyContext::locate(const pixel2& cursor) const {
 	if (onTopRegion != nullptr) {
@@ -447,7 +462,7 @@ void AlloyContext::update(Composite& rootNode) {
 		dirtyCursorLocator = true;
 		dirtyLayout = false;
 	}
-	
+
 }
 void AlloyContext::makeCurrent() {
 	std::lock_guard<std::mutex> lock(contextLock);

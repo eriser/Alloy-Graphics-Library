@@ -41,7 +41,7 @@ namespace rapidjson {
 
 //! Combination of parseFlags
 enum ParseFlag {
-	kParseDefaultFlags = 0,			//!< Default parse flags. Non-destructive parsing. Text strings are decoded into allocated buffer.
+	kParseDefaultFlags = 0,	//!< Default parse flags. Non-destructive parsing. Text strings are decoded into allocated buffer.
 	kParseInsituFlag = 1			//!< In-situ(destructive) parsing.
 };
 
@@ -49,50 +49,74 @@ enum ParseFlag {
 // Handler
 
 /*!	\class rapidjson::Handler
-	\brief Concept for receiving events from GenericReader upon parsing.
-\code
-concept Handler {
-	typename Ch;
+ \brief Concept for receiving events from GenericReader upon parsing.
+ \code
+ concept Handler {
+ typename Ch;
 
-	void Null_();
-	void Bool_(bool b);
-	void Int(int i);
-	void Uint(unsigned i);
-	void Int64(int64_t i);
-	void Uint64(uint64_t i);
-	void Double(double d);
-	void String(const Ch* str, SizeType length, bool copy);
-	void StartObject();
-	void EndObject(SizeType memberCount);
-	void StartArray();
-	void EndArray(SizeType elementCount);
-};
-\endcode
-*/
+ void Null_();
+ void Bool_(bool b);
+ void Int(int i);
+ void Uint(unsigned i);
+ void Int64(int64_t i);
+ void Uint64(uint64_t i);
+ void Double(double d);
+ void String(const Ch* str, SizeType length, bool copy);
+ void StartObject();
+ void EndObject(SizeType memberCount);
+ void StartArray();
+ void EndArray(SizeType elementCount);
+ };
+ \endcode
+ */
 ///////////////////////////////////////////////////////////////////////////////
 // BaseReaderHandler
-
 //! Default implementation of Handler.
 /*! This can be used as base class of any reader handler.
-	\implements Handler
-*/
+ \implements Handler
+ */
 template<typename Encoding = UTF8<> >
 struct BaseReaderHandler {
 	typedef typename Encoding::Ch Ch;
 
-	void Default() {}
-	void Null_() { Default(); }
-	void Bool_(bool) { Default(); }
-	void Int(int) { Default(); }
-	void Uint(unsigned) { Default(); }
-	void Int64(int64_t) { Default(); }
-	void Uint64(uint64_t) { Default(); }
-	void Double(double) { Default(); }
-	void String(const Ch*, SizeType, bool) { Default(); }
-	void StartObject() { Default(); }
-	void EndObject(SizeType) { Default(); }
-	void StartArray() { Default(); }
-	void EndArray(SizeType) { Default(); }
+	void Default() {
+	}
+	void Null_() {
+		Default();
+	}
+	void Bool_(bool) {
+		Default();
+	}
+	void Int(int) {
+		Default();
+	}
+	void Uint(unsigned) {
+		Default();
+	}
+	void Int64(int64_t) {
+		Default();
+	}
+	void Uint64(uint64_t) {
+		Default();
+	}
+	void Double(double) {
+		Default();
+	}
+	void String(const Ch*, SizeType, bool) {
+		Default();
+	}
+	void StartObject() {
+		Default();
+	}
+	void EndObject(SizeType) {
+		Default();
+	}
+	void StartArray() {
+		Default();
+	}
+	void EndArray(SizeType) {
+		Default();
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,12 +124,13 @@ struct BaseReaderHandler {
 
 //! Skip the JSON white spaces in a stream.
 /*! \param stream A input stream for skipping white spaces.
-	\note This function has SSE2/SSE4.2 specialization.
-*/
+ \note This function has SSE2/SSE4.2 specialization.
+ */
 template<typename Stream>
 void SkipWhitespace(Stream& stream) {
 	Stream s = stream;	// Use a local copy for optimization
-	while (s.Peek() == ' ' || s.Peek() == '\n' || s.Peek() == '\r' || s.Peek() == '\t')
+	while (s.Peek() == ' ' || s.Peek() == '\n' || s.Peek() == '\r'
+			|| s.Peek() == '\t')
 		s.Take();
 	stream = s;
 }
@@ -120,15 +145,15 @@ inline const char *SkipWhitespace_SIMD(const char* p) {
 		__m128i s = _mm_loadu_si128((const __m128i *)p);
 		unsigned r = _mm_cvtsi128_si32(_mm_cmpistrm(w, s, _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_BIT_MASK | _SIDD_NEGATIVE_POLARITY));
 		if (r == 0)	// all 16 characters are whitespace
-			p += 16;
+		p += 16;
 		else {		// some of characters may be non-whitespace
 #ifdef _MSC_VER		// Find the index of first non-whitespace
 			unsigned long offset;
 			if (_BitScanForward(&offset, r))
-				return p + offset;
+			return p + offset;
 #else
 			if (r != 0)
-				return p + __builtin_ffs(r) - 1;
+			return p + __builtin_ffs(r) - 1;
 #endif
 		}
 	}
@@ -157,15 +182,15 @@ inline const char *SkipWhitespace_SIMD(const char* p) {
 		x = _mm_or_si128(x, _mm_cmpeq_epi8(s, w3));
 		unsigned short r = ~_mm_movemask_epi8(x);
 		if (r == 0)	// all 16 characters are whitespace
-			p += 16;
+		p += 16;
 		else {		// some of characters may be non-whitespace
 #ifdef _MSC_VER		// Find the index of first non-whitespace
 			unsigned long offset;
 			if (_BitScanForward(&offset, r))
-				return p + offset;
+			return p + offset;
 #else
 			if (r != 0)
-				return p + __builtin_ffs(r) - 1;
+			return p + __builtin_ffs(r) - 1;
 #endif
 		}
 	}
@@ -190,39 +215,42 @@ template<> inline void SkipWhitespace(StringStream& stream) {
 
 //! SAX-style JSON parser. Use Reader for UTF8 encoding and default allocator.
 /*! GenericReader parses JSON text from a stream, and send events synchronously to an
-    object implementing Handler concept.
+ object implementing Handler concept.
 
-    It needs to allocate a stack for storing a single decoded string during
-    non-destructive parsing.
+ It needs to allocate a stack for storing a single decoded string during
+ non-destructive parsing.
 
-    For in-situ parsing, the decoded string is directly written to the source
-    text string, no temporary buffer is required.
+ For in-situ parsing, the decoded string is directly written to the source
+ text string, no temporary buffer is required.
 
-    A GenericReader object can be reused for parsing multiple JSON text.
+ A GenericReader object can be reused for parsing multiple JSON text.
 
-    \tparam Encoding Encoding of both the stream and the parse output.
-    \tparam Allocator Allocator type for stack.
-*/
-template <typename Encoding, typename Allocator = MemoryPoolAllocator<> >
+ \tparam Encoding Encoding of both the stream and the parse output.
+ \tparam Allocator Allocator type for stack.
+ */
+template<typename Encoding, typename Allocator = MemoryPoolAllocator<> >
 class GenericReader {
 public:
 	typedef typename Encoding::Ch Ch;
 
 	//! Constructor.
 	/*! \param allocator Optional allocator for allocating stack memory. (Only use for non-destructive parsing)
-		\param stackCapacity stack capacity in bytes for storing a single decoded string.  (Only use for non-destructive parsing)
-	*/
-	GenericReader(Allocator* allocator = 0, size_t stackCapacity = kDefaultStackCapacity) : stack_(allocator, stackCapacity), parseError_(0), errorOffset_(0) {}
+	 \param stackCapacity stack capacity in bytes for storing a single decoded string.  (Only use for non-destructive parsing)
+	 */
+	GenericReader(Allocator* allocator = 0, size_t stackCapacity =
+			kDefaultStackCapacity) :
+			stack_(allocator, stackCapacity), parseError_(0), errorOffset_(0) {
+	}
 
 	//! Parse JSON text.
 	/*! \tparam parseFlags Combination of ParseFlag.
-		 \tparam Stream Type of input stream.
-		 \tparam Handler Type of handler which must implement Handler concept.
-		 \param stream Input stream to be parsed.
-		 \param handler The handler to receive events.
-		 \return Whether the parsing is successful.
-	*/
-	template <unsigned parseFlags, typename Stream, typename Handler>
+	 \tparam Stream Type of input stream.
+	 \tparam Handler Type of handler which must implement Handler concept.
+	 \param stream Input stream to be parsed.
+	 \param handler The handler to receive events.
+	 \return Whether the parsing is successful.
+	 */
+	template<unsigned parseFlags, typename Stream, typename Handler>
 	bool Parse(Stream& stream, Handler& handler) {
 		parseError_ = 0;
 		errorOffset_ = 0;
@@ -242,25 +270,43 @@ public:
 		SkipWhitespace(stream);
 
 		if (stream.Peek() == '\0')
-			RAPIDJSON_PARSE_ERROR("Text only contains white space(s)", stream.Tell());
+			RAPIDJSON_PARSE_ERROR("Text only contains white space(s)",
+					stream.Tell());
 		else {
 			switch (stream.Peek()) {
-				case '{': ParseObject<parseFlags>(stream, handler); break;
-				case '[': ParseArray<parseFlags>(stream, handler); break;
-				default: RAPIDJSON_PARSE_ERROR("Expect either an object or array at root", stream.Tell());
+			case '{':
+				ParseObject<parseFlags>(stream, handler);
+				break;
+			case '[':
+				ParseArray<parseFlags>(stream, handler);
+				break;
+			default:
+				RAPIDJSON_PARSE_ERROR(
+						"Expect either an object or array at root",
+						stream.Tell());
 			}
 			SkipWhitespace(stream);
 
-			if (stream.Peek() != '\0' && stream.Peek() != static_cast<Ch>(std::char_traits<Ch>::eof()))
-				RAPIDJSON_PARSE_ERROR("Nothing should follow the root object or array.", stream.Tell());
+			if (stream.Peek() != '\0'
+					&& stream.Peek()
+							!= static_cast<Ch>(std::char_traits<Ch>::eof()))
+				RAPIDJSON_PARSE_ERROR(
+						"Nothing should follow the root object or array.",
+						stream.Tell());
 		}
 
 		return true;
 	}
 
-	bool HasParseError() const { return parseError_ != 0; }
-	const char* GetParseError() const { return parseError_; }
-	size_t GetErrorOffset() const { return errorOffset_; }
+	bool HasParseError() const {
+		return parseError_ != 0;
+	}
+	const char* GetParseError() const {
+		return parseError_;
+	}
+	size_t GetErrorOffset() const {
+		return errorOffset_;
+	}
 
 private:
 	// Parse object: { string : value, ... }
@@ -279,7 +325,9 @@ private:
 
 		for (SizeType memberCount = 0;;) {
 			if (stream.Peek() != '"') {
-				RAPIDJSON_PARSE_ERROR("Name of an object member must be a string", stream.Tell());
+				RAPIDJSON_PARSE_ERROR(
+						"Name of an object member must be a string",
+						stream.Tell());
 				break;
 			}
 
@@ -287,7 +335,9 @@ private:
 			SkipWhitespace(stream);
 
 			if (stream.Take() != ':') {
-				RAPIDJSON_PARSE_ERROR("There must be a colon after the name of object member", stream.Tell());
+				RAPIDJSON_PARSE_ERROR(
+						"There must be a colon after the name of object member",
+						stream.Tell());
 				break;
 			}
 			SkipWhitespace(stream);
@@ -297,10 +347,17 @@ private:
 
 			++memberCount;
 
-			switch(stream.Take()) {
-				case ',': SkipWhitespace(stream); break;
-				case '}': handler.EndObject(memberCount); return;
-				default:  RAPIDJSON_PARSE_ERROR("Must be a comma or '}' after an object member", stream.Tell());
+			switch (stream.Take()) {
+			case ',':
+				SkipWhitespace(stream);
+				break;
+			case '}':
+				handler.EndObject(memberCount);
+				return;
+			default:
+				RAPIDJSON_PARSE_ERROR(
+						"Must be a comma or '}' after an object member",
+						stream.Tell());
 			}
 		}
 	}
@@ -325,36 +382,45 @@ private:
 			SkipWhitespace(stream);
 
 			switch (stream.Take()) {
-				case ',': SkipWhitespace(stream); break;
-				case ']': handler.EndArray(elementCount); return;
-				default:  RAPIDJSON_PARSE_ERROR("Must be a comma or ']' after an array element.", stream.Tell());
+			case ',':
+				SkipWhitespace(stream);
+				break;
+			case ']':
+				handler.EndArray(elementCount);
+				return;
+			default:
+				RAPIDJSON_PARSE_ERROR(
+						"Must be a comma or ']' after an array element.",
+						stream.Tell());
 			}
 		}
 	}
 
-  // Parses for null or NaN
+	// Parses for null or NaN
 	template<unsigned parseFlags, typename Stream, typename Handler>
 	void ParseNaNNull_(Stream& stream, Handler& handler) {
 		RAPIDJSON_ASSERT(stream.Peek() == 'n');
 		stream.Take();
 
-    if( stream.Peek() == 'a' && stream.Take() == 'a' && stream.Take() == 'n' )
-      handler.Double( std::numeric_limits<double>::quiet_NaN() );
-    else if (stream.Take() == 'u' && stream.Take() == 'l' && stream.Take() == 'l')
+		if (stream.Peek() == 'a' && stream.Take() == 'a'
+				&& stream.Take() == 'n')
+			handler.Double(std::numeric_limits<double>::quiet_NaN());
+		else if (stream.Take() == 'u' && stream.Take() == 'l'
+				&& stream.Take() == 'l')
 			handler.Null_();
-    else
+		else
 			RAPIDJSON_PARSE_ERROR("Invalid value", stream.Tell() - 1);
 	}
 
-  // Parses for infinity
+	// Parses for infinity
 	template<unsigned parseFlags, typename Stream, typename Handler>
 	void ParseInfinity(Stream& stream, Handler& handler) {
 		RAPIDJSON_ASSERT(stream.Peek() == 'i');
 		stream.Take();
 
-    if (stream.Take() == 'n' && stream.Take() == 'f')
-      handler.Double( std::numeric_limits<double>::infinity() );
-    else
+		if (stream.Take() == 'n' && stream.Take() == 'f')
+			handler.Double(std::numeric_limits<double>::infinity());
+		else
 			RAPIDJSON_PARSE_ERROR("Invalid value", stream.Tell() - 1);
 	}
 
@@ -363,7 +429,8 @@ private:
 		RAPIDJSON_ASSERT(stream.Peek() == 't');
 		stream.Take();
 
-		if (stream.Take() == 'r' && stream.Take() == 'u' && stream.Take() == 'e')
+		if (stream.Take() == 'r' && stream.Take() == 'u'
+				&& stream.Take() == 'e')
 			handler.Bool_(true);
 		else
 			RAPIDJSON_PARSE_ERROR("Invalid value", stream.Tell());
@@ -374,7 +441,8 @@ private:
 		RAPIDJSON_ASSERT(stream.Peek() == 'f');
 		stream.Take();
 
-		if (stream.Take() == 'a' && stream.Take() == 'l' && stream.Take() == 's' && stream.Take() == 'e')
+		if (stream.Take() == 'a' && stream.Take() == 'l' && stream.Take() == 's'
+				&& stream.Take() == 'e')
 			handler.Bool_(false);
 		else
 			RAPIDJSON_PARSE_ERROR("Invalid value", stream.Tell() - 1);
@@ -396,42 +464,47 @@ private:
 			else if (c >= 'a' && c <= 'f')
 				codepoint -= 'a' - 10;
 			else
-				RAPIDJSON_PARSE_ERROR("Incorrect hex digit after \\u escape", s.Tell() - 1);
+				RAPIDJSON_PARSE_ERROR("Incorrect hex digit after \\u escape",
+						s.Tell() - 1);
 		}
 		stream = s; // Restore stream
 		return codepoint;
 	}
 
-  // cereal Temporary until constexpr support is added in RTM
+	// cereal Temporary until constexpr support is added in RTM
 #ifdef _MSC_VER
-  template <class Ch>
-  bool characterOk( Ch c )
-  {
-    return c < 256;
-  }
+	template <class Ch>
+	bool characterOk( Ch c )
+	{
+		return c < 256;
+	}
 
-  template <>
-  bool characterOk<char>( char )
-  {
-    return true;
-  }
+	template <>
+	bool characterOk<char>( char )
+	{
+		return true;
+	}
 
 #else
-  // As part of a fix for GCC 4.7
-  template <class T>
-  static constexpr int to_int( T t ){ return t; }
+	// As part of a fix for GCC 4.7
+	template<class T>
+	static constexpr int to_int(T t) {
+		return t;
+	}
 
-  template<class Ch>
-  typename std::enable_if < to_int(std::numeric_limits<Ch>::max()) < to_int(256), bool>::type
-    characterOk( Ch )
-  {
-    return true;
-  }
+	template<class Ch>
+	typename std::enable_if<
+			to_int(std::numeric_limits<Ch>::max()) < to_int(256), bool>::type characterOk(
+			Ch) {
+		return true;
+	}
 
-  template<class Ch>
-  typename std::enable_if< to_int(std::numeric_limits<Ch>::max()) >= to_int(256), bool>::type
-    characterOk(Ch c)
-  { return c < 256; }
+	template<class Ch>
+	typename std::enable_if<
+			to_int(std::numeric_limits<Ch>::max()) >= to_int(256), bool>::type characterOk(
+			Ch c) {
+		return c < 256;
+	}
 #endif
 
 	// Parse string, handling the prefix and suffix double quotes and escaping.
@@ -439,12 +512,11 @@ private:
 	void ParseString(Stream& stream, Handler& handler) {
 #define Z16 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 		static const Ch escape[256] = {
-			Z16, Z16, 0, 0,'\"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'/',
-			Z16, Z16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0,
-			0, 0,'\b', 0, 0, 0,'\f', 0, 0, 0, 0, 0, 0, 0,'\n', 0,
-			0, 0,'\r', 0,'\t', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			Z16, Z16, Z16, Z16, Z16, Z16, Z16, Z16
-		};
+		Z16, Z16, 0, 0, '\"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '/',
+		Z16, Z16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\\', 0, 0, 0, 0, 0, '\b',
+				0, 0, 0, '\f', 0, 0, 0, 0, 0, 0, 0, '\n', 0, 0, 0, '\r', 0,
+				'\t', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				Z16, Z16, Z16, Z16, Z16, Z16, Z16, Z16 };
 #undef Z16
 
 		Stream s = stream;	// Use a local copy for optimization
@@ -471,62 +543,68 @@ private:
 			Ch c = s.Take();
 			if (c == '\\') {	// Escape
 				Ch e = s.Take();
-				if ((sizeof(Ch) == 1 || characterOk(e)) && escape[(unsigned char)e])
-					RAPIDJSON_PUT(escape[(unsigned char)e]);
+				if ((sizeof(Ch) == 1 || characterOk(e))
+						&& escape[(unsigned char) e])
+					RAPIDJSON_PUT(escape[(unsigned char )e]);
 				else if (e == 'u') {	// Unicode
 					unsigned codepoint = ParseHex4(s);
 					if (codepoint >= 0xD800 && codepoint <= 0xDBFF) { // Handle UTF-16 surrogate pair
 						if (s.Take() != '\\' || s.Take() != 'u') {
-							RAPIDJSON_PARSE_ERROR("Missing the second \\u in surrogate pair", s.Tell() - 2);
+							RAPIDJSON_PARSE_ERROR(
+									"Missing the second \\u in surrogate pair",
+									s.Tell() - 2);
 							return;
 						}
 						unsigned codepoint2 = ParseHex4(s);
 						if (codepoint2 < 0xDC00 || codepoint2 > 0xDFFF) {
-							RAPIDJSON_PARSE_ERROR("The second \\u in surrogate pair is invalid", s.Tell() - 2);
+							RAPIDJSON_PARSE_ERROR(
+									"The second \\u in surrogate pair is invalid",
+									s.Tell() - 2);
 							return;
 						}
-						codepoint = (((codepoint - 0xD800) << 10) | (codepoint2 - 0xDC00)) + 0x10000;
+						codepoint = (((codepoint - 0xD800) << 10)
+								| (codepoint2 - 0xDC00)) + 0x10000;
 					}
 
 					Ch buffer[4];
-					SizeType count = SizeType(Encoding::Encode(buffer, codepoint) - &buffer[0]);
+					SizeType count = SizeType(
+							Encoding::Encode(buffer, codepoint) - &buffer[0]);
 
 					if (parseFlags & kParseInsituFlag)
 						for (SizeType i = 0; i < count; i++)
 							s.Put(buffer[i]);
 					else {
-						memcpy(stack_.template Push<Ch>(count), buffer, count * sizeof(Ch));
+						memcpy(stack_.template Push<Ch>(count), buffer,
+								count * sizeof(Ch));
 						len += count;
 					}
-				}
-				else {
-					RAPIDJSON_PARSE_ERROR("Unknown escape character", stream.Tell() - 1);
+				} else {
+					RAPIDJSON_PARSE_ERROR("Unknown escape character",
+							stream.Tell() - 1);
 					return;
 				}
-			}
-			else if (c == '"') {	// Closing double quote
+			} else if (c == '"') {	// Closing double quote
 				if (parseFlags & kParseInsituFlag) {
 					size_t length = s.PutEnd(head);
 					RAPIDJSON_ASSERT(length <= 0xFFFFFFFF);
 					RAPIDJSON_PUT('\0');	// null-terminate the string
 					handler.String(head, SizeType(length), false);
-				}
-				else {
+				} else {
 					RAPIDJSON_PUT('\0');
 					handler.String(stack_.template Pop<Ch>(len), len - 1, true);
 				}
 				stream = s;	// restore stream
 				return;
-			}
-			else if (c == '\0') {
-				RAPIDJSON_PARSE_ERROR("lacks ending quotation before the end of string", stream.Tell() - 1);
+			} else if (c == '\0') {
+				RAPIDJSON_PARSE_ERROR(
+						"lacks ending quotation before the end of string",
+						stream.Tell() - 1);
 				return;
-			}
-			else if ((unsigned)c < 0x20) {	// RFC 4627: unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
-				RAPIDJSON_PARSE_ERROR("Incorrect unescaped character in string", stream.Tell() - 1);
+			} else if ((unsigned) c < 0x20) {// RFC 4627: unescaped = %x20-21 / %x23-5B / %x5D-10FFFF
+				RAPIDJSON_PARSE_ERROR("Incorrect unescaped character in string",
+						stream.Tell() - 1);
 				return;
-			}
-			else
+			} else
 				RAPIDJSON_PUT(c);	// Normal character, just copy
 		}
 #undef RAPIDJSON_PUT
@@ -549,8 +627,7 @@ private:
 		if (s.Peek() == '0') {
 			i = 0;
 			s.Take();
-		}
-		else if (s.Peek() >= '1' && s.Peek() <= '9') {
+		} else if (s.Peek() >= '1' && s.Peek() <= '9') {
 			i = s.Take() - '0';
 
 			if (minus)
@@ -573,8 +650,7 @@ private:
 					}
 					i = i * 10 + (s.Take() - '0');
 				}
-		}
-		else {
+		} else {
 			RAPIDJSON_PARSE_ERROR("Expect a value here.", stream.Tell());
 			return;
 		}
@@ -607,10 +683,11 @@ private:
 		// Force double for big integer
 		double d = 0.0;
 		if (useDouble) {
-			d = (double)i64;
+			d = (double) i64;
 			while (s.Peek() >= '0' && s.Peek() <= '9') {
 				if (d >= 1E307) {
-					RAPIDJSON_PARSE_ERROR("Number too big to store in double", stream.Tell());
+					RAPIDJSON_PARSE_ERROR("Number too big to store in double",
+							stream.Tell());
 					return;
 				}
 				d = d * 10 + (s.Take() - '0');
@@ -621,7 +698,7 @@ private:
 		int expFrac = 0;
 		if (s.Peek() == '.') {
 			if (!useDouble) {
-				d = try64bit ? (double)i64 : (double)i;
+				d = try64bit ? (double) i64 : (double) i;
 				useDouble = true;
 			}
 			s.Take();
@@ -629,9 +706,9 @@ private:
 			if (s.Peek() >= '0' && s.Peek() <= '9') {
 				d = d * 10 + (s.Take() - '0');
 				--expFrac;
-			}
-			else {
-				RAPIDJSON_PARSE_ERROR("At least one digit in fraction part", stream.Tell());
+			} else {
+				RAPIDJSON_PARSE_ERROR("At least one digit in fraction part",
+						stream.Tell());
 				return;
 			}
 
@@ -648,7 +725,7 @@ private:
 		int exp = 0;
 		if (s.Peek() == 'e' || s.Peek() == 'E') {
 			if (!useDouble) {
-				d = try64bit ? (double)i64 : (double)i;
+				d = try64bit ? (double) i64 : (double) i;
 				useDouble = true;
 			}
 			s.Take();
@@ -666,25 +743,28 @@ private:
 				while (s.Peek() >= '0' && s.Peek() <= '9') {
 					exp = exp * 10 + (s.Take() - '0');
 					if (exp > 308) {
-            // Attempt denormalized construction
-            std::stringstream ss;
-            ss.precision( std::numeric_limits<double>::max_digits10 );
-            ss << d * internal::Pow10(expFrac) << 'e' << (expMinus ? '-' : '+') << exp;
+						// Attempt denormalized construction
+						std::stringstream ss;
+						ss.precision(std::numeric_limits<double>::max_digits10);
+						ss << d * internal::Pow10(expFrac) << 'e'
+								<< (expMinus ? '-' : '+') << exp;
 
-            double dd;
-            ss >> dd;
+						double dd;
+						ss >> dd;
 
-            if( std::fpclassify( dd ) == FP_SUBNORMAL )
-              handler.Double( dd );
-            else
-						  RAPIDJSON_PARSE_ERROR("Number too big to store in double", stream.Tell());
+						if (std::fpclassify(dd) == FP_SUBNORMAL)
+							handler.Double(dd);
+						else
+							RAPIDJSON_PARSE_ERROR(
+									"Number too big to store in double",
+									stream.Tell());
 
 						return;
 					}
 				}
-			}
-			else {
-				RAPIDJSON_PARSE_ERROR("At least one digit in exponent", s.Tell());
+			} else {
+				RAPIDJSON_PARSE_ERROR("At least one digit in exponent",
+						s.Tell());
 				return;
 			}
 
@@ -696,17 +776,15 @@ private:
 		if (useDouble) {
 			d *= internal::Pow10(exp + expFrac);
 			handler.Double(minus ? -d : d);
-		}
-		else {
+		} else {
 			if (try64bit) {
 				if (minus)
-					handler.Int64(-(int64_t)i64);
+					handler.Int64(-(int64_t) i64);
 				else
 					handler.Uint64(i64);
-			}
-			else {
+			} else {
 				if (minus)
-					handler.Int(-(int)i);
+					handler.Int(-(int) i);
 				else
 					handler.Uint(i);
 			}
@@ -719,23 +797,39 @@ private:
 	template<unsigned parseFlags, typename Stream, typename Handler>
 	void ParseValue(Stream& stream, Handler& handler) {
 		switch (stream.Peek()) {
-			case 'n': ParseNaNNull_  <parseFlags>(stream, handler); break;
-			case 'i': ParseInfinity  <parseFlags>(stream, handler); break;
-			case 't': ParseTrue      <parseFlags>(stream, handler); break;
-			case 'f': ParseFalse     <parseFlags>(stream, handler); break;
-			case '"': ParseString    <parseFlags>(stream, handler); break;
-			case '{': ParseObject    <parseFlags>(stream, handler); break;
-			case '[': ParseArray     <parseFlags>(stream, handler); break;
-			default : ParseNumber    <parseFlags>(stream, handler);
+		case 'n':
+			ParseNaNNull_<parseFlags>(stream, handler);
+			break;
+		case 'i':
+			ParseInfinity<parseFlags>(stream, handler);
+			break;
+		case 't':
+			ParseTrue<parseFlags>(stream, handler);
+			break;
+		case 'f':
+			ParseFalse<parseFlags>(stream, handler);
+			break;
+		case '"':
+			ParseString<parseFlags>(stream, handler);
+			break;
+		case '{':
+			ParseObject<parseFlags>(stream, handler);
+			break;
+		case '[':
+			ParseArray<parseFlags>(stream, handler);
+			break;
+		default:
+			ParseNumber<parseFlags>(stream, handler);
 		}
 	}
 
-	static const size_t kDefaultStackCapacity = 256;	//!< Default stack capacity in bytes for storing a single decoded string.
-	internal::Stack<Allocator> stack_;	//!< A stack for storing decoded string temporarily during non-destructive parsing.
-	jmp_buf jmpbuf_;					//!< setjmp buffer for fast exit from nested parsing function calls.
+	static const size_t kDefaultStackCapacity = 256;//!< Default stack capacity in bytes for storing a single decoded string.
+	internal::Stack<Allocator> stack_;//!< A stack for storing decoded string temporarily during non-destructive parsing.
+	jmp_buf jmpbuf_;//!< setjmp buffer for fast exit from nested parsing function calls.
 	const char* parseError_;
 	size_t errorOffset_;
-}; // class GenericReader
+};
+// class GenericReader
 
 //! Reader with UTF8 encoding and default allocator.
 typedef GenericReader<UTF8<> > Reader;

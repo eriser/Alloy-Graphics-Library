@@ -83,29 +83,34 @@ bool SANITY_CHECK_CEREAL() {
 	float3 v2(1, 2, 3);
 	float2 v3(1, 2);
 	float1 v4(1);
-	
-	float4x4 MR1 = MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.333f)*MakeTranslation(float4(89, 43, 21, 1));
-	float3x3 MR2 = SubMatrix(MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.1f)*MakeTranslation(float4(89, 43, 21, 1)));
-	float4x3 MR3 = SubColMatrix(MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)), ALY_PI*0.1f)*MakeTranslation(float4(89, 43, 21, 1)));
 
+	float4x4 MR1 = MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
+			ALY_PI * 0.333f) * MakeTranslation(float4(89, 43, 21, 1));
+	float3x3 MR2 = SubMatrix(
+			MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
+					ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
+	float4x3 MR3 = SubColMatrix(
+			MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
+					ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
 
 	Image4f im1(32, 24);
 	std::srand(10832145);
-	for (int i = 0;i < im1.width;i++) {
-		for (int j = 0;j < im1.height;j++) {
-			im1(i, j) = float4((float)i, (float)j, (std::rand() % 256) / (256.0f), 1.0f);
+	for (int i = 0; i < im1.width; i++) {
+		for (int j = 0; j < im1.height; j++) {
+			im1(i, j) = float4((float) i, (float) j,
+					(std::rand() % 256) / (256.0f), 1.0f);
 		}
 	}
 	Vector4f data(16);
-	for (int i = 0;i < data.size();i++) {
-		data[i] = float4((float)i, (float)((i + 32) % 4), (std::rand() % 256) / (256.0f), 1.0f);
+	for (int i = 0; i < data.size(); i++) {
+		data[i] = float4((float) i, (float) ((i + 32) % 4),
+				(std::rand() % 256) / (256.0f), 1.0f);
 	}
-
 
 	Vector4f deserial(16);
 	std::string encodedString = EncodeBase64(data.data);
 	DecodeBase64(encodedString, deserial.data);
-	for (int i = 0;i < data.size();i++) {
+	for (int i = 0; i < data.size(); i++) {
 		std::cout << i << ") " << data[i] << " " << deserial[i] << std::endl;
 	}
 
@@ -118,17 +123,17 @@ bool SANITY_CHECK_CEREAL() {
 	Integer value1(4);
 	Double value2(3.14159);
 	Float value3(3.14f);
-	Color c(0.5f,0.4f,0.1f,1.0f);
+	Color c(0.5f, 0.4f, 0.1f, 1.0f);
 	Number num = Float(1.222f);
-	AUnit1D unit1 = UnitPerPT(0.5f,3.0f);
-	AUnit2D unit2 = CoordPerPX(0.5f,0.3f, 3.0f,10.0f);
+	AUnit1D unit1 = UnitPerPT(0.5f, 3.0f);
+	AUnit2D unit2 = CoordPerPX(0.5f, 0.3f, 3.0f, 10.0f);
 	AUnit1D unit3 = UnitDP(0.2f);
-	AUnit2D unit4 = CoordMM(100,200);
+	AUnit2D unit4 = CoordMM(100, 200);
 
 	{
 		std::ofstream os("nums.xml");
 		cereal::XMLOutputArchive archiver(os);
-		archiver(value1,value2,value3,num,c,unit1,unit2,unit3,unit4);
+		archiver(value1, value2, value3, num, c, unit1, unit2, unit3, unit4);
 	}
 	{
 		std::ofstream os("data.xml");
@@ -148,10 +153,10 @@ bool SANITY_CHECK_CEREAL() {
 	{
 
 		Mesh mesh;
-		ReadMeshFromFile("assets/models/monkey.ply",mesh);
+		ReadMeshFromFile("assets/models/monkey.ply", mesh);
 		std::ofstream os("monkey.json");
 		cereal::JSONOutputArchive archiver(os);
-		archiver(cereal::make_nvp("monkey",mesh));
+		archiver(cereal::make_nvp("monkey", mesh));
 	}
 	//std::cout << "Hit any key ..." << std::endl;
 	//std::cout << "Data Size " << im1.data.size() << std::endl;

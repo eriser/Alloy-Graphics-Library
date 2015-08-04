@@ -134,7 +134,7 @@ public:
 		context.reset();
 	}
 };
-inline std::shared_ptr<AlloyContext>& AlloyApplicationContext(){
+inline std::shared_ptr<AlloyContext>& AlloyApplicationContext() {
 	return Application::getContext();
 }
 }

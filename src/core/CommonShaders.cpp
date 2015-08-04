@@ -60,9 +60,9 @@ void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
 ImageShader::ImageShader(std::shared_ptr<AlloyContext> context,
 		const Filter& filter) :
 		GLShader(context) {
-	if(filter==Filter::NONE){
-	initialize(std::vector<std::string> { "vp", "vt" },
-			R"(
+	if (filter == Filter::NONE) {
+		initialize(std::vector<std::string> { "vp", "vt" },
+				R"(
 		 #version 330
 		 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -75,7 +75,7 @@ layout(location = 1) in vec2 vt;
 		vec2 pos=vp.xy*bounds.zw+bounds.xy;
 	    gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			})",
-			R"(
+				R"(
 		 #version 330
 		 in vec2 uv;
 		 uniform sampler2D textureImage;
@@ -83,7 +83,7 @@ layout(location = 1) in vec2 vt;
 		 vec4 rgba=texture(textureImage,uv);
 		 gl_FragColor=rgba;
 		 })");
-	} else if(filter==Filter::SMALL_BLUR){
+	} else if (filter == Filter::SMALL_BLUR) {
 		initialize(std::vector<std::string> { "vp", "vt" },
 				R"(
 			 #version 330
@@ -117,7 +117,7 @@ layout(location = 1) in vec2 vt;
 				rgba+=weights[8]*textureOffset(textureImage,uv, ivec2( 1, 1));
 				gl_FragColor=rgba/16.0;
 			 })");
-	} else if(filter==Filter::LARGE_BLUR){
+	} else if (filter == Filter::LARGE_BLUR) {
 		initialize(std::vector<std::string> { "vp", "vt" },
 				R"(
 			 #version 330
@@ -186,7 +186,7 @@ sum+=256.0;
 
 				gl_FragColor=rgba/sum;
 			 })");
-	} else if(filter==Filter::MEDIUM_BLUR){
+	} else if (filter == Filter::MEDIUM_BLUR) {
 		initialize(std::vector<std::string> { "vp", "vt" },
 				R"(
 			 #version 330
@@ -246,7 +246,7 @@ sum+=256.0;
 						rgba+=weights[24]*textureOffset(textureImage,uv, ivec2( 2, 2));
 				gl_FragColor=rgba/256.0;
 			 })");
-	} else if(filter==Filter::FXAA){
+	} else if (filter == Filter::FXAA) {
 		initialize(std::vector<std::string> { "vp", "vt" },
 				R"(
  #version 330
@@ -481,24 +481,19 @@ if(IS_QUAD!=0){
 })");
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& frameBuffer,bool flatShading) {
+		GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	if (mesh.quadIndexes.size() > 0) {
-		begin()
-				.set("MIN_DEPTH", camera.getNearPlane())
-				.set("IS_QUAD", 1)
-				.set("IS_FLAT",flatShading?1:0)
-				.set("MAX_DEPTH", camera.getFarPlane())
-				.set(camera,frameBuffer.getViewport())
-				.draw(mesh,GLMesh::PrimitiveType::QUADS).end();
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
+				"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
+				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
+				mesh, GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("MIN_DEPTH", camera.getNearPlane())
-			.set("IS_QUAD", 0)
-			.set("IS_FLAT",flatShading?1:0)
-			.set("MAX_DEPTH", camera.getFarPlane())
-			.set(camera,frameBuffer.getViewport())
-			.draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
+			camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
+			mesh, GLMesh::PrimitiveType::TRIANGLES).end();
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
@@ -664,15 +659,13 @@ void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	if (mesh.quadIndexes.size() > 0) {
-		begin() .set("DISTANCE_TOL", camera.getScale())
-				.set("IS_QUAD", 1)
-				.set(camera, frameBuffer.getViewport())
-				.draw(mesh, GLMesh::PrimitiveType::QUADS).end();
+		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(
+				camera, frameBuffer.getViewport()).draw(mesh,
+				GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("DISTANCE_TOL", camera.getScale())
-			.set("IS_QUAD", 0)
-			.set(camera,frameBuffer.getViewport())
-			.draw(mesh,GLMesh::PrimitiveType::TRIANGLES).end();
+	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0).set(camera,
+			frameBuffer.getViewport()).draw(mesh,
+			GLMesh::PrimitiveType::TRIANGLES).end();
 
 	glEnable(GL_BLEND);
 	frameBuffer.end();
@@ -798,7 +791,7 @@ gl_FragColor=rgba;
 })");
 }
 void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
-		const box2px& bounds,const box2px& viewport) {
+		const box2px& bounds, const box2px& viewport) {
 	begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
 			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
 			"textureImage", imageTexture, 0).set("bounds", bounds).set(
@@ -806,8 +799,9 @@ void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
 			viewport).draw(imageTexture).end();
 }
 void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions,const box2px& viewport) {
-	draw(imageTexture, box2px(location, dimensions),viewport);
+		const float2& location, const float2& dimensions,
+		const box2px& viewport) {
+	draw(imageTexture, box2px(location, dimensions), viewport);
 }
 NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
@@ -898,16 +892,18 @@ void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 	draw(imageTexture, zRange, box2px(location, dimensions));
 }
 
-AmbientOcclusionShader::AmbientOcclusionShader(std::shared_ptr<AlloyContext> context) :
+AmbientOcclusionShader::AmbientOcclusionShader(
+		std::shared_ptr<AlloyContext> context) :
 		GLShader(context) {
-	int thetaInc=32;
-	int phiInc=8;
-	int index=0;
-	for(int j=1;j<phiInc;j++){
-		for(int i=0;i<thetaInc;i++){
-			float sp=sin(0.5f*ALY_PI*(j)/(float)phiInc);
-			float cp=cos(0.5f*ALY_PI*(j)/(float)phiInc);
-			float3 v=float3(cos(2*ALY_PI*i/(float)thetaInc)*cp,sin(2*ALY_PI*i/(float)thetaInc)*cp,-sp);
+	int thetaInc = 32;
+	int phiInc = 8;
+	int index = 0;
+	for (int j = 1; j < phiInc; j++) {
+		for (int i = 0; i < thetaInc; i++) {
+			float sp = sin(0.5f * ALY_PI * (j) / (float) phiInc);
+			float cp = cos(0.5f * ALY_PI * (j) / (float) phiInc);
+			float3 v = float3(cos(2 * ALY_PI * i / (float) thetaInc) * cp,
+					sin(2 * ALY_PI * i / (float) thetaInc) * cp, -sp);
 			sampleNormals.push_back(v);
 		}
 	}
@@ -925,7 +921,8 @@ v_texCoord=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-			MakeString()<<R"(
+			MakeString()
+					<< R"(
 #version 330
 in vec2 v_texCoord;
 uniform sampler2D textureImage;
@@ -951,7 +948,9 @@ vec2 toCamera(vec4 pt){
 	float z = pt.z;
 	return vec2(0.5*pt.x*focalLength.x/z+0.5,0.5*pt.y*focalLength.y/z+0.5);	
 }
-#define KERNEL_SIZE )"<<sampleNormals.size()<<R"(
+#define KERNEL_SIZE )"
+					<< sampleNormals.size()
+					<< R"(
 
 uniform vec3 u_kernel[KERNEL_SIZE];
 void main(void)
@@ -992,24 +991,22 @@ void main(void)
 })");
 
 }
-void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,const box2px viewport,
-		VirtualCamera& camera) {
+void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
+		const box2px& bounds, const box2px viewport, VirtualCamera& camera) {
 
-	begin().set("textureImage", imageTexture, 0)
-			.set("MIN_DEPTH",camera.getNearPlane())
-			.set("MAX_DEPTH", camera.getFarPlane())
-			.set("focalLength",camera.getFocalLength())
-			.set("bounds", bounds)
-			.set("viewport",viewport)
-			.set("u_radius",sampleRadius)
-			.set("u_kernel",sampleNormals)
-			.draw(imageTexture).end();
+	begin().set("textureImage", imageTexture, 0).set("MIN_DEPTH",
+			camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
+			"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
+			"viewport", viewport).set("u_radius", sampleRadius).set("u_kernel",
+			sampleNormals).draw(imageTexture).end();
 }
 void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions,const box2px viewport,VirtualCamera& camera) {
-	draw(imageTexture, box2px(location, dimensions),viewport,camera);
+		const float2& location, const float2& dimensions, const box2px viewport,
+		VirtualCamera& camera) {
+	draw(imageTexture, box2px(location, dimensions), viewport, camera);
 }
-PhongShader::PhongShader(int N,std::shared_ptr<AlloyContext> context):GLShader(context){
+PhongShader::PhongShader(int N, std::shared_ptr<AlloyContext> context) :
+		GLShader(context) {
 	lights.resize(N);
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
@@ -1024,7 +1021,8 @@ uv=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-MakeString()<<R"(
+			MakeString()
+					<< R"(
 #version 330
 in vec2 uv;
 const float PI=3.1415926535;
@@ -1032,14 +1030,22 @@ uniform sampler2D textureImage;
 uniform vec2 focalLength;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
-const int MAX_LIGHTS=)"<<N<<R"(;
-uniform vec3 lightPositions[)"<<N<<R"(];
-uniform vec3 lightDirections[)"<<N<<R"(];
-uniform vec4 ambientColors[)"<<N<<R"(];
-uniform vec4 lambertianColors[)"<<N<<R"(];
-uniform vec4 diffuseColors[)"<<N<<R"(];
-uniform vec4 specularColors[)"<<N<<R"(];
-uniform float specularWeights[)"<<N<<R"(];
+const int MAX_LIGHTS=)"
+					<< N << R"(;
+uniform vec3 lightPositions[)" << N
+					<< R"(];
+uniform vec3 lightDirections[)" << N
+					<< R"(];
+uniform vec4 ambientColors[)" << N
+					<< R"(];
+uniform vec4 lambertianColors[)" << N
+					<< R"(];
+uniform vec4 diffuseColors[)" << N
+					<< R"(];
+uniform vec4 specularColors[)" << N
+					<< R"(];
+uniform float specularWeights[)" << N
+					<< R"(];
 float toZ(float ndc){
 	return -(ndc * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH);
 }
@@ -1083,14 +1089,13 @@ void main() {
 
 }
 
-void PhongShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,VirtualCamera& camera,const box2px& viewport){
+void PhongShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
+		VirtualCamera& camera, const box2px& viewport) {
 	begin();
-	 set("textureImage", imageTexture, 0).
-	 set("MIN_DEPTH",camera.getNearPlane()).
-	 set("MAX_DEPTH", camera.getFarPlane()).
-	 set("focalLength",camera.getFocalLength()).
-	 set("bounds", bounds).
-	 set("viewport", context->getViewport());
+	set("textureImage", imageTexture, 0).set("MIN_DEPTH", camera.getNearPlane()).set(
+			"MAX_DEPTH", camera.getFarPlane()).set("focalLength",
+			camera.getFocalLength()).set("bounds", bounds).set("viewport",
+			context->getViewport());
 
 	std::vector<Color> ambientColors;
 	std::vector<Color> diffuseColors;
@@ -1101,33 +1106,33 @@ void PhongShader::draw(const GLTextureRGBAf& imageTexture,const box2px& bounds,V
 	std::vector<float3> lightDirections;
 	std::vector<float3> lightPositions;
 
-	for(SimpleLight& light:lights){
+	for (SimpleLight& light : lights) {
 		ambientColors.push_back(light.ambientColor);
 		diffuseColors.push_back(light.diffuseColor);
 		specularColors.push_back(light.specularColor);
 		lambertianColors.push_back(light.lambertianColor);
-        specularWeights.push_back(light.specularPower);
-        if(light.moveWithCamera){
-        	float3 pt=(camera.View*light.position.xyzw()).xyz();
-            lightPositions.push_back(pt);
-            float3 norm=normalize((camera.NormalView*float4(light.direction,0)).xyz());
-            lightDirections.push_back(norm);
-        } else {
+		specularWeights.push_back(light.specularPower);
+		if (light.moveWithCamera) {
+			float3 pt = (camera.View * light.position.xyzw()).xyz();
+			lightPositions.push_back(pt);
+			float3 norm = normalize(
+					(camera.NormalView * float4(light.direction, 0)).xyz());
+			lightDirections.push_back(norm);
+		} else {
 			lightPositions.push_back(light.position);
 			lightDirections.push_back(light.direction);
-        }
+		}
 	}
-	set("ambientColors",ambientColors).
-	set("diffuseColors",diffuseColors).
-	set("lambertianColors",lambertianColors).
-	set("specularColors",specularColors).
-	set("specularWeights",specularWeights).
-	set("lightPositions",lightPositions).
-	set("lightDirections",lightDirections).
-	draw(imageTexture).end();
+	set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
+			"lambertianColors", lambertianColors).set("specularColors",
+			specularColors).set("specularWeights", specularWeights).set(
+			"lightPositions", lightPositions).set("lightDirections",
+			lightDirections).draw(imageTexture).end();
 }
-void PhongShader::draw(const GLTextureRGBAf& imageTexture,const float2& location,const float2& dimensions,VirtualCamera& camera,const box2px& viewport){
-	draw(imageTexture, box2px(location, dimensions),camera, viewport);
+void PhongShader::draw(const GLTextureRGBAf& imageTexture,
+		const float2& location, const float2& dimensions, VirtualCamera& camera,
+		const box2px& viewport) {
+	draw(imageTexture, box2px(location, dimensions), camera, viewport);
 
 }
 WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :
@@ -1168,16 +1173,16 @@ gl_FragColor=rgba;
 }
 void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 		const box2px& bounds, const box2px& viewport) {
-	begin().set("textureImage", imageTexture, 0).set("LINE_WIDTH",lineWidth).set("edgeColor", edgeColor).set(
-			"faceColor", faceColor).set("zMin", zRange.x), set("zMax", zRange.y).set(
-			"bounds", bounds).set("viewport", viewport).draw(imageTexture).end();
+	begin().set("textureImage", imageTexture, 0).set("LINE_WIDTH", lineWidth).set(
+			"edgeColor", edgeColor).set("faceColor", faceColor).set("zMin",
+			zRange.x), set("zMax", zRange.y).set("bounds", bounds).set(
+			"viewport", viewport).draw(imageTexture).end();
 }
 void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 		const float2& location, const float2& dimensions,
 		const box2px& viewport) {
 	draw(imageTexture, zRange, box2px(location, dimensions), viewport);
 }
-
 
 }
 

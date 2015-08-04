@@ -378,7 +378,8 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 }
 
 FileDescription GetFileDescription(const std::string& fileLocation) {
-	if(!FileExists(fileLocation))return FileDescription();
+	if (!FileExists(fileLocation))
+		return FileDescription();
 	struct stat attrib;
 	stat(fileLocation.c_str(), &attrib);
 	FileType type =

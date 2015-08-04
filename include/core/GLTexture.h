@@ -34,20 +34,20 @@ protected:
 	GLuint externalFormat = 0;
 	GLuint dataType = 0;
 	bool mipmap = false;
-	bool multisample=false;
+	bool multisample = false;
 	GLuint textureId = 0;
 public:
 	GLuint getTextureId() const {
 		return textureId;
 	}
 	bool isMultiSample() const {
-		return (multisample&&!mipmap);
+		return (multisample && !mipmap);
 	}
 	void bind() const {
-		if(isMultiSample()){
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE,textureId);
+		if (isMultiSample()) {
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureId);
 		} else {
-			glBindTexture(GL_TEXTURE_2D,textureId);
+			glBindTexture(GL_TEXTURE_2D, textureId);
 		}
 	}
 	virtual void draw() const override {
@@ -222,14 +222,20 @@ public:
 					&textureImage[0]);
 
 		} else {
-			if(multisample){
+			if (multisample) {
 				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,8,  internalFormat, textureImage.width,textureImage.height,true);
-				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, textureImage.width,textureImage.height, 0, externalFormat, dataType,&textureImage[0]);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 8,
+						internalFormat, textureImage.width, textureImage.height,
+						true);
+				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
+						textureImage.width, textureImage.height, 0,
+						externalFormat, dataType, &textureImage[0]);
 				//glBuf(GL_TEXTURE_2D,0, externalFormat, dataType,&textureImage[0],STATIC_DRAW);
 			} else {
 				glBindTexture( GL_TEXTURE_2D, textureId);
-				glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, textureImage.width,textureImage.height, 0, externalFormat, dataType,&textureImage[0]);
+				glTexImage2D( GL_TEXTURE_2D, 0, internalFormat,
+						textureImage.width, textureImage.height, 0,
+						externalFormat, dataType, &textureImage[0]);
 			}
 		}
 		CHECK_GL_ERROR();
@@ -238,7 +244,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 				mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		if(multisample&&!mipmap){
+		if (multisample && !mipmap) {
 			glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, 0);
 		} else {
 			glBindTexture( GL_TEXTURE_2D, 0);
@@ -250,13 +256,14 @@ public:
 
 		if (textureId) {
 			context->begin();
-			if(multisample&&!mipmap){
+			if (multisample && !mipmap) {
 				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
-			}else {
+			} else {
 				glBindTexture(GL_TEXTURE_2D, textureId);
 			}
 			//glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, type, pixels);
-			glGetTexImage(GL_TEXTURE_2D, 0,externalFormat,dataType,textureImage.ptr());
+			glGetTexImage(GL_TEXTURE_2D, 0, externalFormat, dataType,
+					textureImage.ptr());
 			CHECK_GL_ERROR();
 			glBindTexture(GL_TEXTURE_2D, 0);
 			context->end();
@@ -282,19 +289,21 @@ public:
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
-	GLTexture(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
-			GLComponent(context), multisample(false),textureId(0), mipmap(false) {
+	GLTexture(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
+			GLComponent(context), multisample(false), textureId(0), mipmap(
+					false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,
-			int imageHeight, std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
+			int imageHeight, std::shared_ptr<AlloyContext>& context =
+					AlloyDefaultContext()) :
 			GLComponent(context) {
 		textureImage.resize(imageWidth, imageHeight);
 		bounds = box2i( { x, y }, { width, height });
 		update();
 	}
 	GLTexture(const Image<T, C, I>& image,
-			std::shared_ptr<AlloyContext>& context=AlloyDefaultContext()) :
+			std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
 			GLComponent(context) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
@@ -313,7 +322,7 @@ public:
 		setEnableMipmap(mipmap);
 		update();
 	}
-	
+
 	void load(const std::string& fileName, bool mipmap = false) {
 		ReadImageFromFile(fileName, textureImage);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });

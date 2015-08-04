@@ -69,8 +69,7 @@ extern int stbi_write_tga(char const *filename, int w, int h, int comp,
 }
 #endif
 
-#endif//INCLUDE_STB_IMAGE_WRITE_H#ifdef STB_IMAGE_WRITE_IMPLEMENTATION#include <stdarg.h>#include <stdlib.h>#include <stdio.h>#include <string.h>#include <assert.h>
-typedef unsigned int stbiw_uint32;
+#endif//INCLUDE_STB_IMAGE_WRITE_H#ifdef STB_IMAGE_WRITE_IMPLEMENTATION#include <stdarg.h>#include <stdlib.h>#include <stdio.h>#include <string.h>#include <assert.h>typedef unsigned int stbiw_uint32;
 typedef int stb_image_write_test[sizeof(stbiw_uint32)==4 ? 1 : -1];
 
 static void writefv(FILE *f, const char *fmt, va_list v)

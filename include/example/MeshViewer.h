@@ -42,7 +42,6 @@ private:
 	aly::PhongShader phongShader;
 	aly::GLFrameBuffer edgeFrameBuffer;
 
-
 	aly::GLFrameBuffer occlusionFrameBuffer;
 	aly::GLFrameBuffer flatDepthFrameBuffer;
 	aly::GLFrameBuffer smoothDepthFrameBuffer;

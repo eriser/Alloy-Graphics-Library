@@ -26,7 +26,7 @@ int pushScissor(NVGcontext* ctx, float x, float y, float w, float h) {
 	NVGscissorBounds sb = nvgCurrentScissor(ctx);
 	NVG_SCISSOR_STACK.push_back(sb);
 	nvgScissor(ctx, x, y, w, h);
-	return (int)NVG_SCISSOR_STACK.size();
+	return (int) NVG_SCISSOR_STACK.size();
 }
 int pushScissor(NVGcontext* ctx, const box2px& bounds) {
 	return pushScissor(ctx, bounds.position.x, bounds.position.y,
@@ -47,7 +47,7 @@ int popScissor(NVGcontext* ctx) {
 	} else {
 		nvgResetScissor(ctx);
 	}
-	return (int)NVG_SCISSOR_STACK.size();
+	return (int) NVG_SCISSOR_STACK.size();
 }
 
 float drawText(NVGcontext* nvg, float x, float y, const char* txt,

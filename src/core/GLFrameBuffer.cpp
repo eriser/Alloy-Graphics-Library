@@ -41,7 +41,8 @@ GLFrameBuffer::~GLFrameBuffer() {
 	context->end();
 }
 void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
-	if(texture.width()*texture.height()==0)throw std::runtime_error("Framebuffer has not been initialized.");
+	if (texture.width() * texture.height() == 0)
+		throw std::runtime_error("Framebuffer has not been initialized.");
 	context->begin();
 	glViewport(0, 0, texture.width(), texture.height());
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
@@ -59,7 +60,7 @@ void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
 void GLFrameBuffer::end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glViewport(0,0,context->width(), context->height());
+	glViewport(0, 0, context->width(), context->height());
 	CHECK_GL_ERROR();
 	context->end();
 }
@@ -84,7 +85,7 @@ void GLFrameBuffer::update() {
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	CHECK_GL_ERROR();
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-			GL_RENDERBUFFER, mFrameBufferId);
+	GL_RENDERBUFFER, mFrameBufferId);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
 			texture.getTextureId(), 0);
 	glBindTexture(GL_TEXTURE_2D, 0);

@@ -1898,15 +1898,18 @@ void FileSelector::openFileDialog(AlloyContext* context,
 		context->getGlassPanel()->setVisible(false);
 	}
 }
-FileEntry::FileEntry(FileDialog* dialog,const std::string& name, const AUnit2D& pos,
-		const AUnit2D& dims) :
-		Region(name, pos, dims), fileDescription(), fontSize(UnitPercent(0.8f)),dialog(dialog){
+FileEntry::FileEntry(FileDialog* dialog, const std::string& name,
+		const AUnit2D& pos, const AUnit2D& dims) :
+		Region(name, pos, dims), fileDescription(), fontSize(UnitPercent(0.8f)), dialog(
+				dialog) {
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	this->selected = false;
 }
 void FileEntry::setValue(const FileDescription& description) {
 	this->fileDescription = description;
-	iconCodeString = (fileDescription.fileType == FileType::Directory) ? CodePointToUTF8(0xf07b) : CodePointToUTF8(0xf15b);
+	iconCodeString =
+			(fileDescription.fileType == FileType::Directory) ?
+					CodePointToUTF8(0xf07b) : CodePointToUTF8(0xf15b);
 	fileName = GetFileName(fileDescription.fileLocation);
 	fileSize = FormatSize(fileDescription.fileSize);
 	creationTime = FormatDateAndTime(fileDescription.creationTime);
@@ -1926,7 +1929,7 @@ void FileEntry::setValue(const FileDescription& description) {
 	};
 
 }
-void  FileEntry::setSelected(bool selected) {
+void FileEntry::setSelected(bool selected) {
 	this->selected = selected;
 }
 bool FileEntry::isSelected() {
@@ -1937,7 +1940,6 @@ void FileEntry::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
-	
 
 	float lineWidth = 2.0f;
 	int xoff = 0;
@@ -1953,8 +1955,7 @@ void FileEntry::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		if (selected) {
 			nvgFillColor(nvg, context->theme.LINK);
-		}
-		else {
+		} else {
 			nvgFillColor(nvg, context->theme.NEUTRAL);
 		}
 		nvgFill(nvg);
@@ -1965,8 +1966,7 @@ void FileEntry::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		if (selected) {
 			nvgFillColor(nvg, context->theme.LINK);
-		}
-		else {
+		} else {
 			nvgFillColor(nvg, context->theme.LIGHT);
 		}
 		nvgFill(nvg);
@@ -1982,58 +1982,57 @@ void FileEntry::draw(AlloyContext* context) {
 			nullptr);
 
 	pixel2 offset(0, 0);
-	
+
 	if (selected) {
 		if (hover) {
 
 			nvgFillColor(nvg, context->theme.HIGHLIGHT);
-		}
-		else {
+		} else {
 			nvgFillColor(nvg, context->theme.LIGHT_TEXT);
 		}
-	}
-	else {
+	} else {
 		if (hover) {
 
 			nvgFillColor(nvg, context->theme.HIGHLIGHT);
-		}
-		else {
+		} else {
 			nvgFillColor(nvg, context->theme.DARK_TEXT);
 		}
 	}
 
 	box2px labelBounds = getCursorBounds();
-	pushScissor(nvg,labelBounds);
+	pushScissor(nvg, labelBounds);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgText(nvg,
-		AlloyApplicationContext()->theme.SPACING.x + bounds.position.x + xoff,
-		bounds.position.y + bounds.dimensions.y / 2 + yoff,
-		iconCodeString.c_str(), nullptr);
+			AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
+					+ xoff, bounds.position.y + bounds.dimensions.y / 2 + yoff,
+			iconCodeString.c_str(), nullptr);
 
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-	nvgText(nvg, 2*AlloyApplicationContext()->theme.SPACING.x+bounds.position.x +iw + xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff, fileName.c_str(),
-			nullptr);
+	nvgText(nvg,
+			2 * AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
+					+ iw + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff,
+			fileName.c_str(), nullptr);
 	popScissor(nvg);
-}	
-bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context, const InputEvent& e) {
+}
+bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
+		const InputEvent& e) {
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 		if (enableMultiSelection) {
 			if (entry->isSelected()) {
 				entry->setSelected(false);
-				for (auto iter = lastSelected.begin();iter != lastSelected.end();iter++) {
+				for (auto iter = lastSelected.begin();
+						iter != lastSelected.end(); iter++) {
 					if (*iter == entry) {
 						lastSelected.erase(iter);
 						break;
 					}
 				}
-			}
-			else {
+			} else {
 				entry->setSelected(true);
 				lastSelected.push_back(entry);
 			}
-		}
-		else {
+		} else {
 			if (entry->fileDescription.fileType == FileType::File) {
 				if (!entry->isSelected()) {
 					for (FileEntry* child : lastSelected) {
@@ -2044,18 +2043,18 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context, const Inpu
 					lastSelected.clear();
 					lastSelected.push_back(entry);
 				}
-			}
-			else {
+			} else {
 				setSelectedFile(entry->fileDescription.fileLocation);
 				fileLocation->setValue(entry->fileDescription.fileLocation);
 			}
 		}
 		return true;
-	}
-	else  if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-		if(!enableMultiSelection){
+	} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+		if (!enableMultiSelection) {
 			if (lastSelected.size() > 0) {
-				fileLocation->setValue(GetParentDirectory(lastSelected.front()->fileDescription.fileLocation));
+				fileLocation->setValue(
+						GetParentDirectory(
+								lastSelected.front()->fileDescription.fileLocation));
 			}
 		}
 		for (FileEntry* child : lastSelected) {
@@ -2065,13 +2064,16 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context, const Inpu
 	}
 	return false;
 }
-bool FileDialog::onMouseOver(FileEntry* entry, AlloyContext* context, const InputEvent& e) {
+bool FileDialog::onMouseOver(FileEntry* entry, AlloyContext* context,
+		const InputEvent& e) {
 	return false;
 }
-bool FileDialog::onMouseDrag(FileEntry* entry, AlloyContext* context, const InputEvent& e) {
+bool FileDialog::onMouseDrag(FileEntry* entry, AlloyContext* context,
+		const InputEvent& e) {
 	return false;
 }
-bool FileDialog::onMouseUp(FileEntry* entry, AlloyContext* context, const InputEvent& e) {
+bool FileDialog::onMouseUp(FileEntry* entry, AlloyContext* context,
+		const InputEvent& e) {
 	return false;
 }
 void FileDialog::setEnableMultiSelection(bool enable) {
@@ -2082,27 +2084,25 @@ bool FileDialog::isMultiSelectionEnabled() {
 }
 void FileDialog::setSelectedFile(const std::string& file) {
 	std::string dir;
-	bool select=false;
+	bool select = false;
 	if (IsDirectory(file)) {
 		dir = file;
-	}
-	else {
+	} else {
 		dir = GetParentDirectory(file);
 		select = true;
 	}
 	lastSelected.clear();
 	fileEntries.clear();
-	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(dir);
+	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(
+			dir);
 	int i = 0;
 	for (FileDescription& fd : descriptions) {
-		FileEntry* entry = new FileEntry(this,MakeString() << "Entry " << i,
-			CoordPX(0, 0),
-			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 30.0f));
-		fileEntries.push_back(
-			std::shared_ptr<FileEntry>(
-				entry));
+		FileEntry* entry = new FileEntry(this, MakeString() << "Entry " << i,
+				CoordPX(0, 0),
+				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 30.0f));
+		fileEntries.push_back(std::shared_ptr<FileEntry>(entry));
 		entry->setValue(fd);
-		if (select&&entry->fileDescription.fileLocation == file) {
+		if (select && entry->fileDescription.fileLocation == file) {
 			entry->setSelected(true);
 		}
 		i++;
@@ -2127,7 +2127,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("File Location", CoordPX(7, 7),
 					CoordPerPX(1.0f, 0.0f, -14.0f, 30.0f)));
-	fileLocation->onSelect=[this](FileField* field) {
+	fileLocation->onSelect = [this](FileField* field) {
 		std::cout << "Selected " << field->getValue() << std::endl;
 		this->setSelectedFile(field->getValue());
 	};
@@ -2156,11 +2156,11 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		return false;
 	};
 }
-void  FileDialog::setValue(const std::string& file) {
+void FileDialog::setValue(const std::string& file) {
 	fileLocation->setValue(file);
 	setSelectedFile(file);
 }
-std::string  FileDialog::getValue() const {
+std::string FileDialog::getValue() const {
 	return fileLocation->getValue();
 }
 void FileDialog::setFileSelectionType(FileType type) {

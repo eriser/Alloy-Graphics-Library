@@ -48,7 +48,7 @@ protected:
 	static uint64_t REGION_COUNTER;
 	bool visible = true;
 	bool dragEnabled = false;
-	bool ignoreCursorEvents=false;
+	bool ignoreCursorEvents = false;
 	Origin origin = Origin::TopLeft;
 	pixel2 dragOffset = pixel2(0, 0);
 
@@ -56,25 +56,26 @@ protected:
 	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	AUnit2D position = CoordPercent(0.0f, 0.0f);
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
-	bool roundCorners=false;
-	bool detached=false;
+	bool roundCorners = false;
+	bool detached = false;
 public:
 	friend struct Composite;
 	friend struct BorderComposite;
-	void setIgnoreCursorEvents(bool ignore){
-		ignoreCursorEvents=ignore;
+	void setIgnoreCursorEvents(bool ignore) {
+		ignoreCursorEvents = ignore;
 	}
-	void setDetacted(bool enable){
-		detached=enable;
+	void setDetacted(bool enable) {
+		detached = enable;
 	}
-	inline void setRoundCorners(bool round){
-		this->roundCorners=round;
+	inline void setRoundCorners(bool round) {
+		this->roundCorners = round;
 	}
 	inline bool hasParent(Region* region) const {
-		return (parent!=nullptr&&(parent==region||parent->hasParent(region)));
+		return (parent != nullptr
+				&& (parent == region || parent->hasParent(region)));
 	}
 	inline bool isDetached() const {
-		return (parent!=nullptr&&parent->isDetached())||detached;
+		return (parent != nullptr && parent->isDetached()) || detached;
 	}
 	std::function<bool(AlloyContext*, const InputEvent& event)> onEvent;
 	const std::string name;
@@ -108,11 +109,11 @@ public:
 		setDimensions(dim);
 	}
 	inline void setBounds(const pixel2& pt, const pixel2& dim) {
-		bounds.position=pt;
-		bounds.dimensions=dim;
+		bounds.position = pt;
+		bounds.dimensions = dim;
 	}
 	inline void setBounds(const box2px& bbox) {
-		bounds=bbox;
+		bounds = bbox;
 	}
 	AColor backgroundColor = MakeColor(COLOR_NONE);
 	AColor borderColor = MakeColor(COLOR_NONE);
@@ -142,7 +143,7 @@ public:
 	AUnit2D& getDimensions() {
 		return dimensions;
 	}
-	virtual box2px getBounds(bool includeOffset=true) const;
+	virtual box2px getBounds(bool includeOffset = true) const;
 	virtual box2px getCursorBounds(bool includeOffset = true) const;
 	pixel2 getBoundsPosition(bool includeOffset = true) const {
 		return getBounds(includeOffset).position;
@@ -234,11 +235,14 @@ public:
 	}
 
 	virtual inline pixel2 drawOffset() const {
-		pixel2 offset(0,0);
+		pixel2 offset(0, 0);
 		if (isScrollEnabled()) {
-			offset = -scrollPosition* aly::max(pixel2(0, 0), scrollExtent - getBoundsDimensions());
+			offset = -scrollPosition
+					* aly::max(pixel2(0, 0),
+							scrollExtent - getBoundsDimensions());
 		}
-		if (parent != nullptr)offset += parent->drawOffset();
+		if (parent != nullptr)
+			offset += parent->drawOffset();
 		return offset;
 	}
 
@@ -256,40 +260,47 @@ public:
 
 struct BorderComposite: public Region {
 protected:
-	std::array<std::shared_ptr<Region>,5> children;
+	std::array<std::shared_ptr<Region>, 5> children;
 	std::shared_ptr<Region>& northRegion;
 	std::shared_ptr<Region>& southRegion;
 	std::shared_ptr<Region>& eastRegion;
 	std::shared_ptr<Region>& westRegion;
-	float northFraction=0,southFraction=0,eastFraction=0,westFraction=0;
+	float northFraction = 0, southFraction = 0, eastFraction = 0, westFraction =
+			0;
 	std::shared_ptr<Region>& centerRegion;
 public:
-	BorderComposite(const std::string& name = MakeString() << "c" << std::setw(8)<< std::setfill('0') << (REGION_COUNTER++));
-	BorderComposite(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
+	BorderComposite(
+			const std::string& name = MakeString() << "c" << std::setw(8)
+					<< std::setfill('0') << (REGION_COUNTER++));
+	BorderComposite(const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims);
 	virtual Region* locate(const pixel2& cursor) override;
 	virtual void draw(AlloyContext* context) override;
 	virtual void drawDebug(AlloyContext* context) override;
 	virtual void update(CursorLocator* cursorLocator) override;
-	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,double pixelRatio, bool clamp = false) override;
+	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
+			double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
-	inline void setNorth(const std::shared_ptr<Region>& region,float fraction){
-		northRegion=region;
-		northFraction=fraction;
+	inline void setNorth(const std::shared_ptr<Region>& region,
+			float fraction) {
+		northRegion = region;
+		northFraction = fraction;
 	}
-	inline void setSouth(const std::shared_ptr<Region>& region,float fraction){
-		southRegion=region;
-		southFraction=fraction;
+	inline void setSouth(const std::shared_ptr<Region>& region,
+			float fraction) {
+		southRegion = region;
+		southFraction = fraction;
 	}
-	inline void setEast(const std::shared_ptr<Region>& region,float fraction){
-		eastRegion=region;
-		eastFraction=fraction;
+	inline void setEast(const std::shared_ptr<Region>& region, float fraction) {
+		eastRegion = region;
+		eastFraction = fraction;
 	}
-	inline void setWest(const std::shared_ptr<Region>& region,float fraction){
-		westRegion=region;
-		westFraction=fraction;
+	inline void setWest(const std::shared_ptr<Region>& region, float fraction) {
+		westRegion = region;
+		westFraction = fraction;
 	}
-	inline void setCenter(const std::shared_ptr<Region>& region){
-		centerRegion=region;
+	inline void setCenter(const std::shared_ptr<Region>& region) {
+		centerRegion = region;
 	}
 
 	void pack();
@@ -354,11 +365,13 @@ public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
-	virtual inline ~TextField(){}
+	virtual inline ~TextField() {
+	}
 	TextField(
 			const std::string& name = MakeString() << "t" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
-	TextField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
+	TextField(const std::string& name, const AUnit2D& position,
+			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual void setValue(const std::string& value);
 	std::string getValue() const {
@@ -371,11 +384,11 @@ struct SelectionBox: public Region {
 protected:
 	int selectedIndex = -1;
 	std::string label;
-	int maxDisplayEntries=8;
-	int selectionOffset=0;
-	bool scrollingDown=false,scrollingUp=false;
-	std::shared_ptr<Timer> downTimer,upTimer;
-	std::shared_ptr<AwesomeGlyph> downArrow,upArrow;
+	int maxDisplayEntries = 8;
+	int selectionOffset = 0;
+	bool scrollingDown = false, scrollingUp = false;
+	std::shared_ptr<Timer> downTimer, upTimer;
+	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
 
 public:
 	FontStyle fontStyle = FontStyle::Normal;
@@ -384,11 +397,11 @@ public:
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::function<bool(SelectionBox*)> onSelect;
 	std::vector<std::string> options;
-	void setMaxDisplayEntries(int mx){
-		maxDisplayEntries=mx;
+	void setMaxDisplayEntries(int mx) {
+		maxDisplayEntries = mx;
 	}
 
-	virtual box2px getBounds(bool includeBounds=true) const override;
+	virtual box2px getBounds(bool includeBounds = true) const override;
 	virtual box2px getCursorBounds(bool includeBounds = true) const override;
 	std::string getSelection(int index) {
 		return (selectedIndex >= 0) ? options[selectedIndex] : name;
@@ -396,22 +409,23 @@ public:
 	int getSelectedIndex() const {
 		return selectedIndex;
 	}
-	inline void setSelectionOffset(bool offset){
-		selectionOffset=offset;
+	inline void setSelectionOffset(bool offset) {
+		selectionOffset = offset;
 	}
 	void setSelectedIndex(int index) {
 		selectedIndex = index;
-		if(index<0){
-			label=name;
-			selectionOffset=0;
+		if (index < 0) {
+			label = name;
+			selectionOffset = 0;
 		} else {
-			label=options[selectedIndex];
+			label = options[selectedIndex];
 		}
 	}
 	void draw(AlloyContext* context) override;
 
 	SelectionBox(const std::string& name,
-			const std::vector<std::string>& options=std::vector<std::string>());
+			const std::vector<std::string>& options =
+					std::vector<std::string>());
 };
 
 struct FileField: public TextField {
@@ -423,8 +437,10 @@ public:
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
-	virtual inline ~FileField(){}
-	FileField(const std::string& name,const AUnit2D& position,const AUnit2D& dimensions);
+	virtual inline ~FileField() {
+	}
+	FileField(const std::string& name, const AUnit2D& position,
+			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual void setValue(const std::string& value) override;
 };

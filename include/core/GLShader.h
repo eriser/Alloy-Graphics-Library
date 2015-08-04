@@ -45,7 +45,7 @@ public:
 		return context;
 	}
 	// Default constructor.
-	GLShader(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
+	GLShader(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
 	void initialize(const std::vector<std::string>& attributes,
@@ -68,208 +68,227 @@ public:
 				pGeomShaderString);
 	}
 	inline GLint getUniformLocation(const std::string& variable) const {
-		GLint index=glGetUniformLocation(mProgramHandle, variable.c_str());
+		GLint index = glGetUniformLocation(mProgramHandle, variable.c_str());
 		return index;
 	}
 	inline GLShader& set(const std::string& variable, float value) {
 		enableCheck();
-		glUniform1f(getUniformLocation(variable),
-				value);
+		glUniform1f(getUniformLocation(variable), value);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int value) {
 		enableCheck();
-		glUniform1i(getUniformLocation(variable),
-				value);
+		glUniform1i(getUniformLocation(variable), value);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint32_t value) {
 		enableCheck();
-		glUniform1ui(getUniformLocation(variable),
-				value);
+		glUniform1ui(getUniformLocation(variable), value);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, float1 value) {
 		enableCheck();
-		glUniform1f(getUniformLocation(variable),
-				value.x);
+		glUniform1f(getUniformLocation(variable), value.x);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int1 value) {
 		enableCheck();
-		glUniform1i(getUniformLocation(variable),
-				value.x);
+		glUniform1i(getUniformLocation(variable), value.x);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint1 value) {
 		enableCheck();
-		glUniform1ui(getUniformLocation(variable),
-				value.x);
+		glUniform1ui(getUniformLocation(variable), value.x);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, float2 value) {
 		enableCheck();
-		glUniform2f(getUniformLocation(variable),
-				value.x, value.y);
+		glUniform2f(getUniformLocation(variable), value.x, value.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int2 value) {
 		enableCheck();
-		glUniform2i(getUniformLocation(variable),
-				value.x, value.y);
+		glUniform2i(getUniformLocation(variable), value.x, value.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint2 value) {
 		enableCheck();
-		glUniform2ui(getUniformLocation(variable),
-				value.x, value.y);
+		glUniform2ui(getUniformLocation(variable), value.x, value.y);
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, float3 value) {
 		enableCheck();
-		glUniform3f(getUniformLocation(variable),
-				value.x, value.y, value.z);
+		glUniform3f(getUniformLocation(variable), value.x, value.y, value.z);
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<float4>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<float4>& value) {
 		enableCheck();
-		glUniform4fv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const float*)value.data());
+		glUniform4fv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()),
+				(const float*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<float3>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<float3>& value) {
 		enableCheck();
-		glUniform3fv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const float*)value.data());
+		glUniform3fv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()),
+				(const float*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<float2>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<float2>& value) {
 		enableCheck();
-		glUniform2fv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const float*)value.data());
+		glUniform2fv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()),
+				(const float*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<float1>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<float1>& value) {
 		enableCheck();
-		glUniform1fv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const float*)value.data());
+		glUniform1fv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()),
+				(const float*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<float>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<float>& value) {
 		enableCheck();
-		glUniform1fv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),value.data());
+		glUniform1fv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<int4>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<int4>& value) {
 		enableCheck();
-		glUniform4iv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const int*)value.data());
+		glUniform4iv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const int*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<int3>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<int3>& value) {
 		enableCheck();
-		glUniform3iv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const int*)value.data());
+		glUniform3iv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const int*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<int2>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<int2>& value) {
 		enableCheck();
-		glUniform2iv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const int*)value.data());
+		glUniform2iv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const int*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<int1>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<int1>& value) {
 		enableCheck();
-		glUniform1iv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const int*)value.data());
+		glUniform1iv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const int*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<int>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<int>& value) {
 		enableCheck();
-		glUniform1iv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),value.data());
+		glUniform1iv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<uint4>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<uint4>& value) {
 		enableCheck();
-		glUniform4uiv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const uint*)value.data());
+		glUniform4uiv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const uint*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<uint3>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<uint3>& value) {
 		enableCheck();
-		glUniform3uiv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const uint*)value.data());
+		glUniform3uiv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const uint*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<uint2>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<uint2>& value) {
 		enableCheck();
-		glUniform2uiv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const uint*)value.data());
+		glUniform2uiv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const uint*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<uint1>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<uint1>& value) {
 		enableCheck();
-		glUniform1uiv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const uint*)value.data());
+		glUniform1uiv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), (const uint*) value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<uint>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<uint>& value) {
 		enableCheck();
-		glUniform1uiv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),value.data());
+		glUniform1uiv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()), value.data());
 		return *this;
 	}
-	inline GLShader& set(const std::string& variable, const std::vector<Color>& value) {
+	inline GLShader& set(const std::string& variable,
+			const std::vector<Color>& value) {
 		enableCheck();
-		glUniform4fv(getUniformLocation(variable),static_cast<GLsizei>(value.size()),(const float*)value.data());
+		glUniform4fv(getUniformLocation(variable),
+				static_cast<GLsizei>(value.size()),
+				(const float*) value.data());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int3 value) {
 		enableCheck();
-		glUniform3i(getUniformLocation(variable),
-				value.x, value.y, value.z);
+		glUniform3i(getUniformLocation(variable), value.x, value.y, value.z);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint3 value) {
 		enableCheck();
-		glUniform3ui(getUniformLocation(variable),
-				value.x, value.y, value.z);
+		glUniform3ui(getUniformLocation(variable), value.x, value.y, value.z);
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, float4 value) {
 		enableCheck();
-		glUniform4f(getUniformLocation(variable),
-				value.x, value.y, value.z, value.w);
+		glUniform4f(getUniformLocation(variable), value.x, value.y, value.z,
+				value.w);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, int4 value) {
 		enableCheck();
-		glUniform4i(getUniformLocation(variable),
-				value.x, value.y, value.z, value.w);
+		glUniform4i(getUniformLocation(variable), value.x, value.y, value.z,
+				value.w);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, uint4 value) {
 		enableCheck();
-		glUniform4ui(getUniformLocation(variable),
-				value.x, value.y, value.z, value.w);
+		glUniform4ui(getUniformLocation(variable), value.x, value.y, value.z,
+				value.w);
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, const float4x4& value) {
 		enableCheck();
-		glUniformMatrix4fv(
-		getUniformLocation(variable), 1, false,
-				value.ptr());
+		glUniformMatrix4fv(getUniformLocation(variable), 1, false, value.ptr());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const float3x3& value) {
 		enableCheck();
-		glUniformMatrix3fv(
-		getUniformLocation(variable), 1, false,
-				value.ptr());
+		glUniformMatrix3fv(getUniformLocation(variable), 1, false, value.ptr());
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const float2x2& value) {
 		enableCheck();
-		glUniformMatrix2fv(
-		getUniformLocation(variable), 1, false,
-				value.ptr());
+		glUniformMatrix2fv(getUniformLocation(variable), 1, false, value.ptr());
 		return *this;
 	}
 
 	inline GLShader& set(const std::string& variable, const aly::Color& value) {
 		enableCheck();
-		glUniform4f(getUniformLocation(variable),
-				value.r, value.g, value.b, value.a);
+		glUniform4f(getUniformLocation(variable), value.r, value.g, value.b,
+				value.a);
 		return *this;
 	}
 	inline GLShader& set(VirtualCamera& camera, const box2px& bounds) {
@@ -284,16 +303,14 @@ public:
 	}
 	inline GLShader& set(const std::string& variable, const box2f& value) {
 		enableCheck();
-		glUniform4f(getUniformLocation(variable),
-				value.position.x, value.position.y, value.dimensions.x,
-				value.dimensions.y);
+		glUniform4f(getUniformLocation(variable), value.position.x,
+				value.position.y, value.dimensions.x, value.dimensions.y);
 		return *this;
 	}
 	inline GLShader& set(const std::string& variable, const box2i& value) {
 		enableCheck();
-		glUniform4i(getUniformLocation(variable),
-				value.position.x, value.position.y, value.dimensions.x,
-				value.dimensions.y);
+		glUniform4i(getUniformLocation(variable), value.position.x,
+				value.position.y, value.dimensions.x, value.dimensions.y);
 		return *this;
 	}
 	template<class T, int C, ImageType I> GLShader& set(
@@ -308,7 +325,7 @@ public:
 
 	GLShader& begin();
 	GLShader& draw(const GLComponent& comp);
-	GLShader& draw(const Mesh& mesh,const GLMesh::PrimitiveType& type);
+	GLShader& draw(const Mesh& mesh, const GLMesh::PrimitiveType& type);
 
 	void end();
 	inline GLuint GetProgramHandle() const {

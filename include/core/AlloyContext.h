@@ -24,15 +24,15 @@
 #define GLFW_INCLUDE_GLU
 
 #ifndef __gl_h_
-	#ifdef WIN32
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
-	#include <GL/glew.h>
-	#else
-	#include <GL/glew.h>
-	#include <GL/glx.h>
-	#include <GL/glxext.h>
-	#endif
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <GL/glew.h>
+#else
+#include <GL/glew.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
+#endif
 #endif
 
 #include <GLFW/glfw3.h>
@@ -101,11 +101,12 @@ struct ImageGlyph: public Glyph {
 	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
 			AlloyContext* context) override;
 };
-struct CheckerboardGlyph : public Glyph {
+struct CheckerboardGlyph: public Glyph {
 	int handle;
-	CheckerboardGlyph(int width, int height, int horizTiles, int vertTiles, AlloyContext* context, bool mipmap=false);
+	CheckerboardGlyph(int width, int height, int horizTiles, int vertTiles,
+			AlloyContext* context, bool mipmap = false);
 	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
-		AlloyContext* context) override;
+			AlloyContext* context) override;
 };
 struct AwesomeGlyph: public Glyph {
 	const int codePoint;
@@ -197,7 +198,7 @@ private:
 	Region* onTopRegion = nullptr;
 	std::list<EventHandler*> listeners;
 	std::shared_ptr<Composite> glassPanel;
-	std::list < std::function<void()>> deferredTasks;
+	std::list<std::function<void()>> deferredTasks;
 	static std::shared_ptr<AlloyContext> defaultContext;
 	int2 viewSize;
 	int2 screenSize;
@@ -217,7 +218,7 @@ public:
 		return defaultContext;
 	}
 	box2px getViewport() const {
-		return box2px(pixel2(0.0f,0.0f), pixel2(viewSize));
+		return box2px(pixel2(0.0f, 0.0f), pixel2(viewSize));
 	}
 	pixel2 getScreenSize() const {
 		return pixel2(screenSize);
@@ -249,7 +250,6 @@ public:
 	}
 	void setOnTopRegion(Region* region);
 	void removeOnTopRegion(Region* region);
-
 
 	inline Region* getOnTopRegion() const {
 		return onTopRegion;
@@ -364,7 +364,7 @@ public:
 	void makeCurrent();
 	~AlloyContext();
 };
-inline std::shared_ptr<AlloyContext>& AlloyDefaultContext(){
+inline std::shared_ptr<AlloyContext>& AlloyDefaultContext() {
 	return AlloyContext::getDefaultContext();
 }
 typedef std::shared_ptr<Font> FontPtr;

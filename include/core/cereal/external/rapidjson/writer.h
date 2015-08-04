@@ -17,57 +17,100 @@ namespace rapidjson {
 
 //! JSON writer
 /*! Writer implements the concept Handler.
-	It generates JSON text by events to an output stream.
+ It generates JSON text by events to an output stream.
 
-	User may programmatically calls the functions of a writer to generate JSON text.
+ User may programmatically calls the functions of a writer to generate JSON text.
 
-	On the other side, a writer can also be passed to objects that generates events,
+ On the other side, a writer can also be passed to objects that generates events,
 
-	for example Reader::Parse() and Document::Accept().
+ for example Reader::Parse() and Document::Accept().
 
-	\tparam Stream Type of ouptut stream.
-	\tparam Encoding Encoding of both source strings and output.
-	\implements Handler
-*/
-template<typename Stream, typename Encoding = UTF8<>, typename Allocator = MemoryPoolAllocator<> >
+ \tparam Stream Type of ouptut stream.
+ \tparam Encoding Encoding of both source strings and output.
+ \implements Handler
+ */
+template<typename Stream, typename Encoding = UTF8<>,
+		typename Allocator = MemoryPoolAllocator<> >
 class Writer {
 public:
 	typedef typename Encoding::Ch Ch;
 
-	Writer(Stream& stream, int precision = 20, Allocator* allocator = 0, size_t levelDepth = kDefaultLevelDepth) :
-		stream_(stream), level_stack_(allocator, levelDepth * sizeof(Level))
-  {
+	Writer(Stream& stream, int precision = 20, Allocator* allocator = 0,
+			size_t levelDepth = kDefaultLevelDepth) :
+			stream_(stream), level_stack_(allocator, levelDepth * sizeof(Level)) {
 #if _MSC_VER
-    (void) sprintf_s(double_format, sizeof(double_format), "%%0.%dg", precision);
-    (void) sprintf_s( long_double_format, sizeof( long_double_format ), "%%0.%dLg", precision );
+		(void) sprintf_s(double_format, sizeof(double_format), "%%0.%dg", precision);
+		(void) sprintf_s( long_double_format, sizeof( long_double_format ), "%%0.%dLg", precision );
 #else
-    (void) snprintf(double_format, sizeof(double_format), "%%0.%dg", precision);
-    (void) snprintf( long_double_format, sizeof( long_double_format ), "%%0.%dLg", precision );
+		(void) snprintf(double_format, sizeof(double_format), "%%0.%dg",
+				precision);
+		(void) snprintf(long_double_format, sizeof(long_double_format),
+				"%%0.%dLg", precision);
 #endif
 
-  }
+	}
 
 protected:
-  char double_format[32];
-  char long_double_format[32];
+	char double_format[32];
+	char long_double_format[32];
 public:
 
 	//@name Implementation of Handler
 	//@{
 
-	Writer& Null_()                          { Prefix(kNull_Type);   WriteNull_();			return *this;             }
-	Writer& Bool_(bool b)                    { Prefix(b ? kTrueType : kFalseType); WriteBool_(b); return *this; }
-	Writer& Int(int i)                      { Prefix(kNumberType); WriteInt(i);			return *this;             }
-	Writer& Uint(unsigned u)                { Prefix(kNumberType); WriteUint(u);		return *this;             }
-	Writer& Int64(int64_t i64)              { Prefix(kNumberType); WriteInt64(i64);		return *this;           }
-	Writer& Uint64(uint64_t u64)            { Prefix(kNumberType); WriteUint64(u64);	return *this;           }
-	Writer& Double(double d)                { Prefix(kNumberType); WriteDouble(d);		return *this;           }
-	Writer& LongDouble(long double d)       { Prefix(kNumberType); WriteLongDouble(d);		return *this;       }
-	Writer& LongLong(long long d)           { Prefix(kNumberType); WriteLongLong(d);		return *this;         }
-	Writer& ULongLong(unsigned long long d) { Prefix(kNumberType); WriteULongLong(d);		return *this;         }
+	Writer& Null_() {
+		Prefix(kNull_Type);
+		WriteNull_();
+		return *this;
+	}
+	Writer& Bool_(bool b) {
+		Prefix(b ? kTrueType : kFalseType);
+		WriteBool_(b);
+		return *this;
+	}
+	Writer& Int(int i) {
+		Prefix(kNumberType);
+		WriteInt(i);
+		return *this;
+	}
+	Writer& Uint(unsigned u) {
+		Prefix(kNumberType);
+		WriteUint(u);
+		return *this;
+	}
+	Writer& Int64(int64_t i64) {
+		Prefix(kNumberType);
+		WriteInt64(i64);
+		return *this;
+	}
+	Writer& Uint64(uint64_t u64) {
+		Prefix(kNumberType);
+		WriteUint64(u64);
+		return *this;
+	}
+	Writer& Double(double d) {
+		Prefix(kNumberType);
+		WriteDouble(d);
+		return *this;
+	}
+	Writer& LongDouble(long double d) {
+		Prefix(kNumberType);
+		WriteLongDouble(d);
+		return *this;
+	}
+	Writer& LongLong(long long d) {
+		Prefix(kNumberType);
+		WriteLongLong(d);
+		return *this;
+	}
+	Writer& ULongLong(unsigned long long d) {
+		Prefix(kNumberType);
+		WriteULongLong(d);
+		return *this;
+	}
 
 	Writer& String(const Ch* str, SizeType length, bool copy = false) {
-		(void)copy;
+		(void) copy;
 		Prefix(kStringType);
 		WriteString(str, length);
 		return *this;
@@ -81,7 +124,7 @@ public:
 	}
 
 	Writer& EndObject(SizeType memberCount = 0) {
-		(void)memberCount;
+		(void) memberCount;
 		RAPIDJSON_ASSERT(level_stack_.GetSize() >= sizeof(Level));
 		RAPIDJSON_ASSERT(!level_stack_.template Top<Level>()->inArray);
 		level_stack_.template Pop<Level>(1);
@@ -107,23 +150,23 @@ public:
 	//@}
 
 	//! Simpler but slower overload.
-	Writer& String(const Ch* str) { return String(str, internal::StrLen(str)); }
+	Writer& String(const Ch* str) {return String(str, internal::StrLen(str));}
 
 protected:
 	//! Information for each nested level
 	struct Level {
 		Level(bool inArray_) : inArray(inArray_), valueCount(0) {}
 		bool inArray;		//!< true if in array, otherwise in object
-		size_t valueCount;	//!< number of values in this level
+		size_t valueCount;//!< number of values in this level
 	};
 
 	static const size_t kDefaultLevelDepth = 32;
 
-	void WriteNull_()  {
+	void WriteNull_() {
 		stream_.Put('n'); stream_.Put('u'); stream_.Put('l'); stream_.Put('l');
 	}
 
-	void WriteBool_(bool b)  {
+	void WriteBool_(bool b) {
 		if (b) {
 			stream_.Put('t'); stream_.Put('r'); stream_.Put('u'); stream_.Put('e');
 		}

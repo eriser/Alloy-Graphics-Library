@@ -23,25 +23,27 @@
 #include "GLTexture.h"
 namespace aly {
 
-class GLFrameBuffer:public GLComponent{
+class GLFrameBuffer: public GLComponent {
 protected:
 	unsigned int mFrameBufferId;
 	unsigned int mDepthBufferId;
-	GLTexture<float,4,ImageType::FLOAT> texture;
+	GLTexture<float, 4, ImageType::FLOAT> texture;
 public:
-	GLFrameBuffer(std::shared_ptr<AlloyContext> context=AlloyDefaultContext());
+	GLFrameBuffer(std::shared_ptr<AlloyContext> context =
+			AlloyDefaultContext());
 	virtual void update() override;
 	virtual void draw() const override;
-	void initialize(int w,int h);
-	void begin(bool clearColor=true,bool clearDepth=true);
+	void initialize(int w, int h);
+	void begin(bool clearColor = true, bool clearDepth = true);
 	void end();
 	int2 getDimensions() const {
-		return int2(texture.width(),texture.height());
+		return int2(texture.width(), texture.height());
 	}
 	box2px getViewport() const {
-		return box2px(pixel2(0.0f,0.0f),pixel2((pixel)texture.width(), (pixel)texture.height()));
+		return box2px(pixel2(0.0f, 0.0f),
+				pixel2((pixel) texture.width(), (pixel) texture.height()));
 	}
-	GLTexture<float,4,ImageType::FLOAT>& getTexture(){
+	GLTexture<float, 4, ImageType::FLOAT>& getTexture() {
 		return texture;
 	}
 	virtual ~GLFrameBuffer();

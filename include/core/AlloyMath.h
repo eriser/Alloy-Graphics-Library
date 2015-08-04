@@ -197,8 +197,7 @@ template<class T> struct vec<T, 4> {
 	explicit vec(T s = (T) 0) :
 			x(s), y(s), z(s), w(s) {
 	}
-	template<class Archive> void serialize(Archive & archive)
-	{
+	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z), CEREAL_NVP(w));
 	}
 	template<class U> explicit vec(const vec<U, 4> & r) :
@@ -230,7 +229,6 @@ template<class T> struct vec<T, 4> {
 				< std::make_tuple(r.x, r.y, r.z, r.w));
 	}
 
-
 };
 template<class T> vec<T, 3> vec<T, 2>::xyz() const {
 	return vec<T, 3>(x, y, 1);
@@ -248,7 +246,7 @@ template<class T, int M, int N> const matrix<T, M, N> Identity() {
 	if (once) {
 		for (int m = 0; m < M; m++) {
 			for (int n = 0; n < N; n++) {
-				Id(m, n) = (T)((m == n) ? 1 : 0);
+				Id(m, n) = (T) ((m == n) ? 1 : 0);
 			}
 		}
 		once = false;
@@ -301,7 +299,8 @@ template<class T, int M, int N> const matrix<T, M, N - 1> SubColMatrix(
 		}
 	}
 	return B;
-};
+}
+;
 template<class T, int M> struct matrix<T, M, 2> {
 	typedef vec<T, M> C;
 	C x, y;
@@ -1135,13 +1134,13 @@ template<class T> matrix<T, 4, 4> MakeRotationMatrix(const vec<T, 3>& axis,
 	matrix<T, 4, 4> M = Identity<T, 4, 4>();
 	T mag = length(axis);
 	if (mag >= 1E-6f) {
-		mag = ((T)1.0) / mag;
+		mag = ((T) 1.0) / mag;
 		T ax = axis[0] * mag;
 		T ay = axis[1] * mag;
 		T az = axis[2] * mag;
 		T sinTheta = (T) sin(angle);
 		T cosTheta = (T) cos(angle);
-		T t = (T)1.0 - cosTheta;
+		T t = (T) 1.0 - cosTheta;
 
 		T xz = ax * az;
 		T xy = ax * ay;
@@ -1346,7 +1345,7 @@ template<class T, int M> struct box {
 		return position;
 	}
 	inline vec<T, M> center() const {
-		return position+dimensions/(T)(2);
+		return position + dimensions / (T) (2);
 	}
 	inline vec<T, M> clamp(const vec<T, M>& pt, const box<T, M>& parent) {
 		return aly::clamp(pt, parent.position,

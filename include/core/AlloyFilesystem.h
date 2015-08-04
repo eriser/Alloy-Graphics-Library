@@ -1500,7 +1500,7 @@ void initialize(string_t path_) {
 
 	if (path_.empty()) {
 		throw filesystem_error("Path cannot be initialized to empty value",
-				__FILE__, __LINE__, "", "");
+		__FILE__, __LINE__, "", "");
 	}
 
 	typename string_t::iterator it = path_.begin();
@@ -1595,12 +1595,12 @@ void initialize(string_t path_) {
 		for (; it != endIt; ++it) {
 			size_t dollarSignLocation = it->find('$');
 			if (dollarSignLocation != string_t::npos) {
-				if ((dollarSignLocation != 0) ||// '(' is not where we expect it.
-						(it->length() < 4) ||// element is too short.  It can't hold "$(A)".
-						(it->find('$', 1) != string_t::npos) ||// There's too many dollar signs.
-						(it->find('(') != 1) ||// '(' is not where we expect it.
+				if ((dollarSignLocation != 0) || // '(' is not where we expect it.
+						(it->length() < 4) || // element is too short.  It can't hold "$(A)".
+						(it->find('$', 1) != string_t::npos) || // There's too many dollar signs.
+						(it->find('(') != 1) || // '(' is not where we expect it.
 						(it->find('(', 2) != string_t::npos) || // There's too many open parentheses.
-						(it->find(')') != it->length() - 1))// ')' is not where we expect it.
+						(it->find(')') != it->length() - 1)) // ')' is not where we expect it.
 						{
 					throw filesystem_error(
 							"Path element contains '$', but has invalid environment variable format",
@@ -1723,7 +1723,7 @@ basic_path(Initializer::Enum initializer) :
 	}
 	default: {
 		throw filesystem_error("Invalid path initializer specified", __FILE__,
-				__LINE__, "", "");
+		__LINE__, "", "");
 	}
 	}
 }
@@ -1982,7 +1982,7 @@ string_t extension() const {
 void directory_get_files(std::vector<string_t>& results) {
 	if (!this->is_directory()) {
 		throw filesystem_error("Specified path is not a directory.", __FILE__,
-				__LINE__, "", "");
+		__LINE__, "", "");
 	}
 	internal::dir_get_files(to_portable_string(), string_t(), results);
 }
@@ -1991,7 +1991,7 @@ void directory_get_files(const string_t& pattern,
 		std::vector<string_t>& results) {
 	if (!this->is_directory()) {
 		throw filesystem_error("Specified path is not a directory.", __FILE__,
-				__LINE__, "", "");
+		__LINE__, "", "");
 	}
 	internal::dir_get_files(to_portable_string(), pattern, results);
 }
@@ -2004,7 +2004,7 @@ void directory_get_files(const string_t& pattern,
 	fullpath.directory_get_files(pattern, str_results);
 	results.clear();
 
-	for (string_t str:str_results) {
+	for (string_t str : str_results) {
 		results.push_back(fullpath / str);
 	}
 }
@@ -2016,7 +2016,7 @@ void directory_get_files(std::vector<basic_path>& results) {
 void directory_get_subdirs(std::vector<string_t>& results) {
 	if (!this->is_directory()) {
 		throw filesystem_error("Specified path is not a directory.", __FILE__,
-				__LINE__, "", "");
+		__LINE__, "", "");
 	}
 	internal::dir_get_subdirs(to_portable_string(), string_t(), results);
 }
@@ -2025,7 +2025,7 @@ void directory_get_subdirs(const string_t& pattern,
 		std::vector<string_t>& results) {
 	if (!this->is_directory()) {
 		throw filesystem_error("Specified path is not a directory.", __FILE__,
-				__LINE__, "", "");
+		__LINE__, "", "");
 	}
 	internal::dir_get_subdirs(to_portable_string(), pattern, results);
 }
@@ -2038,7 +2038,7 @@ void directory_get_subdirs(const string_t& pattern,
 	fullpath.directory_get_subdirs(pattern, str_results);
 	results.clear();
 
-	for (string_t str:str_results) {
+	for (string_t str : str_results) {
 		results.push_back(fullpath / str);
 	}
 }
@@ -2066,7 +2066,7 @@ void directory_scan_subdirs_for_files_helper(const string_t& pattern,
 
 	directory_get_subdirs(dir_results);
 
-	for (basic_path& path:dir_results) {
+	for (basic_path& path : dir_results) {
 		path.directory_scan_subdirs_for_files_helper(pattern, results);
 	}
 }

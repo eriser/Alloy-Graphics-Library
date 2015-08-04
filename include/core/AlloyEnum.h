@@ -47,7 +47,6 @@ enum class HorizontalAlignment {
 	Left = NVG_ALIGN_LEFT, Center = NVG_ALIGN_CENTER, Right = NVG_ALIGN_RIGHT
 };
 
-
 enum class VerticalAlignment {
 	Top = NVG_ALIGN_TOP,
 	Middle = NVG_ALIGN_MIDDLE,

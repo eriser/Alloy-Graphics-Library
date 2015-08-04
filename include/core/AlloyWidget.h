@@ -69,8 +69,8 @@ private:
 	AUnit1D fontSize;
 	std::string iconCodeString;
 public:
-	TextIconButton(const std::string& label,int iconCode,const AUnit2D& position,
-			const AUnit2D& dimensions);
+	TextIconButton(const std::string& label, int iconCode,
+			const AUnit2D& position, const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~TextIconButton() {
 	}
@@ -125,7 +125,8 @@ protected:
 	const Orientation orientation;
 public:
 	Color startColor, endColor;
-	SliderTrack(const std::string& name, Orientation orientColor,const Color& st, const Color& ed);
+	SliderTrack(const std::string& name, Orientation orientColor,
+			const Color& st, const Color& ed);
 	virtual void draw(AlloyContext* context) override;
 };
 class ProgressBar: public Widget {
@@ -148,7 +149,7 @@ public:
 	ProgressBar(const std::string& name, const AUnit2D& pt,
 			const AUnit2D& dims);
 };
-class Slider: public Widget{
+class Slider: public Widget {
 protected:
 	AColor textColor;
 	AUnit1D fontSize;
@@ -167,15 +168,15 @@ public:
 		sliderTrack->startColor = startColor;
 		sliderTrack->endColor = endColor;
 	}
-	Slider(const std::string& name ,const Number& min,const Number& max,const Number& val) :
-			Widget(name),minValue(min),maxValue(max),value(val) {
-		labelFormatter =
-					[](const Number& value) {return value.toString();};
+	Slider(const std::string& name, const Number& min, const Number& max,
+			const Number& val) :
+			Widget(name), minValue(min), maxValue(max), value(val) {
+		labelFormatter = [](const Number& value) {return value.toString();};
 	}
-	Slider(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,const Number& min,const Number& max,const Number& val) :
-			Widget(name, pos, dims) ,minValue(min),maxValue(max),value(val){
-		labelFormatter =
-					[](const Number& value) {return value.toString();};
+	Slider(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
+			const Number& min, const Number& max, const Number& val) :
+			Widget(name, pos, dims), minValue(min), maxValue(max), value(val) {
+		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	double getBlendValue() const;
 	void setBlendValue(double value);
@@ -190,10 +191,12 @@ public:
 	const Number& getValue() {
 		return value;
 	}
-	inline void setOnChangeEvent(const std::function<void(const Number& value)>& func){
-		onChangeEvent=func;
+	inline void setOnChangeEvent(
+			const std::function<void(const Number& value)>& func) {
+		onChangeEvent = func;
 	}
-	inline void setLabelFormatter(const std::function<std::string(const Number& value)>& func) {
+	inline void setLabelFormatter(
+			const std::function<std::string(const Number& value)>& func) {
 		labelFormatter = func;
 	}
 };
@@ -264,8 +267,9 @@ protected:
 	std::function<void(const Color& value)> onChangeEvent;
 	void updateWheel();
 public:
-	inline void setOnChangeEvent(const std::function<void(const Color& value)>& func){
-		onChangeEvent=func;
+	inline void setOnChangeEvent(
+			const std::function<void(const Color& value)>& func) {
+		onChangeEvent = func;
 	}
 	void reset();
 	Color getSelectedColor() const {
@@ -297,7 +301,7 @@ public:
 			const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
-class ExpandRegion : public Composite {
+class ExpandRegion: public Composite {
 private:
 	std::shared_ptr<TextLabel> selectionLabel;
 	std::shared_ptr<TextLabel> arrowIcon;
@@ -305,23 +309,20 @@ private:
 	bool expanded;
 public:
 	void setExpanded(bool expanded);
-	ExpandRegion(const std::string& name,const std::shared_ptr<Region>& region, const AUnit2D& pos,
-		const AUnit2D& dims);
+	ExpandRegion(const std::string& name, const std::shared_ptr<Region>& region,
+			const AUnit2D& pos, const AUnit2D& dims);
 };
-class ExpandBar : public Widget {
+class ExpandBar: public Widget {
 private:
 	std::list<std::shared_ptr<ExpandRegion>> regions;
 public:
-	void add(Region* region,bool expanded);
+	void add(Region* region, bool expanded);
 	void add(const std::shared_ptr<Region>&, bool expanded);
 
-	ExpandBar(
-		const std::string& name, 
-		const AUnit2D& pos,
-		const AUnit2D& dims);
+	ExpandBar(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 };
 class FileDialog;
-class FileEntry: public Region{
+class FileEntry: public Region {
 private:
 	std::string iconCodeString;
 	std::string fileName;
@@ -336,11 +337,12 @@ public:
 	FileDescription fileDescription;
 	void setSelected(bool selected);
 	bool isSelected();
-	FileEntry(FileDialog* dialog,const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	FileEntry(FileDialog* dialog, const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 	void setValue(const FileDescription& fileDescription);
 };
-class FileDialog: public Widget{
+class FileDialog: public Widget {
 private:
 
 	std::list<FileEntry*> lastSelected;
@@ -351,19 +353,21 @@ private:
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;
 	std::vector<std::shared_ptr<FileEntry>> fileEntries;
-	bool enableMultiSelection=false;
+	bool enableMultiSelection = false;
 	FileType fileType = FileType::File;
 	void setSelectedFile(const std::string& file);
-	bool onMouseDown(FileEntry* entry, AlloyContext* context, const InputEvent& e);
-	bool onMouseOver(FileEntry* entry, AlloyContext* context, const InputEvent& e);
-	bool onMouseDrag(FileEntry* entry, AlloyContext* context, const InputEvent& e);
-	bool onMouseUp(FileEntry* entry, AlloyContext* context, const InputEvent& e);
+	bool onMouseDown(FileEntry* entry, AlloyContext* context,
+			const InputEvent& e);
+	bool onMouseOver(FileEntry* entry, AlloyContext* context,
+			const InputEvent& e);
+	bool onMouseDrag(FileEntry* entry, AlloyContext* context,
+			const InputEvent& e);
+	bool onMouseUp(FileEntry* entry, AlloyContext* context,
+			const InputEvent& e);
 public:
-	friend  class FileEntry;
+	friend class FileEntry;
 	virtual void draw(AlloyContext* context) override;
-	FileDialog(
-			const std::string& name,
-			const AUnit2D& pos,
+	FileDialog(const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
 	void setEnableMultiSelection(bool enable);
 	void setFileSelectionType(FileType type);
@@ -372,7 +376,7 @@ public:
 	std::string getValue() const;
 
 };
-class FileSelector : public Widget{
+class FileSelector: public Widget {
 private:
 	std::shared_ptr<TextLabel> fileLocationLabel;
 	std::shared_ptr<TextLabel> fileLabel;
@@ -380,9 +384,11 @@ private:
 	std::shared_ptr<FileDialog> fileDialog;
 	std::string fileLocation;
 public:
-	FileSelector(const std::string& name,const AUnit2D& pos,const AUnit2D& dims);
+	FileSelector(const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims);
 	void setFileLocation(const std::string& file);
-	void openFileDialog(AlloyContext* context,const std::string& workingDirectory=ALY_PATH_SEPARATOR);
+	void openFileDialog(AlloyContext* context,
+			const std::string& workingDirectory = ALY_PATH_SEPARATOR);
 	virtual void draw(AlloyContext* context) override;
 };
 

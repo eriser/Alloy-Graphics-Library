@@ -47,23 +47,23 @@ protected:
 public:
 
 	float4x4 Projection, View, Model;
-	float4x4 ViewModel, NormalViewModel,NormalView;
+	float4x4 ViewModel, NormalViewModel, NormalView;
 	VirtualCamera();
 	void aim(const aly::box2px& bounds);
 	void setPose(const float4x4& m) {
 		Model = m;
 	}
 	inline float2 getFocalLength() const {
-		return float2(Projection(0,0),Projection(1,1));
+		return float2(Projection(0, 0), Projection(1, 1));
 	}
 	float4x4& getPose() {
 		return Model;
 	}
-	bool isDirty(){
-		return needsDisplay||changed;
+	bool isDirty() {
+		return needsDisplay || changed;
 	}
-	void setDirty(bool d){
-		needsDisplay=d;
+	void setDirty(bool d) {
+		needsDisplay = d;
 	}
 	float getScale() {
 		return Model(0, 0) * distanceToObject;
@@ -89,11 +89,11 @@ public:
 		return nearPlane;
 	}
 	float2 getZRange() {
-		return float2(nearPlane,farPlane);
+		return float2(nearPlane, farPlane);
 	}
-	float getNormalizedDepth(const float4& pt){
-		float4 out=ViewModel*pt;
-		return (-out.z-nearPlane)/(farPlane-nearPlane);
+	float getNormalizedDepth(const float4& pt) {
+		float4 out = ViewModel * pt;
+		return (-out.z - nearPlane) / (farPlane - nearPlane);
 	}
 	float2 computeNormalizedDepthRange(const Mesh& mesh);
 	float getFarPlane() {
@@ -107,12 +107,12 @@ public:
 	void resetTranslation() {
 		cameraTrans = float3(0, 0, 0);
 		lookAtPoint = float3(0, 0, 0);
-		changed=true;
+		changed = true;
 	}
 
 	void setZoom(float z) {
 		distanceToObject = z;
-		changed=true;
+		changed = true;
 	}
 	static const float sDeg2rad;
 };

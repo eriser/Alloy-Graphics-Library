@@ -102,7 +102,7 @@ Timer::Timer(const std::function<void()>& successFunc,
 void Timer::task() {
 	running = true;
 	requestCancel = false;
-	complete=false;
+	complete = false;
 	auto currentTime = std::chrono::steady_clock::now();
 	while (!requestCancel) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(samplingTime));
@@ -113,10 +113,12 @@ void Timer::task() {
 			break;
 	}
 	if (requestCancel) {
-		if(endTask)endTask();
-		complete=false;
+		if (endTask)
+			endTask();
+		complete = false;
 	} else {
-		if(executionTask)executionTask();
+		if (executionTask)
+			executionTask();
 		complete = true;
 	}
 	running = false;

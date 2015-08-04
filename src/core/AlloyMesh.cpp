@@ -38,10 +38,10 @@ PlyProperty MeshVertProps[] = { // property information for a vertex
 				static_cast<int>(offsetof(plyVertex, x) + sizeof(float)
 						+ sizeof(float)), 0, 0, 0, 0 }, { "nx", Float32,
 		Float32, static_cast<int>(offsetof(plyVertex, n)), 0, 0, 0, 0 }, { "ny",
-				Float32, Float32, static_cast<int>(offsetof(plyVertex, n)
-						+ sizeof(float)), 0, 0, 0, 0 }, { "nz", Float32,
-				Float32, static_cast<int>(offsetof(plyVertex, n) + sizeof(float)
-						+ sizeof(float)), 0, 0, 0, 0 }, { "vx", Float32,
+		Float32, Float32, static_cast<int>(offsetof(plyVertex, n)
+				+ sizeof(float)), 0, 0, 0, 0 }, { "nz", Float32,
+		Float32, static_cast<int>(offsetof(plyVertex, n) + sizeof(float)
+				+ sizeof(float)), 0, 0, 0, 0 }, { "vx", Float32,
 		Float32, static_cast<int>(offsetof(plyVertex, vel)), 0, 0, 0, 0 }, {
 				"vy", Float32, Float32,
 				static_cast<int>(offsetof(plyVertex, vel) + sizeof(float)), 0,
@@ -166,7 +166,8 @@ GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		triNormalBuffer[n] = 0;
 }
 GLMesh::~GLMesh() {
-	if (context.get() == nullptr)return;
+	if (context.get() == nullptr)
+		return;
 	context->begin();
 	if (glIsBuffer(vertexBuffer) == GL_TRUE)
 		glDeleteBuffers(1, &vertexBuffer);
@@ -198,7 +199,8 @@ GLMesh::~GLMesh() {
 	context->end();
 }
 void GLMesh::update() {
-	if (context.get() == nullptr)return;
+	if (context.get() == nullptr)
+		return;
 	context->begin();
 	quadCount = 0;
 	triCount = 0;
@@ -281,7 +283,7 @@ void GLMesh::update() {
 
 		CHECK_GL_ERROR();
 
-		triIndexCount =(GLuint) mesh.triIndexes.size();
+		triIndexCount = (GLuint) mesh.triIndexes.size();
 
 	}
 	if (mesh.quadIndexes.size() > 0) {
@@ -317,7 +319,7 @@ void GLMesh::update() {
 		}
 		CHECK_GL_ERROR();
 
-		quadIndexCount = (GLuint)mesh.quadIndexes.size();
+		quadIndexCount = (GLuint) mesh.quadIndexes.size();
 		/*
 		 int sz = mesh.quadIndexes.size();
 		 std::vector<GLuint> tmp(12 * mesh.quadIndexes.size());
@@ -363,7 +365,7 @@ void GLMesh::update() {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		if(mesh.quadIndexes.size()>0){
+		if (mesh.quadIndexes.size() > 0) {
 			int offset = 0;
 			std::vector<float3> quads[4];
 			for (int n = 0; n < 4; n++) {
@@ -383,13 +385,14 @@ void GLMesh::update() {
 					glDeleteBuffers(1, &quadNormalBuffer[n]);
 				glGenBuffers(1, &quadNormalBuffer[n]);
 				glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer[n]);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * quads[n].size(),
-						quads[n].data(), GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER,
+						sizeof(GLfloat) * 3 * quads[n].size(), quads[n].data(),
+						GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
 			CHECK_GL_ERROR();
 		}
-		if(mesh.triIndexes.size()>0){
+		if (mesh.triIndexes.size() > 0) {
 			int offset = 0;
 			std::vector<float3> tris[3];
 			for (int n = 0; n < 3; n++) {
@@ -409,8 +412,9 @@ void GLMesh::update() {
 					glDeleteBuffers(1, &triNormalBuffer[n]);
 				glGenBuffers(1, &triNormalBuffer[n]);
 				glBindBuffer(GL_ARRAY_BUFFER, triNormalBuffer[n]);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * tris[n].size(),
-						tris[n].data(), GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER,
+						sizeof(GLfloat) * 3 * tris[n].size(), tris[n].data(),
+						GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
 		}
@@ -466,9 +470,9 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	}
 
 	// compute colors, if any
-	int numPts =(int)( mesh.vertexLocations.size());
+	int numPts = (int) (mesh.vertexLocations.size());
 
-	int numPolys = (int)(mesh.quadIndexes.size() + mesh.triIndexes.size());
+	int numPolys = (int) (mesh.quadIndexes.size() + mesh.triIndexes.size());
 
 	std::vector<unsigned char> pointColors;
 
@@ -554,7 +558,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	faceT.uvs = (float*) uvs;
 	put_element_setup_ply(ply, "face");
 	if (usingTexture) {
-		int sz =(int)( mesh.quadIndexes.size());
+		int sz = (int) (mesh.quadIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			faceT.nverts = 4;
 			faceT.uvcount = 8;
@@ -564,7 +568,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			}
 			put_element_ply(ply, (void *) &faceT);
 		}
-		sz =(int)( mesh.triIndexes.size());
+		sz = (int) (mesh.triIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			faceT.nverts = 3;
 			faceT.uvcount = 6;
@@ -575,7 +579,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			put_element_ply(ply, (void *) &faceT);
 		}
 	} else {
-		int sz = (int)(mesh.quadIndexes.size());
+		int sz = (int) (mesh.quadIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			for (j = 0; j < 4; j++) {
 				face.nverts = 4;
@@ -583,7 +587,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 			}
 			put_element_ply(ply, (void *) &face);
 		}
-		sz = (int)(mesh.triIndexes.size());
+		sz = (int) (mesh.triIndexes.size());
 		for (int i = 0; i < sz; i++) {
 			for (j = 0; j < 3; j++) {
 				face.nverts = 3;
@@ -597,7 +601,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
 	free_ply(ply);
 }
 void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
-	uint32_t sz = (uint32_t )triIndexes.size();
+	uint32_t sz = (uint32_t) triIndexes.size();
 	float3 pt;
 	vertexNormals.clear();
 	vertexNormals.resize(vertexLocations.size(), float3(0.0f));
@@ -611,8 +615,8 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		vertexNormals[verts.y] += norm;
 		vertexNormals[verts.z] += norm;
 	}
-	sz = (uint32_t)quadIndexes.size();
-	for (uint32_t i = 0; i <sz; i++) {
+	sz = (uint32_t) quadIndexes.size();
+	for (uint32_t i = 0; i < sz; i++) {
 		uint4 verts = quadIndexes[i];
 		float3 v1 = vertexLocations[verts.x];
 		float3 v2 = vertexLocations[verts.y];
@@ -629,10 +633,10 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		vertexNormals[n] = normalize(vertexNormals[n]);
 	}
 	if (SMOOTH_ITERATIONS > 0) {
-		int vertCount =(int) vertexLocations.size();
+		int vertCount = (int) vertexLocations.size();
 		std::vector<float3> tmp(vertCount);
 		std::vector<std::list<int>> vertNbrs(vertCount);
-		int indexCount = (int)quadIndexes.size();
+		int indexCount = (int) quadIndexes.size();
 
 		for (int i = 0; i < indexCount; i++) {
 			uint4 verts = quadIndexes[i];
@@ -673,7 +677,7 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 float Mesh::estimateVoxelSize(int stride) {
 	int count = 0;
 	//float maxLength = 0.0f;
-	int sz = (int)triIndexes.size();
+	int sz = (int) triIndexes.size();
 	float mEstimatedVoxelSize = 0.0f;
 	for (int i = 0; i < sz; i += stride) {
 		uint3 verts = triIndexes[i];
@@ -687,7 +691,7 @@ float Mesh::estimateVoxelSize(int stride) {
 		mEstimatedVoxelSize += e1 + e2 + e3;
 	}
 	count = sz / stride;
-	sz = (int)(quadIndexes.size());
+	sz = (int) (quadIndexes.size());
 	for (int i = 0; i < sz; i += stride) {
 		uint4 verts = quadIndexes[i];
 		float3 v1 = vertexLocations[verts.x];
@@ -723,12 +727,12 @@ box3f Mesh::updateBoundingBox() {
 			float3(std::numeric_limits<float>::min(),
 					std::numeric_limits<float>::min(),
 					std::numeric_limits<float>::min()));
-	int SZ = (int)vertexLocations.size();
+	int SZ = (int) vertexLocations.size();
 	int batchSize = (SZ % BATCHES == 0) ? SZ / BATCHES : SZ / BATCHES + 1;
 #pragma omp for
 	for (int b = 0; b < BATCHES; b++) {
 		int sz = std::min(SZ, batchSize * (b + 1));
-		for (uint32_t idx = b * batchSize; idx < (uint32_t)sz; idx++) {
+		for (uint32_t idx = b * batchSize; idx < (uint32_t) sz; idx++) {
 			float3& pt = vertexLocations[idx];
 			minPtBatch[b][0] = std::min(minPtBatch[b][0], pt[0]);
 			minPtBatch[b][1] = std::min(minPtBatch[b][1], pt[1]);

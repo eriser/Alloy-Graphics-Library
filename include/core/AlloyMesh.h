@@ -33,7 +33,7 @@ struct Mesh;
 struct GLMesh: public GLComponent {
 public:
 	enum class PrimitiveType {
-		ALL=0,QUADS = 4, TRIANGLES = 3,
+		ALL = 0, QUADS = 4, TRIANGLES = 3,
 	};
 	GLuint vao;
 	GLuint vertexBuffer;
@@ -54,7 +54,8 @@ public:
 	virtual void draw() const override;
 	virtual void draw(const PrimitiveType& type) const;
 	virtual void update() override;
-	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
+	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext());
 	virtual ~GLMesh();
 };
 struct Mesh {
@@ -75,14 +76,16 @@ public:
 	Image4f textureImage;
 	float4x4 pose;
 
-	template <class Archive> void serialize(Archive & archive)
-	{
-		archive(CEREAL_NVP(pose), CEREAL_NVP(vertexLocations), CEREAL_NVP(vertexNormals), CEREAL_NVP(vertexColors), CEREAL_NVP(quadIndexes), CEREAL_NVP(triIndexes),CEREAL_NVP(textureMap), CEREAL_NVP(textureImage));
+	template<class Archive> void serialize(Archive & archive) {
+		archive(CEREAL_NVP(pose), CEREAL_NVP(vertexLocations),
+				CEREAL_NVP(vertexNormals), CEREAL_NVP(vertexColors),
+				CEREAL_NVP(quadIndexes), CEREAL_NVP(triIndexes),
+				CEREAL_NVP(textureMap), CEREAL_NVP(textureImage));
 	}
 
 	GLMesh gl;
 
-	Mesh(std::shared_ptr<AlloyContext>& context=AlloyDefaultContext());
+	Mesh(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	inline box3f getBoundingBox() const {
 		return boundingBox;
 	}

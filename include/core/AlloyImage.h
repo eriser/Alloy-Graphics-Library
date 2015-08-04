@@ -56,7 +56,8 @@ template<class L, class R> std::basic_ostream<L, R>& operator <<(
 	return ss;
 }
 template<class T, int C, ImageType I> struct Image;
-template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& fileName,const Image<T,C,I>& img);
+template<class T, int C, ImageType I> void WriteImageToRawFile(
+		const std::string& fileName, const Image<T, C, I>& img);
 template<class T, int C, ImageType I> struct Image {
 private:
 	std::vector<vec<T, C>> storage;
@@ -69,19 +70,20 @@ public:
 	uint64_t id;
 	const int channels = C;
 	const ImageType type = I;
-	std::string updateHashCode(HashMethod method=HashMethod::SHA256) {
-		hashCode =HashCode(data,method);
+	std::string updateHashCode(HashMethod method = HashMethod::SHA256) {
+		hashCode = HashCode(data, method);
 		return hashCode;
 	}
 	std::string getHashCode() {
 		return hashCode;
 	}
-	template <class Archive> void serialize (Archive & archive) {
-		archive(CEREAL_NVP(id), CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(hashCode));
+	template<class Archive> void serialize(Archive & archive) {
+		archive(CEREAL_NVP(id), CEREAL_NVP(width), CEREAL_NVP(height),
+				CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(hashCode));
 	}
 
 	void writeToXML(const std::string& fileName) const {
-		WriteImageToRawFile(fileName,*this);
+		WriteImageToRawFile(fileName, *this);
 	}
 	void set(const T& val) {
 		data.assign(data.size(), vec<T, C>(val));
@@ -137,7 +139,7 @@ public:
 		set(ptr);
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
-		uint64_t id = 0) :
+			uint64_t id = 0) :
 			width(w), height(h), x(x), y(y), id(id), data(ref) {
 	}
 	Image() :
@@ -477,42 +479,53 @@ template<class T, int C, ImageType I> Image<T, C, I> operator/(
 	Transform(out, img1, img2, f);
 	return out;
 }
-template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& file,const Image<T,C,I>& img) {
+template<class T, int C, ImageType I> void WriteImageToRawFile(
+		const std::string& file, const Image<T, C, I>& img) {
 	std::ostringstream vstr;
-	std::string fileName=GetFileWithoutExtension(file);
+	std::string fileName = GetFileWithoutExtension(file);
 	vstr << fileName << ".raw";
 	FILE* f = fopen(vstr.str().c_str(), "wb");
-	if(f==NULL){
-		throw std::runtime_error(MakeString()<<"Could not open "<<vstr.str().c_str()<<" for writing.");
+	if (f == NULL) {
+		throw std::runtime_error(
+				MakeString() << "Could not open " << vstr.str().c_str()
+						<< " for writing.");
 	}
-	for(int c=0;c<img.channels;c++){
-		for(int j=0;j<img.height;j++){
-			for(int i=0;i<img.width;i++){
-				T val=img(i,j)[c];
+	for (int c = 0; c < img.channels; c++) {
+		for (int j = 0; j < img.height; j++) {
+			for (int i = 0; i < img.width; i++) {
+				T val = img(i, j)[c];
 				fwrite(&val, sizeof(float), 1, f);
 			}
 		}
 	}
 	fclose(f);
-	std::string typeName="";
-		switch (img.type) {
-		case ImageType::BYTE:
-			typeName= "Byte";break;
-		case ImageType::UBYTE:
-			typeName= "Unsigned Byte";break;
-		case ImageType::SHORT:
-			typeName= "Short";break;
-		case ImageType::USHORT:
-			typeName= "Unsigned Short";break;
-		case ImageType::INT:
-			typeName= "Integer";break;
-		case ImageType::UINT:
-			typeName= "Unsigned Integer";break;
-		case ImageType::FLOAT:
-			typeName= "Float";break;
-		case ImageType::DOUBLE:
-			typeName= "Double";break;
-		}
+	std::string typeName = "";
+	switch (img.type) {
+	case ImageType::BYTE:
+		typeName = "Byte";
+		break;
+	case ImageType::UBYTE:
+		typeName = "Unsigned Byte";
+		break;
+	case ImageType::SHORT:
+		typeName = "Short";
+		break;
+	case ImageType::USHORT:
+		typeName = "Unsigned Short";
+		break;
+	case ImageType::INT:
+		typeName = "Integer";
+		break;
+	case ImageType::UINT:
+		typeName = "Unsigned Integer";
+		break;
+	case ImageType::FLOAT:
+		typeName = "Float";
+		break;
+	case ImageType::DOUBLE:
+		typeName = "Double";
+		break;
+	}
 	//std::cout << vstr.str() << std::endl;
 	std::stringstream sstr;
 	sstr << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -521,7 +534,7 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 			<< "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"3\">\n";
 	sstr << "	<Dataset-attributes>\n";
 	sstr << "		<Image-offset>0</Image-offset>\n";
-	sstr << "		<Data-type>"<<typeName<<"</Data-type>\n";
+	sstr << "		<Data-type>" << typeName << "</Data-type>\n";
 	sstr << "		<Endianess>Little</Endianess>\n";
 	sstr << "		<Extents>" << img.width << "</Extents>\n";
 	sstr << "		<Extents>" << img.height << "</Extents>\n";
@@ -551,8 +564,10 @@ template<class T,int C,ImageType I> void WriteImageToRawFile(const std::string& 
 	std::stringstream xmlFile;
 	xmlFile << fileName << ".xml";
 	myfile.open(xmlFile.str().c_str(), std::ios_base::out);
-	if(!myfile.is_open()){
-		throw std::runtime_error(MakeString()<<"Could not open "<<xmlFile<<" for writing.");
+	if (!myfile.is_open()) {
+		throw std::runtime_error(
+				MakeString() << "Could not open " << xmlFile
+						<< " for writing.");
 	}
 	myfile << sstr.str();
 	myfile.close();

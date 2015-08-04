@@ -58,11 +58,11 @@ void Application::initInternal() {
 			[](GLFWwindow * window, int enter) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onCursorEnter(enter);} catch(...) {app->throwException(std::current_exception());}});
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
-		
 
-	imageShader = std::shared_ptr<ImageShader>(new ImageShader(context,ImageShader::Filter::NONE));
+	imageShader = std::shared_ptr<ImageShader>(
+			new ImageShader(context, ImageShader::Filter::NONE));
 	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(context));
-	uiFrameBuffer->initialize(context->screenSize.x,context->screenSize.y);
+	uiFrameBuffer->initialize(context->screenSize.x, context->screenSize.y);
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
 		const std::string& partialFile) {
@@ -102,7 +102,7 @@ void Application::draw() {
 	draw(e3d);
 	CHECK_GL_ERROR();
 	glDisable(GL_DEPTH_TEST);
-	glViewport(0,0,context->width(),context->height());
+	glViewport(0, 0, context->width(), context->height());
 	draw(e2d);
 	CHECK_GL_ERROR();
 	drawUI();
@@ -118,13 +118,16 @@ void Application::drawUI() {
 	if (context->dirtyUI) {
 		uiFrameBuffer->begin();
 
-		glViewport(0, context->screenSize.y- context->height(), context->width(), context->height());
+		glViewport(0, context->screenSize.y - context->height(),
+				context->width(), context->height());
 		NVGcontext* nvg = context->nvgContext;
 		nvgBeginFrame(nvg, context->width(), context->height(),
-			(float)context->pixelRatio);
-		nvgScissor(nvg, 0, 0, (float)context->width(), (float)context->height());
+				(float) context->pixelRatio);
+		nvgScissor(nvg, 0, 0, (float) context->width(),
+				(float) context->height());
 		rootRegion.draw(context.get());
-		nvgScissor(nvg, 0, 0, (float)context->width(), (float)context->height());
+		nvgScissor(nvg, 0, 0, (float) context->width(),
+				(float) context->height());
 
 		Region* onTop = context->getOnTopRegion();
 		if (onTop != nullptr) {
@@ -135,12 +138,13 @@ void Application::drawUI() {
 		uiFrameBuffer->end();
 		context->dirtyUI = false;
 	}
-	imageShader->draw(uiFrameBuffer->getTexture(),pixel2(0,0),pixel2(context->screenSize));
+	imageShader->draw(uiFrameBuffer->getTexture(), pixel2(0, 0),
+			pixel2(context->screenSize));
 }
 void Application::drawDebugUI() {
 	NVGcontext* nvg = context->nvgContext;
 	nvgBeginFrame(nvg, context->width(), context->height(),
-		(float)context->pixelRatio);
+			(float) context->pixelRatio);
 	nvgResetScissor(nvg);
 	rootRegion.drawDebug(context.get());
 	Region* onTop = context->getOnTopRegion();
@@ -321,23 +325,24 @@ void Application::fireEvent(const InputEvent& event) {
 			context->requestPack();
 		}
 		if (event.type == InputType::Cursor) {
-			if (context->mouseOverRegion!=nullptr&&context->mouseOverRegion->onMouseOver) {
+			if (context->mouseOverRegion != nullptr
+					&& context->mouseOverRegion->onMouseOver) {
 				consumed |= context->mouseOverRegion->onMouseOver(context.get(),
 						event);
 			}
 		}
 	}
 	if (!consumed) {
-		consumed=context->fireListeners(event);
+		consumed = context->fireListeners(event);
 	}
-	if (consumed)context->dirtyUI = true;
+	if (consumed)
+		context->dirtyUI = true;
 }
 
 void Application::onWindowSize(int width, int height) {
 	glViewport(0, 0, width, height);
-	if (context->width() != width
-			|| context->height() != height) {
-		context->viewSize= int2(width, height);
+	if (context->width() != width || context->height() != height) {
+		context->viewSize = int2(width, height);
 		context->requestPack();
 	}
 }

@@ -83,7 +83,7 @@ void* myrealloc(void* ptr, size_t mem_size) {
 			return ptr;
 		} else {
 			void* newPtr = malloc(mem_size);
-			memcpy(newPtr, ptr,min(oldSize, mem_size));
+			memcpy(newPtr, ptr, min(oldSize, mem_size));
 			free(ptr);
 			OBJECT_MEMORY.erase(iter);
 			OBJECT_MEMORY[newPtr] = mem_size;

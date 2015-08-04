@@ -22,7 +22,6 @@
 #ifndef ALLOY_H_
 #define ALLOY_H_
 
-
 #include "AlloyFileUtil.h"
 #include "AlloyImage.h"
 #include "AlloyMath.h"
