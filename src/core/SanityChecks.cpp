@@ -114,11 +114,11 @@ bool SANITY_CHECK_CEREAL() {
 		std::cout << i << ") " << data[i] << " " << deserial[i] << std::endl;
 	}
 
-	std::cout << im1.updateHashCode(HashMethod::SHA1) << std::endl;
-	std::cout << im1.updateHashCode(HashMethod::SHA224) << std::endl;
-	std::cout << im1.updateHashCode(HashMethod::SHA256) << std::endl;
-	std::cout << im1.updateHashCode(HashMethod::SHA384) << std::endl;
-	std::cout << im1.updateHashCode(HashMethod::SHA512) << std::endl;
+	std::cout << im1.updateHashCode(0,HashMethod::SHA1) << std::endl;
+	std::cout << im1.updateHashCode(0, HashMethod::SHA224) << std::endl;
+	std::cout << im1.updateHashCode(0, HashMethod::SHA256) << std::endl;
+	std::cout << im1.updateHashCode(0, HashMethod::SHA384) << std::endl;
+	std::cout << im1.updateHashCode(0, HashMethod::SHA512) << std::endl;
 
 	Integer value1(4);
 	Double value2(3.14159);
