@@ -92,9 +92,13 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	depthColorShader.draw(flatDepthFrameBuffer.getTexture(), dRange,
 			float2(960.0f, 0.0f), float2(480, 480));
 
+	/*
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
-
+			*/
+	matcapShader.draw(
+		smoothDepthFrameBuffer1.getTexture(),
+		camera, float2(1440.0f, 480.0f), float2(480, 480));
 	
 	colorBuffer1.begin();
 	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
@@ -148,6 +152,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 			float2(480, 480));
 	imageShader.draw(occlusionFrameBuffer.getTexture(), float2(1440.0f, 0.0f),
 			float2(480, 480));
+
 	
 	/*
 	static bool once = true;

@@ -35,8 +35,29 @@ private:
 public:
 	MatcapShader(const std::string& textureImage,
 			const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
-	void draw(const Mesh& mesh, VirtualCamera& camera);
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		VirtualCamera& camera,
+		const box2px& bounds) {
+		begin()
+			.set("matcapTexture", matcapTexture, 0)
+			.set("textureImage", imageTexture, 1)
+			.set("bounds", bounds)
+			.set("viewport", context->getViewport())
+			.draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		VirtualCamera& camera,
+		const float2& location,
+		const float2& dimensions) {
+		begin()
+			.set("matcapTexture", matcapTexture, 0)
+			.set("textureImage", imageTexture, 1)
+			.set("bounds", box2px(location,dimensions))
+			.set("viewport", context->getViewport()).draw(imageTexture).end();
+
+	}
 };
 class CompositeShader : public GLShader {
 public:
