@@ -96,8 +96,6 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
 			
-
-	
 	/*
 	colorBuffer1.begin();
 	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
@@ -116,13 +114,20 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		float2(960.0f, 480.0f), float2(480, 480), 0.5f, 1.0f);
 */
 	glEnable(GL_DEPTH_TEST);
+	
+
+	wireframeShader.draw(edgeFrameBuffer.getTexture(), smoothDepthFrameBuffer1.getTexture(),
+		float2(0.0f, camera.getScale()),
+		float2(960.0f, 480.0f), float2(480, 480),
+		getContext()->getViewport());
 	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
 		float2(960.0f, 480.0f), float2(480, 480), camera,
 		getContext()->getViewport());
+
 	matcapShader.draw(
 		smoothDepthFrameBuffer2.getTexture(),
-		camera, float2(960.0f, 480.0f), float2(480, 480));
-
+		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
+	
 	glDisable(GL_DEPTH_TEST);
 	static bool once = true;
 	
@@ -142,7 +147,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		outlineFrameBuffer.end();
 
 		wireframeFrameBuffer.begin();
-		wireframeShader.draw(edgeFrameBuffer.getTexture(),
+		wireframeShader.draw(edgeFrameBuffer.getTexture(),smoothDepthFrameBuffer1.getTexture(),
 				float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
 				float2(480, 480), wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();

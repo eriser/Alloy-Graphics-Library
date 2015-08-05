@@ -45,24 +45,26 @@ public:
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture,
 		VirtualCamera& camera,
-		const box2px& bounds) {
+		const box2px& bounds,
+		const box2px& viewport) {
 		begin()
 			.set("matcapTexture", matcapTexture, 0)
 			.set("textureImage", imageTexture, 1)
 			.set("bounds", bounds)
-			.set("viewport", context->getViewport())
+			.set("viewport", viewport)
 			.draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture,
 		VirtualCamera& camera,
 		const float2& location,
-		const float2& dimensions) {
+		const float2& dimensions,
+		const box2px& viewport) {
 		begin()
 			.set("matcapTexture", matcapTexture, 0)
 			.set("textureImage", imageTexture, 1)
 			.set("bounds", box2px(location,dimensions))
-			.set("viewport", context->getViewport()).draw(imageTexture).end();
+			.set("viewport", viewport).draw(imageTexture).end();
 
 	}
 };
@@ -331,18 +333,18 @@ public:
 	WireframeShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, float2 zRange,
+		const GLTexture<T, C, I>& edgeTexture, const GLTexture<T, C, I>& depthTexture, float2 zRange,
 		const box2px& bounds, const box2px& viewport) {
-		begin().set("textureImage", imageTexture, 0).set("LINE_WIDTH", lineWidth).set(
+		begin().set("textureImage",edgeTexture, 0).set("depthImage", depthTexture, 1).set("LINE_WIDTH", lineWidth).set(
 			"edgeColor", edgeColor).set("faceColor", faceColor).set("scaleInvariant",(scaleInvariant)?1:0).set("zMin",
 				zRange.x), set("zMax", zRange.y).set("bounds", bounds).set(
-					"viewport", viewport).draw(imageTexture).end();
+					"viewport", viewport).draw(edgeTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, float2 zRange,
+		const GLTexture<T, C, I>& edgeTexture, const GLTexture<T, C, I>& depthTexture, float2 zRange,
 		const float2& location, const float2& dimensions,
 		const box2px& viewport) {
-		draw(imageTexture, zRange, box2px(location, dimensions), viewport);
+		draw(edgeTexture,depthTexture, zRange, box2px(location, dimensions), viewport);
 	}
 };
 class AmbientOcclusionShader: public GLShader {

@@ -94,11 +94,12 @@ uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-gl_FragDepth=rgba.w;
 if(rgba.w>0){
-float lum=clamp(abs(rgba.w),0.0f,1.0f);
-rgba=texture(matcapTexture,0.5f*rgba.xy+0.5f);
+gl_FragDepth=rgba.w;
+float lum=clamp(abs(rgba.w),0.0,1.0);
+rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
 } else {
+gl_FragDepth=1.0;
 rgba=vec4(0.0,0.0,0.0,0.0);
 }
 gl_FragColor=rgba;
@@ -747,9 +748,10 @@ uniform sampler2D textureImage;
 const int SCALE=2;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-gl_FragDepth=rgba.w;
+
 vec4 nrgba;
 if(rgba.w>0){
+gl_FragDepth=rgba.w;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
@@ -762,6 +764,7 @@ for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 }
 rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
 } else {
+gl_FragDepth=1.0;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
@@ -772,7 +775,8 @@ for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
    }
 }
 rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
-}
+} 
+	
 gl_FragColor=rgba;
 })");
 }
@@ -805,10 +809,10 @@ uniform vec4 innerColor,outerColor,edgeColor;
 float w=0;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-gl_FragDepth=rgba.w;
 vec4 nrgba;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 if(rgba.w>0){
+gl_FragDepth=rgba.w;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
@@ -820,6 +824,7 @@ if(nrgba.w<=0.0){
 w=sqrt(minDistance)/KERNEL_SIZE;
 rgba=mix(edgeColor,innerColor,w);
 } else {
+gl_FragDepth=1.0;
 minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
@@ -859,13 +864,14 @@ const float PI=3.1415926535;
 uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-gl_FragDepth=rgba.w;
 if(rgba.w>0){
-float lum=clamp(abs(rgba.w),0.0f,1.0f);
+gl_FragDepth=rgba.w;
+float lum=clamp(abs(rgba.w),0.0,1.0);
 rgba=vec4(-rgba.x*0.5+0.5,-rgba.y*0.5+0.5,-rgba.z,1.0);
 
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
+gl_FragDepth=1.0;
 }
 gl_FragColor=rgba;
 })");
@@ -875,7 +881,7 @@ gl_FragColor=rgba;
 DepthColorShader::DepthColorShader(const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
-			R"(
+		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -887,7 +893,7 @@ uv=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-			R"(
+R"(
 #version 330
 in vec2 uv;
 const float PI=3.1415926535;
@@ -896,14 +902,16 @@ uniform float zMin;
 uniform float zMax;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-gl_FragDepth=rgba.w;
+
 if(rgba.w>0){
-	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
-	float r=max(0.0,1.0f-lum*2.0);
+gl_FragDepth=rgba.w;
+	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
+	float r=max(0.0,1.0-lum*2.0);
 	float b=min(2*lum-1.0,1.0);
 	float g=max(0.0,1-2.0*abs(2.0*lum-1.0));
 	rgba=vec4(r,g,b,1.0);
 } else {
+gl_FragDepth=1.0;
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
 gl_FragColor=rgba;
@@ -981,8 +989,8 @@ void main(void)
 	float x = v_texCoord.x;
 	float y = v_texCoord.y;
 	vec4 rgba=texture(textureImage, v_texCoord);
-	gl_FragDepth=rgba.w;
-    if(length(rgba.xyz)==0.0f){
+	gl_FragDepth=(rgba.w>0.0)?rgba.w:1.0;
+    if(length(rgba.xyz)==0.0){
 		gl_FragColor = vec4( 0,0,0,0);
         return; 
     }
@@ -1075,7 +1083,7 @@ void main() {
 	  vec4 specularColor=specularColors[i];
 	  float wsum=ambientColor.w+diffuseColor.w+specularColor.w+lambertianColor.w;
       lsum+=wsum;
-	  if(wsum<=0.0f)continue;
+	  if(wsum<=0.0)continue;
       vec3 specularDir = normalize(lightPositions[i] - pt.xyz);
 	  vec3 viewDir = -normalize(pt.xyz);
 	  vec3 reflectDir = reflect(-specularDir, norm);
@@ -1093,7 +1101,8 @@ void main() {
     outColor=outColor/lsum;
     outColor.w=1.0;
 	gl_FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
-	gl_FragDepth=rgba.w;
+	
+	gl_FragDepth=(rgba.w>0)?rgba.w:1.0;
 })");
 
 }
@@ -1120,6 +1129,7 @@ R"(
 in vec2 uv;
 const float PI=3.1415926535;
 uniform sampler2D textureImage;
+uniform sampler2D depthImage;
 uniform float zMin;
 uniform float zMax;
 uniform vec4 edgeColor;
@@ -1128,17 +1138,23 @@ uniform float LINE_WIDTH;
 uniform int scaleInvariant;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-gl_FragDepth=rgba.w;
+vec4 nd=texture(depthImage,uv);
+gl_FragDepth=nd.w;
 if(rgba.w>0){
 	float lum;
 	if(scaleInvariant==0){
-	  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
+	  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
     }else {
-	  lum=rgba.w*10.0f;
+	  lum=rgba.w*10.0;
     }
-	rgba=mix(edgeColor,faceColor,(lum>LINE_WIDTH?1.0:0.0));
+	int inside=(lum>LINE_WIDTH?1:0);
+	rgba=mix(edgeColor,faceColor,float(inside));
+	if(inside!=0){
+		gl_FragDepth=1.0;
+	}
 } else {
-rgba=vec4(0.0,0.0,0.0,1.0);
+	rgba=vec4(0,0,0,0);
+	gl_FragDepth=1.0;
 }
 gl_FragColor=rgba;
 })");
