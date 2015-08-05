@@ -776,7 +776,7 @@ void Mesh::transform(const float4x4& M) {
 		float3x3 NM = transpose(inverse(SubMatrix(M)));
 #pragma omp for
 		for (size_t i = 0; i < vertexLocations.size(); i++) {
-			vertexNormals[i] = NM * vertexNormals[i];
+			vertexNormals[i] = normalize(NM * vertexNormals[i]);
 		}
 	}
 	updateBoundingBox();

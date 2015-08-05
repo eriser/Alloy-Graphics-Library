@@ -23,8 +23,53 @@
 #include "AlloyMesh.h"
 #include "AlloyVirtualCamera.h"
 namespace aly {
+CompositeShader::CompositeShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
+	initialize(std::vector<std::string> { "vp", "vt" },
+		R"(
+		 #version 330
+		 layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
+		 uniform vec4 bounds;
+		 uniform vec4 viewport;
+		out vec2 uv;
+				 void main() {
+		uv=vt;
+		vec2 pos=vp.xy*bounds.zw+bounds.xy;
+	    gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+			})",
+		R"(
+		 #version 330
+		 uniform sampler2D sourceImage;
+		 uniform sampler2D sourceDepth;
+		 uniform sampler2D targetImage;
+		 uniform sampler2D targetDepth;
+		 in vec2 uv;
+		 uniform float sourceAlpha;
+		 uniform float targetAlpha;
+		 void main() {
+		 vec4 srcColor=texture(sourceImage,uv);
+         vec4 srcDepth=texture(sourceDepth,uv);
+		 vec4 tarColor=texture(targetImage,uv);
+         vec4 tarDepth=texture(targetDepth,uv);
+         srcColor.w=srcColor.w*sourceAlpha;
+         tarColor.w=tarColor.w*targetAlpha;
+			if(tarDepth.w<=0&&srcDepth.w<=0){
+				gl_FragColor=vec4(0,0,0,0);
+			} else if(tarDepth.w>0&&srcDepth.w<=0){
+			   gl_FragColor=tarColor;
+			} else if(tarDepth.w<=0&&srcDepth.w>0){
+			   gl_FragColor=srcColor;
+			} else if(srcDepth.w==tarDepth.w){
+				gl_FragColor=mix(srcColor,tarColor,srcColor.w/(srcColor.w+tarColor.w));
+			} else if(srcDepth.w<tarDepth.w){
+			   gl_FragColor=mix(tarColor,srcColor,srcColor.w);
+			}  else {
+				gl_FragColor=mix(srcColor,tarColor,tarColor.w);
+			}
+		 })");
+}
 MatcapShader::MatcapShader(const std::string& textureImage,
-		std::shared_ptr<AlloyContext> context) :
+		const  std::shared_ptr<AlloyContext>& context) :
 		GLShader(context), matcapTexture(context) {
 	matcapTexture.load(textureImage);
 	initialize(std::vector<std::string> { "vp", "vn" },
@@ -57,7 +102,7 @@ void MatcapShader::draw(const Mesh& mesh, VirtualCamera& camera) {
 	draw(mesh, camera, getContext()->getViewport());
 }
 
-ImageShader::ImageShader(std::shared_ptr<AlloyContext> context,
+ImageShader::ImageShader(const std::shared_ptr<AlloyContext>& context,
 		const Filter& filter) :
 		GLShader(context) {
 	if (filter == Filter::NONE) {
@@ -343,7 +388,7 @@ void main()
 	}
 }
 DepthAndNormalShader::DepthAndNormalShader(
-		std::shared_ptr<AlloyContext> context) :
+		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { },
 			R"(	#version 330
@@ -498,7 +543,7 @@ void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 	frameBuffer.end();
 }
 EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
-		std::shared_ptr<AlloyContext> context) :
+	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { },
 			R"(	#version 330
@@ -733,8 +778,9 @@ void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture,
 	draw(imageTexture, box2px(location, dimensions));
 }
 
-OutlineShader::OutlineShader(std::shared_ptr<AlloyContext> context) :
-		GLShader(context) {
+OutlineShader::OutlineShader(
+	const std::shared_ptr<AlloyContext>& context) :
+		GLShader(context),kernelSize(8),innerGlowColor(1.0f, 0.3f, 0.1f, 1.0f),outerGlowColor(0.3f, 1.0f, 0.1f, 1.0f),edgeColor(1.0f, 1.0f, 1.0f, 1.0f) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330
@@ -892,8 +938,8 @@ void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 }
 
 AmbientOcclusionShader::AmbientOcclusionShader(
-		std::shared_ptr<AlloyContext> context) :
-		GLShader(context) {
+	const std::shared_ptr<AlloyContext>& context) :
+	GLShader(context),sampleRadius(0.005f){
 	int thetaInc = 32;
 	int phiInc = 8;
 	int index = 0;
@@ -1004,7 +1050,8 @@ void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
 		VirtualCamera& camera) {
 	draw(imageTexture, box2px(location, dimensions), viewport, camera);
 }
-PhongShader::PhongShader(int N, std::shared_ptr<AlloyContext> context) :
+PhongShader::PhongShader(int N,
+	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	lights.resize(N);
 	initialize(std::vector<std::string> { "vp", "vt" },
@@ -1134,8 +1181,9 @@ void PhongShader::draw(const GLTextureRGBAf& imageTexture,
 	draw(imageTexture, box2px(location, dimensions), camera, viewport);
 
 }
-WireframeShader::WireframeShader(std::shared_ptr<AlloyContext> context) :
-		GLShader(context) {
+WireframeShader::WireframeShader(
+	const std::shared_ptr<AlloyContext>& context) :
+		GLShader(context),lineWidth(0.25),edgeColor(1.0f, 1.0f, 1.0f, 1.0f),faceColor(1.0f, 0.3f, 0.1f, 1.0f){
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
 #version 330

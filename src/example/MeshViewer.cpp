@@ -26,11 +26,16 @@ MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
 				getFullPath("images/JG_Gold.png")), imageShader(getContext(),
 				ImageShader::Filter::MEDIUM_BLUR), voxelSize(0.0f), phongShader(
-				1) {
+				1), phongShader2(1) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(10.0f);
+	mesh2.load(getFullPath("models/armadillo.ply"));
+	mesh2.updateVertexNormals();
+	float4x4 M=MakeTransform(mesh2.getBoundingBox(), mesh.getBoundingBox());
+	mesh2.transform(M);
+	//
 	//mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
@@ -41,17 +46,27 @@ bool MeshViewer::init(Composite& rootNode) {
 
 	voxelSize = mesh.estimateVoxelSize(2);
 	phongShader[0] = SimpleLight(Color(0.5f, 0.5f, 0.5f, 0.25f),
-			Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.8f, 0.0f, 0.0f, 1.0f),
-			Color(0.8f, 0.0f, 0.0f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
+			Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.8f, 0.0f, 0.0f, 0.5f),
+			Color(0.8f, 0.0f, 0.0f, 0.5f), 16.0f, float3(0, 0.0, 2.0),
 			float3(0, 1, 0));
 	phongShader[0].moveWithCamera = false;
+
+	phongShader2[0] = SimpleLight(Color(0.5f, 0.5f, 0.5f, 0.25f),
+		Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.0f, 0.0f, 0.8f, 1.0f),
+		Color(0.0f, 0.0f, 0.8f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
+		float3(0, 1, 0));
+	phongShader2[0].moveWithCamera = false;
+
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	edgeFrameBuffer.initialize(480, 480);
-	smoothDepthFrameBuffer.initialize(480, 480);
+	smoothDepthFrameBuffer1.initialize(480, 480);
+	smoothDepthFrameBuffer2.initialize(480, 480);
 	flatDepthFrameBuffer.initialize(480, 480);
 	outlineFrameBuffer.initialize(480, 480);
 	wireframeFrameBuffer.initialize(480, 480);
 	occlusionFrameBuffer.initialize(480, 480);
+	colorBuffer1.initialize(480, 480);
+	colorBuffer2.initialize(480, 480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 
@@ -62,7 +77,8 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 	if (camera.isDirty()) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
-		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer, false);
+		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
+		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);
 	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
@@ -76,13 +92,38 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	depthColorShader.draw(flatDepthFrameBuffer.getTexture(), dRange,
 			float2(960.0f, 0.0f), float2(480, 480));
 
-	//normalColorShader.draw(flatDepthFrameBuffer.getTexture(), float2(960.0f, 480.0f),float2(480,480));
-	normalColorShader.draw(smoothDepthFrameBuffer.getTexture(),
+	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
 
-	phongShader.draw(smoothDepthFrameBuffer.getTexture(),
-			float2(960.0f, 480.0f), float2(480, 480), camera,
-			getContext()->getViewport());
+	
+	colorBuffer1.begin();
+	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
+		getContext()->getViewport(), camera,
+		colorBuffer1.getViewport());
+	colorBuffer1.end();
+
+	colorBuffer2.begin();
+	phongShader2.draw(smoothDepthFrameBuffer2.getTexture(),
+		getContext()->getViewport(), camera,
+		colorBuffer2.getViewport());
+	colorBuffer2.end();
+
+	
+	static bool once = true;
+	
+	if(once){
+	colorBuffer1.getTexture().read().writeToXML("color1.xml");
+	colorBuffer2.getTexture().read().writeToXML("color2.xml");
+	smoothDepthFrameBuffer1.getTexture().read().writeToXML("depth1.xml");
+	smoothDepthFrameBuffer2.getTexture().read().writeToXML("depth2.xml");
+	once=false;
+	}
+	
+	compositeShader.draw(
+		colorBuffer1.getTexture(), smoothDepthFrameBuffer1.getTexture(),
+		colorBuffer2.getTexture(), smoothDepthFrameBuffer2.getTexture(), 
+		float2(960.0f, 480.0f), float2(480, 480),0.5f,1.0f);
+
 	if (camera.isDirty()) {
 		outlineFrameBuffer.begin();
 		outlineShader.draw(flatDepthFrameBuffer.getTexture(), float2(0.0f, 0.0f),
@@ -107,8 +148,9 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 			float2(480, 480));
 	imageShader.draw(occlusionFrameBuffer.getTexture(), float2(1440.0f, 0.0f),
 			float2(480, 480));
-	static bool once = true;
+	
 	/*
+	static bool once = true;
 	 if(once){
 	 wireframeFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/wire.xml");
 	 outlineFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/outline.xml");

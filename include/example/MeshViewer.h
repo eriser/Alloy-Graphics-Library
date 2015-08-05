@@ -26,6 +26,8 @@
 class MeshViewer: public aly::Application {
 private:
 	aly::Mesh mesh;
+
+	aly::Mesh mesh2;
 	aly::VirtualCamera camera;
 
 	aly::MatcapShader matcapShader;
@@ -40,11 +42,16 @@ private:
 	aly::OutlineShader outlineShader;
 	aly::WireframeShader wireframeShader;
 	aly::PhongShader phongShader;
+	aly::PhongShader phongShader2;
+	aly::CompositeShader compositeShader;
 	aly::GLFrameBuffer edgeFrameBuffer;
 
 	aly::GLFrameBuffer occlusionFrameBuffer;
 	aly::GLFrameBuffer flatDepthFrameBuffer;
-	aly::GLFrameBuffer smoothDepthFrameBuffer;
+	aly::GLFrameBuffer smoothDepthFrameBuffer2;
+	aly::GLFrameBuffer smoothDepthFrameBuffer1;
+	aly::GLFrameBuffer colorBuffer2;
+	aly::GLFrameBuffer colorBuffer1;
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;
 	aly::GLTextureRGBA exampleImage;

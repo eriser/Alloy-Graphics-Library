@@ -147,8 +147,7 @@ public:
 	Number(const Number & r) :
 			impl(r.impl) {
 	}
-	virtual inline ~Number() {
-	}
+
 	template<class T> Number(const T & value) :
 			impl(new Impl<T> { value }) {
 	}
@@ -197,7 +196,9 @@ public:
 			throw std::runtime_error("Number value has not been defined.");
 		impl->setValue(val);
 	}
+	virtual inline ~Number() {
 
+	}
 };
 struct Integer {
 private:

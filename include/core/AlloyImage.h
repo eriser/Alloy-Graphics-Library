@@ -580,7 +580,7 @@ template<class T, int C, ImageType I> void WriteImageToRawFile(
 	myfile.open(xmlFile.str().c_str(), std::ios_base::out);
 	if (!myfile.is_open()) {
 		throw std::runtime_error(
-				MakeString() << "Could not open " << xmlFile
+				MakeString() << "Could not open " << xmlFile.str()
 						<< " for writing.");
 	}
 	myfile << sstr.str();

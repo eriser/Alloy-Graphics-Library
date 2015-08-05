@@ -108,7 +108,7 @@ public:
 	void mapIntoBoundingBox(float voxelSize);
 	void mapOutOfBoundingBox(float voxelSize);
 	bool save(const std::string& file);
-	~Mesh();
+	virtual ~Mesh();
 };
 void ReadMeshFromFile(const std::string& file, Mesh& mesh);
 void WriteMeshToFile(const std::string& file, const Mesh& mesh);

@@ -25,7 +25,7 @@
 
 namespace aly {
 
-GLShader::GLShader(std::shared_ptr<AlloyContext>& context) :
+GLShader::GLShader(const std::shared_ptr<AlloyContext>& context) :
 		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(
 				0), mProgramHandle(0), context(context) {
 

@@ -43,7 +43,7 @@ public:
 	virtual inline ~GLComponent() {
 	}
 
-	GLComponent(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
+	GLComponent(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
 			context(context) {
 	}
 	GLComponent(const box2i& b, std::shared_ptr<AlloyContext>& context =
@@ -73,7 +73,7 @@ protected:
 		}
 	}
 public:
-	GLComponentGroup(std::shared_ptr<AlloyContext>& context =
+	GLComponentGroup(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
 			GLComponent(context) {
 

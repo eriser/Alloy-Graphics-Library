@@ -26,6 +26,7 @@
 #include "GLShader.h"
 #include "GLFrameBuffer.h"
 #include "AlloyImage.h"
+#include "AlloyUnits.h"
 namespace aly {
 class VirtualCamera;
 class MatcapShader: public GLShader {
@@ -33,17 +34,60 @@ private:
 	GLTextureRGBA matcapTexture;
 public:
 	MatcapShader(const std::string& textureImage,
-			std::shared_ptr<AlloyContext> context = AlloyDefaultContext());
+			const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds);
 	void draw(const Mesh& mesh, VirtualCamera& camera);
 };
+class CompositeShader : public GLShader {
+public:
+	CompositeShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& sourceImageTexture,
+		const GLTexture<T, C, I>& sourceDepthTexture, 
+		const GLTexture<T, C, I>& targetImageTexture,
+		const GLTexture<T, C, I>& targetDepthTexture,
+		const box2px& bounds,
+		float sourceAlpha=1.0f,
+		float targetAlpha = 1.0f) {
+		begin()
+		.set("sourceImage", sourceImageTexture, 0)
+		.set("sourceDepth", sourceDepthTexture, 1)
+		.set("targetImage", targetImageTexture, 2)
+		.set("targetDepth", targetDepthTexture, 3)
+		.set("bounds", bounds)
+		.set("sourceAlpha", sourceAlpha)
+		.set("targetAlpha", targetAlpha)
+		.set("viewport", context->getViewport())
 
+		.draw(targetImageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& sourceImageTexture,
+		const GLTexture<T, C, I>& sourceDepthTexture,
+		const GLTexture<T, C, I>& targetImageTexture,
+		const GLTexture<T, C, I>& targetDepthTexture,
+		const float2& location,
+		const float2& dimensions,
+		float sourceAlpha = 1.0f,
+		float targetAlpha = 1.0f) {
+		begin()
+			.set("sourceImage", sourceImageTexture, 0)
+			.set("sourceDepth", sourceDepthTexture, 1)
+			.set("targetImage", targetImageTexture, 2)
+			.set("targetDepth", targetDepthTexture, 3)
+			.set("bounds", box2px(location, dimensions))
+			.set("sourceAlpha", sourceAlpha)
+			.set("targetAlpha", targetAlpha)
+			.set("viewport", context->getViewport())
+			.draw(targetImageTexture).end();
+	}
+};
 class ImageShader: public GLShader {
 public:
 	enum class Filter {
 		NONE, FXAA, SMALL_BLUR, MEDIUM_BLUR, LARGE_BLUR
 	};
-	ImageShader(std::shared_ptr<AlloyContext> context = AlloyDefaultContext(),
+	ImageShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext(),
 			const Filter& filter = Filter::NONE);
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
@@ -91,7 +135,7 @@ public:
 
 class DepthAndNormalShader: public GLShader {
 public:
-	DepthAndNormalShader(std::shared_ptr<AlloyContext> contex =
+	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera,
 			GLFrameBuffer& framebuffer, bool flatShading = false);
@@ -99,7 +143,8 @@ public:
 
 class EdgeDepthAndNormalShader: public GLShader {
 public:
-	EdgeDepthAndNormalShader(std::shared_ptr<AlloyContext> contex =
+	EdgeDepthAndNormalShader(
+		const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera,
 			GLFrameBuffer& framebuffer);
@@ -110,13 +155,13 @@ struct SimpleLight {
 	Color lambertianColor;
 	Color specularColor;
 	float specularPower;
-	bool castShadow;
-	bool attenuate;
-	bool orthographic;
-	bool moveWithCamera;
-	float2 focalLength;
 	float3 position;
 	float3 direction;
+	float2 focalLength;
+	bool moveWithCamera;
+	bool castShadow;
+	bool orthographic;
+	bool attenuate;
 	SimpleLight(const Color& ambientColor, const Color& diffuseColor,
 			const Color& lambertianColor, const Color& specularColor,
 			const float& specularPower, const float3& position,
@@ -159,10 +204,11 @@ public:
 	inline int size() const {
 		return (int) lights.size();
 	}
-	PhongShader(int numLights, std::shared_ptr<AlloyContext> contex =
+	PhongShader(int numLights,
+		const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	PhongShader(const SimpleLight& light,
-			std::shared_ptr<AlloyContext> context = AlloyDefaultContext()) :
+			const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
 			PhongShader(1, context) {
 		lights[0] = light;
 	}
@@ -174,9 +220,9 @@ public:
 };
 class WireframeShader: public GLShader {
 private:
-	float lineWidth = 0.25f;
-	aly::Color edgeColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
-	aly::Color faceColor = Color(1.0f, 0.3f, 0.1f, 1.0f);
+	float lineWidth;
+	Color edgeColor;
+	Color faceColor;
 public:
 	inline void setEdgeColor(const Color& c) {
 		edgeColor = c;
@@ -184,7 +230,7 @@ public:
 	inline void setFaceColor(const Color& c) {
 		faceColor = c;
 	}
-	WireframeShader(std::shared_ptr<AlloyContext> contex =
+	WireframeShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,
 			const box2px& bounds, const box2px& viewport);
@@ -194,10 +240,11 @@ public:
 };
 class AmbientOcclusionShader: public GLShader {
 private:
-	float sampleRadius = 0.005f;
+	float sampleRadius;
 	std::vector<float3> sampleNormals;
 public:
-	AmbientOcclusionShader(std::shared_ptr<AlloyContext> contex =
+	AmbientOcclusionShader(
+		const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
 			const box2px viewport, VirtualCamera& camera);
@@ -207,10 +254,10 @@ public:
 };
 class OutlineShader: public GLShader {
 private:
-	int kernelSize = 8;
-	aly::Color innerGlowColor = Color(1.0f, 0.3f, 0.1f, 1.0f);
-	aly::Color outerGlowColor = Color(0.3f, 1.0f, 0.1f, 1.0f);
-	aly::Color edgeColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
+	int kernelSize ;
+	aly::Color innerGlowColor;
+	aly::Color outerGlowColor;
+	aly::Color edgeColor;
 public:
 	inline void setInnerGlowColor(const Color& c) {
 		innerGlowColor = c;
@@ -224,7 +271,8 @@ public:
 	inline void setExtent(int distance) {
 		kernelSize = distance;
 	}
-	OutlineShader(std::shared_ptr<AlloyContext> contex = AlloyDefaultContext());
+	OutlineShader(
+		const std::shared_ptr<AlloyContext>& contex = AlloyDefaultContext());
 	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
 			const box2px& viewport);
 	void draw(const GLTextureRGBAf& imageTexture, const float2& location,
