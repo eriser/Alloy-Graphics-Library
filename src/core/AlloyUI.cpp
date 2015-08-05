@@ -457,20 +457,13 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				region->getBoundsDimensions() + region->getBoundsPosition()
 						- bounds.position - region->drawOffset(), scrollExtent);
 	}
-	if (orientation == Orientation::Horizontal) {
-                scrollExtent.x += CELL_SPACING.x;
-        }
-        if (orientation == Orientation::Vertical) {
-                scrollExtent.y += CELL_SPACING.y;
-        }
-
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
 			this->bounds.dimensions.x = bounds.dimensions.x = std::max(
-					bounds.dimensions.x, offset.x - CELL_SPACING.x);
+					bounds.dimensions.x, offset.x);
 		if (orientation == Orientation::Vertical)
 			this->bounds.dimensions.y = bounds.dimensions.y = std::max(
-					bounds.dimensions.y, offset.y - CELL_SPACING.y);
+					bounds.dimensions.y, offset.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
 		float nudge =
