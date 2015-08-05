@@ -39,7 +39,7 @@ private:
 	aly::DepthColorShader depthColorShader;
 
 	aly::NormalColorShader normalColorShader;
-	aly::OutlineShader outlineShader;
+	aly::DistanceFieldShader DistanceFieldShader;
 	aly::WireframeShader wireframeShader;
 	aly::PhongShader phongShader;
 	aly::PhongShader phongShader2;

@@ -56,7 +56,7 @@ bool MeshViewer::init(Composite& rootNode) {
 		Color(0.0f, 0.0f, 0.8f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
 		float3(0, 1, 0));
 	phongShader2[0].moveWithCamera = false;
-
+	
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	edgeFrameBuffer.initialize(480, 480);
 	smoothDepthFrameBuffer1.initialize(480, 480);
@@ -92,14 +92,13 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	depthColorShader.draw(flatDepthFrameBuffer.getTexture(), dRange,
 			float2(960.0f, 0.0f), float2(480, 480));
 
-	/*
+	
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
-			*/
-	matcapShader.draw(
-		smoothDepthFrameBuffer1.getTexture(),
-		camera, float2(1440.0f, 480.0f), float2(480, 480));
+			
+
 	
+	/*
 	colorBuffer1.begin();
 	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
 		getContext()->getViewport(), camera,
@@ -111,8 +110,20 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		getContext()->getViewport(), camera,
 		colorBuffer2.getViewport());
 	colorBuffer2.end();
+	compositeShader.draw(
+		colorBuffer1.getTexture(), smoothDepthFrameBuffer1.getTexture(),
+		colorBuffer2.getTexture(), smoothDepthFrameBuffer2.getTexture(),
+		float2(960.0f, 480.0f), float2(480, 480), 0.5f, 1.0f);
+*/
+	glEnable(GL_DEPTH_TEST);
+	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
+		float2(960.0f, 480.0f), float2(480, 480), camera,
+		getContext()->getViewport());
+	matcapShader.draw(
+		smoothDepthFrameBuffer2.getTexture(),
+		camera, float2(960.0f, 480.0f), float2(480, 480));
 
-	
+	glDisable(GL_DEPTH_TEST);
 	static bool once = true;
 	
 	if(once){
@@ -123,20 +134,16 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	once=false;
 	}
 	
-	compositeShader.draw(
-		colorBuffer1.getTexture(), smoothDepthFrameBuffer1.getTexture(),
-		colorBuffer2.getTexture(), smoothDepthFrameBuffer2.getTexture(), 
-		float2(960.0f, 480.0f), float2(480, 480),0.5f,1.0f);
 
 	if (camera.isDirty()) {
 		outlineFrameBuffer.begin();
-		outlineShader.draw(flatDepthFrameBuffer.getTexture(), float2(0.0f, 0.0f),
+		DistanceFieldShader.draw(flatDepthFrameBuffer.getTexture(), float2(0.0f, 0.0f),
 				float2(480, 480), outlineFrameBuffer.getViewport());
 		outlineFrameBuffer.end();
 
 		wireframeFrameBuffer.begin();
 		wireframeShader.draw(edgeFrameBuffer.getTexture(),
-				float2(0.0f, 0.25f * camera.getScale()), float2(0.0f, 0.0f),
+				float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
 				float2(480, 480), wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
 

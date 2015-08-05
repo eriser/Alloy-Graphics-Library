@@ -53,6 +53,7 @@ layout(location = 1) in vec2 vt;
          vec4 tarDepth=texture(targetDepth,uv);
          srcColor.w=srcColor.w*sourceAlpha;
          tarColor.w=tarColor.w*targetAlpha;
+		 gl_FragDepth=min(srcDepth.w,tarDepth.w);
 			if(tarDepth.w<=0&&srcDepth.w<=0){
 				gl_FragColor=vec4(0,0,0,0);
 			} else if(tarDepth.w>0&&srcDepth.w<=0){
@@ -93,6 +94,7 @@ uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture(textureImage,uv);
+gl_FragDepth=rgba.w;
 if(rgba.w>0){
 float lum=clamp(abs(rgba.w),0.0f,1.0f);
 rgba=texture(matcapTexture,0.5f*rgba.xy+0.5f);
@@ -539,10 +541,12 @@ void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
 				mesh, GLMesh::PrimitiveType::QUADS).end();
 	}
-	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+	if (mesh.triIndexes.size() > 0) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
 			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
-			camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
-			mesh, GLMesh::PrimitiveType::TRIANGLES).end();
+				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
+					mesh, GLMesh::PrimitiveType::TRIANGLES).end();
+	}
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
@@ -719,10 +723,10 @@ void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
-EdgeEffectsShader::EdgeEffectsShader(std::shared_ptr<AlloyContext> context) :
+EdgeEffectsShader::EdgeEffectsShader(const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
-			R"(
+		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -734,7 +738,7 @@ uv=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-			R"(
+R"(
 #version 330
 in vec2 uv;
 uniform ivec2 imageSize;
@@ -743,6 +747,7 @@ uniform sampler2D textureImage;
 const int SCALE=2;
 void main() {
 vec4 rgba=texture(textureImage,uv);
+gl_FragDepth=rgba.w;
 vec4 nrgba;
 if(rgba.w>0){
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
@@ -771,18 +776,9 @@ rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture,
-		const box2px& bounds) {
-	begin().set("KERNEL_SIZE", 4).set("textureImage", imageTexture, 0).set(
-			"bounds", bounds).set("imageSize", imageTexture.bounds.dimensions).set(
-			"viewport", context->getViewport()).draw(imageTexture).end();
-}
-void EdgeEffectsShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions) {
-	draw(imageTexture, box2px(location, dimensions));
-}
 
-OutlineShader::OutlineShader(
+
+DistanceFieldShader::DistanceFieldShader(
 	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context),kernelSize(8),innerGlowColor(1.0f, 0.3f, 0.1f, 1.0f),outerGlowColor(0.3f, 1.0f, 0.1f, 1.0f),edgeColor(1.0f, 1.0f, 1.0f, 1.0f) {
 	initialize(std::vector<std::string> { "vp", "vt" },
@@ -809,6 +805,7 @@ uniform vec4 innerColor,outerColor,edgeColor;
 float w=0;
 void main() {
 vec4 rgba=texture(textureImage,uv);
+gl_FragDepth=rgba.w;
 vec4 nrgba;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 if(rgba.w>0){
@@ -839,23 +836,11 @@ rgba=mix(edgeColor,outerColor,w);
 gl_FragColor=rgba;
 })");
 }
-void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
-		const box2px& bounds, const box2px& viewport) {
-	begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
-			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
-			"textureImage", imageTexture, 0).set("bounds", bounds).set(
-			"imageSize", imageTexture.bounds.dimensions).set("viewport",
-			viewport).draw(imageTexture).end();
-}
-void OutlineShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions,
-		const box2px& viewport) {
-	draw(imageTexture, box2px(location, dimensions), viewport);
-}
-NormalColorShader::NormalColorShader(std::shared_ptr<AlloyContext> context) :
+
+NormalColorShader::NormalColorShader(const std::shared_ptr<AlloyContext>&  context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
-			R"(
+		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -867,13 +852,14 @@ uv=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-			R"(
+R"(
 #version 330
 in vec2 uv;
 const float PI=3.1415926535;
 uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture(textureImage,uv);
+gl_FragDepth=rgba.w;
 if(rgba.w>0){
 float lum=clamp(abs(rgba.w),0.0f,1.0f);
 rgba=vec4(-rgba.x*0.5+0.5,-rgba.y*0.5+0.5,-rgba.z,1.0);
@@ -884,17 +870,9 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void NormalColorShader::draw(const GLTextureRGBAf& imageTexture,
-		const box2px& bounds) {
-	begin().set("textureImage", imageTexture, 0).set("bounds", bounds).set(
-			"viewport", context->getViewport()).draw(imageTexture).end();
-}
-void NormalColorShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions) {
-	draw(imageTexture, box2px(location, dimensions));
-}
 
-DepthColorShader::DepthColorShader(std::shared_ptr<AlloyContext> context) :
+
+DepthColorShader::DepthColorShader(const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { "vp", "vt" },
 			R"(
@@ -918,6 +896,7 @@ uniform float zMin;
 uniform float zMax;
 void main() {
 vec4 rgba=texture(textureImage,uv);
+gl_FragDepth=rgba.w;
 if(rgba.w>0){
 	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
 	float r=max(0.0,1.0f-lum*2.0);
@@ -930,16 +909,7 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-		const box2px& bounds) {
-	begin().set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
-			"zMax", zRange.y).set("bounds", bounds).set("viewport",
-			context->getViewport()).draw(imageTexture).end();
-}
-void DepthColorShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-		const float2& location, const float2& dimensions) {
-	draw(imageTexture, zRange, box2px(location, dimensions));
-}
+
 
 AmbientOcclusionShader::AmbientOcclusionShader(
 	const std::shared_ptr<AlloyContext>& context) :
@@ -1011,6 +981,7 @@ void main(void)
 	float x = v_texCoord.x;
 	float y = v_texCoord.y;
 	vec4 rgba=texture(textureImage, v_texCoord);
+	gl_FragDepth=rgba.w;
     if(length(rgba.xyz)==0.0f){
 		gl_FragColor = vec4( 0,0,0,0);
         return; 
@@ -1040,26 +1011,13 @@ void main(void)
 })");
 
 }
-void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
-		const box2px& bounds, const box2px viewport, VirtualCamera& camera) {
 
-	begin().set("textureImage", imageTexture, 0).set("MIN_DEPTH",
-			camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
-			"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
-			"viewport", viewport).set("u_radius", sampleRadius).set("u_kernel",
-			sampleNormals).draw(imageTexture).end();
-}
-void AmbientOcclusionShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions, const box2px viewport,
-		VirtualCamera& camera) {
-	draw(imageTexture, box2px(location, dimensions), viewport, camera);
-}
 PhongShader::PhongShader(int N,
 	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	lights.resize(N);
 	initialize(std::vector<std::string> { "vp", "vt" },
-			R"(
+		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -1071,8 +1029,8 @@ uv=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-			MakeString()
-					<< R"(
+MakeString()
+<< R"(
 #version 330
 in vec2 uv;
 const float PI=3.1415926535;
@@ -1081,21 +1039,21 @@ uniform vec2 focalLength;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
 const int MAX_LIGHTS=)"
-					<< N << R"(;
+<< N << R"(;
 uniform vec3 lightPositions[)" << N
-					<< R"(];
+<< R"(];
 uniform vec3 lightDirections[)" << N
-					<< R"(];
+<< R"(];
 uniform vec4 ambientColors[)" << N
-					<< R"(];
+<< R"(];
 uniform vec4 lambertianColors[)" << N
-					<< R"(];
+<< R"(];
 uniform vec4 diffuseColors[)" << N
-					<< R"(];
+<< R"(];
 uniform vec4 specularColors[)" << N
-					<< R"(];
+<< R"(];
 uniform float specularWeights[)" << N
-					<< R"(];
+<< R"(];
 float toZ(float ndc){
 	return -(ndc * (MAX_DEPTH - MIN_DEPTH) + MIN_DEPTH);
 }
@@ -1135,61 +1093,17 @@ void main() {
     outColor=outColor/lsum;
     outColor.w=1.0;
 	gl_FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
+	gl_FragDepth=rgba.w;
 })");
 
 }
 
-void PhongShader::draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
-		VirtualCamera& camera, const box2px& viewport) {
-	begin();
-	set("textureImage", imageTexture, 0).set("MIN_DEPTH", camera.getNearPlane()).set(
-			"MAX_DEPTH", camera.getFarPlane()).set("focalLength",
-			camera.getFocalLength()).set("bounds", bounds).set("viewport",
-			context->getViewport());
 
-	std::vector<Color> ambientColors;
-	std::vector<Color> diffuseColors;
-	std::vector<Color> lambertianColors;
-	std::vector<Color> specularColors;
-
-	std::vector<float> specularWeights;
-	std::vector<float3> lightDirections;
-	std::vector<float3> lightPositions;
-
-	for (SimpleLight& light : lights) {
-		ambientColors.push_back(light.ambientColor);
-		diffuseColors.push_back(light.diffuseColor);
-		specularColors.push_back(light.specularColor);
-		lambertianColors.push_back(light.lambertianColor);
-		specularWeights.push_back(light.specularPower);
-		if (light.moveWithCamera) {
-			float3 pt = (camera.View * light.position.xyzw()).xyz();
-			lightPositions.push_back(pt);
-			float3 norm = normalize(
-					(camera.NormalView * float4(light.direction, 0)).xyz());
-			lightDirections.push_back(norm);
-		} else {
-			lightPositions.push_back(light.position);
-			lightDirections.push_back(light.direction);
-		}
-	}
-	set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
-			"lambertianColors", lambertianColors).set("specularColors",
-			specularColors).set("specularWeights", specularWeights).set(
-			"lightPositions", lightPositions).set("lightDirections",
-			lightDirections).draw(imageTexture).end();
-}
-void PhongShader::draw(const GLTextureRGBAf& imageTexture,
-		const float2& location, const float2& dimensions, VirtualCamera& camera,
-		const box2px& viewport) {
-	draw(imageTexture, box2px(location, dimensions), camera, viewport);
-
-}
 WireframeShader::WireframeShader(
 	const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context),lineWidth(0.25),edgeColor(1.0f, 1.0f, 1.0f, 1.0f),faceColor(1.0f, 0.3f, 0.1f, 1.0f){
+		GLShader(context),lineWidth(0.02f), scaleInvariant(true),edgeColor(1.0f, 1.0f, 1.0f, 1.0f),faceColor(1.0f, 0.3f, 0.1f, 1.0f){
 	initialize(std::vector<std::string> { "vp", "vt" },
-			R"(
+		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -1201,7 +1115,7 @@ uv=vt;
 vec2 pos=vp.xy*bounds.zw+bounds.xy;
 gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 })",
-			R"(
+R"(
 #version 330
 in vec2 uv;
 const float PI=3.1415926535;
@@ -1211,10 +1125,17 @@ uniform float zMax;
 uniform vec4 edgeColor;
 uniform vec4 faceColor;
 uniform float LINE_WIDTH;
+uniform int scaleInvariant;
 void main() {
 vec4 rgba=texture(textureImage,uv);
+gl_FragDepth=rgba.w;
 if(rgba.w>0){
-	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
+	float lum;
+	if(scaleInvariant==0){
+	  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0f,1.0f);
+    }else {
+	  lum=rgba.w*10.0f;
+    }
 	rgba=mix(edgeColor,faceColor,(lum>LINE_WIDTH?1.0:0.0));
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
@@ -1222,18 +1143,7 @@ rgba=vec4(0.0,0.0,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
-void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-		const box2px& bounds, const box2px& viewport) {
-	begin().set("textureImage", imageTexture, 0).set("LINE_WIDTH", lineWidth).set(
-			"edgeColor", edgeColor).set("faceColor", faceColor).set("zMin",
-			zRange.x), set("zMax", zRange.y).set("bounds", bounds).set(
-			"viewport", viewport).draw(imageTexture).end();
-}
-void WireframeShader::draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-		const float2& location, const float2& dimensions,
-		const box2px& viewport) {
-	draw(imageTexture, zRange, box2px(location, dimensions), viewport);
-}
+
 
 }
 

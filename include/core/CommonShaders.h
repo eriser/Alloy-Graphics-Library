@@ -29,6 +29,13 @@
 #include "AlloyUnits.h"
 namespace aly {
 class VirtualCamera;
+class DepthAndNormalShader : public GLShader {
+public:
+	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& contex =
+		AlloyDefaultContext());
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+		GLFrameBuffer& framebuffer, bool flatShading = false);
+};
 class MatcapShader: public GLShader {
 private:
 	GLTextureRGBA matcapTexture;
@@ -128,39 +135,59 @@ public:
 };
 class EdgeEffectsShader: public GLShader {
 public:
-	EdgeEffectsShader(std::shared_ptr<AlloyContext> context =
+	EdgeEffectsShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,
-			const float2& dimensions);
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		const box2px& bounds) {
+		begin().set("KERNEL_SIZE", 4).set("textureImage", imageTexture, 0).set(
+			"bounds", bounds).set("imageSize", imageTexture.bounds.dimensions).set(
+				"viewport", context->getViewport()).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		const float2& location, const float2& dimensions) {
+		draw(imageTexture, box2px(location, dimensions));
+	}
 };
 
 class NormalColorShader: public GLShader {
 public:
-	NormalColorShader(std::shared_ptr<AlloyContext> context =
+	NormalColorShader(const std::shared_ptr<AlloyContext>&  context =
 			AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,
-			const float2& dimensions);
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, 
+		const box2px& bounds) {
+		begin().set("textureImage", imageTexture, 0).set("bounds", bounds).set(
+			"viewport", context->getViewport()).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		const float2& location, const float2& dimensions) {
+		draw(imageTexture, box2px(location, dimensions));
+	}
 };
 
 class DepthColorShader: public GLShader {
 public:
-	DepthColorShader(std::shared_ptr<AlloyContext> context =
+	DepthColorShader(const std::shared_ptr<AlloyContext>&  context =
 			AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-			const box2px& bounds);
-	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-			const float2& location, const float2& dimensions);
+
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, float2 zRange,
+		const box2px& bounds) {
+		begin().set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
+			"zMax", zRange.y).set("bounds", bounds).set("viewport",
+				context->getViewport()).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, float2 zRange,
+		const float2& location, const float2& dimensions) {
+		draw(imageTexture, zRange, box2px(location, dimensions));
+	}
 };
 
-class DepthAndNormalShader: public GLShader {
-public:
-	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& contex =
-			AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera,
-			GLFrameBuffer& framebuffer, bool flatShading = false);
-};
+
 
 class EdgeDepthAndNormalShader: public GLShader {
 public:
@@ -233,17 +260,63 @@ public:
 			PhongShader(1, context) {
 		lights[0] = light;
 	}
-	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
-			VirtualCamera& camera, const box2px& viewport);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,
-			const float2& dimensions, VirtualCamera& camera,
-			const box2px& viewport);
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
+		VirtualCamera& camera, const box2px& viewport) {
+		begin();
+		set("textureImage", imageTexture, 0).set("MIN_DEPTH", camera.getNearPlane()).set(
+			"MAX_DEPTH", camera.getFarPlane()).set("focalLength",
+				camera.getFocalLength()).set("bounds", bounds).set("viewport",
+					context->getViewport());
+
+		std::vector<Color> ambientColors;
+		std::vector<Color> diffuseColors;
+		std::vector<Color> lambertianColors;
+		std::vector<Color> specularColors;
+
+		std::vector<float> specularWeights;
+		std::vector<float3> lightDirections;
+		std::vector<float3> lightPositions;
+
+		for (SimpleLight& light : lights) {
+			ambientColors.push_back(light.ambientColor);
+			diffuseColors.push_back(light.diffuseColor);
+			specularColors.push_back(light.specularColor);
+			lambertianColors.push_back(light.lambertianColor);
+			specularWeights.push_back(light.specularPower);
+			if (light.moveWithCamera) {
+				float3 pt = (camera.View * light.position.xyzw()).xyz();
+				lightPositions.push_back(pt);
+				float3 norm = normalize(
+					(camera.NormalView * float4(light.direction, 0)).xyz());
+				lightDirections.push_back(norm);
+			}
+			else {
+				lightPositions.push_back(light.position);
+				lightDirections.push_back(light.direction);
+			}
+		}
+		set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
+			"lambertianColors", lambertianColors).set("specularColors",
+				specularColors).set("specularWeights", specularWeights).set(
+					"lightPositions", lightPositions).set("lightDirections",
+						lightDirections).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		const float2& location, const float2& dimensions, VirtualCamera& camera,
+		const box2px& viewport) {
+		draw(imageTexture, box2px(location, dimensions), camera, viewport);
+
+	}
+
 };
 class WireframeShader: public GLShader {
 private:
 	float lineWidth;
 	Color edgeColor;
 	Color faceColor;
+	bool scaleInvariant;
 public:
 	inline void setEdgeColor(const Color& c) {
 		edgeColor = c;
@@ -251,13 +324,26 @@ public:
 	inline void setFaceColor(const Color& c) {
 		faceColor = c;
 	}
+	void setLineWidth(float w, bool scaleInvariant) {
+		this->lineWidth = w;
+		this->scaleInvariant = scaleInvariant;
+	}
 	WireframeShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-			const box2px& bounds, const box2px& viewport);
-	void draw(const GLTextureRGBAf& imageTexture, float2 zRange,
-			const float2& location, const float2& dimensions,
-			const box2px& viewport);
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, float2 zRange,
+		const box2px& bounds, const box2px& viewport) {
+		begin().set("textureImage", imageTexture, 0).set("LINE_WIDTH", lineWidth).set(
+			"edgeColor", edgeColor).set("faceColor", faceColor).set("scaleInvariant",(scaleInvariant)?1:0).set("zMin",
+				zRange.x), set("zMax", zRange.y).set("bounds", bounds).set(
+					"viewport", viewport).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, float2 zRange,
+		const float2& location, const float2& dimensions,
+		const box2px& viewport) {
+		draw(imageTexture, zRange, box2px(location, dimensions), viewport);
+	}
 };
 class AmbientOcclusionShader: public GLShader {
 private:
@@ -267,13 +353,24 @@ public:
 	AmbientOcclusionShader(
 		const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
-			const box2px viewport, VirtualCamera& camera);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,
-			const float2& dimensions, const box2px viewport,
-			VirtualCamera& camera);
+		template<class T, int C, ImageType I> void draw(
+				const GLTexture<T, C, I>& imageTexture,
+		const box2px& bounds, const box2px viewport, VirtualCamera& camera) {
+
+		begin().set("textureImage", imageTexture, 0).set("MIN_DEPTH",
+			camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
+				"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
+					"viewport", viewport).set("u_radius", sampleRadius).set("u_kernel",
+						sampleNormals).draw(imageTexture).end();
+	}
+		template<class T, int C, ImageType I> void draw(
+				const GLTexture<T, C, I>& imageTexture,
+		const float2& location, const float2& dimensions, const box2px viewport,
+		VirtualCamera& camera) {
+		draw(imageTexture, box2px(location, dimensions), viewport, camera);
+	}
 };
-class OutlineShader: public GLShader {
+class DistanceFieldShader: public GLShader {
 private:
 	int kernelSize ;
 	aly::Color innerGlowColor;
@@ -292,12 +389,24 @@ public:
 	inline void setExtent(int distance) {
 		kernelSize = distance;
 	}
-	OutlineShader(
+	DistanceFieldShader(
 		const std::shared_ptr<AlloyContext>& contex = AlloyDefaultContext());
-	void draw(const GLTextureRGBAf& imageTexture, const box2px& bounds,
-			const box2px& viewport);
-	void draw(const GLTextureRGBAf& imageTexture, const float2& location,
-			const float2& dimensions, const box2px& viewport);
+
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		const box2px& bounds, const box2px& viewport) {
+		begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
+			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
+				"textureImage", imageTexture, 0).set("bounds", bounds).set(
+					"imageSize", imageTexture.bounds.dimensions).set("viewport",
+						viewport).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture,
+		const float2& location, const float2& dimensions,
+		const box2px& viewport) {
+		draw(imageTexture, box2px(location, dimensions), viewport);
+	}
 };
 }
 
