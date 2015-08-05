@@ -316,8 +316,8 @@ class ExpandBar: public Widget {
 private:
 	std::list<std::shared_ptr<ExpandRegion>> regions;
 public:
-	void add(Region* region, bool expanded);
-	void add(const std::shared_ptr<Region>&, bool expanded);
+	CompositePtr& add(Region* region, bool expanded);
+	CompositePtr& add(const std::shared_ptr<Region>&, bool expanded);
 
 	ExpandBar(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 };

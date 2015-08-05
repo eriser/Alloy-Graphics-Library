@@ -2208,8 +2208,9 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 		Widget(name, pos, dims) {
 	setOrientation(Orientation::Vertical);
 	setScrollEnabled(true);
+	cellPadding.y =2;
 }
-void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
+CompositePtr& ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 	CompositePtr container = MakeComposite("Content Container",
 			CoordPX(Composite::scrollBarSize, 0.0f),
 			CoordPerPX(1.0f, 0.0f, -2.0f * Composite::scrollBarSize, 0.0f));
@@ -2217,7 +2218,7 @@ void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 	region->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	region->borderColor = MakeColor(AlloyApplicationContext()->theme.NEUTRAL);
 	region->borderWidth = UnitPX(2.0f);
-	region->setRoundCorners(true);
+	//region->setRoundCorners(true);
 	container->add(region);
 	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(
 			new ExpandRegion(region->name, container,
@@ -2231,9 +2232,10 @@ void ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 
 	Widget::add(container);
 	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
+	return container;
 }
-void ExpandBar::add(Region* region, bool expanded) {
-	add(std::shared_ptr<Region>(region), expanded);
+CompositePtr& ExpandBar::add(Region* region, bool expanded) {
+	return add(std::shared_ptr<Region>(region), expanded);
 }
 
 }

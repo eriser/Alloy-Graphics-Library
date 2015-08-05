@@ -44,9 +44,9 @@ int main() {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		//SANITY_CHECK_CEREAL();
-		//ExampleUI app;
+		ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
-		MeshViewer app;
+		//MeshViewer app;
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
@@ -54,7 +54,7 @@ int main() {
 		std::flush(std::cout);
 		std::cout << "Exiting ..." << std::endl;
 		//std::cout<<"Hit any key ..."<<std::endl;
-		//getchar();
+		getchar();
 		return 1;
 	}
 }

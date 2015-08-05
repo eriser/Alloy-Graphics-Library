@@ -177,14 +177,17 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 	popScissor(nvg);
 }
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
+	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
-	dragOffset = bounds.clamp(cursor - delta, parent->bounds) - d;
-	bounds.position = dragOffset + d;
+	box2px pbounds = parent->getBounds();
+	dragOffset  = bounds.clamp(cursor - delta, pbounds) -d;
 }
 void Region::addDragOffset(const pixel2& delta) {
+	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
-	dragOffset = bounds.clamp(bounds.position + delta, parent->bounds) - d;
-	bounds.position = dragOffset + d;
+	box2px pbounds = parent->getBounds();
+	dragOffset = bounds.clamp(bounds.position + delta, pbounds) - d;
+
 }
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
@@ -205,16 +208,19 @@ box2px Region::getBounds(bool includeOffset) const {
 	if (parent != nullptr && includeOffset) {
 		box.position += parent->drawOffset();
 	}
+	box.position += dragOffset;
 	return box;
 }
 box2px Region::getCursorBounds(bool includeOffset) const {
 	box2px box = (isDetached() ? getBounds() : bounds);
+	box.position += dragOffset;
 	if (parent != nullptr && includeOffset) {
 		box.position += parent->drawOffset();
 		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
 		}
 	}
+
 	return box;
 }
 void Composite::clear() {
@@ -358,7 +364,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		verticalScrollTrack->setDimensions(
 				CoordPerPX(0.0, 1.0f, scrollBarSize, 0.0f));
 		verticalScrollTrack->setOrigin(Origin::TopRight);
-
+		verticalScrollTrack->parent = parent;
 		verticalScrollHandle = std::shared_ptr<ScrollHandle>(
 				new ScrollHandle("Vert Handle", Orientation::Vertical));
 		verticalScrollHandle->setPosition(CoordPX(0.0f, 0.0f));
@@ -372,8 +378,8 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 						this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
 						context->setDragObject(verticalScrollHandle.get());
-						this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
-						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
+						this->scrollPosition.y=(this->verticalScrollHandle->getBoundsPositionY()-this->verticalScrollTrack->getBoundsPositionY())/
+						std::max(1.0f,(float)this->verticalScrollTrack->getBoundsPositionY()-(float)this->verticalScrollHandle->getBoundsPositionY());
 						context->requestPack();
 						return true;
 					}
@@ -383,8 +389,8 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				[this](AlloyContext* context,const InputEvent& event) {
 					if(context->isLeftMouseButtonDown()) {
 						this->verticalScrollHandle->setDragOffset(event.cursor,context->getCursorDownPosition());
-						this->scrollPosition.y=(this->verticalScrollHandle->getBounds().position.y-this->verticalScrollTrack->getBounds().position.y)/
-						std::max(1.0f,(float)this->verticalScrollTrack->getBounds().dimensions.y-(float)this->verticalScrollHandle->getBounds().dimensions.y);
+						this->scrollPosition.y=(this->verticalScrollHandle->getBoundsPositionY() -this->verticalScrollTrack->getBoundsPositionY())/
+						std::max(1.0f,(float)this->verticalScrollTrack->getBoundsDimensionsY() -(float)this->verticalScrollHandle->getBoundsDimensionsY());
 						return true;
 					}
 					return false;
@@ -395,7 +401,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		horizontalScrollTrack->setDimensions(
 				CoordPerPX(1.0, 0.0f, 0.0f, scrollBarSize));
 		horizontalScrollTrack->setOrigin(Origin::BottomLeft);
-
+		verticalScrollTrack->parent = parent;
 		horizontalScrollHandle = std::shared_ptr<ScrollHandle>(
 				new ScrollHandle("Horiz Handle", Orientation::Horizontal));
 		horizontalScrollHandle->setPosition(CoordPX(0.0f, 0.0f));
@@ -403,14 +409,14 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				CoordPerPX(0.0f, 1.0f, scrollBarSize, 0.0f));
 		horizontalScrollHandle->parent = horizontalScrollTrack.get();
 		horizontalScrollHandle->setEnableDrag(true);
-
+		
 		horizontalScrollTrack->onMouseDown =
 				[this](AlloyContext* context,const InputEvent& event) {
 					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 						this->horizontalScrollHandle->setDragOffset(event.cursor,this->horizontalScrollHandle->getBoundsDimensions() * 0.5f);
 						context->setDragObject(horizontalScrollHandle.get());
-						this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
-						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
+						this->scrollPosition.x=(this->horizontalScrollHandle->getBoundsPositionX() -this->horizontalScrollTrack->getBoundsPositionX())/
+						std::max(1.0f,(float)this->horizontalScrollTrack->getBoundsDimensionsX()-(float)this->horizontalScrollHandle->getBoundsDimensionsX());
 						context->requestPack();
 						return true;
 					}
@@ -420,8 +426,8 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				[this](AlloyContext* context,const InputEvent& event) {
 					if(context->isLeftMouseButtonDown()) {
 						this->horizontalScrollHandle->setDragOffset(event.cursor,context->getCursorDownPosition());
-						this->scrollPosition.x=(this->horizontalScrollHandle->getBounds().position.x-this->horizontalScrollTrack->getBounds().position.x)/
-						std::max(1.0f,(float)this->horizontalScrollTrack->getBounds().dimensions.x-(float)this->horizontalScrollHandle->getBounds().dimensions.x);
+						this->scrollPosition.x=(this->horizontalScrollHandle->getBoundsPositionX()-this->horizontalScrollTrack->getBoundsPositionX())/
+						std::max(1.0f,(float)this->horizontalScrollTrack->getBoundsDimensionsX()-(float)this->horizontalScrollHandle->getBoundsDimensionsX());
 						return true;
 					}
 					return false;
@@ -430,7 +436,6 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	}
 	pixel2 offset(0, 0);
 	scrollExtent = pixel2(0, 0);
-	pixel2 CELL_SPACING(AlloyApplicationContext()->theme.SPACING);
 	for (std::shared_ptr<Region>& region : children) {
 		if (!region->isVisible()) {
 			continue;
@@ -447,11 +452,11 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 		if (orientation == Orientation::Horizontal) {
-			offset.x += CELL_SPACING.x + region->getBoundsDimensionsX();
+			offset.x += cellPadding.x + region->getBoundsDimensionsX();
 
 		}
 		if (orientation == Orientation::Vertical) {
-			offset.y += CELL_SPACING.y + region->getBoundsDimensionsY();
+			offset.y += cellPadding.y + region->getBoundsDimensionsY();
 		}
 		scrollExtent = max(
 				region->getBoundsDimensions() + region->getBoundsPosition()
@@ -460,10 +465,10 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
 			this->bounds.dimensions.x = bounds.dimensions.x = std::max(
-					bounds.dimensions.x, offset.x);
+					bounds.dimensions.x, offset.x-cellPadding.x);
 		if (orientation == Orientation::Vertical)
 			this->bounds.dimensions.y = bounds.dimensions.y = std::max(
-					bounds.dimensions.y, offset.y);
+					bounds.dimensions.y, offset.y-cellPadding.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
 		float nudge =
@@ -813,12 +818,12 @@ void ScrollTrack::draw(AlloyContext* context) {
 	}
 }
 Composite::Composite(const std::string& name) :
-		Region(name) {
+		Region(name), cellPadding(5,5) {
 
 }
 Composite::Composite(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Region(name, pos, dims) {
+		Region(name, pos, dims), cellPadding(5, 5) {
 }
 bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	if (isVisible() && event.type == InputType::Scroll && isScrollEnabled()) {
@@ -829,11 +834,11 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 				verticalScrollHandle->addDragOffset(
 						pixel2(-10.0f * event.scroll));
 				this->scrollPosition.y =
-						(this->verticalScrollHandle->getBounds().position.y
-								- this->verticalScrollTrack->getBounds().position.y)
+						(this->verticalScrollHandle->getBoundsPositionY()
+								- this->verticalScrollTrack->getBoundsPositionY())
 								/ std::max(1.0f,
-										(float) this->verticalScrollTrack->getBounds().dimensions.y
-												- (float) this->verticalScrollHandle->getBounds().dimensions.y);
+										(float) this->verticalScrollTrack->getBoundsDimensionsY()
+												- (float) this->verticalScrollHandle->getBoundsDimensionsY());
 				return true;
 			}
 			if (event.scroll.x != 0 && horizontalScrollHandle.get() != nullptr
@@ -841,11 +846,11 @@ bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 				horizontalScrollHandle->addDragOffset(
 						pixel2(-10.0f * event.scroll));
 				this->scrollPosition.x =
-						(this->horizontalScrollHandle->getBounds().position.x
-								- this->horizontalScrollTrack->getBounds().position.x)
+						(this->horizontalScrollHandle->getBoundsPositionX()
+								- this->horizontalScrollTrack->getBoundsPositionX())
 								/ std::max(1.0f,
-										(float) this->horizontalScrollTrack->getBounds().dimensions.x
-												- (float) this->horizontalScrollHandle->getBounds().dimensions.x);
+										(float) this->horizontalScrollTrack->getBoundsDimensionsX()
+												- (float) this->horizontalScrollHandle->getBoundsDimensionsX());
 
 				return true;
 			}
@@ -881,8 +886,8 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 
 	pixel2 computedPos = position.toPixels(dims, dpmm, pixelRatio);
-	pixel2 xy = pos + dragOffset + computedPos;
-
+	//pixel2 xy = pos + dragOffset + computedPos;
+	pixel2 xy = pos + computedPos;
 	pixel2 d = dimensions.toPixels(dims, dpmm, pixelRatio);
 	if (aspectRatio < 0) {
 		aspectRatio = d.x / std::max((float) d.y, 0.0f);
@@ -943,7 +948,7 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		bounds.position = aly::clamp(bounds.position, ppos,
 				ppos + dims - bounds.dimensions);
 	}
-	dragOffset = xy - pos - computedPos;
+	//dragOffset = xy - pos - computedPos;
 	if (detached) {
 		box2px vp = AlloyApplicationContext()->getViewport();
 		bounds.position = aly::clamp(bounds.position, vp.position,

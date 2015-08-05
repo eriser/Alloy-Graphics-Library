@@ -187,21 +187,31 @@ bool ExampleUI::init(Composite& rootNode) {
 	CompositePtr geomRegion = CompositePtr(
 			new aly::Composite("Geometry", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(geomRegion, true);
 
+	CompositePtr scrollRegion = CompositePtr(
+		new aly::Composite("Scroll", CoordPX(0, 0),
+			CoordPerPX(1.0f, 0.0f, 0.0f, 200.0f)));
+	scrollRegion->setScrollEnabled(true);
+	scrollRegion->setOrientation(Orientation::Vertical);
+	scrollRegion->add(MakeRegion("Region 1", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f),Color(255,0,0)));
+	scrollRegion->add(MakeRegion("Region 2", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(0, 255, 0)));
+	expandBar->add(geomRegion, true);
+	
 	FileSelector* selector;
 	geomRegion->add(
 			selector = new FileSelector("Mesh", CoordPX(0, 0),
 					CoordPerPX(1.0, 0.0f, 0.0f, 30.0f)));
+	geomRegion->setOrientation(Orientation::Vertical);
+	geomRegion->add(scrollRegion);
 	selector->setFileLocation("mesh.obj");
 	RegionPtr apprRegion = RegionPtr(
 			new aly::Region("Appearance", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(apprRegion, false);
+	expandBar->add(apprRegion, true);
 	RegionPtr lightRegion = RegionPtr(
 			new aly::Region("Lighting", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(lightRegion, false);
+	expandBar->add(lightRegion, true);
 	RegionPtr renderingRegion = RegionPtr(
 			new aly::Region("Rendering", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));

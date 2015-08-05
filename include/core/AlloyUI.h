@@ -40,6 +40,7 @@ struct BorderComposite;
 struct Region: public EventHandler {
 private:
 	box2px bounds;
+	pixel2 dragOffset = pixel2(0, 0);
 protected:
 	void drawBoundsLabel(AlloyContext* context, const std::string& name,
 			int font);
@@ -50,8 +51,6 @@ protected:
 	bool dragEnabled = false;
 	bool ignoreCursorEvents = false;
 	Origin origin = Origin::TopLeft;
-	pixel2 dragOffset = pixel2(0, 0);
-
 	AspectRule aspectRule = AspectRule::Unspecified;
 	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
 	AUnit2D position = CoordPercent(0.0f, 0.0f);
@@ -61,6 +60,7 @@ protected:
 public:
 	friend struct Composite;
 	friend struct BorderComposite;
+	const std::string name;
 	void setIgnoreCursorEvents(bool ignore) {
 		ignoreCursorEvents = ignore;
 	}
@@ -78,7 +78,7 @@ public:
 		return (parent != nullptr && parent->isDetached()) || detached;
 	}
 	std::function<bool(AlloyContext*, const InputEvent& event)> onEvent;
-	const std::string name;
+
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
 	virtual inline bool isScrollEnabled() const {
@@ -206,7 +206,6 @@ struct Composite: public Region {
 protected:
 	Orientation orientation = Orientation::Unspecified;
 	bool scrollEnabled = false;
-
 	static const float scrollBarSize;
 	pixel2 scrollExtent = pixel2(0, 0);
 	float horizontalScrollExtent = 0;
@@ -215,6 +214,7 @@ protected:
 	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
 	std::vector<std::shared_ptr<Region>> children;
 public:
+	pixel2 cellPadding;
 	void clear();
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
