@@ -689,7 +689,7 @@ void BorderComposite::drawDebug(AlloyContext* context) {
 void BorderComposite::pack(const pixel2& pos, const pixel2& dims,
 		const double2& dpmm, double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
-	box2px bounds = getBounds();
+	box2px bounds = getBounds(false);
 	if (northRegion.get() != nullptr)
 		northRegion->pack(bounds.position,
 				bounds.dimensions * float2(1.0f, northFraction), dpmm,
