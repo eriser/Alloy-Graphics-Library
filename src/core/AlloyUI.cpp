@@ -457,6 +457,13 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				region->getBoundsDimensions() + region->getBoundsPosition()
 						- bounds.position - region->drawOffset(), scrollExtent);
 	}
+	if (orientation == Orientation::Horizontal) {
+                scrollExtent.x += CELL_SPACING.x;
+        }
+        if (orientation == Orientation::Vertical) {
+                scrollExtent.y += CELL_SPACING.y;
+        }
+
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
 			this->bounds.dimensions.x = bounds.dimensions.x = std::max(
