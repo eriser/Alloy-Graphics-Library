@@ -121,7 +121,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		float2(960.0f, 480.0f), float2(480, 480),
 		getContext()->getViewport());
 	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
-		float2(960.0f, 480.0f), float2(480, 480), camera,
+		camera, float2(960.0f, 480.0f), float2(480, 480),
 		getContext()->getViewport());
 
 	matcapShader.draw(

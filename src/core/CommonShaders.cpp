@@ -394,11 +394,148 @@ void main()
 })");
 	}
 }
+FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShader(context){
+	initialize(std::vector<std::string> { },
+		R"(	#version 330
+				layout(location = 3) in vec3 vp0;
+				layout(location = 4) in vec3 vp1;
+				layout(location = 5) in vec3 vp2;
+				layout(location = 6) in vec3 vp3;
+				layout(location = 7) in vec3 vn0;
+				layout(location = 8) in vec3 vn1;
+				layout(location = 9) in vec3 vn2;
+				layout(location = 10) in vec3 vn3;
+				out VS_OUT {
+					vec3 p0;
+					vec3 p1;
+					vec3 p2;
+					vec3 p3;
+					vec3 n0;
+					vec3 n1;
+					vec3 n2;
+					vec3 n3;
+					int vertId;
+				} vs_out;
+				void main(void) {
+					vs_out.p0=vp0;
+					vs_out.p1=vp1;
+					vs_out.p2=vp2;
+					vs_out.p3=vp3;
+					vs_out.n0=vn0;
+					vs_out.n1=vn1;
+					vs_out.n2=vn2;
+					vs_out.n3=vn3;
+					vs_out.vertId=gl_VertexID;
+				}
+)", R"(
+	#version 330
+	flat in int vertId;
+	void main() {
+		vec4 rgba = vec4(vertId & 0x00000FFF, ((vertId & 0x00FFF000) >> 12), ((vertId & 0xFF000000) >> 24), 1.0);
+		gl_FragColor = rgba;
+}
+	)",
+		R"(	#version 330
+					layout (points) in;
+					layout (triangle_strip, max_vertices=4) out;
+					in VS_OUT {
+						vec3 p0;
+						vec3 p1;
+						vec3 p2;
+						vec3 p3;
+						vec3 n0;
+						vec3 n1;
+						vec3 n2;
+						vec3 n3;
+						int vertId;
+					} quad[];
+					out vec3 v0, v1, v2, v3;
+					out vec3 normal;
+					out vec3 vert;
+					flat out int vertId;
+					uniform int IS_QUAD;
+                    uniform int IS_FLAT;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+					void main() {
+					  mat4 PVM=ProjMat*ViewModelMat;
+					  mat4 VM=ViewModelMat;
+					  vertId=quad[0].vertId;
+					  vec3 p0=quad[0].p0;
+					  vec3 p1=quad[0].p1;
+					  vec3 p2=quad[0].p2;
+                      vec3 p3=quad[0].p3;
+					
+					  v0 = (VM*vec4(p0,1)).xyz;
+					  v1 = (VM*vec4(p1,1)).xyz;
+					  v2 = (VM*vec4(p2,1)).xyz;
+                      v3 = (VM*vec4(p3,1)).xyz;
+					  
+					  
+if(IS_QUAD!=0){
+	gl_Position=PVM*vec4(p0,1);  
+	vert = v0;
+	if(IS_FLAT!=0){
+        vec3 pt=0.25*(p0+p1+p2+p3);
+        normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
+		normal = (VM*vec4(normalize(-normal),0.0)).xyz;
+	} else {
+		normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+	}
+	EmitVertex();
+} else {
+	gl_Position=PVM*vec4(p0,1);  
+	vert = v0;
+	if(IS_FLAT!=0){
+		normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+	} else {
+		normal= (VM*vec4(quad[0].n0,0.0)).xyz;
+	}
+	EmitVertex();
+}
+	gl_Position=PVM*vec4(p1,1);  
+	vert = v1;
+	if(IS_FLAT!=0){
+		//normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
+	} else {
+		normal= (VM*vec4(quad[0].n1,0.0)).xyz;
+	}
+	EmitVertex();
+	if(IS_QUAD!=0){
+		gl_Position=PVM*vec4(p3,1);  
+		vert = v3;
+		if(IS_FLAT!=0){
+			//normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
+		} else {
+			normal= (VM*vec4(quad[0].n3,0.0)).xyz;
+		}
+		EmitVertex();
+		gl_Position=PVM*vec4(p2,1);  
+		vert = v2;
+		if(IS_FLAT!=0){
+			//normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
+		} else {
+			normal= (VM*vec4(quad[0].n2,0.0)).xyz;
+		}
+		EmitVertex();
+		EndPrimitive();
+	} else {
+		gl_Position=PVM*vec4(p2,1);  
+		if(IS_FLAT!=0){
+			vert = v2;
+			//normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
+		} else {
+			normal= (VM*vec4(quad[0].n2,0.0)).xyz;
+		}
+		EmitVertex();
+		EndPrimitive();
+	}
+})");
+}
 DepthAndNormalShader::DepthAndNormalShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	initialize(std::vector<std::string> { },
-			R"(	#version 330
+		R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
 				layout(location = 5) in vec3 vp2;
@@ -429,9 +566,9 @@ DepthAndNormalShader::DepthAndNormalShader(
 					vs_out.n2=vn2;
 					vs_out.n3=vn3;
 				})",
-			R"(	#version 330
+		R"(	#version 330
 					in vec3 normal;
-	                in vec3 vert;
+					in vec3 vert;
 					uniform float MIN_DEPTH;
 					uniform float MAX_DEPTH;
 					void main() {
@@ -439,7 +576,7 @@ DepthAndNormalShader::DepthAndNormalShader(
 						gl_FragColor = vec4(normalized_normal.xyz,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 					}
 					)",
-			R"(	#version 330
+		R"(	#version 330
 					layout (points) in;
 					layout (triangle_strip, max_vertices=4) out;
 					in VS_OUT {
@@ -453,7 +590,8 @@ DepthAndNormalShader::DepthAndNormalShader(
 						vec3 n3;
 					} quad[];
 					out vec3 v0, v1, v2, v3;
-					out vec3 normal, vert;
+					out vec3 normal;
+					out vec3 vert;
 					uniform int IS_QUAD;
                     uniform int IS_FLAT;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
@@ -531,6 +669,26 @@ if(IS_QUAD!=0){
 		EndPrimitive();
 	}
 })");
+
+}
+void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,
+	GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	const bool flatShading = true;
+	if (mesh.quadIndexes.size() > 0) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
+			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
+				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
+					mesh, GLMesh::PrimitiveType::QUADS).end();
+	}
+	if (mesh.triIndexes.size() > 0) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
+				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
+					mesh, GLMesh::PrimitiveType::TRIANGLES).end();
+	}
+	glEnable(GL_BLEND);
 }
 void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer, bool flatShading) {

@@ -31,11 +31,19 @@ namespace aly {
 class VirtualCamera;
 class DepthAndNormalShader : public GLShader {
 public:
-	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& contex =
+	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
 	void draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& framebuffer, bool flatShading = false);
 };
+class FaceIdShader :public GLShader {
+public:
+	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
+		AlloyDefaultContext());
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+		GLFrameBuffer& framebuffer);
+};
+
 class MatcapShader: public GLShader {
 private:
 	GLTextureRGBA matcapTexture;
@@ -263,8 +271,9 @@ public:
 		lights[0] = light;
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
-		VirtualCamera& camera, const box2px& viewport) {
+		const GLTexture<T, C, I>& imageTexture, 
+		VirtualCamera& camera, const box2px& bounds,
+		const box2px& viewport) {
 		begin();
 		set("textureImage", imageTexture, 0).set("MIN_DEPTH", camera.getNearPlane()).set(
 			"MAX_DEPTH", camera.getFarPlane()).set("focalLength",
@@ -306,9 +315,10 @@ public:
 	}
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture,
-		const float2& location, const float2& dimensions, VirtualCamera& camera,
+		VirtualCamera& camera,
+		const float2& location, const float2& dimensions,
 		const box2px& viewport) {
-		draw(imageTexture, box2px(location, dimensions), camera, viewport);
+		draw(imageTexture, camera,  box2px(location, dimensions), viewport);
 
 	}
 

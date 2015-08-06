@@ -29,7 +29,7 @@ private:
 
 	aly::Mesh mesh2;
 	aly::VirtualCamera camera;
-
+	aly::FaceIdShader faceShader;
 	aly::MatcapShader matcapShader;
 	aly::ImageShader imageShader;
 	aly::EdgeEffectsShader effectsShader;
