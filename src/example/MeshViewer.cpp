@@ -83,6 +83,7 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	float2 dRange = camera.computeNormalizedDepthRange(mesh);
+
 	depthColorShader.draw(edgeFrameBuffer.getTexture(),
 			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
 			float2(480, 480));

@@ -54,7 +54,7 @@ layout(location = 1) in vec2 vt;
          srcColor.w=srcColor.w*sourceAlpha;
          tarColor.w=tarColor.w*targetAlpha;
 		 gl_FragDepth=min(srcDepth.w,tarDepth.w);
-			if(tarDepth.w<=0&&srcDepth.w<=0){
+			if(tarDepth.w>=1.0&&srcDepth.w>=1.0){
 				gl_FragColor=vec4(0,0,0,0);
 			} else if(tarDepth.w>0&&srcDepth.w<=0){
 			   gl_FragColor=tarColor;
@@ -94,12 +94,12 @@ uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-if(rgba.w>0){
 gl_FragDepth=rgba.w;
+if(rgba.w<1.0){
+
 float lum=clamp(abs(rgba.w),0.0,1.0);
 rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
 } else {
-gl_FragDepth=1.0;
 rgba=vec4(0.0,0.0,0.0,0.0);
 }
 gl_FragColor=rgba;
@@ -694,6 +694,8 @@ void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	if (mesh.quadIndexes.size() > 0) {
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
 				"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
@@ -870,6 +872,8 @@ void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	if (mesh.quadIndexes.size() > 0) {
 		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(
 				camera, frameBuffer.getViewport()).draw(mesh,
@@ -908,26 +912,25 @@ void main() {
 vec4 rgba=texture(textureImage,uv);
 
 vec4 nrgba;
-if(rgba.w>0){
 gl_FragDepth=rgba.w;
+if(rgba.w<1.0){
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       
       nrgba=texture(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
-	  if(nrgba.w<=0.0){
+	  if(nrgba.w>=1.0){
 		  minDistance=min(minDistance,i*i+j*j);
 	  }
 	}
 }
 rgba=vec4(1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,0.0,1.0);
 } else {
-gl_FragDepth=1.0;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture(textureImage,uv+SCALE*vec2(i/float(imageSize.x),j/float(imageSize.y)));
-	  if(nrgba.w>0.0){
+	  if(nrgba.w<1.0){
         minDistance=min(minDistance,i*i+j*j);
 	  }
    }
@@ -969,12 +972,12 @@ void main() {
 vec4 rgba=texture(textureImage,uv);
 vec4 nrgba;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
-if(rgba.w>0){
 gl_FragDepth=rgba.w;
+if(rgba.w<1.0){
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
-if(nrgba.w<=0.0){
+if(nrgba.w>=1.0){
       minDistance=min(minDistance,i*i+j*j);
 }
 	}
@@ -982,12 +985,11 @@ if(nrgba.w<=0.0){
 w=sqrt(minDistance)/KERNEL_SIZE;
 rgba=mix(edgeColor,innerColor,w);
 } else {
-gl_FragDepth=1.0;
 minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
       nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
-if(nrgba.w>0.0){
+if(nrgba.w<1.0){
       minDistance=min(minDistance,i*i+j*j);
 }
 	}
@@ -1022,14 +1024,13 @@ const float PI=3.1415926535;
 uniform sampler2D textureImage;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-if(rgba.w>0){
 gl_FragDepth=rgba.w;
+if(rgba.w<1.0){
 float lum=clamp(abs(rgba.w),0.0,1.0);
 rgba=vec4(-rgba.x*0.5+0.5,-rgba.y*0.5+0.5,-rgba.z,1.0);
 
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
-gl_FragDepth=1.0;
 }
 gl_FragColor=rgba;
 })");
@@ -1060,16 +1061,14 @@ uniform float zMin;
 uniform float zMax;
 void main() {
 vec4 rgba=texture(textureImage,uv);
-
-if(rgba.w>0){
 gl_FragDepth=rgba.w;
+if(rgba.w<1.0){
 	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
 	float r=max(0.0,1.0-lum*2.0);
 	float b=min(2*lum-1.0,1.0);
 	float g=max(0.0,1-2.0*abs(2.0*lum-1.0));
 	rgba=vec4(r,g,b,1.0);
 } else {
-gl_FragDepth=1.0;
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
 gl_FragColor=rgba;
@@ -1147,7 +1146,7 @@ void main(void)
 	float x = v_texCoord.x;
 	float y = v_texCoord.y;
 	vec4 rgba=texture(textureImage, v_texCoord);
-	gl_FragDepth=(rgba.w>0.0)?rgba.w:1.0;
+	gl_FragDepth=rgba.w;
     if(length(rgba.xyz)==0.0){
 		gl_FragColor = vec4( 0,0,0,0);
         return; 
@@ -1229,7 +1228,7 @@ vec4 toWorld(vec2 uv,vec4 rgba){
 }
 void main() {
     vec4 rgba=texture(textureImage,uv);
-    if(rgba.w<=0.0)discard;
+    if(rgba.w>=1.0)discard;
 	vec4 pt=toWorld(uv,rgba);
 	vec3 norm=rgba.xyz;
 	vec4 outColor=vec4(0,0,0,0);
@@ -1260,7 +1259,7 @@ void main() {
     outColor.w=1.0;
 	gl_FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
 	
-	gl_FragDepth=(rgba.w>0)?rgba.w:1.0;
+	gl_FragDepth=rgba.w;
 })");
 
 }
@@ -1298,7 +1297,7 @@ void main() {
 vec4 rgba=texture(textureImage,uv);
 vec4 nd=texture(depthImage,uv);
 gl_FragDepth=nd.w;
-if(rgba.w>0){
+if(rgba.w<1.0){
 	float lum;
 	if(scaleInvariant==0){
 	  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
@@ -1312,7 +1311,6 @@ if(rgba.w>0){
 	}
 } else {
 	rgba=vec4(0,0,0,0);
-	gl_FragDepth=1.0;
 }
 gl_FragColor=rgba;
 })");

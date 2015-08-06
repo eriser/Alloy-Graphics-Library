@@ -40,7 +40,7 @@ GLFrameBuffer::~GLFrameBuffer() {
 		glDeleteRenderbuffers(1, &mDepthBufferId);
 	context->end();
 }
-void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
+void GLFrameBuffer::begin(const float4& clearColor,bool clearColorBit, bool clearDepthBit) {
 	if (texture.width() * texture.height() == 0)
 		throw std::runtime_error("Framebuffer has not been initialized.");
 	context->begin();
@@ -48,11 +48,11 @@ void GLFrameBuffer::begin(bool clearColor, bool clearDepth) {
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glClearColor(0, 0, 0, 0);
+	glClearColor(clearColor.x,clearColor.y,clearColor.z,clearColor.w);
 	GLuint flags = GL_STENCIL_BUFFER_BIT;
-	if (clearColor)
+	if (clearColorBit)
 		flags |= GL_COLOR_BUFFER_BIT;
-	if (clearDepth)
+	if (clearDepthBit)
 		flags |= GL_DEPTH_BUFFER_BIT;
 	glClear(flags);
 	CHECK_GL_ERROR();
