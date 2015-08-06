@@ -37,11 +37,13 @@ public:
 		GLFrameBuffer& framebuffer, bool flatShading = false);
 };
 class FaceIdShader :public GLShader {
+private:
+	GLFrameBuffer framebuffer;
 public:
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer);
+	void initialize(int w, int h);
+	void draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap);
 };
 
 class MatcapShader: public GLShader {

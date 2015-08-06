@@ -34,6 +34,12 @@ public:
 	virtual void update() override;
 	virtual void draw() const override;
 	void initialize(int w, int h);
+	int width() const {
+		return texture.width();
+	}
+	int height() const {
+		return texture.height();
+	}
 	void begin(const float4& clearColor = float4(0, 0, 0, 0),bool clearColorBit = true, bool clearDepthBit = true);
 	void end();
 	int2 getDimensions() const {

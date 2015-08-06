@@ -21,6 +21,7 @@
 
 #include "Alloy.h"
 #include "../../include/example/MeshViewer.h"
+#include <set>
 using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
@@ -67,6 +68,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	occlusionFrameBuffer.initialize(480, 480);
 	colorBuffer1.initialize(480, 480);
 	colorBuffer2.initialize(480, 480);
+	faceShader.initialize(480, 480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 
@@ -74,11 +76,29 @@ bool MeshViewer::init(Composite& rootNode) {
 	return true;
 }
 void MeshViewer::draw(const aly::DrawEvent3D& event) {
+	static bool once = true;
 	if (camera.isDirty()) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);
+
+		faceShader.draw(mesh, camera, faceIdMap);
+
+		if (once) {
+			std::set<int> idx;
+			for (int hash : faceIdMap.data)
+			{
+				idx.insert(hash);
+			}
+			std::cout << "Face Ids: ";
+			for (int val : idx)
+			{
+				std::cout << val << " ";
+			}
+			std::cout << std::endl;
+			once = false;
+		}
 	}
 }
 void MeshViewer::draw(const aly::DrawEvent2D& event) {
