@@ -407,7 +407,7 @@ void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdM
 		framebuffer.begin();
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
 			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
-				camera.getFarPlane()).set("vertIdOffset",(int)mesh.quadIndexes.size()).set(camera, framebuffer.getViewport()).draw(
+				camera.getFarPlane()).set("vertIdOffset",(int)mesh.triIndexes.size()).set(camera, framebuffer.getViewport()).draw(
 					mesh, GLMesh::PrimitiveType::QUADS).end();
 		framebuffer.end();
 
@@ -415,7 +415,7 @@ void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdM
 	if (mesh.triIndexes.size() > 0) {
 		framebuffer.begin();
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
-			"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", (int)mesh.quadIndexes.size()).set("MAX_DEPTH",
+			"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", 0).set("MAX_DEPTH",
 				camera.getFarPlane()).set(camera, framebuffer.getViewport()).draw(
 					mesh, GLMesh::PrimitiveType::TRIANGLES).end();
 		framebuffer.end();
