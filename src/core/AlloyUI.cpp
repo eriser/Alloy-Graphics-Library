@@ -179,15 +179,24 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
-	box2px pbounds = parent->getBounds();
-	dragOffset  = bounds.clamp(cursor - delta, pbounds) -d;
+	if (detached) {
+		dragOffset = cursor - delta - d;
+	}
+	else {
+		box2px pbounds = parent->getBounds();
+		dragOffset = bounds.clamp(cursor - delta, pbounds) - d;
+	}
 }
 void Region::addDragOffset(const pixel2& delta) {
 	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
 	box2px pbounds = parent->getBounds();
-	dragOffset = bounds.clamp(bounds.position + delta, pbounds) - d;
-
+	if (detached) {
+		dragOffset = bounds.position + delta - d;
+	}
+	else {
+		dragOffset = bounds.clamp(bounds.position + delta, pbounds) - d;
+	}
 }
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
@@ -1362,7 +1371,7 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 		TextField(name, position, dimensions) {
 	showDefaultLabel = true;
 	selectionBox = SelectionBoxPtr(new SelectionBox(label));
-	selectionBox->setDetacted(true);
+	selectionBox->setDetached(true);
 	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPerPX(0.0f, 0.0f, 2.0f, 0.0f));
 	selectionBox->setDimensions(CoordPerPX(1.0f, 0.8f, -4.0f, 0.0f));

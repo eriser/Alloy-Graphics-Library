@@ -64,8 +64,11 @@ public:
 	void setIgnoreCursorEvents(bool ignore) {
 		ignoreCursorEvents = ignore;
 	}
-	void setDetacted(bool enable) {
+	void setDetached(bool enable) {
 		detached = enable;
+	}
+	void setDragOffset(const pixel2& offset) {
+		dragOffset = offset;
 	}
 	inline void setRoundCorners(bool round) {
 		this->roundCorners = round;
@@ -213,9 +216,27 @@ protected:
 	std::shared_ptr<ScrollTrack> verticalScrollTrack, horizontalScrollTrack;
 	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
 	std::vector<std::shared_ptr<Region>> children;
+	typedef std::shared_ptr<Region> ValueType;
 public:
+	typedef std::vector<ValueType>::iterator iterator;
+	typedef std::vector<ValueType>::const_iterator const_iterator;
 	pixel2 cellPadding;
 	void clear();
+	std::vector<std::shared_ptr<Region>>& getChildren() {
+		return children;
+	}
+	iterator begin() {
+		return children.begin();
+	}
+	iterator end() {
+		return children.end();
+	}
+	const_iterator cbegin() const {
+		return children.cbegin();
+	}
+	const_iterator cend() const {
+		return children.cend();
+	}
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));

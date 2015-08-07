@@ -255,7 +255,11 @@ void Application::fireEvent(const InputEvent& event) {
 		context->requestUpdateCursor();
 	}
 	bool consumed = false;
-	if (event.type == InputType::MouseButton) {
+	if (event.type == InputType::Scroll&&
+		context->mouseOverRegion != nullptr
+		&& context->mouseOverRegion->onScroll) {
+		consumed=context->mouseOverRegion->onScroll(context.get(), event);
+	} else if (event.type == InputType::MouseButton) {
 		if (event.isDown()) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 				context->leftMouseButton = true;
@@ -383,10 +387,7 @@ void Application::onScroll(double xoffset, double yoffset) {
 	e.cursor = context->cursorPosition;
 	e.type = InputType::Scroll;
 	e.scroll = pixel2((pixel) xoffset, (pixel) yoffset);
-	if (context->mouseOverRegion != nullptr
-			&& context->mouseOverRegion->onScroll) {
-		context->mouseOverRegion->onScroll(context.get(), e);
-	}
+
 	fireEvent(e);
 }
 void Application::onMouseButton(int button, int action, int mods) {

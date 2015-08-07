@@ -657,7 +657,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
 	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
-	selectionBox->setDetacted(true);
+	selectionBox->setDetached(true);
 	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
 	selectionBox->setDimensions(CoordPercent(1.0f, 0.8f));
@@ -678,6 +678,17 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	add(selectionBox);
 	add(valueContainer);
 
+	Region::onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			context->setOnTopRegion(selectionBox.get());
+			selectionBox->setVisible(true);
+			selectionBox->setSelectionOffset(0);
+			selectionBox->setSelectedIndex(0);
+			return true;
+		}
+		return false;
+	};
 	selectionLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
@@ -1210,7 +1221,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 			AlloyApplicationContext()->theme.LIGHT);
 	colorSelectionPanel->setOrigin(Origin::TopCenter);
 	colorSelectionPanel->setVisible(false);
-	colorSelectionPanel->setDetacted(true);
+	colorSelectionPanel->setDetached(true);
 	colorSelectionPanel->setRoundCorners(true);
 	redSlider = std::shared_ptr<VerticalSlider>(
 			new VerticalSlider("R", CoordPX(0.0f, 0.0f),
