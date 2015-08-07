@@ -434,7 +434,7 @@ int FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMa
 		faceIdMap[idx++].x = hash;
 	}
 	glEnable(GL_BLEND);
-	return faceIdOffset + mesh.triIndexes.size() + mesh.quadIndexes.size();
+	return faceIdOffset +(int)( mesh.triIndexes.size() + mesh.quadIndexes.size());
 }
 FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShader(context),framebuffer(context){
 	GLShader::initialize(std::vector<std::string> { },

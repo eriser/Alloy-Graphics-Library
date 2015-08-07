@@ -90,6 +90,7 @@ private:
 	TextLabelPtr checkLabel;
 	TextLabelPtr valueLabel;
 	bool checked;
+	bool handleMouseDown(AlloyContext* context, const InputEvent& event);
 public:
 	std::function<void(bool)> onChange;
 	inline bool getValue() {
@@ -107,6 +108,7 @@ private:
 	TextLabelPtr offLabel;
 	CompositePtr clickRegion;
 	bool toggledOn;
+	bool handleMouseDown(AlloyContext* context,const InputEvent& e);
 public:
 	inline bool getValue() {
 		return toggledOn;

@@ -226,8 +226,27 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPercent(0.7f, 1.0f)));
 	RegionPtr north = MakeRegion("North", CoordPX(0, 0), CoordPercent(1.0, 1.0),
 			Color(255, 0, 0), COLOR_NONE, UnitPX(0));
-	RegionPtr south = MakeRegion("South", CoordPX(0, 0), CoordPercent(1.0, 1.0),
-			Color(0, 255, 0), COLOR_NONE, UnitPX(0));
+	CompositePtr south = MakeComposite("South", CoordPX(0, 0), CoordPercent(1.0, 1.0),
+			Color(0, 255, 0));
+
+
+	ToggleBoxPtr togglebox1 = ToggleBoxPtr(
+		new ToggleBox("Toggle 1", CoordPX(0.0f, 0.0f),
+			CoordPX(200,40), false));
+	ToggleBoxPtr togglebox2 = ToggleBoxPtr(
+		new ToggleBox("Toggle 2", CoordPX(0.0f, 0.0f),
+			CoordPX(200, 30), false));
+	ToggleBoxPtr togglebox3 = ToggleBoxPtr(
+		new ToggleBox("Toggle 3", CoordPX(0.0f, 0.0f),
+			CoordPX(400, 30), false));
+	CheckBoxPtr checkbox1 = CheckBoxPtr(
+		new CheckBox("CheckBox 3", CoordPX(0.0f, 0.0f),
+			CoordPX(400, 30), false));
+	south->setOrientation(Orientation::Vertical);
+	south->add(togglebox1);
+	south->add(togglebox2);
+	south->add(togglebox3);
+	south->add(checkbox1);
 	RegionPtr east = MakeRegion("East", CoordPX(0, 0), CoordPercent(1.0, 1.0),
 			Color(255, 255, 0), COLOR_NONE, UnitPX(0));
 	RegionPtr west = MakeRegion("West", CoordPX(0, 0), CoordPercent(1.0, 1.0),

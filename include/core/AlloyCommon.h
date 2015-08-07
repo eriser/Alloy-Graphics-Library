@@ -38,12 +38,7 @@ struct MakeString {
 		return *this;
 	}
 };
-struct DrawEvent3D {
 
-};
-struct DrawEvent2D {
-
-};
 }
 
 #endif /* ALLOYCOMMON_H_ */

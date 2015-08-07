@@ -94,8 +94,7 @@ Application::Application(int w, int h, const std::string& title,
 	initInternal();
 }
 void Application::draw() {
-	DrawEvent3D e3d;
-	DrawEvent2D e2d;
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);

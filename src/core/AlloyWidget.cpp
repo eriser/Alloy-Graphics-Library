@@ -26,6 +26,15 @@
 #include <future>
 using namespace std;
 namespace aly {
+	bool CheckBox::handleMouseDown(AlloyContext* context,const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->checked = !this->checked;
+			this->valueLabel->textColor = (this->checked) ? MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT) : MakeColor(AlloyApplicationContext()->theme.DARK);
+			if (onChange)onChange(this->checked);
+			return true;
+		}
+		return false;
+	}
 CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, bool checked) :
 		Widget(label, position, dimensions), checked(checked) {
@@ -54,33 +63,15 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 					MakeColor(AlloyApplicationContext()->theme.DARK);
 	valueLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->checked=!this->checked;
-					this->valueLabel->textColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
-					if (onChange)onChange(this->checked);
-					return true;
-				}
-				return false;
+		return handleMouseDown(context, event);
 			};
 	Region::onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			this->checked = !this->checked;
-			this->valueLabel->textColor = (this->checked) ? MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT) : MakeColor(AlloyApplicationContext()->theme.DARK);
-			if (onChange)onChange(this->checked);
-			return true;
-		}
-		return false;
+		return handleMouseDown(context, event);
 	};
 	checkLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->checked=!this->checked;
-					this->valueLabel->textColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
-					if (onChange)onChange(this->checked);
-					return true;
-				}
-				return false;
+		return handleMouseDown(context, event);
 			};
 }
 void CheckBox::setValue(bool value) {
@@ -132,8 +123,7 @@ void CheckBox::draw(AlloyContext* context) {
 			context->theme.CORNER_RADIUS);
 	nvgFill(nvg);
 
-	if (context->isMouseOver(valueLabel.get())
-			|| context->isMouseOver(checkLabel.get())) {
+	if (hover) {
 		nvgBeginPath(nvg);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 2.0f);
@@ -145,7 +135,16 @@ void CheckBox::draw(AlloyContext* context) {
 
 	Composite::draw(context);
 }
-
+bool ToggleBox::handleMouseDown(AlloyContext* context, const InputEvent& event) {
+	if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+		this->toggledOn = !this->toggledOn;
+		onLabel->setVisible(this->toggledOn);
+		offLabel->setVisible(!this->toggledOn);
+		if (onChange)onChange(this->toggledOn);
+		return true;
+	}
+	return false;
+}
 ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, bool checked) :
 		Widget(label, position, dimensions), toggledOn(checked) {
@@ -169,6 +168,7 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 	clickRegion = MakeComposite("tog select", CoordPercent(1.0f, 0.0f),
 			CoordPercent(0.42f, 1.0f));
 	clickRegion->setOrigin(Origin::TopRight);
+	clickRegion->setAspectRatio(2.5f);
 	clickRegion->setAspectRule(AspectRule::FixedHeight);
 	clickRegion->add(onLabel);
 	clickRegion->add(offLabel);
@@ -180,60 +180,23 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 
 	onLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->toggledOn=!this->toggledOn;
-					onLabel->setVisible(this->toggledOn);
-					offLabel->setVisible(!this->toggledOn);
-					if (onChange)onChange(this->toggledOn);
-					return true;
-				}
-				return false;
+		return handleMouseDown(context, event);
 			};
 	offLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->toggledOn=!this->toggledOn;
-					onLabel->setVisible(this->toggledOn);
-					offLabel->setVisible(!this->toggledOn);
-					if (onChange)onChange(this->toggledOn);
-					return true;
-				}
-				return false;
+		return handleMouseDown(context, event);
 			};
 	clickRegion->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->toggledOn=!this->toggledOn;
-					onLabel->setVisible(this->toggledOn);
-					offLabel->setVisible(!this->toggledOn);
-					if (onChange)onChange(this->toggledOn);
-
-					return true;
-				}
-				return false;
+		return handleMouseDown(context, event);
 			};
 	toggleLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					this->toggledOn=!this->toggledOn;
-					onLabel->setVisible(this->toggledOn);
-					offLabel->setVisible(!this->toggledOn);
-					if (onChange)onChange(this->toggledOn);
-					return true;
-				}
-				return false;
+		return handleMouseDown(context, event);
 			};
 	Region::onMouseDown =
 		[this](AlloyContext* context, const InputEvent& event) {
-		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			this->toggledOn = !this->toggledOn;
-			onLabel->setVisible(this->toggledOn);
-			offLabel->setVisible(!this->toggledOn);
-			if (onChange)onChange(this->toggledOn);
-
-			return true;
-		}
-		return false;
+		return handleMouseDown(context, event);
 	};
 
 }
@@ -292,8 +255,7 @@ void ToggleBox::draw(AlloyContext* context) {
 	} else {
 		pos = clickbox.position.x + radius;
 	}
-	if (context->isMouseOver(clickRegion.get())
-			|| context->isMouseOver(toggleLabel.get())) {
+	if (hover) {
 		nvgBeginPath(nvg);
 		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
 		nvgStrokeWidth(nvg, 2.0f);
