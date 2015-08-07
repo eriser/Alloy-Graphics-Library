@@ -399,32 +399,37 @@ void main()
 void FaceIdShader::initialize(int w, int h) {
 	framebuffer.initialize(w, h);
 }
-int FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset) {
+int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
 	faceIdMap.resize(framebuffer.width(),framebuffer.height());
-	if (mesh.quadIndexes.size() > 0) {
-		framebuffer.begin();
-		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
-			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
-				camera.getFarPlane()).set("vertIdOffset",(int)mesh.triIndexes.size()+ faceIdOffset).set(camera, framebuffer.getViewport()).draw(
-					mesh, GLMesh::PrimitiveType::QUADS).end();
-		framebuffer.end();
+	framebuffer.begin();
+	for (const Mesh* mesh : meshes) {
+		if (mesh->triIndexes.size() > 0) {
+			framebuffer.begin();
+			begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+				"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", faceIdOffset).set("MAX_DEPTH",
+					camera.getFarPlane()).set(camera, framebuffer.getViewport()).draw(
+			{mesh}, GLMesh::PrimitiveType::TRIANGLES).end();
+		}
+		faceIdOffset+=(int)mesh->triIndexes.size();
+		if (mesh->quadIndexes.size() > 0) {
+			begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
+				"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
+					camera.getFarPlane()).set("vertIdOffset", faceIdOffset).set(camera, framebuffer.getViewport()).draw(
+			{ mesh }, GLMesh::PrimitiveType::QUADS).end();
+		}
+		faceIdOffset += (int)mesh->quadIndexes.size();
+	}
 
-	}
-	if (mesh.triIndexes.size() > 0) {
-		framebuffer.begin();
-		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
-			"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", faceIdOffset).set("MAX_DEPTH",
-				camera.getFarPlane()).set(camera, framebuffer.getViewport()).draw(
-					mesh, GLMesh::PrimitiveType::TRIANGLES).end();
-		framebuffer.end();
-	}
+	framebuffer.end();
+
+	glEnable(GL_BLEND);
 	ImageRGBAf& irgba = framebuffer.getTexture().read();
 	size_t idx = 0;
 	int hash;
 	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3(rgbaf.x, rgbaf.y, rgbaf.z);
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
 		if (rgbaf.w > 0.0f) {
 			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
 		}
@@ -433,8 +438,7 @@ int FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMa
 		}
 		faceIdMap[idx++].x = hash;
 	}
-	glEnable(GL_BLEND);
-	return faceIdOffset +(int)( mesh.triIndexes.size() + mesh.quadIndexes.size());
+	return faceIdOffset;
 }
 FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShader(context),framebuffer(context){
 	GLShader::initialize(std::vector<std::string> { },
@@ -714,24 +718,20 @@ if(IS_QUAD!=0){
 })");
 
 }
-void DepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
+void DepthAndNormalShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	if (mesh.quadIndexes.size() > 0) {
-		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
 				"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
 				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
-				mesh, GLMesh::PrimitiveType::QUADS).end();
-	}
-	if (mesh.triIndexes.size() > 0) {
-		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
+		meshes , GLMesh::PrimitiveType::QUADS).end();
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
 			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
 				camera.getFarPlane()).set(camera, frameBuffer.getViewport()).draw(
-					mesh, GLMesh::PrimitiveType::TRIANGLES).end();
-	}
+		 meshes, GLMesh::PrimitiveType::TRIANGLES).end();
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
@@ -892,21 +892,18 @@ if(IS_QUAD!=0){
 	
 					 })");
 }
-void EdgeDepthAndNormalShader::draw(const Mesh& mesh, VirtualCamera& camera,
+void EdgeDepthAndNormalShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
 		GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	if (mesh.quadIndexes.size() > 0) {
-		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(
-				camera, frameBuffer.getViewport()).draw(mesh,
+	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(
+				camera, frameBuffer.getViewport()).draw(meshes,
 				GLMesh::PrimitiveType::QUADS).end();
-	}
 	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0).set(camera,
-			frameBuffer.getViewport()).draw(mesh,
+			frameBuffer.getViewport()).draw(meshes,
 			GLMesh::PrimitiveType::TRIANGLES).end();
-
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }

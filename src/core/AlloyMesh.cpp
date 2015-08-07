@@ -74,7 +74,6 @@ void GLMesh::draw() const {
 	draw(PrimitiveType::ALL);
 }
 void GLMesh::draw(const PrimitiveType& type) const {
-
 	if (mesh.isDirty()) {
 		mesh.update();
 		mesh.setDirty(false);
@@ -99,8 +98,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 	}
 
 	CHECK_GL_ERROR();
-	if (type != GLMesh::PrimitiveType::TRIANGLES) {
-		if (quadIndexCount > 0) {
+	if (type != GLMesh::PrimitiveType::TRIANGLES&&quadIndexCount>0) {
 			for (int n = 0; n < 4; n++) {
 				if (quadVertexBuffer[n] > 0) {
 					glEnableVertexAttribArray(3 + n);
@@ -116,14 +114,10 @@ void GLMesh::draw(const PrimitiveType& type) const {
 					glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 				}
 			}
-			if (quadIndexCount > 0) {
-				glDrawArrays(GL_POINTS, 0, quadIndexCount);
-			}
-		}
+			glDrawArrays(GL_POINTS, 0, quadIndexCount);
 	}
 	CHECK_GL_ERROR();
-
-	if (type != GLMesh::PrimitiveType::QUADS) {
+	if (type != GLMesh::PrimitiveType::QUADS&&triIndexCount>0) {
 		for (int n = 0; n < 3; n++) {
 			if (triVertexBuffer[n] > 0) {
 				glEnableVertexAttribArray(3 + n);
@@ -138,9 +132,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 				glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			}
 		}
-		if (triIndexCount > 0) {
-			glDrawArrays(GL_POINTS, 0, triIndexCount);
-		}
+		glDrawArrays(GL_POINTS, 0, triIndexCount);
 	}
 	for (int i = 0; i < 11; i++) {
 		glDisableVertexAttribArray(i);

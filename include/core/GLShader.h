@@ -324,8 +324,10 @@ public:
 	}
 
 	GLShader& begin();
-	GLShader& draw(const GLComponent& comp);
-	GLShader& draw(const Mesh& mesh, const GLMesh::PrimitiveType& type);
+	GLShader& draw(const std::initializer_list<const GLComponent*>& comps);
+	GLShader& draw(const std::initializer_list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type);
+	GLShader& draw(const GLComponent& comps);
+	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type);
 
 	void end();
 	inline GLuint GetProgramHandle() const {

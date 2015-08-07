@@ -27,14 +27,21 @@
 #include "GLFrameBuffer.h"
 #include "AlloyImage.h"
 #include "AlloyUnits.h"
+#include <initializer_list>
 namespace aly {
 class VirtualCamera;
 class DepthAndNormalShader : public GLShader {
 public:
 	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera,
+	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
 		GLFrameBuffer& framebuffer, bool flatShading = false);
+
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+		GLFrameBuffer& framebuffer, bool flatShading = false) {
+		draw({ &mesh }, camera, framebuffer, flatShading);
+	}
+
 };
 class FaceIdShader :public GLShader {
 private:
@@ -43,7 +50,10 @@ public:
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
 	void initialize(int w, int h);
-	int draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset=0);
+	int draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset=0);
+	int draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap, int faceIdOffset = 0) {
+		return draw({ &mesh }, camera, faceIdMap,faceIdOffset);
+	}
 };
 
 class MatcapShader: public GLShader {
@@ -206,8 +216,13 @@ public:
 	EdgeDepthAndNormalShader(
 		const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-	void draw(const Mesh& mesh, VirtualCamera& camera,
+	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
 			GLFrameBuffer& framebuffer);
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+		GLFrameBuffer& framebuffer) {
+		draw({ &mesh }, camera, framebuffer);
+	};
+
 };
 struct SimpleLight {
 	Color ambientColor;
