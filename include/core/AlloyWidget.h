@@ -363,6 +363,7 @@ private:
 	bool enableMultiSelection = false;
 	FileType fileType = FileType::File;
 	void setSelectedFile(const std::string& file);
+
 	bool onMouseDown(FileEntry* entry, AlloyContext* context,
 			const InputEvent& e);
 	bool onMouseOver(FileEntry* entry, AlloyContext* context,
@@ -371,11 +372,12 @@ private:
 			const InputEvent& e);
 	bool onMouseUp(FileEntry* entry, AlloyContext* context,
 			const InputEvent& e);
+	pixel fileEntryHeight;
 public:
 	friend class FileEntry;
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(const std::string& name, const AUnit2D& pos,
-			const AUnit2D& dims);
+			const AUnit2D& dims,pixel fileEntryHeight=30);
 	void setEnableMultiSelection(bool enable);
 	void setFileSelectionType(FileType type);
 	bool isMultiSelectionEnabled();

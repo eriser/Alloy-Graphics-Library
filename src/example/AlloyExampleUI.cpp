@@ -242,7 +242,15 @@ bool ExampleUI::init(Composite& rootNode) {
 	CheckBoxPtr checkbox1 = CheckBoxPtr(
 		new CheckBox("CheckBox 3", CoordPX(0.0f, 0.0f),
 			CoordPX(400, 30), false));
+	SelectionPtr dropdown =
+		SelectionPtr(
+			new Selection("Selection", CoordPX(0,0),
+				CoordPX(200, 30), std::vector<std::string> {
+		"Mission", "Bernal Heights", "Noe Valley",
+			"Telegraph Hill", "North Beach"}));
 	south->setOrientation(Orientation::Vertical);
+
+	south->add(dropdown);
 	south->add(togglebox1);
 	south->add(togglebox2);
 	south->add(togglebox3);

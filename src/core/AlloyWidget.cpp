@@ -1926,7 +1926,7 @@ void FileEntry::setValue(const FileDescription& description) {
 		return dialog->onMouseDrag(this,context,e);
 	};
 	this->onMouseOver = [this](AlloyContext* context, const InputEvent& e) {
-		return dialog->onMouseDown(this, context, e);
+		return dialog->onMouseOver(this, context, e);
 	};
 
 }
@@ -2093,14 +2093,16 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		select = true;
 	}
 	lastSelected.clear();
-	fileEntries.clear();
+	
 	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(
 			dir);
 	int i = 0;
+
+	fileEntries.clear();
 	for (FileDescription& fd : descriptions) {
 		FileEntry* entry = new FileEntry(this, MakeString() << "Entry " << i,
 				CoordPX(0, 0),
-				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 30.0f));
+				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, fileEntryHeight));
 		fileEntries.push_back(std::shared_ptr<FileEntry>(entry));
 		entry->setValue(fd);
 		if (select && entry->fileDescription.fileLocation == file) {
@@ -2111,13 +2113,13 @@ void FileDialog::setSelectedFile(const std::string& file) {
 	directoryList->clear();
 	AlloyApplicationContext()->addDeferredTask([this]() {
 		for (std::shared_ptr<FileEntry>& entry : fileEntries) {
-			directoryList->add(entry);
+			if(entry->parent==nullptr)directoryList->add(entry);
 		}
 	});
 }
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
-		const AUnit2D& dims) :
-		Widget(name, pos, dims) {
+		const AUnit2D& dims,pixel fileEntryHeight) :
+		Widget(name, pos, dims), fileEntryHeight(fileEntryHeight){
 	containerRegion = std::shared_ptr<BorderComposite>(
 			new BorderComposite("Container", CoordPX(0, 15),
 					CoordPerPX(1.0, 1.0, -15, -15)));
