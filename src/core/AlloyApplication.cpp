@@ -99,12 +99,9 @@ void Application::draw() {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	draw(e3d);
-	CHECK_GL_ERROR();
+	draw(context.get());
 	glDisable(GL_DEPTH_TEST);
 	glViewport(0, 0, context->width(), context->height());
-	draw(e2d);
-	CHECK_GL_ERROR();
 	drawUI();
 	if (context->isDebugEnabled()) {
 		glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);

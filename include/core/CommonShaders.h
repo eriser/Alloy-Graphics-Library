@@ -43,7 +43,7 @@ public:
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
 	void initialize(int w, int h);
-	void draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap);
+	int draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset=0);
 };
 
 class MatcapShader: public GLShader {

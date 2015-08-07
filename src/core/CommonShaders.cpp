@@ -399,7 +399,7 @@ void main()
 void FaceIdShader::initialize(int w, int h) {
 	framebuffer.initialize(w, h);
 }
-void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap) {
+int FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
 	faceIdMap.resize(framebuffer.width(),framebuffer.height());
@@ -407,7 +407,7 @@ void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdM
 		framebuffer.begin();
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
 			"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
-				camera.getFarPlane()).set("vertIdOffset",(int)mesh.triIndexes.size()).set(camera, framebuffer.getViewport()).draw(
+				camera.getFarPlane()).set("vertIdOffset",(int)mesh.triIndexes.size()+ faceIdOffset).set(camera, framebuffer.getViewport()).draw(
 					mesh, GLMesh::PrimitiveType::QUADS).end();
 		framebuffer.end();
 
@@ -415,7 +415,7 @@ void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdM
 	if (mesh.triIndexes.size() > 0) {
 		framebuffer.begin();
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
-			"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", 0).set("MAX_DEPTH",
+			"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", faceIdOffset).set("MAX_DEPTH",
 				camera.getFarPlane()).set(camera, framebuffer.getViewport()).draw(
 					mesh, GLMesh::PrimitiveType::TRIANGLES).end();
 		framebuffer.end();
@@ -434,6 +434,7 @@ void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdM
 		faceIdMap[idx++].x = hash;
 	}
 	glEnable(GL_BLEND);
+	return faceIdOffset + mesh.triIndexes.size() + mesh.quadIndexes.size();
 }
 FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShader(context),framebuffer(context){
 	GLShader::initialize(std::vector<std::string> { },

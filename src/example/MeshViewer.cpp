@@ -36,8 +36,6 @@ bool MeshViewer::init(Composite& rootNode) {
 	mesh2.updateVertexNormals();
 	float4x4 M=MakeTransform(mesh2.getBoundingBox(), mesh.getBoundingBox());
 	mesh2.transform(M);
-	//
-	//mesh.transform(MakeRotationY((float)(0.2f*M_PI))*MakeRotationX((float)(-0.5f*M_PI)));
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 
@@ -75,7 +73,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	camera.setDirty(true);
 	return true;
 }
-void MeshViewer::draw(const aly::DrawEvent3D& event) {
+void MeshViewer::draw(AlloyContext* context) {
 	static bool once = true;
 	if (camera.isDirty()) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
@@ -85,6 +83,7 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 
 		faceShader.draw(mesh, camera, faceIdMap);
 
+		/*
 		if (once) {
 			std::set<int> idx;
 			for (int hash : faceIdMap)
@@ -99,11 +98,10 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 			std::cout << std::endl;
 			once = false;
 		}
+		*/
 	}
-}
-void MeshViewer::draw(const aly::DrawEvent2D& event) {
+	glDisable(GL_DEPTH_TEST);
 	float2 dRange = camera.computeNormalizedDepthRange(mesh);
-
 	depthColorShader.draw(edgeFrameBuffer.getTexture(),
 			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
 			float2(480, 480));
@@ -117,23 +115,7 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
 			
-	/*
-	colorBuffer1.begin();
-	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
-		getContext()->getViewport(), camera,
-		colorBuffer1.getViewport());
-	colorBuffer1.end();
 
-	colorBuffer2.begin();
-	phongShader2.draw(smoothDepthFrameBuffer2.getTexture(),
-		getContext()->getViewport(), camera,
-		colorBuffer2.getViewport());
-	colorBuffer2.end();
-	compositeShader.draw(
-		colorBuffer1.getTexture(), smoothDepthFrameBuffer1.getTexture(),
-		colorBuffer2.getTexture(), smoothDepthFrameBuffer2.getTexture(),
-		float2(960.0f, 480.0f), float2(480, 480), 0.5f, 1.0f);
-*/
 	glEnable(GL_DEPTH_TEST);
 	
 
@@ -150,8 +132,6 @@ void MeshViewer::draw(const aly::DrawEvent2D& event) {
 		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
 	
 	glDisable(GL_DEPTH_TEST);
-	static bool once = true;
-	
 	if(once){
 	colorBuffer1.getTexture().read().writeToXML("color1.xml");
 	colorBuffer2.getTexture().read().writeToXML("color2.xml");

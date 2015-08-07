@@ -116,10 +116,10 @@ void VirtualCamera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 		cameraTrans[0] += 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_PAGE_UP) {
-		distanceToObject = (1 + zoomSpeed) * distanceToObject;
+		distanceToObject = std::max(1E-3f, (1 + zoomSpeed) * distanceToObject);
 		changed = true;
 	} else if (key == GLFW_KEY_PAGE_DOWN) {
-		distanceToObject = (1 - zoomSpeed) * distanceToObject;
+		distanceToObject = std::max(1E-3f, (1 - zoomSpeed) * distanceToObject);
 		changed = true;
 	} else {
 		if (glfwGetKey(win, key) == GLFW_PRESS) {
@@ -208,7 +208,7 @@ void VirtualCamera::handleCursorEvent(float x, float y) {
 	mouseYPos = y;
 }
 void VirtualCamera::handleScrollEvent(int pos) {
-	distanceToObject = (1 - pos * zoomSpeed) * distanceToObject;
+	distanceToObject = std::max(1E-3f,(1 - pos * zoomSpeed) * distanceToObject);
 	changed = true;
 }
 }

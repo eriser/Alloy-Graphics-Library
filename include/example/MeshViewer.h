@@ -61,8 +61,7 @@ private:
 public:
 	MeshViewer();
 	bool init(aly::Composite& rootNode) override;
-	void draw(const aly::DrawEvent3D& event) override;
-	void draw(const aly::DrawEvent2D& event) override;
+	void draw(aly::AlloyContext* context) override;
 };
 
 #endif /* ALLOYEXAMPLEUI_H_ */
