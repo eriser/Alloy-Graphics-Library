@@ -64,7 +64,24 @@ private:
 	std::vector<vec<T, C>> storage;
 	std::string hashCode;
 public:
+
 	std::vector<vec<T, C>>& data;
+	typedef vec<T, C> ValueType;
+	typedef typename std::vector<ValueType>::iterator iterator;
+	typedef typename std::vector<ValueType>::const_iterator const_iterator;
+	iterator begin() const {
+		return data.begin();
+	}
+	iterator end() {
+		return data.end();
+	}
+	const_iterator cbegin() const {
+		return data.cbegin();
+	}
+	const_iterator cend() const {
+		return data.cend();
+	}
+
 	int width;
 	int height;
 	int x, y;
@@ -75,6 +92,10 @@ public:
 	std::string getHashCode() {
 		return hashCode;
 	}
+	iterator begin() {
+		return data.begin();
+	}
+
 	template<class Archive> void serialize(Archive & archive) {
 		archive(cereal::make_nvp(MakeString()<<type<<channels,id), CEREAL_NVP(width), CEREAL_NVP(height),
 				CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(hashCode));
@@ -118,11 +139,12 @@ public:
 	std::string getTypeName() const {
 		return MakeString() << type << channels;
 	}
-	const Image<T, C, I>& operator=(const Image<T, C, I>& img) const {
-		return Image<T, C, I>(&data[0], img.width, img.height, img.x, img.y,
-				img.id);
-	}
 
+	Image<T, C, I> operator=(const Image<T, C, I>& img) const {
+		Image<T, C, I> imgOut(img.width, img.height, img.x, img.y,img.id);
+		imgOut.set(img.data.data());
+		return imgOut;
+	}
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			width(w), height(h), x(x), y(x), id(id), data(storage) {
 		data.resize(w * h);

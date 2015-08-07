@@ -37,7 +37,21 @@ private:
 public:
 	std::vector<vec<T, C>>& data;
 	const int channels = C;
-
+	typedef vec<T, C> ValueType;
+	typedef typename std::vector<ValueType>::iterator iterator;
+	typedef typename std::vector<ValueType>::const_iterator const_iterator;
+	iterator begin() const {
+		return data.begin();
+	}
+	iterator end() {
+		return data.end();
+	}
+	const_iterator cbegin() const {
+		return data.cbegin();
+	}
+	const_iterator cend() const {
+		return data.cend();
+	}
 	template<class Archive>
 	void save(Archive & archive) const {
 		archive(
@@ -84,8 +98,10 @@ public:
 		}
 	}
 
-	const Vector<T, C>& operator=(const Vector<T, C>& img) const {
-		return Vector<T, C>(&img.data[0], img.size());
+	Vector<T, C> operator=(const Vector<T, C>& img) const {
+		Vector<T, C> out(img.size());
+		out.set(img.data.data());
+		return out;
 	}
 	Vector(size_t sz) :
 			data(storage) {
@@ -121,6 +137,9 @@ public:
 		data.shrink_to_fit();
 	}
 	void append(const vec<T, C>& val) {
+		data.push_back(val);
+	}
+	void push_back(const vec<T, C>& val) {
 		data.push_back(val);
 	}
 	T* ptr() {

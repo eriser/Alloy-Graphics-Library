@@ -91,9 +91,11 @@ private:
 	TextLabelPtr valueLabel;
 	bool checked;
 public:
+	std::function<void(bool)> onChange;
 	inline bool getValue() {
 		return checked;
 	}
+	void setValue(bool value);
 	CheckBox(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, bool checked = false);
 	virtual void draw(AlloyContext* context) override;
@@ -109,6 +111,9 @@ public:
 	inline bool getValue() {
 		return toggledOn;
 	}
+	std::function<void(bool)> onChange;
+
+	void setValue(bool value);
 	ToggleBox(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, bool toggledOn = false);
 	virtual void draw(AlloyContext* context) override;

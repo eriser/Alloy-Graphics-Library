@@ -104,10 +104,10 @@ void VirtualCamera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 		cameraTrans = float3(0, 0, 0);
 		changed = true;
 	} else if (key == GLFW_KEY_UP) {
-		cameraTrans[1] -= 0.025f;
+		cameraTrans[1] += 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_DOWN) {
-		cameraTrans[1] += 0.025f;
+		cameraTrans[1] -= 0.025f;
 		changed = true;
 	} else if (key == GLFW_KEY_LEFT) {
 		cameraTrans[0] -= 0.025f;
@@ -162,22 +162,26 @@ void VirtualCamera::handleButtonEvent(int button, int action) {
 
 bool VirtualCamera::onEventHandler(AlloyContext* context,
 		const InputEvent& event) {
-
-	pixel2 lastPt = context->getCursorDownPosition();
-	switch (event.type) {
-	case InputType::Cursor:
-		handleCursorEvent(event.cursor.x, event.cursor.y);
-		return true;
-	case InputType::MouseButton:
-		handleButtonEvent(event.button, event.action);
-		return true;
-	case InputType::Scroll:
-		handleScrollEvent((int) event.scroll.y);
-		return true;
-	case InputType::Key:
-		handleKeyEvent(context->window, event.key, event.action);
-		return true;
-	default:
+	if (!event.isAltDown() && !event.isShiftDown() && !event.isControlDown()) {
+		pixel2 lastPt = context->getCursorDownPosition();
+		switch (event.type) {
+		case InputType::Cursor:
+			handleCursorEvent(event.cursor.x, event.cursor.y);
+			return true;
+		case InputType::MouseButton:
+			handleButtonEvent(event.button, event.action);
+			return true;
+		case InputType::Scroll:
+			handleScrollEvent((int)event.scroll.y);
+			return true;
+		case InputType::Key:
+			handleKeyEvent(context->window, event.key, event.action);
+			return true;
+		default:
+			return false;
+		}
+	}
+	else {
 		return false;
 	}
 }

@@ -35,6 +35,7 @@ class Application {
 private:
 	bool showDebugIcon;
 	float frameRate = 0.0f;
+	InputEvent inputEvent;
 	static std::shared_ptr<AlloyContext>& context;
 	void drawUI();
 	void drawDebugUI();
@@ -109,6 +110,9 @@ public:
 	void onScroll(double xoffset, double yoffset);
 	void onCursorEnter(int enter);
 	void fireEvent(const InputEvent& event);
+	InputEvent getLastInputEvent() {
+		return inputEvent;
+	}
 	inline void throwException(std::exception_ptr e) {
 		caughtExceptions.push_back(e);
 	}

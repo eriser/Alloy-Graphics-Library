@@ -57,19 +57,35 @@ CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					this->checked=!this->checked;
 					this->valueLabel->textColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
+					if (onChange)onChange(this->checked);
 					return true;
 				}
 				return false;
 			};
+	Region::onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->checked = !this->checked;
+			this->valueLabel->textColor = (this->checked) ? MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT) : MakeColor(AlloyApplicationContext()->theme.DARK);
+			if (onChange)onChange(this->checked);
+			return true;
+		}
+		return false;
+	};
 	checkLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 					this->checked=!this->checked;
 					this->valueLabel->textColor=(this->checked)?MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT):MakeColor(AlloyApplicationContext()->theme.DARK);
+					if (onChange)onChange(this->checked);
 					return true;
 				}
 				return false;
 			};
+}
+void CheckBox::setValue(bool value) {
+	this->checked = value;
+	this->valueLabel->textColor = (this->checked) ? MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT) : MakeColor(AlloyApplicationContext()->theme.DARK);
 }
 void CheckBox::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -168,6 +184,7 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 					this->toggledOn=!this->toggledOn;
 					onLabel->setVisible(this->toggledOn);
 					offLabel->setVisible(!this->toggledOn);
+					if (onChange)onChange(this->toggledOn);
 					return true;
 				}
 				return false;
@@ -178,6 +195,7 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 					this->toggledOn=!this->toggledOn;
 					onLabel->setVisible(this->toggledOn);
 					offLabel->setVisible(!this->toggledOn);
+					if (onChange)onChange(this->toggledOn);
 					return true;
 				}
 				return false;
@@ -188,6 +206,8 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 					this->toggledOn=!this->toggledOn;
 					onLabel->setVisible(this->toggledOn);
 					offLabel->setVisible(!this->toggledOn);
+					if (onChange)onChange(this->toggledOn);
+
 					return true;
 				}
 				return false;
@@ -198,10 +218,29 @@ ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 					this->toggledOn=!this->toggledOn;
 					onLabel->setVisible(this->toggledOn);
 					offLabel->setVisible(!this->toggledOn);
+					if (onChange)onChange(this->toggledOn);
 					return true;
 				}
 				return false;
 			};
+	Region::onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->toggledOn = !this->toggledOn;
+			onLabel->setVisible(this->toggledOn);
+			offLabel->setVisible(!this->toggledOn);
+			if (onChange)onChange(this->toggledOn);
+
+			return true;
+		}
+		return false;
+	};
+
+}
+void ToggleBox::setValue(bool value) {
+	this->toggledOn = value;
+	onLabel->setVisible(this->toggledOn);
+	offLabel->setVisible(!this->toggledOn);
 }
 void ToggleBox::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -2212,8 +2251,8 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 }
 CompositePtr& ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 	CompositePtr container = MakeComposite("Content Container",
-			CoordPX(Composite::scrollBarSize, 0.0f),
-			CoordPerPX(1.0f, 0.0f, -2.0f * Composite::scrollBarSize, 0.0f));
+			CoordPX(0.0f, 0.0f),
+			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f));
 	container->setOrientation(Orientation::Vertical);
 	region->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	region->borderColor = MakeColor(AlloyApplicationContext()->theme.NEUTRAL);
@@ -2222,8 +2261,8 @@ CompositePtr& ExpandBar::add(const std::shared_ptr<Region>& region, bool expande
 	container->add(region);
 	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(
 			new ExpandRegion(region->name, container,
-					CoordPX(Composite::scrollBarSize, 0.0f),
-					CoordPerPX(1.0f, 0.0f, -2.0f * Composite::scrollBarSize,
+					CoordPX(0.0f, 0.0f),
+					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
 							30.0f)));
 
 	eregion->setExpanded(expanded);

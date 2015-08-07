@@ -349,7 +349,7 @@ void Application::onWindowSize(int width, int height) {
 void Application::onCursorPos(double xpos, double ypos) {
 	context->hasFocus = true;
 	context->cursorPosition = pixel2((pixel) xpos, (pixel) ypos);
-	InputEvent e;
+	InputEvent& e = inputEvent;
 	e.type = InputType::Cursor;
 	e.cursor = pixel2((pixel) xpos, (pixel) ypos);
 	fireEvent(e);
@@ -358,8 +358,7 @@ void Application::onCursorPos(double xpos, double ypos) {
 void Application::onWindowFocus(int focused) {
 	if (focused) {
 		context->hasFocus = true;
-
-		InputEvent e;
+		InputEvent& e = inputEvent;
 		e.type = InputType::Cursor;
 		e.cursor = context->cursorPosition;
 		fireEvent(e);
@@ -375,7 +374,7 @@ void Application::onCursorEnter(int enter) {
 	if (!enter) {
 		context->hasFocus = false;
 		context->mouseOverRegion = nullptr;
-		InputEvent e;
+		InputEvent& e = inputEvent;
 		e.type = InputType::Cursor;
 		e.cursor = context->cursorPosition;
 		fireEvent(e);
@@ -384,7 +383,7 @@ void Application::onCursorEnter(int enter) {
 	}
 }
 void Application::onScroll(double xoffset, double yoffset) {
-	InputEvent e;
+	InputEvent& e = inputEvent;
 	e.cursor = context->cursorPosition;
 	e.type = InputType::Scroll;
 	e.scroll = pixel2((pixel) xoffset, (pixel) yoffset);
@@ -395,7 +394,7 @@ void Application::onScroll(double xoffset, double yoffset) {
 	fireEvent(e);
 }
 void Application::onMouseButton(int button, int action, int mods) {
-	InputEvent e;
+	InputEvent& e = inputEvent;
 	e.type = InputType::MouseButton;
 	e.cursor = context->cursorPosition;
 	e.button = button;
@@ -404,7 +403,7 @@ void Application::onMouseButton(int button, int action, int mods) {
 	fireEvent(e);
 }
 void Application::onKey(int key, int scancode, int action, int mods) {
-	InputEvent e;
+	InputEvent& e = inputEvent;
 	e.type = InputType::Key;
 	e.action = action;
 	e.key = key;
@@ -414,7 +413,7 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 	fireEvent(e);
 }
 void Application::onChar(unsigned int codepoint) {
-	InputEvent e;
+	InputEvent& e = inputEvent;
 	e.type = InputType::Character;
 	e.codepoint = codepoint;
 	e.cursor = context->cursorPosition;

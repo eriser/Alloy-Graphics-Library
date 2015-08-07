@@ -87,7 +87,7 @@ void MeshViewer::draw(const aly::DrawEvent3D& event) {
 
 		if (once) {
 			std::set<int> idx;
-			for (int hash : faceIdMap.data)
+			for (int hash : faceIdMap)
 			{
 				idx.insert(hash);
 			}

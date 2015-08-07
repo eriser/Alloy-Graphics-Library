@@ -422,9 +422,15 @@ void FaceIdShader::draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdM
 	}
 	ImageRGBAf& irgba = framebuffer.getTexture().read();
 	size_t idx = 0;
+	int hash;
 	for (RGBAf rgbaf : irgba.data) {
 		int3 rgba = int3(rgbaf.x, rgbaf.y, rgbaf.z);
-		int hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+		}
+		else {
+			hash = -1;
+		}
 		faceIdMap[idx++].x = hash;
 	}
 	glEnable(GL_BLEND);
@@ -461,13 +467,13 @@ FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShade
 					vs_out.n1=vn1;
 					vs_out.n2=vn2;
 					vs_out.n3=vn3;
-					vs_out.vertId=gl_VertexID+vertIdOffset;
+					vs_out.vertId=int(gl_VertexID)+vertIdOffset;
 				}
 )", R"(
 	#version 330
 	flat in int vertId;
 	void main() {
-		vec4 rgba = vec4(vertId & 0x00000FFF, ((vertId & 0x00FFF000) >> 12), ((vertId & 0xFF000000) >> 24), 1.0);
+		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1.0);
 		gl_FragColor = rgba;
 }
 	)",
