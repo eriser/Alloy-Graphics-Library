@@ -401,8 +401,8 @@ void TextButton::draw(AlloyContext* context) {
 }
 
 TextIconButton::TextIconButton(const std::string& label, int iconCode,
-		const AUnit2D& position, const AUnit2D& dimensions) :
-		iconCodeString(CodePointToUTF8(iconCode)), Widget(label) {
+		const AUnit2D& position, const AUnit2D& dimensions,const  HorizontalAlignment& iconAlignment) :
+		iconCodeString(CodePointToUTF8(iconCode)), Widget(label),iconAlignment(iconAlignment) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -483,18 +483,37 @@ void TextIconButton::draw(AlloyContext* context) {
 	pixel2 offset(0, 0);
 
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
-
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-	nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + xoff,
+	if (iconAlignment == HorizontalAlignment::Right) {
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+		nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + xoff,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
 			nullptr);
 
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-	nvgText(nvg,
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+		nvgText(nvg,
 			AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
-					+ (bounds.dimensions.x - ww) / 2 + tw + xoff,
+			+ (bounds.dimensions.x - ww) / 2 + tw + xoff,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff,
 			iconCodeString.c_str(), nullptr);
+	}
+	else if (iconAlignment == HorizontalAlignment::Left) {
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+		nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + AlloyApplicationContext()->theme.SPACING.x + iw+ xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
+			nullptr);
+
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+		nvgText(nvg, bounds.position.x
+			+ (bounds.dimensions.x - ww) / 2  + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff,
+			iconCodeString.c_str(), nullptr);
+	}
+	else {
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+		nvgText(nvg, bounds.position.x + (bounds.dimensions.x - tw) / 2  + xoff,
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
+			nullptr);
+	}
 }
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
 		const AUnit2D& position, const AUnit2D& dimensions) :
@@ -641,7 +660,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	selectionBox->setDetacted(true);
 	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
-	selectionBox->setDimensions(CoordPercent(1.0f, 1.0f));
+	selectionBox->setDimensions(CoordPercent(1.0f, 0.8f));
 	selectionBox->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 	selectionBox->borderColor = MakeColor(
@@ -2123,7 +2142,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0, 1.0, -15, -15)));
 	openButton = std::shared_ptr<TextIconButton>(
 			new TextIconButton("Open", 0xf115,
-					CoordPerPX(1.0f, 1.0f, -7.0f, -7.0f), CoordPX(100, 30)));
+					CoordPerPX(1.0f, 1.0f, -7.0f, -7.0f), CoordPX(100, 30),HorizontalAlignment::Left));
 	openButton->setOrigin(Origin::BottomRight);
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("File Location", CoordPX(7, 7),

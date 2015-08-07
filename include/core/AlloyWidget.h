@@ -50,9 +50,10 @@ private:
 	AColor textColor;
 	AUnit1D fontSize;
 	std::string iconCodeString;
+	HorizontalAlignment iconAlignment;
 public:
 	TextIconButton(const std::string& label, int iconCode,
-			const AUnit2D& position, const AUnit2D& dimensions);
+			const AUnit2D& position, const AUnit2D& dimensions,const HorizontalAlignment& iconAlignment= HorizontalAlignment::Right);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~TextIconButton() {
 	}
