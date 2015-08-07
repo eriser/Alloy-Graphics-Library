@@ -798,8 +798,6 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderTrack.get(),e);};
 	sliderHandle->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseDown(context,sliderHandle.get(),e);};
-	sliderHandle->onMouseUp =
-			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
 				return this->onMouseDrag(context,sliderHandle.get(),e);};
@@ -983,8 +981,6 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderHandle->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
 				return this->onMouseDown(context,sliderHandle.get(),e);};
-	sliderHandle->onMouseUp =
-			[this](AlloyContext* context,const InputEvent& e) {return this->onMouseUp(context,sliderHandle.get(),e);};
 	sliderHandle->onMouseDrag =
 			[this](AlloyContext* context,const InputEvent& e) {
 				return this->onMouseDrag(context,sliderHandle.get(),e);};
@@ -1894,8 +1890,10 @@ void FileSelector::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
 	fileDialog->setValue(workingDirectory);
 	if (!fileDialog->isVisible()) {
+		fileDialog->setVisible(true);
 		context->getGlassPanel()->setVisible(true);
 	} else {
+		fileDialog->setVisible(false);
 		context->getGlassPanel()->setVisible(false);
 	}
 }
@@ -2140,6 +2138,11 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 							FontStyle::Normal, 21),
 					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30)));
 	cancelButton->setOrigin(Origin::BottomLeft);
+	cancelButton->onMouseDown=[this](AlloyContext* context, const InputEvent& event) {
+		this->setVisible(false);
+		context->getGlassPanel()->setVisible(false);
+		return true;
+	};
 	containerRegion->setNorth(fileLocation, 0.15f);
 	containerRegion->setSouth(openButton, 0.15f);
 	directoryTree = std::shared_ptr<Composite>(

@@ -33,24 +33,6 @@ public:
 	Widget(const std::string& name, const AUnit2D& pos, const AUnit2D& dims) :
 			Composite(name, pos, dims) {
 	}
-
-	virtual bool onMouseOver(AlloyContext* context, Region* region,
-			const InputEvent& event) {
-		return false;
-	}
-	virtual bool onMouseDown(AlloyContext* context, Region* region,
-			const InputEvent& event) {
-		return false;
-	}
-	virtual bool onMouseUp(AlloyContext* context, Region* region,
-			const InputEvent& event) {
-		return false;
-	}
-	virtual bool onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event) {
-		return false;
-	}
-
 };
 class TextButton: public Widget {
 private:
@@ -212,10 +194,10 @@ protected:
 	virtual void update() override;
 public:
 	virtual void setValue(double value) override;
-	virtual bool onMouseDown(AlloyContext* context, Region* region,
-			const InputEvent& event) override;
-	virtual bool onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event) override;
+	bool onMouseDown(AlloyContext* context, Region* region,
+			const InputEvent& event);
+	 bool onMouseDrag(AlloyContext* context, Region* region,
+			const InputEvent& event) ;
 	HorizontalSlider(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
 			const Number& maxValue = Float(1.0f),
@@ -230,10 +212,10 @@ protected:
 	virtual void update() override;
 public:
 	virtual void setValue(double value) override;
-	virtual bool onMouseDown(AlloyContext* context, Region* region,
-			const InputEvent& event) override;
-	virtual bool onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event) override;
+	bool onMouseDown(AlloyContext* context, Region* region,
+		const InputEvent& event);
+	bool onMouseDrag(AlloyContext* context, Region* region,
+		const InputEvent& event);
 	VerticalSlider(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
 			const Number& maxValue = Float(1.0f),
