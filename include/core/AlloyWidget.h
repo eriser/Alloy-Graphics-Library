@@ -331,6 +331,7 @@ private:
 	std::shared_ptr<FileField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
 	std::shared_ptr<Composite> directoryList;
+	std::shared_ptr<Selection> fileTypeSelect;
 	std::shared_ptr<TextIconButton> openButton;
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;

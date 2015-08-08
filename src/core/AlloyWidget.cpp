@@ -2153,8 +2153,10 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0, 1.0, -15, -15)));
 	openButton = std::shared_ptr<TextIconButton>(
 			new TextIconButton("Open", 0xf115,
-					CoordPerPX(1.0f, 1.0f, -7.0f, -7.0f), CoordPX(100, 30),HorizontalAlignment::Left));
-	openButton->setOrigin(Origin::BottomRight);
+					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30),HorizontalAlignment::Left));
+
+	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f), CoordPX(255, 30), std::vector<string>{"txt","png","jpg"}));
+	openButton->setOrigin(Origin::TopRight);
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("File Location", CoordPX(7, 7),
 					CoordPerPX(1.0f, 0.0f, -14.0f, 30.0f)));
@@ -2173,8 +2175,11 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		context->getGlassPanel()->setVisible(false);
 		return true;
 	};
+	CompositePtr southRegion = MakeComposite("File Options", CoordPX(0, 0), CoordPercent(1.0f, 1.0f));
+	southRegion->add(openButton);
+	southRegion->add(fileTypeSelect);
 	containerRegion->setNorth(fileLocation, 0.15f);
-	containerRegion->setSouth(openButton, 0.15f);
+	containerRegion->setSouth(southRegion, 0.15f);
 	directoryTree = std::shared_ptr<Composite>(
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0, 1.0, -7, 0)));
