@@ -25,16 +25,8 @@
 #include "AlloyUI.h"
 
 namespace aly {
-class Widget: public Composite {
-public:
-	Widget(const std::string& name = "") :
-			Composite(name) {
-	}
-	Widget(const std::string& name, const AUnit2D& pos, const AUnit2D& dims) :
-			Composite(name, pos, dims) {
-	}
-};
-class TextButton: public Widget {
+
+class TextButton: public Composite {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
@@ -45,7 +37,7 @@ public:
 	virtual inline ~TextButton() {
 	}
 };
-class TextIconButton: public Widget {
+class TextIconButton: public Composite {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
@@ -58,7 +50,7 @@ public:
 	virtual inline ~TextIconButton() {
 	}
 };
-class IconButton: public Widget {
+class IconButton: public Composite {
 private:
 	std::shared_ptr<Glyph> iconGlyph;
 public:
@@ -68,7 +60,7 @@ public:
 	virtual inline ~IconButton() {
 	}
 };
-class CheckBox: public Widget {
+class CheckBox: public Composite {
 private:
 	TextLabelPtr checkLabel;
 	TextLabelPtr valueLabel;
@@ -84,7 +76,7 @@ public:
 			const AUnit2D& dimensions, bool checked = false);
 	virtual void draw(AlloyContext* context) override;
 };
-class ToggleBox: public Widget {
+class ToggleBox: public Composite {
 private:
 	TextLabelPtr toggleLabel;
 	TextLabelPtr onLabel;
@@ -119,7 +111,7 @@ public:
 			const Color& st, const Color& ed);
 	virtual void draw(AlloyContext* context) override;
 };
-class ProgressBar: public Widget {
+class ProgressBar: public Composite {
 private:
 	TextLabelPtr textLabel;
 	float value;
@@ -139,7 +131,7 @@ public:
 	ProgressBar(const std::string& name, const AUnit2D& pt,
 			const AUnit2D& dims);
 };
-class Slider: public Widget {
+class Slider: public Composite {
 protected:
 	AColor textColor;
 	AUnit1D fontSize;
@@ -160,12 +152,12 @@ public:
 	}
 	Slider(const std::string& name, const Number& min, const Number& max,
 			const Number& val) :
-			Widget(name), minValue(min), maxValue(max), value(val) {
+			Composite(name), minValue(min), maxValue(max), value(val) {
 		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	Slider(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
 			const Number& min, const Number& max, const Number& val) :
-			Widget(name, pos, dims), minValue(min), maxValue(max), value(val) {
+		Composite(name, pos, dims), minValue(min), maxValue(max), value(val) {
 		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	double getBlendValue() const;
@@ -225,7 +217,7 @@ public:
 	virtual inline ~VerticalSlider() {
 	}
 };
-class Selection: public Widget {
+class Selection: public Composite {
 private:
 	TextLabelPtr selectionLabel;
 	TextLabelPtr arrowLabel;
@@ -272,7 +264,7 @@ public:
 	void draw(AlloyContext* context) override;
 };
 
-class ColorSelector: public Widget {
+class ColorSelector: public Composite {
 private:
 	TextLabelPtr textLabel;
 	GlyphRegionPtr colorLabel;
@@ -302,7 +294,7 @@ public:
 	ExpandRegion(const std::string& name, const std::shared_ptr<Region>& region,
 			const AUnit2D& pos, const AUnit2D& dims);
 };
-class ExpandBar: public Widget {
+class ExpandBar: public Composite {
 private:
 	std::list<std::shared_ptr<ExpandRegion>> regions;
 public:
@@ -332,7 +324,7 @@ public:
 	virtual void draw(AlloyContext* context) override;
 	void setValue(const FileDescription& fileDescription);
 };
-class FileDialog: public Widget {
+class FileDialog: public Composite {
 private:
 
 	std::list<FileEntry*> lastSelected;
@@ -368,7 +360,7 @@ public:
 	std::string getValue() const;
 
 };
-class FileSelector: public Widget {
+class FileSelector: public Composite {
 private:
 	std::shared_ptr<TextLabel> fileLocationLabel;
 	std::shared_ptr<TextLabel> fileLabel;

@@ -37,7 +37,7 @@ namespace aly {
 	}
 CheckBox::CheckBox(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, bool checked) :
-		Widget(label, position, dimensions), checked(checked) {
+		Composite(label, position, dimensions), checked(checked) {
 	this->aspectRatio = 4.0f;
 	CompositePtr valueContainer = MakeComposite("Check Bounds",
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
@@ -147,7 +147,7 @@ bool ToggleBox::handleMouseDown(AlloyContext* context, const InputEvent& event) 
 }
 ToggleBox::ToggleBox(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, bool checked) :
-		Widget(label, position, dimensions), toggledOn(checked) {
+		Composite(label, position, dimensions), toggledOn(checked) {
 	this->aspectRatio = 4.0f;
 	CompositePtr valueContainer = MakeComposite("Check Bounds",
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
@@ -312,12 +312,12 @@ void ProgressBar::draw(AlloyContext* context) {
 }
 ProgressBar::ProgressBar(const std::string& name, const AUnit2D& pt,
 		const AUnit2D& dims) :
-		Widget(name, pt, dims), value(0), label(name) {
+		Composite(name, pt, dims), value(0), label(name) {
 
 }
 TextButton::TextButton(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions) :
-		Widget(label) {
+		Composite(label) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
@@ -402,7 +402,7 @@ void TextButton::draw(AlloyContext* context) {
 
 TextIconButton::TextIconButton(const std::string& label, int iconCode,
 		const AUnit2D& position, const AUnit2D& dimensions,const  HorizontalAlignment& iconAlignment) :
-		iconCodeString(CodePointToUTF8(iconCode)), Widget(label),iconAlignment(iconAlignment) {
+		iconCodeString(CodePointToUTF8(iconCode)), Composite(label),iconAlignment(iconAlignment) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -517,7 +517,7 @@ void TextIconButton::draw(AlloyContext* context) {
 }
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
 		const AUnit2D& position, const AUnit2D& dimensions) :
-		Widget("Icon", position, dimensions) {
+		Composite("Icon", position, dimensions) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
@@ -641,7 +641,7 @@ void SliderHandle::draw(AlloyContext* context) {
 
 Selection::Selection(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, const std::vector<std::string>& options) :
-		Widget(label) {
+		Composite(label) {
 	this->position = position;
 	this->dimensions = dimensions;
 	CompositePtr valueContainer = MakeComposite(label,
@@ -1149,7 +1149,7 @@ void VerticalSlider::draw(AlloyContext* context) {
 }
 ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Widget(name, pos, dims) {
+		Composite(name, pos, dims) {
 	CompositePtr valueContainer = MakeComposite("Check Bounds",
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
@@ -1837,7 +1837,7 @@ void FileSelector::draw(AlloyContext* context) {
 }
 FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Widget(name, pos, dims) {
+		Composite(name, pos, dims) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
 	CompositePtr valueContainer = MakeComposite(
@@ -2147,7 +2147,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 }
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims,pixel fileEntryHeight) :
-		Widget(name, pos, dims), fileEntryHeight(fileEntryHeight){
+		Composite(name, pos, dims), fileEntryHeight(fileEntryHeight){
 	containerRegion = std::shared_ptr<BorderComposite>(
 			new BorderComposite("Container", CoordPX(0, 15),
 					CoordPerPX(1.0, 1.0, -15, -15)));
@@ -2241,7 +2241,7 @@ void FileDialog::draw(AlloyContext* context) {
 }
 ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Widget(name, pos, dims) {
+		Composite(name, pos, dims) {
 	setOrientation(Orientation::Vertical);
 	setScrollEnabled(true);
 	cellPadding.y =2;
@@ -2264,9 +2264,9 @@ CompositePtr& ExpandBar::add(const std::shared_ptr<Region>& region, bool expande
 
 	eregion->setExpanded(expanded);
 	regions.push_back(eregion);
-	Widget::add(eregion);
+	Composite::add(eregion);
 
-	Widget::add(container);
+	Composite::add(container);
 	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
 	return container;
 }
