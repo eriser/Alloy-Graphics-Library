@@ -85,11 +85,11 @@ bool ExampleUI::init(Composite& rootNode) {
 	 CoordPX(30, 30), RGBA(255, 128, 64, 255), RGBA(255, 255, 255, 255),
 	 UnitPX(2.0f));
 
-	 scrollHandle->setEnableDrag(true);
+	 scrollHandle->setDragEnabled(true);
 	 CompositePtr scrollTrack = MakeComposite("Scroll Track",
 	 CoordPercent(0.2f, 0.7f), CoordPX(300, 30), RGBA(128, 128, 128, 255));
 	 scrollTrack->add(scrollHandle);
-	 //iconr->setEnableDrag(true);
+	 //iconr->setDragEnabled(true);
 
 	 ButtonPtr button1 = std::shared_ptr<TextButton>(
 	 new TextButton("Click Me", CoordPX(10, 110), CoordPX(140, 50)));
@@ -156,9 +156,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	 comp->add(checkbox);
 	 comp->add(togglebox);
 
-	 button2->setEnableDrag(true);
+	 button2->setDragEnabled(true);
 
-	 //button1->setEnableDrag(true);
+	 //button1->setDragEnabled(true);
 	 //rootNode.add(scrollPane);
 
 	 rootNode.add(comp);

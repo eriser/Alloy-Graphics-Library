@@ -232,6 +232,29 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 
 	return box;
 }
+void Composite::putLast(const std::shared_ptr<Region>& region) {
+	size_t idx=0;
+	for (RegionPtr& child : children) {
+		if (child.get() == region.get()) {
+			std::swap(children[idx], children[children.size() - 1]);
+			AlloyApplicationContext()->requestUpdateCursorLocator();
+			break;
+		}
+		idx++;
+	}
+}
+void Composite::putFirst(const std::shared_ptr<Region>& region) {
+	size_t idx = 0;
+	for (RegionPtr& child : children) {
+		if (child.get() == region.get()) {
+			std::swap(children[idx], children[0]);
+			AlloyApplicationContext()->requestUpdateCursorLocator();
+			break;
+		}
+		idx++;
+	}
+}
+
 void Composite::clear() {
 	AlloyApplicationContext()->addDeferredTask(
 			[this] {this->children.clear();});
@@ -380,7 +403,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		verticalScrollHandle->setDimensions(
 				CoordPerPX(1.0f, 0.0f, 0.0f, scrollBarSize));
 		verticalScrollHandle->parent = verticalScrollTrack.get();
-		verticalScrollHandle->setEnableDrag(true);
+		verticalScrollHandle->setDragEnabled(true);
 
 		verticalScrollTrack->onMouseDown =
 				[this](AlloyContext* context,const InputEvent& event) {
@@ -417,7 +440,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		horizontalScrollHandle->setDimensions(
 				CoordPerPX(0.0f, 1.0f, scrollBarSize, 0.0f));
 		horizontalScrollHandle->parent = horizontalScrollTrack.get();
-		horizontalScrollHandle->setEnableDrag(true);
+		horizontalScrollHandle->setDragEnabled(true);
 		
 		horizontalScrollTrack->onMouseDown =
 				[this](AlloyContext* context,const InputEvent& event) {

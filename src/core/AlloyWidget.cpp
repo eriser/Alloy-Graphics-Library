@@ -811,7 +811,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
 	sliderHandle->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT);
-	sliderHandle->setEnableDrag(true);
+	sliderHandle->setDragEnabled(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
 			new SliderTrack("Scroll Track", Orientation::Horizontal,
@@ -993,7 +993,7 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
 	sliderHandle->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT);
-	sliderHandle->setEnableDrag(true);
+	sliderHandle->setDragEnabled(true);
 
 	sliderTrack = std::shared_ptr<SliderTrack>(
 			new SliderTrack("Scroll Track", Orientation::Vertical,

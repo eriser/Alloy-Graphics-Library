@@ -131,7 +131,7 @@ public:
 	void setDragOffset(const pixel2& cursor, const pixel2& delta);
 	void addDragOffset(const pixel2& delta);
 
-	inline void setEnableDrag(bool enabled) {
+	inline void setDragEnabled(bool enabled) {
 		dragEnabled = enabled;
 	}
 	inline void setOrigin(const Origin& org) {
@@ -237,6 +237,9 @@ public:
 	const_iterator cend() const {
 		return children.cend();
 	}
+	void putLast(const std::shared_ptr<Region>& region);
+	void putFirst(const std::shared_ptr<Region>& region);
+
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
