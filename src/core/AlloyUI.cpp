@@ -1287,17 +1287,29 @@ void TextField::draw(AlloyContext* context) {
 	std::vector<NVGglyphPosition> positions(value.size());
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
+	bool hover = context->isMouseOver(this);
 	float x = bounds.position.x;
 	float y = bounds.position.y;
 	float w = bounds.dimensions.x;
 	float h = bounds.dimensions.y;
 
+	
 	if (backgroundColor->a > 0) {
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
+		if (hover) {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
+			nvgFillColor(nvg, *backgroundColor);
+			nvgFill(nvg);
+
+		}
+		else {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, x+1, y+1, w-2, h-2, context->theme.CORNER_RADIUS);
+			nvgFillColor(nvg, *backgroundColor);
+			nvgFill(nvg);
+		}
 	}
+	
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 
@@ -1378,6 +1390,7 @@ void TextField::draw(AlloyContext* context) {
 	}
 	popScissor(nvg);
 	if (borderColor->a > 0) {
+
 		nvgBeginPath(nvg);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgRoundedRect(nvg, x + lineWidth, y + lineWidth, w - 2 * lineWidth,
@@ -1516,17 +1529,29 @@ void FileField::draw(AlloyContext* context) {
 	std::vector<NVGglyphPosition> positions(value.size());
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
+	bool hover = context->isMouseOver(this);
 	float x = bounds.position.x;
 	float y = bounds.position.y;
 	float w = bounds.dimensions.x;
 	float h = bounds.dimensions.y;
 
+
 	if (backgroundColor->a > 0) {
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
-		nvgFillColor(nvg, *backgroundColor);
-		nvgFill(nvg);
+		if (hover) {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
+			nvgFillColor(nvg, *backgroundColor);
+			nvgFill(nvg);
+
+		}
+		else {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, x + 1, y + 1, w - 2, h - 2, context->theme.CORNER_RADIUS);
+			nvgFillColor(nvg, *backgroundColor);
+			nvgFill(nvg);
+		}
 	}
+
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 

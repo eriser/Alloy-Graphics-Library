@@ -50,12 +50,16 @@ public:
 	virtual inline ~TextIconButton() {
 	}
 };
+enum class IconType { CIRCLE, SQUARE };
 class IconButton: public Composite {
 private:
 	std::shared_ptr<Glyph> iconGlyph;
+	IconType iconType;
 public:
+	AColor foregroundColor;
+	AColor iconColor;
 	IconButton(const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
-			const AUnit2D& dimensions);
+			const AUnit2D& dimensions, IconType iconType=IconType::SQUARE);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~IconButton() {
 	}
@@ -333,6 +337,8 @@ private:
 	std::shared_ptr<Composite> directoryList;
 	std::shared_ptr<Selection> fileTypeSelect;
 	std::shared_ptr<TextIconButton> openButton;
+	std::shared_ptr<IconButton> upDirButton;
+
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;
 	std::vector<std::shared_ptr<FileEntry>> fileEntries;

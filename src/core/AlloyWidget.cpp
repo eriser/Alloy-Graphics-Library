@@ -422,20 +422,7 @@ void TextIconButton::draw(AlloyContext* context) {
 		xoff = 2;
 		yoff = 2;
 	}
-	if (hover || down) {
-		if (!down) {
-			nvgBeginPath(nvg);
-			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-					bounds.position.y, bounds.dimensions.x - 2,
-					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
-					context->theme.SHADOW,
-					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-			nvgFillPaint(nvg, shadowPaint);
-			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-					bounds.dimensions.x, bounds.dimensions.y,
-					context->theme.CORNER_RADIUS);
-			nvgFill(nvg);
-		}
+	if (hover) {
 
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
@@ -453,20 +440,6 @@ void TextIconButton::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 
-	if (hover) {
-
-		nvgBeginPath(nvg);
-		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
-				bounds.position.y + yoff, bounds.dimensions.x,
-				bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
-				context->theme.DARK);
-		nvgFillPaint(nvg, hightlightPaint);
-		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-	}
 	nvgFillColor(nvg, *textColor);
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
@@ -516,13 +489,16 @@ void TextIconButton::draw(AlloyContext* context) {
 	}
 }
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
-		const AUnit2D& position, const AUnit2D& dimensions) :
-		Composite("Icon", position, dimensions) {
+		const AUnit2D& position, const AUnit2D& dimensions, IconType iconType) :
+		Composite("Icon", position, dimensions),iconType(iconType) {
 	this->position = position;
 	this->dimensions = dimensions;
-	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	foregroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	iconColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	iconGlyph = glyph;
+	this->aspectRatio = 1.0f;
 	this->aspectRule = AspectRule::FixedHeight;
 }
 void IconButton::draw(AlloyContext* context) {
@@ -530,43 +506,72 @@ void IconButton::draw(AlloyContext* context) {
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-
 	pixel2 center = bounds.position + HALF_PIX(bounds.dimensions);
 	pixel2 radii = HALF_PIX(bounds.dimensions);
-
-	float lineWidth = 2.0f;
-
-	nvgBeginPath(nvg);
-	NVGpaint shadowPaint = nvgRadialGradient(nvg, center.x + 1, center.y + 1,
-			radii.x - 2, radii.x + 2, context->theme.SHADOW,
-			context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-	nvgFillPaint(nvg, shadowPaint);
-	nvgEllipse(nvg, center.x + 1, center.y + 1, radii.x + 2, radii.y + 2);
-	nvgFill(nvg);
-
-	nvgBeginPath(nvg);
-	nvgEllipse(nvg, center.x, center.y, radii.x, radii.y);
-	nvgFillColor(nvg, *backgroundColor);
-	nvgFill(nvg);
-
-	if (hover) {
-		iconGlyph->draw(bounds, context->theme.HIGHLIGHT, *backgroundColor,
-				context);
-	} else {
-		iconGlyph->draw(bounds, context->theme.LIGHT_TEXT, *backgroundColor,
-				context);
-
+	pixel2 offset;
+	if (down) {
+		offset = pixel2(1, 1);
 	}
+	else {
+		offset = pixel2(0,0);
+	}
+	if (iconType == IconType::CIRCLE) {
+		if (hover) {
+			nvgBeginPath(nvg);
+			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x, radii.y);
+			nvgFillColor(nvg, *foregroundColor);
+			nvgFill(nvg);
+		}
+		else {
+			nvgBeginPath(nvg);
+			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x-1, radii.y-1);
+			nvgFillColor(nvg, *foregroundColor);
+			nvgFill(nvg);
+		}
+	}
+	else {
+		if (hover) {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, bounds.position.x + offset.x, bounds.position.y + offset.y, bounds.dimensions.x, bounds.dimensions.y,
+				context->theme.CORNER_RADIUS);
+			nvgFillColor(nvg, *foregroundColor);
+			nvgFill(nvg);
+		}
+		else {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, bounds.position.x+1 + offset.x, bounds.position.y+1 + offset.y, bounds.dimensions.x-2, bounds.dimensions.y-2,
+				context->theme.CORNER_RADIUS);
+			nvgFillColor(nvg, *foregroundColor);
+			nvgFill(nvg);
+		}
+	}
+	box2px ibounds = bounds;
+	ibounds.position += offset;
+	iconGlyph->draw(ibounds, (hover&&borderColor->a > 0)?context->theme.HIGHLIGHT: *iconColor, *backgroundColor,
+				context);
+	
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y,
+		context->dpmm.y, context->pixelRatio);
+	
+	
 	if (borderColor->a > 0) {
-		pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y,
-				context->dpmm.y, context->pixelRatio);
-		nvgBeginPath(nvg);
-		nvgEllipse(nvg, center.x, center.y, radii.x, radii.y);
-		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg, lineWidth);
-		nvgStroke(nvg);
+		if (iconType == IconType::CIRCLE) {
+			nvgBeginPath(nvg);
+			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x - HALF_PIX(lineWidth), radii.y - HALF_PIX(lineWidth));
+			nvgStrokeColor(nvg, (hover) ? context->theme.HIGHLIGHT : *borderColor);
+			nvgStrokeWidth(nvg, lineWidth);
+			nvgStroke(nvg);
+		}
+		else {
+			nvgBeginPath(nvg);
+			nvgRoundedRect(nvg, bounds.position.x + offset.x + lineWidth, bounds.position.y + offset.y + lineWidth,
+				bounds.dimensions.x - 2 * lineWidth, bounds.dimensions.y - 2 * lineWidth,
+				context->theme.CORNER_RADIUS);
+			nvgStrokeColor(nvg, (hover) ? context->theme.HIGHLIGHT : *borderColor);
+			nvgStrokeWidth(nvg, lineWidth);
+			nvgStroke(nvg);
+		}
 	}
-
 }
 SliderTrack::SliderTrack(const std::string& name, Orientation orient,
 		const Color& st, const Color& ed) :
@@ -649,12 +654,12 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
 	selectionLabel = MakeTextLabel(label, CoordPercent(0.0f, 0.0f),
 			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			AlloyApplicationContext()->theme.DARK_TEXT.toRGBA(),
 			HorizontalAlignment::Left, VerticalAlignment::Middle);
 	arrowLabel = MakeTextLabel(CodePointToUTF8(0xf13a),
 			CoordPercent(1.0f, 0.0f), CoordPercent(0.0f, 1.0f), FontType::Icon,
 			UnitPercent(1.0f),
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
+			AlloyApplicationContext()->theme.DARK_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
 	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
 	selectionBox->setDetached(true);
@@ -764,33 +769,23 @@ void Selection::draw(AlloyContext* context) {
 				bounds.dimensions.x, bounds.dimensions.y,
 				context->theme.CORNER_RADIUS);
 		nvgFill(nvg);
-
-		arrowLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
-		selectionLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
-	} else {
-
-		arrowLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
-		selectionLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
 	}
-
-	nvgBeginPath(nvg);
-	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+	if (hover) {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
 			context->theme.CORNER_RADIUS);
-	nvgFillColor(nvg, context->theme.DARK);
-	nvgFill(nvg);
-
-	nvgBeginPath(nvg);
-	NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
-			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
-			context->theme.CORNER_RADIUS, 2,
-			context->theme.SHADOW.toSemiTransparent(0.0f),
-			context->theme.HIGHLIGHT);
-	nvgFillPaint(nvg, hightlightPaint);
-	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-			bounds.dimensions.x, bounds.dimensions.y,
+		nvgFillColor(nvg, context->theme.LIGHT_TEXT);
+		nvgFill(nvg);
+	}
+	else {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x+1, bounds.position.y+1,
+			bounds.dimensions.x-2, bounds.dimensions.y-2,
 			context->theme.CORNER_RADIUS);
-	nvgFill(nvg);
+		nvgFillColor(nvg, context->theme.LIGHT_TEXT);
+		nvgFill(nvg);
+	}
 	Composite::draw(context);
 }
 HorizontalSlider::HorizontalSlider(const std::string& label,
@@ -2154,31 +2149,47 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	openButton = std::shared_ptr<TextIconButton>(
 			new TextIconButton("Open", 0xf115,
 					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30),HorizontalAlignment::Left));
-
-	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f), CoordPX(255, 30), std::vector<string>{"txt","png","jpg"}));
+	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f),
+		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f), std::vector<string>{"txt","png","jpg"}));
 	openButton->setOrigin(Origin::TopRight);
 	fileLocation = std::shared_ptr<FileField>(
-			new FileField("File Location", CoordPX(7, 7),
-					CoordPerPX(1.0f, 0.0f, -14.0f, 30.0f)));
+			new FileField("File Location", CoordPX(10, 10),
+					CoordPerPX(1.0f, 0.0f, -55.0f, 30.0f)));
+	fileLocation-> backgroundColor= MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fileLocation->onSelect = [this](FileField* field) {
-		std::cout << "Selected " << field->getValue() << std::endl;
 		this->setSelectedFile(field->getValue());
 	};
+	upDirButton = std::shared_ptr<IconButton>(
+		new IconButton(
+			AlloyApplicationContext()->createAwesomeGlyph(0xf062,
+				FontStyle::Normal, 21),
+			CoordPerPX(1.0, 0.0, -40,10), CoordPX(30,30)));
+	upDirButton->foregroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	upDirButton->borderColor = MakeColor(COLOR_NONE);
+	upDirButton->backgroundColor = MakeColor(AlloyApplicationContext()->theme.SHADOW);
+	upDirButton->iconColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+
 	cancelButton = std::shared_ptr<IconButton>(
 			new IconButton(
 					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
 							FontStyle::Normal, 21),
-					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30)));
+					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30), IconType::CIRCLE));
 	cancelButton->setOrigin(Origin::BottomLeft);
+	/*
 	cancelButton->onMouseDown=[this](AlloyContext* context, const InputEvent& event) {
 		this->setVisible(false);
 		context->getGlassPanel()->setVisible(false);
 		return true;
 	};
+	*/
 	CompositePtr southRegion = MakeComposite("File Options", CoordPX(0, 0), CoordPercent(1.0f, 1.0f));
+
+	CompositePtr northRegion = MakeComposite("Selection Bar", CoordPX(0, 0), CoordPercent(1.0f, 1.0f));
 	southRegion->add(openButton);
 	southRegion->add(fileTypeSelect);
-	containerRegion->setNorth(fileLocation, 0.15f);
+	northRegion->add(fileLocation);
+	northRegion->add(upDirButton);
+	containerRegion->setNorth(northRegion, 0.15f);
 	containerRegion->setSouth(southRegion, 0.15f);
 	directoryTree = std::shared_ptr<Composite>(
 			new Composite("Container", CoordPX(7, 0),
