@@ -46,7 +46,9 @@ enum class InputType {
 enum class HorizontalAlignment {
 	Left = NVG_ALIGN_LEFT, Center = NVG_ALIGN_CENTER, Right = NVG_ALIGN_RIGHT
 };
-
+enum class IconAlignment { 
+	Left = NVG_ALIGN_LEFT, Right = NVG_ALIGN_RIGHT
+};
 enum class VerticalAlignment {
 	Top = NVG_ALIGN_TOP,
 	Middle = NVG_ALIGN_MIDDLE,
@@ -148,6 +150,16 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		return ss << "Character";
 	case InputType::Scroll:
 		return ss << "Scroll";
+	}
+	return ss;
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+	std::basic_ostream<C, R> & ss, const IconAlignment& type) {
+	switch (type) {
+	case IconAlignment::Left:
+		return ss << "Left";
+	case IconAlignment::Right:
+		return ss << "Right";
 	}
 	return ss;
 }

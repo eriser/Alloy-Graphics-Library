@@ -1736,17 +1736,7 @@ void GlyphRegion::draw(AlloyContext* context) {
 		nvgLineJoin(nvg, NVG_MITER);
 	}
 }
-std::shared_ptr<Composite> MakeComposite(const std::string& name,
-		const AUnit2D& position, const AUnit2D& dimensions,
-		const Color& bgColor, const Orientation& orientation) {
-	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
-			new Composite(name));
-	composite->setPosition(position);
-	composite->setDimensions(dimensions);
-	composite->backgroundColor = MakeColor(bgColor);
-	composite->setOrientation(orientation);
-	return composite;
-}
+
 
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
@@ -1825,6 +1815,20 @@ std::shared_ptr<Region> MakeRegion(const std::string& name,
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
 	return region;
+}
+std::shared_ptr<Composite> MakeComposite(const std::string& name,
+	const AUnit2D& position, const AUnit2D& dimensions,
+	const Color& bgColor, const Color& borderColor,
+	const AUnit1D& borderWidth, const Orientation& orientation) {
+	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
+		new Composite(name));
+	composite->setPosition(position);
+	composite->setDimensions(dimensions);
+	composite->backgroundColor = MakeColor(bgColor);
+	composite->borderColor = MakeColor(borderColor);
+	composite->borderWidth = borderWidth;
+	composite->setOrientation(orientation);
+	return composite;
 }
 box2px SelectionBox::getBounds(bool includeBounds) const {
 	box2px bounds = Region::getBounds(includeBounds);

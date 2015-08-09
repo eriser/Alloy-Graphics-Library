@@ -462,7 +462,8 @@ public:
 };
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
-		const Color& bgColor = COLOR_NONE, const Orientation& orientation =
+		const Color& bgColor = COLOR_NONE, const Color& lineColor = COLOR_NONE,
+	const AUnit1D& lineWidth = UnitPX(2.0f), const Orientation& orientation =
 				Orientation::Unspecified);
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,

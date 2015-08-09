@@ -366,10 +366,9 @@ void TextButton::draw(AlloyContext* context) {
 			nullptr);
 
 }
-
 TextIconButton::TextIconButton(const std::string& label, int iconCode,
-		const AUnit2D& position, const AUnit2D& dimensions,const  HorizontalAlignment& iconAlignment) :
-		iconCodeString(CodePointToUTF8(iconCode)), Composite(label),iconAlignment(iconAlignment) {
+		const AUnit2D& position, const AUnit2D& dimensions,const  HorizontalAlignment&  alignment, const  IconAlignment& iconAlignment) :
+		iconCodeString(CodePointToUTF8(iconCode)), Composite(label), alignment(alignment), iconAlignment(iconAlignment) {
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -421,38 +420,38 @@ void TextIconButton::draw(AlloyContext* context) {
 
 	float ww = tw + iw + AlloyApplicationContext()->theme.SPACING.x;
 	pixel2 offset(0, 0);
-
+	pixel xoffset=(pixel)xoff;
+	if (alignment == HorizontalAlignment::Center) {
+		xoffset += (bounds.dimensions.x - ww) / 2;
+	} else if (alignment == HorizontalAlignment::Right) {
+		xoffset += bounds.dimensions.x - ww- AlloyApplicationContext()->theme.SPACING.x;
+	}
+	else {
+		xoffset += AlloyApplicationContext()->theme.SPACING.x;
+	}
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
-	if (iconAlignment == HorizontalAlignment::Right) {
+	if (iconAlignment == IconAlignment::Right) {
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-		nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + xoff,
+		nvgText(nvg, bounds.position.x + xoffset,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
 			nullptr);
 
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 		nvgText(nvg,
-			AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
-			+ (bounds.dimensions.x - ww) / 2 + tw + xoff,
+			bounds.position.x + xoffset + AlloyApplicationContext()->theme.SPACING.x + tw,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff,
 			iconCodeString.c_str(), nullptr);
 	}
-	else if (iconAlignment == HorizontalAlignment::Left) {
+	else if (iconAlignment == IconAlignment::Left) {
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-		nvgText(nvg, bounds.position.x + (bounds.dimensions.x - ww) / 2 + AlloyApplicationContext()->theme.SPACING.x + iw+ xoff,
+		nvgText(nvg, bounds.position.x + xoffset + AlloyApplicationContext()->theme.SPACING.x + iw,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
 			nullptr);
 
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-		nvgText(nvg, bounds.position.x
-			+ (bounds.dimensions.x - ww) / 2  + xoff,
+		nvgText(nvg, bounds.position.x + xoffset,
 			bounds.position.y + bounds.dimensions.y / 2 + yoff,
 			iconCodeString.c_str(), nullptr);
-	}
-	else {
-		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-		nvgText(nvg, bounds.position.x + (bounds.dimensions.x - tw) / 2  + xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff, name.c_str(),
-			nullptr);
 	}
 }
 IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
@@ -1770,8 +1769,8 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 
 	fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
-					CoordPerPX(0.5, 0.5, -200 + 7.5f, -150 - 7.5f),
-					CoordPX(400, 300)));
+					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
+					CoordPX(600, 400)));
 	glassPanel->add(fileDialog);
 
 	fileLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
@@ -1852,6 +1851,7 @@ FileEntry::FileEntry(FileDialog* dialog, const std::string& name,
 		Region(name, pos, dims), fileDescription(), fontSize(UnitPercent(0.8f)), dialog(
 				dialog) {
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	this->borderColor = MakeColor(COLOR_NONE);
 	this->selected = false;
 }
 void FileEntry::setValue(const FileDescription& description) {
@@ -2073,7 +2073,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0, 1.0, -15, -15)));
 	openButton = std::shared_ptr<TextIconButton>(
 			new TextIconButton("Open", 0xf115,
-					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30),HorizontalAlignment::Left));
+					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30)));
 	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f),
 		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f), std::vector<string>{"txt","png","jpg"}));
 	openButton->setOrigin(Origin::TopRight);
@@ -2115,21 +2115,34 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	southRegion->add(fileTypeSelect);
 	northRegion->add(fileLocation);
 	northRegion->add(upDirButton);
-	containerRegion->setNorth(northRegion,UnitPercent(0.15f));
-	containerRegion->setSouth(southRegion, UnitPercent(0.15f));
+
 	directoryTree = std::shared_ptr<Composite>(
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0, 1.0, -7, 0)));
+
+
+	directoryTree->add(TextIconButtonPtr(new TextIconButton("Home",0xf015,CoordPX(2.0f, 0.0f),CoordPerPX(1.0f,0.0f,-4.0f,30.0f),HorizontalAlignment::Left)));
+	directoryTree->add(TextIconButtonPtr(new TextIconButton("Documents", 0xf115, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
+	directoryTree->add(TextIconButtonPtr(new TextIconButton("Downloads", 0xf019, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
+	directoryTree->add(TextIconButtonPtr(new TextIconButton("Desktop", 0xf108, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
+	directoryTree->add(TextIconButtonPtr(new TextIconButton("Disk", 0xf0a0, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
+
+
 	directoryList = std::shared_ptr<Composite>(
-			new Composite("Container", CoordPX(7, 0),
-					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
+			new Composite("Container", CoordPX(5, 0),
+					CoordPerPX(1.0f, 1.0, -15.0f, 0.0f)));
+
+	directoryList->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	directoryList->setOrientation(Orientation::Vertical);
 	directoryList->setScrollEnabled(true);
+	directoryList->cellPadding = pixel2(0,0);
 
 	directoryTree->setOrientation(Orientation::Vertical);
 	directoryTree->setScrollEnabled(true);
 
-	containerRegion->setWest(directoryTree, UnitPercent(0.3f));
+	containerRegion->setNorth(northRegion, UnitPX(40));
+	containerRegion->setSouth(southRegion, UnitPX(40));
+	containerRegion->setWest(directoryTree, UnitPX(125.0f));
 	containerRegion->setCenter(directoryList);
 	add(containerRegion);
 	add(cancelButton);

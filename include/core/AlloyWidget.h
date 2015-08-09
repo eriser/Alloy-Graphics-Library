@@ -37,15 +37,17 @@ public:
 	virtual inline ~TextButton() {
 	}
 };
+
 class TextIconButton: public Composite {
 private:
 	AColor textColor;
 	AUnit1D fontSize;
 	std::string iconCodeString;
-	HorizontalAlignment iconAlignment;
+	IconAlignment iconAlignment;
+	 HorizontalAlignment alignment;
 public:
 	TextIconButton(const std::string& label, int iconCode,
-			const AUnit2D& position, const AUnit2D& dimensions,const HorizontalAlignment& iconAlignment= HorizontalAlignment::Right);
+			const AUnit2D& position, const AUnit2D& dimensions,const HorizontalAlignment& alignment= HorizontalAlignment::Center, const IconAlignment& iconAlignment = IconAlignment::Left);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~TextIconButton() {
 	}
@@ -387,6 +389,8 @@ public:
 typedef std::shared_ptr<TextButton> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
+typedef std::shared_ptr<HorizontalSlider> HorizontalSliderPtr;
+typedef std::shared_ptr<VerticalSlider> VerticalSliderPtr;
 typedef std::shared_ptr<ColorSelector> ColorSelectorPtr;
 typedef std::shared_ptr<CheckBox> CheckBoxPtr;
 typedef std::shared_ptr<ToggleBox> ToggleBoxPtr;
@@ -397,6 +401,8 @@ typedef std::shared_ptr<ExpandBar> ExpandBarPtr;
 typedef std::shared_ptr<ExpandRegion> ExpandRegionPtr;
 typedef std::shared_ptr<FileSelector> FileSelectorPtr;
 typedef std::shared_ptr<FileDialog> FileDialogPtr;
+typedef std::shared_ptr<TextIconButton> TextIconButtonPtr;
+typedef std::shared_ptr<IconButton> IconButtonPtr;
 
 }
 
