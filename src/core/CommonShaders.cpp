@@ -399,44 +399,90 @@ void main()
 void FaceIdShader::initialize(int w, int h) {
 	framebuffer.initialize(w, h);
 }
-int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset) {
+int FaceIdShader::draw(const std::initializer_list<std::pair<const Mesh*,float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,int objectIdOffset) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
-	faceIdMap.resize(framebuffer.width(),framebuffer.height());
+	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
-	for (const Mesh* mesh : meshes) {
-		if (mesh->triIndexes.size() > 0) {
-			framebuffer.begin();
-			begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 0).set(
-				"IS_FLAT", flatShading ? 1 : 0).set("vertIdOffset", faceIdOffset).set("MAX_DEPTH",
-					camera.getFarPlane()).set(camera, framebuffer.getViewport()).draw(
-			{mesh}, GLMesh::PrimitiveType::TRIANGLES).end();
+	begin()
+		.set("MIN_DEPTH", camera.getNearPlane())
+		.set("IS_FLAT", flatShading ? 1 : 0)
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set(camera, framebuffer.getViewport());
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		int offset = faceIdOffset;
+		set("objectId", objectIdOffset).set("PoseMat", pr.second);
+		if (pr.first->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("vertIdOffset", offset).draw({ pr.first }, GLMesh::PrimitiveType::TRIANGLES);
 		}
-		faceIdOffset+=(int)mesh->triIndexes.size();
-		if (mesh->quadIndexes.size() > 0) {
-			begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_QUAD", 1).set(
-				"IS_FLAT", flatShading ? 1 : 0).set("MAX_DEPTH",
-					camera.getFarPlane()).set("vertIdOffset", faceIdOffset).set(camera, framebuffer.getViewport()).draw(
-			{ mesh }, GLMesh::PrimitiveType::QUADS).end();
+		offset += (int)pr.first->triIndexes.size();
+		if (pr.first->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("vertIdOffset", offset).draw({ pr.first }, GLMesh::PrimitiveType::QUADS);
 		}
-		faceIdOffset += (int)mesh->quadIndexes.size();
+		objectIdOffset++;
 	}
-
+	end();
 	framebuffer.end();
-
 	glEnable(GL_BLEND);
 	ImageRGBAf& irgba = framebuffer.getTexture().read();
 	size_t idx = 0;
 	int hash;
+	int oid;
 	for (RGBAf rgbaf : irgba.data) {
 		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
 		if (rgbaf.w > 0.0f) {
 			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w+0.5f)) - 1;
 		}
 		else {
 			hash = -1;
+			oid = -1;
 		}
-		faceIdMap[idx++].x = hash;
+		faceIdMap[idx++] =int2(hash,oid);
+	}
+	return faceIdOffset;
+}
+int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image2i& faceIdMap,int faceIdOffset,int objectIdOffset) {
+	glDisable(GL_BLEND);
+	const bool flatShading = true;
+	faceIdMap.resize(framebuffer.width(),framebuffer.height());
+	framebuffer.begin();
+	begin()
+		.set("MIN_DEPTH", camera.getNearPlane())
+		.set("IS_FLAT", flatShading ? 1 : 0)
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("PoseMat",float4x4::identity())
+		.set(camera, framebuffer.getViewport());
+	for (const Mesh* mesh : meshes) {
+		int offset = faceIdOffset;
+		set("objectId", objectIdOffset);
+		if (mesh->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("vertIdOffset", offset).draw({ mesh }, GLMesh::PrimitiveType::TRIANGLES);
+		}
+		offset+=(int)mesh->triIndexes.size();
+		if (mesh->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("vertIdOffset", offset).draw({ mesh }, GLMesh::PrimitiveType::QUADS);
+		}
+		objectIdOffset++;
+	}
+	end();
+	framebuffer.end();
+	glEnable(GL_BLEND);
+	ImageRGBAf& irgba = framebuffer.getTexture().read();
+	size_t idx = 0;
+	int hash;
+	int oid;
+	for (RGBAf rgbaf : irgba.data) {
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
+			hash = -1;
+			oid = -1;
+		}
+		faceIdMap[idx++] = int2(hash, oid);
 	}
 	return faceIdOffset;
 }
@@ -477,8 +523,9 @@ FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShade
 )", R"(
 	#version 330
 	flat in int vertId;
+	uniform int objectId;
 	void main() {
-		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1.0);
+		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1+ objectId);
 		gl_FragColor = rgba;
 }
 	)",
@@ -502,10 +549,10 @@ FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShade
 					flat out int vertId;
 					uniform int IS_QUAD;
                     uniform int IS_FLAT;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
 					void main() {
-					  mat4 PVM=ProjMat*ViewModelMat;
-					  mat4 VM=ViewModelMat;
+					  mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+					  mat4 VM=ViewModelMat*PoseMat;
 					  vertId=quad[0].vertId;
 					  vec3 p0=quad[0].p0;
 					  vec3 p1=quad[0].p1;

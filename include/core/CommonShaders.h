@@ -50,9 +50,11 @@ public:
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
 	void initialize(int w, int h);
-	int draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image1i& faceIdMap,int faceIdOffset=0);
-	int draw(const Mesh& mesh, VirtualCamera& camera,Image1i& faceIdMap, int faceIdOffset = 0) {
-		return draw({ &mesh }, camera, faceIdMap,faceIdOffset);
+	int draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image2i& faceIdMap,int faceIdOffset=0,int objectIdOffset=0);
+	int draw(const std::initializer_list<std::pair<const Mesh*,float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+
+	int draw(const Mesh& mesh, VirtualCamera& camera,Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 1) {
+		return draw({ &mesh }, camera, faceIdMap,faceIdOffset,objectIdOffset);
 	}
 };
 

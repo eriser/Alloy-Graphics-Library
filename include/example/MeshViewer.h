@@ -55,7 +55,7 @@ private:
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;
 	aly::GLTextureRGBA exampleImage;
-	aly::Image1i faceIdMap;
+	aly::Image2i faceIdMap;
 	float voxelSize;
 
 public:

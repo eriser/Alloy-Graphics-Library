@@ -83,12 +83,12 @@ void MeshViewer::draw(AlloyContext* context) {
 
 		faceShader.draw(mesh, camera, faceIdMap);
 
-		/*
+		
 		if (once) {
 			std::set<int> idx;
-			for (int hash : faceIdMap)
+			for (int2 hash : faceIdMap)
 			{
-				idx.insert(hash);
+				idx.insert(hash.x);
 			}
 			std::cout << "Face Ids: ";
 			for (int val : idx)
@@ -98,7 +98,7 @@ void MeshViewer::draw(AlloyContext* context) {
 			std::cout << std::endl;
 			once = false;
 		}
-		*/
+		
 	}
 	glDisable(GL_DEPTH_TEST);
 	float2 dRange = camera.computeNormalizedDepthRange(mesh);
