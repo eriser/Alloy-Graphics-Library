@@ -320,21 +320,7 @@ void TextButton::draw(AlloyContext* context) {
 		xoff = 2;
 		yoff = 2;
 	}
-	if (hover || down) {
-		if (!down) {
-			nvgBeginPath(nvg);
-			NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-					bounds.position.y, bounds.dimensions.x - 2,
-					bounds.dimensions.y, context->theme.CORNER_RADIUS, 8,
-					context->theme.SHADOW,
-					context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-			nvgFillPaint(nvg, shadowPaint);
-			nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-					bounds.dimensions.x, bounds.dimensions.y,
-					context->theme.CORNER_RADIUS);
-			nvgFill(nvg);
-		}
-
+	if (hover) {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff,
 				bounds.dimensions.x, bounds.dimensions.y,
@@ -767,6 +753,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
 	this->aspectRatio = 4.0f;
+	sliderPosition = value.toDouble();
 	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	sliderHandle = std::shared_ptr<SliderHandle>(
@@ -815,7 +802,7 @@ HorizontalSlider::HorizontalSlider(const std::string& label,
 					HorizontalAlignment::Right, VerticalAlignment::Bottom));
 	add(sliderTrack);
 	this->onPack = [this]() {
-		this->setValue(this->value.toDouble());
+		this->setValue(sliderPosition);
 	};
 	this->onEvent =
 			[this](AlloyContext* context, const InputEvent& event) {
@@ -843,6 +830,7 @@ void HorizontalSlider::setValue(double value) {
 	sliderHandle->setDragOffset(
 			pixel2(xoff, sliderHandle->getBoundsDimensionsY()),
 			pixel2(0.0f, 0.0f));
+	sliderPosition = value;
 	this->value.setValue(value);
 }
 void HorizontalSlider::update() {
@@ -852,6 +840,7 @@ void HorizontalSlider::update() {
 					- sliderHandle->getBoundsDimensionsX());
 	float val = (float) ((1.0 - interp) * minValue.toDouble()
 			+ interp * maxValue.toDouble());
+	sliderPosition = val;
 	value.setValue(val);
 }
 bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
@@ -876,13 +865,11 @@ bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 }
 void Slider::setBlendValue(double value) {
 	value = clamp(value, 0.0, 1.0);
-	setValue(
-			value * (maxValue.toDouble() - minValue.toDouble())
-					+ minValue.toDouble());
+	setValue(value * (maxValue.toDouble() - minValue.toDouble())+ minValue.toDouble());
 }
 
 double Slider::getBlendValue() const {
-	return (value.toDouble() - minValue.toDouble())
+	return (sliderPosition - minValue.toDouble())
 			/ (maxValue.toDouble() - minValue.toDouble());
 }
 bool HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
@@ -937,6 +924,7 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	float handleSize = 30.0f;
 	float trackPadding = 10.0f;
 	this->aspectRatio = 4.0f;
+	sliderPosition = value.toDouble();
 	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	sliderHandle = std::shared_ptr<SliderHandle>(
@@ -983,13 +971,13 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	valueLabel->setOrigin(Origin::BottomLeft);
 	add(sliderTrack);
 	this->onPack = [this]() {
-		this->setValue(this->value.toDouble());
+		this->setValue(sliderPosition);
 	};
 	this->onEvent =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if(event.type==InputType::Scroll&&isVisible()&&context->isMouseContainedIn(this)) {
 					double oldV=getBlendValue();
-					double newV=clamp(event.scroll.y*0.1f+getBlendValue(),0.0,1.0);
+					double newV=clamp(event.scroll.y*0.1f+oldV,0.0,1.0);
 					if(newV!=oldV) {
 						this->setBlendValue(newV);
 						if(onChangeEvent)onChangeEvent(this->value);
@@ -1014,6 +1002,7 @@ void VerticalSlider::setValue(double value) {
 	sliderHandle->setDragOffset(
 			pixel2(sliderHandle->getBoundsDimensionsX(), yoff),
 			pixel2(0.0f, 0.0f));
+	sliderPosition = value;
 	this->value.setValue(value);
 }
 void VerticalSlider::update() {
@@ -1023,6 +1012,7 @@ void VerticalSlider::update() {
 					- sliderHandle->getBoundsDimensionsY());
 	float val = (float) (interp * minValue.toDouble()
 			+ (1.0 - interp) * maxValue.toDouble());
+	sliderPosition = val;
 	value.setValue(val);
 }
 bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
@@ -1269,7 +1259,7 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorSelectionPanel->onEvent =
 			[this](AlloyContext* context,const InputEvent& e) {
 				if(context->isOnTop(colorSelectionPanel.get())) {
-					if(e.isDown()&&!context->isMouseContainedIn(getBounds())) {
+					if(e.type==InputType::MouseButton&&e.isDown()&&!context->isMouseContainedIn(getBounds())) {
 						context->removeOnTopRegion(colorSelectionPanel.get());
 						colorSelectionPanel->setVisible(false);
 						return true;
@@ -1351,7 +1341,6 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 						this->setColor(e.cursor);
 						return true;
 					} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())) {
-
 						hsvColor.x+=e.scroll.y*0.01f;
 						if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
 						if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
@@ -1593,16 +1582,6 @@ void ColorSelector::draw(AlloyContext* context) {
 		*colorLabel->foregroundColor = colorWheel->getSelectedColor();
 	}
 	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
 		textLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 		colorLabel->borderWidth = UnitPX(2.0f);
 		colorLabel->borderColor = MakeColor(context->theme.HIGHLIGHT);

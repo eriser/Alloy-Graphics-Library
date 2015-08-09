@@ -149,6 +149,8 @@ protected:
 	std::function<std::string(const Number& value)> labelFormatter;
 	std::function<void(const Number& value)> onChangeEvent;
 	virtual void update()=0;
+
+	double sliderPosition;
 public:
 	void setSliderColor(const Color& startColor, const Color& endColor) {
 		sliderTrack->startColor = startColor;
@@ -166,7 +168,6 @@ public:
 	}
 	double getBlendValue() const;
 	void setBlendValue(double value);
-
 	virtual void setValue(double value)=0;
 	inline void setValue(int value) {
 		setValue((double) value);

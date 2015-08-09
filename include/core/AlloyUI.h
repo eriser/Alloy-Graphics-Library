@@ -304,15 +304,16 @@ public:
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
-	void setNorth(const std::shared_ptr<Region>& region,
-		const AUnit1D& fraction);
-        void setSouth(const std::shared_ptr<Region>& region,
-                        const AUnit1D& fraction);
-        void setEast(const std::shared_ptr<Region>& region,
-			const AUnit1D& fraction);
-        void setWest(const std::shared_ptr<Region>& region,
-			const AUnit1D& fraction);
-        void setCenter(const std::shared_ptr<Region>& region);
+	void setNorth(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
+    void setSouth(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
+    void setEast(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
+    void setWest(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
+	inline void setNorth(const std::shared_ptr<Region>& region, float fraction) { setNorth(region, UnitPercent(fraction)); }
+	inline void setSouth(const std::shared_ptr<Region>& region, float fraction) { setSouth(region, UnitPercent(fraction)); }
+	inline void setEast(const std::shared_ptr<Region>& region, float fraction) { setEast(region, UnitPercent(fraction)); }
+	inline void setWest(const std::shared_ptr<Region>& region, float fraction) { setWest(region, UnitPercent(fraction)); }
+
+	void setCenter(const std::shared_ptr<Region>& region);
 
 	void pack();
 	void draw();

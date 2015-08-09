@@ -26,7 +26,7 @@ ExampleUI::ExampleUI() :
 		Application(1280, 720, "ExampleUI") {
 }
 bool ExampleUI::init(Composite& rootNode) {
-	/*
+	
 	 TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
 	 CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
 	 RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
@@ -100,15 +100,16 @@ bool ExampleUI::init(Composite& rootNode) {
 
 	 HSliderPtr hslider1 = HSliderPtr(
 	 new HorizontalSlider("Label A", CoordPerPX(0.1f, 0.3f, 0, 0),
-	 CoordPX(200.0f, 40.0f), Integer(0), Integer(100),
-	 Integer(70)));
+	 CoordPX(200.0f, 40.0f), Integer(1), Integer(12),
+	 Integer(7)));
 	 HSliderPtr hslider2 = HSliderPtr(
 	 new HorizontalSlider("Label B", CoordPercent(0.7f, 0.7f),
-	 CoordPX(200.0f, 50.0f)));
+	 CoordPX(200.0f, 50.0f), Double(1), Double(12),
+		 Double(7)));
 
 	 VSliderPtr vslider1 = VSliderPtr(
 	 new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
-	 CoordPX(100.0f, 200.0f), Integer(0), Integer(100),
+	 CoordPX(100.0f, 200.0f), Integer(0), Integer(20),
 	 Integer(70)));
 
 
@@ -144,7 +145,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 HSliderPtr hslider = HSliderPtr(
 	 new HorizontalSlider(MakeString() << "Item " << (n + 1),
 	 CoordPX(0, 0), CoordPX(400.0f, 50.0f), Integer(0),
-	 Integer(100), Integer(70)));
+	 Integer(10), Integer(7)));
 	 scrollPane->add(hslider);
 	 }
 	 scrollPane->setOrientation(Orientation::Vertical);
@@ -168,9 +169,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	 //rootNode.add(scrollTrack);
 	 //rootNode.backgroundColor = MakeColor(Theme::Default.LIGHT);
 	 rootNode.add(button2);
-	 //rootNode.add(hslider2);
-
-	 //rootNode.add(hslider1);
+	 rootNode.add(hslider2);
+	 rootNode.add(vslider1);
 	 //rootNode.add(field1);
 	 //rootNode.add(field2);
 	 //rootNode.add(vslider1);
@@ -178,7 +178,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 //rootNode.add(colorselect);
 	 //getContext()->toggleDebug();
 	 //std::cout<<rootNode<<std::endl;
-	 */
+	 /*
 
 	ExpandBarPtr expandBar = ExpandBarPtr(
 			new ExpandBar("exapander", CoordPercent(0.7f, 0.0f),
@@ -270,7 +270,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor = MakeColor(Color(128, 64, 92));
 	rootNode.add(bcomp);
 	rootNode.add(expandBar);
-
+	*/
 	return true;
 }
 
