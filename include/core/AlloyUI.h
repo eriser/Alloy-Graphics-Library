@@ -289,8 +289,7 @@ protected:
 	std::shared_ptr<Region>& southRegion;
 	std::shared_ptr<Region>& eastRegion;
 	std::shared_ptr<Region>& westRegion;
-	float northFraction = 0, southFraction = 0, eastFraction = 0, westFraction =
-			0;
+	AUnit1D northFraction,southFraction, eastFraction, westFraction;
 	std::shared_ptr<Region>& centerRegion;
 public:
 	BorderComposite(
@@ -306,13 +305,13 @@ public:
 			double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
 	void setNorth(const std::shared_ptr<Region>& region,
-			float fraction);
+		const AUnit1D& fraction);
         void setSouth(const std::shared_ptr<Region>& region,
-                        float fraction);
+                        const AUnit1D& fraction);
         void setEast(const std::shared_ptr<Region>& region,
-                         float fraction);
+			const AUnit1D& fraction);
         void setWest(const std::shared_ptr<Region>& region,
-                         float fraction);
+			const AUnit1D& fraction);
         void setCenter(const std::shared_ptr<Region>& region);
 
 	void pack();

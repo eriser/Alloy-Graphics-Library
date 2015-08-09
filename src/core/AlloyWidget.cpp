@@ -83,16 +83,7 @@ void CheckBox::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
 	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
-				context->theme.HIGHLIGHT.toSemiTransparent(0));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
+
 		checkLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
 		checkLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
@@ -210,16 +201,6 @@ void ToggleBox::draw(AlloyContext* context) {
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
 	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
-				context->theme.HIGHLIGHT.toSemiTransparent(0));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
 		toggleLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
 	} else {
 		toggleLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
@@ -649,6 +630,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 		Composite(label) {
 	this->position = position;
 	this->dimensions = dimensions;
+	borderColor = MakeColor(COLOR_NONE);
 	CompositePtr valueContainer = MakeComposite(label,
 			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
 			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
@@ -758,18 +740,6 @@ void Selection::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseContainedIn(this);
 	box2px bounds = getBounds();
-	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-	}
 	if (hover) {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -932,18 +902,6 @@ void HorizontalSlider::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
-	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.DARK,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-	}
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -1103,18 +1061,6 @@ void VerticalSlider::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 	bool hover = context->isMouseContainedIn(this);
-	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.DARK,
-				context->theme.HIGHLIGHT.toSemiTransparent(0.0f));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-	}
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -2153,7 +2099,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f), std::vector<string>{"txt","png","jpg"}));
 	openButton->setOrigin(Origin::TopRight);
 	fileLocation = std::shared_ptr<FileField>(
-			new FileField("File Location", CoordPX(10, 10),
+			new FileField("File Location", CoordPX(10, 7),
 					CoordPerPX(1.0f, 0.0f, -55.0f, 30.0f)));
 	fileLocation-> backgroundColor= MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fileLocation->onSelect = [this](FileField* field) {
@@ -2163,34 +2109,35 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		new IconButton(
 			AlloyApplicationContext()->createAwesomeGlyph(0xf062,
 				FontStyle::Normal, 21),
-			CoordPerPX(1.0, 0.0, -40,10), CoordPX(30,30)));
+			CoordPerPX(1.0, 0.0, -40,7), CoordPX(30,30)));
 	upDirButton->foregroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	upDirButton->borderColor = MakeColor(COLOR_NONE);
 	upDirButton->backgroundColor = MakeColor(AlloyApplicationContext()->theme.SHADOW);
 	upDirButton->iconColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
-
+	upDirButton->onMouseDown = [this](AlloyContext* context, const InputEvent& event) {
+		this->setValue(GetParentDirectory(RemoveTrailingSlash(this->getValue())));
+		return true;
+	};
 	cancelButton = std::shared_ptr<IconButton>(
 			new IconButton(
 					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
 							FontStyle::Normal, 21),
 					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30), IconType::CIRCLE));
 	cancelButton->setOrigin(Origin::BottomLeft);
-	/*
+	
 	cancelButton->onMouseDown=[this](AlloyContext* context, const InputEvent& event) {
 		this->setVisible(false);
 		context->getGlassPanel()->setVisible(false);
 		return true;
 	};
-	*/
 	CompositePtr southRegion = MakeComposite("File Options", CoordPX(0, 0), CoordPercent(1.0f, 1.0f));
-
 	CompositePtr northRegion = MakeComposite("Selection Bar", CoordPX(0, 0), CoordPercent(1.0f, 1.0f));
 	southRegion->add(openButton);
 	southRegion->add(fileTypeSelect);
 	northRegion->add(fileLocation);
 	northRegion->add(upDirButton);
-	containerRegion->setNorth(northRegion, 0.15f);
-	containerRegion->setSouth(southRegion, 0.15f);
+	containerRegion->setNorth(northRegion,UnitPercent(0.15f));
+	containerRegion->setSouth(southRegion, UnitPercent(0.15f));
 	directoryTree = std::shared_ptr<Composite>(
 			new Composite("Container", CoordPX(7, 0),
 					CoordPerPX(1.0, 1.0, -7, 0)));
@@ -2199,12 +2146,15 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0f, 1.0, -14.0f, 0.0f)));
 	directoryList->setOrientation(Orientation::Vertical);
 	directoryList->setScrollEnabled(true);
-	containerRegion->setWest(directoryTree, 0.3f);
+
+	directoryTree->setOrientation(Orientation::Vertical);
+	directoryTree->setScrollEnabled(true);
+
+	containerRegion->setWest(directoryTree, UnitPercent(0.3f));
 	containerRegion->setCenter(directoryList);
 	add(containerRegion);
 	add(cancelButton);
 	this->onEvent = [this](AlloyContext* context, const InputEvent& e) {
-
 		return false;
 	};
 }
