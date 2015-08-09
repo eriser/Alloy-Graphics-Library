@@ -57,12 +57,16 @@ protected:
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 	bool roundCorners = false;
 	bool detached = false;
+	bool clampToParentBounds = true;
 public:
 	friend struct Composite;
 	friend struct BorderComposite;
 	const std::string name;
 	void setIgnoreCursorEvents(bool ignore) {
 		ignoreCursorEvents = ignore;
+	}
+	void setClampDragToParentBounds(bool clamp) {
+		clampToParentBounds = clamp;
 	}
 	void setDetached(bool enable) {
 		detached = enable;

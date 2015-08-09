@@ -27,6 +27,7 @@ ExampleUI::ExampleUI() :
 }
 bool ExampleUI::init(Composite& rootNode) {
 	
+	/*
 	 TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
 	 CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
 	 RGBA(255, 255, 255, 255), HorizontalAlignment::Center,
@@ -178,7 +179,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 //rootNode.add(colorselect);
 	 //getContext()->toggleDebug();
 	 //std::cout<<rootNode<<std::endl;
-	 /*
+	*/
 
 	ExpandBarPtr expandBar = ExpandBarPtr(
 			new ExpandBar("exapander", CoordPercent(0.7f, 0.0f),
@@ -259,8 +260,29 @@ bool ExampleUI::init(Composite& rootNode) {
 			Color(255, 255, 0), COLOR_NONE, UnitPX(0));
 	RegionPtr west = MakeRegion("West", CoordPX(0, 0), CoordPercent(1.0, 1.0),
 			Color(255, 0, 255), COLOR_NONE, UnitPX(0));
-	RegionPtr center = MakeRegion("Center", CoordPX(0, 0),
-			CoordPercent(1.0, 1.0), Color(0, 255, 255), COLOR_NONE, UnitPX(0));
+	CompositePtr center = MakeComposite("Center", CoordPX(0, 0),
+			CoordPercent(1.0, 1.0), Color(0, 255, 255));
+
+
+	HSliderPtr hslider1 = HSliderPtr(
+		new HorizontalSlider("Label A", CoordPerPX(0.1f, 0.3f, 0, 0),
+			CoordPX(200.0f, 40.0f), Integer(1), Integer(12),
+			Integer(7)));
+	HSliderPtr hslider2 = HSliderPtr(
+		new HorizontalSlider("Label B", CoordPercent(0.7f, 0.7f),
+			CoordPX(200.0f, 50.0f), Double(1), Double(12),
+			Double(7)));
+
+	VSliderPtr vslider1 = VSliderPtr(
+		new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
+			CoordPX(100.0f, 200.0f), Integer(0), Integer(20),
+			Integer(70)));
+
+	center->add(hslider1);
+
+	center->add(hslider2);
+
+	center->add(vslider1);
 	bcomp->setNorth(north, UnitPercent(0.1f));
 	bcomp->setSouth(south, UnitPercent(0.3f));
 	bcomp->setEast(east, UnitPercent(0.2f));
@@ -270,7 +292,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor = MakeColor(Color(128, 64, 92));
 	rootNode.add(bcomp);
 	rootNode.add(expandBar);
-	*/
+	
 	return true;
 }
 

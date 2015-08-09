@@ -179,7 +179,7 @@ void Region::drawBoundsLabel(AlloyContext* context, const std::string& name,
 void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
-	if (detached) {
+	if (!clampToParentBounds) {
 		dragOffset = cursor - delta - d;
 	}
 	else {
@@ -191,7 +191,7 @@ void Region::addDragOffset(const pixel2& delta) {
 	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
 	box2px pbounds = parent->getBounds();
-	if (detached) {
+	if (!clampToParentBounds) {
 		dragOffset = bounds.position + delta - d;
 	}
 	else {
@@ -410,8 +410,8 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
 						this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
 						context->setDragObject(verticalScrollHandle.get());
-						this->scrollPosition.y=(this->verticalScrollHandle->getBoundsPositionY()-this->verticalScrollTrack->getBoundsPositionY())/
-						std::max(1.0f,(float)this->verticalScrollTrack->getBoundsPositionY()-(float)this->verticalScrollHandle->getBoundsPositionY());
+						this->scrollPosition.y = (this->verticalScrollHandle->getBoundsPositionY() - this->verticalScrollTrack->getBoundsPositionY()) /
+							std::max(1.0f, (float)this->verticalScrollTrack->getBoundsDimensionsY() - (float)this->verticalScrollHandle->getBoundsDimensionsY());
 						context->requestPack();
 						return true;
 					}
