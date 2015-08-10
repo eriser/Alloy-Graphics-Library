@@ -599,7 +599,7 @@ PlyFile *ply_read(FILE *fp, int *nelems, char ***elem_names) {
 		return (NULL);
 	while (words) {
 		if (equal_strings(words[0], "format")) {
-			if (nwords != 3)
+			if (nwords < 3)
 				return (NULL);
 			if (equal_strings(words[1], "ascii"))
 				plyfile->file_type = PLY_ASCII;
@@ -689,6 +689,7 @@ PlyFile *ply_open_for_reading(const char *filename, int *nelems,
 
 	plyfile = ply_read(fp, nelems, elem_names);
 	/* determine the file type and version */
+	if(plyfile==NULL)	return (NULL);
 
 	*file_type = plyfile->file_type;
 	*version = plyfile->version;
@@ -1597,6 +1598,10 @@ char **get_words(FILE *fp, int *nwords, char **orig_line) {
 			*ptr = ' ';
 			*ptr2 = ' ';
 		} else if (*ptr == '\n') {
+			*ptr = ' ';
+			*ptr2 = '\0';
+			break;
+		} else if (*ptr == '\r') {
 			*ptr = ' ';
 			*ptr2 = '\0';
 			break;

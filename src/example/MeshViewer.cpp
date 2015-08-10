@@ -30,7 +30,7 @@ MeshViewer::MeshViewer() :
 				1), phongShader2(1) {
 }
 bool MeshViewer::init(Composite& rootNode) {
-	mesh.load(getFullPath("models/monkey.ply"));
+	mesh.load(getFullPath("models/torus.ply"));
 	mesh.scale(10.0f);
 	mesh2.load(getFullPath("models/armadillo.ply"));
 	mesh2.updateVertexNormals();

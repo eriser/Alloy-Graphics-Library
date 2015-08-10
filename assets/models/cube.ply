@@ -1,6 +1,5 @@
 ply
 format ascii 1.0
-comment Created by Blender 2.70 (sub 0) - www.blender.org, source file: ''
 element vertex 8
 property float x
 property float y
