@@ -90,11 +90,13 @@ void MeshViewer::draw(AlloyContext* context) {
 			{
 				idx.insert(hash.x);
 			}
-			std::cout << "Face Ids: ";
+			std::cout << "Face Ids: "<<idx.size();
+			/*
 			for (int val : idx)
 			{
 				std::cout << val << " ";
 			}
+			*/
 			std::cout << std::endl;
 			once = false;
 		}

@@ -114,6 +114,13 @@ void GLMesh::draw(const PrimitiveType& type) const {
 					glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 				}
 			}
+			for (int n = 0; n < 4; n++) {
+				if (quadTextureBuffer[n] > 0) {
+					glEnableVertexAttribArray(11 + n);
+					glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
+					glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
+				}
+			}
 			glDrawArrays(GL_POINTS, 0, quadIndexCount);
 	}
 	CHECK_GL_ERROR();
@@ -130,6 +137,13 @@ void GLMesh::draw(const PrimitiveType& type) const {
 				glEnableVertexAttribArray(7 + n);
 				glBindBuffer(GL_ARRAY_BUFFER, triNormalBuffer[n]);
 				glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			}
+		}
+		for (int n = 0; n < 3; n++) {
+			if (triTextureBuffer[n] > 0) {
+				glEnableVertexAttribArray(11 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, triTextureBuffer[n]);
+				glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			}
 		}
 		glDrawArrays(GL_POINTS, 0, triIndexCount);
@@ -189,6 +203,13 @@ GLMesh::~GLMesh() {
 	for (int n = 0; n < 3; n++)
 		if (glIsBuffer(triNormalBuffer[n]) == GL_TRUE)
 			glDeleteBuffers(1, &triNormalBuffer[n]);
+
+	for (int n = 0; n < 4; n++)
+		if (glIsBuffer(quadTextureBuffer[n]) == GL_TRUE)
+			glDeleteBuffers(1, &quadTextureBuffer[n]);
+	for (int n = 0; n < 3; n++)
+		if (glIsBuffer(triTextureBuffer[n]) == GL_TRUE)
+			glDeleteBuffers(1, &triTextureBuffer[n]);
 
 	if (vao != 0)
 		glDeleteVertexArrays(1, &vao);
@@ -360,9 +381,67 @@ void GLMesh::update() {
 						GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
+			CHECK_GL_ERROR();
 		}
 	}
-
+	if (mesh.textureMap.size() > 0) {
+		if (mesh.quadIndexes.size() > 0) {
+			int offset = 0;
+			size_t idx = 0;
+			std::vector<float2> quads[4];
+			for (int n = 0; n < 4; n++) {
+				quads[n].resize(mesh.quadIndexes.size());
+				if (glIsBuffer(quadTextureBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &quadTextureBuffer[n]);
+				glGenBuffers(1, &quadTextureBuffer[n]);
+			}
+			for (uint4 face : mesh.quadIndexes.data) {
+				for (int n = 0; n < 4; n++) {
+					quads[n][offset] = mesh.textureMap[idx++];
+				}
+				offset++;
+			}
+			for (int n = 0; n < 4; n++) {
+				if (glIsBuffer(quadTextureBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &quadTextureBuffer[n]);
+				glGenBuffers(1, &quadTextureBuffer[n]);
+				glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
+				glBufferData(GL_ARRAY_BUFFER,
+					sizeof(GLfloat) * 2 * quads[n].size(), quads[n].data(),
+					GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+			CHECK_GL_ERROR();
+		}
+		if (mesh.triIndexes.size() > 0) {
+			int offset = 0;
+			size_t idx = 0;
+			std::vector<float2> tris[3];
+			for (int n = 0; n < 3; n++) {
+				tris[n].resize(mesh.triIndexes.size());
+				if (glIsBuffer(triTextureBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &triTextureBuffer[n]);
+				glGenBuffers(1, &triTextureBuffer[n]);
+			}
+			for (uint3 face : mesh.triIndexes.data) {
+				for (int n = 0; n < 3; n++) {
+					tris[n][offset] = mesh.textureMap[idx++];
+				}
+				offset++;
+			}
+			for (int n = 0; n < 3; n++) {
+				if (glIsBuffer(triTextureBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &triTextureBuffer[n]);
+				glGenBuffers(1, &triTextureBuffer[n]);
+				glBindBuffer(GL_ARRAY_BUFFER, triTextureBuffer[n]);
+				glBufferData(GL_ARRAY_BUFFER,
+					sizeof(GLfloat) * 2 * tris[n].size(), tris[n].data(),
+					GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+			CHECK_GL_ERROR();
+		}
+	}
 	context->end();
 }
 Mesh::Mesh(std::shared_ptr<AlloyContext>& context) :

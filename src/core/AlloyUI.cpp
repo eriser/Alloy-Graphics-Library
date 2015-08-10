@@ -282,6 +282,9 @@ void Composite::draw(AlloyContext* context) {
 	float h = bounds.dimensions.y;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
+	if (isScrollEnabled()) {
+		pushScissor(nvg,getCursorBounds());
+	}
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		if (roundCorners) {
@@ -299,10 +302,7 @@ void Composite::draw(AlloyContext* context) {
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
-	if (isScrollEnabled()) {
-		pushScissor(nvg, bounds.position.x, bounds.position.y,
-				bounds.dimensions.x, bounds.dimensions.y);
-	}
+
 	for (std::shared_ptr<Region>& region : children) {
 		if (region->isVisible()) {
 			region->draw(context);
@@ -637,6 +637,9 @@ void BorderComposite::draw(AlloyContext* context) {
 	float h = bounds.dimensions.y;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
+	if (isScrollEnabled()) {
+		pushScissor(nvg,getCursorBounds());
+	}
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		if (roundCorners) {
@@ -654,10 +657,7 @@ void BorderComposite::draw(AlloyContext* context) {
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
-	if (isScrollEnabled()) {
-		pushScissor(nvg, bounds.position.x, bounds.position.y,
-				bounds.dimensions.x, bounds.dimensions.y);
-	}
+
 	for (std::shared_ptr<Region>& region : children) {
 		if (region.get() == nullptr)
 			continue;

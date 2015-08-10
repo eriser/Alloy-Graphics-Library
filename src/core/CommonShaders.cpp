@@ -815,10 +815,15 @@ DepthAndTextureShader::DepthAndTextureShader(
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
 
-				layout(location = 7) in vec3 vn0;
+						layout(location = 7) in vec3 vn0;
 				layout(location = 8) in vec3 vn1;
 				layout(location = 9) in vec3 vn2;
 				layout(location = 10) in vec3 vn3;
+
+						layout(location = 11) in vec2 vt0;
+				layout(location = 12) in vec2 vt1;
+				layout(location = 13) in vec2 vt2;
+				layout(location = 14) in vec2 vt3;
 	
 				out VS_OUT {
 					vec3 p0;
@@ -829,6 +834,10 @@ DepthAndTextureShader::DepthAndTextureShader(
 					vec3 n1;
 					vec3 n2;
 					vec3 n3;
+					vec2 t0;
+					vec2 t1;
+					vec2 t2;
+					vec2 t3;
 				} vs_out;
 				void main(void) {
 					vs_out.p0=vp0;
@@ -839,15 +848,20 @@ DepthAndTextureShader::DepthAndTextureShader(
 					vs_out.n1=vn1;
 					vs_out.n2=vn2;
 					vs_out.n3=vn3;
+					vs_out.t0=vt0;
+					vs_out.t1=vt1;
+					vs_out.t2=vt2;
+					vs_out.t3=vt3;
 				})",
 		R"(	#version 330
 					in vec3 normal;
 					in vec3 vert;
+					in vec2 tex;
 					uniform float MIN_DEPTH;
 					uniform float MAX_DEPTH;
 					void main() {
-						vec3 normalized_normal = normalize(normal);
-						gl_FragColor = vec4(normalized_normal.xyz,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+						//vec3 normalized_normal = normalize(normal);
+						gl_FragColor = vec4(tex.x,tex.y,0.0,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 					}
 					)",
 		R"(	#version 330
@@ -862,9 +876,14 @@ DepthAndTextureShader::DepthAndTextureShader(
 						vec3 n1;
 						vec3 n2;
 						vec3 n3;
+						vec2 t0;
+						vec2 t1;
+						vec2 t2;
+						vec2 t3;
 					} quad[];
 					out vec3 v0, v1, v2, v3;
 					out vec3 normal;
+					out vec2 tex;
 					out vec3 vert;
 					uniform int IS_QUAD;
                     uniform int IS_FLAT;
@@ -887,6 +906,7 @@ DepthAndTextureShader::DepthAndTextureShader(
 if(IS_QUAD!=0){
 	gl_Position=PVM*vec4(p0,1);  
 	vert = v0;
+	tex = quad[0].t0;
 	if(IS_FLAT!=0){
         vec3 pt=0.25*(p0+p1+p2+p3);
         normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
@@ -898,6 +918,7 @@ if(IS_QUAD!=0){
 } else {
 	gl_Position=PVM*vec4(p0,1);  
 	vert = v0;
+	tex = quad[0].t0;
 	if(IS_FLAT!=0){
 		normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
 	} else {
@@ -907,6 +928,7 @@ if(IS_QUAD!=0){
 }
 	gl_Position=PVM*vec4(p1,1);  
 	vert = v1;
+	tex = quad[0].t1;
 	if(IS_FLAT!=0){
 		//normal = (VM*vec4(normalize(cross( p0-p1, p2-p1)),0.0)).xyz;
 	} else {
@@ -916,6 +938,7 @@ if(IS_QUAD!=0){
 	if(IS_QUAD!=0){
 		gl_Position=PVM*vec4(p3,1);  
 		vert = v3;
+		tex = quad[0].t3;
 		if(IS_FLAT!=0){
 			//normal = (VM*vec4(normalize(cross( p2-p3, p0-p3)),0.0)).xyz;
 		} else {
@@ -924,6 +947,7 @@ if(IS_QUAD!=0){
 		EmitVertex();
 		gl_Position=PVM*vec4(p2,1);  
 		vert = v2;
+		tex = quad[0].t2;
 		if(IS_FLAT!=0){
 			//normal = (VM*vec4(normalize(cross( p1-p2, p3-p2)),0.0)).xyz;
 		} else {
@@ -935,6 +959,7 @@ if(IS_QUAD!=0){
 		gl_Position=PVM*vec4(p2,1);  
 		if(IS_FLAT!=0){
 			vert = v2;
+			tex = quad[0].t2;
 			//normal = (VM*vec4(normalize(cross( p1-p2, p0-p2)),0.0)).xyz;
 		} else {
 			normal= (VM*vec4(quad[0].n2,0.0)).xyz;
