@@ -99,7 +99,7 @@ public:
 	float getFarPlane() {
 		return farPlane;
 	}
-	float3 transform(float3& pt) {
+	float3 transform(const float3& pt) {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
 		float4 p = Projection * View * Model * ptp;
 		return float3(p[0] / p[3], p[1] / p[3], p[2] / p[3]);
