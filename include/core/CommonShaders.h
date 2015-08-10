@@ -38,6 +38,10 @@ public:
 		GLFrameBuffer& framebuffer, bool flatShading = false);
 	void draw(const std::initializer_list<std::pair<const Mesh*,float4x4>>& meshes, VirtualCamera& camera,
 		GLFrameBuffer& framebuffer, bool flatShading = false);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+		GLFrameBuffer& framebuffer, bool flatShading = false);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera,
+		GLFrameBuffer& framebuffer, bool flatShading = false);
 
 	void draw(const Mesh& mesh, VirtualCamera& camera,
 		GLFrameBuffer& framebuffer, bool flatShading = false) {
@@ -69,6 +73,9 @@ public:
 	void initialize(int w, int h);
 	int draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image2i& faceIdMap,int faceIdOffset=0,int objectIdOffset=0);
 	int draw(const std::initializer_list<std::pair<const Mesh*,float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+
 	int draw(const Mesh& mesh, VirtualCamera& camera,Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0) {
 		return draw({ &mesh }, camera, faceIdMap,faceIdOffset,objectIdOffset);
 	}

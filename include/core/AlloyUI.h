@@ -425,6 +425,7 @@ public:
 	int getSelectedIndex() const {
 		return selectedIndex;
 	}
+
 	inline void setSelectionOffset(bool offset) {
 		selectionOffset = offset;
 	}

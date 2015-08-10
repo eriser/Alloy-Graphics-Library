@@ -387,6 +387,20 @@ void Application::onScroll(double xoffset, double yoffset) {
 	e.cursor = context->cursorPosition;
 	e.type = InputType::Scroll;
 	e.scroll = pixel2((pixel) xoffset, (pixel) yoffset);
+	GLFWwindow* window = context->window;
+	e.mods = 0;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+		| glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+		e.mods |= GLFW_MOD_SHIFT;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)
+		| glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL))
+		e.mods |= GLFW_MOD_CONTROL;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT)
+		| glfwGetKey(window, GLFW_KEY_RIGHT_ALT))
+		e.mods |= GLFW_MOD_ALT;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SUPER)
+		| glfwGetKey(window, GLFW_KEY_RIGHT_SUPER))
+		e.mods |= GLFW_MOD_SUPER;
 
 	fireEvent(e);
 }
@@ -415,6 +429,7 @@ void Application::onChar(unsigned int codepoint) {
 	e.codepoint = codepoint;
 	e.cursor = context->cursorPosition;
 	GLFWwindow* window = context->window;
+	e.mods = 0;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
 			| glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
 		e.mods |= GLFW_MOD_SHIFT;

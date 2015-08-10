@@ -49,6 +49,18 @@ GLShader& GLShader::draw(const Mesh& mesh, const GLMesh::PrimitiveType& type) {
 	mesh.draw(type);
 	return *this;
 }
+GLShader& GLShader::draw(const std::list<const GLComponent*>& comps) {
+	for (const GLComponent* comp : comps) {
+		comp->draw();
+	}
+	return *this;
+}
+GLShader& GLShader::draw(const std::list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type) {
+	for (const Mesh* mesh : meshes) {
+		mesh->draw(type);
+	}
+	return *this;
+}
 GLShader& GLShader::draw(const std::initializer_list<const GLComponent*>& comps) {
 	for (const GLComponent* comp : comps) {
 		comp->draw();

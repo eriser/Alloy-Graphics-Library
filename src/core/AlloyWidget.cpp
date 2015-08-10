@@ -717,6 +717,9 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			selectionBox->setSelectedIndex(selectedIndex);
 		}
 		selectionLabel->label=this->getSelection();
+		if (onSelect) {
+			onSelect(selectedIndex);
+		}
 		return true;
 	};
 }

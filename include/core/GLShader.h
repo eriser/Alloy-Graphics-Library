@@ -326,6 +326,9 @@ public:
 	GLShader& begin();
 	GLShader& draw(const std::initializer_list<const GLComponent*>& comps);
 	GLShader& draw(const std::initializer_list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type);
+	GLShader& draw(const std::list<const GLComponent*>& comps);
+	GLShader& draw(const std::list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type);
+
 	GLShader& draw(const GLComponent& comps);
 	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type);
 

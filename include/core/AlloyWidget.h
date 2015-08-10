@@ -231,11 +231,17 @@ private:
 	std::shared_ptr<SelectionBox> selectionBox;
 	int selectedIndex = -1;
 public:
+	std::function<void(int)> onSelect;
 	inline int getSelectedIndex() const {
 		return selectedIndex;
 	}
 	std::string getSelection() {
 		return selectionBox->getSelection(selectedIndex);
+	}
+	void setSelection(int selection) {
+		selectedIndex = selection;
+		selectionBox->setSelectedIndex(selection);
+		selectionLabel->label = this->getSelection();
 	}
 	virtual void draw(AlloyContext* context) override;
 	Selection(const std::string& label, const AUnit2D& position,
