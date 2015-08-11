@@ -517,7 +517,7 @@ std::vector<std::string> GetDrives() {
 		if(fd.fileType==FileType::Directory){
 			for(FileDescription cfd:GetDirectoryDescriptionListing(fd.fileLocation)){
 				if(cfd.fileType==FileType::Directory){
-					drives.push_back(cfd.fileLocation);
+					drives.push_back(RemoveTrailingSlash(cfd.fileLocation)+ALY_PATH_SEPARATOR);
 				}
 			}
 		}
