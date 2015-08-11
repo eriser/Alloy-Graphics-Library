@@ -235,13 +235,24 @@ public:
 	inline int getSelectedIndex() const {
 		return selectedIndex;
 	}
+	std::string getValue() {
+		return selectionBox->getSelection(selectedIndex);
+	}
 	std::string getSelection() {
 		return selectionBox->getSelection(selectedIndex);
 	}
-	void setSelection(int selection) {
+	std::string getSelection(int index) {
+		return selectionBox->getSelection(index);
+	}
+	void setValue(int selection) {
 		selectedIndex = selection;
 		selectionBox->setSelectedIndex(selection);
-		selectionLabel->label = this->getSelection();
+		selectionLabel->label = this->getValue();
+	}
+	void setSelectionIndex(int selection) {
+		selectedIndex = selection;
+		selectionBox->setSelectedIndex(selection);
+		selectionLabel->label = this->getValue();
 	}
 	virtual void draw(AlloyContext* context) override;
 	Selection(const std::string& label, const AUnit2D& position,
@@ -388,7 +399,7 @@ public:
 			const AUnit2D& dims);
 	void setFileLocation(const std::string& file);
 	void openFileDialog(AlloyContext* context,
-			const std::string& workingDirectory = ALY_PATH_SEPARATOR);
+			const std::string& workingDirectory =GetCurrentWorkingDirectory());
 	virtual void draw(AlloyContext* context) override;
 };
 

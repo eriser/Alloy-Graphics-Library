@@ -698,7 +698,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 						selectedIndex=selectionBox->getSelectedIndex();
 						selectionBox->setSelectedIndex(selectedIndex);
 					}
-					selectionLabel->label=this->getSelection();
+					selectionLabel->label=this->getValue();
 					return true;
 				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
 					context->removeOnTopRegion(selectionBox.get());
@@ -716,7 +716,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			selectedIndex=selectionBox->getSelectedIndex();
 			selectionBox->setSelectedIndex(selectedIndex);
 		}
-		selectionLabel->label=this->getSelection();
+		selectionLabel->label=this->getValue();
 		if (onSelect) {
 			onSelect(selectedIndex);
 		}
@@ -2124,12 +2124,57 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0, 1.0, -7, 0)));
 
 
-	directoryTree->add(TextIconButtonPtr(new TextIconButton("Home",0xf015,CoordPX(2.0f, 0.0f),CoordPerPX(1.0f,0.0f,-4.0f,30.0f),HorizontalAlignment::Left)));
-	directoryTree->add(TextIconButtonPtr(new TextIconButton("Documents", 0xf115, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
-	directoryTree->add(TextIconButtonPtr(new TextIconButton("Downloads", 0xf019, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
-	directoryTree->add(TextIconButtonPtr(new TextIconButton("Desktop", 0xf108, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
-	directoryTree->add(TextIconButtonPtr(new TextIconButton("Disk", 0xf0a0, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left)));
+	TextIconButtonPtr homeDir= TextIconButtonPtr(new TextIconButton("Home", 0xf015, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr docsDir= TextIconButtonPtr(new TextIconButton("Documents", 0xf115, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr downloadDir= TextIconButtonPtr(new TextIconButton("Downloads", 0xf019, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr desktopDir= TextIconButtonPtr(new TextIconButton("Desktop", 0xf108, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
+	
+	homeDir->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->setValue(GetHomeDirectory());
+			return true;
+		}
+		return false;
+	};
+	directoryTree->add(homeDir);
+	docsDir->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->setValue(GetDocumentsDirectory());
+			return true;
+		}
+		return false;
+	};
+	directoryTree->add(docsDir);
+	downloadDir->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->setValue(GetDownloadsDirectory());
+			return true;
+		}
+		return false;
+	};
+	directoryTree->add(downloadDir);
 
+	desktopDir->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->setValue(GetDesktopDirectory());
+			return true;
+		}
+		return false;
+	};
+	directoryTree->add(desktopDir);
+
+	std::vector<std::string> drives = GetDrives();
+	for (std::string file: drives) {
+		TextIconButtonPtr diskDir = TextIconButtonPtr(new TextIconButton(GetFileName(RemoveTrailingSlash(file))+ALY_PATH_SEPARATOR, 0xf0a0, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
+		diskDir->onMouseDown = [this,file](AlloyContext* context, const InputEvent& e) {
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				this->setValue(file);
+				return true;
+			}
+			return false;
+		};
+		directoryTree->add(diskDir);
+	}
 
 	directoryList = std::shared_ptr<Composite>(
 			new Composite("Container", CoordPX(5, 0),
