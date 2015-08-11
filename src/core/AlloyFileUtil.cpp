@@ -470,9 +470,7 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 	}
 	return files;
 }
-std::string GetDesktopDirectory()
-{
-}
+
 std::string GetHomeDirectory()
 {
 	const char *homedir;
@@ -481,6 +479,10 @@ std::string GetHomeDirectory()
 	}
 	return RemoveTrailingSlash(std::string(homedir));
 }
+std::string GetDesktopDirectory()
+{
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Desktop";
+}
 std::string GetDocumentsDirectory()
 {
 	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Documents";
@@ -488,7 +490,7 @@ std::string GetDocumentsDirectory()
 std::string GetDownloadsDirectory()
 {
 
-	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Downlaods";
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Downloads";
 }
 std::string GetCurrentWorkingDirectory()
 {
@@ -496,8 +498,31 @@ std::string GetCurrentWorkingDirectory()
 	getcwd(path,4096);
 	return std::string(path);
 }
+std::string GetUserName(){
+     struct passwd *pw;
+     uid_t uid;
+     int c;
+     uid = geteuid ();
+     pw = getpwuid (uid);
+     if (pw)
+     {
+             return std::string(pw->pw_name);
+         }
+     return std::string("");
+}
 std::vector<std::string> GetDrives() {
-	return std::vector<std::string>{"/"};
+	std::vector<std::string> drives;
+	drives.push_back(ALY_PATH_SEPARATOR);
+	for(FileDescription fd:GetDirectoryDescriptionListing("/media")){
+		if(fd.fileType==FileType::Directory){
+			for(FileDescription cfd:GetDirectoryDescriptionListing(fd.fileLocation)){
+				if(cfd.fileType==FileType::Directory){
+					drives.push_back(cfd.fileLocation);
+				}
+			}
+		}
+	}
+	return drives;
 }
 #else 
 
@@ -693,6 +718,12 @@ std::vector<std::string> GetDrives() {
 		driveStrings += lstrlen(driveStrings) + 1;
 	}
 	return drives;
+}
+std::string GetUserName(){
+	char username[UNLEN+1];
+	DWORD username_len = UNLEN+1;
+	GetUserName(username, &username_len);
+	return std::string(username);
 }
 #endif
 

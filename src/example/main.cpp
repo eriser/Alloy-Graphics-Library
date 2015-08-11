@@ -46,6 +46,15 @@ int main() {
 		//SANITY_CHECK_CEREAL();
 		//ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
+		std::cout<<"USER "<<GetUserName()<<std::endl;
+		std::cout<<"CWD "<<GetCurrentWorkingDirectory()<<std::endl;
+		std::cout<<"HOME "<<GetHomeDirectory()<<std::endl;
+		std::cout<<"DOWNLOADS "<<GetDownloadsDirectory()<<std::endl;
+		std::cout<<"DESKTOP "<<GetDesktopDirectory()<<std::endl;
+		std::cout<<"DOCUMENTS "<<GetDocumentsDirectory()<<std::endl;
+		for(std::string dir:GetDrives()){
+			std::cout<<"DRIVE "<<dir<<std::endl;
+		}
 		MeshViewer app;
 		app.run(1);
 		return 0;
