@@ -46,7 +46,7 @@ int main() {
 		//SANITY_CHECK_CEREAL();
 		//ExampleUI app;
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
-		std::cout<<"USER "<<GetUserName()<<std::endl;
+		std::cout<<"USER "<<GetUserNameString()<<std::endl;
 		std::cout<<"CWD "<<GetCurrentWorkingDirectory()<<std::endl;
 		std::cout<<"HOME "<<GetHomeDirectory()<<std::endl;
 		std::cout<<"DOWNLOADS "<<GetDownloadsDirectory()<<std::endl;

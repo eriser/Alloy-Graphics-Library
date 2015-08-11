@@ -498,7 +498,7 @@ std::string GetCurrentWorkingDirectory()
 	getcwd(path,4096);
 	return std::string(path);
 }
-std::string GetUserName(){
+std::string GetUserNameString(){
      struct passwd *pw;
      uid_t uid;
      int c;
@@ -655,6 +655,8 @@ std::string GetDesktopDirectory()
 		std::string strPathNormal(strPath.begin(), strPath.end());
 		return strPathNormal;
 	}
+	return std::string();
+
 }
 std::string GetHomeDirectory()
 {
@@ -662,10 +664,10 @@ std::string GetHomeDirectory()
 	HRESULT hr;
 	hr = SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_CREATE, NULL, &wszPath);
 	if (SUCCEEDED(hr)) {
-		std::wstring strPath(wszPath);
-		std::string strPathNormal(strPath.begin(), strPath.end());
-		return strPathNormal;
+		std::string strPathNormal=ToString(wszPath);
+		return RemoveTrailingSlash(GetParentDirectory(strPathNormal));
 	}
+	return std::string();
 }
 std::string GetDocumentsDirectory()
 {
@@ -677,6 +679,8 @@ std::string GetDocumentsDirectory()
 		std::string strPathNormal(strPath.begin(), strPath.end());
 		return strPathNormal;
 	}
+	return std::string();
+
 }
 std::string GetDownloadsDirectory()
 {
@@ -688,6 +692,8 @@ std::string GetDownloadsDirectory()
 		std::string strPathNormal(strPath.begin(), strPath.end());
 		return strPathNormal;
 	}
+	return std::string();
+
 }
 std::string GetCurrentWorkingDirectory()
 {
@@ -719,11 +725,11 @@ std::vector<std::string> GetDrives() {
 	}
 	return drives;
 }
-std::string GetUserName(){
-	char username[UNLEN+1];
-	DWORD username_len = UNLEN+1;
-	GetUserName(username, &username_len);
-	return std::string(username);
+std::string GetUserNameString(){
+	wchar_t USERNAME[4096];
+	DWORD username_len=4096;
+	GetUserNameW(USERNAME, &username_len);
+	return ToString(USERNAME);
 }
 #endif
 
