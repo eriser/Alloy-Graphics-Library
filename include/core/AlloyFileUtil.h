@@ -111,7 +111,12 @@ std::string FormatTime(const std::time_t& time);
 std::string FormatDate(const std::time_t& time);
 std::string FormatDateAndTime(const std::time_t& time);
 std::string FormatSize(size_t size);
-
+std::string GetCurrentWorkingDirectory();
+std::string GetHomeDirectory();
+std::string GetDownloadsDirectory();
+std::string GetDesktopDirectory();
+std::string GetDocumentsDirectory();
+std::vector<std::string> GetDrives();
 static inline bool is_base64(unsigned char c) {
 	return (isalnum(c) || (c == '+') || (c == '-'));
 }

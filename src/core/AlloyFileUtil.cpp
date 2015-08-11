@@ -28,15 +28,36 @@
 #include "stdint.h"
 #include "AlloyFileUtil.h"
 #include "AlloyCommon.h"
-#include "AlloyFilesystem.h"
 #if defined(WIN32) || defined(_WIN32)
+#define  WIN32_LEAN_AND_MEAN
+
+#ifndef UNICODE
+#define UNICODE
+#endif
+
+#ifndef _UNICODE
+#define _UNICODE
+#endif
 
 #include <windows.h>
+#include <wtypes.h>
+#include <Shlwapi.h>
+#include <shlobj.h>
+#include <comutil.h>
+#include <cstdlib>
+#include <cstdint>
 #include <codecvt>
-#define WINDOWS
+
+#pragma comment(lib, "Shlwapi.lib")
+
+#define ALY_WINDOWS
 #else
 #include <dirent.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 #endif
+#include "AlloyFilesystem.h"
 
 #include <stdexcept>
 using namespace std;
@@ -246,7 +267,7 @@ bool IsFile(const std::string& file) {
 std::vector<std::string> AutoComplete(const std::string& str,
 		const std::vector<std::string>& list, int maxSuggestions) {
 	std::vector<std::string> suggestions = list;
-#ifdef WINDOWS
+#ifdef ALY_WINDOWS
 
 	static const std::locale local;
 	//use case insenstive complete on windows.
@@ -265,7 +286,7 @@ std::vector<std::string> AutoComplete(const std::string& str,
 
 	for (size_t index = 0; index < suggestions.size(); index++) {
 		std::string entry = suggestions[index];
-#ifdef WINDOWS
+#ifdef ALY_WINDOWS
 		if(std::lexicographical_compare(str.begin(),str.end(),entry.begin(),entry.end(),
 						[](char c1, char c2) {return (std::tolower(c1,local)<std::tolower(c2,local));})) {
 #else
@@ -354,7 +375,7 @@ std::string GetParentDirectory(const std::string& file) {
 		return GetFileDirectoryPath(file) + ALY_PATH_SEPARATOR;
 	}
 }
-#ifndef WINDOWS
+#ifndef ALY_WINDOWS
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
 	std::vector<std::string> files;
@@ -448,6 +469,35 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 		std::sort(files.begin(), files.end());
 	}
 	return files;
+}
+std::string GetDesktopDirectory()
+{
+}
+std::string GetHomeDirectory()
+{
+	const char *homedir;
+	if ((homedir = getenv("HOME")) == NULL) {
+		homedir = getpwuid(getuid())->pw_dir;
+	}
+	return RemoveTrailingSlash(std::string(homedir));
+}
+std::string GetDocumentsDirectory()
+{
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Documents";
+}
+std::string GetDownloadsDirectory()
+{
+
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Downlaods";
+}
+std::string GetCurrentWorkingDirectory()
+{
+	char path[4096];
+	getcwd(path,4096);
+	return std::string(path);
+}
+std::vector<std::string> GetDrives() {
+	return std::vector<std::string>{"/"};
 }
 #else 
 
@@ -569,6 +619,80 @@ std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,cons
 	}while (FindNextFile(h, &fd));
 	FindClose(h);
 	return list;
+}
+std::string GetDesktopDirectory()
+{
+	LPWSTR wszPath = NULL;
+	HRESULT hr;
+	hr = SHGetKnownFolderPath(FOLDERID_Desktop, KF_FLAG_CREATE, NULL, &wszPath);
+	if (SUCCEEDED(hr)) {
+		std::wstring strPath(wszPath);
+		std::string strPathNormal(strPath.begin(), strPath.end());
+		return strPathNormal;
+	}
+}
+std::string GetHomeDirectory()
+{
+	LPWSTR wszPath = NULL;
+	HRESULT hr;
+	hr = SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_CREATE, NULL, &wszPath);
+	if (SUCCEEDED(hr)) {
+		std::wstring strPath(wszPath);
+		std::string strPathNormal(strPath.begin(), strPath.end());
+		return strPathNormal;
+	}
+}
+std::string GetDocumentsDirectory()
+{
+	LPWSTR wszPath = NULL;
+	HRESULT hr;
+	hr = SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_CREATE, NULL, &wszPath);
+	if (SUCCEEDED(hr)) {
+		std::wstring strPath(wszPath);
+		std::string strPathNormal(strPath.begin(), strPath.end());
+		return strPathNormal;
+	}
+}
+std::string GetDownloadsDirectory()
+{
+	LPWSTR wszPath = NULL;
+	HRESULT hr;
+	hr = SHGetKnownFolderPath(FOLDERID_Downloads, KF_FLAG_CREATE, NULL, &wszPath);
+	if (SUCCEEDED(hr)) {
+		std::wstring strPath(wszPath);
+		std::string strPathNormal(strPath.begin(), strPath.end());
+		return strPathNormal;
+	}
+}
+std::string GetCurrentWorkingDirectory()
+{
+	wchar_t directory[4096];
+	GetCurrentDirectoryW(4096, directory);
+	return ToString(directory);
+}
+std::vector<std::string> GetDrives() {
+	std::vector<std::string> drives;
+	DWORD cchBuffer;
+	WCHAR* driveStrings;
+	UINT driveType;
+	PWSTR driveTypeString;
+	// Find out how big a buffer we need
+	cchBuffer = GetLogicalDriveStrings(0, NULL);
+	driveStrings = (WCHAR*)malloc((cchBuffer + 1) * sizeof(TCHAR));
+	if (driveStrings == NULL)
+	{
+		return drives;
+	}
+	GetLogicalDriveStrings(cchBuffer, driveStrings);
+	while (*driveStrings)
+	{
+		driveType = GetDriveType(driveStrings);
+		drives.push_back(ToString(driveStrings));
+		// Move to next drive string
+		// +1 is to move past the null at the end of the string.
+		driveStrings += lstrlen(driveStrings) + 1;
+	}
+	return drives;
 }
 #endif
 
