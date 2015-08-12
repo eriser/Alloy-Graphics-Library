@@ -20,6 +20,8 @@
 */
 #pragma once
 #include "AlloyVector.h"
+#include <vector>
+#include <list>
 namespace aly{
 	template<class T, int C> struct KeyValue: public std::pair<size_t, vec<T, C>> {
 		KeyValue() :std::pair<size_t, vec<T, C>>() {

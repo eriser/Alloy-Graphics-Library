@@ -264,7 +264,7 @@ template<class T, int C> void Subtract(Vector<T, C>& out, const Vector<T, C>& v1
 	Transform(out, v1,v2, f);
 }
 template<class T, int C> void Add(Vector<T, C>& out, const Vector<T, C>& v1, const Vector<T, C>& v2) {
-	out.resize(in.size());
+	out.resize(v1.size());
 	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
 		[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2 + val3;};
 	Transform(out, v1, v2, f);
