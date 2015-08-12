@@ -463,12 +463,19 @@ struct Color: public NVGcolor {
 	RGBAf toRGBAf() const {
 		return RGBAf(r, g, b, a);
 	}
-
+	float3 toXYZ();
+	float3 toLAB();
+	float4 toXYZA();
+	float4 toLABA();
 };
 Color HSVtoColor(const HSV& hsv);
 Color HSVAtoColor(const HSVA& hsv);
 RGBf HSVtoRGBf(const HSV& hsv);
 RGBAf HSVAtoRGBAf(const HSVA& hsv);
+float3 RGBtoXYZ(const RGBf& rgb);
+float3 RGBtoLAB(const float3& rgb);
+float4 RGBAtoXYZA(const RGBAf& rgb);
+float4 RGBAtoLABA(const float4& rgb);
 
 typedef std::shared_ptr<Color> AColor;
 class AUnit2D {

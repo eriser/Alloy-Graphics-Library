@@ -115,7 +115,7 @@ ImageShader::ImageShader(const std::shared_ptr<AlloyContext>& context,
 		GLShader(context) {
 	if (filter == Filter::NONE) {
 		initialize(std::vector<std::string> { "vp", "vt" },
-				R"(
+			R"(
 		 #version 330
 		 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -128,12 +128,14 @@ layout(location = 1) in vec2 vt;
 		vec2 pos=vp.xy*bounds.zw+bounds.xy;
 	    gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			})",
-				R"(
+			R"(
 		 #version 330
 		 in vec2 uv;
 		 uniform sampler2D textureImage;
+		 uniform float alpha;
 		 void main() {
 		 vec4 rgba=texture(textureImage,uv);
+         rgba.w=rgba.w*alpha;
 		 gl_FragColor=rgba;
 		 })");
 	} else if (filter == Filter::SMALL_BLUR) {

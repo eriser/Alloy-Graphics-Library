@@ -165,10 +165,10 @@ public:
 	ImageShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext(),
 			const Filter& filter = Filter::NONE);
 	template<class T, int C, ImageType I> void draw(
-			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,float alpha=1.0f,
 			bool flip = false) {
 		begin().set("flip", flip ? 1 : 0).set("textureImage", imageTexture, 0).set(
-				"bounds", bounds).set("viewport", context->getViewport()).draw(
+				"bounds", bounds).set("alpha",alpha).set("viewport", context->getViewport()).draw(
 				imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(

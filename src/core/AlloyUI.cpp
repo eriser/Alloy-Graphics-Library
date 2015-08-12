@@ -234,25 +234,36 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 }
 void Composite::putLast(const std::shared_ptr<Region>& region) {
 	size_t idx=0;
+	size_t pivot = children.size()-1;
+	std::vector<std::shared_ptr<Region>> newList;
 	for (RegionPtr& child : children) {
 		if (child.get() == region.get()) {
-			std::swap(children[idx], children[children.size() - 1]);
-			AlloyApplicationContext()->requestUpdateCursorLocator();
-			break;
+			pivot = idx;
+		} else {
+			newList.push_back(child);
 		}
 		idx++;
 	}
+	newList.push_back(children[pivot]);
+	children = newList;
+	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
 void Composite::putFirst(const std::shared_ptr<Region>& region) {
 	size_t idx = 0;
+	size_t pivot =0;
+	std::vector<std::shared_ptr<Region>> newList;
 	for (RegionPtr& child : children) {
 		if (child.get() == region.get()) {
-			std::swap(children[idx], children[0]);
-			AlloyApplicationContext()->requestUpdateCursorLocator();
-			break;
+			pivot = idx;
+		}
+		else {
+			newList.push_back(child);
 		}
 		idx++;
 	}
+	newList.insert(newList.begin(),children[pivot]);
+	children = newList;
+	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
 
 void Composite::clear() {
