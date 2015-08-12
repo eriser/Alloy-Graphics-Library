@@ -140,11 +140,6 @@ public:
 		return MakeString() << type << channels;
 	}
 
-	Image<T, C, I> operator=(const Image<T, C, I>& img) const {
-		Image<T, C, I> imgOut(img.width, img.height, img.x, img.y,img.id);
-		imgOut.set(img.data.data());
-		return imgOut;
-	}
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			width(w), height(h), x(x), y(x), id(id), data(storage) {
 		data.resize(w * h);
@@ -165,7 +160,15 @@ public:
 	Image() :
 			width(0), height(0), x(0), y(0), id(0), data(storage) {
 	}
-
+	Image(const Image<T, C, I>& img):Image(img.width, img.height, img.x, img.y, img.id) {
+		set(img.data.data());
+	}
+	Image& operator=(const Image<T,C,I>& rhs)
+	{
+		if (this == &rhs)
+			return *this;
+		return *this;
+	}
 	int2 dimensions() const {
 		return int2(width, height);
 	}

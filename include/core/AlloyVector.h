@@ -97,16 +97,19 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-
-	Vector<T, C> operator=(const Vector<T, C>& img) const {
-		Vector<T, C> out(img.size());
-		out.set(img.data.data());
-		return out;
-	}
 	Vector(size_t sz) :
 			data(storage) {
 		data.resize(sz);
 		data.shrink_to_fit();
+	}
+	Vector(const Vector<T, C>& img) :Vector(img.size()) {
+		set(img.data.data());
+	}
+	Vector<T, C>& operator=(const Vector<T, C>& rhs)
+	{
+		if (this == &rhs)
+			return *this;
+		return *this;
 	}
 	Vector() :
 			data(storage) {
