@@ -113,9 +113,9 @@ RGBf HSVtoRGBf(const HSV& hsv) {
 float3 RGBtoXYZ(const RGBf& rgb)
 {
 	float r, g, b;
-	r = (rgb.x <= 0.04045)? rgb.x / 12.92 : pow((rgb.x + 0.055) / 1.055, 2.4);
-	g = (rgb.y <= 0.04045)? rgb.y / 12.92 :pow((rgb.y + 0.055) / 1.055, 2.4);
-	b = (rgb.z <= 0.04045)?rgb.z / 12.92:pow((rgb.z + 0.055) / 1.055, 2.4);
+	r = (rgb.x <= 0.04045f)? rgb.x / 12.92f : pow((rgb.x + 0.055f) / 1.055f, 2.4f);
+	g = (rgb.y <= 0.04045f)? rgb.y / 12.92f :pow((rgb.y + 0.055f) / 1.055f, 2.4f);
+	b = (rgb.z <= 0.04045f)?rgb.z / 12.92f:pow((rgb.z + 0.055f) / 1.055f, 2.4f);
 	float3 xyz;
 	xyz.x = r*0.4124564f + g*0.3575761f + b*0.1804375f;
 	xyz.y = r*0.2126729f + g*0.7151522f + b*0.0721750f;

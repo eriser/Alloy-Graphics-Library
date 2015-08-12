@@ -648,6 +648,13 @@ template<class T> T cross(const vec<T, 2> & l, const vec<T, 2> & r) {
 template<class T, int N> T lengthSqr(const vec<T, N> & v) {
 	return dot(v, v);
 }
+template<class T, int N> T lengthL1(const vec<T, N> & v) {
+	T sum = 0;
+	for (int n = 0;n < N;n++) {
+		sum += std::abs(v[n]);
+	}
+	return sum;
+}
 template<class T, int N> T length(const vec<T, N> & v) {
 	return std::sqrt(lengthSqr(v));
 }

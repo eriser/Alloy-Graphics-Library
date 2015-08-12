@@ -37,6 +37,8 @@
 #include "AlloyWorker.h"
 #include "AlloyMesh.h"
 #include "AlloyVirtualCamera.h"
+#include "AlloySparseMatrix.h"
+#include "AlloyAlgorithm.h"
 #include "CommonShaders.h"
 
 #endif /* ALLOY_H_ */

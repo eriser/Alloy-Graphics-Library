@@ -41,6 +41,7 @@ int main() {
 	 std::cout<<fd<<std::endl;
 	 }*/
 	try {
+		SANITY_CHECK_ALGO();
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		//SANITY_CHECK_CEREAL();

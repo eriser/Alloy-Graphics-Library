@@ -10,13 +10,26 @@
 #include "AlloyFileUtil.h"
 #include "AlloyUI.h"
 #include "AlloyMesh.h"
+#include "AlloyAlgorithm.h"
+#include "AlloySparseMatrix.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
 #include "cereal/archives/binary.hpp"
 #include <iostream>
 #include <fstream>
 namespace aly {
-
+	bool SANITY_CHECK_ALGO() {
+		SparseMatrix<float,4> A(128,128);
+		Vector4f b(A.rows);
+		Vector4f x(A.cols);
+		for (int i = 0;i < A.rows;i++) {
+			for (int jj = -2;jj <= 2;jj++) {
+				A.insert(i,i+jj, float4(0.2f));
+			}
+			b[i] = float4((rand() % 1000) / 1000.0f);
+		}
+		SolveCG(b,A,x);
+	}
 bool SANITY_CHECK_MATH() {
 	try {
 		std::cout << "Sanity Check .." << std::endl;
