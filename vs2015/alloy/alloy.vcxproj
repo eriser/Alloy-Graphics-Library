@@ -33,6 +33,7 @@
     <ClCompile Include="..\..\src\core\AlloyUI.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUnits.cpp" />
     <ClCompile Include="..\..\src\core\AlloyVirtualCamera.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyVolume.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWidget.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWorker.cpp" />
     <ClCompile Include="..\..\src\core\CommonShaders.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="..\..\include\core\AlloyUnits.h" />
     <ClInclude Include="..\..\include\core\AlloyVector.h" />
     <ClInclude Include="..\..\include\core\AlloyVirtualCamera.h" />
+    <ClInclude Include="..\..\include\core\AlloyVolume.h" />
     <ClInclude Include="..\..\include\core\AlloyWidget.h" />
     <ClInclude Include="..\..\include\core\AlloyWorker.h" />
     <ClInclude Include="..\..\include\core\CommonShaders.h" />
