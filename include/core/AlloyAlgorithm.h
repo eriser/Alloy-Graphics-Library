@@ -24,43 +24,80 @@
 #include "AlloySparseMatrix.h"
 namespace aly {
 	bool SANITY_CHECK_ALGO();
-	template<class T, int C> Vector<T, C> SolveCG(const Vector<T, C>& b, const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters=100,T tolerance=1E-6f) {
-		vec<T,C> err((T)0);
+	template<class T, int C> void SolveCG(const Vector<T, C>& b, const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters=100,T tolerance=1E-6f) {
+		const float ZERO_TOLERANCE = 1E-16f;
+		vec<double,C> err((T)0);
 		size_t N = b.size();
 		Vector<T, C> p(N);
-		Vector<T,C> Ap = A*x;
+		Vector<T,C> Ap(N);
+		Multiply(Ap, A, x);
 		Vector<T, C> tmp1(N), tmp2(N);
 		Vector<T, C>* rcurrent = &tmp1;
 		Vector<T, C>* rnext = &tmp2;
-		*rcurrent = b - Ap;
-		p = *rcurrent;
+		Subtract(*rcurrent, b, Ap);
+		p=*rcurrent;
 		err = lengthVecSqr(*rcurrent);
 		for (int iter = 0; iter < iters; iter++)
 		{
 			Multiply(Ap,A,p);
-			vec<T, C> denom = dotVec(p, Ap);
+			vec<double, C> denom = dotVec(p, Ap);
 			for (int c = 0;c < C;c++) {
-				if (std::abs(denom[c]) < 1E-12f) {
-					denom[c] = (denom[c] < 0) ? -1E-12f : 1E-12f;
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
 				}
 			}
-			vec<T, C> alpha = lengthVecSqr(*rcurrent) / denom;
-			ScaleAdd(x, alpha, p);
-			ScaleAdd(*rnext, *rcurrent, ((T)-1.0)*alpha, Ap);
-			vec<T, C> err = lengthVecSqr(*rnext);
-			if (lengthL1(err) < N * tolerance)
-				break;
-
+			vec<double, C> alpha = lengthVecSqr(*rcurrent) / denom;
+			ScaleAdd(x, vec<T, C>(alpha), p);
+			ScaleSubtract(*rnext, *rcurrent, vec<T,C>(alpha), Ap);
+			vec<double, C> err = lengthVecSqr(*rnext);
+			if (lengthL1(err) < N*tolerance)break;
 			denom =lengthVecSqr(*rcurrent);
 			for (int c = 0;c < C;c++) {
-				if (std::abs(denom[c]) < 1E-12f) {
-					denom[c] = (denom[c] < 0) ? -1E-12f : 1E-12f;
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
 				}
 			}
-			vec<T,C> beta = err / denom;
-			ScaleAdd(p, *rnext, beta, p);
-			std::swap(*rcurrent, *rnext);
+			vec<double,C> beta = err / denom;
+			ScaleAdd(p, *rnext, vec<T,C>(beta), p);
+			std::swap(rcurrent, rnext);
 		}
-		return x;
+	}
+	template<class T, int C> void SolveCG(const Vector<T, C>& b, const SparseMatrix<T, 1>& A, Vector<T, C>& x, int iters = 100, T tolerance = 1E-6f) {
+		const float ZERO_TOLERANCE = 1E-16f;
+		vec<double, C> err((T)0);
+		size_t N = b.size();
+		Vector<T, C> p(N);
+		Vector<T, C> Ap(N);
+		Multiply(Ap, A, x);
+		Vector<T, C> tmp1(N), tmp2(N);
+		Vector<T, C>* rcurrent = &tmp1;
+		Vector<T, C>* rnext = &tmp2;
+		Subtract(*rcurrent, b, Ap);
+		p = *rcurrent;
+		err = lengthVecSqr(*rcurrent);
+		for (int iter = 0; iter < iters; iter++)
+		{
+			Multiply(Ap, A, p);
+			vec<double, C> denom = dotVec(p, Ap);
+			for (int c = 0;c < C;c++) {
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+				}
+			}
+			vec<double, C> alpha = lengthVecSqr(*rcurrent) / denom;
+			ScaleAdd(x, vec<T, C>(alpha), p);
+			ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
+			vec<double, C> err = lengthVecSqr(*rnext);
+			if (lengthL1(err) < N*tolerance)break;
+			denom = lengthVecSqr(*rcurrent);
+			for (int c = 0;c < C;c++) {
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+				}
+			}
+			vec<double, C> beta = err / denom;
+			ScaleAdd(p, *rnext, vec<T, C>(beta), p);
+			std::swap(rcurrent, rnext);
+		}
 	}
 }

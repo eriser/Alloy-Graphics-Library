@@ -650,8 +650,8 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		vertexNormals[verts.z] += cross((v2 - v3), (v4 - v3));
 		vertexNormals[verts.w] += cross((v3 - v4), (v1 - v4));
 	}
-#pragma omp for
-	for (size_t n = 0; n < vertexNormals.size(); n++) {
+#pragma omp parallel for
+	for (int n = 0; n < (int)vertexNormals.size(); n++) {
 		vertexNormals[n] = normalize(vertexNormals[n]);
 	}
 	if (SMOOTH_ITERATIONS > 0) {
@@ -779,8 +779,8 @@ box3f Mesh::updateBoundingBox() {
 	return boundingBox;
 }
 void Mesh::scale(float sc) {
-#pragma omp for
-	for (size_t i = 0; i < vertexLocations.size(); i++) {
+#pragma omp parallel for
+	for (int i = 0; i < (int)vertexLocations.size(); i++) {
 		vertexLocations[i] *= sc;
 	}
 	boundingBox.dimensions = sc * boundingBox.dimensions;
@@ -788,16 +788,16 @@ void Mesh::scale(float sc) {
 	dirty = true;
 }
 void Mesh::transform(const float4x4& M) {
-#pragma omp for
-	for (size_t i = 0; i < vertexLocations.size(); i++) {
+#pragma omp parallel for
+	for (int i = 0; i < (int)vertexLocations.size(); i++) {
 		float4 pt = M * vertexLocations[i].xyzw();
 		vertexLocations[i] = pt.xyz() / pt.w;
 	}
 
 	if (vertexNormals.size() > 0) {
 		float3x3 NM = transpose(inverse(SubMatrix(M)));
-#pragma omp for
-		for (size_t i = 0; i < vertexLocations.size(); i++) {
+#pragma omp parallel for
+		for (int i = 0; i < (int)vertexLocations.size(); i++) {
 			vertexNormals[i] = normalize(NM * vertexNormals[i]);
 		}
 	}
@@ -806,8 +806,8 @@ void Mesh::transform(const float4x4& M) {
 }
 void Mesh::mapIntoBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
-#pragma omp for
-	for (size_t i = 0; i < vertexLocations.size(); i++) {
+#pragma omp parallel for
+	for (int i = 0; i < (int)vertexLocations.size(); i++) {
 		float3& pt = vertexLocations[i];
 		pt = (pt - minPt) / voxelSize;
 	}
@@ -816,7 +816,7 @@ void Mesh::mapIntoBoundingBox(float voxelSize) {
 void Mesh::mapOutOfBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
 #pragma omp for
-	for (size_t i = 0; i < vertexLocations.size(); i++) {
+	for (int i = 0; i < (int)vertexLocations.size(); i++) {
 		float3& pt = vertexLocations[i];
 		pt = pt * voxelSize + minPt;
 	}
@@ -968,6 +968,80 @@ void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
 		mesh.updateBoundingBox();
 	}
 	mesh.setDirty(true);
+}
+
+void CreateVertexNeighborTable(const Mesh& mesh,std::vector<std::list<uint32_t>>& vertNbrs, bool addDuplicates){
+	vertNbrs.resize(mesh.vertexLocations.size());
+	for (const uint3& face:mesh.triIndexes.data)
+	{
+		vertNbrs[face.x].push_back(face.y);
+		vertNbrs[face.y].push_back(face.z);
+		vertNbrs[face.z].push_back(face.x);
+		if (addDuplicates) {
+			vertNbrs[face.z].push_back(face.y);
+			vertNbrs[face.y].push_back(face.x);
+			vertNbrs[face.x].push_back(face.z);
+		}
+	}
+	for (const uint4& face : mesh.quadIndexes.data)
+	{
+		vertNbrs[face.x].push_back(face.y);
+		vertNbrs[face.y].push_back(face.z);
+		vertNbrs[face.z].push_back(face.w);
+		vertNbrs[face.w].push_back(face.x);
+		if (addDuplicates) {
+			vertNbrs[face.w].push_back(face.z);
+			vertNbrs[face.z].push_back(face.y);
+			vertNbrs[face.y].push_back(face.x);
+			vertNbrs[face.x].push_back(face.w);
+		}
+	}
+}
+inline uint64_t faceHashCode(const uint2& val)
+{
+	return ((uint64_t)val.y) << 32 | ((uint64_t)val.x);
+}
+void CreateFaceNeighborTable(const Mesh& mesh, std::vector<std::list<uint32_t>>& faceNbrs)
+{
+	faceNbrs.resize(mesh.triIndexes.size()+mesh.quadIndexes.size());
+	std::map<uint64_t, std::list<uint>> edgeTable;
+	uint2 edge;
+	uint fid=0;
+	for (const uint3& face : mesh.triIndexes.data)
+	{
+		edge = (face.x < face.y) ? uint2(face.x, face.y) : uint2(face.y, face.x);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.z < face.x) ? uint2(face.z, face.x) : uint2(face.x, face.z);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		fid++;
+	}
+	for (const uint4& face : mesh.quadIndexes.data)
+	{
+		edge = (face.x < face.y) ? uint2(face.x, face.y) : uint2(face.y, face.x);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.z < face.w)?uint2(face.z, face.w): uint2(face.w, face.z);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.w < face.x) ? uint2(face.w, face.x) : uint2(face.x, face.w);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		fid++;
+	}
+	for (std::pair<const uint64_t, std::list<uint>>& edgeList : edgeTable)
+	{
+		if (edgeList.second.size() == 2)
+		{
+			uint fid1 = edgeList.second.front();
+			uint fid2 = edgeList.second.back();
+			if (fid1 != fid2)
+			{
+				faceNbrs[fid1].push_back(fid2);
+				faceNbrs[fid2].push_back(fid1);
+			}
+		}
+	}
 }
 
 } /* namespace imagesci */

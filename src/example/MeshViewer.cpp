@@ -31,9 +31,47 @@ MeshViewer::MeshViewer() :
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
-	mesh.scale(10.0f);
+	mesh.scale(100.0f);
+	MeshNeighborTable vertTable;
+	CreateVertexNeighborTable(mesh, vertTable,false);
+	
+	float w = 0.9f;
+	srand(1023172413L);
+	mesh.updateVertexNormals();
+
+	/*
+	SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
+	for (size_t i = 0;i < L.rows;i++) {
+		for(uint32_t v:vertTable[i]){
+			L.insert(i, v, float3(-w));
+		}
+		L.insert(i,i,float3(1.0f+(float)w* vertTable[i].size()));
+		float3 norm = mesh.vertexNormals[i];
+		mesh.vertexLocations[i] +=5.0f*norm*(((rand() % 1024) / 1024.0f)-0.5f);
+		b[i] = mesh.vertexLocations[i];
+	}
+	*/
+	
+	SparseMatrix<float, 1> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
+	Vector3f b(L.rows);
+	for (size_t i = 0;i < L.rows;i++) {
+		for (uint32_t v : vertTable[i]) {
+			L.insert(i, v, float1(-w));
+		}
+		L.insert(i, i, float1(1.0f + (float)w* vertTable[i].size()));
+		float3 norm = mesh.vertexNormals[i];
+		mesh.vertexLocations[i] += 5.0f*norm*(((rand() % 1024) / 1024.0f) - 0.5f);
+		b[i] = mesh.vertexLocations[i];
+	}
+	//WriteMeshToFile("smoothed_before.ply", mesh);
+	SolveCG(b,L,mesh.vertexLocations);
+	mesh.updateVertexNormals();
+	//WriteMeshToFile("smoothed_after.ply", mesh);
+	
 	mesh2.load(getFullPath("models/armadillo.ply"));
+	
 	mesh2.updateVertexNormals();
+	
 	float4x4 M=MakeTransform(mesh2.getBoundingBox(), mesh.getBoundingBox());
 	mesh2.transform(M);
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),

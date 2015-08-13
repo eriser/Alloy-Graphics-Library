@@ -29,6 +29,7 @@ namespace aly {
 			b[i] = float4((rand() % 1000) / 1000.0f);
 		}
 		SolveCG(b,A,x);
+		return true;
 	}
 bool SANITY_CHECK_MATH() {
 	try {
@@ -202,6 +203,7 @@ bool SANITY_CHECK_IMAGE() {
 	}
 }
 bool SANITY_CHECK_LINALG() {
+	/*
 	try {
 		std::cout << "Sanity check vector ..." << std::endl;
 		Vector4f im1(32);
@@ -225,12 +227,13 @@ bool SANITY_CHECK_LINALG() {
 		out /= float4(0.3f);
 		out += float4(1.0f);
 		out = im2 - im1;
-
+		
 		return true;
 	} catch (std::exception& e) {
 		std::cout << e.what() << std::endl;
 		return false;
 	}
+	*/
 }
 bool SANITY_CHECK_UI() {
 	CoordPercent rel(0.5f, 0.75f);

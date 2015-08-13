@@ -114,5 +114,9 @@ public:
 };
 void ReadMeshFromFile(const std::string& file, Mesh& mesh);
 void WriteMeshToFile(const std::string& file, const Mesh& mesh);
+
+typedef std::vector<std::list<uint32_t>> MeshNeighborTable;
+void CreateVertexNeighborTable(const Mesh& mesh, MeshNeighborTable& vertNbrs,bool addDuplicates=false);
+void CreateFaceNeighborTable(const Mesh& mesh, MeshNeighborTable& faceNbrs);
 }
 #endif /* MESH_H_ */

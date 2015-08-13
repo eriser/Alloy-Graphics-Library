@@ -293,7 +293,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 		const std::function<void(vec<T, C>&)>& func) {
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (size_t offset = 0; offset < sz; offset++) {
+	for (int offset = 0; offset < (int)sz; offset++) {
 		func(im1.data[offset]);
 	}
 }
@@ -306,7 +306,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 						<< im1.dimensions() << "!=" << im2.dimensions());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (size_t offset = 0; offset < sz; offset++) {
+	for (int offset = 0; offset < (int)sz; offset++) {
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
@@ -319,7 +319,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 						<< im1.dimensions() << "!=" << im2.dimensions());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (size_t offset = 0; offset < sz; offset++) {
+	for (int offset = 0; offset < (int)sz; offset++) {
 		func(im1.data[offset], im2.data[offset], im3.data[offset]);
 	}
 }

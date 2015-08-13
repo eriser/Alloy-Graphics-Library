@@ -45,7 +45,7 @@ namespace aly{
 		SparseMatrix(size_t rows, size_t cols) :storage(rows),rows(rows),cols(cols) {
 		}
 		void insert(size_t i, size_t j, const vec<T, C>& value) {
-			storage[i].push_back(KeyValue<T, C>(i, value));
+			storage[i].push_back(KeyValue<T, C>(j, value));
 		}
 		
 	};
@@ -63,17 +63,46 @@ namespace aly{
 		}
 		return out;
 	}
-	template<class T, int C> void Multiply(Vector<T, C>& out,const SparseMatrix<T, C>& A, const Vector<T, C>& v) {
-		out.resize(v.size());
+	template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A, const Vector<T, C>& v) {
+		Vector<T, C> out(v.size());
 		size_t sz = v.size();
 #pragma omp parallel for
 		for (size_t i = 0; i < sz; i++)
 		{
 			vec<T, C> sum((T)0);
-			for (const KeyValue<T, C>& pr : A[i]) {
-				sum += v[pr.first] * pr.second;
+			for (const KeyValue<T, 1>& pr : A[i]) {
+				sum += v[pr.first] * pr.second.x;
 			}
 			out[i] = sum;
+		}
+		return out;
+	}
+	
+	template<class T, int C> void Multiply(Vector<T, C>& out, const SparseMatrix<T, 1>& A, const Vector<T, C>& v) {
+		out.resize(v.size());
+		size_t sz = v.size();
+#pragma omp parallel for
+		for (int i = 0; i < (int)sz; i++)
+		{
+			vec<double, C> sum(0.0);
+			for (const KeyValue<T, 1>& pr : A[i]) {
+				sum += vec<double, C>(v[pr.first]) * (double)pr.second.x;
+			}
+			out[i] = vec<T,C>(sum);
+		}
+	}
+	
+	template<class T, int C> void Multiply(Vector<T, C>& out,const SparseMatrix<T, C>& A, const Vector<T, C>& v) {
+		out.resize(v.size());
+		size_t sz = v.size();
+#pragma omp parallel for
+		for (int i = 0; i < (int)sz; i++)
+		{
+			vec<double, C> sum(0.0);
+			for (const KeyValue<T, C>& pr : A[i]) {
+				sum += vec<double, C> (v[pr.first]) * vec<double, C>(pr.second);
+			}
+			out[i] = vec<T, C>(sum);
 		}
 	}
 }
