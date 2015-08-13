@@ -69,7 +69,7 @@ namespace aly {
 		}
 
 		template<class Archive> void serialize(Archive & archive) {
-			archive(cereal::make_nvp(MakeString() << type << channels, id), CEREAL_NVP(rows), CEREAL_NVP(cols), CEREAL_NVP(slices)
+			archive(cereal::make_nvp(MakeString() << type << channels, id), CEREAL_NVP(rows), CEREAL_NVP(cols), CEREAL_NVP(slices),
 				CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z), CEREAL_NVP(hashCode));
 		}
 
@@ -115,7 +115,7 @@ namespace aly {
 
 		Volume(int r, int c, int s, int x = 0, int y = 0, int z = 0, uint64_t id = 0) :
 			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(storage) {
-			data.resize(w * h);
+			data.resize(r * c * s);
 			data.shrink_to_fit();
 		}
 		Volume(T* ptr, int r, int c, int s, int x = 0, int y = 0, int z = 0, uint64_t id = 0) :
@@ -128,7 +128,7 @@ namespace aly {
 		}
 		Volume(std::vector<vec<T, C>>& ref, int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
-			rows(w), cols(h), slices(s), x(x), y(y), z(z), id(id), data(ref) {
+			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(ref) {
 		}
 		Volume() :
 			rows(0), cols(0), slices(0), x(0), y(0), z(0), id(0), data(storage) {
@@ -202,7 +202,7 @@ namespace aly {
 		}
 		vec<T, C>& operator()(const int3 ijk) {
 			return data[clamp(ijk.x, 0, rows - 1)
-				+ clamp(ijl.y, 0, cols - 1) * rows + clamp(ijk.z, 0, slices - 1) * rows * cols];
+				+ clamp(ijk.y, 0, cols - 1) * rows + clamp(ijk.z, 0, slices - 1) * rows * cols];
 		}
 		const vec<T, C>& operator()(const int i, const int j, const int k) const {
 			return data[clamp(i, 0, rows - 1) + clamp(j, 0, cols - 1) * rows + clamp(k, 0, slices - 1) * rows * cols];
