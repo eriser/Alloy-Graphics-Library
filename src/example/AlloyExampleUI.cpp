@@ -200,8 +200,8 @@ bool ExampleUI::init(Composite& rootNode) {
 	
 	FileSelector* selector;
 	geomRegion->add(
-			selector = new FileSelector("Mesh", CoordPX(0, 0),
-					CoordPerPX(1.0, 0.0f, 0.0f, 30.0f)));
+			selector = new FileSelector("Mesh", CoordPX(2, 5),
+					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f)));
 	geomRegion->setOrientation(Orientation::Vertical);
 	geomRegion->add(scrollRegion);
 	selector->setFileLocation("mesh.obj");

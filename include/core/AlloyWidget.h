@@ -387,20 +387,17 @@ public:
 	std::string getValue() const;
 
 };
-class FileSelector: public Composite {
+class FileSelector: public BorderComposite {
 private:
-	std::shared_ptr<TextLabel> fileLocationLabel;
-	std::shared_ptr<TextLabel> fileLabel;
-	std::shared_ptr<TextLabel> openIcon;
+	std::shared_ptr<FileField> fileLocation;
+	std::shared_ptr<IconButton> openIcon;
 	std::shared_ptr<FileDialog> fileDialog;
-	std::string fileLocation;
 public:
 	FileSelector(const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
 	void setFileLocation(const std::string& file);
 	void openFileDialog(AlloyContext* context,
 			const std::string& workingDirectory =GetCurrentWorkingDirectory());
-	virtual void draw(AlloyContext* context) override;
 };
 
 typedef std::shared_ptr<TextButton> ButtonPtr;

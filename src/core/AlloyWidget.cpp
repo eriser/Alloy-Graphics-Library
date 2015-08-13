@@ -388,6 +388,8 @@ void TextIconButton::draw(AlloyContext* context) {
 		xoff = 2;
 		yoff = 2;
 	}
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+		context->pixelRatio);
 	if (hover) {
 
 		nvgBeginPath(nvg);
@@ -404,12 +406,9 @@ void TextIconButton::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
+		th -= 2.0f;
 	}
-
 	nvgFillColor(nvg, *textColor);
-	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
-
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
@@ -513,8 +512,13 @@ void IconButton::draw(AlloyContext* context) {
 	}
 	box2px ibounds = bounds;
 	ibounds.position += offset;
-	iconGlyph->draw(ibounds, (hover&&borderColor->a > 0)?context->theme.HIGHLIGHT: *iconColor, *backgroundColor,
-				context);
+	float th = ibounds.dimensions.y-((hover)?2:4);
+	nvgFontSize(nvg, th);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	drawText(nvg,ibounds.position+ HALF_PIX(ibounds.dimensions), iconGlyph->name, FontStyle::Normal,
+		(hover&&borderColor->a > 0) ? context->theme.HIGHLIGHT : *iconColor, *backgroundColor, nullptr);
+
 	
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y,
 		context->dpmm.y, context->pixelRatio);
@@ -1679,94 +1683,11 @@ ExpandRegion::ExpandRegion(const std::string& name,
 			};
 	setExpanded(false);
 }
-void FileSelector::draw(AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
-	bool hover = context->isMouseContainedIn(this);
-
-	box2px fileBounds = fileLabel->getBounds(false);
-	box2px openBounds = openIcon->getBounds(false);
-
-	pixel2 tdim = fileLabel->getTextDimensions(context);
-
-	box2px locationBounds = fileLocationLabel->getBounds(false);
-	float spacing = AlloyApplicationContext()->theme.SPACING.x;
-	fileLocationLabel->setBounds(
-			pixel2(fileBounds.position.x + tdim.x + spacing,
-					locationBounds.position.y),
-			pixel2(
-					openBounds.position.x
-							- (fileBounds.position.x + tdim.x + spacing * 2),
-					locationBounds.dimensions.y));
-
-	if (hover) {
-		nvgBeginPath(nvg);
-		NVGpaint shadowPaint = nvgBoxGradient(nvg, bounds.position.x + 1,
-				bounds.position.y, bounds.dimensions.x - 2, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS, 8, context->theme.SHADOW,
-				context->theme.HIGHLIGHT.toSemiTransparent(0));
-		nvgFillPaint(nvg, shadowPaint);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 4,
-				bounds.dimensions.x, bounds.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgFill(nvg);
-		fileLabel->textColor = MakeColor(context->theme.HIGHLIGHT);
-		openIcon->textColor = MakeColor(context->theme.HIGHLIGHT);
-
-	} else {
-		fileLabel->textColor = MakeColor(context->theme.LIGHT_TEXT);
-		openIcon->textColor = MakeColor(context->theme.LIGHT_TEXT);
-
-	}
-	nvgBeginPath(nvg);
-	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-			bounds.dimensions.x, bounds.dimensions.y,
-			context->theme.CORNER_RADIUS);
-	nvgFillColor(nvg, context->theme.DARK);
-	nvgFill(nvg);
-
-	nvgBeginPath(nvg);
-	NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x,
-			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y,
-			context->theme.CORNER_RADIUS, 2,
-			context->theme.DARK.toSemiTransparent(0), context->theme.HIGHLIGHT);
-	nvgFillPaint(nvg, hightlightPaint);
-	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
-			bounds.dimensions.x, bounds.dimensions.y,
-			context->theme.CORNER_RADIUS);
-	nvgFill(nvg);
-
-	nvgBeginPath(nvg);
-	nvgFillColor(nvg, context->theme.NEUTRAL);
-	box2px clickbox = fileLocationLabel->getBounds();
-	nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
-			clickbox.dimensions.x, clickbox.dimensions.y,
-			context->theme.CORNER_RADIUS);
-	nvgFill(nvg);
-
-	if (context->isMouseOver(fileLabel.get())
-			|| context->isMouseOver(openIcon.get())) {
-		nvgBeginPath(nvg);
-		nvgStrokeColor(nvg, context->theme.HIGHLIGHT);
-		nvgStrokeWidth(nvg, 2.0f);
-		nvgRoundedRect(nvg, clickbox.position.x, clickbox.position.y,
-				clickbox.dimensions.x, clickbox.dimensions.y,
-				context->theme.CORNER_RADIUS);
-		nvgStroke(nvg);
-	}
-
-	Composite::draw(context);
-}
 FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Composite(name, pos, dims) {
-	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+		BorderComposite(name, pos, dims) {
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	setRoundCorners(true);
-	CompositePtr valueContainer = MakeComposite(
-			MakeString() << name << "_container",
-			CoordPerPX(0.0f, 0.0f, 5.0f, 5.0f),
-			CoordPerPX(1.0f, 1.0f, -10.0f, -10.0f));
-
 	std::shared_ptr<Composite>& glassPanel =
 			AlloyApplicationContext()->getGlassPanel();
 
@@ -1775,51 +1696,19 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
 					CoordPX(600, 400)));
 	glassPanel->add(fileDialog);
+	fileLocation = std::shared_ptr<FileField>(new FileField("None",CoordPX(0, 0), CoordPercent(1.0f, 1.0f)));
+	openIcon = std::shared_ptr<IconButton>(new IconButton(
+		AlloyApplicationContext()->createAwesomeGlyph(0xf115,
+			FontStyle::Normal, 20),CoordPerPX(0.0f, 0.0f,0.0f,4.0f),
+			CoordPerPX(1.0f, 1.0f,0.0f,-4.0f)));
 
-	fileLabel = MakeTextLabel(name, CoordPX(0.0f, 0.0f),
-			CoordPercent(1.0f, 1.0f), FontType::Bold, UnitPercent(1.0f),
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-			HorizontalAlignment::Left, VerticalAlignment::Middle);
+	openIcon->foregroundColor = MakeColor(COLOR_NONE);
+	openIcon->borderColor = MakeColor(COLOR_NONE);
+	openIcon->backgroundColor = MakeColor(COLOR_NONE);
+	openIcon->iconColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 
-	fileLocationLabel = MakeTextLabel("None", CoordPX(0.0f, 0.0f),
-			CoordPerPX(1.0f, 1.0f, 0.0f, 0.0f), FontType::Normal,
-			UnitPercent(1.0f),
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-			HorizontalAlignment::Center, VerticalAlignment::Middle);
-
-	fileLocationLabel->setRoundCorners(true);
-	fileLocationLabel->backgroundColor = MakeColor(
-			AlloyApplicationContext()->theme.SHADOW.toSemiTransparent(0.5f));
-	openIcon = MakeTextLabel(CodePointToUTF8(0xf115), CoordPercent(1.0f, 0.0f),
-			CoordPercent(0.0f, 1.0f), FontType::Icon, UnitPercent(1.0f),
-			AlloyApplicationContext()->theme.LIGHT_TEXT.toRGBA(),
-			HorizontalAlignment::Center, VerticalAlignment::Middle);
-
-	openIcon->setAspectRatio(1.0f);
-	openIcon->setOrigin(Origin::TopRight);
-	openIcon->setAspectRule(AspectRule::FixedHeight);
-	valueContainer->add(fileLabel);
-	valueContainer->add(fileLocationLabel);
-	valueContainer->add(openIcon);
-	add(valueContainer);
-	fileLocationLabel->onMouseDown =
-			[this](AlloyContext* context, const InputEvent& event) {
-				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					openFileDialog(context);
-					return true;
-				}
-				return false;
-			};
-
-	Composite::onMouseDown =
-			[this](AlloyContext* context, const InputEvent& event) {
-				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					openFileDialog(context);
-					return true;
-				}
-				return false;
-			};
-
+	setCenter(fileLocation);
+	setEast(openIcon,UnitPX(30.0f));
 	openIcon->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -1828,15 +1717,10 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 				}
 				return false;
 			};
-	setFileLocation("");
+	fileLocation->setValue(GetCurrentWorkingDirectory());
 }
 void FileSelector::setFileLocation(const std::string& file) {
-	fileLocation = file;
-	if (file.length() > 0) {
-		fileLocationLabel->label = fileLocation;
-	} else {
-		fileLocationLabel->label = "None";
-	}
+	fileLocation->setValue(file);
 }
 void FileSelector::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
