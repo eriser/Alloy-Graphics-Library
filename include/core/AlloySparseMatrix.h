@@ -103,5 +103,14 @@ namespace aly{
 			out[i] = vec<T, C>(sum);
 		}
 	}
+	typedef SparseMatrix<float, 4> SparseMatrix4f;
+	typedef SparseMatrix<float, 3> SparseMatrix3f;
+	typedef SparseMatrix<float, 2> SparseMatrix2f;
+	typedef SparseMatrix<float, 1> SparseMatrix1f;
+
+	typedef SparseMatrix<double, 4> SparseMatrix4d;
+	typedef SparseMatrix<double, 3> SparseMatrix3d;
+	typedef SparseMatrix<double, 2> SparseMatrix2d;
+	typedef SparseMatrix<double, 1> SparseMatrix1d;
 }
 
