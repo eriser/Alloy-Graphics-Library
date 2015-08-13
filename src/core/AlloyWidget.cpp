@@ -398,7 +398,6 @@ void TextIconButton::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
-
 	} else {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1,
@@ -406,7 +405,6 @@ void TextIconButton::draw(AlloyContext* context) {
 				context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
-		th -= 2.0f;
 	}
 	nvgFillColor(nvg, *textColor);
 	nvgFontSize(nvg, th);
@@ -453,16 +451,16 @@ void TextIconButton::draw(AlloyContext* context) {
 			iconCodeString.c_str(), nullptr);
 	}
 }
-IconButton::IconButton(const std::shared_ptr<Glyph>& glyph,
+IconButton::IconButton(int iconCode,
 		const AUnit2D& position, const AUnit2D& dimensions, IconType iconType) :
-		Composite("Icon", position, dimensions),iconType(iconType) {
+		Composite("Icon", position, dimensions),iconType(iconType), iconCodeString(CodePointToUTF8(iconCode)){
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	foregroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	iconColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
-	iconGlyph = glyph;
+	
 	this->aspectRatio = 1.0f;
 	this->aspectRule = AspectRule::FixedHeight;
 }
@@ -516,7 +514,7 @@ void IconButton::draw(AlloyContext* context) {
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
-	drawText(nvg,ibounds.position+ HALF_PIX(ibounds.dimensions), iconGlyph->name, FontStyle::Normal,
+	drawText(nvg,ibounds.position+ HALF_PIX(ibounds.dimensions), iconCodeString, FontStyle::Normal,
 		(hover&&borderColor->a > 0) ? context->theme.HIGHLIGHT : *iconColor, *backgroundColor, nullptr);
 
 	
@@ -1686,7 +1684,7 @@ ExpandRegion::ExpandRegion(const std::string& name,
 FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		BorderComposite(name, pos, dims) {
-	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	setRoundCorners(true);
 	std::shared_ptr<Composite>& glassPanel =
 			AlloyApplicationContext()->getGlassPanel();
@@ -1698,8 +1696,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(new FileField("None",CoordPX(0, 0), CoordPercent(1.0f, 1.0f)));
 	openIcon = std::shared_ptr<IconButton>(new IconButton(
-		AlloyApplicationContext()->createAwesomeGlyph(0xf115,
-			FontStyle::Normal, 20),CoordPerPX(0.0f, 0.0f,0.0f,4.0f),
+		0xf115,CoordPerPX(0.0f, 0.0f,2.0f,4.0f),
 			CoordPerPX(1.0f, 1.0f,0.0f,-4.0f)));
 
 	openIcon->foregroundColor = MakeColor(COLOR_NONE);
@@ -1708,7 +1705,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	openIcon->iconColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 
 	setCenter(fileLocation);
-	setEast(openIcon,UnitPX(30.0f));
+	setEast(openIcon,UnitPX(32.0f));
 	openIcon->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -1972,9 +1969,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		this->setSelectedFile(field->getValue());
 	};
 	upDirButton = std::shared_ptr<IconButton>(
-		new IconButton(
-			AlloyApplicationContext()->createAwesomeGlyph(0xf062,
-				FontStyle::Normal, 21),
+		new IconButton(0xf062,
 			CoordPerPX(1.0, 0.0, -40,7), CoordPX(30,30)));
 	upDirButton->foregroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	upDirButton->borderColor = MakeColor(COLOR_NONE);
@@ -1985,9 +1980,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		return true;
 	};
 	cancelButton = std::shared_ptr<IconButton>(
-			new IconButton(
-					AlloyApplicationContext()->createAwesomeGlyph(0xf00d,
-							FontStyle::Normal, 21),
+			new IconButton(0xf00d,
 					CoordPerPX(1.0, 0.0, -30, 30), CoordPX(30, 30), IconType::CIRCLE));
 	cancelButton->setOrigin(Origin::BottomLeft);
 	

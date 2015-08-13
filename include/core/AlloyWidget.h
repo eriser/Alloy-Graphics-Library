@@ -55,12 +55,12 @@ public:
 enum class IconType { CIRCLE, SQUARE };
 class IconButton: public Composite {
 private:
-	std::shared_ptr<Glyph> iconGlyph;
+	std::string iconCodeString;
 	IconType iconType;
 public:
 	AColor foregroundColor;
 	AColor iconColor;
-	IconButton(const std::shared_ptr<Glyph>& glyph, const AUnit2D& position,
+	IconButton(int iconCode, const AUnit2D& position,
 			const AUnit2D& dimensions, IconType iconType=IconType::SQUARE);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~IconButton() {
