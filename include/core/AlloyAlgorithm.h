@@ -25,8 +25,8 @@
 namespace aly {
 	bool SANITY_CHECK_ALGO();
 	template<class T, int C> void SolveCG(const Vector<T, C>& b, const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters=100,T tolerance=1E-6f) {
-		const float ZERO_TOLERANCE = 1E-16f;
-		vec<double,C> err((T)0);
+		const double ZERO_TOLERANCE = 1E-16;
+		vec<double,C> err(0.0);
 		size_t N = b.size();
 		Vector<T, C> p(N);
 		Vector<T,C> Ap(N);
@@ -63,8 +63,8 @@ namespace aly {
 		}
 	}
 	template<class T, int C> void SolveCG(const Vector<T, C>& b, const SparseMatrix<T, 1>& A, Vector<T, C>& x, int iters = 100, T tolerance = 1E-6f) {
-		const float ZERO_TOLERANCE = 1E-16f;
-		vec<double, C> err((T)0);
+		const double ZERO_TOLERANCE = 1E-16;
+		vec<double,C> err(0.0);
 		size_t N = b.size();
 		Vector<T, C> p(N);
 		Vector<T, C> Ap(N);
