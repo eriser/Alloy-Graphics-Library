@@ -23,29 +23,29 @@
 #include <vector>
 #include <list>
 namespace aly{
-	template<class T, int C> struct KeyValue: public std::pair<size_t, vec<T, C>> {
-		KeyValue() :std::pair<size_t, vec<T, C>>() {
+	template<class T, int C> struct IndexValue: public std::pair<size_t, vec<T, C>> {
+		IndexValue() :std::pair<size_t, vec<T, C>>() {
 
 		}
-		KeyValue(size_t index, const vec<T, C>& v) :std::pair<size_t, vec<T, C>>(index, v) {
+		IndexValue(size_t index, const vec<T, C>& v) :std::pair<size_t, vec<T, C>>(index, v) {
 
 		}
 	};
 	template<class T, int C> struct SparseMatrix {
 	private:
-		std::vector<std::list<KeyValue<T, C>>> storage;
+		std::vector<std::list<IndexValue<T, C>>> storage;
 	public:
-		std::list<KeyValue<T, C>>& operator[](size_t index) {
+		std::list<IndexValue<T, C>>& operator[](size_t index) {
 			return storage[index];
 		}
-		const std::list<KeyValue<T, C>>& operator[](size_t index) const {
+		const std::list<IndexValue<T, C>>& operator[](size_t index) const {
 			return storage[index];
 		}
 		size_t rows, cols;
 		SparseMatrix(size_t rows, size_t cols) :storage(rows),rows(rows),cols(cols) {
 		}
 		void insert(size_t i, size_t j, const vec<T, C>& value) {
-			storage[i].push_back(KeyValue<T, C>(j, value));
+			storage[i].push_back(IndexValue<T, C>(j, value));
 		}
 		
 	};
@@ -53,29 +53,27 @@ namespace aly{
 		Vector<T, C> out(v.size());
 		size_t sz = v.size();
 #pragma omp parallel for
-		for (size_t i = 0; i < sz; i++)
+		for (int i = 0; i < (int)sz; i++)
 		{
-			vec<T, C> sum((T)0);
-			for (const KeyValue<T,C>& pr : A[i]) {
-				sum += v[pr.first] * pr.second;
+			vec<double, C> sum(0.0);
+			for (const IndexValue<T, C>& pr : A[i]) {
+				sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
 			}
-			out[i] = sum;
+			out[i] = vec<T, C>(sum);
 		}
-		return out;
 	}
 	template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A, const Vector<T, C>& v) {
 		Vector<T, C> out(v.size());
 		size_t sz = v.size();
 #pragma omp parallel for
-		for (size_t i = 0; i < sz; i++)
+		for (int i = 0; i < (int)sz; i++)
 		{
-			vec<T, C> sum((T)0);
-			for (const KeyValue<T, 1>& pr : A[i]) {
-				sum += v[pr.first] * pr.second.x;
+			vec<double, C> sum(0.0);
+			for (const IndexValue<T, 1>& pr : A[i]) {
+				sum += vec<double, C>(v[pr.first]) * (double)pr.second.x;
 			}
-			out[i] = sum;
+			out[i] = vec<T, C>(sum);
 		}
-		return out;
 	}
 	
 	template<class T, int C> void Multiply(Vector<T, C>& out, const SparseMatrix<T, 1>& A, const Vector<T, C>& v) {
@@ -85,7 +83,7 @@ namespace aly{
 		for (int i = 0; i < (int)sz; i++)
 		{
 			vec<double, C> sum(0.0);
-			for (const KeyValue<T, 1>& pr : A[i]) {
+			for (const IndexValue<T, 1>& pr : A[i]) {
 				sum += vec<double, C>(v[pr.first]) * (double)pr.second.x;
 			}
 			out[i] = vec<T,C>(sum);
@@ -99,7 +97,7 @@ namespace aly{
 		for (int i = 0; i < (int)sz; i++)
 		{
 			vec<double, C> sum(0.0);
-			for (const KeyValue<T, C>& pr : A[i]) {
+			for (const IndexValue<T, C>& pr : A[i]) {
 				sum += vec<double, C> (v[pr.first]) * vec<double, C>(pr.second);
 			}
 			out[i] = vec<T, C>(sum);
