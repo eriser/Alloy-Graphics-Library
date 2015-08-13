@@ -338,7 +338,7 @@ namespace aly {
 				<< im1.dimensions() << "!=" << im2.dimensions());
 		size_t sz = im1.size();
 #pragma omp parallel for
-		for (size_t offset = 0; offset < sz; offset++) {
+		for (int offset = 0; offset < (int)sz; offset++) {
 			func(offset, im1.data[offset], im2.data[offset]);
 		}
 	}
