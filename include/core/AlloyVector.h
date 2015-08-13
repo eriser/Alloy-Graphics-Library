@@ -456,8 +456,8 @@ template<class T, int C> vec<double, C> dotVec(const Vector<T, C>& a,const Vecto
 	}
 	return ans;
 }
-template<class T, int C> T dot(const Vector<T, C>& a,const Vector<T, C>& b) {
-	T ans(0);
+template<class T, int C> double dot(const Vector<T, C>& a,const Vector<T, C>& b) {
+	double ans=0.0;
 	if (a.size() != b.size())
 		throw std::runtime_error(
 				MakeString() << "Vector dimensions do not match. " << a.size()
@@ -465,7 +465,7 @@ template<class T, int C> T dot(const Vector<T, C>& a,const Vector<T, C>& b) {
 	size_t sz = a.size();
 #pragma omp parallel for reduction(+:ans)
 	for (int i = 0; i < (int)sz; i++) {
-		ans += dot(a[i], b[i]);
+		ans += dot(vec<double,C>(a[i]), vec<double, C>(b[i]));
 	}
 	return ans;
 }
@@ -510,11 +510,9 @@ template<class T, int C> vec<T, C> maxVec(const Vector<T, C>& a) {
 #pragma omp parallel for
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::min());
-//#pragma omp parallel for reduction(max:tmp)
+#pragma omp parallel for reduction(max:tmp)
 		for (int i = 0; i < (int)sz; i++) {
-			if (a[i][c] > tmp) {
-				tmp = a[i][c];
-			}
+			tmp = std::max(tmp,a[i][c]);
 		}
 		ans[c] = tmp;
 	}
@@ -526,11 +524,9 @@ template<class T, int C> vec<T, C> minVec(const Vector<T, C>& a) {
 #pragma omp parallel for
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::max());
-//#pragma omp parallel for reduction(min:tmp)
+#pragma omp parallel for reduction(min:tmp)
 		for (int i = 0; i < (int)sz; i++) {
-			if (a[i][c] < tmp) {
-				tmp = a[i][c];
-			}
+			tmp = std::min(a[i][c],tmp);
 		}
 		ans[c] = tmp;
 	}
@@ -539,12 +535,10 @@ template<class T, int C> vec<T, C> minVec(const Vector<T, C>& a) {
 template<class T, int C> T max(const Vector<T, C>& a) {
 	size_t sz = a.size();
 	T tmp(std::numeric_limits<T>::min());
-//#pragma omp parallel for reduction(max:tmp)
+#pragma omp parallel for reduction(max:tmp)
 	for (int i = 0; i < (int)sz; i++) {
 		for (int c = 0; c < C; c++) {
-			if (a[i][c] > tmp) {
-				tmp = a[i][c];
-			}
+			tmp = std::max(a[i][c],tmp);
 		}
 	}
 	return tmp;
@@ -552,12 +546,10 @@ template<class T, int C> T max(const Vector<T, C>& a) {
 template<class T, int C> T min(const Vector<T, C>& a) {
 	size_t sz = a.size();
 	T tmp(std::numeric_limits<T>::max());
-//#pragma omp parallel for reduction(min:tmp)
+#pragma omp parallel for reduction(min:tmp)
 	for (int i = 0; i < (int)sz; i++) {
 		for (int c = 0; c < C; c++) {
-			if (a[i][c] < tmp) {
-				tmp = a[i][c];
-			}
+			tmp = std::min(a[i][c],tmp);
 		}
 	}
 	return tmp;
