@@ -340,6 +340,7 @@ private:
 	AUnit1D fontSize;
 	FileDialog* dialog;
 public:
+
 	FileDescription fileDescription;
 	void setSelected(bool selected);
 	bool isSelected();
@@ -377,6 +378,7 @@ private:
 	pixel fileEntryHeight;
 public:
 	friend class FileEntry;
+	std::function<void(const std::string&)> onOpen;
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims,pixel fileEntryHeight=30);
@@ -393,9 +395,13 @@ private:
 	std::shared_ptr<IconButton> openIcon;
 	std::shared_ptr<FileDialog> fileDialog;
 public:
+	std::function<void(const std::string& file)> onChange;
 	FileSelector(const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
-	void setFileLocation(const std::string& file);
+	void setValue(const std::string& file);
+	std::string getValue() {
+		return fileDialog->getValue();
+	}
 	void openFileDialog(AlloyContext* context,
 			const std::string& workingDirectory =GetCurrentWorkingDirectory());
 };

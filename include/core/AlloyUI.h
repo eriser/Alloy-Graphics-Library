@@ -376,7 +376,7 @@ protected:
 	bool dragging = false;
 
 public:
-
+	std::function<void(const std::string& file)> onSelect;
 	static const float PADDING;
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
@@ -450,7 +450,7 @@ protected:
 	std::vector<std::string> segmentedPath;
 	std::shared_ptr<SelectionBox> selectionBox;
 public:
-	std::function<void(FileField* filed)> onSelect;
+	
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;

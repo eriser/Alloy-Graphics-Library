@@ -1285,6 +1285,14 @@ bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			handleCharacterInput(context, e);
 			break;
 		case InputType::Key:
+			if (e.isDown()) {
+				if (e.key == GLFW_KEY_ENTER) {
+					if (onSelect) {
+						onSelect(this->getValue());
+						return true;
+					}
+				}
+			}
 			handleKeyInput(context, e);
 			break;
 		case InputType::Cursor:
@@ -1457,7 +1465,7 @@ void FileField::setValue(const std::string& text) {
 			}
 		}
 		segmentedPath = splitPath(value);
-		moveCursorTo((int) text.size());
+		moveCursorTo((int)value.size());
 	}
 }
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
@@ -1478,7 +1486,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			if (e.isDown()) {
 				if (e.key == GLFW_KEY_ENTER) {
 					if (onSelect) {
-						onSelect(this);
+						onSelect(this->getValue());
 						return true;
 					}
 				} else if (e.key == GLFW_KEY_TAB) {
@@ -1635,7 +1643,7 @@ void FileField::draw(AlloyContext* context) {
 			path << comp;
 			underline = false;
 			if (comp == ALY_PATH_SEPARATOR) {
-				nvgFillColor(nvg, *textColor);
+				nvgFillColor(nvg, context->theme.DARK);
 			} else {
 				if(FileExists(path.str())) {
 					underline=true;

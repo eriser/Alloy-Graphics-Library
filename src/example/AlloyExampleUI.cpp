@@ -204,7 +204,7 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f)));
 	geomRegion->setOrientation(Orientation::Vertical);
 	geomRegion->add(scrollRegion);
-	selector->setFileLocation("mesh.obj");
+	selector->setValue("mesh.obj");
 	RegionPtr apprRegion = RegionPtr(
 			new aly::Region("Appearance", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));

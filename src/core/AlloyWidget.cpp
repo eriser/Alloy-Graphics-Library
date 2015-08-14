@@ -1693,31 +1693,44 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 			new FileDialog("File Dialog",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
 					CoordPX(600, 400)));
+
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(new FileField("None",CoordPX(0, 0), CoordPercent(1.0f, 1.0f)));
+	fileDialog->onOpen = [this](const std::string& file) {
+		fileLocation->setValue(file);
+		if (onChange)onChange(file);
+	};
 	openIcon = std::shared_ptr<IconButton>(new IconButton(
 		0xf115,CoordPerPX(0.0f, 0.0f,2.0f,4.0f),
 			CoordPerPX(1.0f, 1.0f,0.0f,-4.0f)));
-
 	openIcon->foregroundColor = MakeColor(COLOR_NONE);
 	openIcon->borderColor = MakeColor(COLOR_NONE);
 	openIcon->backgroundColor = MakeColor(COLOR_NONE);
 	openIcon->iconColor = MakeColor(AlloyApplicationContext()->theme.DARK);
-
 	setCenter(fileLocation);
 	setEast(openIcon,UnitPX(32.0f));
 	openIcon->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					openFileDialog(context);
+					std::string file = getValue();
+					AlloyApplicationContext()->setMouseFocusObject(nullptr);
+					if (FileExists(file)) {
+						openFileDialog(context,GetParentDirectory(file));
+					} else {
+						openFileDialog(context, GetCurrentWorkingDirectory());
+					}
 					return true;
 				}
 				return false;
 			};
 	fileLocation->setValue(GetCurrentWorkingDirectory());
+	fileLocation->onSelect = [this](const std::string& file) {
+		fileDialog->setValue(file);
+	};
 }
-void FileSelector::setFileLocation(const std::string& file) {
+void FileSelector::setValue(const std::string& file) {
 	fileLocation->setValue(file);
+	fileDialog->setValue(file);
 }
 void FileSelector::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
@@ -1958,6 +1971,15 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	openButton = std::shared_ptr<TextIconButton>(
 			new TextIconButton("Open", 0xf115,
 					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30)));
+	openButton->onMouseDown=[this](AlloyContext* context,const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			if (this->onOpen)this->onOpen(this->getValue());
+			this->setVisible(false);
+			context->getGlassPanel()->setVisible(false);
+			return true;
+		}
+		return false;
+	};
 	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f),
 		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f), std::vector<string>{"txt","png","jpg"}));
 	openButton->setOrigin(Origin::TopRight);
@@ -1965,8 +1987,8 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			new FileField("File Location", CoordPX(10, 7),
 					CoordPerPX(1.0f, 0.0f, -55.0f, 30.0f)));
 	fileLocation-> backgroundColor= MakeColor(AlloyApplicationContext()->theme.LIGHT);
-	fileLocation->onSelect = [this](FileField* field) {
-		this->setSelectedFile(field->getValue());
+	fileLocation->onSelect = [this](const std::string& file) {
+		this->setValue(file);
 	};
 	upDirButton = std::shared_ptr<IconButton>(
 		new IconButton(0xf062,
