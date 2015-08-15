@@ -225,6 +225,7 @@ public:
 	typedef std::vector<ValueType>::iterator iterator;
 	typedef std::vector<ValueType>::const_iterator const_iterator;
 	pixel2 cellPadding;
+	pixel2 cellSpacing;
 	void clear();
 	std::vector<std::shared_ptr<Region>>& getChildren() {
 		return children;

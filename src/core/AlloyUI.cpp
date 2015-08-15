@@ -299,16 +299,16 @@ void Composite::draw(AlloyContext* context) {
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		if (roundCorners) {
-			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-					bounds.position.y + lineWidth * 0.5f,
-					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,
+			nvgRoundedRect(nvg, bounds.position.x ,
+					bounds.position.y ,
+					bounds.dimensions.x,
+					bounds.dimensions.y,
 					context->theme.CORNER_RADIUS);
 		} else {
-			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-					bounds.position.y + lineWidth * 0.5f,
-					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth);
+			nvgRect(nvg, bounds.position.x ,
+					bounds.position.y,
+					bounds.dimensions.x,
+					bounds.dimensions.y);
 		}
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
@@ -319,27 +319,7 @@ void Composite::draw(AlloyContext* context) {
 			region->draw(context);
 		}
 	}
-	if (borderColor->a > 0) {
-
-		nvgLineJoin(nvg, NVG_ROUND);
-		nvgBeginPath(nvg);
-		if (roundCorners) {
-			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-					bounds.position.y + lineWidth * 0.5f,
-					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth,
-					context->theme.CORNER_RADIUS);
-		} else {
-			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-					bounds.position.y + lineWidth * 0.5f,
-					bounds.dimensions.x - lineWidth,
-					bounds.dimensions.y - lineWidth);
-		}
-		nvgStrokeColor(nvg, *borderColor);
-		nvgStrokeWidth(nvg, lineWidth);
-		nvgStroke(nvg);
-		nvgLineJoin(nvg, NVG_MITER);
-	}
+	
 	if (isScrollEnabled() && verticalScrollTrack.get() != nullptr) {
 
 		if (scrollExtent.y > h) {
@@ -365,6 +345,28 @@ void Composite::draw(AlloyContext* context) {
 
 	if (isScrollEnabled()) {
 		popScissor(nvg);
+	}
+	if (borderColor->a > 0) {
+
+		nvgLineJoin(nvg, NVG_ROUND);
+		nvgBeginPath(nvg);
+		if (roundCorners) {
+			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth,
+				context->theme.CORNER_RADIUS);
+		}
+		else {
+			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
+				bounds.position.y + lineWidth * 0.5f,
+				bounds.dimensions.x - lineWidth,
+				bounds.dimensions.y - lineWidth);
+		}
+		nvgStrokeColor(nvg, *borderColor);
+		nvgStrokeWidth(nvg, lineWidth);
+		nvgStroke(nvg);
+		nvgLineJoin(nvg, NVG_MITER);
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
@@ -477,7 +479,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				};
 		Application::addListener(this);
 	}
-	pixel2 offset(0, 0);
+	pixel2 offset=cellPadding;
 	scrollExtent = pixel2(0, 0);
 	for (std::shared_ptr<Region>& region : children) {
 		if (!region->isVisible()) {
@@ -495,11 +497,11 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 		if (orientation == Orientation::Horizontal) {
-			offset.x += cellPadding.x + region->getBoundsDimensionsX();
+			offset.x += cellSpacing.x + region->getBoundsDimensionsX();
 
 		}
 		if (orientation == Orientation::Vertical) {
-			offset.y += cellPadding.y + region->getBoundsDimensionsY();
+			offset.y += cellSpacing.y + region->getBoundsDimensionsY();
 		}
 		scrollExtent = max(
 				region->getBoundsDimensions() + region->getBoundsPosition()
@@ -508,10 +510,10 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
 			this->bounds.dimensions.x = bounds.dimensions.x = std::max(
-					bounds.dimensions.x, offset.x-cellPadding.x);
+					bounds.dimensions.x, offset.x-cellSpacing.x+cellPadding.x);
 		if (orientation == Orientation::Vertical)
 			this->bounds.dimensions.y = bounds.dimensions.y = std::max(
-					bounds.dimensions.y, offset.y-cellPadding.y);
+					bounds.dimensions.y, offset.y-cellSpacing.y+cellPadding.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
 		float nudge =
@@ -863,12 +865,12 @@ void ScrollTrack::draw(AlloyContext* context) {
 	}
 }
 Composite::Composite(const std::string& name) :
-		Region(name), cellPadding(5,5) {
+		Region(name), cellPadding(0,0),cellSpacing(5,5) {
 
 }
 Composite::Composite(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Region(name, pos, dims), cellPadding(5, 5) {
+		Region(name, pos, dims), cellPadding(0, 0),cellSpacing(5,5) {
 }
 bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	if (isVisible() && event.type == InputType::Scroll && isScrollEnabled()) {
@@ -1258,6 +1260,7 @@ void TextField::handleMouseInput(AlloyContext* context, const InputEvent& e) {
 			int shift = (int) (e.cursor.x - textOffsetX);
 			int cursorPos = fontFace->getCursorPosition(value, fontSize, shift);
 			moveCursorTo(cursorPos);
+			textStart = 0;
 			dragging = true;
 		} else {
 			dragging = false;

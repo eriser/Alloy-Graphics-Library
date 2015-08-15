@@ -478,7 +478,7 @@ void IconButton::draw(AlloyContext* context) {
 	else {
 		offset = pixel2(0,0);
 	}
-	float hoverOffset=(hover)?1:0;
+	float hoverOffset=(hover)?1.0f:0.0f;
 	if (iconType == IconType::CIRCLE) {
 			nvgBeginPath(nvg);
 			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x-1+ hoverOffset, radii.y-1+ hoverOffset);
@@ -1671,6 +1671,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		BorderComposite(name, pos, dims) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+
 	setRoundCorners(true);
 	std::shared_ptr<Composite>& glassPanel =
 			AlloyApplicationContext()->getGlassPanel();
@@ -2005,14 +2006,14 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	northRegion->add(upDirButton);
 
 	directoryTree = std::shared_ptr<Composite>(
-			new Composite("Container", CoordPX(7, 0),
-					CoordPerPX(1.0, 1.0, -7, 0)));
+			new Composite("Container", CoordPX(10, 0),
+					CoordPerPX(1.0, 1.0,-10, 0)));
 
 
-	TextIconButtonPtr homeDir= TextIconButtonPtr(new TextIconButton("Home", 0xf015, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
-	TextIconButtonPtr docsDir= TextIconButtonPtr(new TextIconButton("Documents", 0xf115, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
-	TextIconButtonPtr downloadDir= TextIconButtonPtr(new TextIconButton("Downloads", 0xf019, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
-	TextIconButtonPtr desktopDir= TextIconButtonPtr(new TextIconButton("Desktop", 0xf108, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr homeDir= TextIconButtonPtr(new TextIconButton("Home", 0xf015, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 0.0f,-2.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr docsDir= TextIconButtonPtr(new TextIconButton("Documents", 0xf115, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr downloadDir= TextIconButtonPtr(new TextIconButton("Downloads", 0xf019, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f, 30.0f), HorizontalAlignment::Left));
+	TextIconButtonPtr desktopDir= TextIconButtonPtr(new TextIconButton("Desktop", 0xf108, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f, 30.0f), HorizontalAlignment::Left));
 	
 	homeDir->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
 		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -2038,7 +2039,6 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		return false;
 	};
 	directoryTree->add(downloadDir);
-
 	desktopDir->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
 		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 			this->setValue(GetDesktopDirectory());
@@ -2049,33 +2049,39 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	directoryTree->add(desktopDir);
 
 	std::vector<std::string> drives = GetDrives();
-	for (std::string file: drives) {
-		TextIconButtonPtr diskDir = TextIconButtonPtr(new TextIconButton(GetFileName(RemoveTrailingSlash(file))+ALY_PATH_SEPARATOR, 0xf0a0, CoordPX(2.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -4.0f, 30.0f), HorizontalAlignment::Left));
-		diskDir->onMouseDown = [this,file](AlloyContext* context, const InputEvent& e) {
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				this->setValue(file);
-				return true;
-			}
-			return false;
-		};
-		directoryTree->add(diskDir);
-	}
-
+	//for (int i = 0;i < 10;i++) {
+		for (std::string file : drives) {
+			TextIconButtonPtr diskDir = TextIconButtonPtr(new TextIconButton(GetFileName(RemoveTrailingSlash(file)) + ALY_PATH_SEPARATOR, 0xf0a0, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f, 30.0f), HorizontalAlignment::Left));
+			diskDir->onMouseDown = [this, file](AlloyContext* context, const InputEvent& e) {
+				if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+					this->setValue(file);
+					return true;
+				}
+				return false;
+			};
+			directoryTree->add(diskDir);
+		}
+	//}
 	directoryList = std::shared_ptr<Composite>(
-			new Composite("Container", CoordPX(5, 0),
-					CoordPerPX(1.0f, 1.0, -15.0f, 0.0f)));
+			new Composite("Container", CoordPX(0, 0),
+					CoordPerPX(1.0f, 1.0, -10.0f, 0.0f)));
 
 	directoryList->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	directoryList->borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	directoryList->borderWidth = UnitPX(1.0f);
 	directoryList->setOrientation(Orientation::Vertical);
 	directoryList->setScrollEnabled(true);
 	directoryList->cellPadding = pixel2(0,0);
 
+	//directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	directoryTree->borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	directoryTree->borderWidth = UnitPX(1.0f);
 	directoryTree->setOrientation(Orientation::Vertical);
 	directoryTree->setScrollEnabled(true);
 
 	containerRegion->setNorth(northRegion, UnitPX(40));
 	containerRegion->setSouth(southRegion, UnitPX(40));
-	containerRegion->setWest(directoryTree, UnitPX(125.0f));
+	containerRegion->setWest(directoryTree, UnitPX(140.0f));
 	containerRegion->setCenter(directoryList);
 	add(containerRegion);
 	add(cancelButton);
