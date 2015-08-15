@@ -1183,12 +1183,20 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 	if (e.isDown()) {
 		switch (e.key) {
 		case GLFW_KEY_RIGHT:
-			if (cursorStart < (int) value.size())
+			if (cursorStart < (int)value.size()) {
 				moveCursorTo(cursorStart + 1, e.isShiftDown());
+			}
+			else {
+				moveCursorTo((int)value.size(), e.isShiftDown());
+			}
 			break;
 		case GLFW_KEY_LEFT:
-			if (cursorStart > 0)
+			if (cursorStart > 0) {
 				moveCursorTo(cursorStart - 1, e.isShiftDown());
+			} 
+			else {
+				moveCursorTo(0, e.isShiftDown());
+			}
 			break;
 		case GLFW_KEY_END:
 			moveCursorTo((int) value.size(), e.isShiftDown());
