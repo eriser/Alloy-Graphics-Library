@@ -2071,8 +2071,8 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	directoryList->borderWidth = UnitPX(1.0f);
 	directoryList->setOrientation(Orientation::Vertical);
 	directoryList->setScrollEnabled(true);
-	directoryList->cellPadding = pixel2(0,0);
-
+	directoryList->cellPadding = pixel2(0,2);
+	directoryList->cellSpacing = pixel2(0,2);
 	//directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	directoryTree->borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	directoryTree->borderWidth = UnitPX(1.0f);
