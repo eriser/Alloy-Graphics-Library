@@ -372,11 +372,10 @@ protected:
 	void handleCharacterInput(AlloyContext* context, const InputEvent& e);
 	void moveCursorTo(int index, bool isShiftHeld = false);
 	void dragCursorTo(int index);
-	int cursorStart = 0, cursorEnd = 0;
+	int cursorStart = 0, cursorEnd = 0, textStart=0;
 	bool dragging = false;
 
 public:
-	std::function<void(const std::string& file)> onSelect;
 	static const float PADDING;
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)

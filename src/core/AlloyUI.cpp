@@ -1121,6 +1121,7 @@ void TextLabel::draw(AlloyContext* context) {
 }
 void TextField::setValue(const std::string& text) {
 	this->value = text;
+	textStart = 0;
 	moveCursorTo((int) text.size());
 }
 
@@ -1131,6 +1132,7 @@ void TextField::erase() {
 		value.erase(value.begin() + lo, value.begin() + hi);
 	}
 	cursorEnd = cursorStart = lo;
+	textStart = clamp(cursorStart - 1, 0, textStart);
 }
 
 void TextField::dragCursorTo(int index) {
@@ -1138,6 +1140,7 @@ void TextField::dragCursorTo(int index) {
 		throw std::runtime_error(
 				MakeString() << name << ": Cursor position out of range.");
 	cursorStart = index;
+	textStart = clamp(cursorStart - 1, 0, textStart);
 }
 
 void TextField::moveCursorTo(int index, bool isShiftHeld) {
@@ -1190,10 +1193,6 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 			break;
 		case GLFW_KEY_HOME:
 			moveCursorTo(0, e.isShiftDown());
-			break;
-		case GLFW_KEY_ENTER:
-			if (onTextEntered)
-				onTextEntered(this);
 			break;
 		case GLFW_KEY_BACKSPACE:
 			if (cursorEnd != cursorStart)
@@ -1285,14 +1284,6 @@ bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			handleCharacterInput(context, e);
 			break;
 		case InputType::Key:
-			if (e.isDown()) {
-				if (e.key == GLFW_KEY_ENTER) {
-					if (onSelect) {
-						onSelect(this->getValue());
-						return true;
-					}
-				}
-			}
 			handleKeyInput(context, e);
 			break;
 		case InputType::Cursor:
@@ -1313,8 +1304,6 @@ void TextField::draw(AlloyContext* context) {
 	float y = bounds.position.y;
 	float w = bounds.dimensions.x;
 	float h = bounds.dimensions.y;
-
-	
 	if (backgroundColor->a > 0) {
 		if (hover) {
 			nvgBeginPath(nvg);
@@ -1360,26 +1349,34 @@ void TextField::draw(AlloyContext* context) {
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
 	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,
 			nullptr);
-	if (!showDefaultLabel) {
-		textOffsetX = textOffsetX
-				+ std::min((w - 3.0f * PADDING - 2.0f * lineWidth) - twidth,
-						0.0f);
-	}
+
 	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
 
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	positions.resize(
-			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
+	positions.resize(value.size()+1);
+	nvgTextGlyphPositions(nvg, 0, textY, value.data(),
 					value.data() + value.size(), positions.data(),
-					(int) positions.size()));
+					(int) positions.size());
+	float fwidth = (w - 3.0f * PADDING - 2.0f * lineWidth);
+	if (cursorStart > 0) {
+		if (positions[cursorStart - 1].maxx - positions[textStart].minx > fwidth) {
+			while (positions[cursorStart - 1].maxx > positions[textStart].minx + fwidth) {
+				if (textStart >= positions.size() - 1)break;
+				textStart++;
+			}
+		}
+	}
+	if (!showDefaultLabel) {
+		textOffsetX = textOffsetX-positions[textStart].minx;
+	}
+	float cursorOffset = textOffsetX+(cursorStart ?positions[cursorStart - 1].maxx - 1 :0);
 	bool isFocused = context->isFocused(this);
 
-	if (cursorEnd != cursorStart) {
-		int lo = std::min(cursorEnd, cursorStart), hi = std::max(cursorEnd,
-				cursorStart);
-		float x0 = lo ? positions[lo - 1].maxx - 1 : textOffsetX;
-		float x1 = hi ? positions[hi - 1].maxx - 1 : textOffsetX;
-
+	if (cursorEnd != cursorStart&&isFocused) {
+		int lo = std::min(cursorEnd, cursorStart);
+		int hi = std::max(cursorEnd, cursorStart);
+		float x0 = textOffsetX+(lo ? positions[lo - 1].maxx - 1 :0);
+		float x1 = textOffsetX + (hi ? positions[hi - 1].maxx - 1 :0);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, x0, textY + (h - lineh) / 2 + PADDING, x1 - x0,
 				lineh - 2 * PADDING);
@@ -1399,11 +1396,9 @@ void TextField::draw(AlloyContext* context) {
 	}
 	if (isFocused && showCursor) {
 		nvgBeginPath(nvg);
-		float xOffset =
-				cursorStart ?
-						positions[cursorStart - 1].maxx - 1 : (textOffsetX);
-		nvgMoveTo(nvg, xOffset, textY + h / 2 - lineh / 2 + PADDING);
-		nvgLineTo(nvg, xOffset, textY + h / 2 + lineh / 2 - PADDING);
+
+		nvgMoveTo(nvg, cursorOffset, textY + h / 2 - lineh / 2 + PADDING);
+		nvgLineTo(nvg, cursorOffset, textY + h / 2 + lineh / 2 - PADDING);
 		nvgStrokeWidth(nvg, lineWidth);
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgStrokeColor(nvg, context->theme.SHADOW);
@@ -1465,6 +1460,7 @@ void FileField::setValue(const std::string& text) {
 			}
 		}
 		segmentedPath = splitPath(value);
+		textStart = 0;
 		moveCursorTo((int)value.size());
 	}
 }
@@ -1482,14 +1478,8 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			handleCharacterInput(context, e);
 			break;
 		case InputType::Key:
-
-			if (e.isDown()) {
-				if (e.key == GLFW_KEY_ENTER) {
-					if (onSelect) {
-						onSelect(this->getValue());
-						return true;
-					}
-				} else if (e.key == GLFW_KEY_TAB) {
+			if(e.isDown()){
+			if (e.key == GLFW_KEY_TAB) {
 					showCursor = true;
 					std::string root = GetParentDirectory(value);
 					std::vector<std::string> listing = GetDirectoryListing(
@@ -1555,8 +1545,10 @@ void FileField::draw(AlloyContext* context) {
 	float y = bounds.position.y;
 	float w = bounds.dimensions.x;
 	float h = bounds.dimensions.y;
-
-
+	bool isFocused = context->isFocused(this);
+	if (!isFocused) {
+		showDefaultLabel = true;
+	}
 	if (backgroundColor->a > 0) {
 		if (hover) {
 			nvgBeginPath(nvg);
@@ -1600,38 +1592,42 @@ void FileField::draw(AlloyContext* context) {
 	nvgFontSize(nvg, fontSize);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
-	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,
-			nullptr);
-	if (!showDefaultLabel) {
-		textOffsetX = textOffsetX
-				+ std::min((w - 3.0f * PADDING - 2.0f * lineWidth) - twidth,
-						0.0f);
-	}
+	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,nullptr);
 	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
-
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	positions.resize(
-			nvgTextGlyphPositions(nvg, textOffsetX, textY, value.data(),
-					value.data() + value.size(), positions.data(),
-					(int) positions.size()));
-	bool isFocused = context->isFocused(this);
+	positions.resize(value.size() + 1);
+	nvgTextGlyphPositions(nvg, 0, textY, value.data(),
+		value.data() + value.size(), positions.data(),
+		(int)positions.size());
 
-	if (cursorEnd != cursorStart) {
-		int lo = std::min(cursorEnd, cursorStart), hi = std::max(cursorEnd,
-				cursorStart);
-		float x0 = lo ? positions[lo - 1].maxx - 1 : textOffsetX;
-		float x1 = hi ? positions[hi - 1].maxx - 1 : textOffsetX;
-
+	float fwidth = (w - 3.0f * PADDING - 2.0f * lineWidth);
+	if (cursorStart > 0) {
+		if (positions[cursorStart - 1].maxx - positions[textStart].minx > fwidth) {
+			while (positions[cursorStart - 1].maxx > positions[textStart].minx + fwidth) {
+				if (textStart >= positions.size() - 1)break;
+				textStart++;
+			}
+		}
+	}
+	if (!showDefaultLabel) {
+		textOffsetX = textOffsetX - positions[textStart].minx;
+	}
+	float cursorOffset = textOffsetX + (cursorStart ? positions[cursorStart - 1].maxx - 1 : 0);
+	
+	if (cursorEnd != cursorStart&&isFocused) {
+		int lo = std::min(cursorEnd, cursorStart);
+		int hi = std::max(cursorEnd, cursorStart);
+		float x0 = textOffsetX + (lo ? positions[lo - 1].maxx - 1 : 0);
+		float x1 = textOffsetX + (hi ? positions[hi - 1].maxx - 1 : 0);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, x0, textY + (h - lineh) / 2 + PADDING, x1 - x0,
-				lineh - 2 * PADDING);
+			lineh - 2 * PADDING);
 		nvgFillColor(nvg,
-				isFocused ?
-						context->theme.DARK.toSemiTransparent(0.5f) :
-						context->theme.DARK.toSemiTransparent(0.25f));
+			isFocused ?
+			context->theme.DARK.toSemiTransparent(0.5f) :
+			context->theme.DARK.toSemiTransparent(0.25f));
 		nvgFill(nvg);
 	}
-
 	if (showDefaultLabel) {
 		nvgFillColor(nvg, context->theme.DARK);
 		nvgText(nvg, textOffsetX, textY + h / 2, label.c_str(), NULL);
@@ -1656,23 +1652,14 @@ void FileField::draw(AlloyContext* context) {
 			float lastOffset = xOffset;
 			xOffset += nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,
 					nullptr);
-			/*
-			 if (underline) {
-			 nvgBeginPath(nvg);
-			 nvgStrokeWidth(nvg, 2.0f);
-			 nvgStrokeColor(nvg, textColor->toSemiTransparent(0.75f));
-			 nvgMoveTo(nvg, lastOffset, textY + fontSize + 1);
-			 nvgLineTo(nvg, xOffset, textY + fontSize + 1);
-			 nvgStroke(nvg);
-			 }
-			 */
 		}
 	}
+
 	if (isFocused && showCursor) {
 		nvgBeginPath(nvg);
-		float xOffset =
-				cursorStart ?
-						positions[cursorStart - 1].maxx - 1 : (textOffsetX);
+		float xOffset =textOffsetX+
+				(cursorStart ?
+						positions[cursorStart - 1].maxx - 1 : 0);
 		nvgMoveTo(nvg, xOffset, textY + h / 2 - lineh / 2 + PADDING);
 		nvgLineTo(nvg, xOffset, textY + h / 2 + lineh / 2 - PADDING);
 		nvgStrokeWidth(nvg, lineWidth);

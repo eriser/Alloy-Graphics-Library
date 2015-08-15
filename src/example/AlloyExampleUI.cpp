@@ -277,12 +277,19 @@ bool ExampleUI::init(Composite& rootNode) {
 		new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
 			CoordPX(100.0f, 200.0f), Integer(0), Integer(20),
 			Integer(70)));
-
+	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
+		CoordPX(200.0f, 50.0f), Theme::Default.DARK,
+		Theme::Default.LIGHT_TEXT);
+	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.1f, 0.8f),
+		CoordPX(200.0f, 50.0f), Theme::Default.LIGHT,
+		Theme::Default.DARK_TEXT);
 	center->add(hslider1);
 
 	center->add(hslider2);
 
 	center->add(vslider1);
+	center->add(field1);
+	center->add(field2);
 	bcomp->setNorth(north, UnitPercent(0.1f));
 	bcomp->setSouth(south, UnitPercent(0.3f));
 	bcomp->setEast(east, UnitPercent(0.2f));

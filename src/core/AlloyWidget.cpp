@@ -478,35 +478,20 @@ void IconButton::draw(AlloyContext* context) {
 	else {
 		offset = pixel2(0,0);
 	}
+	float hoverOffset=(hover)?1:0;
 	if (iconType == IconType::CIRCLE) {
-		if (hover) {
 			nvgBeginPath(nvg);
-			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x, radii.y);
+			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x-1+ hoverOffset, radii.y-1+ hoverOffset);
 			nvgFillColor(nvg, *foregroundColor);
 			nvgFill(nvg);
-		}
-		else {
-			nvgBeginPath(nvg);
-			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x-1, radii.y-1);
-			nvgFillColor(nvg, *foregroundColor);
-			nvgFill(nvg);
-		}
 	}
 	else {
-		if (hover) {
 			nvgBeginPath(nvg);
-			nvgRoundedRect(nvg, bounds.position.x + offset.x, bounds.position.y + offset.y, bounds.dimensions.x, bounds.dimensions.y,
+			nvgRoundedRect(nvg, bounds.position.x+1 + offset.x- hoverOffset, bounds.position.y+1 + offset.y- hoverOffset, bounds.dimensions.x-2+ hoverOffset*2, bounds.dimensions.y-2+ hoverOffset*2,
 				context->theme.CORNER_RADIUS);
 			nvgFillColor(nvg, *foregroundColor);
 			nvgFill(nvg);
-		}
-		else {
-			nvgBeginPath(nvg);
-			nvgRoundedRect(nvg, bounds.position.x+1 + offset.x, bounds.position.y+1 + offset.y, bounds.dimensions.x-2, bounds.dimensions.y-2,
-				context->theme.CORNER_RADIUS);
-			nvgFillColor(nvg, *foregroundColor);
-			nvgFill(nvg);
-		}
+		
 	}
 	box2px ibounds = bounds;
 	ibounds.position += offset;
@@ -524,16 +509,17 @@ void IconButton::draw(AlloyContext* context) {
 	
 	if (borderColor->a > 0) {
 		if (iconType == IconType::CIRCLE) {
+			
 			nvgBeginPath(nvg);
-			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x - HALF_PIX(lineWidth), radii.y - HALF_PIX(lineWidth));
+			nvgEllipse(nvg, center.x + offset.x, center.y + offset.y, radii.x - HALF_PIX(lineWidth)+ hoverOffset, radii.y - HALF_PIX(lineWidth)+ hoverOffset);
 			nvgStrokeColor(nvg, (hover) ? context->theme.HIGHLIGHT : *borderColor);
 			nvgStrokeWidth(nvg, lineWidth);
 			nvgStroke(nvg);
 		}
 		else {
 			nvgBeginPath(nvg);
-			nvgRoundedRect(nvg, bounds.position.x + offset.x + lineWidth, bounds.position.y + offset.y + lineWidth,
-				bounds.dimensions.x - 2 * lineWidth, bounds.dimensions.y - 2 * lineWidth,
+			nvgRoundedRect(nvg, bounds.position.x + offset.x + lineWidth- hoverOffset, bounds.position.y + offset.y + lineWidth- hoverOffset,
+				bounds.dimensions.x - 2 * lineWidth+ hoverOffset*2.0f, bounds.dimensions.y - 2 * lineWidth+ hoverOffset*2.0f,
 				context->theme.CORNER_RADIUS);
 			nvgStrokeColor(nvg, (hover) ? context->theme.HIGHLIGHT : *borderColor);
 			nvgStrokeWidth(nvg, lineWidth);
@@ -1724,8 +1710,8 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 				return false;
 			};
 	fileLocation->setValue(GetCurrentWorkingDirectory());
-	fileLocation->onSelect = [this](const std::string& file) {
-		fileDialog->setValue(file);
+	fileLocation->onTextEntered = [this](TextField* field) {
+		fileDialog->setValue(field->getValue());
 	};
 }
 void FileSelector::setValue(const std::string& file) {
@@ -1987,8 +1973,8 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			new FileField("File Location", CoordPX(10, 7),
 					CoordPerPX(1.0f, 0.0f, -55.0f, 30.0f)));
 	fileLocation-> backgroundColor= MakeColor(AlloyApplicationContext()->theme.LIGHT);
-	fileLocation->onSelect = [this](const std::string& file) {
-		this->setValue(file);
+	fileLocation->onTextEntered = [this](TextField* field) {
+		this->setValue(field->getValue());
 	};
 	upDirButton = std::shared_ptr<IconButton>(
 		new IconButton(0xf062,
