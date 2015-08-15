@@ -1933,8 +1933,8 @@ void FileDialog::setSelectedFile(const std::string& file) {
 	fileEntries.clear();
 	for (FileDescription& fd : descriptions) {
 		FileEntry* entry = new FileEntry(this, MakeString() << "Entry " << i,
-				CoordPX(0, 0),
-				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, fileEntryHeight));
+				CoordPX(2, 0),
+				CoordPerPX(1.0f, 0.0f, -4.0f, fileEntryHeight));
 		fileEntries.push_back(std::shared_ptr<FileEntry>(entry));
 		entry->setValue(fd);
 		if (select && entry->fileDescription.fileLocation == file) {
