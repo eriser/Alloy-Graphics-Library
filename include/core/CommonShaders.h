@@ -53,6 +53,7 @@ class ParticleFaceIdShader : public GLShader {
 private:
 	GLFrameBuffer framebuffer;
 public:
+	GLFrameBuffer& getFrameBuffer() { return framebuffer; }
 	ParticleFaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
 	void initialize(int w, int h);
@@ -95,6 +96,7 @@ class FaceIdShader :public GLShader {
 private:
 	GLFrameBuffer framebuffer;
 public:
+	GLFrameBuffer& getFrameBuffer() { return framebuffer; }
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
 	void initialize(int w, int h);
