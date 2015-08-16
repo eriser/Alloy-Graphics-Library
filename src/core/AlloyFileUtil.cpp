@@ -61,11 +61,8 @@
 
 #include <stdexcept>
 using namespace std;
-
 namespace aly {
 std::string CodePointToUTF8(int cp) {
-#pragma GCC diagnostic push
-
 	int n = 0;
 	if (cp < 0x80)
 		n = 1;
@@ -105,8 +102,6 @@ std::string CodePointToUTF8(int cp) {
 	case 1:
 		str[0] = cp;
 	}
-#pragma GCC diagnostic pop
-
 	return std::string(str);
 }
 std::vector<std::string> split(const std::string &str, char delim) {
