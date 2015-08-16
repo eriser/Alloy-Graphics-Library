@@ -53,14 +53,14 @@ public:
 	}
 
 };
-class ParticleFaceIdShader: public GLShader {
+class ParticleIdShader: public GLShader {
 private:
 	GLFrameBuffer framebuffer;
 public:
 	GLFrameBuffer& getFrameBuffer() {
 		return framebuffer;
 	}
-	ParticleFaceIdShader(const std::shared_ptr<AlloyContext>& context =
+	ParticleIdShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void initialize(int w, int h);
 	void draw(const std::initializer_list<const Mesh*>& meshes,

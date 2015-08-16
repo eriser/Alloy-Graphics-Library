@@ -179,7 +179,7 @@ void ParticleDepthShader::draw(
 	glEnable(GL_BLEND);
 	framebuffer.end();
 }
-ParticleFaceIdShader::ParticleFaceIdShader(
+ParticleIdShader::ParticleIdShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	GLShader::initialize( { },
@@ -276,10 +276,10 @@ void main(void) {
 					})");
 
 }
-void ParticleFaceIdShader::initialize(int w, int h) {
+void ParticleIdShader::initialize(int w, int h) {
 	framebuffer.initialize(w, h);
 }
-void ParticleFaceIdShader::draw(
+void ParticleIdShader::draw(
 		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
 		Image2i& faceIdMap, int faceIdOffset, int objectIdOffset,
 		float radius) {
@@ -317,7 +317,7 @@ void ParticleFaceIdShader::draw(
 		faceIdMap[idx++] = int2(hash, oid);
 	}
 }
-void ParticleFaceIdShader::draw(
+void ParticleIdShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
 		int objectIdOffset, float radius) {
@@ -354,7 +354,7 @@ void ParticleFaceIdShader::draw(
 	}
 }
 
-void ParticleFaceIdShader::draw(const std::list<const Mesh*>& meshes,
+void ParticleIdShader::draw(const std::list<const Mesh*>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
 		int objectIdOffset, float radius) {
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
@@ -390,7 +390,7 @@ void ParticleFaceIdShader::draw(const std::list<const Mesh*>& meshes,
 		faceIdMap[idx++] = int2(hash, oid);
 	}
 }
-void ParticleFaceIdShader::draw(
+void ParticleIdShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
 		int objectIdOffset, float radius) {
