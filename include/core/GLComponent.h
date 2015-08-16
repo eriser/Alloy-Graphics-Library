@@ -43,12 +43,13 @@ public:
 	virtual inline ~GLComponent() {
 	}
 
-	GLComponent(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
-			context(context),bounds() {
+	GLComponent(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext()) :
+			context(context), bounds() {
 	}
 	GLComponent(const box2i& b, std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
-			 context(context),bounds(b) {
+			context(context), bounds(b) {
 	}
 
 	inline void setBounds(int x, int y, int w, int h) {

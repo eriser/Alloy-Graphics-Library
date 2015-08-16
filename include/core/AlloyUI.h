@@ -254,7 +254,8 @@ public:
 
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
-	inline void setOrientation(const Orientation& orient,pixel2 cellSpacing=pixel2(5,5),pixel2 cellPadding=pixel2(0,0)) {
+	inline void setOrientation(const Orientation& orient, pixel2 cellSpacing =
+			pixel2(5, 5), pixel2 cellPadding = pixel2(0, 0)) {
 		orientation = orient;
 		this->cellSpacing = cellSpacing;
 		this->cellPadding = cellPadding;
@@ -297,7 +298,7 @@ protected:
 	std::shared_ptr<Region>& southRegion;
 	std::shared_ptr<Region>& eastRegion;
 	std::shared_ptr<Region>& westRegion;
-	AUnit1D northFraction,southFraction, eastFraction, westFraction;
+	AUnit1D northFraction, southFraction, eastFraction, westFraction;
 	std::shared_ptr<Region>& centerRegion;
 public:
 	BorderComposite(
@@ -312,14 +313,28 @@ public:
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio, bool clamp = false) override;
 	void pack(AlloyContext* context);
-	void setNorth(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
-    void setSouth(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
-    void setEast(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
-    void setWest(const std::shared_ptr<Region>& region,const AUnit1D& fraction);
-	inline void setNorth(const std::shared_ptr<Region>& region, float fraction) { setNorth(region, UnitPercent(fraction)); }
-	inline void setSouth(const std::shared_ptr<Region>& region, float fraction) { setSouth(region, UnitPercent(fraction)); }
-	inline void setEast(const std::shared_ptr<Region>& region, float fraction) { setEast(region, UnitPercent(fraction)); }
-	inline void setWest(const std::shared_ptr<Region>& region, float fraction) { setWest(region, UnitPercent(fraction)); }
+	void setNorth(const std::shared_ptr<Region>& region,
+			const AUnit1D& fraction);
+	void setSouth(const std::shared_ptr<Region>& region,
+			const AUnit1D& fraction);
+	void setEast(const std::shared_ptr<Region>& region,
+			const AUnit1D& fraction);
+	void setWest(const std::shared_ptr<Region>& region,
+			const AUnit1D& fraction);
+	inline void setNorth(const std::shared_ptr<Region>& region,
+			float fraction) {
+		setNorth(region, UnitPercent(fraction));
+	}
+	inline void setSouth(const std::shared_ptr<Region>& region,
+			float fraction) {
+		setSouth(region, UnitPercent(fraction));
+	}
+	inline void setEast(const std::shared_ptr<Region>& region, float fraction) {
+		setEast(region, UnitPercent(fraction));
+	}
+	inline void setWest(const std::shared_ptr<Region>& region, float fraction) {
+		setWest(region, UnitPercent(fraction));
+	}
 
 	void setCenter(const std::shared_ptr<Region>& region);
 
@@ -376,7 +391,7 @@ protected:
 	void handleCharacterInput(AlloyContext* context, const InputEvent& e);
 	void moveCursorTo(int index, bool isShiftHeld = false);
 	void dragCursorTo(int index);
-	int cursorStart = 0, cursorEnd = 0, textStart=0;
+	int cursorStart = 0, cursorEnd = 0, textStart = 0;
 	bool dragging = false;
 
 public:
@@ -455,7 +470,7 @@ protected:
 	std::vector<std::string> segmentedPath;
 	std::shared_ptr<SelectionBox> selectionBox;
 public:
-	
+
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
@@ -469,8 +484,8 @@ public:
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const Color& bgColor = COLOR_NONE, const Color& lineColor = COLOR_NONE,
-	const AUnit1D& lineWidth = UnitPX(2.0f), const Orientation& orientation =
-				Orientation::Unspecified);
+		const AUnit1D& lineWidth = UnitPX(2.0f),
+		const Orientation& orientation = Orientation::Unspecified);
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const AspectRule& aspectRatio =

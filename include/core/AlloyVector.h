@@ -93,7 +93,7 @@ public:
 	template<class F> void apply(F f) {
 		size_t sz = size();
 #pragma omp parallel for
-		for (int offset = 0; offset < (int)sz; offset++) {
+		for (int offset = 0; offset < (int) sz; offset++) {
 			f(offset, data[offset]);
 		}
 	}
@@ -102,11 +102,11 @@ public:
 		data.resize(sz);
 		data.shrink_to_fit();
 	}
-	Vector(const Vector<T, C>& img) :Vector(img.size()) {
+	Vector(const Vector<T, C>& img) :
+			Vector(img.size()) {
 		set(img.data.data());
 	}
-	Vector<T, C>& operator=(const Vector<T, C>& rhs)
-	{
+	Vector<T, C>& operator=(const Vector<T, C>& rhs) {
 		if (this == &rhs)
 			return *this;
 		return *this;
@@ -186,7 +186,7 @@ template<class T, int C> void Transform(Vector<T, C>& im1,
 		const std::function<void(vec<T, C>&)>& func) {
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset]);
 	}
 }
@@ -199,7 +199,7 @@ template<class T, int C> void Transform(Vector<T, C>& im1,
 						<< "!=" << im2.size());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
@@ -212,7 +212,7 @@ template<class T, int C> void Transform(Vector<T, C>& im1,
 						<< "!=" << im2.size());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset], im2.data[offset], im3.data[offset]);
 	}
 }
@@ -245,40 +245,48 @@ template<class T, int C> Vector<T, C> operator+(const vec<T, C>& scalar,
 	Transform(out, img, f);
 	return out;
 }
-template<class T, int C> void ScaleAdd(Vector<T, C>& out, const vec<T, C>& scalar,const Vector<T, C>& in) {
+template<class T, int C> void ScaleAdd(Vector<T, C>& out,
+		const vec<T, C>& scalar, const Vector<T, C>& in) {
 	out.resize(in.size());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 += scalar * val2;};
+			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 += scalar * val2;};
 	Transform(out, in, f);
 }
-template<class T, int C> void ScaleAdd(Vector<T, C>& out, const Vector<T, C>& in1, const vec<T, C>& scalar, const Vector<T, C>& in2) {
+template<class T, int C> void ScaleAdd(Vector<T, C>& out,
+		const Vector<T, C>& in1, const vec<T, C>& scalar,
+		const Vector<T, C>& in2) {
 	out.resize(in1.size());
 	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2+scalar * val3;};
-	Transform(out, in1,in2, f);
-}
-template<class T, int C> void ScaleSubtract(Vector<T, C>& out, const vec<T, C>& scalar, const Vector<T, C>& in) {
-	out.resize(in.size());
-	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 -= scalar * val2;};
-	Transform(out, in, f);
-}
-template<class T, int C> void ScaleSubtract(Vector<T, C>& out, const Vector<T, C>& in1, const vec<T, C>& scalar, const Vector<T, C>& in2) {
-	out.resize(in1.size());
-	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2 - scalar * val3;};
+			[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2+scalar * val3;};
 	Transform(out, in1, in2, f);
 }
-template<class T, int C> void Subtract(Vector<T, C>& out, const Vector<T, C>& v1, const Vector<T, C>& v2) {
-	out.resize(v1.size());
-	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2-val3;};
-	Transform(out, v1,v2, f);
+template<class T, int C> void ScaleSubtract(Vector<T, C>& out,
+		const vec<T, C>& scalar, const Vector<T, C>& in) {
+	out.resize(in.size());
+	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
+			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 -= scalar * val2;};
+	Transform(out, in, f);
 }
-template<class T, int C> void Add(Vector<T, C>& out, const Vector<T, C>& v1, const Vector<T, C>& v2) {
+template<class T, int C> void ScaleSubtract(Vector<T, C>& out,
+		const Vector<T, C>& in1, const vec<T, C>& scalar,
+		const Vector<T, C>& in2) {
+	out.resize(in1.size());
+	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
+			[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2 - scalar * val3;};
+	Transform(out, in1, in2, f);
+}
+template<class T, int C> void Subtract(Vector<T, C>& out,
+		const Vector<T, C>& v1, const Vector<T, C>& v2) {
 	out.resize(v1.size());
 	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2 + val3;};
+			[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2-val3;};
+	Transform(out, v1, v2, f);
+}
+template<class T, int C> void Add(Vector<T, C>& out, const Vector<T, C>& v1,
+		const Vector<T, C>& v2) {
+	out.resize(v1.size());
+	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
+			[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2 + val3;};
 	Transform(out, v1, v2, f);
 }
 template<class T, int C> Vector<T, C> operator-(const vec<T, C>& scalar,
@@ -298,10 +306,10 @@ template<class T, int C> Vector<T, C> operator*(const vec<T, C>& scalar,
 	return out;
 }
 template<class T, int C> Vector<T, C> operator*(const T& scalar,
-	const Vector<T, C>& img) {
+		const Vector<T, C>& img) {
 	Vector<T, C> out(img.size());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
-		[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = scalar*val2;};
+			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = scalar*val2;};
 	Transform(out, img, f);
 	return out;
 }
@@ -438,7 +446,8 @@ template<class T, int C> Vector<T, C> operator/(const Vector<T, C>& img1,
 	Transform(out, img1, img2, f);
 	return out;
 }
-template<class T, int C> vec<double, C> dotVec(const Vector<T, C>& a,const Vector<T, C>& b) {
+template<class T, int C> vec<double, C> dotVec(const Vector<T, C>& a,
+		const Vector<T, C>& b) {
 	vec<double, C> ans(0.0);
 	if (a.size() != b.size())
 		throw std::runtime_error(
@@ -449,23 +458,24 @@ template<class T, int C> vec<double, C> dotVec(const Vector<T, C>& a,const Vecto
 	for (int c = 0; c < C; c++) {
 		double cans = 0;
 #pragma omp parallel for reduction(+:cans)
-		for (int i = 0; i < (int)sz; i++) {
-			cans += (double)a[i][c] * (double)b[i][c];
+		for (int i = 0; i < (int) sz; i++) {
+			cans += (double) a[i][c] * (double) b[i][c];
 		}
 		ans[c] = cans;
 	}
 	return ans;
 }
-template<class T, int C> double dot(const Vector<T, C>& a,const Vector<T, C>& b) {
-	double ans=0.0;
+template<class T, int C> double dot(const Vector<T, C>& a,
+		const Vector<T, C>& b) {
+	double ans = 0.0;
 	if (a.size() != b.size())
 		throw std::runtime_error(
 				MakeString() << "Vector dimensions do not match. " << a.size()
 						<< "!=" << b.size());
 	size_t sz = a.size();
 #pragma omp parallel for reduction(+:ans)
-	for (int i = 0; i < (int)sz; i++) {
-		ans += dot(vec<double,C>(a[i]), vec<double, C>(b[i]));
+	for (int i = 0; i < (int) sz; i++) {
+		ans += dot(vec<double, C>(a[i]), vec<double, C>(b[i]));
 	}
 	return ans;
 }
@@ -474,7 +484,7 @@ template<class T, int C> T lengthSqr(const Vector<T, C>& a) {
 	T ans(0);
 	size_t sz = a.size();
 #pragma omp parallel for reduction(+:ans)
-	for (int i = 0; i < (int)sz; i++) {
+	for (int i = 0; i < (int) sz; i++) {
 		ans += dot(a[i], a[i]);
 	}
 	return ans;
@@ -483,7 +493,7 @@ template<class T, int C> T lengthL1(const Vector<T, C>& a) {
 	T ans(0);
 	size_t sz = a.size();
 #pragma omp parallel for reduction(+:ans)
-	for (int i = 0; i < (int)sz; i++) {
+	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
 			ans += std::abs(a[i][c]);
 		}
@@ -497,7 +507,7 @@ template<class T, int C> vec<T, C> lengthVecL1(const Vector<T, C>& a) {
 	for (int c = 0; c < C; c++) {
 		T cans = 0;
 #pragma omp parallel for reduction(+:cans)
-		for (int i = 0; i < (int)sz; i++) {
+		for (int i = 0; i < (int) sz; i++) {
 			cans += std::abs(a[i][c]);
 		}
 		ans[c] = cans;
@@ -511,8 +521,8 @@ template<class T, int C> vec<T, C> maxVec(const Vector<T, C>& a) {
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::min());
 #pragma omp parallel for reduction(max:tmp)
-		for (int i = 0; i < (int)sz; i++) {
-			tmp = std::max(tmp,a[i][c]);
+		for (int i = 0; i < (int) sz; i++) {
+			tmp = std::max(tmp, a[i][c]);
 		}
 		ans[c] = tmp;
 	}
@@ -525,8 +535,8 @@ template<class T, int C> vec<T, C> minVec(const Vector<T, C>& a) {
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::max());
 #pragma omp parallel for reduction(min:tmp)
-		for (int i = 0; i < (int)sz; i++) {
-			tmp = std::min(a[i][c],tmp);
+		for (int i = 0; i < (int) sz; i++) {
+			tmp = std::min(a[i][c], tmp);
 		}
 		ans[c] = tmp;
 	}
@@ -536,9 +546,9 @@ template<class T, int C> T max(const Vector<T, C>& a) {
 	size_t sz = a.size();
 	T tmp(std::numeric_limits<T>::min());
 #pragma omp parallel for reduction(max:tmp)
-	for (int i = 0; i < (int)sz; i++) {
+	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
-			tmp = std::max(a[i][c],tmp);
+			tmp = std::max(a[i][c], tmp);
 		}
 	}
 	return tmp;
@@ -547,9 +557,9 @@ template<class T, int C> T min(const Vector<T, C>& a) {
 	size_t sz = a.size();
 	T tmp(std::numeric_limits<T>::max());
 #pragma omp parallel for reduction(min:tmp)
-	for (int i = 0; i < (int)sz; i++) {
+	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
-			tmp = std::min(a[i][c],tmp);
+			tmp = std::min(a[i][c], tmp);
 		}
 	}
 	return tmp;
@@ -564,9 +574,9 @@ template<class T, int C> vec<double, C> lengthVecSqr(const Vector<T, C>& a) {
 	for (int c = 0; c < C; c++) {
 		double cans = 0;
 #pragma omp parallel for reduction(+:cans)
-		for (int i = 0; i < (int)sz; i++) {
+		for (int i = 0; i < (int) sz; i++) {
 			double val = a[i][c];
-			cans += val*val;
+			cans += val * val;
 		}
 		ans[c] = cans;
 	}

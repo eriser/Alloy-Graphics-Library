@@ -32,7 +32,14 @@
 namespace aly {
 bool SANITY_CHECK_IMAGE();
 enum class ImageType {
-	BYTE=0, UBYTE=1, SHORT=2, USHORT=3, INT=4, UINT=5, FLOAT=6, DOUBLE=7
+	BYTE = 0,
+	UBYTE = 1,
+	SHORT = 2,
+	USHORT = 3,
+	INT = 4,
+	UINT = 5,
+	FLOAT = 6,
+	DOUBLE = 7
 };
 template<class L, class R> std::basic_ostream<L, R>& operator <<(
 		std::basic_ostream<L, R> & ss, const ImageType& type) {
@@ -88,7 +95,8 @@ public:
 	uint64_t id;
 	const int channels;
 	const ImageType type;
-	std::string updateHashCode(size_t MAX_SAMPLES=0,HashMethod method = HashMethod::SHA256);
+	std::string updateHashCode(size_t MAX_SAMPLES = 0, HashMethod method =
+			HashMethod::SHA256);
 	std::string getHashCode() {
 		return hashCode;
 	}
@@ -97,8 +105,9 @@ public:
 	}
 
 	template<class Archive> void serialize(Archive & archive) {
-		archive(cereal::make_nvp(MakeString()<<type<<channels,id), CEREAL_NVP(width), CEREAL_NVP(height),
-				CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(hashCode));
+		archive(cereal::make_nvp(MakeString() << type << channels, id),
+				CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(x),
+				CEREAL_NVP(y), CEREAL_NVP(hashCode));
 	}
 
 	void writeToXML(const std::string& fileName) const {
@@ -141,7 +150,8 @@ public:
 	}
 
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-		data(storage),width(w), height(h), x(x), y(y), id(id),channels(C),type(I) {
+			data(storage), width(w), height(h), x(x), y(y), id(id), channels(C), type(
+					I) {
 		data.resize(w * h);
 		data.shrink_to_fit();
 	}
@@ -153,22 +163,24 @@ public:
 			Image(w, h, x, y, id) {
 		set(ptr);
 	}
-	Image( int w, int h, vec<T, C>* ptr) :
-		Image(w, h, 0, 0, 0) {
+	Image(int w, int h, vec<T, C>* ptr) :
+			Image(w, h, 0, 0, 0) {
 		set(ptr);
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
 			uint64_t id = 0) :
-				data(ref),width(w), height(h), x(x), y(y), id(id), channels(C), type(I){
+			data(ref), width(w), height(h), x(x), y(y), id(id), channels(C), type(
+					I) {
 	}
 	Image() :
-		 data(storage),width(0), height(0), x(0), y(0), id(0), channels(C), type(I) {
+			data(storage), width(0), height(0), x(0), y(0), id(0), channels(C), type(
+					I) {
 	}
-	Image(const Image<T, C, I>& img):Image(img.width, img.height, img.x, img.y, img.id) {
+	Image(const Image<T, C, I>& img) :
+			Image(img.width, img.height, img.x, img.y, img.id) {
 		set(img.data.data());
 	}
-	Image& operator=(const Image<T,C,I>& rhs)
-	{
+	Image& operator=(const Image<T, C, I>& rhs) {
 		if (this == &rhs)
 			return *this;
 		return *this;
@@ -258,22 +270,22 @@ public:
 	template<class F> void apply(F f) {
 		size_t sz = size();
 #pragma omp parallel for
-		for (int offset = 0; offset <(int)sz; offset++) {
+		for (int offset = 0; offset < (int) sz; offset++) {
 			f(offset, data[offset]);
 		}
 	}
 };
-template<class T, int C, ImageType I>  std::string Image<T, C, I>::updateHashCode(size_t MAX_SAMPLES, HashMethod method) {
+template<class T, int C, ImageType I> std::string Image<T, C, I>::updateHashCode(
+		size_t MAX_SAMPLES, HashMethod method) {
 	if (MAX_SAMPLES == 0) {
 		hashCode = HashCode(data, method);
-	}
-	else {
+	} else {
 		const size_t seed = 83128921L;
 		std::mt19937 mt(seed);
-		std::uniform_int_distribution<int> wSampler(0, width-1);
-		std::uniform_int_distribution<int> hSampler(0, height-1);
+		std::uniform_int_distribution<int> wSampler(0, width - 1);
+		std::uniform_int_distribution<int> hSampler(0, height - 1);
 		std::vector<vec<T, C>> sample(MAX_SAMPLES);
-		for (int i = 0;i<MAX_SAMPLES;i++) {
+		for (int i = 0; i < MAX_SAMPLES; i++) {
 			sample[i] = this->operator()(wSampler(mt), hSampler(mt));
 		}
 		hashCode = HashCode(sample, method);
@@ -289,7 +301,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 						<< im1.dimensions() << "!=" << im2.dimensions());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
@@ -297,7 +309,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 		const std::function<void(vec<T, C>&)>& func) {
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset]);
 	}
 }
@@ -310,7 +322,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 						<< im1.dimensions() << "!=" << im2.dimensions());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
@@ -323,7 +335,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 						<< im1.dimensions() << "!=" << im2.dimensions());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset], im2.data[offset], im3.data[offset]);
 	}
 }
@@ -352,7 +364,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 						<< im1.dimensions() << "!=" << im2.dimensions());
 	size_t sz = im1.size();
 #pragma omp parallel for
-	for (int offset = 0; offset < (int)sz; offset++) {
+	for (int offset = 0; offset < (int) sz; offset++) {
 		func(offset, im1.data[offset], im2.data[offset]);
 	}
 }

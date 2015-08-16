@@ -26,8 +26,8 @@ using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
 				getFullPath("images/JG_Gold.png")), imageShader(getContext(),
-				ImageShader::Filter::MEDIUM_BLUR),  phongShader(
-				1), phongShader2(1),voxelSize(0.0f) {
+				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
+				1), voxelSize(0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
@@ -35,46 +35,48 @@ bool MeshViewer::init(Composite& rootNode) {
 	//mesh.vertexColors.resize(mesh.vertexLocations.size());
 	//mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
 	MeshNeighborTable vertTable;
-	CreateVertexNeighborTable(mesh, vertTable,false);
-	
+	CreateVertexNeighborTable(mesh, vertTable, false);
+
 	float w = 0.9f;
 	srand(1023172413L);
 	mesh.updateVertexNormals();
 
 	/*
-	SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
-	for (size_t i = 0;i < L.rows;i++) {
-		for(uint32_t v:vertTable[i]){
-			L.insert(i, v, float3(-w));
-		}
-		L.insert(i,i,float3(1.0f+(float)w* vertTable[i].size()));
-		float3 norm = mesh.vertexNormals[i];
-		mesh.vertexLocations[i] +=5.0f*norm*(((rand() % 1024) / 1024.0f)-0.5f);
-		b[i] = mesh.vertexLocations[i];
-	}
-	*/
-	
-	SparseMatrix<float, 1> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
+	 SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
+	 for (size_t i = 0;i < L.rows;i++) {
+	 for(uint32_t v:vertTable[i]){
+	 L.insert(i, v, float3(-w));
+	 }
+	 L.insert(i,i,float3(1.0f+(float)w* vertTable[i].size()));
+	 float3 norm = mesh.vertexNormals[i];
+	 mesh.vertexLocations[i] +=5.0f*norm*(((rand() % 1024) / 1024.0f)-0.5f);
+	 b[i] = mesh.vertexLocations[i];
+	 }
+	 */
+
+	SparseMatrix<float, 1> L(mesh.vertexLocations.size(),
+			mesh.vertexLocations.size());
 	Vector3f b(L.rows);
-	for (size_t i = 0;i < L.rows;i++) {
+	for (size_t i = 0; i < L.rows; i++) {
 		for (uint32_t v : vertTable[i]) {
 			L.insert(i, v, float1(-w));
 		}
-		L.insert(i, i, float1(1.0f + (float)w* vertTable[i].size()));
+		L.insert(i, i, float1(1.0f + (float) w * vertTable[i].size()));
 		float3 norm = mesh.vertexNormals[i];
-		mesh.vertexLocations[i] += 5.0f*norm*(((rand() % 1024) / 1024.0f) - 0.5f);
+		mesh.vertexLocations[i] += 5.0f * norm
+				* (((rand() % 1024) / 1024.0f) - 0.5f);
 		b[i] = mesh.vertexLocations[i];
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
-	SolveCG(b,L,mesh.vertexLocations);
+	SolveCG(b, L, mesh.vertexLocations);
 	mesh.updateVertexNormals();
 	//WriteMeshToFile("smoothed_after.ply", mesh);
-	
+
 	mesh2.load(getFullPath("models/armadillo.ply"));
-	
+
 	mesh2.updateVertexNormals();
-	
-	float4x4 M=MakeTransform(mesh2.getBoundingBox(), mesh.getBoundingBox());
+
+	float4x4 M = MakeTransform(mesh2.getBoundingBox(), mesh.getBoundingBox());
 	mesh2.transform(M);
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
@@ -91,11 +93,11 @@ bool MeshViewer::init(Composite& rootNode) {
 	phongShader[0].moveWithCamera = false;
 
 	phongShader2[0] = SimpleLight(Color(0.5f, 0.5f, 0.5f, 0.25f),
-		Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.0f, 0.0f, 0.8f, 1.0f),
-		Color(0.0f, 0.0f, 0.8f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
-		float3(0, 1, 0));
+			Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.0f, 0.0f, 0.8f, 1.0f),
+			Color(0.0f, 0.0f, 0.8f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
+			float3(0, 1, 0));
 	phongShader2[0].moveWithCamera = false;
-	
+
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 	edgeFrameBuffer.initialize(480, 480);
 	smoothDepthFrameBuffer1.initialize(480, 480);
@@ -122,8 +124,9 @@ void MeshViewer::draw(AlloyContext* context) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
-		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);
-		particleDepthShader.draw(mesh, camera, particleFrameBuffer,0.75f);
+		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2,
+				false);
+		particleDepthShader.draw(mesh, camera, particleFrameBuffer, 0.75f);
 
 		if (once) {
 			faceShader.draw(mesh, camera, faceIdMap);
@@ -132,7 +135,7 @@ void MeshViewer::draw(AlloyContext* context) {
 			faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;
 		}
-		
+
 	}
 	glDisable(GL_DEPTH_TEST);
 	float2 dRange = camera.computeNormalizedDepthRange(mesh);
@@ -146,40 +149,41 @@ void MeshViewer::draw(AlloyContext* context) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
 	glEnable(GL_DEPTH_TEST);
-	
-	wireframeShader.draw(edgeFrameBuffer.getTexture(), smoothDepthFrameBuffer1.getTexture(),
-		float2(0.0f, camera.getScale()),
-		float2(960.0f, 480.0f), float2(480, 480),
-		getContext()->getViewport());
-	phongShader.draw(smoothDepthFrameBuffer2.getTexture(),
-		camera, float2(960.0f, 480.0f), float2(480, 480),
-		getContext()->getViewport());
-	
-	matcapShader.draw(
-		smoothDepthFrameBuffer1.getTexture(),
-		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
-	matcapShader.draw(
-		particleFrameBuffer.getTexture(),
-		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
-	
+
+	wireframeShader.draw(edgeFrameBuffer.getTexture(),
+			smoothDepthFrameBuffer1.getTexture(),
+			float2(0.0f, camera.getScale()), float2(960.0f, 480.0f),
+			float2(480, 480), getContext()->getViewport());
+	phongShader.draw(smoothDepthFrameBuffer2.getTexture(), camera,
+			float2(960.0f, 480.0f), float2(480, 480),
+			getContext()->getViewport());
+
+	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
+			float2(960.0f, 480.0f), float2(480, 480),
+			getContext()->getViewport());
+	matcapShader.draw(particleFrameBuffer.getTexture(), camera,
+			float2(960.0f, 480.0f), float2(480, 480),
+			getContext()->getViewport());
+
 	glDisable(GL_DEPTH_TEST);
-	if(once){
-	colorBuffer1.getTexture().read().writeToXML("color1.xml");
-	colorBuffer2.getTexture().read().writeToXML("color2.xml");
-	smoothDepthFrameBuffer1.getTexture().read().writeToXML("depth1.xml");
-	smoothDepthFrameBuffer2.getTexture().read().writeToXML("depth2.xml");
-	once=false;
+	if (once) {
+		colorBuffer1.getTexture().read().writeToXML("color1.xml");
+		colorBuffer2.getTexture().read().writeToXML("color2.xml");
+		smoothDepthFrameBuffer1.getTexture().read().writeToXML("depth1.xml");
+		smoothDepthFrameBuffer2.getTexture().read().writeToXML("depth2.xml");
+		once = false;
 	}
-	
 
 	if (camera.isDirty()) {
 		outlineFrameBuffer.begin();
-		DistanceFieldShader.draw(flatDepthFrameBuffer.getTexture(), float2(0.0f, 0.0f),
-				float2(480, 480), outlineFrameBuffer.getViewport());
+		DistanceFieldShader.draw(flatDepthFrameBuffer.getTexture(),
+				float2(0.0f, 0.0f), float2(480, 480),
+				outlineFrameBuffer.getViewport());
 		outlineFrameBuffer.end();
 
 		wireframeFrameBuffer.begin();
-		wireframeShader.draw(edgeFrameBuffer.getTexture(),smoothDepthFrameBuffer1.getTexture(),
+		wireframeShader.draw(edgeFrameBuffer.getTexture(),
+				smoothDepthFrameBuffer1.getTexture(),
 				float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
 				float2(480, 480), wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
@@ -197,9 +201,8 @@ void MeshViewer::draw(AlloyContext* context) {
 	imageShader.draw(occlusionFrameBuffer.getTexture(), float2(1440.0f, 0.0f),
 			float2(480, 480));
 
-	
 	/*
-	static bool once = true;
+	 static bool once = true;
 	 if(once){
 	 wireframeFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/wire.xml");
 	 outlineFrameBuffer.getTexture().read().writeToXML("/home/blake/tmp/outline.xml");

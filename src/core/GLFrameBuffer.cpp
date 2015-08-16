@@ -24,8 +24,8 @@
 namespace aly {
 
 GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
-		GLComponent(context),  mFrameBufferId(0), mDepthBufferId(
-				0),texture(context) {
+		GLComponent(context), mFrameBufferId(0), mDepthBufferId(0), texture(
+				context) {
 
 }
 void GLFrameBuffer::initialize(int w, int h) {
@@ -40,7 +40,8 @@ GLFrameBuffer::~GLFrameBuffer() {
 		glDeleteRenderbuffers(1, &mDepthBufferId);
 	context->end();
 }
-void GLFrameBuffer::begin(const float4& clearColor,bool clearColorBit, bool clearDepthBit) {
+void GLFrameBuffer::begin(const float4& clearColor, bool clearColorBit,
+		bool clearDepthBit) {
 	if (texture.width() * texture.height() == 0)
 		throw std::runtime_error("Framebuffer has not been initialized.");
 	context->begin();
@@ -48,7 +49,7 @@ void GLFrameBuffer::begin(const float4& clearColor,bool clearColorBit, bool clea
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glClearColor(clearColor.x,clearColor.y,clearColor.z,clearColor.w);
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 	GLuint flags = GL_STENCIL_BUFFER_BIT;
 	if (clearColorBit)
 		flags |= GL_COLOR_BUFFER_BIT;

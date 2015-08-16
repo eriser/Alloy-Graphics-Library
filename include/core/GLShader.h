@@ -45,7 +45,8 @@ public:
 		return context;
 	}
 	// Default constructor.
-	GLShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	GLShader(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext());
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
 	void initialize(const std::initializer_list<std::string>& attributes,
@@ -325,9 +326,11 @@ public:
 
 	GLShader& begin();
 	GLShader& draw(const std::initializer_list<const GLComponent*>& comps);
-	GLShader& draw(const std::initializer_list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type);
+	GLShader& draw(const std::initializer_list<const Mesh*>& meshes,
+			const GLMesh::PrimitiveType& type);
 	GLShader& draw(const std::list<const GLComponent*>& comps);
-	GLShader& draw(const std::list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type);
+	GLShader& draw(const std::list<const Mesh*>& meshes,
+			const GLMesh::PrimitiveType& type);
 
 	GLShader& draw(const GLComponent& comps);
 	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type);

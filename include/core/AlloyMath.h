@@ -650,7 +650,7 @@ template<class T, int N> T lengthSqr(const vec<T, N> & v) {
 }
 template<class T, int N> T lengthL1(const vec<T, N> & v) {
 	T sum = 0;
-	for (int n = 0;n < N;n++) {
+	for (int n = 0; n < N; n++) {
 		sum += std::abs(v[n]);
 	}
 	return sum;

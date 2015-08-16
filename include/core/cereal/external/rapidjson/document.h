@@ -558,7 +558,7 @@ public:
 		if ((flags_ & kInt64Flag) != 0)
 			return (double) data_.n.i64; // int64_t -> double (may lose precision)
 		RAPIDJSON_ASSERT((flags_ & kUint64Flag) != 0);
-		return (double) data_.n.u64;// uint64_t -> double (may lose precision)
+		return (double) data_.n.u64; // uint64_t -> double (may lose precision)
 	}
 
 	GenericValue& SetInt(int i) {
@@ -904,7 +904,7 @@ public:
 		GenericReader<Encoding, Allocator> reader;
 		if (reader.template Parse<parseFlags>(stream, *this)) {
 			RAPIDJSON_ASSERT(stack_.GetSize() == sizeof(ValueType)); // Got one and only one root object
-			this->RawAssign(*stack_.template Pop<ValueType>(1));// Add this-> to prevent issue 13.
+			this->RawAssign(*stack_.template Pop<ValueType>(1)); // Add this-> to prevent issue 13.
 			parseError_ = 0;
 			errorOffset_ = 0;
 		} else {
@@ -966,7 +966,7 @@ private:
 	// Prohibit assignment
 	GenericDocument& operator=(const GenericDocument&);
 
-	friend class GenericReader<Encoding, Allocator> ;// for Reader to call the following private handler functions
+	friend class GenericReader<Encoding, Allocator> ; // for Reader to call the following private handler functions
 
 	// Implementation of Handler
 	void Null_() {
@@ -1018,7 +1018,7 @@ private:
 
 	void ClearStack() {
 		if (Allocator::kNeedFree)
-		while (stack_.GetSize() > 0)// Here assumes all elements in stack array are GenericValue (Member is actually 2 GenericValue objects)
+		while (stack_.GetSize() > 0) // Here assumes all elements in stack array are GenericValue (Member is actually 2 GenericValue objects)
 		(stack_.template Pop<ValueType>(1))->~ValueType();
 		else
 		stack_.Clear();

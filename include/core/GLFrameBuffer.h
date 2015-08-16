@@ -40,7 +40,8 @@ public:
 	int height() const {
 		return texture.height();
 	}
-	void begin(const float4& clearColor = float4(0, 0, 0, 0),bool clearColorBit = true, bool clearDepthBit = true);
+	void begin(const float4& clearColor = float4(0, 0, 0, 0),
+			bool clearColorBit = true, bool clearDepthBit = true);
 	void end();
 	int2 getDimensions() const {
 		return int2(texture.width(), texture.height());

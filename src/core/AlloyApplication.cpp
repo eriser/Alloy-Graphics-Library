@@ -83,7 +83,7 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 }
 Application::Application(int w, int h, const std::string& title,
 		bool showDebugIcon) :
-		frameRate(0.0f),rootRegion("Root"), showDebugIcon(showDebugIcon) {
+		frameRate(0.0f), rootRegion("Root"), showDebugIcon(showDebugIcon) {
 
 	if (context.get() == nullptr) {
 		context.reset(new AlloyContext(w, h, title));
@@ -254,10 +254,9 @@ void Application::fireEvent(const InputEvent& event) {
 		context->requestUpdateCursor();
 	}
 	bool consumed = false;
-	if (event.type == InputType::Scroll&&
-		context->mouseOverRegion != nullptr
-		&& context->mouseOverRegion->onScroll) {
-		consumed=context->mouseOverRegion->onScroll(context.get(), event);
+	if (event.type == InputType::Scroll && context->mouseOverRegion != nullptr
+			&& context->mouseOverRegion->onScroll) {
+		consumed = context->mouseOverRegion->onScroll(context.get(), event);
 	} else if (event.type == InputType::MouseButton) {
 		if (event.isDown()) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -385,16 +384,16 @@ void Application::onScroll(double xoffset, double yoffset) {
 	GLFWwindow* window = context->window;
 	e.mods = 0;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-		| glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+			| glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
 		e.mods |= GLFW_MOD_SHIFT;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)
-		| glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL))
+			| glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL))
 		e.mods |= GLFW_MOD_CONTROL;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT)
-		| glfwGetKey(window, GLFW_KEY_RIGHT_ALT))
+			| glfwGetKey(window, GLFW_KEY_RIGHT_ALT))
 		e.mods |= GLFW_MOD_ALT;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SUPER)
-		| glfwGetKey(window, GLFW_KEY_RIGHT_SUPER))
+			| glfwGetKey(window, GLFW_KEY_RIGHT_SUPER))
 		e.mods |= GLFW_MOD_SUPER;
 
 	fireEvent(e);

@@ -9,14 +9,13 @@
 namespace aly {
 const float VirtualCamera::sDeg2rad = ALY_PI / 180.0f;
 VirtualCamera::VirtualCamera() :
-		 Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
-				0, 0, 0), mouseXPos(
-						0), mouseYPos(0) ,fov(60.0f), nearPlane(0.1f), farPlane(10000.0f), eye(
-				float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(
+		Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(0, 0,
+				0), mouseXPos(0), mouseYPos(0), fov(60.0f), nearPlane(0.1f), farPlane(
+				10000.0f), eye(float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(
 				0.2f), strafeSpeed(0.001f), distanceToObject(1.0), mouseDown(
 				false), startTumbling(false), zoomMode(false), changed(true), needsDisplay(
 				true), Projection(float4x4::identity()), View(
-				float4x4::identity()), Model(float4x4::identity()){
+				float4x4::identity()), Model(float4x4::identity()) {
 }
 
 void VirtualCamera::lookAt(const float3& p, float dist) {
@@ -171,7 +170,7 @@ bool VirtualCamera::onEventHandler(AlloyContext* context,
 			handleButtonEvent(event.button, event.action);
 			return true;
 		case InputType::Scroll:
-			handleScrollEvent((int)event.scroll.y);
+			handleScrollEvent((int) event.scroll.y);
 			return true;
 		case InputType::Key:
 			handleKeyEvent(context->window, event.key, event.action);
@@ -179,8 +178,7 @@ bool VirtualCamera::onEventHandler(AlloyContext* context,
 		default:
 			return false;
 		}
-	}
-	else {
+	} else {
 		return false;
 	}
 }
@@ -207,7 +205,8 @@ void VirtualCamera::handleCursorEvent(float x, float y) {
 	mouseYPos = y;
 }
 void VirtualCamera::handleScrollEvent(int pos) {
-	distanceToObject = std::max(1E-3f,(1 - pos * zoomSpeed) * distanceToObject);
+	distanceToObject = std::max(1E-3f,
+			(1 - pos * zoomSpeed) * distanceToObject);
 	changed = true;
 }
 }

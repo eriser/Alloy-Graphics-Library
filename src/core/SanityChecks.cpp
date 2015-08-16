@@ -20,19 +20,19 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 namespace aly {
-	bool SANITY_CHECK_ALGO() {
-		SparseMatrix<float,4> A(128,128);
-		Vector4f b(A.rows);
-		Vector4f x(A.cols);
-		for (int i = 0;i < (int)A.rows;i++) {
-			for (int jj = -2;jj <= 2;jj++) {
-				A.insert(i,i+jj, float4(0.2f));
-			}
-			b[i] = float4((rand() % 1000) / 1000.0f);
+bool SANITY_CHECK_ALGO() {
+	SparseMatrix<float, 4> A(128, 128);
+	Vector4f b(A.rows);
+	Vector4f x(A.cols);
+	for (int i = 0; i < (int) A.rows; i++) {
+		for (int jj = -2; jj <= 2; jj++) {
+			A.insert(i, i + jj, float4(0.2f));
 		}
-		SolveCG(b,A,x);
-		return true;
+		b[i] = float4((rand() % 1000) / 1000.0f);
 	}
+	SolveCG(b, A, x);
+	return true;
+}
 bool SANITY_CHECK_MATH() {
 	try {
 		std::cout << "Sanity Check .." << std::endl;
@@ -101,13 +101,13 @@ bool SANITY_CHECK_CEREAL() {
 	float1 v4(1);
 
 	float4x4 MR1 = MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
-			ALY_PI * 0.333f) * MakeTranslation(float4(89, 43, 21, 1));
+	ALY_PI * 0.333f) * MakeTranslation(float4(89, 43, 21, 1));
 	float3x3 MR2 = SubMatrix(
 			MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
-					ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
+			ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
 	float4x3 MR3 = SubColMatrix(
 			MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
-					ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
+			ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
 
 	Image4f im1(32, 24);
 	std::srand(10832145);
@@ -118,7 +118,7 @@ bool SANITY_CHECK_CEREAL() {
 		}
 	}
 	Vector4f data(16);
-	for (int i = 0; i < (int)data.size(); i++) {
+	for (int i = 0; i < (int) data.size(); i++) {
 		data[i] = float4((float) i, (float) ((i + 32) % 4),
 				(std::rand() % 256) / (256.0f), 1.0f);
 	}
@@ -126,11 +126,11 @@ bool SANITY_CHECK_CEREAL() {
 	Vector4f deserial(16);
 	std::string encodedString = EncodeBase64(data.data);
 	DecodeBase64(encodedString, deserial.data);
-	for (int i = 0; i < (int)data.size(); i++) {
+	for (int i = 0; i < (int) data.size(); i++) {
 		std::cout << i << ") " << data[i] << " " << deserial[i] << std::endl;
 	}
 
-	std::cout << im1.updateHashCode(0,HashMethod::SHA1) << std::endl;
+	std::cout << im1.updateHashCode(0, HashMethod::SHA1) << std::endl;
 	std::cout << im1.updateHashCode(0, HashMethod::SHA224) << std::endl;
 	std::cout << im1.updateHashCode(0, HashMethod::SHA256) << std::endl;
 	std::cout << im1.updateHashCode(0, HashMethod::SHA384) << std::endl;
@@ -220,8 +220,8 @@ bool SANITY_CHECK_LINALG() {
 		Vector4f im3 = -im1;
 		float d1 = dot(im1, im2) + length(im1) + lengthL1(im2) + max(im1)
 				- min(im1);
-		float4 d2 = float4(dotVec(im1, im2)) + float4(lengthVec(im2)) + lengthVecL1(im1)
-				+ maxVec(im1) - minVec(im1);
+		float4 d2 = float4(dotVec(im1, im2)) + float4(lengthVec(im2))
+				+ lengthVecL1(im1) + maxVec(im1) - minVec(im1);
 		Vector4f out = float4(1, 2, 3, 1) + im2;
 		std::cout << "Dots " << d1 << " " << d2 << std::endl;
 
@@ -229,7 +229,7 @@ bool SANITY_CHECK_LINALG() {
 		out /= float4(0.3f);
 		out += float4(1.0f);
 		out = im2 - im1;
-		
+
 		return true;
 	} catch (std::exception& e) {
 		std::cout << e.what() << std::endl;

@@ -165,7 +165,7 @@ public:
 template<typename BaseAllocator = CrtAllocator>
 class MemoryPoolAllocator {
 public:
-	static const bool kNeedFree = false;//!< Tell users that no need to call Free() with this allocator. (concept Allocator)
+	static const bool kNeedFree = false; //!< Tell users that no need to call Free() with this allocator. (concept Allocator)
 
 	//! Constructor with chunkSize.
 	/*! \param chunkSize The size of memory chunk. The default is kDefaultChunkSize.
@@ -304,7 +304,7 @@ private:
 	/*! Chunks are stored as a singly linked list.
 	 */
 	struct ChunkHeader {
-		size_t capacity;//!< Capacity of the chunk in bytes (excluding the header itself).
+		size_t capacity; //!< Capacity of the chunk in bytes (excluding the header itself).
 		size_t size;		//!< Current size of allocated memory in bytes.
 		ChunkHeader *next;	//!< Next chunk in the linked list.
 	};

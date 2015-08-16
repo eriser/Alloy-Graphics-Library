@@ -474,63 +474,59 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 	return files;
 }
 
-std::string GetHomeDirectory()
-{
+std::string GetHomeDirectory() {
 	const char *homedir;
 	if ((homedir = getenv("HOME")) == NULL) {
 		homedir = getpwuid(getuid())->pw_dir;
 	}
 	return RemoveTrailingSlash(std::string(homedir));
 }
-std::string GetDesktopDirectory()
-{
-	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Desktop";
+std::string GetDesktopDirectory() {
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR+ "Desktop";
 }
-std::string GetDocumentsDirectory()
-{
-	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Documents";
+std::string GetDocumentsDirectory() {
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR+ "Documents";
 }
-std::string GetDownloadsDirectory()
-{
+std::string GetDownloadsDirectory() {
 
-	return GetHomeDirectory() + ALY_PATH_SEPARATOR + "Downloads";
+	return GetHomeDirectory() + ALY_PATH_SEPARATOR+ "Downloads";
 }
-std::string GetCurrentWorkingDirectory()
-{
+std::string GetCurrentWorkingDirectory() {
 	char path[4096];
-	memset(path,0,sizeof(path));
-	getcwd(path,4096);
+	memset(path, 0, sizeof(path));
+	getcwd(path, 4096);
 	return std::string(path);
 }
-std::string GetUserNameString(){
-     struct passwd *pw;
-     uid_t uid;
-     uid = geteuid ();
-     pw = getpwuid (uid);
-     if (pw)
-     {
-             return std::string(pw->pw_name);
-         }
-     return std::string("");
+std::string GetUserNameString() {
+	struct passwd *pw;
+	uid_t uid;
+	uid = geteuid();
+	pw = getpwuid(uid);
+	if (pw) {
+		return std::string(pw->pw_name);
+	}
+	return std::string("");
 }
 std::vector<std::string> GetDrives() {
 	std::vector<std::string> drives;
 	drives.push_back(ALY_PATH_SEPARATOR);
-	for(FileDescription fd:GetDirectoryDescriptionListing("/media")){
-		if(fd.fileType==FileType::Directory){
-			for(FileDescription cfd:GetDirectoryDescriptionListing(fd.fileLocation)){
-				if(cfd.fileType==FileType::Directory){
-					drives.push_back(RemoveTrailingSlash(cfd.fileLocation)+ALY_PATH_SEPARATOR);
+	for (FileDescription fd : GetDirectoryDescriptionListing("/media")) {
+		if (fd.fileType == FileType::Directory) {
+			for (FileDescription cfd : GetDirectoryDescriptionListing(
+					fd.fileLocation)) {
+				if (cfd.fileType == FileType::Directory) {
+					drives.push_back(
+							RemoveTrailingSlash(
+									cfd.fileLocation)+ALY_PATH_SEPARATOR);
 				}
 			}
 		}
 	}
 	return drives;
 }
-std::string GetExecutableDirectory()
-{
+std::string GetExecutableDirectory() {
 	char result[4096];
-	memset(result,0,sizeof(result));
+	memset(result, 0, sizeof(result));
 	//Only works on Linux! No mac support!
 	readlink("/proc/self/exe", result, 4096);
 	return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
@@ -741,7 +737,7 @@ std::vector<std::string> GetDrives() {
 	}
 	return drives;
 }
-std::string GetUserNameString(){
+std::string GetUserNameString() {
 	wchar_t USERNAME[4096];
 	DWORD username_len=4096;
 	GetUserNameW(USERNAME, &username_len);

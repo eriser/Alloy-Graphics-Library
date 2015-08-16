@@ -181,8 +181,7 @@ void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 	pixel2 d = (bounds.position - dragOffset);
 	if (!clampToParentBounds) {
 		dragOffset = cursor - delta - d;
-	}
-	else {
+	} else {
 		box2px pbounds = parent->getBounds();
 		dragOffset = bounds.clamp(cursor - delta, pbounds) - d;
 	}
@@ -193,8 +192,7 @@ void Region::addDragOffset(const pixel2& delta) {
 	box2px pbounds = parent->getBounds();
 	if (!clampToParentBounds) {
 		dragOffset = bounds.position + delta - d;
-	}
-	else {
+	} else {
 		dragOffset = bounds.clamp(bounds.position + delta, pbounds) - d;
 	}
 }
@@ -232,8 +230,8 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 	return box;
 }
 void Composite::putLast(const std::shared_ptr<Region>& region) {
-	size_t idx=0;
-	size_t pivot = children.size()-1;
+	size_t idx = 0;
+	size_t pivot = children.size() - 1;
 	std::vector<std::shared_ptr<Region>> newList;
 	for (RegionPtr& child : children) {
 		if (child.get() == region.get()) {
@@ -249,18 +247,17 @@ void Composite::putLast(const std::shared_ptr<Region>& region) {
 }
 void Composite::putFirst(const std::shared_ptr<Region>& region) {
 	size_t idx = 0;
-	size_t pivot =0;
+	size_t pivot = 0;
 	std::vector<std::shared_ptr<Region>> newList;
 	for (RegionPtr& child : children) {
 		if (child.get() == region.get()) {
 			pivot = idx;
-		}
-		else {
+		} else {
 			newList.push_back(child);
 		}
 		idx++;
 	}
-	newList.insert(newList.begin(),children[pivot]);
+	newList.insert(newList.begin(), children[pivot]);
 	children = newList;
 	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
@@ -291,21 +288,17 @@ void Composite::draw(AlloyContext* context) {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (isScrollEnabled()) {
-		pushScissor(nvg,getCursorBounds());
+		pushScissor(nvg, getCursorBounds());
 	}
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
 		if (roundCorners) {
-			nvgRoundedRect(nvg, bounds.position.x ,
-					bounds.position.y ,
-					bounds.dimensions.x,
-					bounds.dimensions.y,
+			nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
+					bounds.dimensions.x, bounds.dimensions.y,
 					context->theme.CORNER_RADIUS);
 		} else {
-			nvgRect(nvg, bounds.position.x ,
-					bounds.position.y,
-					bounds.dimensions.x,
-					bounds.dimensions.y);
+			nvgRect(nvg, bounds.position.x, bounds.position.y,
+					bounds.dimensions.x, bounds.dimensions.y);
 		}
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
@@ -316,7 +309,7 @@ void Composite::draw(AlloyContext* context) {
 			region->draw(context);
 		}
 	}
-	
+
 	if (isScrollEnabled() && verticalScrollTrack.get() != nullptr) {
 
 		if (scrollExtent.y > h) {
@@ -349,16 +342,15 @@ void Composite::draw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		if (roundCorners) {
 			nvgRoundedRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth,
-				context->theme.CORNER_RADIUS);
-		}
-		else {
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth,
+					context->theme.CORNER_RADIUS);
+		} else {
 			nvgRect(nvg, bounds.position.x + lineWidth * 0.5f,
-				bounds.position.y + lineWidth * 0.5f,
-				bounds.dimensions.x - lineWidth,
-				bounds.dimensions.y - lineWidth);
+					bounds.position.y + lineWidth * 0.5f,
+					bounds.dimensions.x - lineWidth,
+					bounds.dimensions.y - lineWidth);
 		}
 		nvgStrokeColor(nvg, *borderColor);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -419,7 +411,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 						this->verticalScrollHandle->setDragOffset(event.cursor,this->verticalScrollHandle->getBoundsDimensions() * 0.5f);
 						context->setDragObject(verticalScrollHandle.get());
 						this->scrollPosition.y = (this->verticalScrollHandle->getBoundsPositionY() - this->verticalScrollTrack->getBoundsPositionY()) /
-							std::max(1.0f, (float)this->verticalScrollTrack->getBoundsDimensionsY() - (float)this->verticalScrollHandle->getBoundsDimensionsY());
+						std::max(1.0f, (float)this->verticalScrollTrack->getBoundsDimensionsY() - (float)this->verticalScrollHandle->getBoundsDimensionsY());
 						context->requestPack();
 						return true;
 					}
@@ -449,7 +441,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				CoordPerPX(0.0f, 1.0f, scrollBarSize, 0.0f));
 		horizontalScrollHandle->parent = horizontalScrollTrack.get();
 		horizontalScrollHandle->setDragEnabled(true);
-		
+
 		horizontalScrollTrack->onMouseDown =
 				[this](AlloyContext* context,const InputEvent& event) {
 					if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
@@ -474,7 +466,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				};
 		Application::addListener(this);
 	}
-	pixel2 offset=cellPadding;
+	pixel2 offset = cellPadding;
 	scrollExtent = pixel2(0, 0);
 	for (std::shared_ptr<Region>& region : children) {
 		if (!region->isVisible()) {
@@ -505,10 +497,12 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
 			this->bounds.dimensions.x = bounds.dimensions.x = std::max(
-					bounds.dimensions.x, offset.x-cellSpacing.x+cellPadding.x);
+					bounds.dimensions.x,
+					offset.x - cellSpacing.x + cellPadding.x);
 		if (orientation == Orientation::Vertical)
 			this->bounds.dimensions.y = bounds.dimensions.y = std::max(
-					bounds.dimensions.y, offset.y-cellSpacing.y+cellPadding.y);
+					bounds.dimensions.y,
+					offset.y - cellSpacing.y + cellPadding.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
 		float nudge =
@@ -581,60 +575,62 @@ void BorderComposite::pack(AlloyContext* context) {
 	}
 }
 void BorderComposite::setNorth(const std::shared_ptr<Region>& region,
-	const AUnit1D& fraction) {
-    if (region->parent != nullptr)
-            throw std::runtime_error(
-                            MakeString() << "Cannot add child node [" << region->name
-                                            << "] to [" << name
-                                            << "] because it already has a parent ["
-                                            << region->parent->name << "].");
-        northRegion = region;
-        northRegion->parent=this;
-        northFraction = fraction;
+		const AUnit1D& fraction) {
+	if (region->parent != nullptr)
+		throw std::runtime_error(
+				MakeString() << "Cannot add child node [" << region->name
+						<< "] to [" << name
+						<< "] because it already has a parent ["
+						<< region->parent->name << "].");
+	northRegion = region;
+	northRegion->parent = this;
+	northFraction = fraction;
 }
 void BorderComposite::setSouth(const std::shared_ptr<Region>& region,
-	const AUnit1D& fraction) {
-    if (region->parent != nullptr)
-            throw std::runtime_error(
-                            MakeString() << "Cannot add child node [" << region->name
-                                            << "] to [" << name
-                                            << "] because it already has a parent ["
-                                            << region->parent->name << "].");
-        southRegion = region;
-        southRegion->parent=this;
-        southFraction = fraction;
+		const AUnit1D& fraction) {
+	if (region->parent != nullptr)
+		throw std::runtime_error(
+				MakeString() << "Cannot add child node [" << region->name
+						<< "] to [" << name
+						<< "] because it already has a parent ["
+						<< region->parent->name << "].");
+	southRegion = region;
+	southRegion->parent = this;
+	southFraction = fraction;
 }
-void BorderComposite::setEast(const std::shared_ptr<Region>& region, const AUnit1D& fraction) {
-    if (region->parent != nullptr)
-            throw std::runtime_error(
-                            MakeString() << "Cannot add child node [" << region->name
-                                            << "] to [" << name
-                                            << "] because it already has a parent ["
-                                            << region->parent->name << "].");
-        eastRegion = region;
-        eastRegion->parent=this;
-        eastFraction = fraction;
+void BorderComposite::setEast(const std::shared_ptr<Region>& region,
+		const AUnit1D& fraction) {
+	if (region->parent != nullptr)
+		throw std::runtime_error(
+				MakeString() << "Cannot add child node [" << region->name
+						<< "] to [" << name
+						<< "] because it already has a parent ["
+						<< region->parent->name << "].");
+	eastRegion = region;
+	eastRegion->parent = this;
+	eastFraction = fraction;
 }
-void BorderComposite::setWest(const std::shared_ptr<Region>& region, const AUnit1D& fraction) {
-    if (region->parent != nullptr)
-            throw std::runtime_error(
-                            MakeString() << "Cannot add child node [" << region->name
-                                            << "] to [" << name
-                                            << "] because it already has a parent ["
-                                            << region->parent->name << "].");
-        westRegion = region;
-        westRegion->parent=this;
-        westFraction = fraction;
+void BorderComposite::setWest(const std::shared_ptr<Region>& region,
+		const AUnit1D& fraction) {
+	if (region->parent != nullptr)
+		throw std::runtime_error(
+				MakeString() << "Cannot add child node [" << region->name
+						<< "] to [" << name
+						<< "] because it already has a parent ["
+						<< region->parent->name << "].");
+	westRegion = region;
+	westRegion->parent = this;
+	westFraction = fraction;
 }
 void BorderComposite::setCenter(const std::shared_ptr<Region>& region) {
-    if (region->parent != nullptr)
-            throw std::runtime_error(
-                            MakeString() << "Cannot add child node [" << region->name
-                                            << "] to [" << name
-                                            << "] because it already has a parent ["
-                                            << region->parent->name << "].");
-        centerRegion = region;
-        centerRegion->parent=this;
+	if (region->parent != nullptr)
+		throw std::runtime_error(
+				MakeString() << "Cannot add child node [" << region->name
+						<< "] to [" << name
+						<< "] because it already has a parent ["
+						<< region->parent->name << "].");
+	centerRegion = region;
+	centerRegion->parent = this;
 }
 void BorderComposite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
@@ -642,7 +638,7 @@ void BorderComposite::draw(AlloyContext* context) {
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (isScrollEnabled()) {
-		pushScissor(nvg,getCursorBounds());
+		pushScissor(nvg, getCursorBounds());
 	}
 	if (backgroundColor->a > 0) {
 		nvgBeginPath(nvg);
@@ -734,40 +730,38 @@ void BorderComposite::drawDebug(AlloyContext* context) {
 }
 
 void BorderComposite::pack(const pixel2& pos, const pixel2& dims,
-	const double2& dpmm, double pixelRatio, bool clamp) {
+		const double2& dpmm, double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
 	box2px bounds = getBounds(false);
-	pixel north = northFraction.toPixels(bounds.dimensions.y, dpmm.y, pixelRatio);
-	pixel south = southFraction.toPixels(bounds.dimensions.y, dpmm.y, pixelRatio);
+	pixel north = northFraction.toPixels(bounds.dimensions.y, dpmm.y,
+			pixelRatio);
+	pixel south = southFraction.toPixels(bounds.dimensions.y, dpmm.y,
+			pixelRatio);
 	pixel west = westFraction.toPixels(bounds.dimensions.x, dpmm.x, pixelRatio);
 	pixel east = eastFraction.toPixels(bounds.dimensions.x, dpmm.x, pixelRatio);
 
 	if (northRegion.get() != nullptr) {
-	northRegion->pack(bounds.position,pixel2(bounds.dimensions.x,north), dpmm,
-		pixelRatio);
-}
-if (southRegion.get() != nullptr) {
-	southRegion->pack(
-		bounds.position
-		+ pixel2(0, bounds.dimensions.y-south),pixel2(bounds.dimensions.x,south), dpmm,
-		pixelRatio);
-}
+		northRegion->pack(bounds.position, pixel2(bounds.dimensions.x, north),
+				dpmm, pixelRatio);
+	}
+	if (southRegion.get() != nullptr) {
+		southRegion->pack(
+				bounds.position + pixel2(0, bounds.dimensions.y - south),
+				pixel2(bounds.dimensions.x, south), dpmm, pixelRatio);
+	}
 	if (westRegion.get() != nullptr)
-		westRegion->pack(
-				bounds.position
-						+ pixel2(0.0f,north),
-			pixel2(west,bounds.dimensions.y-north-south), dpmm,
+		westRegion->pack(bounds.position + pixel2(0.0f, north),
+				pixel2(west, bounds.dimensions.y - north - south), dpmm,
 				pixelRatio);
 	if (eastRegion.get() != nullptr)
 		eastRegion->pack(
-				bounds.position+ pixel2(bounds.dimensions.x-east,north),
-			pixel2(east,bounds.dimensions.y-north-south), dpmm,
+				bounds.position + pixel2(bounds.dimensions.x - east, north),
+				pixel2(east, bounds.dimensions.y - north - south), dpmm,
 				pixelRatio);
 	if (centerRegion.get() != nullptr)
-		centerRegion->pack(
-				bounds.position+ pixel2(west, north),
-			pixel2(bounds.dimensions.x-east-west,bounds.dimensions.y-north-south), dpmm,
-				pixelRatio);
+		centerRegion->pack(bounds.position + pixel2(west, north),
+				pixel2(bounds.dimensions.x - east - west,
+						bounds.dimensions.y - north - south), dpmm, pixelRatio);
 
 	for (std::shared_ptr<Region>& region : children) {
 		if (region.get() == nullptr)
@@ -854,12 +848,12 @@ void ScrollTrack::draw(AlloyContext* context) {
 	}
 }
 Composite::Composite(const std::string& name) :
-		Region(name), cellPadding(0,0),cellSpacing(5,5) {
+		Region(name), cellPadding(0, 0), cellSpacing(5, 5) {
 
 }
 Composite::Composite(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
-		Region(name, pos, dims), cellPadding(0, 0),cellSpacing(5,5) {
+		Region(name, pos, dims), cellPadding(0, 0), cellSpacing(5, 5) {
 }
 bool Composite::onEventHandler(AlloyContext* context, const InputEvent& event) {
 	if (isVisible() && event.type == InputType::Scroll && isScrollEnabled()) {
@@ -1125,7 +1119,7 @@ void TextField::erase() {
 }
 
 void TextField::dragCursorTo(int index) {
-	if (index < 0 || index > (int)value.size())
+	if (index < 0 || index > (int) value.size())
 		throw std::runtime_error(
 				MakeString() << name << ": Cursor position out of range.");
 	cursorStart = index;
@@ -1170,18 +1164,16 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 	if (e.isDown()) {
 		switch (e.key) {
 		case GLFW_KEY_RIGHT:
-			if (cursorStart < (int)value.size()) {
+			if (cursorStart < (int) value.size()) {
 				moveCursorTo(cursorStart + 1, e.isShiftDown());
-			}
-			else {
-				moveCursorTo((int)value.size(), e.isShiftDown());
+			} else {
+				moveCursorTo((int) value.size(), e.isShiftDown());
 			}
 			break;
 		case GLFW_KEY_LEFT:
 			if (cursorStart > 0) {
 				moveCursorTo(cursorStart - 1, e.isShiftDown());
-			} 
-			else {
+			} else {
 				moveCursorTo(0, e.isShiftDown());
 			}
 			break;
@@ -1235,7 +1227,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 		case GLFW_KEY_DELETE:
 			if (cursorEnd != cursorStart)
 				erase();
-			else if (cursorStart < (int)value.size())
+			else if (cursorStart < (int) value.size())
 				value.erase(value.begin() + cursorStart);
 			showDefaultLabel = false;
 			if (onKeyInput)
@@ -1311,15 +1303,15 @@ void TextField::draw(AlloyContext* context) {
 			nvgFillColor(nvg, *backgroundColor);
 			nvgFill(nvg);
 
-		}
-		else {
+		} else {
 			nvgBeginPath(nvg);
-			nvgRoundedRect(nvg, x+1, y+1, w-2, h-2, context->theme.CORNER_RADIUS);
+			nvgRoundedRect(nvg, x + 1, y + 1, w - 2, h - 2,
+					context->theme.CORNER_RADIUS);
 			nvgFillColor(nvg, *backgroundColor);
 			nvgFill(nvg);
 		}
 	}
-	
+
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 
@@ -1351,30 +1343,34 @@ void TextField::draw(AlloyContext* context) {
 	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
 
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	positions.resize(value.size()+1);
+	positions.resize(value.size() + 1);
 	nvgTextGlyphPositions(nvg, 0, textY, value.data(),
-					value.data() + value.size(), positions.data(),
-					(int) positions.size());
+			value.data() + value.size(), positions.data(),
+			(int) positions.size());
 	float fwidth = (w - 3.0f * PADDING - 2.0f * lineWidth);
 	if (cursorStart > 0) {
-		if (positions[cursorStart - 1].maxx - positions[textStart].minx > fwidth) {
-			while (positions[cursorStart - 1].maxx > positions[textStart].minx + fwidth) {
-				if (textStart >= (int)positions.size() - 1)break;
+		if (positions[cursorStart - 1].maxx - positions[textStart].minx
+				> fwidth) {
+			while (positions[cursorStart - 1].maxx
+					> positions[textStart].minx + fwidth) {
+				if (textStart >= (int) positions.size() - 1)
+					break;
 				textStart++;
 			}
 		}
 	}
 	if (!showDefaultLabel) {
-		textOffsetX = textOffsetX-positions[textStart].minx;
+		textOffsetX = textOffsetX - positions[textStart].minx;
 	}
-	float cursorOffset = textOffsetX+(cursorStart ?positions[cursorStart - 1].maxx - 1 :0);
+	float cursorOffset = textOffsetX
+			+ (cursorStart ? positions[cursorStart - 1].maxx - 1 : 0);
 	bool isFocused = context->isFocused(this);
 
-	if (cursorEnd != cursorStart&&isFocused) {
+	if (cursorEnd != cursorStart && isFocused) {
 		int lo = std::min(cursorEnd, cursorStart);
 		int hi = std::max(cursorEnd, cursorStart);
-		float x0 = textOffsetX+(lo ? positions[lo - 1].maxx - 1 :0);
-		float x1 = textOffsetX + (hi ? positions[hi - 1].maxx - 1 :0);
+		float x0 = textOffsetX + (lo ? positions[lo - 1].maxx - 1 : 0);
+		float x1 = textOffsetX + (hi ? positions[hi - 1].maxx - 1 : 0);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, x0, textY + (h - lineh) / 2 + PADDING, x1 - x0,
 				lineh - 2 * PADDING);
@@ -1462,7 +1458,7 @@ void FileField::setValue(const std::string& text) {
 		}
 		segmentedPath = splitPath(value);
 		textStart = 0;
-		moveCursorTo((int)value.size());
+		moveCursorTo((int) value.size());
 	}
 }
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
@@ -1479,8 +1475,8 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			handleCharacterInput(context, e);
 			break;
 		case InputType::Key:
-			if(e.isDown()){
-			if (e.key == GLFW_KEY_TAB) {
+			if (e.isDown()) {
+				if (e.key == GLFW_KEY_TAB) {
 					showCursor = true;
 					std::string root = GetParentDirectory(value);
 					std::vector<std::string> listing = GetDirectoryListing(
@@ -1561,10 +1557,10 @@ void FileField::draw(AlloyContext* context) {
 			nvgFillColor(nvg, *backgroundColor);
 			nvgFill(nvg);
 
-		}
-		else {
+		} else {
 			nvgBeginPath(nvg);
-			nvgRoundedRect(nvg, x + 1, y + 1, w - 2, h - 2, context->theme.CORNER_RADIUS);
+			nvgRoundedRect(nvg, x + 1, y + 1, w - 2, h - 2,
+					context->theme.CORNER_RADIUS);
 			nvgFillColor(nvg, *backgroundColor);
 			nvgFill(nvg);
 		}
@@ -1601,14 +1597,17 @@ void FileField::draw(AlloyContext* context) {
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 	positions.resize(value.size() + 1);
 	nvgTextGlyphPositions(nvg, 0, textY, value.data(),
-		value.data() + value.size(), positions.data(),
-		(int)positions.size());
+			value.data() + value.size(), positions.data(),
+			(int) positions.size());
 
 	float fwidth = (w - 3.0f * PADDING - 2.0f * lineWidth);
 	if (cursorStart > 0) {
-		if (positions[cursorStart - 1].maxx - positions[textStart].minx > fwidth) {
-			while (positions[cursorStart - 1].maxx > positions[textStart].minx + fwidth) {
-				if (textStart >= (int)positions.size() - 1)break;
+		if (positions[cursorStart - 1].maxx - positions[textStart].minx
+				> fwidth) {
+			while (positions[cursorStart - 1].maxx
+					> positions[textStart].minx + fwidth) {
+				if (textStart >= (int) positions.size() - 1)
+					break;
 				textStart++;
 			}
 		}
@@ -1617,18 +1616,18 @@ void FileField::draw(AlloyContext* context) {
 		textOffsetX = textOffsetX - positions[textStart].minx;
 	}
 
-	if (cursorEnd != cursorStart&&isFocused) {
+	if (cursorEnd != cursorStart && isFocused) {
 		int lo = std::min(cursorEnd, cursorStart);
 		int hi = std::max(cursorEnd, cursorStart);
 		float x0 = textOffsetX + (lo ? positions[lo - 1].maxx - 1 : 0);
 		float x1 = textOffsetX + (hi ? positions[hi - 1].maxx - 1 : 0);
 		nvgBeginPath(nvg);
 		nvgRect(nvg, x0, textY + (h - lineh) / 2 + PADDING, x1 - x0,
-			lineh - 2 * PADDING);
+				lineh - 2 * PADDING);
 		nvgFillColor(nvg,
-			isFocused ?
-			context->theme.DARK.toSemiTransparent(0.5f) :
-			context->theme.DARK.toSemiTransparent(0.25f));
+				isFocused ?
+						context->theme.DARK.toSemiTransparent(0.5f) :
+						context->theme.DARK.toSemiTransparent(0.25f));
 		nvgFill(nvg);
 	}
 	if (showDefaultLabel) {
@@ -1656,9 +1655,8 @@ void FileField::draw(AlloyContext* context) {
 
 	if (isFocused && showCursor) {
 		nvgBeginPath(nvg);
-		float xOffset =textOffsetX+
-				(cursorStart ?
-						positions[cursorStart - 1].maxx - 1 : 0);
+		float xOffset = textOffsetX
+				+ (cursorStart ? positions[cursorStart - 1].maxx - 1 : 0);
 		nvgMoveTo(nvg, xOffset, textY + h / 2 - lineh / 2 + PADDING);
 		nvgLineTo(nvg, xOffset, textY + h / 2 + lineh / 2 - PADDING);
 		nvgStrokeWidth(nvg, lineWidth);
@@ -1741,7 +1739,6 @@ void GlyphRegion::draw(AlloyContext* context) {
 	}
 }
 
-
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const Color& bgColor, const Color& fgColor,
@@ -1821,11 +1818,11 @@ std::shared_ptr<Region> MakeRegion(const std::string& name,
 	return region;
 }
 std::shared_ptr<Composite> MakeComposite(const std::string& name,
-	const AUnit2D& position, const AUnit2D& dimensions,
-	const Color& bgColor, const Color& borderColor,
-	const AUnit1D& borderWidth, const Orientation& orientation) {
+		const AUnit2D& position, const AUnit2D& dimensions,
+		const Color& bgColor, const Color& borderColor,
+		const AUnit1D& borderWidth, const Orientation& orientation) {
 	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
-		new Composite(name));
+			new Composite(name));
 	composite->setPosition(position);
 	composite->setDimensions(dimensions);
 	composite->backgroundColor = MakeColor(bgColor);
@@ -1971,7 +1968,7 @@ void SelectionBox::draw(AlloyContext* context) {
 					bounds.position.y - downArrow->height / 2),
 			pixel2(downArrow->width, downArrow->height));
 
-	if (maxDisplayEntries >= 0 && (int)options.size() > maxDisplayEntries) {
+	if (maxDisplayEntries >= 0 && (int) options.size() > maxDisplayEntries) {
 		if (selectionOffset > 0) {
 			nvgBeginPath(nvg);
 			nvgFillColor(nvg, context->theme.DARK);
@@ -1988,7 +1985,7 @@ void SelectionBox::draw(AlloyContext* context) {
 			}
 		}
 
-		if (selectionOffset <(int) options.size() - maxDisplayEntries) {
+		if (selectionOffset < (int) options.size() - maxDisplayEntries) {
 			nvgBeginPath(nvg);
 			nvgFillColor(nvg, context->theme.DARK);
 			nvgCircle(nvg, bounds.position.x + bounds.dimensions.x,
@@ -1999,7 +1996,8 @@ void SelectionBox::draw(AlloyContext* context) {
 					context);
 			if (downArrowBox.contains(
 					AlloyApplicationContext()->cursorPosition)) {
-				if (selectionOffset < (int)options.size() - maxDisplayEntries) {
+				if (selectionOffset
+						< (int) options.size() - maxDisplayEntries) {
 					selectionOffset++;
 				}
 			}
@@ -2009,7 +2007,7 @@ void SelectionBox::draw(AlloyContext* context) {
 }
 SelectionBox::SelectionBox(const std::string& name,
 		const std::vector<std::string>& labels) :
-		Region(name),label(name), options(labels) {
+		Region(name), label(name), options(labels) {
 
 	downArrow = AlloyApplicationContext()->createAwesomeGlyph(0xf0ab,
 			FontStyle::Normal, 14);

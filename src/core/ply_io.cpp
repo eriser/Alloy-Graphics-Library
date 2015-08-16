@@ -440,7 +440,7 @@ void put_element_ply(PlyFile *plyfile, void *elem_ptr) {
 	int list_count;
 	int item_size;
 	int int_val;
-	int i,j,k;
+	int i, j, k;
 	unsigned int uint_val;
 	double double_val;
 	char **other_ptr;
@@ -690,7 +690,8 @@ PlyFile *ply_open_for_reading(const char *filename, int *nelems,
 
 	plyfile = ply_read(fp, nelems, elem_names);
 	/* determine the file type and version */
-	if(plyfile==NULL)	return (NULL);
+	if (plyfile == NULL)
+		return (NULL);
 
 	*file_type = plyfile->file_type;
 	*version = plyfile->version;

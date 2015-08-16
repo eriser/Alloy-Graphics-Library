@@ -42,17 +42,21 @@ class TextIconButton: public Composite {
 private:
 	std::string iconCodeString;
 	IconAlignment iconAlignment;
-	 HorizontalAlignment alignment;
+	HorizontalAlignment alignment;
 public:
 	AColor textColor;
 	AUnit1D fontSize;
 	TextIconButton(const std::string& label, int iconCode,
-			const AUnit2D& position, const AUnit2D& dimensions,const HorizontalAlignment& alignment= HorizontalAlignment::Center, const IconAlignment& iconAlignment = IconAlignment::Left);
+			const AUnit2D& position, const AUnit2D& dimensions,
+			const HorizontalAlignment& alignment = HorizontalAlignment::Center,
+			const IconAlignment& iconAlignment = IconAlignment::Left);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~TextIconButton() {
 	}
 };
-enum class IconType { CIRCLE, SQUARE };
+enum class IconType {
+	CIRCLE, SQUARE
+};
 class IconButton: public Composite {
 private:
 	std::string iconCodeString;
@@ -60,8 +64,8 @@ private:
 public:
 	AColor foregroundColor;
 	AColor iconColor;
-	IconButton(int iconCode, const AUnit2D& position,
-			const AUnit2D& dimensions, IconType iconType=IconType::SQUARE);
+	IconButton(int iconCode, const AUnit2D& position, const AUnit2D& dimensions,
+			IconType iconType = IconType::SQUARE);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~IconButton() {
 	}
@@ -89,7 +93,7 @@ private:
 	TextLabelPtr offLabel;
 	CompositePtr clickRegion;
 	bool toggledOn;
-	bool handleMouseDown(AlloyContext* context,const InputEvent& e);
+	bool handleMouseDown(AlloyContext* context, const InputEvent& e);
 public:
 	inline bool getValue() {
 		return toggledOn;
@@ -159,12 +163,14 @@ public:
 	}
 	Slider(const std::string& name, const Number& min, const Number& max,
 			const Number& val) :
-			Composite(name), minValue(min), maxValue(max), value(val),sliderPosition(0.0) {
+			Composite(name), minValue(min), maxValue(max), value(val), sliderPosition(
+					0.0) {
 		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	Slider(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
 			const Number& min, const Number& max, const Number& val) :
-		Composite(name, pos, dims), minValue(min), maxValue(max), value(val),sliderPosition(0.0) {
+			Composite(name, pos, dims), minValue(min), maxValue(max), value(
+					val), sliderPosition(0.0) {
 		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	double getBlendValue() const;
@@ -195,8 +201,8 @@ public:
 	virtual void setValue(double value) override;
 	bool onMouseDown(AlloyContext* context, Region* region,
 			const InputEvent& event);
-	 bool onMouseDrag(AlloyContext* context, Region* region,
-			const InputEvent& event) ;
+	bool onMouseDrag(AlloyContext* context, Region* region,
+			const InputEvent& event);
 	HorizontalSlider(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
 			const Number& maxValue = Float(1.0f),
@@ -212,9 +218,9 @@ protected:
 public:
 	virtual void setValue(double value) override;
 	bool onMouseDown(AlloyContext* context, Region* region,
-		const InputEvent& event);
+			const InputEvent& event);
 	bool onMouseDrag(AlloyContext* context, Region* region,
-		const InputEvent& event);
+			const InputEvent& event);
 	VerticalSlider(const std::string& label, const AUnit2D& position,
 			const AUnit2D& dimensions, const Number& minValue = Float(0.0f),
 			const Number& maxValue = Float(1.0f),
@@ -353,19 +359,26 @@ public:
 struct FileFilterRule {
 	std::string name;
 	std::vector<std::string> extensions;
-	FileFilterRule(const std::string& name, const std::string& extension):name(name) {
+	FileFilterRule(const std::string& name, const std::string& extension) :
+			name(name) {
 		extensions.push_back(extension);
-	};
-	FileFilterRule(const std::string& name) :name(name) {
-	};
-	FileFilterRule(const std::string& name,std::initializer_list<std::string> extension) :name(name){
+	}
+	;
+	FileFilterRule(const std::string& name) :
+			name(name) {
+	}
+	;
+	FileFilterRule(const std::string& name,
+			std::initializer_list<std::string> extension) :
+			name(name) {
 		for (std::string ext : extension) {
 			extensions.push_back(ext);
 		}
 	}
 	std::string toString();
 	virtual bool accept(const std::string& file);
-	virtual ~FileFilterRule(){}
+	virtual ~FileFilterRule() {
+	}
 };
 class FileDialog: public Composite {
 private:
@@ -398,15 +411,17 @@ private:
 	void updateDirectoryList();
 	bool updateValidity();
 public:
-	void addFileExtensionRule(const std::string& name, const std::string& extension);
-	void addFileExtensionRule(const std::string& name, const std::initializer_list<std::string> & extension);
-	
+	void addFileExtensionRule(const std::string& name,
+			const std::string& extension);
+	void addFileExtensionRule(const std::string& name,
+			const std::initializer_list<std::string> & extension);
+
 	friend class FileEntry;
 	bool valid = false;
 	std::function<void(const std::string&)> onOpen;
 	virtual void draw(AlloyContext* context) override;
-	FileDialog(const std::string& name, const AUnit2D& pos,
-			const AUnit2D& dims,pixel fileEntryHeight=30);
+	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
+			pixel fileEntryHeight = 30);
 	void setEnableMultiSelection(bool enable);
 	void setFileSelectionType(FileType type);
 	bool isMultiSelectionEnabled();
@@ -425,10 +440,12 @@ private:
 public:
 
 	std::function<void(const std::string& file)> onChange;
-	void addFileExtensionRule(const std::string& name, const std::string& extension) {
+	void addFileExtensionRule(const std::string& name,
+			const std::string& extension) {
 		fileDialog->addFileExtensionRule(name, extension);
 	}
-	void addFileExtensionRule(const std::string& name,const std::initializer_list<std::string>& extension) {
+	void addFileExtensionRule(const std::string& name,
+			const std::initializer_list<std::string>& extension) {
 		fileDialog->addFileExtensionRule(name, extension);
 	}
 	void setFileExtensionRule(int index) {
@@ -441,7 +458,7 @@ public:
 		return fileDialog->getValue();
 	}
 	void openFileDialog(AlloyContext* context,
-			const std::string& workingDirectory =GetCurrentWorkingDirectory());
+			const std::string& workingDirectory = GetCurrentWorkingDirectory());
 };
 
 typedef std::shared_ptr<TextButton> ButtonPtr;

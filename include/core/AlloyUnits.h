@@ -235,7 +235,8 @@ public:
 	Integer(int value) :
 			value(value) {
 	}
-	virtual ~Integer(){}
+	virtual ~Integer() {
+	}
 };
 
 struct Float {
@@ -272,7 +273,8 @@ public:
 	Float(float value) :
 			value(value) {
 	}
-	virtual ~Float(){}
+	virtual ~Float() {
+	}
 };
 struct Double {
 private:
@@ -308,7 +310,8 @@ public:
 	Double(double value) :
 			value(value) {
 	}
-	virtual ~Double(){}
+	virtual ~Double() {
+	}
 };
 class AUnit1D {
 public:

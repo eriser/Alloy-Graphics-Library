@@ -26,7 +26,7 @@ ExampleUI::ExampleUI() :
 		Application(1280, 720, "ExampleUI") {
 }
 bool ExampleUI::init(Composite& rootNode) {
-	
+
 	/*
 	 TextLabelPtr label = MakeTextLabel("Hello Blake", CoordPercent(0.1f, 0.1f),
 	 CoordPercent(0.6f, 0.5f), FontType::Normal, UnitPT(16.0f),
@@ -106,7 +106,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 HSliderPtr hslider2 = HSliderPtr(
 	 new HorizontalSlider("Label B", CoordPercent(0.7f, 0.7f),
 	 CoordPX(200.0f, 50.0f), Double(1), Double(12),
-		 Double(7)));
+	 Double(7)));
 
 	 VSliderPtr vslider1 = VSliderPtr(
 	 new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
@@ -179,7 +179,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	 //rootNode.add(colorselect);
 	 //getContext()->toggleDebug();
 	 //std::cout<<rootNode<<std::endl;
-	*/
+	 */
 
 	ExpandBarPtr expandBar = ExpandBarPtr(
 			new ExpandBar("exapander", CoordPercent(0.7f, 0.0f),
@@ -190,14 +190,18 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 
 	CompositePtr scrollRegion = CompositePtr(
-		new aly::Composite("Scroll", CoordPX(0, 0),
-			CoordPerPX(1.0f, 0.0f, 0.0f, 200.0f)));
+			new aly::Composite("Scroll", CoordPX(0, 0),
+					CoordPerPX(1.0f, 0.0f, 0.0f, 200.0f)));
 	scrollRegion->setScrollEnabled(true);
 	scrollRegion->setOrientation(Orientation::Vertical);
-	scrollRegion->add(MakeRegion("Region 1", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f),Color(255,0,0)));
-	scrollRegion->add(MakeRegion("Region 2", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(0, 255, 0)));
+	scrollRegion->add(
+			MakeRegion("Region 1", CoordPX(0, 0),
+					CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(255, 0, 0)));
+	scrollRegion->add(
+			MakeRegion("Region 2", CoordPX(0, 0),
+					CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(0, 255, 0)));
 	expandBar->add(geomRegion, true);
-	
+
 	FileSelector* selector;
 	geomRegion->add(
 			selector = new FileSelector("Mesh", CoordPX(2, 5),
@@ -231,28 +235,25 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPercent(0.7f, 1.0f)));
 	RegionPtr north = MakeRegion("North", CoordPX(0, 0), CoordPercent(1.0, 1.0),
 			Color(255, 0, 0), COLOR_NONE, UnitPX(0));
-	CompositePtr south = MakeComposite("South", CoordPX(0, 0), CoordPercent(1.0, 1.0),
-			Color(0, 255, 0));
-
+	CompositePtr south = MakeComposite("South", CoordPX(0, 0),
+			CoordPercent(1.0, 1.0), Color(0, 255, 0));
 
 	ToggleBoxPtr togglebox1 = ToggleBoxPtr(
-		new ToggleBox("Toggle 1", CoordPX(0.0f, 0.0f),
-			CoordPX(200,40), false));
+			new ToggleBox("Toggle 1", CoordPX(0.0f, 0.0f), CoordPX(200, 40),
+					false));
 	ToggleBoxPtr togglebox2 = ToggleBoxPtr(
-		new ToggleBox("Toggle 2", CoordPX(0.0f, 0.0f),
-			CoordPX(200, 30), false));
+			new ToggleBox("Toggle 2", CoordPX(0.0f, 0.0f), CoordPX(200, 30),
+					false));
 	ToggleBoxPtr togglebox3 = ToggleBoxPtr(
-		new ToggleBox("Toggle 3", CoordPX(0.0f, 0.0f),
-			CoordPX(400, 30), false));
+			new ToggleBox("Toggle 3", CoordPX(0.0f, 0.0f), CoordPX(400, 30),
+					false));
 	CheckBoxPtr checkbox1 = CheckBoxPtr(
-		new CheckBox("CheckBox 3", CoordPX(0.0f, 0.0f),
-			CoordPX(400, 30), false));
-	SelectionPtr dropdown =
-		SelectionPtr(
-			new Selection("Selection", CoordPX(0,0),
-				CoordPX(200, 30), std::vector<std::string> {
-		"Mission", "Bernal Heights", "Noe Valley",
-			"Telegraph Hill", "North Beach"}));
+			new CheckBox("CheckBox 3", CoordPX(0.0f, 0.0f), CoordPX(400, 30),
+					false));
+	SelectionPtr dropdown = SelectionPtr(
+			new Selection("Selection", CoordPX(0, 0), CoordPX(200, 30),
+					std::vector<std::string> { "Mission", "Bernal Heights",
+							"Noe Valley", "Telegraph Hill", "North Beach" }));
 	south->setOrientation(Orientation::Vertical);
 
 	south->add(dropdown);
@@ -267,23 +268,21 @@ bool ExampleUI::init(Composite& rootNode) {
 	CompositePtr center = MakeComposite("Center", CoordPX(0, 0),
 			CoordPercent(1.0, 1.0), Color(0, 255, 255));
 
-
 	HSliderPtr hslider1 = HSliderPtr(
-		new HorizontalSlider("Label A", CoordPerPX(0.1f, 0.3f, 0, 0),
-			CoordPX(200.0f, 40.0f), Integer(1), Integer(12),
-			Integer(7)));
+			new HorizontalSlider("Label A", CoordPerPX(0.1f, 0.3f, 0, 0),
+					CoordPX(200.0f, 40.0f), Integer(1), Integer(12),
+					Integer(7)));
 	HSliderPtr hslider2 = HSliderPtr(
-		new HorizontalSlider("Label B", CoordPercent(0.7f, 0.7f),
-			CoordPX(200.0f, 50.0f), Double(1), Double(12),
-			Double(7)));
+			new HorizontalSlider("Label B", CoordPercent(0.7f, 0.7f),
+					CoordPX(200.0f, 50.0f), Double(1), Double(12), Double(7)));
 
 	VSliderPtr vslider1 = VSliderPtr(
-		new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
-			CoordPX(100.0f, 200.0f), Integer(0), Integer(20),
-			Integer(70)));
+			new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
+					CoordPX(100.0f, 200.0f), Integer(0), Integer(20),
+					Integer(70)));
 	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
-		CoordPX(200.0f, 50.0f), Theme::Default.DARK,
-		Theme::Default.LIGHT_TEXT);
+			CoordPX(200.0f, 50.0f), Theme::Default.DARK,
+			Theme::Default.LIGHT_TEXT);
 
 	center->add(hslider1);
 
@@ -300,7 +299,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	rootNode.backgroundColor = MakeColor(Color(128, 64, 92));
 	rootNode.add(bcomp);
 	rootNode.add(expandBar);
-	
+
 	return true;
 }
 

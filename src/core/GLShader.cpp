@@ -55,25 +55,29 @@ GLShader& GLShader::draw(const std::list<const GLComponent*>& comps) {
 	}
 	return *this;
 }
-GLShader& GLShader::draw(const std::list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type) {
+GLShader& GLShader::draw(const std::list<const Mesh*>& meshes,
+		const GLMesh::PrimitiveType& type) {
 	for (const Mesh* mesh : meshes) {
 		mesh->draw(type);
 	}
 	return *this;
 }
-GLShader& GLShader::draw(const std::initializer_list<const GLComponent*>& comps) {
+GLShader& GLShader::draw(
+		const std::initializer_list<const GLComponent*>& comps) {
 	for (const GLComponent* comp : comps) {
 		comp->draw();
 	}
 	return *this;
 }
-GLShader& GLShader::draw(const std::initializer_list<const Mesh*>& meshes, const GLMesh::PrimitiveType& type) {
+GLShader& GLShader::draw(const std::initializer_list<const Mesh*>& meshes,
+		const GLMesh::PrimitiveType& type) {
 	for (const Mesh* mesh : meshes) {
 		mesh->draw(type);
 	}
 	return *this;
 }
-void GLShader::initialize(const std::initializer_list<std::string>& pAttributeLocations,
+void GLShader::initialize(
+		const std::initializer_list<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {

@@ -110,22 +110,23 @@ RGBf HSVtoRGBf(const HSV& hsv) {
 		return RGBf(v, p, q);
 	}
 }
-float3 RGBtoXYZ(const RGBf& rgb)
-{
+float3 RGBtoXYZ(const RGBf& rgb) {
 	float r, g, b;
-	r = (rgb.x <= 0.04045f)? rgb.x / 12.92f : pow((rgb.x + 0.055f) / 1.055f, 2.4f);
-	g = (rgb.y <= 0.04045f)? rgb.y / 12.92f :pow((rgb.y + 0.055f) / 1.055f, 2.4f);
-	b = (rgb.z <= 0.04045f)?rgb.z / 12.92f:pow((rgb.z + 0.055f) / 1.055f, 2.4f);
+	r = (rgb.x <= 0.04045f) ?
+			rgb.x / 12.92f : pow((rgb.x + 0.055f) / 1.055f, 2.4f);
+	g = (rgb.y <= 0.04045f) ?
+			rgb.y / 12.92f : pow((rgb.y + 0.055f) / 1.055f, 2.4f);
+	b = (rgb.z <= 0.04045f) ?
+			rgb.z / 12.92f : pow((rgb.z + 0.055f) / 1.055f, 2.4f);
 	float3 xyz;
-	xyz.x = r*0.4124564f + g*0.3575761f + b*0.1804375f;
-	xyz.y = r*0.2126729f + g*0.7151522f + b*0.0721750f;
-	xyz.z = r*0.0193339f + g*0.1191920f + b*0.9503041f;
+	xyz.x = r * 0.4124564f + g * 0.3575761f + b * 0.1804375f;
+	xyz.y = r * 0.2126729f + g * 0.7151522f + b * 0.0721750f;
+	xyz.z = r * 0.0193339f + g * 0.1191920f + b * 0.9503041f;
 	return xyz;
 }
 
-float3 RGBtoLAB(const float3& rgb)
-{
-	float3 xyz=RGBtoXYZ(rgb);
+float3 RGBtoLAB(const float3& rgb) {
+	float3 xyz = RGBtoXYZ(rgb);
 	float epsilon = 0.008856f;
 	float kappa = 903.3f;
 	float Xr = 0.950456f;
@@ -137,17 +138,17 @@ float3 RGBtoLAB(const float3& rgb)
 	float zr = xyz.z / Zr;
 
 	float fx, fy, fz;
-	fx = (xr > epsilon)?pow(xr, 1.0f / 3.0f):(kappa*xr + 16.0f) / 116.0f;
-	fy = (yr > epsilon)?pow(yr, 1.0f / 3.0f):(kappa*yr + 16.0f) / 116.0f;
-	fz = (zr > epsilon)?pow(zr, 1.0f / 3.0f):(kappa*zr + 16.0f) / 116.0f;
+	fx = (xr > epsilon) ? pow(xr, 1.0f / 3.0f) : (kappa * xr + 16.0f) / 116.0f;
+	fy = (yr > epsilon) ? pow(yr, 1.0f / 3.0f) : (kappa * yr + 16.0f) / 116.0f;
+	fz = (zr > epsilon) ? pow(zr, 1.0f / 3.0f) : (kappa * zr + 16.0f) / 116.0f;
 	float3 lab;
-	lab.x = (116.0f*fy - 16.0f);
-	lab.y = (500.0f*(fx - fy));
-	lab.z = (200.0f*(fy - fz));
+	lab.x = (116.0f * fy - 16.0f);
+	lab.y = (500.0f * (fx - fy));
+	lab.z = (200.0f * (fy - fz));
 	return lab;
 }
 float4 RGBAtoXYZA(const RGBAf& rgb) {
-	return float4(RGBtoXYZ(rgb.xyz()),rgb.w);
+	return float4(RGBtoXYZ(rgb.xyz()), rgb.w);
 }
 float4 RGBAtoLABA(const float4& rgb) {
 	return float4(RGBtoLAB(rgb.xyz()), rgb.w);

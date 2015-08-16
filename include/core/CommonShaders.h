@@ -30,83 +30,123 @@
 #include <initializer_list>
 namespace aly {
 class VirtualCamera;
-class DepthAndNormalShader : public GLShader {
+class DepthAndNormalShader: public GLShader {
 public:
 	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& context =
-		AlloyDefaultContext());
-	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false);
-	void draw(const std::initializer_list<std::pair<const Mesh*,float4x4>>& meshes, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false);
+			AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
+	void draw(
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
 	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false);
-	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false);
+			GLFrameBuffer& framebuffer, bool flatShading = false);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
 
 	void draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false) {
-		draw({ &mesh }, camera, framebuffer, flatShading);
+			GLFrameBuffer& framebuffer, bool flatShading = false) {
+		draw( { &mesh }, camera, framebuffer, flatShading);
 	}
 
 };
-class ParticleFaceIdShader : public GLShader {
+class ParticleFaceIdShader: public GLShader {
 private:
 	GLFrameBuffer framebuffer;
 public:
-	GLFrameBuffer& getFrameBuffer() { return framebuffer; }
+	GLFrameBuffer& getFrameBuffer() {
+		return framebuffer;
+	}
 	ParticleFaceIdShader(const std::shared_ptr<AlloyContext>& context =
-		AlloyDefaultContext());
+			AlloyDefaultContext());
 	void initialize(int w, int h);
-	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
-	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
-	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
-	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
-	void draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
-		draw({ &mesh }, camera, faceIdMap,faceIdOffset, objectIdOffset, radius);
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			int objectIdOffset = 0, float radius = 1.0f);
+	void draw(
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			int objectIdOffset = 0, float radius = 1.0f);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			int objectIdOffset = 0, float radius = 1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap,
+			int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
+		draw( { &mesh }, camera, faceIdMap, faceIdOffset, objectIdOffset,
+				radius);
 	}
 };
-class ParticleDepthShader : public GLShader {
+class ParticleDepthShader: public GLShader {
 public:
 	ParticleDepthShader(const std::shared_ptr<AlloyContext>& context =
-		AlloyDefaultContext());
-	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer,float radius=1.0f);
-	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f);
-	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f);
-	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f);
-	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f) {
-		draw({ &mesh }, camera, framebuffer,radius);
+			AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius =
+					1.0f);
+	void draw(
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius =
+					1.0f);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+			GLFrameBuffer& framebuffer, float radius = 1.0f);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius =
+					1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+			GLFrameBuffer& framebuffer, float radius = 1.0f) {
+		draw( { &mesh }, camera, framebuffer, radius);
 	}
 };
-class DepthAndTextureShader : public GLShader {
+class DepthAndTextureShader: public GLShader {
 public:
 	DepthAndTextureShader(const std::shared_ptr<AlloyContext>& context =
-		AlloyDefaultContext());
-	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false);
-	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false);
+			AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
+	void draw(
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
 
 	void draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer, bool flatShading = false) {
-		draw({ &mesh }, camera, framebuffer, flatShading);
+			GLFrameBuffer& framebuffer, bool flatShading = false) {
+		draw( { &mesh }, camera, framebuffer, flatShading);
 	}
 
 };
-class FaceIdShader :public GLShader {
+class FaceIdShader: public GLShader {
 private:
 	GLFrameBuffer framebuffer;
 public:
-	GLFrameBuffer& getFrameBuffer() { return framebuffer; }
+	GLFrameBuffer& getFrameBuffer() {
+		return framebuffer;
+	}
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
-		AlloyDefaultContext());
+			AlloyDefaultContext());
 	void initialize(int w, int h);
-	int draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,Image2i& faceIdMap,int faceIdOffset=0,int objectIdOffset=0);
-	int draw(const std::initializer_list<std::pair<const Mesh*,float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
-	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
-	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+	int draw(const std::initializer_list<const Mesh*>& meshes,
+			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			int objectIdOffset = 0);
+	int draw(
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			int objectIdOffset = 0);
+	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			int objectIdOffset = 0);
 
-	int draw(const Mesh& mesh, VirtualCamera& camera,Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0) {
-		return draw({ &mesh }, camera, faceIdMap,faceIdOffset,objectIdOffset);
+	int draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap,
+			int faceIdOffset = 0, int objectIdOffset = 0) {
+		return draw( { &mesh }, camera, faceIdMap, faceIdOffset, objectIdOffset);
 	}
 };
 
@@ -115,75 +155,56 @@ private:
 	GLTextureRGBA matcapTexture;
 public:
 	MatcapShader(const std::string& textureImage,
-			const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+			const std::shared_ptr<AlloyContext>& context =
+					AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		VirtualCamera& camera,
-		const box2px& bounds,
-		const box2px& viewport) {
-		begin()
-			.set("matcapTexture", matcapTexture, 0)
-			.set("textureImage", imageTexture, 1)
-			.set("bounds", bounds)
-			.set("viewport", viewport)
-			.draw(imageTexture).end();
+			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
+			const box2px& bounds, const box2px& viewport) {
+		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
+				imageTexture, 1).set("bounds", bounds).set("viewport", viewport).draw(
+				imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		VirtualCamera& camera,
-		const float2& location,
-		const float2& dimensions,
-		const box2px& viewport) {
-		begin()
-			.set("matcapTexture", matcapTexture, 0)
-			.set("textureImage", imageTexture, 1)
-			.set("bounds", box2px(location,dimensions))
-			.set("viewport", viewport).draw(imageTexture).end();
+			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
+			const float2& location, const float2& dimensions,
+			const box2px& viewport) {
+		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
+				imageTexture, 1).set("bounds", box2px(location, dimensions)).set(
+				"viewport", viewport).draw(imageTexture).end();
 
 	}
 };
-class CompositeShader : public GLShader {
+class CompositeShader: public GLShader {
 public:
-	CompositeShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	CompositeShader(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& sourceImageTexture,
-		const GLTexture<T, C, I>& sourceDepthTexture, 
-		const GLTexture<T, C, I>& targetImageTexture,
-		const GLTexture<T, C, I>& targetDepthTexture,
-		const box2px& bounds,
-		float sourceAlpha=1.0f,
-		float targetAlpha = 1.0f) {
-		begin()
-		.set("sourceImage", sourceImageTexture, 0)
-		.set("sourceDepth", sourceDepthTexture, 1)
-		.set("targetImage", targetImageTexture, 2)
-		.set("targetDepth", targetDepthTexture, 3)
-		.set("bounds", bounds)
-		.set("sourceAlpha", sourceAlpha)
-		.set("targetAlpha", targetAlpha)
-		.set("viewport", context->getViewport())
+			const GLTexture<T, C, I>& sourceImageTexture,
+			const GLTexture<T, C, I>& sourceDepthTexture,
+			const GLTexture<T, C, I>& targetImageTexture,
+			const GLTexture<T, C, I>& targetDepthTexture, const box2px& bounds,
+			float sourceAlpha = 1.0f, float targetAlpha = 1.0f) {
+		begin().set("sourceImage", sourceImageTexture, 0).set("sourceDepth",
+				sourceDepthTexture, 1).set("targetImage", targetImageTexture, 2).set(
+				"targetDepth", targetDepthTexture, 3).set("bounds", bounds).set(
+				"sourceAlpha", sourceAlpha).set("targetAlpha", targetAlpha).set(
+				"viewport", context->getViewport())
 
 		.draw(targetImageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& sourceImageTexture,
-		const GLTexture<T, C, I>& sourceDepthTexture,
-		const GLTexture<T, C, I>& targetImageTexture,
-		const GLTexture<T, C, I>& targetDepthTexture,
-		const float2& location,
-		const float2& dimensions,
-		float sourceAlpha = 1.0f,
-		float targetAlpha = 1.0f) {
-		begin()
-			.set("sourceImage", sourceImageTexture, 0)
-			.set("sourceDepth", sourceDepthTexture, 1)
-			.set("targetImage", targetImageTexture, 2)
-			.set("targetDepth", targetDepthTexture, 3)
-			.set("bounds", box2px(location, dimensions))
-			.set("sourceAlpha", sourceAlpha)
-			.set("targetAlpha", targetAlpha)
-			.set("viewport", context->getViewport())
-			.draw(targetImageTexture).end();
+			const GLTexture<T, C, I>& sourceImageTexture,
+			const GLTexture<T, C, I>& sourceDepthTexture,
+			const GLTexture<T, C, I>& targetImageTexture,
+			const GLTexture<T, C, I>& targetDepthTexture,
+			const float2& location, const float2& dimensions,
+			float sourceAlpha = 1.0f, float targetAlpha = 1.0f) {
+		begin().set("sourceImage", sourceImageTexture, 0).set("sourceDepth",
+				sourceDepthTexture, 1).set("targetImage", targetImageTexture, 2).set(
+				"targetDepth", targetDepthTexture, 3).set("bounds",
+				box2px(location, dimensions)).set("sourceAlpha", sourceAlpha).set(
+				"targetAlpha", targetAlpha).set("viewport",
+				context->getViewport()).draw(targetImageTexture).end();
 	}
 };
 class ImageShader: public GLShader {
@@ -191,14 +212,14 @@ public:
 	enum class Filter {
 		NONE, FXAA, SMALL_BLUR, MEDIUM_BLUR, LARGE_BLUR
 	};
-	ImageShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext(),
-			const Filter& filter = Filter::NONE);
+	ImageShader(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext(), const Filter& filter = Filter::NONE);
 	template<class T, int C, ImageType I> void draw(
-			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,float alpha=1.0f,
-			bool flip = false) {
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
+			float alpha = 1.0f, bool flip = false) {
 		begin().set("flip", flip ? 1 : 0).set("textureImage", imageTexture, 0).set(
-				"bounds", bounds).set("alpha",alpha).set("viewport", context->getViewport()).draw(
-				imageTexture).end();
+				"bounds", bounds).set("alpha", alpha).set("viewport",
+				context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const float2& location,
@@ -214,68 +235,65 @@ public:
 	EdgeEffectsShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		const box2px& bounds) {
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
 		begin().set("KERNEL_SIZE", 4).set("textureImage", imageTexture, 0).set(
-			"bounds", bounds).set("imageSize", imageTexture.bounds.dimensions).set(
-				"viewport", context->getViewport()).draw(imageTexture).end();
+				"bounds", bounds).set("imageSize",
+				imageTexture.bounds.dimensions).set("viewport",
+				context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		const float2& location, const float2& dimensions) {
+			const GLTexture<T, C, I>& imageTexture, const float2& location,
+			const float2& dimensions) {
 		draw(imageTexture, box2px(location, dimensions));
 	}
 };
 
 class NormalColorShader: public GLShader {
 public:
-	NormalColorShader(const std::shared_ptr<AlloyContext>&  context =
+	NormalColorShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, 
-		const box2px& bounds) {
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
 		begin().set("textureImage", imageTexture, 0).set("bounds", bounds).set(
-			"viewport", context->getViewport()).draw(imageTexture).end();
+				"viewport", context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		const float2& location, const float2& dimensions) {
+			const GLTexture<T, C, I>& imageTexture, const float2& location,
+			const float2& dimensions) {
 		draw(imageTexture, box2px(location, dimensions));
 	}
 };
 
 class DepthColorShader: public GLShader {
 public:
-	DepthColorShader(const std::shared_ptr<AlloyContext>&  context =
+	DepthColorShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, float2 zRange,
-		const box2px& bounds) {
+			const GLTexture<T, C, I>& imageTexture, float2 zRange,
+			const box2px& bounds) {
 		begin().set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
-			"zMax", zRange.y).set("bounds", bounds).set("viewport",
+				"zMax", zRange.y).set("bounds", bounds).set("viewport",
 				context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, float2 zRange,
-		const float2& location, const float2& dimensions) {
+			const GLTexture<T, C, I>& imageTexture, float2 zRange,
+			const float2& location, const float2& dimensions) {
 		draw(imageTexture, zRange, box2px(location, dimensions));
 	}
 };
 
-
-
 class EdgeDepthAndNormalShader: public GLShader {
 public:
-	EdgeDepthAndNormalShader(
-		const std::shared_ptr<AlloyContext>& contex =
+	EdgeDepthAndNormalShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
-			GLFrameBuffer& framebuffer);
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer);
 	void draw(const Mesh& mesh, VirtualCamera& camera,
-		GLFrameBuffer& framebuffer) {
-		draw({ &mesh }, camera, framebuffer);
-	};
+			GLFrameBuffer& framebuffer) {
+		draw( { &mesh }, camera, framebuffer);
+	}
+	;
 
 };
 struct SimpleLight {
@@ -333,23 +351,22 @@ public:
 	inline int size() const {
 		return (int) lights.size();
 	}
-	PhongShader(int numLights,
-		const std::shared_ptr<AlloyContext>& contex =
+	PhongShader(int numLights, const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	PhongShader(const SimpleLight& light,
-			const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
+			const std::shared_ptr<AlloyContext>& context =
+					AlloyDefaultContext()) :
 			PhongShader(1, context) {
 		lights[0] = light;
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture, 
-		VirtualCamera& camera, const box2px& bounds,
-		const box2px& viewport) {
+			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
+			const box2px& bounds, const box2px& viewport) {
 		begin();
-		set("textureImage", imageTexture, 0).set("MIN_DEPTH", camera.getNearPlane()).set(
-			"MAX_DEPTH", camera.getFarPlane()).set("focalLength",
-				camera.getFocalLength()).set("bounds", bounds).set("viewport",
-					context->getViewport());
+		set("textureImage", imageTexture, 0).set("MIN_DEPTH",
+				camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
+				"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
+				"viewport", context->getViewport());
 
 		std::vector<Color> ambientColors;
 		std::vector<Color> diffuseColors;
@@ -370,26 +387,24 @@ public:
 				float3 pt = (camera.View * light.position.xyzw()).xyz();
 				lightPositions.push_back(pt);
 				float3 norm = normalize(
-					(camera.NormalView * float4(light.direction, 0)).xyz());
+						(camera.NormalView * float4(light.direction, 0)).xyz());
 				lightDirections.push_back(norm);
-			}
-			else {
+			} else {
 				lightPositions.push_back(light.position);
 				lightDirections.push_back(light.direction);
 			}
 		}
 		set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
-			"lambertianColors", lambertianColors).set("specularColors",
+				"lambertianColors", lambertianColors).set("specularColors",
 				specularColors).set("specularWeights", specularWeights).set(
-					"lightPositions", lightPositions).set("lightDirections",
-						lightDirections).draw(imageTexture).end();
+				"lightPositions", lightPositions).set("lightDirections",
+				lightDirections).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		VirtualCamera& camera,
-		const float2& location, const float2& dimensions,
-		const box2px& viewport) {
-		draw(imageTexture, camera,  box2px(location, dimensions), viewport);
+			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
+			const float2& location, const float2& dimensions,
+			const box2px& viewport) {
+		draw(imageTexture, camera, box2px(location, dimensions), viewport);
 
 	}
 
@@ -414,18 +429,23 @@ public:
 	WireframeShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& edgeTexture, const GLTexture<T, C, I>& depthTexture, float2 zRange,
-		const box2px& bounds, const box2px& viewport) {
-		begin().set("textureImage",edgeTexture, 0).set("depthImage", depthTexture, 1).set("LINE_WIDTH", lineWidth).set(
-			"edgeColor", edgeColor).set("faceColor", faceColor).set("scaleInvariant",(scaleInvariant)?1:0).set("zMin",
-				zRange.x), set("zMax", zRange.y).set("bounds", bounds).set(
-					"viewport", viewport).draw(edgeTexture).end();
+			const GLTexture<T, C, I>& edgeTexture,
+			const GLTexture<T, C, I>& depthTexture, float2 zRange,
+			const box2px& bounds, const box2px& viewport) {
+		begin().set("textureImage", edgeTexture, 0).set("depthImage",
+				depthTexture, 1).set("LINE_WIDTH", lineWidth).set("edgeColor",
+				edgeColor).set("faceColor", faceColor).set("scaleInvariant",
+				(scaleInvariant) ? 1 : 0).set("zMin", zRange.x), set("zMax",
+				zRange.y).set("bounds", bounds).set("viewport", viewport).draw(
+				edgeTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& edgeTexture, const GLTexture<T, C, I>& depthTexture, float2 zRange,
-		const float2& location, const float2& dimensions,
-		const box2px& viewport) {
-		draw(edgeTexture,depthTexture, zRange, box2px(location, dimensions), viewport);
+			const GLTexture<T, C, I>& edgeTexture,
+			const GLTexture<T, C, I>& depthTexture, float2 zRange,
+			const float2& location, const float2& dimensions,
+			const box2px& viewport) {
+		draw(edgeTexture, depthTexture, zRange, box2px(location, dimensions),
+				viewport);
 	}
 };
 class AmbientOcclusionShader: public GLShader {
@@ -433,29 +453,28 @@ private:
 	float sampleRadius;
 	std::vector<float3> sampleNormals;
 public:
-	AmbientOcclusionShader(
-		const std::shared_ptr<AlloyContext>& contex =
+	AmbientOcclusionShader(const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-		template<class T, int C, ImageType I> void draw(
-				const GLTexture<T, C, I>& imageTexture,
-		const box2px& bounds, const box2px viewport, VirtualCamera& camera) {
+	template<class T, int C, ImageType I> void draw(
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
+			const box2px viewport, VirtualCamera& camera) {
 
 		begin().set("textureImage", imageTexture, 0).set("MIN_DEPTH",
-			camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
+				camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
 				"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
-					"viewport", viewport).set("u_radius", sampleRadius).set("u_kernel",
-						sampleNormals).draw(imageTexture).end();
+				"viewport", viewport).set("u_radius", sampleRadius).set(
+				"u_kernel", sampleNormals).draw(imageTexture).end();
 	}
-		template<class T, int C, ImageType I> void draw(
-				const GLTexture<T, C, I>& imageTexture,
-		const float2& location, const float2& dimensions, const box2px viewport,
-		VirtualCamera& camera) {
+	template<class T, int C, ImageType I> void draw(
+			const GLTexture<T, C, I>& imageTexture, const float2& location,
+			const float2& dimensions, const box2px viewport,
+			VirtualCamera& camera) {
 		draw(imageTexture, box2px(location, dimensions), viewport, camera);
 	}
 };
 class DistanceFieldShader: public GLShader {
 private:
-	int kernelSize ;
+	int kernelSize;
 	aly::Color innerGlowColor;
 	aly::Color outerGlowColor;
 	aly::Color edgeColor;
@@ -472,22 +491,21 @@ public:
 	inline void setExtent(int distance) {
 		kernelSize = distance;
 	}
-	DistanceFieldShader(
-		const std::shared_ptr<AlloyContext>& contex = AlloyDefaultContext());
+	DistanceFieldShader(const std::shared_ptr<AlloyContext>& contex =
+			AlloyDefaultContext());
 
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		const box2px& bounds, const box2px& viewport) {
+			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
+			const box2px& viewport) {
 		begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
-			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
+				"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
 				"textureImage", imageTexture, 0).set("bounds", bounds).set(
-					"imageSize", imageTexture.bounds.dimensions).set("viewport",
-						viewport).draw(imageTexture).end();
+				"imageSize", imageTexture.bounds.dimensions).set("viewport",
+				viewport).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
-		const GLTexture<T, C, I>& imageTexture,
-		const float2& location, const float2& dimensions,
-		const box2px& viewport) {
+			const GLTexture<T, C, I>& imageTexture, const float2& location,
+			const float2& dimensions, const box2px& viewport) {
 		draw(imageTexture, box2px(location, dimensions), viewport);
 	}
 };

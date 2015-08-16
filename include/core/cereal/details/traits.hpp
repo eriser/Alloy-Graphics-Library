@@ -243,32 +243,28 @@ CEREAL_MAKE_HAS_MEMBER_TEST(serialize, serialize,);
 // ######################################################################
 // Member Serialize (versioned)
 CEREAL_MAKE_HAS_MEMBER_TEST(serialize, versioned_serialize, CEREAL_MAKE_VERSIONED_TEST)
-;
-// ######################################################################
+;// ######################################################################
 // Non Member Serialize
 CEREAL_MAKE_HAS_NON_MEMBER_TEST(serialize, CEREAL_SERIALIZE_FUNCTION_NAME,);
 
 // ######################################################################
 // Non Member Serialize (versioned)
 CEREAL_MAKE_HAS_NON_MEMBER_TEST(versioned_serialize, CEREAL_SERIALIZE_FUNCTION_NAME, CEREAL_MAKE_VERSIONED_TEST)
-;
-// ######################################################################
+;// ######################################################################
 // Member Load
 CEREAL_MAKE_HAS_MEMBER_TEST(load, load,);
 
 // ######################################################################
 // Member Load (versioned)
 CEREAL_MAKE_HAS_MEMBER_TEST(load, versioned_load, CEREAL_MAKE_VERSIONED_TEST)
-;
-// ######################################################################
+;// ######################################################################
 // Non Member Load
 CEREAL_MAKE_HAS_NON_MEMBER_TEST(load, CEREAL_LOAD_FUNCTION_NAME,);
 
 // ######################################################################
 // Non Member Load (versioned)
 CEREAL_MAKE_HAS_NON_MEMBER_TEST(versioned_load, CEREAL_LOAD_FUNCTION_NAME, CEREAL_MAKE_VERSIONED_TEST)
-;
-// ######################################################################
+;// ######################################################################
 #undef CEREAL_MAKE_HAS_NON_MEMBER_TEST
 #undef CEREAL_MAKE_HAS_MEMBER_TEST
 
@@ -872,23 +868,23 @@ void CEREAL_SAVE_MINIMAL_FUNCTION_NAME();
     struct has_non_member_##test_name : std::integral_constant<bool,                                                         \
       detail::has_non_member_##test_name##_wrapper<T, A, detail::has_non_member_##test_name##_impl<T, A>::exists>::value> {};
 
-    // ######################################################################
-	// Non-Member Load Minimal
+ // ######################################################################
+ // Non-Member Load Minimal
 CEREAL_MAKE_HAS_NON_MEMBER_LOAD_MINIMAL_TEST(load_minimal, save_minimal,)
 
-    // ######################################################################
+	// ######################################################################
 	// Non-Member Load Minimal (versioned)
 CEREAL_MAKE_HAS_NON_MEMBER_LOAD_MINIMAL_TEST(versioned_load_minimal,
 	versioned_save_minimal, CEREAL_MAKE_VERSIONED_TEST)
 
-    // ######################################################################
+	// ######################################################################
 #undef CEREAL_MAKE_HAS_NON_MEMBER_LOAD_MINIMAL_TEST
 
-    // ######################################################################
+	// ######################################################################
 	// End of serialization existence tests
 #undef CEREAL_MAKE_VERSIONED_TEST
 
-    // ######################################################################
+	// ######################################################################
 template<class T, class InputArchive, class OutputArchive>
 struct has_member_split: std::integral_constant<bool,
 	(has_member_load<T, InputArchive>::value
@@ -897,7 +893,7 @@ struct has_member_split: std::integral_constant<bool,
 					&& has_member_versioned_save<T, OutputArchive>::value)> {
 };
 
-    // ######################################################################
+	// ######################################################################
 template<class T, class InputArchive, class OutputArchive>
 struct has_non_member_split: std::integral_constant<bool,
 	(has_non_member_load<T, InputArchive>::value
@@ -906,7 +902,7 @@ struct has_non_member_split: std::integral_constant<bool,
 					&& has_non_member_versioned_save<T, OutputArchive>::value)> {
 };
 
-    // ######################################################################
+	// ######################################################################
 template<class T, class OutputArchive>
 struct has_invalid_output_versioning: std::integral_constant<bool,
 	(has_member_versioned_save<T, OutputArchive>::value
@@ -923,7 +919,7 @@ struct has_invalid_output_versioning: std::integral_constant<bool,
 					&& has_non_member_save_minimal<T, OutputArchive>::value)> {
 };
 
-    // ######################################################################
+	// ######################################################################
 template<class T, class InputArchive>
 struct has_invalid_input_versioning: std::integral_constant<bool,
 	(has_member_versioned_load<T, InputArchive>::value
@@ -940,9 +936,9 @@ struct has_invalid_input_versioning: std::integral_constant<bool,
 					&& has_non_member_load_minimal<T, InputArchive>::value)> {
 };
 
-    // ######################################################################
+	// ######################################################################
 namespace detail {
-    //! Create a test for a cereal::specialization entry
+	//! Create a test for a cereal::specialization entry
 #define CEREAL_MAKE_IS_SPECIALIZED_IMPL(name)                                          \
       template <class T, class A>                                                            \
       struct is_specialized_##name : std::integral_constant<bool,                            \
@@ -967,7 +963,7 @@ is_specialized_non_member_serialize<T, A>::value +
 is_specialized_non_member_load_save<T, A>::value +
 is_specialized_non_member_load_save_minimal<T, A>::value> {};
 }
- // namespace detail
+	// namespace detail
 
 //! Check if any specialization exists for a type
 template<class T, class A>
@@ -981,7 +977,7 @@ detail::is_specialized_member_serialize<T, A>::value
 static_assert(detail::count_specializations<T, A>::value <= 1, "More than one explicit specialization detected for type.");
 };
 
- //! Create the static assertion for some specialization
+	//! Create the static assertion for some specialization
 /*! This assertion will fail if the type is indeed specialized and does not have the appropriate
  type of serialization functions */
 #define CEREAL_MAKE_IS_SPECIALIZED_ASSERT(name, versioned_name, print_name, spec_name)                      \
@@ -990,7 +986,7 @@ static_assert(detail::count_specializations<T, A>::value <= 1, "More than one ex
                    || !(is_specialized<T, A>::value && detail::is_specialized_##spec_name<T, A>::value),        \
                    "cereal detected " #print_name " specialization but no " #print_name " serialize function" )
 
- //! Generates a test for specialization for versioned and unversioned functions
+//! Generates a test for specialization for versioned and unversioned functions
 /*! This creates checks that can be queried to see if a given type of serialization function
  has been specialized for this type */
 #define CEREAL_MAKE_IS_SPECIALIZED(name, versioned_name, spec_name)                     \

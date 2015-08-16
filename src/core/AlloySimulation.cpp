@@ -40,9 +40,9 @@ SimulationListener::~SimulationListener() {
 
 }
 Simulation::Simulation(const std::string& name) :
-		 running(false),paused(false), name(name),  simulationTime(0),timeStep(0),simulationDuration(
-					0), computeTimeSeconds(0.0),  simulationIteration(0), isDrawDirty(false) , isInitialized(
-				false){
+		running(false), paused(false), name(name), simulationTime(0), timeStep(
+				0), simulationDuration(0), computeTimeSeconds(0.0), simulationIteration(
+				0), isDrawDirty(false), isInitialized(false) {
 	// TODO Auto-generated constructor stub
 
 }

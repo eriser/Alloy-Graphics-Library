@@ -289,8 +289,9 @@ public:
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
-	GLTexture(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
-			GLComponent(context), textureId(0), multisample(false),mipmap(
+	GLTexture(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext()) :
+			GLComponent(context), textureId(0), multisample(false), mipmap(
 					false) {
 	}
 

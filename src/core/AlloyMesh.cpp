@@ -82,7 +82,8 @@ void GLMesh::draw(const PrimitiveType& type) const {
 	context->begin();
 	glBindVertexArray(vao);
 	CHECK_GL_ERROR();
-	if ((type == GLMesh::PrimitiveType::ALL||type == GLMesh::PrimitiveType::POINTS)&&vertexCount>0) {
+	if ((type == GLMesh::PrimitiveType::ALL
+			|| type == GLMesh::PrimitiveType::POINTS) && vertexCount > 0) {
 		if (vertexBuffer > 0) {
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -100,33 +101,35 @@ void GLMesh::draw(const PrimitiveType& type) const {
 		}
 		glDrawArrays(GL_POINTS, 0, vertexCount);
 	}
-	if ((type == GLMesh::PrimitiveType::ALL || type == GLMesh::PrimitiveType::QUADS)&&quadIndexCount>0) {
-			for (int n = 0; n < 4; n++) {
-				if (quadVertexBuffer[n] > 0) {
-					glEnableVertexAttribArray(3 + n);
-					glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer[n]);
-					glVertexAttribPointer(3 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
-				}
+	if ((type == GLMesh::PrimitiveType::ALL
+			|| type == GLMesh::PrimitiveType::QUADS) && quadIndexCount > 0) {
+		for (int n = 0; n < 4; n++) {
+			if (quadVertexBuffer[n] > 0) {
+				glEnableVertexAttribArray(3 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer[n]);
+				glVertexAttribPointer(3 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			}
 
+		}
+		for (int n = 0; n < 4; n++) {
+			if (quadNormalBuffer[n] > 0) {
+				glEnableVertexAttribArray(7 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer[n]);
+				glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			}
-			for (int n = 0; n < 4; n++) {
-				if (quadNormalBuffer[n] > 0) {
-					glEnableVertexAttribArray(7 + n);
-					glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer[n]);
-					glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
-				}
+		}
+		for (int n = 0; n < 4; n++) {
+			if (quadTextureBuffer[n] > 0) {
+				glEnableVertexAttribArray(11 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
+				glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			}
-			for (int n = 0; n < 4; n++) {
-				if (quadTextureBuffer[n] > 0) {
-					glEnableVertexAttribArray(11 + n);
-					glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
-					glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
-				}
-			}
-			glDrawArrays(GL_POINTS, 0, quadIndexCount);
+		}
+		glDrawArrays(GL_POINTS, 0, quadIndexCount);
 	}
 	CHECK_GL_ERROR();
-	if ((type == GLMesh::PrimitiveType::ALL || type == GLMesh::PrimitiveType::TRIANGLES)&&triIndexCount>0) {
+	if ((type == GLMesh::PrimitiveType::ALL
+			|| type == GLMesh::PrimitiveType::TRIANGLES) && triIndexCount > 0) {
 		for (int n = 0; n < 3; n++) {
 			if (triVertexBuffer[n] > 0) {
 				glEnableVertexAttribArray(3 + n);
@@ -162,7 +165,8 @@ void GLMesh::draw(const PrimitiveType& type) const {
 GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		GLComponent(context), mesh(mesh), vao(0), vertexBuffer(0), normalBuffer(
 				0), colorBuffer(0), triIndexBuffer(0), quadIndexBuffer(0), triCount(
-				0), quadCount(0), vertexCount(0), triIndexCount(0), quadIndexCount(0){
+				0), quadCount(0), vertexCount(0), triIndexCount(0), quadIndexCount(
+				0) {
 
 	for (int n = 0; n < 4; n++)
 		quadVertexBuffer[n] = 0;
@@ -230,7 +234,7 @@ void GLMesh::update() {
 		glGenVertexArrays(1, &vao);
 
 	if (mesh.vertexLocations.size() > 0) {
-		
+
 		if (glIsBuffer(vertexBuffer) == GL_TRUE)
 			glDeleteBuffers(1, &vertexBuffer);
 		glGenBuffers(1, &vertexBuffer);
@@ -240,7 +244,7 @@ void GLMesh::update() {
 		glBufferData(GL_ARRAY_BUFFER,
 				sizeof(GLfloat) * 3 * mesh.vertexLocations.size(),
 				mesh.vertexLocations.ptr(), GL_STATIC_DRAW);
-		vertexCount =(uint32_t) mesh.vertexLocations.size();
+		vertexCount = (uint32_t) mesh.vertexLocations.size();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	if (mesh.vertexNormals.size() > 0) {
@@ -251,8 +255,8 @@ void GLMesh::update() {
 		if (glIsBuffer(normalBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create vertex buffer");
 		glBufferData(GL_ARRAY_BUFFER,
-			sizeof(GLfloat) * 3 * mesh.vertexNormals.size(),
-			mesh.vertexNormals.ptr(), GL_STATIC_DRAW);
+				sizeof(GLfloat) * 3 * mesh.vertexNormals.size(),
+				mesh.vertexNormals.ptr(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -328,7 +332,7 @@ void GLMesh::update() {
 		quadIndexCount = (GLuint) mesh.quadIndexes.size();
 	}
 	if (mesh.vertexNormals.size() > 0) {
-		
+
 		if (glIsBuffer(normalBuffer) == GL_TRUE)
 			glDeleteBuffers(1, &normalBuffer);
 
@@ -343,7 +347,7 @@ void GLMesh::update() {
 				GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
+
 		if (mesh.quadIndexes.size() > 0) {
 			int offset = 0;
 			std::vector<float3> quads[4];
@@ -410,7 +414,7 @@ void GLMesh::update() {
 					glDeleteBuffers(1, &quadTextureBuffer[n]);
 				glGenBuffers(1, &quadTextureBuffer[n]);
 			}
-			for (offset=0;offset<(int)mesh.quadIndexes.size();offset++) {
+			for (offset = 0; offset < (int) mesh.quadIndexes.size(); offset++) {
 				for (int n = 0; n < 4; n++) {
 					quads[n][offset] = mesh.textureMap[idx++];
 				}
@@ -421,8 +425,8 @@ void GLMesh::update() {
 				glGenBuffers(1, &quadTextureBuffer[n]);
 				glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
 				glBufferData(GL_ARRAY_BUFFER,
-					sizeof(GLfloat) * 2 * quads[n].size(), quads[n].data(),
-					GL_STATIC_DRAW);
+						sizeof(GLfloat) * 2 * quads[n].size(), quads[n].data(),
+						GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
 			CHECK_GL_ERROR();
@@ -437,7 +441,7 @@ void GLMesh::update() {
 					glDeleteBuffers(1, &triTextureBuffer[n]);
 				glGenBuffers(1, &triTextureBuffer[n]);
 			}
-			for (offset=0;offset<(int)mesh.triIndexes.size();offset++) {
+			for (offset = 0; offset < (int) mesh.triIndexes.size(); offset++) {
 				for (int n = 0; n < 3; n++) {
 					tris[n][offset] = mesh.textureMap[idx++];
 				}
@@ -449,8 +453,8 @@ void GLMesh::update() {
 				glGenBuffers(1, &triTextureBuffer[n]);
 				glBindBuffer(GL_ARRAY_BUFFER, triTextureBuffer[n]);
 				glBufferData(GL_ARRAY_BUFFER,
-					sizeof(GLfloat) * 2 * tris[n].size(), tris[n].data(),
-					GL_STATIC_DRAW);
+						sizeof(GLfloat) * 2 * tris[n].size(), tris[n].data(),
+						GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
 			CHECK_GL_ERROR();
@@ -665,7 +669,7 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 		vertexNormals[verts.w] += cross((v3 - v4), (v1 - v4));
 	}
 #pragma omp parallel for
-	for (int n = 0; n < (int)vertexNormals.size(); n++) {
+	for (int n = 0; n < (int) vertexNormals.size(); n++) {
 		vertexNormals[n] = normalize(vertexNormals[n]);
 	}
 	if (SMOOTH_ITERATIONS > 0) {
@@ -794,7 +798,7 @@ box3f Mesh::updateBoundingBox() {
 }
 void Mesh::scale(float sc) {
 #pragma omp parallel for
-	for (int i = 0; i < (int)vertexLocations.size(); i++) {
+	for (int i = 0; i < (int) vertexLocations.size(); i++) {
 		vertexLocations[i] *= sc;
 	}
 	boundingBox.dimensions = sc * boundingBox.dimensions;
@@ -803,7 +807,7 @@ void Mesh::scale(float sc) {
 }
 void Mesh::transform(const float4x4& M) {
 #pragma omp parallel for
-	for (int i = 0; i < (int)vertexLocations.size(); i++) {
+	for (int i = 0; i < (int) vertexLocations.size(); i++) {
 		float4 pt = M * vertexLocations[i].xyzw();
 		vertexLocations[i] = pt.xyz() / pt.w;
 	}
@@ -811,7 +815,7 @@ void Mesh::transform(const float4x4& M) {
 	if (vertexNormals.size() > 0) {
 		float3x3 NM = transpose(inverse(SubMatrix(M)));
 #pragma omp parallel for
-		for (int i = 0; i < (int)vertexLocations.size(); i++) {
+		for (int i = 0; i < (int) vertexLocations.size(); i++) {
 			vertexNormals[i] = normalize(NM * vertexNormals[i]);
 		}
 	}
@@ -821,7 +825,7 @@ void Mesh::transform(const float4x4& M) {
 void Mesh::mapIntoBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
 #pragma omp parallel for
-	for (int i = 0; i < (int)vertexLocations.size(); i++) {
+	for (int i = 0; i < (int) vertexLocations.size(); i++) {
 		float3& pt = vertexLocations[i];
 		pt = (pt - minPt) / voxelSize;
 	}
@@ -830,7 +834,7 @@ void Mesh::mapIntoBoundingBox(float voxelSize) {
 void Mesh::mapOutOfBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
 #pragma omp for
-	for (int i = 0; i < (int)vertexLocations.size(); i++) {
+	for (int i = 0; i < (int) vertexLocations.size(); i++) {
 		float3& pt = vertexLocations[i];
 		pt = pt * voxelSize + minPt;
 	}
@@ -973,10 +977,10 @@ void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
 	mesh.setDirty(true);
 }
 
-void CreateVertexNeighborTable(const Mesh& mesh,std::vector<std::list<uint32_t>>& vertNbrs, bool addDuplicates){
+void CreateVertexNeighborTable(const Mesh& mesh,
+		std::vector<std::list<uint32_t>>& vertNbrs, bool addDuplicates) {
 	vertNbrs.resize(mesh.vertexLocations.size());
-	for (const uint3& face:mesh.triIndexes.data)
-	{
+	for (const uint3& face : mesh.triIndexes.data) {
 		vertNbrs[face.x].push_back(face.y);
 		vertNbrs[face.y].push_back(face.z);
 		vertNbrs[face.z].push_back(face.x);
@@ -986,8 +990,7 @@ void CreateVertexNeighborTable(const Mesh& mesh,std::vector<std::list<uint32_t>>
 			vertNbrs[face.x].push_back(face.z);
 		}
 	}
-	for (const uint4& face : mesh.quadIndexes.data)
-	{
+	for (const uint4& face : mesh.quadIndexes.data) {
 		vertNbrs[face.x].push_back(face.y);
 		vertNbrs[face.y].push_back(face.z);
 		vertNbrs[face.z].push_back(face.w);
@@ -1000,46 +1003,47 @@ void CreateVertexNeighborTable(const Mesh& mesh,std::vector<std::list<uint32_t>>
 		}
 	}
 }
-inline uint64_t faceHashCode(const uint2& val)
-{
-	return ((uint64_t)val.y) << 32 | ((uint64_t)val.x);
+inline uint64_t faceHashCode(const uint2& val) {
+	return ((uint64_t) val.y) << 32 | ((uint64_t) val.x);
 }
-void CreateFaceNeighborTable(const Mesh& mesh, std::vector<std::list<uint32_t>>& faceNbrs)
-{
-	faceNbrs.resize(mesh.triIndexes.size()+mesh.quadIndexes.size());
+void CreateFaceNeighborTable(const Mesh& mesh,
+		std::vector<std::list<uint32_t>>& faceNbrs) {
+	faceNbrs.resize(mesh.triIndexes.size() + mesh.quadIndexes.size());
 	std::map<uint64_t, std::list<uint>> edgeTable;
 	uint2 edge;
-	uint fid=0;
-	for (const uint3& face : mesh.triIndexes.data)
-	{
-		edge = (face.x < face.y) ? uint2(face.x, face.y) : uint2(face.y, face.x);
+	uint fid = 0;
+	for (const uint3& face : mesh.triIndexes.data) {
+		edge = (face.x < face.y) ?
+				uint2(face.x, face.y) : uint2(face.y, face.x);
 		edgeTable[faceHashCode(edge)].push_back(fid);
-		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
+		edge = (face.y < face.z) ?
+				uint2(face.y, face.z) : uint2(face.z, face.y);
 		edgeTable[faceHashCode(edge)].push_back(fid);
-		edge = (face.z < face.x) ? uint2(face.z, face.x) : uint2(face.x, face.z);
-		edgeTable[faceHashCode(edge)].push_back(fid);
-		fid++;
-	}
-	for (const uint4& face : mesh.quadIndexes.data)
-	{
-		edge = (face.x < face.y) ? uint2(face.x, face.y) : uint2(face.y, face.x);
-		edgeTable[faceHashCode(edge)].push_back(fid);
-		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
-		edgeTable[faceHashCode(edge)].push_back(fid);
-		edge = (face.z < face.w)?uint2(face.z, face.w): uint2(face.w, face.z);
-		edgeTable[faceHashCode(edge)].push_back(fid);
-		edge = (face.w < face.x) ? uint2(face.w, face.x) : uint2(face.x, face.w);
+		edge = (face.z < face.x) ?
+				uint2(face.z, face.x) : uint2(face.x, face.z);
 		edgeTable[faceHashCode(edge)].push_back(fid);
 		fid++;
 	}
-	for (std::pair<const uint64_t, std::list<uint>>& edgeList : edgeTable)
-	{
-		if (edgeList.second.size() == 2)
-		{
+	for (const uint4& face : mesh.quadIndexes.data) {
+		edge = (face.x < face.y) ?
+				uint2(face.x, face.y) : uint2(face.y, face.x);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.y < face.z) ?
+				uint2(face.y, face.z) : uint2(face.z, face.y);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.z < face.w) ?
+				uint2(face.z, face.w) : uint2(face.w, face.z);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		edge = (face.w < face.x) ?
+				uint2(face.w, face.x) : uint2(face.x, face.w);
+		edgeTable[faceHashCode(edge)].push_back(fid);
+		fid++;
+	}
+	for (std::pair<const uint64_t, std::list<uint>>& edgeList : edgeTable) {
+		if (edgeList.second.size() == 2) {
 			uint fid1 = edgeList.second.front();
 			uint fid2 = edgeList.second.back();
-			if (fid1 != fid2)
-			{
+			if (fid1 != fid2) {
 				faceNbrs[fid1].push_back(fid2);
 				faceNbrs[fid2].push_back(fid1);
 			}
