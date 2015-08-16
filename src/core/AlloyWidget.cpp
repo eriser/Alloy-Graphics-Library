@@ -1960,6 +1960,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 	fileEntries.clear();
 	FileFilterRule* rule = (fileTypeSelect->getSelectedIndex() >= 0) ? filterRules[fileTypeSelect->getSelectedIndex()].get() : nullptr;
 	updateValidity();
+
 	for (FileDescription& fd : descriptions) {
 		if (rule != nullptr&&fd.fileType == FileType::File&&!rule->accept(fd.fileLocation)){
 			continue;
@@ -1971,6 +1972,8 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		entry->setValue(fd);
 		if (select && entry->fileDescription.fileLocation == file) {
 			entry->setSelected(true);
+			lastSelected.clear();
+			lastSelected.push_back(entry);
 		}
 		i++;
 	}

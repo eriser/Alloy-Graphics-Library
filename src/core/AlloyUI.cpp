@@ -1453,6 +1453,9 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 		AlloyApplicationContext()->removeOnTopRegion(box);
 		std::string path=GetParentDirectory(this->getValue());
 		this->setValue(path+box->getSelection(box->getSelectedIndex()));
+		if (onTextEntered) {
+			onTextEntered(this);
+		}
 		return false;
 	};
 }
