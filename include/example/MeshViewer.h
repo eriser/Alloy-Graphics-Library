@@ -33,9 +33,10 @@ private:
 	aly::MatcapShader matcapShader;
 	aly::ImageShader imageShader;
 	aly::EdgeEffectsShader effectsShader;
-	aly::ParticleColorShader particleShader;
+	aly::ParticleDepthShader particleDepthShader;
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
+	aly::ParticleFaceIdShader particleFaceIdShader;
 	aly::AmbientOcclusionShader ambientOcclusionShader;
 	aly::DepthColorShader depthColorShader;
 	aly::DepthAndTextureShader  depthAndTextureShader;
@@ -53,6 +54,7 @@ private:
 	aly::GLFrameBuffer smoothDepthFrameBuffer1;
 	aly::GLFrameBuffer colorBuffer2;
 	aly::GLFrameBuffer colorBuffer1;
+	aly::GLFrameBuffer particleFrameBuffer;
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;
 	

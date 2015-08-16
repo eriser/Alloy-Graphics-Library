@@ -95,7 +95,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 		if (colorBuffer > 0) {
 			glEnableVertexAttribArray(2);
 			glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		}
 		glDrawArrays(GL_POINTS, 0, vertexCount);
 	}
@@ -239,7 +239,7 @@ void GLMesh::update() {
 		glBufferData(GL_ARRAY_BUFFER,
 				sizeof(GLfloat) * 3 * mesh.vertexLocations.size(),
 				mesh.vertexLocations.ptr(), GL_STATIC_DRAW);
-		vertexCount = mesh.vertexLocations.size();
+		vertexCount =(uint32_t) mesh.vertexLocations.size();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	if (mesh.vertexNormals.size() > 0) {
@@ -258,7 +258,6 @@ void GLMesh::update() {
 	if (mesh.vertexColors.size() > 0) {
 		if (glIsBuffer(colorBuffer) == GL_TRUE)
 			glDeleteBuffers(1, &colorBuffer);
-
 		glGenBuffers(1, &colorBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 		if (glIsBuffer(colorBuffer) == GL_FALSE)

@@ -49,18 +49,32 @@ public:
 	}
 
 };
-class ParticleColorShader : public GLShader {
+class ParticleFaceIdShader : public GLShader {
+private:
+	GLFrameBuffer framebuffer;
 public:
-	ParticleColorShader(const std::shared_ptr<AlloyContext>& context =
+	ParticleFaceIdShader(const std::shared_ptr<AlloyContext>& context =
 		AlloyDefaultContext());
-	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, const box2px& bounds);
-	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, const box2px& bounds);
-	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, const box2px& bounds);
-	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, const box2px& bounds);
-	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds) {
-		draw({ &mesh }, camera,bounds);
+	void initialize(int w, int h);
+	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
+	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
+		draw({ &mesh }, camera, faceIdMap,faceIdOffset, objectIdOffset, radius);
 	}
-
+};
+class ParticleDepthShader : public GLShader {
+public:
+	ParticleDepthShader(const std::shared_ptr<AlloyContext>& context =
+		AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer,float radius=1.0f);
+	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius = 1.0f) {
+		draw({ &mesh }, camera, framebuffer,radius);
+	}
 };
 class DepthAndTextureShader : public GLShader {
 public:

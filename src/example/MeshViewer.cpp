@@ -32,8 +32,8 @@ MeshViewer::MeshViewer() :
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(100.0f);
-	mesh.vertexColors.resize(mesh.vertexLocations.size());
-	mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
+	//mesh.vertexColors.resize(mesh.vertexLocations.size());
+	//mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
 	MeshNeighborTable vertTable;
 	CreateVertexNeighborTable(mesh, vertTable,false);
 	
@@ -106,7 +106,9 @@ bool MeshViewer::init(Composite& rootNode) {
 	occlusionFrameBuffer.initialize(480, 480);
 	colorBuffer1.initialize(480, 480);
 	colorBuffer2.initialize(480, 480);
+	particleFrameBuffer.initialize(480, 480);
 	faceShader.initialize(480, 480);
+	particleFaceIdShader.initialize(480, 480);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 
@@ -115,29 +117,19 @@ bool MeshViewer::init(Composite& rootNode) {
 }
 void MeshViewer::draw(AlloyContext* context) {
 	static bool once = true;
+	glEnable(GL_DEPTH_TEST);
 	if (camera.isDirty()) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);
+		particleDepthShader.draw(mesh, camera, particleFrameBuffer,0.75f);
 
-		faceShader.draw(mesh, camera, faceIdMap);
-
-		
 		if (once) {
-			std::set<int> idx;
-			for (int2 hash : faceIdMap)
-			{
-				idx.insert(hash.x);
-			}
-			std::cout << "Face Ids: "<<idx.size();
-			/*
-			for (int val : idx)
-			{
-				std::cout << val << " ";
-			}
-			*/
-			std::cout << std::endl;
+			faceShader.draw(mesh, camera, faceIdMap);
+			faceIdMap.writeToXML("face_id.xml");
+			particleFaceIdShader.draw(mesh, camera, faceIdMap);
+			faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;
 		}
 		
@@ -149,27 +141,27 @@ void MeshViewer::draw(AlloyContext* context) {
 			float2(480, 480));
 	normalColorShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, 480.0f),
 			float2(480, 480));
-
-	depthColorShader.draw(flatDepthFrameBuffer.getTexture(), dRange,
+	depthColorShader.draw(smoothDepthFrameBuffer1.getTexture(), dRange,
 			float2(960.0f, 0.0f), float2(480, 480));
-
-	
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
-			
-
 	glEnable(GL_DEPTH_TEST);
+	
 	wireframeShader.draw(edgeFrameBuffer.getTexture(), smoothDepthFrameBuffer1.getTexture(),
 		float2(0.0f, camera.getScale()),
 		float2(960.0f, 480.0f), float2(480, 480),
 		getContext()->getViewport());
-	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
+	phongShader.draw(smoothDepthFrameBuffer2.getTexture(),
 		camera, float2(960.0f, 480.0f), float2(480, 480),
 		getContext()->getViewport());
+	
 	matcapShader.draw(
-		smoothDepthFrameBuffer2.getTexture(),
+		smoothDepthFrameBuffer1.getTexture(),
 		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
-	particleShader.draw(mesh, camera, getContext()->getViewport());
+	matcapShader.draw(
+		particleFrameBuffer.getTexture(),
+		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
+	
 	glDisable(GL_DEPTH_TEST);
 	if(once){
 	colorBuffer1.getTexture().read().writeToXML("color1.xml");

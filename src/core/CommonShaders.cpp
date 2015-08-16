@@ -24,33 +24,43 @@
 #include "AlloyVirtualCamera.h"
 #include <set>
 namespace aly {
-ParticleColorShader::ParticleColorShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
-	initialize( { },
+ParticleDepthShader::ParticleDepthShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
+	initialize({},
 		R"(
 			#version 330 core
 			#extension GL_ARB_separate_shader_objects : enable
 			layout(location = 0) in vec3 vp;
-			layout(location = 0) in vec4 vc;
+			layout(location = 2) in vec4 vc;
+			uniform float RADIUS;
 			out VS_OUT {
 				vec3 pos;
-				vec4 color;
+				float radius;
 			} vs_out;
 			void main(void) {
 				vs_out.pos=vp;
-				vs_out.color=vc;
+				vs_out.radius=(RADIUS>0)?RADIUS:vc.w;
 			}
 		)",
 		R"(
 #version 330 core
 in vec2 uv;
-in vec4 color;
+in vec4 vp;
+in vec4 center;
+uniform float MIN_DEPTH;
+uniform float MAX_DEPTH;
 void main(void) {
 	float radius=length(uv);
 	if(radius>1.0){
 		discard;
 	} else {
-		//gl_FragDepth
-		gl_FragColor=mix(color,vec4(0.3,0.3,0.3,1.0),radius);
+		float r=center.w;
+		vec4 pos=vp/vp.w;
+		float rxy=length(pos-vec4(center.xyz,1.0));
+		float cr=sqrt(r*r-rxy*rxy);
+		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
+		vec3 norm=normalize(vec3(pos.x-center.x,pos.y-center.y,cr));
+		gl_FragColor=vec4(-norm,d);
+		gl_FragDepth=d;
 	}
 }
 )",
@@ -58,75 +68,358 @@ R"(
 #version 330 core
 #extension GL_ARB_separate_shader_objects : enable
 	out vec2 uv;
-	out vec4 color;
+	out vec4 vp;
+    out vec4 center;
 	layout(points) in;
 	layout(triangle_strip, max_vertices = 4) out;
 	in VS_OUT {
 		vec3 pos;
-		vec4 color;
+		float radius;
 	} pc[];
 	uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+	uniform vec4 bounds;
+	uniform vec4 viewport;
+
+				void main() {
+		mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+		mat4 VM=ViewModelMat*PoseMat;
+		vec4 pt = vec4(pc[0].pos,1.0);
+		vec2 pos;
+		float r = pc[0].radius;
+		vec4 v = VM*pt;
+		r = length(VM*vec4(0, 0, r, 0));
+		center=vec4(v.xyz,r);
+
+		vp=v + vec4(-r, -r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+		uv = vec2(-1.0, -1.0);
+		EmitVertex();
+		vp=v + vec4(+r, -r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(1.0, -1.0);
+		EmitVertex();
+		vp=v + vec4(-r, +r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(-1.0, 1.0);
+		EmitVertex();
+
+		vp=v + vec4(+r, +r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(1.0, 1.0);
+		EmitVertex();
+		EndPrimitive();
+
+			})");
+	
+}
+
+void ParticleDepthShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer,float radius) {
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
+		.set(camera, framebuffer.getViewport())
+		.set("PoseMat", float4x4::identity()).draw(meshes, GLMesh::PrimitiveType::POINTS);
+	end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+}
+void ParticleDepthShader::draw(
+	const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
+		.set(camera, framebuffer.getViewport());
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		set("PoseMat", pr.second).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+	}
+	end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+}
+
+void ParticleDepthShader::draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
+		.set("PoseMat", float4x4::identity())
+		.set(camera, framebuffer.getViewport())
+		.draw(meshes, GLMesh::PrimitiveType::POINTS).end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+}
+void ParticleDepthShader::draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS",radius)
+		.set(camera, framebuffer.getViewport());
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		set("PoseMat", pr.second).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+	}
+	end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+}
+ParticleFaceIdShader::ParticleFaceIdShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
+	GLShader::initialize({},
+		R"(
+			#version 330 core
+			#extension GL_ARB_separate_shader_objects : enable
+			layout(location = 0) in vec3 vp;
+			layout(location = 2) in vec4 vc;
+			uniform float RADIUS;
+			uniform int vertIdOffset;
+			out VS_OUT {
+				vec3 pos;
+				float radius;
+				int vertId;
+			} vs_out;
+			void main(void) {
+				vs_out.pos=vp;
+				vs_out.radius=(RADIUS>0)?RADIUS:vc.w;
+				vs_out.vertId=int(gl_VertexID)+vertIdOffset;
+			}
+		)",
+		R"(
+#version 330 core
+in vec2 uv;
+in vec4 vp;
+in vec4 center;
+uniform float MIN_DEPTH;
+uniform float MAX_DEPTH;
+flat in int vertId;
+uniform int objectId;
+void main(void) {
+	float radius=length(uv);
+	if(radius>1.0){
+		discard;
+	} else {
+		float r=center.w;
+		vec4 pos=vp/vp.w;
+		float rxy=length(pos-vec4(center.xyz,1.0));
+		float cr=sqrt(r*r-rxy*rxy);
+		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
+		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1+ objectId);
+		gl_FragColor = rgba;
+		gl_FragDepth=d;
+	}
+}
+)",
+R"(
+#version 330 core
+#extension GL_ARB_separate_shader_objects : enable
+	out vec2 uv;
+	out vec4 vp;
+    out vec4 center;
+	layout(points) in;
+	layout(triangle_strip, max_vertices = 4) out;
+	in VS_OUT {
+		vec3 pos;
+		float radius;
+		int vertId;
+	} pc[];
+
+	flat out int vertId;
+	uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+	uniform vec4 bounds;
+	uniform vec4 viewport;
 	void main() {
 		mat4 PVM=ProjMat*ViewModelMat*PoseMat;
 		mat4 VM=ViewModelMat*PoseMat;
 		vec4 pt = vec4(pc[0].pos,1.0);
-		color = pc[0].color;
-		float r = color.w;
-		color.w=1.0;
-		pt.w = 1.0;
+		vec2 pos;
+		float r = pc[0].radius;
 		vec4 v = VM*pt;
 		r = length(VM*vec4(0, 0, r, 0));
-		gl_Position =ProjMat*(v + vec4(-r, -r, 0, 0));
+		center=vec4(v.xyz,r);
+		vertId=pc[0].vertId;
+		vp=v + vec4(-r, -r, 0, 0);
+		gl_Position  =ProjMat*(vp);
 		uv = vec2(-1.0, -1.0);
 		EmitVertex();
-
-		gl_Position = ProjMat*(v + vec4(+r, -r, 0, 0));
-		uv = vec2(1.0, -1.0);
+		vp=v + vec4(+r, -r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(1.0, -1.0);
+		EmitVertex();
+		vp=v + vec4(-r, +r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(-1.0, 1.0);
 		EmitVertex();
 
-		gl_Position = ProjMat*(v + vec4(-r, +r, 0, 0));
-		uv = vec2(-1.0, 1.0);
-		EmitVertex();
-
-		gl_Position = ProjMat*(v + vec4(+r, +r, 0, 0));
-		uv = vec2(1.0, 1.0);
+				vp=v + vec4(+r, +r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(1.0, 1.0);
 		EmitVertex();
 		EndPrimitive();
 
-	})");
+					})");
+
 }
-void ParticleColorShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,const box2px& bounds) {
+void ParticleFaceIdShader::initialize(int w, int h) {
+	framebuffer.initialize(w, h);
+}
+void ParticleFaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset , int objectIdOffset , float radius) {
+	faceIdMap.resize(framebuffer.width(), framebuffer.height());
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane())
 		.set("MAX_DEPTH", camera.getFarPlane())
-		.set(camera,bounds)
-		.set("PoseMat", float4x4::identity()).draw(meshes, GLMesh::PrimitiveType::POINTS);
-	end();
-}
-void ParticleColorShader::draw(
-	const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, const box2px& bounds) {
-	begin().set("MIN_DEPTH", camera.getNearPlane())
-		.set("MAX_DEPTH", camera.getFarPlane())
-		.set(camera, bounds);
-	for (std::pair <const Mesh*, float4x4> pr : meshes) {
-		set("PoseMat", pr.second).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
-	}
-	end();
-}
-void ParticleColorShader::draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, const box2px& bounds) {
-	begin().set("MIN_DEPTH", camera.getNearPlane())
-		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
 		.set("PoseMat", float4x4::identity())
-		.set(camera, bounds).draw(meshes, GLMesh::PrimitiveType::POINTS).end();
-}
-void ParticleColorShader::draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, const box2px& bounds) {
-	begin().set("MIN_DEPTH", camera.getNearPlane())
-		.set("MAX_DEPTH", camera.getFarPlane())
-		.set(camera, bounds);
-	for (std::pair <const Mesh*, float4x4> pr : meshes) {
-		set("PoseMat", pr.second).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+		.set("vertIdOffset", faceIdOffset)
+		.set(camera, framebuffer.getViewport());
+	for (const Mesh* mesh : meshes) {
+		set("objectId", objectIdOffset).draw(*mesh, GLMesh::PrimitiveType::POINTS);
+		objectIdOffset++;
 	}
 	end();
+
+	glEnable(GL_BLEND);
+	framebuffer.end();
+	ImageRGBAf& irgba = framebuffer.getTexture().read();
+	size_t idx = 0;
+	int hash;
+	int oid;
+	for (RGBAf rgbaf : irgba.data) {
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
+			hash = -1;
+			oid = -1;
+		}
+		faceIdMap[idx++] = int2(hash, oid);
+	}
 }
+void ParticleFaceIdShader::draw(
+	const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset , int objectIdOffset , float radius) {
+	faceIdMap.resize(framebuffer.width(), framebuffer.height());
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
+		.set("vertIdOffset", faceIdOffset)
+		.set(camera, framebuffer.getViewport());
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		set("PoseMat", pr.second).set("objectId", objectIdOffset).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+		objectIdOffset++;
+	}
+	end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+	ImageRGBAf& irgba = framebuffer.getTexture().read();
+	size_t idx = 0;
+	int hash;
+	int oid;
+	for (RGBAf rgbaf : irgba.data) {
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
+			hash = -1;
+			oid = -1;
+		}
+		faceIdMap[idx++] = int2(hash, oid);
+	}
+}
+
+void ParticleFaceIdShader::draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset , int objectIdOffset , float radius) {
+	faceIdMap.resize(framebuffer.width(), framebuffer.height());
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
+		.set("PoseMat", float4x4::identity())
+		.set("vertIdOffset", faceIdOffset)
+		.set(camera, framebuffer.getViewport());
+	for (const Mesh* mesh : meshes) {
+		set("objectId", objectIdOffset).draw(*mesh, GLMesh::PrimitiveType::POINTS);
+		objectIdOffset++;
+	}
+	end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+	ImageRGBAf& irgba = framebuffer.getTexture().read();
+	size_t idx = 0;
+	int hash;
+	int oid;
+	for (RGBAf rgbaf : irgba.data) {
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
+			hash = -1;
+			oid = -1;
+		}
+		faceIdMap[idx++] = int2(hash, oid);
+	}
+}
+void ParticleFaceIdShader::draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset , int objectIdOffset , float radius) {
+	faceIdMap.resize(framebuffer.width(), framebuffer.height());
+	framebuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("RADIUS", radius)
+		.set("vertIdOffset", faceIdOffset)
+		.set(camera, framebuffer.getViewport());
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		set("PoseMat", pr.second)
+		.set("objectId", objectIdOffset).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+		objectIdOffset++;
+	}
+	end();
+	glEnable(GL_BLEND);
+	framebuffer.end();
+	ImageRGBAf& irgba = framebuffer.getTexture().read();
+	size_t idx = 0;
+	int hash;
+	int oid;
+	for (RGBAf rgbaf : irgba.data) {
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
+			hash = -1;
+			oid = -1;
+		}
+		faceIdMap[idx++] = int2(hash, oid);
+	}
+}
+
 
 CompositeShader::CompositeShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
 	initialize( {  },
