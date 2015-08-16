@@ -33,7 +33,7 @@ struct Mesh;
 struct GLMesh: public GLComponent {
 public:
 	enum class PrimitiveType {
-		ALL = 0, QUADS = 4, TRIANGLES = 3,
+		ALL = 0, QUADS = 4, TRIANGLES = 3, POINTS = 1
 	};
 	GLuint vao;
 	GLuint vertexBuffer;
@@ -49,6 +49,7 @@ public:
 	GLuint quadTextureBuffer[4];
 	GLuint triCount;
 	GLuint quadCount;
+	GLuint vertexCount;
 	GLuint triIndexCount;
 	GLuint quadIndexCount;
 	Mesh& mesh;

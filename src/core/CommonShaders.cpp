@@ -24,8 +24,112 @@
 #include "AlloyVirtualCamera.h"
 #include <set>
 namespace aly {
+ParticleColorShader::ParticleColorShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
+	initialize( { },
+		R"(
+			#version 330 core
+			#extension GL_ARB_separate_shader_objects : enable
+			layout(location = 0) in vec3 vp;
+			layout(location = 0) in vec4 vc;
+			out VS_OUT {
+				vec3 pos;
+				vec4 color;
+			} vs_out;
+			void main(void) {
+				vs_out.pos=vp;
+				vs_out.color=vc;
+			}
+		)",
+		R"(
+#version 330 core
+in vec2 uv;
+in vec4 color;
+void main(void) {
+	float radius=length(uv);
+	if(radius>1.0){
+		discard;
+	} else {
+		//gl_FragDepth
+		gl_FragColor=mix(color,vec4(0.3,0.3,0.3,1.0),radius);
+	}
+}
+)",
+R"(
+#version 330 core
+#extension GL_ARB_separate_shader_objects : enable
+	out vec2 uv;
+	out vec4 color;
+	layout(points) in;
+	layout(triangle_strip, max_vertices = 4) out;
+	in VS_OUT {
+		vec3 pos;
+		vec4 color;
+	} pc[];
+	uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+	void main() {
+		mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+		mat4 VM=ViewModelMat*PoseMat;
+		vec4 pt = vec4(pc[0].pos,1.0);
+		color = pc[0].color;
+		float r = color.w;
+		color.w=1.0;
+		pt.w = 1.0;
+		vec4 v = VM*pt;
+		r = length(VM*vec4(0, 0, r, 0));
+		gl_Position =ProjMat*(v + vec4(-r, -r, 0, 0));
+		uv = vec2(-1.0, -1.0);
+		EmitVertex();
+
+		gl_Position = ProjMat*(v + vec4(+r, -r, 0, 0));
+		uv = vec2(1.0, -1.0);
+		EmitVertex();
+
+		gl_Position = ProjMat*(v + vec4(-r, +r, 0, 0));
+		uv = vec2(-1.0, 1.0);
+		EmitVertex();
+
+		gl_Position = ProjMat*(v + vec4(+r, +r, 0, 0));
+		uv = vec2(1.0, 1.0);
+		EmitVertex();
+		EndPrimitive();
+
+	})");
+}
+void ParticleColorShader::draw(const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,const box2px& bounds) {
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set(camera,bounds)
+		.set("PoseMat", float4x4::identity()).draw(meshes, GLMesh::PrimitiveType::POINTS);
+	end();
+}
+void ParticleColorShader::draw(
+	const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, const box2px& bounds) {
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set(camera, bounds);
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		set("PoseMat", pr.second).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+	}
+	end();
+}
+void ParticleColorShader::draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, const box2px& bounds) {
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set("PoseMat", float4x4::identity())
+		.set(camera, bounds).draw(meshes, GLMesh::PrimitiveType::POINTS).end();
+}
+void ParticleColorShader::draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes, VirtualCamera& camera, const box2px& bounds) {
+	begin().set("MIN_DEPTH", camera.getNearPlane())
+		.set("MAX_DEPTH", camera.getFarPlane())
+		.set(camera, bounds);
+	for (std::pair <const Mesh*, float4x4> pr : meshes) {
+		set("PoseMat", pr.second).draw({ pr.first }, GLMesh::PrimitiveType::POINTS);
+	}
+	end();
+}
+
 CompositeShader::CompositeShader(const std::shared_ptr<AlloyContext>& context) :GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( {  },
 		R"(
 		 #version 330
 		 layout(location = 0) in vec3 vp; 
@@ -74,7 +178,7 @@ MatcapShader::MatcapShader(const std::string& textureImage,
 		const  std::shared_ptr<AlloyContext>& context) :
 		GLShader(context), matcapTexture(context) {
 	matcapTexture.load(textureImage);
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( {  },
 		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
@@ -114,7 +218,7 @@ ImageShader::ImageShader(const std::shared_ptr<AlloyContext>& context,
 		const Filter& filter) :
 		GLShader(context) {
 	if (filter == Filter::NONE) {
-		initialize(std::vector<std::string> { "vp", "vt" },
+		initialize( { },
 			R"(
 		 #version 330
 		 layout(location = 0) in vec3 vp; 
@@ -139,7 +243,7 @@ layout(location = 1) in vec2 vt;
 		 gl_FragColor=rgba;
 		 })");
 	} else if (filter == Filter::SMALL_BLUR) {
-		initialize(std::vector<std::string> { "vp", "vt" },
+		initialize({},
 				R"(
 			 #version 330
 			 layout(location = 0) in vec3 vp; 
@@ -173,7 +277,7 @@ layout(location = 1) in vec2 vt;
 				gl_FragColor=rgba/16.0;
 			 })");
 	} else if (filter == Filter::LARGE_BLUR) {
-		initialize(std::vector<std::string> { "vp", "vt" },
+		initialize( {  },
 				R"(
 			 #version 330
 			 layout(location = 0) in vec3 vp; 
@@ -242,7 +346,7 @@ sum+=256.0;
 				gl_FragColor=rgba/sum;
 			 })");
 	} else if (filter == Filter::MEDIUM_BLUR) {
-		initialize(std::vector<std::string> { "vp", "vt" },
+		initialize( { },
 				R"(
 			 #version 330
 			 layout(location = 0) in vec3 vp; 
@@ -302,7 +406,7 @@ sum+=256.0;
 				gl_FragColor=rgba/256.0;
 			 })");
 	} else if (filter == Filter::FXAA) {
-		initialize(std::vector<std::string> { "vp", "vt" },
+		initialize( {},
 				R"(
  #version 330
  layout(location = 0) in vec3 vp; 
@@ -579,7 +683,7 @@ int FaceIdShader::draw(const std::list<const Mesh*>& meshes, VirtualCamera& came
 }
 
 FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context):GLShader(context),framebuffer(context){
-	GLShader::initialize(std::vector<std::string> { },
+	GLShader::initialize({ },
 		R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
@@ -720,7 +824,7 @@ if(IS_QUAD!=0){
 DepthAndNormalShader::DepthAndNormalShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { },
+	initialize({ },
 		R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
@@ -939,7 +1043,7 @@ void DepthAndNormalShader::draw(const std::list<std::pair<const Mesh*, float4x4>
 DepthAndTextureShader::DepthAndTextureShader(
 	const std::shared_ptr<AlloyContext>& context) :
 	GLShader(context) {
-	initialize(std::vector<std::string> { },
+	initialize( { },
 		R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
@@ -1084,7 +1188,7 @@ void DepthAndTextureShader::draw(const std::initializer_list<std::pair<const Mes
 EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
 	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { },
+	initialize( { },
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
@@ -1255,7 +1359,7 @@ void EdgeDepthAndNormalShader::draw(const std::initializer_list<const Mesh*>& me
 }
 EdgeEffectsShader::EdgeEffectsShader(const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( {  },
 		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
@@ -1313,7 +1417,7 @@ gl_FragColor=rgba;
 DistanceFieldShader::DistanceFieldShader(
 	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context),kernelSize(8),innerGlowColor(1.0f, 0.3f, 0.1f, 1.0f),outerGlowColor(0.3f, 1.0f, 0.1f, 1.0f),edgeColor(1.0f, 1.0f, 1.0f, 1.0f) {
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( { },
 			R"(
 #version 330
 layout(location = 0) in vec3 vp; 
@@ -1371,7 +1475,7 @@ gl_FragColor=rgba;
 
 NormalColorShader::NormalColorShader(const std::shared_ptr<AlloyContext>&  context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( {},
 		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
@@ -1406,7 +1510,7 @@ gl_FragColor=rgba;
 
 DepthColorShader::DepthColorShader(const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( { },
 		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
@@ -1458,7 +1562,7 @@ AmbientOcclusionShader::AmbientOcclusionShader(
 			sampleNormals.push_back(v);
 		}
 	}
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize({ },
 			R"(
 #version 330
 
@@ -1548,7 +1652,7 @@ PhongShader::PhongShader(int N,
 	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
 	lights.resize(N);
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( {  },
 		R"(
 #version 330
 layout(location = 0) in vec3 vp; 
@@ -1635,7 +1739,7 @@ void main() {
 WireframeShader::WireframeShader(
 	const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context),lineWidth(0.02f), scaleInvariant(true),edgeColor(1.0f, 1.0f, 1.0f, 1.0f),faceColor(1.0f, 0.3f, 0.1f, 1.0f){
-	initialize(std::vector<std::string> { "vp", "vt" },
+	initialize( {  },
 		R"(
 #version 330
 layout(location = 0) in vec3 vp; 

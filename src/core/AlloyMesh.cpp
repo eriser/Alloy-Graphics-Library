@@ -80,25 +80,26 @@ void GLMesh::draw(const PrimitiveType& type) const {
 	}
 	context->begin();
 	glBindVertexArray(vao);
-
-	if (vertexBuffer > 0) {
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-	if (normalBuffer > 0) {
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-	if (colorBuffer > 0) {
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-
 	CHECK_GL_ERROR();
-	if (type != GLMesh::PrimitiveType::TRIANGLES&&quadIndexCount>0) {
+	if ((type == GLMesh::PrimitiveType::ALL||type == GLMesh::PrimitiveType::POINTS)&&vertexCount>0) {
+		if (vertexBuffer > 0) {
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+		if (normalBuffer > 0) {
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+		if (colorBuffer > 0) {
+			glEnableVertexAttribArray(2);
+			glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+		glDrawArrays(GL_POINTS, 0, vertexCount);
+	}
+	if ((type == GLMesh::PrimitiveType::ALL || type == GLMesh::PrimitiveType::QUADS)&&quadIndexCount>0) {
 			for (int n = 0; n < 4; n++) {
 				if (quadVertexBuffer[n] > 0) {
 					glEnableVertexAttribArray(3 + n);
@@ -124,7 +125,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 			glDrawArrays(GL_POINTS, 0, quadIndexCount);
 	}
 	CHECK_GL_ERROR();
-	if (type != GLMesh::PrimitiveType::QUADS&&triIndexCount>0) {
+	if ((type == GLMesh::PrimitiveType::ALL || type == GLMesh::PrimitiveType::TRIANGLES)&&triIndexCount>0) {
 		for (int n = 0; n < 3; n++) {
 			if (triVertexBuffer[n] > 0) {
 				glEnableVertexAttribArray(3 + n);
@@ -148,7 +149,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 		}
 		glDrawArrays(GL_POINTS, 0, triIndexCount);
 	}
-	for (int i = 0; i < 11; i++) {
+	for (int i = 0; i < 14; i++) {
 		glDisableVertexAttribArray(i);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -160,7 +161,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		GLComponent(context), mesh(mesh), vao(0), vertexBuffer(0), normalBuffer(
 				0), colorBuffer(0), triIndexBuffer(0), quadIndexBuffer(0), triCount(
-				0), quadCount(0), triIndexCount(0), quadIndexCount(0) {
+				0), quadCount(0), triIndexCount(0), quadIndexCount(0), vertexCount(0){
 
 	for (int n = 0; n < 4; n++)
 		quadVertexBuffer[n] = 0;
@@ -223,6 +224,7 @@ void GLMesh::update() {
 	triCount = 0;
 	triIndexCount = 0;
 	quadIndexCount = 0;
+	vertexCount = 0;
 	if (vao == 0)
 		glGenVertexArrays(1, &vao);
 
@@ -237,6 +239,19 @@ void GLMesh::update() {
 		glBufferData(GL_ARRAY_BUFFER,
 				sizeof(GLfloat) * 3 * mesh.vertexLocations.size(),
 				mesh.vertexLocations.ptr(), GL_STATIC_DRAW);
+		vertexCount = mesh.vertexLocations.size();
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	if (mesh.vertexNormals.size() > 0) {
+		if (glIsBuffer(normalBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &normalBuffer);
+		glGenBuffers(1, &normalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+		if (glIsBuffer(normalBuffer) == GL_FALSE)
+			throw std::runtime_error("Error: Unable to create vertex buffer");
+		glBufferData(GL_ARRAY_BUFFER,
+			sizeof(GLfloat) * 3 * mesh.vertexNormals.size(),
+			mesh.vertexNormals.ptr(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -249,7 +264,7 @@ void GLMesh::update() {
 		if (glIsBuffer(colorBuffer) == GL_FALSE)
 			throw std::runtime_error("Error: Unable to create color buffer");
 		glBufferData(GL_ARRAY_BUFFER,
-				sizeof(GLfloat) * 3 * mesh.vertexColors.size(),
+				sizeof(GLfloat) * 4 * mesh.vertexColors.size(),
 				mesh.vertexColors.ptr(), GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}

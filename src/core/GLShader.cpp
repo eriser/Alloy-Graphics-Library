@@ -73,7 +73,7 @@ GLShader& GLShader::draw(const std::initializer_list<const Mesh*>& meshes, const
 	}
 	return *this;
 }
-void GLShader::initialize(const std::vector<std::string>& pAttributeLocations,
+void GLShader::initialize(const std::initializer_list<std::string>& pAttributeLocations,
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {

@@ -32,6 +32,8 @@ MeshViewer::MeshViewer() :
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.scale(100.0f);
+	mesh.vertexColors.resize(mesh.vertexLocations.size());
+	mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
 	MeshNeighborTable vertTable;
 	CreateVertexNeighborTable(mesh, vertTable,false);
 	
@@ -157,8 +159,6 @@ void MeshViewer::draw(AlloyContext* context) {
 			
 
 	glEnable(GL_DEPTH_TEST);
-	
-
 	wireframeShader.draw(edgeFrameBuffer.getTexture(), smoothDepthFrameBuffer1.getTexture(),
 		float2(0.0f, camera.getScale()),
 		float2(960.0f, 480.0f), float2(480, 480),
@@ -166,11 +166,10 @@ void MeshViewer::draw(AlloyContext* context) {
 	phongShader.draw(smoothDepthFrameBuffer1.getTexture(),
 		camera, float2(960.0f, 480.0f), float2(480, 480),
 		getContext()->getViewport());
-
 	matcapShader.draw(
 		smoothDepthFrameBuffer2.getTexture(),
 		camera, float2(960.0f, 480.0f), float2(480, 480), getContext()->getViewport());
-	
+	particleShader.draw(mesh, camera, getContext()->getViewport());
 	glDisable(GL_DEPTH_TEST);
 	if(once){
 	colorBuffer1.getTexture().read().writeToXML("color1.xml");

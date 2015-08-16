@@ -48,18 +48,18 @@ public:
 	GLShader(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
-	void initialize(const std::vector<std::string>& attributes,
+	void initialize(const std::initializer_list<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
 			const std::string& pGeomShaderString);
-	void initialize(const std::vector<std::string>& attributes,
+	void initialize(const std::initializer_list<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString) {
 		initialize(attributes, pVertexShaderString, pFragmentShaderString, "");
 	}
 
 	GLShader(std::shared_ptr<AlloyContext>& context,
-			const std::vector<std::string>& attributes,
+			const std::initializer_list<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
 			const std::string& pGeomShaderString) :

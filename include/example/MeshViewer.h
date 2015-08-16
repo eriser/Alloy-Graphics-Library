@@ -33,6 +33,7 @@ private:
 	aly::MatcapShader matcapShader;
 	aly::ImageShader imageShader;
 	aly::EdgeEffectsShader effectsShader;
+	aly::ParticleColorShader particleShader;
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
 	aly::AmbientOcclusionShader ambientOcclusionShader;
