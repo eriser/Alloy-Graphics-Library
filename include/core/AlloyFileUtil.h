@@ -116,6 +116,7 @@ std::string GetHomeDirectory();
 std::string GetDownloadsDirectory();
 std::string GetDesktopDirectory();
 std::string GetDocumentsDirectory();
+std::string GetExecutableDirectory();
 std::string GetUserNameString();
 std::vector<std::string> GetDrives();
 static inline bool is_base64(unsigned char c) {

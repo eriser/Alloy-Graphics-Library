@@ -192,10 +192,19 @@ std::string AlloyContext::getFullPath(const std::string& partialFile) {
 			return fullPath;
 		}
 	}
+	std::string executableDir = GetExecutableDirectory();
+	for (std::string& dir : assetDirectories) {
+		std::string fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + partialFile;
+		if (FileExists(fullPath)) {
+			return fullPath;
+		}
+	}
 	std::cout<<"Could not find \""<<partialFile<<"\"\nThis is where I looked:"<<std::endl;
 	for (std::string& dir : assetDirectories) {
 		std::string fullPath=RemoveTrailingSlash(dir) +ALY_PATH_SEPARATOR +partialFile;
 		std::cout<<"\""<<fullPath<<"\""<<std::endl;
+		fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + partialFile;
+		std::cout << "\"" << fullPath << "\"" << std::endl;
 	}
 	throw std::runtime_error(MakeString()<<"Could not find \""<<partialFile<<"\"");
 	return std::string("");

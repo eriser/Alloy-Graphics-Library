@@ -268,7 +268,7 @@ template<class T, int C, ImageType I>  std::string Image<T, C, I>::updateHashCod
 		hashCode = HashCode(data, method);
 	}
 	else {
-		const size_t seed = 8743128921;
+		const size_t seed = 83128921L;
 		std::mt19937 mt(seed);
 		std::uniform_int_distribution<int> wSampler(0, width-1);
 		std::uniform_int_distribution<int> hSampler(0, height-1);

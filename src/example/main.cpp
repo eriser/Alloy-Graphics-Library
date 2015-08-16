@@ -47,6 +47,7 @@ int main() {
 		//SANITY_CHECK_CEREAL();
 		
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
+		std::cout << "EXECUTABLE " << GetExecutableDirectory() << std::endl;
 		std::cout<<"USER "<<GetUserNameString()<<std::endl;
 		std::cout<<"CWD "<<GetCurrentWorkingDirectory()<<std::endl;
 		std::cout<<"HOME "<<GetHomeDirectory()<<std::endl;

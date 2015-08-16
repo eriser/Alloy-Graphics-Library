@@ -524,6 +524,13 @@ std::vector<std::string> GetDrives() {
 	}
 	return drives;
 }
+std::string GetExecutableDirectory()
+{
+	char result[4096];
+	my_uint32 found;
+	ssize_t count = readlink("/proc/self/exe", result, 4096);
+	return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
+}
 #else 
 
 std::wstring ToWString(const std::string& str) {
@@ -657,6 +664,11 @@ std::string GetDesktopDirectory()
 	}
 	return std::string();
 
+}
+std::string GetExecutableDirectory() {
+	wchar_t result[MAX_PATH];
+	GetModuleFileName(NULL, result, MAX_PATH);
+	return RemoveTrailingSlash(GetParentDirectory(ToString(std::wstring(result))));
 }
 std::string GetHomeDirectory()
 {
