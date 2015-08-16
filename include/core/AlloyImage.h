@@ -86,8 +86,8 @@ public:
 	int height;
 	int x, y;
 	uint64_t id;
-	const int channels = C;
-	const ImageType type = I;
+	const int channels;
+	const ImageType type;
 	std::string updateHashCode(size_t MAX_SAMPLES=0,HashMethod method = HashMethod::SHA256);
 	std::string getHashCode() {
 		return hashCode;
@@ -141,7 +141,7 @@ public:
 	}
 
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			width(w), height(h), x(x), y(y), id(id), data(storage) {
+			width(w), height(h), x(x), y(y), id(id),channels(C),type(I), data(storage) {
 		data.resize(w * h);
 		data.shrink_to_fit();
 	}
@@ -153,12 +153,16 @@ public:
 			Image(w, h, x, y, id) {
 		set(ptr);
 	}
+	Image( int w, int h, vec<T, C>* ptr) :
+		Image(w, h, 0, 0, 0) {
+		set(ptr);
+	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
 			uint64_t id = 0) :
-			width(w), height(h), x(x), y(y), id(id), data(ref) {
+			width(w), height(h), x(x), y(y), id(id), channels(C), type(I), data(ref) {
 	}
 	Image() :
-			width(0), height(0), x(0), y(0), id(0), data(storage) {
+			width(0), height(0), x(0), y(0), id(0), channels(C), type(I), data(storage) {
 	}
 	Image(const Image<T, C, I>& img):Image(img.width, img.height, img.x, img.y, img.id) {
 		set(img.data.data());

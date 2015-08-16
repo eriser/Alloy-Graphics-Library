@@ -40,12 +40,12 @@ public:
 
 class TextIconButton: public Composite {
 private:
-	AColor textColor;
-	AUnit1D fontSize;
 	std::string iconCodeString;
 	IconAlignment iconAlignment;
 	 HorizontalAlignment alignment;
 public:
+	AColor textColor;
+	AUnit1D fontSize;
 	TextIconButton(const std::string& label, int iconCode,
 			const AUnit2D& position, const AUnit2D& dimensions,const HorizontalAlignment& alignment= HorizontalAlignment::Center, const IconAlignment& iconAlignment = IconAlignment::Left);
 	virtual void draw(AlloyContext* context) override;
@@ -151,7 +151,6 @@ protected:
 	std::function<std::string(const Number& value)> labelFormatter;
 	std::function<void(const Number& value)> onChangeEvent;
 	virtual void update()=0;
-
 	double sliderPosition;
 public:
 	void setSliderColor(const Color& startColor, const Color& endColor) {
@@ -229,7 +228,7 @@ private:
 	TextLabelPtr selectionLabel;
 	TextLabelPtr arrowLabel;
 	std::shared_ptr<SelectionBox> selectionBox;
-	int selectedIndex = -1;
+	int selectedIndex;
 public:
 	std::function<void(int)> onSelect;
 	inline int getSelectedIndex() const {
@@ -397,11 +396,13 @@ private:
 			const InputEvent& e);
 	pixel fileEntryHeight;
 	void updateDirectoryList();
+	bool updateValidity();
 public:
 	void addFileExtensionRule(const std::string& name, const std::string& extension);
 	void addFileExtensionRule(const std::string& name, const std::initializer_list<std::string> & extension);
 	
 	friend class FileEntry;
+	bool valid = false;
 	std::function<void(const std::string&)> onOpen;
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(const std::string& name, const AUnit2D& pos,

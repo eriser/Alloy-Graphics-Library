@@ -603,7 +603,7 @@ void SliderHandle::draw(AlloyContext* context) {
 
 Selection::Selection(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, const std::vector<std::string>& options) :
-		Composite(label) {
+		Composite(label),selectedIndex(-1) {
 	this->position = position;
 	this->dimensions = dimensions;
 	borderColor = MakeColor(COLOR_NONE);
@@ -1692,6 +1692,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	fileLocation = std::shared_ptr<FileField>(new FileField("None",CoordPX(0, 0), CoordPercent(1.0f, 1.0f)));
 	fileDialog->onOpen = [this](const std::string& file) {
 		fileLocation->setValue(file);
+		
 		if (onChange)onChange(file);
 	};
 	openIcon = std::shared_ptr<IconButton>(new IconButton(
@@ -1872,6 +1873,7 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 				entry->setSelected(true);
 				lastSelected.push_back(entry);
 			}
+			updateValidity();
 		} else {
 			if (entry->fileDescription.fileType == FileType::File) {
 				if (!entry->isSelected()) {
@@ -1880,13 +1882,16 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 					}
 					entry->setSelected(true);
 					fileLocation->setValue(entry->fileDescription.fileLocation);
+					
 					lastSelected.clear();
 					lastSelected.push_back(entry);
 				}
+				
 			} else {
 				setSelectedFile(entry->fileDescription.fileLocation);
 				fileLocation->setValue(entry->fileDescription.fileLocation);
 			}
+			updateValidity();
 		}
 		return true;
 	} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
@@ -1925,9 +1930,23 @@ bool FileDialog::isMultiSelectionEnabled() {
 void FileDialog::updateDirectoryList() {
 	setSelectedFile(fileLocation->getValue());
 }
+bool FileDialog::updateValidity() {
+	std::string file = fileLocation->getValue();
+	FileFilterRule* rule = (fileTypeSelect->getSelectedIndex() >= 0) ? filterRules[fileTypeSelect->getSelectedIndex()].get() : nullptr;
+	if (FileExists(file) && IsFile(file) && (rule == nullptr || rule->accept(file))) {
+		valid = true;
+		openButton->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	}
+	else {
+		openButton->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
+		valid = false;
+	}
+	return valid;
+}
 void FileDialog::setSelectedFile(const std::string& file) {
 	std::string dir;
 	bool select = false;
+	updateValidity();
 	if (IsDirectory(file)) {
 		dir = file;
 	} else {
@@ -1939,7 +1958,8 @@ void FileDialog::setSelectedFile(const std::string& file) {
 			dir);
 	int i = 0;
 	fileEntries.clear();
-	FileFilterRule* rule = (fileTypeSelect->getSelectedIndex() >= 0)?filterRules[fileTypeSelect->getSelectedIndex()].get():nullptr;
+	FileFilterRule* rule = (fileTypeSelect->getSelectedIndex() >= 0) ? filterRules[fileTypeSelect->getSelectedIndex()].get() : nullptr;
+	updateValidity();
 	for (FileDescription& fd : descriptions) {
 		if (rule != nullptr&&fd.fileType == FileType::File&&!rule->accept(fd.fileLocation)){
 			continue;
@@ -1960,6 +1980,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 			if(entry->parent==nullptr)directoryList->add(entry);
 		}
 	});
+
 }
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims,pixel fileEntryHeight) :
@@ -1972,10 +1993,15 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30)));
 	openButton->onMouseDown=[this](AlloyContext* context,const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			if (this->onOpen)this->onOpen(this->getValue());
-			this->setVisible(false);
-			context->getGlassPanel()->setVisible(false);
-			return true;
+			if (valid) {
+				if (this->onOpen)this->onOpen(this->getValue());
+				this->setVisible(false);
+				context->getGlassPanel()->setVisible(false);
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		return false;
 	};
@@ -1983,7 +2009,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f),
 		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f)));
 	
-	std::shared_ptr<FileFilterRule> filterRule= std::shared_ptr<FileFilterRule>(new FileFilterRule(name));
+	std::shared_ptr<FileFilterRule> filterRule= std::shared_ptr<FileFilterRule>(new FileFilterRule("All Files"));
 	filterRules.push_back(filterRule);
 	fileTypeSelect->addSelection(filterRule->toString());
 
