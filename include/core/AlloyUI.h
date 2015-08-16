@@ -221,11 +221,12 @@ protected:
 	std::shared_ptr<ScrollHandle> verticalScrollHandle, horizontalScrollHandle;
 	std::vector<std::shared_ptr<Region>> children;
 	typedef std::shared_ptr<Region> ValueType;
+	pixel2 cellPadding;
+	pixel2 cellSpacing;
 public:
 	typedef std::vector<ValueType>::iterator iterator;
 	typedef std::vector<ValueType>::const_iterator const_iterator;
-	pixel2 cellPadding;
-	pixel2 cellSpacing;
+
 	void clear();
 	std::vector<std::shared_ptr<Region>>& getChildren() {
 		return children;
@@ -253,8 +254,10 @@ public:
 
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
-	inline void setOrientation(const Orientation& orient) {
+	inline void setOrientation(const Orientation& orient,pixel2 cellSpacing=pixel2(5,5),pixel2 cellPadding=pixel2(0,0)) {
 		orientation = orient;
+		this->cellSpacing = cellSpacing;
+		this->cellPadding = cellPadding;
 	}
 	virtual inline bool isScrollEnabled() const override {
 		return scrollEnabled;
@@ -439,7 +442,9 @@ public:
 		}
 	}
 	void draw(AlloyContext* context) override;
-
+	void addSelection(const std::string& selection) {
+		options.push_back(selection);
+	}
 	SelectionBox(const std::string& name,
 			const std::vector<std::string>& options =
 					std::vector<std::string>());

@@ -24,6 +24,9 @@
 #include "AlloyDrawUtil.h"
 #include "AlloyContext.h"
 #include <future>
+#include <cstdlib>
+#include <cctype>
+
 using namespace std;
 namespace aly {
 	bool CheckBox::handleMouseDown(AlloyContext* context,const InputEvent& event) {
@@ -685,6 +688,10 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 					} else {
 						selectedIndex=selectionBox->getSelectedIndex();
 						selectionBox->setSelectedIndex(selectedIndex);
+
+					}
+					if (selectionBox->onSelect) {
+						selectionBox->onSelect(selectionBox.get());
 					}
 					selectionLabel->label=this->getValue();
 					return true;
@@ -705,8 +712,8 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			selectionBox->setSelectedIndex(selectedIndex);
 		}
 		selectionLabel->label=this->getValue();
-		if (onSelect) {
-			onSelect(selectedIndex);
+		if (this->onSelect) {
+			this->onSelect(selectedIndex);
 		}
 		return true;
 	};
@@ -1915,6 +1922,9 @@ void FileDialog::setEnableMultiSelection(bool enable) {
 bool FileDialog::isMultiSelectionEnabled() {
 	return enableMultiSelection;
 }
+void FileDialog::updateDirectoryList() {
+	setSelectedFile(fileLocation->getValue());
+}
 void FileDialog::setSelectedFile(const std::string& file) {
 	std::string dir;
 	bool select = false;
@@ -1925,13 +1935,15 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		select = true;
 	}
 	lastSelected.clear();
-	
 	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(
 			dir);
 	int i = 0;
-
 	fileEntries.clear();
+	FileFilterRule* rule = (fileTypeSelect->getSelectedIndex() >= 0)?filterRules[fileTypeSelect->getSelectedIndex()].get():nullptr;
 	for (FileDescription& fd : descriptions) {
+		if (rule != nullptr&&fd.fileType == FileType::File&&!rule->accept(fd.fileLocation)){
+			continue;
+		}
 		FileEntry* entry = new FileEntry(this, MakeString() << "Entry " << i,
 				CoordPX(2, 0),
 				CoordPerPX(1.0f, 0.0f, -4.0f, fileEntryHeight));
@@ -1967,15 +1979,25 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		}
 		return false;
 	};
+
 	fileTypeSelect = std::shared_ptr<Selection>(new Selection("File Type",CoordPerPX(0.0f, 0.0f, 10.0f,5.0f),
-		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f), std::vector<string>{"txt","png","jpg"}));
+		CoordPerPX(1.0f,0.0f,-125.0f, 30.0f)));
+	
+	std::shared_ptr<FileFilterRule> filterRule= std::shared_ptr<FileFilterRule>(new FileFilterRule(name));
+	filterRules.push_back(filterRule);
+	fileTypeSelect->addSelection(filterRule->toString());
+
+	fileTypeSelect->setSelectionIndex(0);
+	fileTypeSelect->onSelect = [this](int index) {
+		this->updateDirectoryList();
+	};
 	openButton->setOrigin(Origin::TopRight);
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("File Location", CoordPX(10, 7),
 					CoordPerPX(1.0f, 0.0f, -55.0f, 30.0f)));
 	fileLocation-> backgroundColor= MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fileLocation->onTextEntered = [this](TextField* field) {
-		this->setValue(field->getValue());
+		this->updateDirectoryList();
 	};
 	upDirButton = std::shared_ptr<IconButton>(
 		new IconButton(0xf062,
@@ -2049,7 +2071,6 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	directoryTree->add(desktopDir);
 
 	std::vector<std::string> drives = GetDrives();
-	//for (int i = 0;i < 10;i++) {
 		for (std::string file : drives) {
 			TextIconButtonPtr diskDir = TextIconButtonPtr(new TextIconButton(GetFileName(RemoveTrailingSlash(file)) + ALY_PATH_SEPARATOR, 0xf0a0, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 0.0f, -2.0f, 30.0f), HorizontalAlignment::Left));
 			diskDir->onMouseDown = [this, file](AlloyContext* context, const InputEvent& e) {
@@ -2061,7 +2082,6 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			};
 			directoryTree->add(diskDir);
 		}
-	//}
 	directoryList = std::shared_ptr<Composite>(
 			new Composite("Container", CoordPX(0, 0),
 					CoordPerPX(1.0f, 1.0, -10.0f, 0.0f)));
@@ -2069,10 +2089,8 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	directoryList->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	directoryList->borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	directoryList->borderWidth = UnitPX(1.0f);
-	directoryList->setOrientation(Orientation::Vertical);
+	directoryList->setOrientation(Orientation::Vertical,pixel2(0,2),pixel2(0,2));
 	directoryList->setScrollEnabled(true);
-	directoryList->cellPadding = pixel2(0,2);
-	directoryList->cellSpacing = pixel2(0,2);
 	//directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	directoryTree->borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	directoryTree->borderWidth = UnitPX(1.0f);
@@ -2089,6 +2107,44 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 		return false;
 	};
 }
+std::string FileFilterRule::toString() {
+	std::stringstream ss;
+	if (extensions.size() == 0) {
+		ss<<name << " (*.*)";
+		return ss.str();
+	}
+	ss << name << " (";
+	int index = 0;
+	for (std::string ext : extensions) {
+		ss << "*." << ext;
+		if (index < extensions.size() - 1) {
+			ss << ", ";
+		}
+		index++;
+	}
+	ss << ")";
+	return ss.str();
+}
+bool FileFilterRule::accept(const std::string& file) {
+	if (extensions.size() == 0)return true;
+	std::string ext = GetFileExtension(file);
+	for (char& c : ext) {
+		c = std::tolower(c);
+	}
+	for (std::string extension : extensions) {
+		if (ext == extension)return true;
+	}
+	return false;
+}
+void FileDialog::addFileExtensionRule(const std::string& name, const std::string& extension) {
+	filterRules.push_back(std::shared_ptr<FileFilterRule>(new FileFilterRule(name, { extension })));
+	fileTypeSelect->addSelection(filterRules.back()->toString());
+}
+void FileDialog::addFileExtensionRule(const std::string& name, const std::initializer_list<std::string> & extension) {
+	filterRules.push_back(std::shared_ptr<FileFilterRule>(new FileFilterRule(name,extension )));
+	fileTypeSelect->addSelection(filterRules.back()->toString());
+}
+
 void FileDialog::setValue(const std::string& file) {
 	fileLocation->setValue(file);
 	setSelectedFile(file);

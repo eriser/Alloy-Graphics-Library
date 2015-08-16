@@ -202,6 +202,10 @@ bool ExampleUI::init(Composite& rootNode) {
 	geomRegion->add(
 			selector = new FileSelector("Mesh", CoordPX(2, 5),
 					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f)));
+	selector->addFileExtensionRule("Portable Network Graphics", "png");
+	selector->addFileExtensionRule("XML", { "raw", "xml" });
+	selector->addFileExtensionRule("Text", "txt");
+
 	geomRegion->setOrientation(Orientation::Vertical);
 	geomRegion->add(scrollRegion);
 	selector->setValue("mesh.obj");
@@ -280,16 +284,13 @@ bool ExampleUI::init(Composite& rootNode) {
 	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
 		CoordPX(200.0f, 50.0f), Theme::Default.DARK,
 		Theme::Default.LIGHT_TEXT);
-	TextFieldPtr field2 = MakeTextField("Field 2", CoordPercent(0.1f, 0.8f),
-		CoordPX(200.0f, 50.0f), Theme::Default.LIGHT,
-		Theme::Default.DARK_TEXT);
+
 	center->add(hslider1);
 
 	center->add(hslider2);
 
 	center->add(vslider1);
 	center->add(field1);
-	center->add(field2);
 	bcomp->setNorth(north, UnitPercent(0.1f));
 	bcomp->setSouth(south, UnitPercent(0.3f));
 	bcomp->setEast(east, UnitPercent(0.2f));

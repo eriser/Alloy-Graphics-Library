@@ -275,11 +275,7 @@ void Application::fireEvent(const InputEvent& event) {
 						- context->mouseDownRegion->getBoundsPosition();
 			}
 		} else if (event.isUp()) {
-			if (context->mouseDownRegion != nullptr
-					&& context->mouseDownRegion->onMouseUp) {
-				consumed |= context->mouseDownRegion->onMouseUp(context.get(),
-						event);
-			}
+
 			if (context->mouseDownRegion != nullptr
 					&& context->getOnTopRegion() == context->mouseDownRegion
 					&& context->mouseDownRegion->isDragEnabled()) {

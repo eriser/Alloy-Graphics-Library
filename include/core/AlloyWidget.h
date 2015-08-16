@@ -249,6 +249,9 @@ public:
 		selectionBox->setSelectedIndex(selection);
 		selectionLabel->label = this->getValue();
 	}
+	void addSelection(const std::string& selection) {
+		selectionBox->addSelection(selection);
+	}
 	void setSelectionIndex(int selection) {
 		selectedIndex = selection;
 		selectionBox->setSelectedIndex(selection);
@@ -349,10 +352,27 @@ public:
 	virtual void draw(AlloyContext* context) override;
 	void setValue(const FileDescription& fileDescription);
 };
+struct FileFilterRule {
+	std::string name;
+	std::vector<std::string> extensions;
+	FileFilterRule(const std::string& name, const std::string& extension):name(name) {
+		extensions.push_back(extension);
+	};
+	FileFilterRule(const std::string& name) :name(name) {
+	};
+	FileFilterRule(const std::string& name,std::initializer_list<std::string> extension) :name(name){
+		for (std::string ext : extension) {
+			extensions.push_back(ext);
+		}
+	}
+	std::string toString();
+	virtual bool accept(const std::string& file);
+};
 class FileDialog: public Composite {
 private:
 
 	std::list<FileEntry*> lastSelected;
+	std::vector<std::shared_ptr<FileFilterRule>> filterRules;
 	std::shared_ptr<FileField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
 	std::shared_ptr<Composite> directoryList;
@@ -376,7 +396,11 @@ private:
 	bool onMouseUp(FileEntry* entry, AlloyContext* context,
 			const InputEvent& e);
 	pixel fileEntryHeight;
+	void updateDirectoryList();
 public:
+	void addFileExtensionRule(const std::string& name, const std::string& extension);
+	void addFileExtensionRule(const std::string& name, const std::initializer_list<std::string> & extension);
+	
 	friend class FileEntry;
 	std::function<void(const std::string&)> onOpen;
 	virtual void draw(AlloyContext* context) override;
@@ -387,7 +411,10 @@ public:
 	bool isMultiSelectionEnabled();
 	void setValue(const std::string& file);
 	std::string getValue() const;
-
+	void setFileExtensionRule(int index) {
+		fileTypeSelect->setValue(index);
+		updateDirectoryList();
+	}
 };
 class FileSelector: public BorderComposite {
 private:
@@ -395,7 +422,17 @@ private:
 	std::shared_ptr<IconButton> openIcon;
 	std::shared_ptr<FileDialog> fileDialog;
 public:
+
 	std::function<void(const std::string& file)> onChange;
+	void addFileExtensionRule(const std::string& name, const std::string& extension) {
+		fileDialog->addFileExtensionRule(name, extension);
+	}
+	void addFileExtensionRule(const std::string& name,const std::initializer_list<std::string>& extension) {
+		fileDialog->addFileExtensionRule(name, extension);
+	}
+	void setFileExtensionRule(int index) {
+		fileDialog->setFileExtensionRule(index);
+	}
 	FileSelector(const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
 	void setValue(const std::string& file);
