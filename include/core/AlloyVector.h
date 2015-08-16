@@ -520,9 +520,9 @@ template<class T, int C> vec<T, C> maxVec(const Vector<T, C>& a) {
 #pragma omp parallel for
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::min());
-#pragma omp parallel for reduction(max:tmp)
+//#pragma omp parallel for reduction(max:tmp)
 		for (int i = 0; i < (int) sz; i++) {
-			tmp = std::max(tmp, a[i][c]);
+			if(a[i][c]>tmp)tmp = a[i][c];
 		}
 		ans[c] = tmp;
 	}
@@ -534,9 +534,9 @@ template<class T, int C> vec<T, C> minVec(const Vector<T, C>& a) {
 #pragma omp parallel for
 	for (int c = 0; c < C; c++) {
 		T tmp(std::numeric_limits<T>::max());
-#pragma omp parallel for reduction(min:tmp)
+//#pragma omp parallel for reduction(min:tmp)
 		for (int i = 0; i < (int) sz; i++) {
-			tmp = std::min(a[i][c], tmp);
+			if (a[i][c]<tmp)tmp = a[i][c];
 		}
 		ans[c] = tmp;
 	}
@@ -545,10 +545,10 @@ template<class T, int C> vec<T, C> minVec(const Vector<T, C>& a) {
 template<class T, int C> T max(const Vector<T, C>& a) {
 	size_t sz = a.size();
 	T tmp(std::numeric_limits<T>::min());
-#pragma omp parallel for reduction(max:tmp)
+//#pragma omp parallel for reduction(max:tmp)
 	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
-			tmp = std::max(a[i][c], tmp);
+			if (a[i][c]>tmp)tmp = a[i][c];
 		}
 	}
 	return tmp;
@@ -556,10 +556,10 @@ template<class T, int C> T max(const Vector<T, C>& a) {
 template<class T, int C> T min(const Vector<T, C>& a) {
 	size_t sz = a.size();
 	T tmp(std::numeric_limits<T>::max());
-#pragma omp parallel for reduction(min:tmp)
+//#pragma omp parallel for reduction(min:tmp)
 	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
-			tmp = std::min(a[i][c], tmp);
+			if (a[i][c]<tmp)tmp = a[i][c];
 		}
 	}
 	return tmp;
