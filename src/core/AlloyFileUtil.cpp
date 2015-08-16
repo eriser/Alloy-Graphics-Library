@@ -64,6 +64,8 @@ using namespace std;
 
 namespace aly {
 std::string CodePointToUTF8(int cp) {
+#pragma GCC diagnostic push
+
 	int n = 0;
 	if (cp < 0x80)
 		n = 1;
@@ -103,6 +105,8 @@ std::string CodePointToUTF8(int cp) {
 	case 1:
 		str[0] = cp;
 	}
+#pragma GCC diagnostic pop
+
 	return std::string(str);
 }
 std::vector<std::string> split(const std::string &str, char delim) {
@@ -457,7 +461,6 @@ std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
 	if (dirp) {
 		while ((dp = readdir(dirp)) != NULL) {
 			string fileName(dp->d_name);
-			FileType type = FileType::Unknown;
 			if (dp->d_type == DT_REG || dp->d_type == DT_DIR
 					|| dp->d_type == DT_LNK) {
 				if (fileName != ".." && fileName != ".") {
@@ -495,13 +498,13 @@ std::string GetDownloadsDirectory()
 std::string GetCurrentWorkingDirectory()
 {
 	char path[4096];
+	memset(path,0,sizeof(path));
 	getcwd(path,4096);
 	return std::string(path);
 }
 std::string GetUserNameString(){
      struct passwd *pw;
      uid_t uid;
-     int c;
      uid = geteuid ();
      pw = getpwuid (uid);
      if (pw)
@@ -527,8 +530,9 @@ std::vector<std::string> GetDrives() {
 std::string GetExecutableDirectory()
 {
 	char result[4096];
-	my_uint32 found;
-	ssize_t count = readlink("/proc/self/exe", result, 4096);
+	memset(result,0,sizeof(result));
+	//Only works on Linux! No mac support!
+	readlink("/proc/self/exe", result, 4096);
 	return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
 }
 #else 

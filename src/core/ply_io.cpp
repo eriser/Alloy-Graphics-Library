@@ -39,6 +39,9 @@
 #include <iostream>
 #include <math.h>
 /* names of scalar types */
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
@@ -303,9 +306,7 @@ void element_count_ply(PlyFile *plyfile, char *elem_name, int nelems)
  nelems    - number of elements of this type to be written
  */
 {
-	int i;
 	PlyElement *elem;
-	PlyProperty *prop;
 
 	/* look for appropriate element */
 	elem = find_element(plyfile, elem_name);
@@ -430,7 +431,6 @@ void put_element_setup_ply(PlyFile *plyfile, char *elem_name) {
  ******************************************************************************/
 
 void put_element_ply(PlyFile *plyfile, void *elem_ptr) {
-	int i, j, k;
 	FILE *fp = plyfile->fp;
 	PlyElement *elem;
 	PlyProperty *prop;
@@ -440,6 +440,7 @@ void put_element_ply(PlyFile *plyfile, void *elem_ptr) {
 	int list_count;
 	int item_size;
 	int int_val;
+	int i,j,k;
 	unsigned int uint_val;
 	double double_val;
 	char **other_ptr;
@@ -1566,7 +1567,6 @@ void write_scalar_type(FILE *fp, int code) {
 
 char **get_words(FILE *fp, int *nwords, char **orig_line) {
 #define BIG_STRING 4096
-	int i, j;
 	static char str[BIG_STRING];
 	static char str_copy[BIG_STRING];
 	char **words;

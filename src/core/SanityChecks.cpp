@@ -17,12 +17,14 @@
 #include "cereal/archives/binary.hpp"
 #include <iostream>
 #include <fstream>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 namespace aly {
 	bool SANITY_CHECK_ALGO() {
 		SparseMatrix<float,4> A(128,128);
 		Vector4f b(A.rows);
 		Vector4f x(A.cols);
-		for (int i = 0;i < A.rows;i++) {
+		for (int i = 0;i < (int)A.rows;i++) {
 			for (int jj = -2;jj <= 2;jj++) {
 				A.insert(i,i+jj, float4(0.2f));
 			}
@@ -116,7 +118,7 @@ bool SANITY_CHECK_CEREAL() {
 		}
 	}
 	Vector4f data(16);
-	for (int i = 0; i < data.size(); i++) {
+	for (int i = 0; i < (int)data.size(); i++) {
 		data[i] = float4((float) i, (float) ((i + 32) % 4),
 				(std::rand() % 256) / (256.0f), 1.0f);
 	}
@@ -124,7 +126,7 @@ bool SANITY_CHECK_CEREAL() {
 	Vector4f deserial(16);
 	std::string encodedString = EncodeBase64(data.data);
 	DecodeBase64(encodedString, deserial.data);
-	for (int i = 0; i < data.size(); i++) {
+	for (int i = 0; i < (int)data.size(); i++) {
 		std::cout << i << ") " << data[i] << " " << deserial[i] << std::endl;
 	}
 
@@ -203,7 +205,7 @@ bool SANITY_CHECK_IMAGE() {
 	}
 }
 bool SANITY_CHECK_LINALG() {
-	/*
+
 	try {
 		std::cout << "Sanity check vector ..." << std::endl;
 		Vector4f im1(32);
@@ -218,7 +220,7 @@ bool SANITY_CHECK_LINALG() {
 		Vector4f im3 = -im1;
 		float d1 = dot(im1, im2) + length(im1) + lengthL1(im2) + max(im1)
 				- min(im1);
-		float4 d2 = dotVec(im1, im2) + lengthVec(im2) + lengthVecL1(im1)
+		float4 d2 = float4(dotVec(im1, im2)) + float4(lengthVec(im2)) + lengthVecL1(im1)
 				+ maxVec(im1) - minVec(im1);
 		Vector4f out = float4(1, 2, 3, 1) + im2;
 		std::cout << "Dots " << d1 << " " << d2 << std::endl;
@@ -233,7 +235,6 @@ bool SANITY_CHECK_LINALG() {
 		std::cout << e.what() << std::endl;
 		return false;
 	}
-	*/
 }
 bool SANITY_CHECK_UI() {
 	CoordPercent rel(0.5f, 0.75f);

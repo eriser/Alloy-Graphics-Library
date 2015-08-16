@@ -315,7 +315,6 @@ void TextButton::draw(AlloyContext* context) {
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	float lineWidth = 2.0f;
 
 	int xoff = 0;
 	int yoff = 0;
@@ -371,7 +370,7 @@ void TextButton::draw(AlloyContext* context) {
 }
 TextIconButton::TextIconButton(const std::string& label, int iconCode,
 		const AUnit2D& position, const AUnit2D& dimensions,const  HorizontalAlignment&  alignment, const  IconAlignment& iconAlignment) :
-		iconCodeString(CodePointToUTF8(iconCode)), Composite(label), alignment(alignment), iconAlignment(iconAlignment) {
+		Composite(label), iconCodeString(CodePointToUTF8(iconCode)), iconAlignment(iconAlignment) , alignment(alignment){
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -384,7 +383,6 @@ void TextIconButton::draw(AlloyContext* context) {
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	float lineWidth = 2.0f;
 	int xoff = 0;
 	int yoff = 0;
 	if (down) {
@@ -456,7 +454,7 @@ void TextIconButton::draw(AlloyContext* context) {
 }
 IconButton::IconButton(int iconCode,
 		const AUnit2D& position, const AUnit2D& dimensions, IconType iconType) :
-		Composite("Icon", position, dimensions),iconType(iconType), iconCodeString(CodePointToUTF8(iconCode)){
+		Composite("Icon", position, dimensions),iconCodeString(CodePointToUTF8(iconCode)),iconType(iconType){
 	this->position = position;
 	this->dimensions = dimensions;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
@@ -885,7 +883,6 @@ void HorizontalSlider::draw(AlloyContext* context) {
 	valueLabel->label = labelFormatter(value);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	bool hover = context->isMouseContainedIn(this);
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -919,7 +916,6 @@ VerticalSlider::VerticalSlider(const std::string& label,
 	this->position = position;
 	this->dimensions = dimensions;
 	float handleSize = 30.0f;
-	float trackPadding = 10.0f;
 	this->aspectRatio = 4.0f;
 	sliderPosition = value.toDouble();
 	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
@@ -1047,7 +1043,6 @@ void VerticalSlider::draw(AlloyContext* context) {
 	valueLabel->label = labelFormatter(value);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	bool hover = context->isMouseContainedIn(this);
 
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
@@ -1382,8 +1377,6 @@ void ColorWheel::setColor(const Color& c) {
 }
 void ColorWheel::setColor(const pixel2& cursor) {
 	if (triangleSelected) {
-		float2 pt = cursor - tBounds[0];
-		RGBAf pivot = HSVAtoRGBAf(HSVA(hsvColor.x, 1.0f, 0.5f, 1.0f));
 
 		float2 mid = 0.5f * (tBounds[0] + tBounds[1]);
 		float u = clamp(
@@ -1417,11 +1410,6 @@ void ColorWheel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 
-	float x = bounds.position.x;
-	float y = bounds.position.y;
-	float w = bounds.dimensions.x;
-	float h = bounds.dimensions.y;
-	float t = 0.3f;
 	nvgBeginPath(nvg);
 	nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
 			bounds.dimensions.x, bounds.dimensions.y,
@@ -1740,8 +1728,7 @@ void FileSelector::openFileDialog(AlloyContext* context,
 }
 FileEntry::FileEntry(FileDialog* dialog, const std::string& name,
 		const AUnit2D& pos, const AUnit2D& dims) :
-		Region(name, pos, dims), fileDescription(), fontSize(UnitPercent(0.8f)), dialog(
-				dialog) {
+		Region(name, pos, dims), dialog(dialog), fileDescription(), fontSize(UnitPercent(0.8f)) {
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	this->borderColor = MakeColor(COLOR_NONE);
 	this->selected = false;
@@ -1782,7 +1769,6 @@ void FileEntry::draw(AlloyContext* context) {
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
 
-	float lineWidth = 2.0f;
 	int xoff = 0;
 	int yoff = 0;
 	if (down) {
@@ -2146,7 +2132,7 @@ std::string FileFilterRule::toString() {
 	int index = 0;
 	for (std::string ext : extensions) {
 		ss << "*." << ext;
-		if (index < extensions.size() - 1) {
+		if (index < (int)extensions.size() - 1) {
 			ss << ", ";
 		}
 		index++;
@@ -2228,7 +2214,7 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 	setScrollEnabled(true);
 	cellPadding.y =2;
 }
-CompositePtr& ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
+CompositePtr ExpandBar::add(const std::shared_ptr<Region>& region, bool expanded) {
 	CompositePtr container = MakeComposite("Content Container",
 			CoordPX(0.0f, 0.0f),
 			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f));
@@ -2252,7 +2238,7 @@ CompositePtr& ExpandBar::add(const std::shared_ptr<Region>& region, bool expande
 	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
 	return container;
 }
-CompositePtr& ExpandBar::add(Region* region, bool expanded) {
+CompositePtr ExpandBar::add(Region* region, bool expanded) {
 	return add(std::shared_ptr<Region>(region), expanded);
 }
 

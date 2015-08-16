@@ -1845,7 +1845,6 @@ AmbientOcclusionShader::AmbientOcclusionShader(
 	GLShader(context),sampleRadius(0.005f){
 	int thetaInc = 32;
 	int phiInc = 8;
-	int index = 0;
 	for (int j = 1; j < phiInc; j++) {
 		for (int i = 0; i < thetaInc; i++) {
 			float sp = sin(0.5f * ALY_PI * (j) / (float) phiInc);

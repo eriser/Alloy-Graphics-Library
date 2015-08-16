@@ -572,8 +572,8 @@ template<class T, int C> vec<double, C> lengthVecSqr(const Vector<T, C>& a) {
 	}
 	return ans;
 }
-template<class T, int C> vec<T, C> lengthVec(const Vector<T, C>& a) {
-	return sqrt(lengthVecSqr(a));
+template<class T, int C> vec<double, C> lengthVec(const Vector<T, C>& a) {
+	return aly::sqrt(lengthVecSqr(a));
 }
 typedef Vector<uint8_t, 4> VectorRGBA;
 typedef Vector<int, 4> VectorRGBAi;

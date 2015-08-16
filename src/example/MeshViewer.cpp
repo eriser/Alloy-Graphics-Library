@@ -26,8 +26,8 @@ using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
 				getFullPath("images/JG_Gold.png")), imageShader(getContext(),
-				ImageShader::Filter::MEDIUM_BLUR), voxelSize(0.0f), phongShader(
-				1), phongShader2(1) {
+				ImageShader::Filter::MEDIUM_BLUR),  phongShader(
+				1), phongShader2(1),voxelSize(0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	mesh.load(getFullPath("models/monkey.ply"));

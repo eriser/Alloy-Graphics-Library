@@ -30,7 +30,7 @@ namespace aly {
 class GLComponentGroup;
 class GLComponent {
 protected:
-	std::shared_ptr<AlloyContext> context = nullptr;
+	std::shared_ptr<AlloyContext> context;
 
 public:
 	friend class GLComponentGroup;
@@ -44,11 +44,11 @@ public:
 	}
 
 	GLComponent(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
-			context(context) {
+			context(context),bounds() {
 	}
 	GLComponent(const box2i& b, std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
-			bounds(b), context(context) {
+			 context(context),bounds(b) {
 	}
 
 	inline void setBounds(int x, int y, int w, int h) {

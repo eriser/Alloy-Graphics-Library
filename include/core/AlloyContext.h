@@ -70,7 +70,6 @@ public:
 	int handle;
 	const std::string name;
 	const std::string file;
-
 	int getCursorPosition(const std::string & text, float fontSize,
 			int xCoord) const;
 	Font(const std::string& name, const std::string& file,
@@ -78,9 +77,9 @@ public:
 };
 struct Glyph {
 	const std::string name;
+	const GlyphType type;
 	pixel width;
 	pixel height;
-	const GlyphType type;
 	Glyph(const std::string& name, GlyphType type, pixel w, pixel h) :
 			name(name), type(type), width(w), height(h) {
 
@@ -206,9 +205,9 @@ private:
 	void removeListener(EventHandler* region);
 public:
 	friend class Application;
-	const Theme theme;
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
+	const Theme theme;
 	ImageVAO vaoImage;
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;

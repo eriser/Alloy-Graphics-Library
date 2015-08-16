@@ -141,7 +141,7 @@ public:
 	}
 
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			width(w), height(h), x(x), y(y), id(id),channels(C),type(I), data(storage) {
+		data(storage),width(w), height(h), x(x), y(y), id(id),channels(C),type(I) {
 		data.resize(w * h);
 		data.shrink_to_fit();
 	}
@@ -159,10 +159,10 @@ public:
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
 			uint64_t id = 0) :
-			width(w), height(h), x(x), y(y), id(id), channels(C), type(I), data(ref) {
+				data(ref),width(w), height(h), x(x), y(y), id(id), channels(C), type(I){
 	}
 	Image() :
-			width(0), height(0), x(0), y(0), id(0), channels(C), type(I), data(storage) {
+		 data(storage),width(0), height(0), x(0), y(0), id(0), channels(C), type(I) {
 	}
 	Image(const Image<T, C, I>& img):Image(img.width, img.height, img.x, img.y, img.id) {
 		set(img.data.data());

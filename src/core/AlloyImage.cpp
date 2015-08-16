@@ -5,6 +5,8 @@
 #include "stb_image.h"
 
 #include <png.h>
+
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 namespace aly {
 void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
 	std::string file = ReplaceFileExtension(_file, "png");
@@ -98,7 +100,6 @@ void WriteImageToFile(const std::string& _file, const ImageRGBA& image) {
 	png_byte bit_depth = 8;
 	png_structp png_ptr;
 	png_infop info_ptr;
-	int number_of_passes;
 	png_bytep * row_pointers;
 	int x, y;
 	int index = 0;

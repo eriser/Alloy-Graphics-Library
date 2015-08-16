@@ -83,7 +83,7 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 }
 Application::Application(int w, int h, const std::string& title,
 		bool showDebugIcon) :
-		rootRegion("Root"), showDebugIcon(showDebugIcon) {
+		frameRate(0.0f),rootRegion("Root"), showDebugIcon(showDebugIcon) {
 
 	if (context.get() == nullptr) {
 		context.reset(new AlloyContext(w, h, title));
@@ -166,7 +166,6 @@ void Application::drawDebugUI() {
 				<< context->cursorPosition;
 		nvgTextAlign(nvg, alignment);
 		nvgFillColor(nvg, Color(0, 0, 0, 128));
-		const float shift = 1.0f;
 		if (context->hasFocus) {
 			drawText(nvg, context->cursorPosition, txt, FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
@@ -474,7 +473,6 @@ void Application::run(int swapInterval) {
 
 	context->requestPack();
 	glfwSwapInterval(swapInterval);
-	double prevt = 0, cpuTime = 0;
 	glfwSetTime(0);
 	uint64_t frameCounter = 0;
 	std::chrono::steady_clock::time_point endTime;

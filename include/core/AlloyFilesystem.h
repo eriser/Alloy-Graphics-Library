@@ -358,6 +358,7 @@ namespace internal {
 //				std::basic_string<T>::const_iterator p_begin, std::basic_string<T>::const_iterator p_end)
 template<class T>
 bool glob_match(T i_begin, T i_end, T p_begin, T p_end) {
+#pragma GCC diagnostic push
 	if (i_begin == i_end) {
 		return (p_begin == p_end);
 	}
@@ -388,6 +389,7 @@ bool glob_match(T i_begin, T i_end, T p_begin, T p_end) {
 		}
 		}
 	}
+#pragma GCC diagnostic pop
 	return (i_begin == i_end);
 }
 

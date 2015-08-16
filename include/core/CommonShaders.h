@@ -397,9 +397,9 @@ public:
 class WireframeShader: public GLShader {
 private:
 	float lineWidth;
+	bool scaleInvariant;
 	Color edgeColor;
 	Color faceColor;
-	bool scaleInvariant;
 public:
 	inline void setEdgeColor(const Color& c) {
 		edgeColor = c;

@@ -51,7 +51,7 @@ std::mutex AlloyContext::contextLock, taskLock;
 std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
 Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
-		name(name), file(file), nvg(context->nvgContext) {
+		 nvg(context->nvgContext),handle(0),name(name), file(file) {
 	handle = nvgCreateFont(nvg, name.c_str(), file.c_str());
 }
 int Font::getCursorPosition(const std::string & text, float fontSize,
@@ -142,7 +142,7 @@ CheckerboardGlyph::CheckerboardGlyph(int width, int height, int horizTiles,
 			bool vt = (i / cellWidth) % 2 == 0;
 			bool ht = (j / cellHeight) % 2 == 0;
 			img(i, j) =
-					(vt && !ht || !vt && ht) ?
+					((vt && !ht) ||( !vt && ht)) ?
 							RGBA(0, 0, 0, 0) : RGBA(255, 255, 255, 255);
 		}
 	}
@@ -263,7 +263,7 @@ void AlloyContext::removeOnTopRegion(Region* region) {
 
 AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		const Theme& theme) :
-		window(nullptr), nvgContext(nullptr), current(nullptr), theme(theme) {
+		 current(nullptr),nvgContext(nullptr),window(nullptr),  theme(theme) {
 	std::lock_guard<std::mutex> lock(contextLock);
 	if (glfwInit() != GL_TRUE) {
 		throw std::runtime_error("Could not initialize GLFW.");
@@ -424,7 +424,6 @@ bool AlloyContext::isFocused(Region* region) {
 }
 void AlloyContext::update(Composite& rootNode) {
 	endTime = std::chrono::steady_clock::now();
-	double t = glfwGetTime();
 	double updateElapsed = std::chrono::duration<double>(
 			endTime - lastUpdateTime).count();
 	double animateElapsed = std::chrono::duration<double>(
@@ -480,7 +479,6 @@ void AlloyContext::makeCurrent() {
 
 AlloyContext::~AlloyContext() {
 	std::lock_guard<std::mutex> lock(contextLock);
-	GLFWwindow* current = glfwGetCurrentContext();
 	glfwMakeContextCurrent(window);
 	if (vaoImage.vao) {
 		glDeleteVertexArrays(1, &vaoImage.vao);

@@ -33,14 +33,14 @@
 namespace aly {
 class Application {
 private:
-	bool showDebugIcon;
-	float frameRate = 0.0f;
+	float frameRate;
 	InputEvent inputEvent;
 	static std::shared_ptr<AlloyContext>& context;
 	void drawUI();
 	void drawDebugUI();
 	void draw();
 	Composite rootRegion;
+	bool showDebugIcon;
 	std::shared_ptr<ImageShader> imageShader;
 	std::list<std::exception_ptr> caughtExceptions;
 	std::shared_ptr<GLFrameBuffer> uiFrameBuffer;

@@ -141,9 +141,9 @@ class Slider: public Composite {
 protected:
 	AColor textColor;
 	AUnit1D fontSize;
-	Number value;
 	Number minValue;
 	Number maxValue;
+	Number value;
 	TextLabelPtr sliderLabel;
 	TextLabelPtr valueLabel;
 	std::shared_ptr<SliderHandle> sliderHandle;
@@ -159,12 +159,12 @@ public:
 	}
 	Slider(const std::string& name, const Number& min, const Number& max,
 			const Number& val) :
-			Composite(name), minValue(min), maxValue(max), value(val) {
+			Composite(name), minValue(min), maxValue(max), value(val),sliderPosition(0.0) {
 		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	Slider(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
 			const Number& min, const Number& max, const Number& val) :
-		Composite(name, pos, dims), minValue(min), maxValue(max), value(val) {
+		Composite(name, pos, dims), minValue(min), maxValue(max), value(val),sliderPosition(0.0) {
 		labelFormatter = [](const Number& value) {return value.toString();};
 	}
 	double getBlendValue() const;
@@ -324,8 +324,8 @@ class ExpandBar: public Composite {
 private:
 	std::list<std::shared_ptr<ExpandRegion>> regions;
 public:
-	CompositePtr& add(Region* region, bool expanded);
-	CompositePtr& add(const std::shared_ptr<Region>&, bool expanded);
+	CompositePtr add(Region* region, bool expanded);
+	CompositePtr add(const std::shared_ptr<Region>&, bool expanded);
 
 	ExpandBar(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 };
@@ -339,11 +339,10 @@ private:
 	std::string lastAccessTime;
 	std::string fileSize;
 	bool selected;
-	AUnit1D fontSize;
 	FileDialog* dialog;
 public:
-
 	FileDescription fileDescription;
+	AUnit1D fontSize;
 	void setSelected(bool selected);
 	bool isSelected();
 	FileEntry(FileDialog* dialog, const std::string& name, const AUnit2D& pos,
@@ -366,6 +365,7 @@ struct FileFilterRule {
 	}
 	std::string toString();
 	virtual bool accept(const std::string& file);
+	virtual ~FileFilterRule(){}
 };
 class FileDialog: public Composite {
 private:

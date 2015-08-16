@@ -33,9 +33,9 @@ protected:
 	GLuint internalFormat = 0;
 	GLuint externalFormat = 0;
 	GLuint dataType = 0;
-	bool mipmap = false;
-	bool multisample = false;
 	GLuint textureId = 0;
+	bool multisample = false;
+	bool mipmap = false;
 public:
 	GLuint getTextureId() const {
 		return textureId;
@@ -290,7 +290,7 @@ public:
 		return textureImage(i, j);
 	}
 	GLTexture(const std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
-			GLComponent(context), multisample(false), textureId(0), mipmap(
+			GLComponent(context), textureId(0), multisample(false),mipmap(
 					false) {
 	}
 

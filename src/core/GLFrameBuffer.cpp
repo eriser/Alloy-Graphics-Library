@@ -24,8 +24,8 @@
 namespace aly {
 
 GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
-		GLComponent(context), texture(context), mFrameBufferId(0), mDepthBufferId(
-				0) {
+		GLComponent(context),  mFrameBufferId(0), mDepthBufferId(
+				0),texture(context) {
 
 }
 void GLFrameBuffer::initialize(int w, int h) {

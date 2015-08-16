@@ -9,14 +9,14 @@
 namespace aly {
 const float VirtualCamera::sDeg2rad = ALY_PI / 180.0f;
 VirtualCamera::VirtualCamera() :
-		fov(60.0f), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
-				0, 0, 0), nearPlane(0.1f), farPlane(10000.0f), eye(
+		 Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
+				0, 0, 0), mouseXPos(
+						0), mouseYPos(0) ,fov(60.0f), nearPlane(0.1f), farPlane(10000.0f), eye(
 				float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(
 				0.2f), strafeSpeed(0.001f), distanceToObject(1.0), mouseDown(
 				false), startTumbling(false), zoomMode(false), changed(true), needsDisplay(
 				true), Projection(float4x4::identity()), View(
-				float4x4::identity()), Model(float4x4::identity()), mouseXPos(
-				0), mouseYPos(0) {
+				float4x4::identity()), Model(float4x4::identity()){
 }
 
 void VirtualCamera::lookAt(const float3& p, float dist) {
@@ -163,7 +163,6 @@ void VirtualCamera::handleButtonEvent(int button, int action) {
 bool VirtualCamera::onEventHandler(AlloyContext* context,
 		const InputEvent& event) {
 	if (!event.isAltDown() && !event.isShiftDown() && !event.isControlDown()) {
-		pixel2 lastPt = context->getCursorDownPosition();
 		switch (event.type) {
 		case InputType::Cursor:
 			handleCursorEvent(event.cursor.x, event.cursor.y);

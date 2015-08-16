@@ -209,7 +209,6 @@ Region::~Region() {
 	Application::clearEvents(this);
 }
 void Region::drawDebug(AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 }
 box2px Region::getBounds(bool includeOffset) const {
@@ -287,8 +286,6 @@ Region* Composite::locate(const pixel2& cursor) {
 void Composite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	float x = bounds.position.x;
-	float y = bounds.position.y;
 	float w = bounds.dimensions.x;
 	float h = bounds.dimensions.y;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
@@ -370,8 +367,6 @@ void Composite::draw(AlloyContext* context) {
 	}
 }
 void Composite::drawDebug(AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
 		region->drawDebug(context);
@@ -644,10 +639,6 @@ void BorderComposite::setCenter(const std::shared_ptr<Region>& region) {
 void BorderComposite::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	float x = bounds.position.x;
-	float y = bounds.position.y;
-	float w = bounds.dimensions.x;
-	float h = bounds.dimensions.y;
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (isScrollEnabled()) {
@@ -734,8 +725,6 @@ void BorderComposite::update(CursorLocator* cursorLocator) {
 }
 
 void BorderComposite::drawDebug(AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
-	box2px bounds = getBounds();
 	drawBoundsLabel(context, name, context->getFontHandle(FontType::Bold));
 	for (std::shared_ptr<Region>& region : children) {
 		if (region.get() == nullptr)
@@ -1041,7 +1030,6 @@ pixel2 TextLabel::getTextDimensions(AlloyContext* context) {
 void TextLabel::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
-	box2px pbounds = parent->getBounds();
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 	if (backgroundColor->a > 0) {
@@ -1066,7 +1054,6 @@ void TextLabel::draw(AlloyContext* context) {
 			context->pixelRatio);
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(fontType));
-	float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
 
 	nvgTextAlign(nvg,
 			static_cast<int>(horizontalAlignment)
@@ -1138,7 +1125,7 @@ void TextField::erase() {
 }
 
 void TextField::dragCursorTo(int index) {
-	if (index < 0 || index > value.size())
+	if (index < 0 || index > (int)value.size())
 		throw std::runtime_error(
 				MakeString() << name << ": Cursor position out of range.");
 	cursorStart = index;
@@ -1248,7 +1235,7 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 		case GLFW_KEY_DELETE:
 			if (cursorEnd != cursorStart)
 				erase();
-			else if (cursorStart < value.size())
+			else if (cursorStart < (int)value.size())
 				value.erase(value.begin() + cursorStart);
 			showDefaultLabel = false;
 			if (onKeyInput)
@@ -1260,7 +1247,6 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 
 void TextField::handleMouseInput(AlloyContext* context, const InputEvent& e) {
 	FontPtr fontFace = context->getFont(FontType::Bold);
-	box2px bounds = getBounds();
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 		if (e.isDown()) {
 			showCursor = true;
@@ -1277,7 +1263,6 @@ void TextField::handleMouseInput(AlloyContext* context, const InputEvent& e) {
 }
 void TextField::handleCursorInput(AlloyContext* context, const InputEvent& e) {
 	FontPtr fontFace = context->getFont(FontType::Bold);
-	box2px bounds = getBounds();
 	if (dragging) {
 		int shift = (int) (e.cursor.x - textOffsetX);
 		dragCursorTo(fontFace->getCursorPosition(value, fontSize, shift));
@@ -1299,6 +1284,10 @@ bool TextField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 			break;
 		case InputType::Cursor:
 			handleCursorInput(context, e);
+			break;
+		case InputType::Unspecified:
+			break;
+		case InputType::Scroll:
 			break;
 		}
 	}
@@ -1358,8 +1347,6 @@ void TextField::draw(AlloyContext* context) {
 	nvgFontSize(nvg, fontSize);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
-	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,
-			nullptr);
 
 	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
 
@@ -1372,7 +1359,7 @@ void TextField::draw(AlloyContext* context) {
 	if (cursorStart > 0) {
 		if (positions[cursorStart - 1].maxx - positions[textStart].minx > fwidth) {
 			while (positions[cursorStart - 1].maxx > positions[textStart].minx + fwidth) {
-				if (textStart >= positions.size() - 1)break;
+				if (textStart >= (int)positions.size() - 1)break;
 				textStart++;
 			}
 		}
@@ -1543,6 +1530,10 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 		case InputType::Cursor:
 			handleCursorInput(context, e);
 			break;
+		case InputType::Unspecified:
+			break;
+		case InputType::Scroll:
+			break;
 		}
 		segmentedPath = splitPath(value);
 	}
@@ -1606,7 +1597,6 @@ void FileField::draw(AlloyContext* context) {
 	nvgFontSize(nvg, fontSize);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	nvgTextMetrics(nvg, &ascender, &descender, &lineh);
-	float twidth = nvgTextBounds(nvg, 0, textY, value.c_str(), nullptr,nullptr);
 	pushScissor(nvg, x + PADDING, y, w - 2 * PADDING, h);
 	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 	positions.resize(value.size() + 1);
@@ -1618,7 +1608,7 @@ void FileField::draw(AlloyContext* context) {
 	if (cursorStart > 0) {
 		if (positions[cursorStart - 1].maxx - positions[textStart].minx > fwidth) {
 			while (positions[cursorStart - 1].maxx > positions[textStart].minx + fwidth) {
-				if (textStart >= positions.size() - 1)break;
+				if (textStart >= (int)positions.size() - 1)break;
 				textStart++;
 			}
 		}
@@ -1626,8 +1616,7 @@ void FileField::draw(AlloyContext* context) {
 	if (!showDefaultLabel) {
 		textOffsetX = textOffsetX - positions[textStart].minx;
 	}
-	float cursorOffset = textOffsetX + (cursorStart ? positions[cursorStart - 1].maxx - 1 : 0);
-	
+
 	if (cursorEnd != cursorStart&&isFocused) {
 		int lo = std::min(cursorEnd, cursorStart);
 		int hi = std::max(cursorEnd, cursorStart);
@@ -1648,22 +1637,18 @@ void FileField::draw(AlloyContext* context) {
 	} else {
 		float xOffset = textOffsetX;
 		std::stringstream path;
-		bool underline;
 		for (std::string comp : segmentedPath) {
 			path << comp;
-			underline = false;
 			if (comp == ALY_PATH_SEPARATOR) {
 				nvgFillColor(nvg, context->theme.DARK);
 			} else {
 				if(FileExists(path.str())) {
-					underline=true;
 					nvgFillColor(nvg, context->theme.LINK);
 				} else {
 					nvgFillColor(nvg, context->theme.DARK);
 				}
 			}
 			nvgText(nvg, xOffset, textY + h / 2, comp.c_str(), NULL);
-			float lastOffset = xOffset;
 			xOffset += nvgTextBounds(nvg, 0, textY, comp.c_str(), nullptr,
 					nullptr);
 		}
@@ -1696,7 +1681,6 @@ void FileField::draw(AlloyContext* context) {
 
 }
 void GlyphRegion::drawDebug(AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
 	drawBoundsLabel(context, name,
 			(glyph->type == GlyphType::Awesome) ?
 					context->getFontHandle(FontType::Icon) :
@@ -1853,8 +1837,6 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 box2px SelectionBox::getBounds(bool includeBounds) const {
 	box2px bounds = Region::getBounds(includeBounds);
 	AlloyContext* context = AlloyApplicationContext().get();
-	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
 	int elements =
 			(maxDisplayEntries > 0) ?
 					std::min(maxDisplayEntries, (int) options.size()) :
@@ -1989,7 +1971,7 @@ void SelectionBox::draw(AlloyContext* context) {
 					bounds.position.y - downArrow->height / 2),
 			pixel2(downArrow->width, downArrow->height));
 
-	if (maxDisplayEntries >= 0 && options.size() > maxDisplayEntries) {
+	if (maxDisplayEntries >= 0 && (int)options.size() > maxDisplayEntries) {
 		if (selectionOffset > 0) {
 			nvgBeginPath(nvg);
 			nvgFillColor(nvg, context->theme.DARK);
@@ -2006,7 +1988,7 @@ void SelectionBox::draw(AlloyContext* context) {
 			}
 		}
 
-		if (selectionOffset < options.size() - maxDisplayEntries) {
+		if (selectionOffset <(int) options.size() - maxDisplayEntries) {
 			nvgBeginPath(nvg);
 			nvgFillColor(nvg, context->theme.DARK);
 			nvgCircle(nvg, bounds.position.x + bounds.dimensions.x,
@@ -2017,7 +1999,7 @@ void SelectionBox::draw(AlloyContext* context) {
 					context);
 			if (downArrowBox.contains(
 					AlloyApplicationContext()->cursorPosition)) {
-				if (selectionOffset < options.size() - maxDisplayEntries) {
+				if (selectionOffset < (int)options.size() - maxDisplayEntries) {
 					selectionOffset++;
 				}
 			}
@@ -2027,7 +2009,7 @@ void SelectionBox::draw(AlloyContext* context) {
 }
 SelectionBox::SelectionBox(const std::string& name,
 		const std::vector<std::string>& labels) :
-		Region(name), options(labels), label(name) {
+		Region(name),label(name), options(labels) {
 
 	downArrow = AlloyApplicationContext()->createAwesomeGlyph(0xf0ab,
 			FontStyle::Normal, 14);
@@ -2100,7 +2082,7 @@ SelectionBox::SelectionBox(const std::string& name,
 						this->setVisible(false);
 					} else if(event.type==InputType::Scroll) {
 						if(maxDisplayEntries>=0) {
-							if(options.size()>maxDisplayEntries) {
+							if((int)options.size()>maxDisplayEntries) {
 								if(downTimer.get()!=nullptr) {
 									scrollingDown=false;
 									downTimer.reset();
@@ -2113,7 +2095,7 @@ SelectionBox::SelectionBox(const std::string& name,
 								return true;
 							}
 						}
-					} else if(event.type==InputType::Cursor&&options.size()>maxDisplayEntries) {
+					} else if(event.type==InputType::Cursor&&(int)options.size()>maxDisplayEntries) {
 						box2px bounds=this->getBounds();
 						int elements =
 						(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
@@ -2123,13 +2105,12 @@ SelectionBox::SelectionBox(const std::string& name,
 						lastBounds.position.y=bounds.position.y+bounds.dimensions.y-entryHeight;
 						lastBounds.dimensions.y=entryHeight;
 						firstBounds.dimensions.y=entryHeight;
-						bool cancel=false;
 						if(lastBounds.contains(event.cursor)) {
 							if(downTimer.get()==nullptr) {
 								downTimer=std::shared_ptr<Timer>(new Timer([this] {
 													double deltaT=200;
 													scrollingDown=true;
-													while(scrollingDown&&selectionOffset<options.size()-maxDisplayEntries) {
+													while(scrollingDown&&selectionOffset<(int)options.size()-maxDisplayEntries) {
 														this->selectionOffset++;
 														std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 														deltaT=std::max(30.0,0.75*deltaT);

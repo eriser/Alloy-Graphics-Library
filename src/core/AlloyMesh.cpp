@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ply_io.h"
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 namespace aly {
 using namespace std;
 PlyProperty MeshVertProps[] = { // property information for a vertex
@@ -161,7 +162,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		GLComponent(context), mesh(mesh), vao(0), vertexBuffer(0), normalBuffer(
 				0), colorBuffer(0), triIndexBuffer(0), quadIndexBuffer(0), triCount(
-				0), quadCount(0), triIndexCount(0), quadIndexCount(0), vertexCount(0){
+				0), quadCount(0), vertexCount(0), triIndexCount(0), quadIndexCount(0){
 
 	for (int n = 0; n < 4; n++)
 		quadVertexBuffer[n] = 0;
@@ -409,11 +410,10 @@ void GLMesh::update() {
 					glDeleteBuffers(1, &quadTextureBuffer[n]);
 				glGenBuffers(1, &quadTextureBuffer[n]);
 			}
-			for (uint4 face : mesh.quadIndexes.data) {
+			for (offset=0;offset<(int)mesh.quadIndexes.size();offset++) {
 				for (int n = 0; n < 4; n++) {
 					quads[n][offset] = mesh.textureMap[idx++];
 				}
-				offset++;
 			}
 			for (int n = 0; n < 4; n++) {
 				if (glIsBuffer(quadTextureBuffer[n]) == GL_TRUE)
@@ -437,7 +437,7 @@ void GLMesh::update() {
 					glDeleteBuffers(1, &triTextureBuffer[n]);
 				glGenBuffers(1, &triTextureBuffer[n]);
 			}
-			for (uint3 face : mesh.triIndexes.data) {
+			for (offset=0;offset<(int)mesh.triIndexes.size();offset++) {
 				for (int n = 0; n < 3; n++) {
 					tris[n][offset] = mesh.textureMap[idx++];
 				}
@@ -878,9 +878,7 @@ void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
 	// Check for optional attribute data. We can handle intensity; and the
 	// triplet red, green, blue.
 	bool RGBPointsAvailable = false;
-	bool hasParticleVelocity = false;
 	bool hasNormals = false;
-	bool hasVertexVelocity = false;
 
 	mesh.triIndexes.clear();
 	mesh.quadIndexes.clear();
@@ -899,16 +897,7 @@ void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
 			&& find_property(elem, "nz", &index) != NULL) {
 		hasNormals = true;
 	}
-	if ((elem = find_element(ply, "vertex")) != NULL
-			&& find_property(elem, "vx", &index) != NULL
-			&& find_property(elem, "vy", &index) != NULL
-			&& find_property(elem, "vz", &index) != NULL) {
-		hasVertexVelocity = true;
-	}
-	if ((elem = find_element(ply, "face")) != NULL
-			&& find_property(elem, "velocities", &index) != NULL) {
-		hasParticleVelocity = true;
-	}
+
 	int verts[256];
 	float velocity[3];
 	plyFace face;

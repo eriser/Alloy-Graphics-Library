@@ -35,14 +35,15 @@ public:
 };
 class Simulation {
 protected:
+	bool running;
+	bool paused;
 	std::string name;
 	double simulationTime;
 	double timeStep;
 	double simulationDuration;
 	double computeTimeSeconds;
 	long simulationIteration;
-	bool running;
-	bool paused;
+
 	bool isDrawDirty;
 	bool isInitialized;
 

@@ -35,6 +35,7 @@ public:
 	enum class PrimitiveType {
 		ALL = 0, QUADS = 4, TRIANGLES = 3, POINTS = 1
 	};
+	Mesh& mesh;
 	GLuint vao;
 	GLuint vertexBuffer;
 	GLuint normalBuffer;
@@ -52,7 +53,6 @@ public:
 	GLuint vertexCount;
 	GLuint triIndexCount;
 	GLuint quadIndexCount;
-	Mesh& mesh;
 
 	virtual void draw() const override;
 	virtual void draw(const PrimitiveType& type) const;
@@ -77,6 +77,8 @@ public:
 
 	Vector2f textureMap;
 	Image4f textureImage;
+
+	GLMesh gl;
 	float4x4 pose;
 
 	template<class Archive> void serialize(Archive & archive) {
@@ -86,7 +88,6 @@ public:
 				CEREAL_NVP(textureMap), CEREAL_NVP(textureImage));
 	}
 
-	GLMesh gl;
 
 	Mesh(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	inline box3f getBoundingBox() const {
