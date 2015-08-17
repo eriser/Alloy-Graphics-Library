@@ -36,7 +36,7 @@ private:
 	aly::ParticleDepthShader particleDepthShader;
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
-	aly::ParticleFaceIdShader particleFaceIdShader;
+	aly::ParticleIdShader particleFaceIdShader;
 	aly::AmbientOcclusionShader ambientOcclusionShader;
 	aly::DepthColorShader depthColorShader;
 	aly::DepthAndTextureShader depthAndTextureShader;
