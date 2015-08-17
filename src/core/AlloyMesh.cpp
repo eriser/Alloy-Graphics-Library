@@ -28,7 +28,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ply_io.h"
+#ifndef ALY_WINDOWS
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#endif
 namespace aly {
 using namespace std;
 PlyProperty MeshVertProps[] = { // property information for a vertex
