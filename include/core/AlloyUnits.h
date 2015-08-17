@@ -369,7 +369,7 @@ public:
 		return value ? 1.0 : 0.0;
 	}
 	bool toBoolean() const {
-		return (value != 0);
+		return value;
 	}
 	std::string toString() const {
 		return MakeString() << value;
