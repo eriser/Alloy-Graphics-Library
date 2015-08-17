@@ -40,8 +40,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	float w = 0.9f;
 	srand(1023172413L);
 	mesh.updateVertexNormals();
-	particles.vertexLocations = mesh.vertexLocations;
-	particles.update();
+
 	/*
 	 SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
 	 for (size_t i = 0;i < L.rows;i++) {
@@ -71,6 +70,8 @@ bool MeshViewer::init(Composite& rootNode) {
 	//WriteMeshToFile("smoothed_before.ply", mesh);
 	SolveCG(b, L, mesh.vertexLocations);
 	mesh.updateVertexNormals();
+	particles.vertexLocations = mesh.vertexLocations;
+	particles.update();
 	//WriteMeshToFile("smoothed_after.ply", mesh);
 
 	mesh2.load(getFullPath("models/armadillo.ply"));
