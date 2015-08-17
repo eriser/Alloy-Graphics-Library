@@ -60,7 +60,7 @@ void SHA1::update(std::istream &is) {
 
 std::string SHA1::final() {
 	/* Total number of hashed bits */
-	uint64 total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
+	uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
 
 	/* Padding */
 	buffer += (char)0x80;
@@ -79,7 +79,7 @@ std::string SHA1::final() {
 		}
 	}
 
-	/* Append total_bits, split this uint64 into two uint32_t */
+	/* Append total_bits, split this uint64_t into two uint32_t */
 	block[BLOCK_INTS - 1] =(uint32_t) total_bits;
 	block[BLOCK_INTS - 2] = (uint32_t)(total_bits >> 32);
 	transform(block);

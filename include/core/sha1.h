@@ -30,8 +30,6 @@ public:
 	static std::string from_file(const std::string &filename);
 
 private:
-	typedef unsigned long int uint32_t; /* just needs to be at least 32bit */
-	typedef unsigned long long uint64; /* just needs to be at least 64bit */
 
 	static const unsigned int DIGEST_INTS = 5; /* number of 32bit integers per SHA1 digest */
 	static const unsigned int BLOCK_INTS = 16; /* number of 32bit integers per SHA1 block */
@@ -39,7 +37,7 @@ private:
 
 	uint32_t digest[DIGEST_INTS];
 	std::string buffer;
-	uint64 transforms;
+	uint64_t transforms;
 
 	void reset();
 	void transform(uint32_t block[BLOCK_BYTES]);
