@@ -180,9 +180,14 @@ public:
 			Image(img.width, img.height, img.x, img.y, img.id) {
 		set(img.data.data());
 	}
-	Image& operator=(const Image<T, C, I>& rhs) {
-		if (this == &rhs)
-			return *this;
+
+	Image<T,C,I>& operator=(const Image<T, C, I>& rhs) {
+		if (this == &rhs)return *this;
+		this->resize(rhs.width, rhs.height);
+		this->x = x;
+		this->y = y;
+		this->id = id;
+		this->set(rhs.data.data());
 		return *this;
 	}
 	int2 dimensions() const {

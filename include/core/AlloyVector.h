@@ -100,15 +100,15 @@ public:
 	Vector(size_t sz) :
 			data(storage) {
 		data.resize(sz);
-		data.shrink_to_fit();
 	}
 	Vector(const Vector<T, C>& img) :
 			Vector(img.size()) {
 		set(img.data.data());
 	}
 	Vector<T, C>& operator=(const Vector<T, C>& rhs) {
-		if (this == &rhs)
-			return *this;
+		if (this == &rhs)return *this;
+		this->resize(rhs.size());
+		this->set(rhs.data.data());
 		return *this;
 	}
 	Vector() :

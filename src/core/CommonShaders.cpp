@@ -806,7 +806,7 @@ void FaceIdShader::initialize(int w, int h) {
 int FaceIdShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
-		int objectIdOffset) {
+		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
@@ -817,6 +817,19 @@ int FaceIdShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		int offset = faceIdOffset;
 		set("objectId", objectIdOffset).set("PoseMat", pr.second);
+		if (pr.first->triIndexes.size() == 0&&pr.first->quadIndexes.size()==0) {
+			end();
+			particleIdShader.begin()
+				.set("MIN_DEPTH", camera.getNearPlane())
+				.set("MAX_DEPTH", camera.getFarPlane())
+				.set("RADIUS", radius)
+				.set(camera, framebuffer.getViewport())
+				.set("vertIdOffset", offset)
+				.set("PoseMat", pr.second)
+				.set("objectId", objectIdOffset)
+				.draw({ pr.first }, GLMesh::PrimitiveType::POINTS).end();
+			begin();
+		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { pr.first },
 					GLMesh::PrimitiveType::TRIANGLES);
@@ -850,7 +863,7 @@ int FaceIdShader::draw(
 }
 int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
-		int objectIdOffset) {
+		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
@@ -862,6 +875,19 @@ int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 	for (const Mesh* mesh : meshes) {
 		int offset = faceIdOffset;
 		set("objectId", objectIdOffset);
+		if (mesh->triIndexes.size() == 0 && mesh->quadIndexes.size() == 0) {
+			end();
+			particleIdShader.begin()
+				.set("MIN_DEPTH", camera.getNearPlane())
+				.set("MAX_DEPTH", camera.getFarPlane())
+				.set("RADIUS", radius)
+				.set(camera, framebuffer.getViewport())
+				.set("vertIdOffset", offset)
+				.set("PoseMat", float4x4::identity())
+				.set("objectId", objectIdOffset)
+				.draw({ mesh }, GLMesh::PrimitiveType::POINTS).end();
+			begin();
+		}
 		if (mesh->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { mesh },
 					GLMesh::PrimitiveType::TRIANGLES);
@@ -897,7 +923,7 @@ int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 int FaceIdShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
-		int objectIdOffset) {
+		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
@@ -908,6 +934,19 @@ int FaceIdShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		int offset = faceIdOffset;
 		set("objectId", objectIdOffset).set("PoseMat", pr.second);
+		if (pr.first->triIndexes.size() == 0 && pr.first->quadIndexes.size() == 0) {
+			end();
+			particleIdShader.begin()
+				.set("MIN_DEPTH", camera.getNearPlane())
+				.set("MAX_DEPTH", camera.getFarPlane())
+				.set("RADIUS", radius)
+				.set(camera, framebuffer.getViewport())
+				.set("vertIdOffset", offset)
+				.set("PoseMat", pr.second)
+				.set("objectId", objectIdOffset)
+				.draw({ pr.first }, GLMesh::PrimitiveType::POINTS).end();
+			begin();
+		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { pr.first },
 					GLMesh::PrimitiveType::TRIANGLES);
@@ -941,7 +980,7 @@ int FaceIdShader::draw(
 }
 int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
 		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
-		int objectIdOffset) {
+		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
@@ -953,6 +992,19 @@ int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
 	for (const Mesh* mesh : meshes) {
 		int offset = faceIdOffset;
 		set("objectId", objectIdOffset);
+		if (mesh->triIndexes.size() == 0 && mesh->quadIndexes.size() == 0) {
+			end();
+			particleIdShader.begin()
+				.set("MIN_DEPTH", camera.getNearPlane())
+				.set("MAX_DEPTH", camera.getFarPlane())
+				.set("RADIUS", radius)
+				.set(camera, framebuffer.getViewport())
+				.set("vertIdOffset", offset)
+				.set("PoseMat", float4x4::identity())
+				.set("objectId", objectIdOffset)
+				.draw({mesh }, GLMesh::PrimitiveType::POINTS).end();
+			begin();
+		}
 		if (mesh->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { mesh },
 					GLMesh::PrimitiveType::TRIANGLES);
@@ -1125,6 +1177,98 @@ if(IS_QUAD!=0){
 		EndPrimitive();
 	}
 })");
+particleIdShader.initialize({},
+	R"(
+			#version 330 core
+			#extension GL_ARB_separate_shader_objects : enable
+			layout(location = 0) in vec3 vp;
+			layout(location = 2) in vec4 vc;
+			uniform float RADIUS;
+			uniform int vertIdOffset;
+			out VS_OUT {
+				vec3 pos;
+				float radius;
+				int vertId;
+			} vs_out;
+			void main(void) {
+				vs_out.pos=vp;
+				vs_out.radius=(RADIUS>0)?RADIUS:vc.w;
+				vs_out.vertId=int(gl_VertexID)+vertIdOffset;
+			}
+		)",
+	R"(
+#version 330 core
+in vec2 uv;
+in vec4 vp;
+in vec4 center;
+uniform float MIN_DEPTH;
+uniform float MAX_DEPTH;
+flat in int vertId;
+uniform int objectId;
+void main(void) {
+	float radius=length(uv);
+	if(radius>1.0){
+		discard;
+	} else {
+		float r=center.w;
+		vec4 pos=vp/vp.w;
+		float rxy=length(pos-vec4(center.xyz,1.0));
+		float cr=sqrt(r*r-rxy*rxy);
+		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
+		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1+ objectId);
+		gl_FragColor = rgba;
+		gl_FragDepth=d;
+	}
+}
+)",
+R"(
+#version 330 core
+#extension GL_ARB_separate_shader_objects : enable
+	out vec2 uv;
+	out vec4 vp;
+    out vec4 center;
+	layout(points) in;
+	layout(triangle_strip, max_vertices = 4) out;
+	in VS_OUT {
+		vec3 pos;
+		float radius;
+		int vertId;
+	} pc[];
+
+		flat out int vertId;
+	uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+	uniform vec4 bounds;
+	uniform vec4 viewport;
+	void main() {
+		mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+		mat4 VM=ViewModelMat*PoseMat;
+		vec4 pt = vec4(pc[0].pos,1.0);
+		vec2 pos;
+		float r = pc[0].radius;
+		vec4 v = VM*pt;
+		r = length(VM*vec4(0, 0, r, 0));
+		center=vec4(v.xyz,r);
+		vertId=pc[0].vertId;
+		vp=v + vec4(-r, -r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+		uv = vec2(-1.0, -1.0);
+		EmitVertex();
+		vp=v + vec4(+r, -r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(1.0, -1.0);
+		EmitVertex();
+		vp=v + vec4(-r, +r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(-1.0, 1.0);
+		EmitVertex();
+
+					vp=v + vec4(+r, +r, 0, 0);
+		gl_Position  =ProjMat*(vp);
+				uv = vec2(1.0, 1.0);
+		EmitVertex();
+		EndPrimitive();
+
+						})");
 }
 DepthAndNormalShader::DepthAndNormalShader(
 		const std::shared_ptr<AlloyContext>& context) :

@@ -26,7 +26,7 @@
 class MeshViewer: public aly::Application {
 private:
 	aly::Mesh mesh;
-
+	aly::Mesh particles;
 	aly::Mesh mesh2;
 	aly::VirtualCamera camera;
 	aly::FaceIdShader faceShader;

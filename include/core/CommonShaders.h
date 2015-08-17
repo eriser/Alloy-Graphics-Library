@@ -124,6 +124,7 @@ public:
 class FaceIdShader: public GLShader {
 private:
 	GLFrameBuffer framebuffer;
+	GLShader particleIdShader;
 public:
 	GLFrameBuffer& getFrameBuffer() {
 		return framebuffer;
@@ -133,20 +134,20 @@ public:
 	void initialize(int w, int h);
 	int draw(const std::initializer_list<const Mesh*>& meshes,
 			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
-			int objectIdOffset = 0);
+			int objectIdOffset = 0,float radius=1.0f);
 	int draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
-			int objectIdOffset = 0);
+			int objectIdOffset = 0, float radius = 1.0f);
 	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
-			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0);
+			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
 	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
-			int objectIdOffset = 0);
+			int objectIdOffset = 0, float radius = 1.0f);
 
 	int draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap,
-			int faceIdOffset = 0, int objectIdOffset = 0) {
-		return draw( { &mesh }, camera, faceIdMap, faceIdOffset, objectIdOffset);
+			int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
+		return draw( { &mesh }, camera, faceIdMap, faceIdOffset, objectIdOffset,radius);
 	}
 };
 

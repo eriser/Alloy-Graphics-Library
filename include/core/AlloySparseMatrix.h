@@ -49,7 +49,17 @@ public:
 	void insert(size_t i, size_t j, const vec<T, C>& value) {
 		storage[i].push_back(IndexValue<T, C>(j, value));
 	}
-
+	SparseMatrix<T, C> transpose() {
+		SparseMatrix<T, C> M(cols, rows);
+		size_t i = 0;
+		for (std::list<IndexValue<T, C>>& row : storage) {
+			for (IndexValue<T, C>& iv : row) {
+				M.insert(iv.first, i, iv.second);
+			}
+			i++;
+		}
+		return M;
+	}
 };
 template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, C>& A,
 		const Vector<T, C>& v) {

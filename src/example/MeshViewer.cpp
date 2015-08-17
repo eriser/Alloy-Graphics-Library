@@ -40,7 +40,8 @@ bool MeshViewer::init(Composite& rootNode) {
 	float w = 0.9f;
 	srand(1023172413L);
 	mesh.updateVertexNormals();
-
+	particles.vertexLocations = mesh.vertexLocations;
+	particles.update();
 	/*
 	 SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
 	 for (size_t i = 0;i < L.rows;i++) {
@@ -126,11 +127,13 @@ void MeshViewer::draw(AlloyContext* context) {
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2,
 				false);
-		particleDepthShader.draw(mesh, camera, particleFrameBuffer, 0.75f);
+		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
 
 		if (once) {
 			faceShader.draw(mesh, camera, faceIdMap);
 			faceIdMap.writeToXML("face_id.xml");
+			faceShader.draw({ &particles,&mesh }, camera, faceIdMap);
+			faceIdMap.writeToXML("face_particle_id.xml");
 			particleFaceIdShader.draw(mesh, camera, faceIdMap);
 			faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;

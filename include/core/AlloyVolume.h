@@ -143,9 +143,14 @@ public:
 			Volume(img.rows, img.cols, img.slices, img.x, img.y, img.z, img.id) {
 		set(img.data.data());
 	}
-	Volume& operator=(const Volume<T, C, I>& rhs) {
-		if (this == &rhs)
-			return *this;
+	Volume<T, C, I>& operator=(const Volume<T, C, I>& rhs) {
+		if (this == &rhs)return *this;
+		this->resize(rhs.rows, rhs.cols,rhs.slices);
+		this->x = x;
+		this->y = y;
+		this->z = z;
+		this->id = id;
+		this->set(rhs.data.data());
 		return *this;
 	}
 	int3 dimensions() const {
