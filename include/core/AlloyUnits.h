@@ -375,13 +375,13 @@ public:
 		return (value?"true":"false");
 	}
 	void setValue(float other) {
-		value = (value != 0);
+		value = (other != 0);
 	}
 	void setValue(double other) {
-		value = (value != 0);
+		value = (other != 0);
 	}
 	void setValue(int other) {
-		value = (value != 0);
+		value = (other != 0);
 	}
 	void setValue(bool other) {
 		value = other;
