@@ -93,9 +93,11 @@ public:
 		virtual int toInteger() const = 0;
 		virtual float toFloat() const = 0;
 		virtual double toDouble() const = 0;
+		virtual bool toBoolean() const = 0;
 		virtual void setValue(int value) = 0;
 		virtual void setValue(float value) = 0;
 		virtual void setValue(double value) = 0;
+		virtual void setValue(bool value) = 0;
 		virtual std::string toString() const = 0;
 		std::string virtual type() const = 0;
 	};
@@ -117,6 +119,9 @@ private:
 		virtual double toDouble() const {
 			return value.toDouble();
 		}
+		virtual bool toBoolean() const {
+			return value.toBoolean();
+		}
 		virtual std::string toString() const {
 			return value.toString();
 		}
@@ -127,6 +132,9 @@ private:
 			value.setValue(val);
 		}
 		virtual void setValue(double val) {
+			value.setValue(val);
+		}
+		virtual void setValue(bool val) {
 			value.setValue(val);
 		}
 	};
@@ -176,6 +184,11 @@ public:
 			throw std::runtime_error("Number value has not been defined.");
 		return impl->toDouble();
 	}
+	virtual bool toBoolean() const {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
+		return impl->toBoolean();
+	}
 	std::string toString() const {
 		if (impl.get() == nullptr)
 			throw std::runtime_error("Number value has not been defined.");
@@ -192,6 +205,11 @@ public:
 		impl->setValue(val);
 	}
 	virtual void setValue(double val) {
+		if (impl.get() == nullptr)
+			throw std::runtime_error("Number value has not been defined.");
+		impl->setValue(val);
+	}
+	virtual void setValue(bool val) {
 		if (impl.get() == nullptr)
 			throw std::runtime_error("Number value has not been defined.");
 		impl->setValue(val);
@@ -220,6 +238,9 @@ public:
 	double toDouble() const {
 		return (double) value;
 	}
+	bool toBoolean() const {
+		return (value != 0);
+	}
 	std::string toString() const {
 		return MakeString() << value;
 	}
@@ -231,6 +252,9 @@ public:
 	}
 	void setValue(int other) {
 		value = (int) other;
+	}
+	void setValue(bool other) {
+		value = other ? 1 : 0;
 	}
 	Integer(int value) :
 			value(value) {
@@ -258,6 +282,9 @@ public:
 	double toDouble() const {
 		return (double) value;
 	}
+	bool toBoolean() const {
+		return (value != 0);
+	}
 	std::string toString() const {
 		return MakeString() << value;
 	}
@@ -269,6 +296,9 @@ public:
 	}
 	void setValue(int other) {
 		value = (float) other;
+	}
+	void setValue(bool other) {
+		value = other ? 1.0f : 0.0f;
 	}
 	Float(float value) :
 			value(value) {
@@ -295,6 +325,9 @@ public:
 	double toDouble() const {
 		return (double) value;
 	}
+	bool toBoolean() const {
+		return (value != 0);
+	}
 	std::string toString() const {
 		return MakeString() << value;
 	}
@@ -307,10 +340,56 @@ public:
 	void setValue(int other) {
 		value = (double) other;
 	}
+	void setValue(bool other) {
+		value = other ? 1: 0;
+	}
 	Double(double value) :
 			value(value) {
 	}
 	virtual ~Double() {
+	}
+};
+struct Boolean {
+private:
+	bool value = 0;
+public:
+	std::string virtual type() const {
+		return "boolean";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	int toInteger() const {
+		return value ? 1 : 0;
+	}
+	float toFloat() const {
+		return value ? 1.0f : 0.0f;
+	}
+	double toDouble() const {
+		return value ? 1.0 : 0.0;
+	}
+	bool toBoolean() const {
+		return (value != 0);
+	}
+	std::string toString() const {
+		return MakeString() << value;
+	}
+	void setValue(float other) {
+		value = (value != 0);
+	}
+	void setValue(double other) {
+		value = (value != 0);
+	}
+	void setValue(int other) {
+		value = (value != 0);
+	}
+	void setValue(bool other) {
+		value = other;
+	}
+	Boolean(bool value) :
+		value(value) {
+	}
+	virtual ~Boolean() {
 	}
 };
 class AUnit1D {
