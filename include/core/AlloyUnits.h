@@ -372,7 +372,7 @@ public:
 		return value;
 	}
 	std::string toString() const {
-		return MakeString() << value;
+		return (value?"true":"false");
 	}
 	void setValue(float other) {
 		value = (value != 0);
