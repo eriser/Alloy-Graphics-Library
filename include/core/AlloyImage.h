@@ -290,7 +290,7 @@ template<class T, int C, ImageType I> std::string Image<T, C, I>::updateHashCode
 		std::uniform_int_distribution<int> wSampler(0, width - 1);
 		std::uniform_int_distribution<int> hSampler(0, height - 1);
 		std::vector<vec<T, C>> sample(MAX_SAMPLES);
-		for (int i = 0; i < MAX_SAMPLES; i++) {
+		for (int i = 0; i < (int)MAX_SAMPLES; i++) {
 			sample[i] = this->operator()(wSampler(mt), hSampler(mt));
 		}
 		hashCode = HashCode(sample, method);

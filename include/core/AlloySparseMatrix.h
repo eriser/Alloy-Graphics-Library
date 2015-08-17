@@ -18,7 +18,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#pragma once
+#ifndef ALLOYSPARSEMATRIX_H_
+#define ALLOYSPARSEMATRIX_H_
 #include "AlloyVector.h"
 #include <vector>
 #include <list>
@@ -125,4 +126,4 @@ typedef SparseMatrix<double, 3> SparseMatrix3d;
 typedef SparseMatrix<double, 2> SparseMatrix2d;
 typedef SparseMatrix<double, 1> SparseMatrix1d;
 }
-
+#endif

@@ -37,6 +37,7 @@
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")
+#define ALY_WINDOWS
 #else
 #define ALY_PATH_SEPARATOR std::string("/")
 #endif

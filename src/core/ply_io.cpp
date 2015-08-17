@@ -31,6 +31,7 @@
 
  */
 #include "ply_io.h"
+#include "AlloyFileUtil.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,10 +40,11 @@
 #include <iostream>
 #include <math.h>
 /* names of scalar types */
+#ifndef ALY_WINDOWS
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
+#endif
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
 char *property_type_names[] = { "invalid", "int8", "int16", "int32", "uint8",

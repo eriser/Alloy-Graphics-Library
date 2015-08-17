@@ -50,7 +50,6 @@
 
 #pragma comment(lib, "Shlwapi.lib")
 
-#define ALY_WINDOWS
 #else
 #include <dirent.h>
 #include <unistd.h>

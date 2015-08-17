@@ -18,7 +18,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#pragma once
+#ifndef ALLOYALGORITGM_H_
+#define ALLOYALGORITGM_H_
 #include "AlloyMath.h"
 #include "AlloyVector.h"
 #include "AlloySparseMatrix.h"
@@ -105,3 +106,4 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 	}
 }
 }
+#endif

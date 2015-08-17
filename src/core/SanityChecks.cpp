@@ -17,8 +17,10 @@
 #include "cereal/archives/binary.hpp"
 #include <iostream>
 #include <fstream>
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#ifndef ALY_WINDOWS
+	#pragma GCC diagnostic ignored "-Wunused-variable"
+	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 namespace aly {
 bool SANITY_CHECK_ALGO() {
 	SparseMatrix<float, 4> A(128, 128);
@@ -110,6 +112,8 @@ bool SANITY_CHECK_CEREAL() {
 			ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
 
 	Image4f im1(32, 24);
+	Image4f im2;
+	im2 = im1;
 	std::srand(10832145);
 	for (int i = 0; i < im1.width; i++) {
 		for (int j = 0; j < im1.height; j++) {
@@ -218,8 +222,8 @@ bool SANITY_CHECK_LINALG() {
 		std::cout << im1 << std::endl;
 		std::cout << im2 << std::endl;
 		Vector4f im3 = -im1;
-		float d1 = dot(im1, im2) + length(im1) + lengthL1(im2) + max(im1)
-				- min(im1);
+		float d1 =(float)( dot(im1, im2) + length(im1) + lengthL1(im2) + max(im1)
+				- min(im1));
 		float4 d2 = float4(dotVec(im1, im2)) + float4(lengthVec(im2))
 				+ lengthVecL1(im1) + maxVec(im1) - minVec(im1);
 		Vector4f out = float4(1, 2, 3, 1) + im2;
