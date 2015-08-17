@@ -45,7 +45,6 @@ int main() {
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		//SANITY_CHECK_CEREAL();
-
 		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
 		std::cout << "EXECUTABLE " << GetExecutableDirectory() << std::endl;
 		std::cout << "USER " << GetUserNameString() << std::endl;
