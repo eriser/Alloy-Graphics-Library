@@ -341,7 +341,7 @@ public:
 		value = (double) other;
 	}
 	void setValue(bool other) {
-		value = other ? 1: 0;
+		value = other ? 1.0 : 0.0;
 	}
 	Double(double value) :
 			value(value) {
