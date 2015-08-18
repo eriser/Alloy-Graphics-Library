@@ -413,9 +413,7 @@ FileDescription GetFileDescription(const std::string& fileLocation) {
 	return FileDescription(fileLocation, type, fileSize, readOnly, creationTime,
 			accessTime, modifiedTime);
 }
-bool MakeDirectory(const std::string& dir){
-	return (mkdir(path.c_str()) == 0);
-}
+
 std::vector<FileDescription> GetDirectoryDescriptionListing(
 		const std::string& dirName) {
 	std::vector<FileDescription> files;
@@ -522,6 +520,9 @@ std::vector<std::string> GetDrives() {
 		}
 	}
 	return drives;
+}
+bool MakeDirectory(const std::string& dir){
+	return (mkdir(dir.c_str(),0777) == 0);
 }
 std::string GetExecutableDirectory() {
 	char result[4096];
