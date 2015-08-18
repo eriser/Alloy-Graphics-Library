@@ -21,6 +21,10 @@
 #ifndef ALLOYSPARSEMATRIX_H_
 #define ALLOYSPARSEMATRIX_H_
 #include "AlloyVector.h"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/list.hpp"
+#include "cereal/types/tuple.hpp"
+#include "cereal/types/memory.hpp"
 #include <vector>
 #include <list>
 namespace aly {
@@ -28,6 +32,9 @@ template<class T, int C> struct IndexValue: public std::pair<size_t, vec<T, C>> 
 	IndexValue() :
 			std::pair<size_t, vec<T, C>>() {
 
+	}
+	template<class Archive> void serialize(Archive & archive) {
+		archive(cereal::make_nvp("index",first),cereal::make_nvp("value",second));
 	}
 	IndexValue(size_t index, const vec<T, C>& v) :
 			std::pair<size_t, vec<T, C>>(index, v) {
@@ -38,13 +45,16 @@ template<class T, int C> struct SparseMatrix {
 private:
 	std::vector<std::list<IndexValue<T, C>>>storage;
 public:
+	size_t rows, cols;
+	template<class Archive> void serialize(Archive & archive) {
+		archive(CEREAL_NVP(rows), CEREAL_NVP(cols), cereal::make_nvp("matrix",storage));
+	}
 	std::list<IndexValue<T, C>>& operator[](size_t index) {
 		return storage[index];
 	}
 	const std::list<IndexValue<T, C>>& operator[](size_t index) const {
 		return storage[index];
 	}
-	size_t rows, cols;
 	SparseMatrix(size_t rows, size_t cols) :storage(rows),rows(rows),cols(cols) {
 	}
 	void insert(size_t i, size_t j, const vec<T, C>& value) {
@@ -126,4 +136,5 @@ typedef SparseMatrix<double, 3> SparseMatrix3d;
 typedef SparseMatrix<double, 2> SparseMatrix2d;
 typedef SparseMatrix<double, 1> SparseMatrix1d;
 }
+
 #endif

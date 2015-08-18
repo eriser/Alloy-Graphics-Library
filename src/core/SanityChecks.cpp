@@ -33,6 +33,10 @@ bool SANITY_CHECK_ALGO() {
 		b[i] = float4((rand() % 1000) / 1000.0f);
 	}
 	SolveCG(b, A, x);
+	std::ofstream os("matrix.json");
+	cereal::JSONOutputArchive archiver(os);
+	archiver(A);
+
 	return true;
 }
 bool SANITY_CHECK_MATH() {
