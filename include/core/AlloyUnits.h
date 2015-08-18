@@ -171,47 +171,47 @@ public:
 	}
 	virtual int toInteger() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		return impl->toInteger();
 	}
 	virtual float toFloat() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		return impl->toFloat();
 	}
 	virtual double toDouble() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		return impl->toDouble();
 	}
 	virtual bool toBoolean() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		return impl->toBoolean();
 	}
 	std::string toString() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		return impl->toString();
 	}
 	virtual void setValue(int val) {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		impl->setValue(val);
 	}
 	virtual void setValue(float val) {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		impl->setValue(val);
 	}
 	virtual void setValue(double val) {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		impl->setValue(val);
 	}
 	virtual void setValue(bool val) {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Number value has not been defined.");
+			throw std::runtime_error("Number storage type has not been defined.");
 		impl->setValue(val);
 	}
 	virtual inline ~Number() {
@@ -375,13 +375,13 @@ public:
 		return (value?"true":"false");
 	}
 	void setValue(float other) {
-		value = (value != 0);
+		value = (other != 0);
 	}
 	void setValue(double other) {
-		value = (value != 0);
+		value = (other != 0);
 	}
 	void setValue(int other) {
-		value = (value != 0);
+		value = (other != 0);
 	}
 	void setValue(bool other) {
 		value = other;
@@ -453,12 +453,12 @@ public:
 	// Implicit interface
 	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Unit value has not been defined.");
+			throw std::runtime_error("Unit storage type has not been defined.");
 		return impl->toPixels(screenSize, dpmm, pixelRatio);
 	}
 	std::string toString() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Unit value has not been defined.");
+			throw std::runtime_error("Unit storage type has not been defined.");
 		return impl->toString();
 	}
 
@@ -618,12 +618,12 @@ public:
 	// Implicit interface
 	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Coord value has not been defined.");
+			throw std::runtime_error("Coord storage type has not been defined.");
 		return impl->toPixels(screenSize, dpmm, pixelRatio);
 	}
 	std::string toString() const {
 		if (impl.get() == nullptr)
-			throw std::runtime_error("Coord value has not been defined.");
+			throw std::runtime_error("Coord storage type has not been defined.");
 		return impl->toString();
 	}
 	template<class Archive> void save(Archive& archive) const {
