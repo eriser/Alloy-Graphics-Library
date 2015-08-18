@@ -222,6 +222,7 @@ std::string concat(const std::vector<std::string>& list) {
 	}
 	return ss.str();
 }
+
 std::string ReadTextFile(const std::string& str) {
 	std::ifstream myfile;
 	myfile.open(str);
@@ -373,6 +374,7 @@ std::string GetParentDirectory(const std::string& file) {
 		return GetFileDirectoryPath(file) + ALY_PATH_SEPARATOR;
 	}
 }
+
 #ifndef ALY_WINDOWS
 std::vector<std::string> GetDirectoryFileListing(const std::string& dirName,
 		const std::string& ext, const std::string& mask) {
@@ -410,6 +412,9 @@ FileDescription GetFileDescription(const std::string& fileLocation) {
 	bool readOnly = attrib.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 	return FileDescription(fileLocation, type, fileSize, readOnly, creationTime,
 			accessTime, modifiedTime);
+}
+bool MakeDirectory(const std::string& dir){
+	return (mkdir(path.c_str()) == 0);
 }
 std::vector<FileDescription> GetDirectoryDescriptionListing(
 		const std::string& dirName) {
@@ -526,7 +531,6 @@ std::string GetExecutableDirectory() {
 	return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
 }
 #else 
-
 std::wstring ToWString(const std::string& str) {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	std::wstring wide = converter.from_bytes(str);
@@ -538,6 +542,10 @@ std::string ToString(const std::wstring& str) {
 	std::string narrow = converter.to_bytes(str);
 	return narrow;
 }
+bool MakeDirectory(const std::string& dir) {
+	return CreateDirectory(ToWString(dir).c_str(), NULL);
+}
+
 std::time_t FileTimeToTime(const FILETIME& ft) {
 	ULARGE_INTEGER ull;
 	ull.LowPart = ft.dwLowDateTime;
