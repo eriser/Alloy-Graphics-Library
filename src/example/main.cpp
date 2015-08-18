@@ -56,8 +56,8 @@ int main() {
 		for (std::string dir : GetDrives()) {
 			std::cout << "DRIVE " << dir << std::endl;
 		}
-		//ExampleUI app;
-		MeshViewer app;
+		ExampleUI app;
+		//MeshViewer app;
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {

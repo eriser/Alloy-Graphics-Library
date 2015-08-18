@@ -739,12 +739,23 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 		}
 		return true;
 	};
+	this->onEvent = [this](AlloyContext* context, const InputEvent& event) {
+		if (event.type == InputType::MouseButton&&event.isUp()) {
+			if (selectionBox->isVisible()&&!context->isMouseOver(selectionBox.get())) {
+				context->removeOnTopRegion(selectionBox.get());
+				selectionBox->setVisible(false);
+			}
+		}
+		return false;
+	};
+	Application::addListener(this);
 }
 
 void Selection::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseContainedIn(this);
 	box2px bounds = getBounds();
+	
 	if (hover) {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x, bounds.position.y,
