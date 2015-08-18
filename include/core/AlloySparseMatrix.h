@@ -34,7 +34,7 @@ template<class T, int C> struct IndexValue: public std::pair<size_t, vec<T, C>> 
 
 	}
 	template<class Archive> void serialize(Archive & archive) {
-		archive(cereal::make_nvp("index",first),cereal::make_nvp("value",second));
+		archive(cereal::make_nvp("index",this->first),cereal::make_nvp("value",this->second));
 	}
 	IndexValue(size_t index, const vec<T, C>& v) :
 			std::pair<size_t, vec<T, C>>(index, v) {
