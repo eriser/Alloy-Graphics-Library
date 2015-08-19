@@ -235,6 +235,7 @@ private:
 	TextLabelPtr arrowLabel;
 	std::shared_ptr<SelectionBox> selectionBox;
 	int selectedIndex;
+	bool handleMouseClick(AlloyContext* context, const InputEvent& event);
 public:
 	std::function<void(int)> onSelect;
 	inline int getSelectedIndex() const {

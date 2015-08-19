@@ -217,9 +217,15 @@ bool ExampleUI::init(Composite& rootNode) {
 			new aly::Region("Appearance", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	expandBar->add(apprRegion, true);
-	RegionPtr lightRegion = RegionPtr(
-			new aly::Region("Lighting", CoordPX(0, 0),
+	CompositePtr lightRegion = CompositePtr(
+			new aly::Composite("Lighting", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
+	lightRegion->setOrientation(Orientation::Vertical);
+	SelectionPtr dropdown2 = SelectionPtr(
+		new Selection("Selection", CoordPX(0, 0), CoordPX(200, 30),
+			std::vector<std::string> { "Mission", "Bernal Heights",
+			"Noe Valley", "Telegraph Hill", "North Beach" }));
+	lightRegion->add(dropdown2);
 	expandBar->add(lightRegion, true);
 	RegionPtr renderingRegion = RegionPtr(
 			new aly::Region("Rendering", CoordPX(0, 0),

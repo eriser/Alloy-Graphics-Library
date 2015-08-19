@@ -436,7 +436,6 @@ public:
 	}
 
 	virtual box2px getBounds(bool includeBounds = true) const override;
-	virtual box2px getCursorBounds(bool includeBounds = true) const override;
 	std::string getSelection(int index) {
 		return (selectedIndex >= 0) ? options[selectedIndex] : name;
 	}

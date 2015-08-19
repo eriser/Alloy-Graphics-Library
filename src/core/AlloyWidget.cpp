@@ -622,7 +622,20 @@ void SliderHandle::draw(AlloyContext* context) {
 	nvgStroke(nvg);
 
 }
-
+bool Selection::handleMouseClick(AlloyContext* context,const InputEvent& event) {
+	if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+		context->setOnTopRegion(selectionBox.get());
+		selectionBox->setVisible(true);
+		selectionBox->setSelectionOffset(0);
+		selectionBox->setSelectedIndex(0);
+		return true;
+	}
+	else if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
+		context->removeOnTopRegion(selectionBox.get());
+		selectionBox->setVisible(false);
+	}
+	return false;
+}
 Selection::Selection(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, const std::vector<std::string>& options) :
 		Composite(label), selectedIndex(-1) {
@@ -641,7 +654,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.DARK_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
-	selectionBox = SelectionBoxPtr(new SelectionBox(label, options));
+	selectionBox = SelectionBoxPtr(new SelectionBox(label+"_box", options));
 	selectionBox->setDetached(true);
 	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
@@ -660,44 +673,20 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	arrowLabel->setAspectRule(AspectRule::FixedHeight);
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowLabel);
-	add(selectionBox);
 	add(valueContainer);
+	add(selectionBox);
 
 	Region::onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
-				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					context->setOnTopRegion(selectionBox.get());
-					selectionBox->setVisible(true);
-					selectionBox->setSelectionOffset(0);
-					selectionBox->setSelectedIndex(0);
-					return true;
-				}
-				return false;
+				return handleMouseClick(context, event);
 			};
 	selectionLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					context->setOnTopRegion(selectionBox.get());
-					selectionBox->setVisible(true);
-					selectionBox->setSelectionOffset(0);
-					selectionBox->setSelectedIndex(0);
-					return true;
-				}
-				return false;
+				return handleMouseClick(context, event);
 			};
 	arrowLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
-				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					context->setOnTopRegion(selectionBox.get());
-					selectionBox->setVisible(true);
-					selectionBox->setSelectionOffset(0);
-					selectionBox->setSelectedIndex(0);
-					return true;
-				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
-					context->removeOnTopRegion(selectionBox.get());
-					selectionBox->setVisible(false);
-				}
-				return false;
+				return handleMouseClick(context, event);
 			};
 	selectionBox->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& event) {
@@ -746,7 +735,7 @@ void Selection::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseContainedIn(this);
 	box2px bounds = getBounds();
-	if(selectionBox->isVisible()&&!context->isLeftMouseButtonDown()) {
+	if(!hover&&selectionBox->isVisible()&&!context->isLeftMouseButtonDown()) {
 		context->removeOnTopRegion(selectionBox.get());
 		selectionBox->setVisible(false);
 	}

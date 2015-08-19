@@ -218,9 +218,9 @@ box2px Region::getBounds(bool includeOffset) const {
 	return box;
 }
 box2px Region::getCursorBounds(bool includeOffset) const {
-	box2px box = (isDetached() ? getBounds() : bounds);
+	box2px box = (isDetached() ? getBounds(includeOffset) : bounds);
 	box.position += dragOffset;
-	if (parent != nullptr && includeOffset) {
+	if (parent != nullptr &&(!isDetached()&& includeOffset)) {
 		box.position += parent->drawOffset();
 		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
@@ -977,12 +977,6 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		pixel2 dims = parent->bounds.dimensions;
 		bounds.position = aly::clamp(bounds.position, ppos,
 				ppos + dims - bounds.dimensions);
-	}
-	//dragOffset = xy - pos - computedPos;
-	if (detached) {
-		box2px vp = AlloyApplicationContext()->getViewport();
-		bounds.position = aly::clamp(bounds.position, vp.position,
-				vp.position + vp.dimensions - bounds.dimensions);
 	}
 }
 
@@ -1845,22 +1839,10 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 			(parent != nullptr) ? parent->getBoundsDimensionsY() : 0.0f;
 	float yOffset = std::min(bounds.position.y + boxHeight + parentHeight,
 			(float) context->height()) - boxHeight;
-
 	box2px bbox;
 	bbox.position = pixel2(bounds.position.x, yOffset);
 	bbox.dimensions = pixel2(bounds.dimensions.x, boxHeight);
-
 	return bbox;
-}
-box2px SelectionBox::getCursorBounds(bool includeBounds) const {
-	box2px box = getBounds(includeBounds);
-	if (parent != nullptr) {
-		box.position += parent->drawOffset();
-		if (AlloyApplicationContext()->getOnTopRegion() != this) {
-			box.intersect(parent->getCursorBounds());
-		}
-	}
-	return box;
 }
 void SelectionBox::draw(AlloyContext* context) {
 
