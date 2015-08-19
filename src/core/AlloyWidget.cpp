@@ -2304,9 +2304,7 @@ CompositePtr ExpandBar::add(const std::shared_ptr<Region>& region,
 	eregion->setExpanded(expanded);
 	regions.push_back(eregion);
 	Composite::add(eregion);
-
 	Composite::add(container);
-	//std::cout << "DRAW OFFSET " << region->parent->drawOffset() << " " << eregion->parent->drawOffset() << std::endl;
 	return container;
 }
 CompositePtr ExpandBar::add(Region* region, bool expanded) {

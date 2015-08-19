@@ -201,7 +201,7 @@ void Application::drawDebugUI() {
 		}
 		if (context->onTopRegion != nullptr) {
 			txt = MakeString() << "On Top [" << context->onTopRegion->name
-					<< "]";
+					<<": "<<(context->onTopRegion->isVisible()?"Visible":"Hidden")<<"]";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;

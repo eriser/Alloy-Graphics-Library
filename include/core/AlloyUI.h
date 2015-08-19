@@ -393,7 +393,7 @@ protected:
 	void dragCursorTo(int index);
 	int cursorStart = 0, cursorEnd = 0, textStart = 0;
 	bool dragging = false;
-
+	std::string lastValue;
 public:
 	static const float PADDING;
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);

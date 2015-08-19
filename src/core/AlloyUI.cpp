@@ -1428,7 +1428,7 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 	selectionBox->onSelect = [this](SelectionBox* box) {
 		selectionBox->setVisible(false);
 		AlloyApplicationContext()->removeOnTopRegion(box);
-		std::string path=GetParentDirectory(this->getValue());
+		std::string path=GetParentDirectory(lastValue);
 		this->setValue(path+box->getSelection(box->getSelectedIndex()));
 		if (onTextEntered) {
 			onTextEntered(this);
@@ -1499,12 +1499,11 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 							}
 						}
 						if (labels.size() > 0) {
-							box2px bounds = getBounds();
-							selectionBox->pack(bounds.position,
-									bounds.dimensions, context->dpmm,
-									context->pixelRatio, false);
 							context->setOnTopRegion(selectionBox.get());
+							lastValue = this->getValue();
 							selectionBox->setVisible(true);
+							box2px bounds = getBounds(false);
+							selectionBox->pack(bounds.position,bounds.dimensions,context->dpmm,context->pixelRatio);
 							selectionBox->setSelectionOffset(0);
 							selectionBox->setSelectedIndex(0);
 						} else {
