@@ -625,6 +625,8 @@ void SliderHandle::draw(AlloyContext* context) {
 bool Selection::handleMouseClick(AlloyContext* context,const InputEvent& event) {
 	if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 		context->setOnTopRegion(selectionBox.get());
+		box2px bounds = getBounds(false);
+		selectionBox->pack(bounds.position, bounds.dimensions, context->dpmm, context->pixelRatio);
 		selectionBox->setVisible(true);
 		selectionBox->setSelectionOffset(0);
 		selectionBox->setSelectedIndex(0);

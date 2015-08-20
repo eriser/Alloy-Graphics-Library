@@ -1501,9 +1501,9 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 						if (labels.size() > 0) {
 							context->setOnTopRegion(selectionBox.get());
 							lastValue = this->getValue();
-							selectionBox->setVisible(true);
 							box2px bounds = getBounds(false);
-							selectionBox->pack(bounds.position,bounds.dimensions,context->dpmm,context->pixelRatio);
+							selectionBox->pack(bounds.position, bounds.dimensions, context->dpmm, context->pixelRatio);
+							selectionBox->setVisible(true);
 							selectionBox->setSelectionOffset(0);
 							selectionBox->setSelectedIndex(0);
 						} else {
