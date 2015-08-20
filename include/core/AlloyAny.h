@@ -166,7 +166,7 @@ namespace aly
 	class AnyInterface {
 	public:
 		template <typename T>
-		void setValue(T value) {
+		void setValue(const T& value) {
 			setValueImpl(Any(value));
 		}
 		template <typename T>
@@ -174,6 +174,7 @@ namespace aly
 			Any res = getValueImpl();
 			return AnyCast<T>(res);
 		}
+		virtual ~AnyInterface() {}
 	protected:
 		virtual void setValueImpl(Any const & value) = 0;
 		virtual Any getValueImpl() const = 0;

@@ -33,9 +33,9 @@ namespace aly {
 			std::cout << "Value " << value->getValue<Number>().toString() << " Type " << value->getValue<Number>().type() << std::endl;
 		}
 
-		std::shared_ptr<AnyInterface> v1 = std::shared_ptr<AnyInterface>(dynamic_cast<AnyInterface*>(new AnyValue<Double>(Double(3.14156535))));
-		std::shared_ptr<AnyInterface> v2 = std::shared_ptr<AnyInterface>(dynamic_cast<AnyInterface*>(new AnyValue<Integer>(Integer(20))));
-		std::shared_ptr<AnyInterface> v3 = std::shared_ptr<AnyInterface>(dynamic_cast<AnyInterface*>(new AnyValue<Boolean>(Boolean(true))));
+		std::shared_ptr<AnyInterface> v1 = std::shared_ptr<AnyInterface>(std::dynamic_pointer_cast<AnyInterface>(std::shared_ptr<AnyValue<Double>>(new AnyValue<Double>(Double(3.14156535)))));
+		std::shared_ptr<AnyInterface> v2 = std::shared_ptr<AnyInterface>(std::dynamic_pointer_cast<AnyInterface>(std::shared_ptr<AnyValue<Integer>>(new AnyValue<Integer>(Integer(20)))));
+		std::shared_ptr<AnyInterface> v3 = std::shared_ptr<AnyInterface>(std::dynamic_pointer_cast<AnyInterface>(std::shared_ptr<AnyValue<Boolean>>(new AnyValue<Boolean>(Boolean(true)))));
 		std::cout << "Value " << v1->getValue<Double>() << std::endl;
 		std::cout << "Value " << v2->getValue<Integer>() << std::endl;
 		std::cout << "Value " << v3->getValue<Boolean>() << std::endl;
