@@ -46,6 +46,9 @@ private:
 	std::vector<std::list<IndexValue<T, C>>>storage;
 public:
 	size_t rows, cols;
+	SparseMatrix():rows(0),cols(0){
+
+	}
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(rows), CEREAL_NVP(cols), cereal::make_nvp("matrix",storage));
 	}
