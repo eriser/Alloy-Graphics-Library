@@ -22,6 +22,7 @@
 #ifndef ALLOYUI_H_
 #define ALLOYUI_H_
 #include "AlloyMath.h"
+#include "AlloyNumber.h"
 #include "AlloyContext.h"
 #include "AlloyUnits.h"
 #include "AlloyWorker.h"

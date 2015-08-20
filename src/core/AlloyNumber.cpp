@@ -18,28 +18,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#ifndef ALLOY_H_
-#define ALLOY_H_
-
-#include "AlloyFileUtil.h"
-#include "AlloyImage.h"
-#include "AlloyMath.h"
 #include "AlloyNumber.h"
-#include "AlloyImage.h"
-#include "AlloyDrawUtil.h"
-#include "AlloyUI.h"
-#include "AlloyWidget.h"
-#include "GLShader.h"
-#include "GLTexture.h"
-#include "GLFrameBuffer.h"
-#include "AlloyContext.h"
-#include "AlloyApplication.h"
-#include "AlloyWorker.h"
-#include "AlloyMesh.h"
-#include "AlloyVirtualCamera.h"
-#include "AlloySparseMatrix.h"
-#include "AlloyAlgorithm.h"
-#include "CommonShaders.h"
+namespace aly {
 
-#endif /* ALLOY_H_ */
+}
+
