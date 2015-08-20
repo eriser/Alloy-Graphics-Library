@@ -174,15 +174,9 @@ namespace aly
 			Any res = getValueImpl();
 			return AnyCast<T>(res);
 		}
-		template <typename T>
-		T getValue() {
-			Any res = getValueImpl();
-			return AnyCast<T>(res);
-		}
 	protected:
 		virtual void setValueImpl(Any const & value) = 0;
 		virtual Any getValueImpl() const = 0;
-		virtual Any getValueImpl() = 0;
 	};
 	template<class T> class AnyValue : public AnyInterface {
 	public:
@@ -196,9 +190,6 @@ namespace aly
 			value = AnyCast<T>(val);
 		}
 		virtual Any getValueImpl() const override {
-			return value;
-		}
-		virtual Any getValueImpl() override {
 			return value;
 		}
 	};
