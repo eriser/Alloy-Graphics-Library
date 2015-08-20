@@ -173,6 +173,7 @@ struct Integer {
 private:
 	int value = 0;
 public:
+	Integer() {}
 	std::string virtual type() const {
 		return "int";
 	}
@@ -221,6 +222,7 @@ struct Float {
 private:
 	float value = 0;
 public:
+	Float() {}
 	std::string virtual type() const {
 		return "float";
 	}
@@ -267,6 +269,7 @@ struct Double {
 private:
 	double value = 0;
 public:
+	Double(){}
 	std::string virtual type() const {
 		return "double";
 	}
@@ -313,6 +316,7 @@ struct Boolean {
 private:
 	bool value = 0;
 public:
+	Boolean(){}
 	std::string virtual type() const {
 		return "boolean";
 	}

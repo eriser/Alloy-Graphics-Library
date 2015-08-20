@@ -19,8 +19,10 @@
 * THE SOFTWARE.
 */
 #include "AlloyAny.h"
-#include "AlloyNumber.h"
+#include  "AlloyNumber.h"
 #include <iostream>
+#include <fstream>
+#include "cereal/archives/xml.hpp"
 namespace aly {
 	bool SANITY_CHECK_ANY() {
 
@@ -40,6 +42,11 @@ namespace aly {
 		std::cout << "Value " << v2->getValue<Integer>() << std::endl;
 		std::cout << "Value " << v3->getValue<Boolean>() << std::endl;
 
+		{
+			std::ofstream os("any.xml");
+			cereal::XMLOutputArchive archiver(os);
+			archiver(*v1,*v2,*v3,dvalue,ivalue,bvalue);
+		}
 		return true;
 	}
 }

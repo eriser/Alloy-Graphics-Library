@@ -21,11 +21,15 @@
 //Kudos to Thomas Pigarelli (https://gist.github.com/Jefffrey/9202235) for reimplementing Boost's mysterious and wonderful "any" class
 #ifndef ALLOYANY_H_
 #define ALLOYANY_H_
+#include "AlloyNumber.h"
 #include <algorithm>
 #include <typeinfo>
 #include <exception>
 #include <memory>
 #include <type_traits>
+#include "cereal/cereal.hpp"
+#include "cereal/types/memory.hpp"
+#include "cereal/types/polymorphic.hpp"
 namespace aly
 {
 
@@ -68,7 +72,7 @@ namespace aly
 		}
 
 		template<class Type> Any(const Type& x)
-			: ptr(new concrete<typename std::decay<const Type>::type>(x))
+			: ptr(new Concrete<typename std::decay<const Type>::type>(x))
 		{}
 
 		Any& operator=(Any&& rhs) {
@@ -82,12 +86,12 @@ namespace aly
 		}
 
 		template<class T> Any& operator=(T&& x) {
-			ptr.reset(new concrete<typename std::decay<T>::type>(typename std::decay<T>::type(x)));
+			ptr.reset(new Concrete<typename std::decay<T>::type>(typename std::decay<T>::type(x)));
 			return (*this);
 		}
 
 		template<class T> Any& operator=(const T& x) {
-			ptr.reset(new concrete<typename std::decay<T>::type>(typename std::decay<T>::type(x)));
+			ptr.reset(new Concrete<typename std::decay<T>::type>(typename std::decay<T>::type(x)));
 			return (*this);
 		}
 
@@ -105,48 +109,57 @@ namespace aly
 				: typeid(void);
 		}
 
-	private:
+	public:
+		struct Placeholder {
 
-		struct placeholder {
-
-			virtual std::unique_ptr<placeholder> clone() const = 0;
+			virtual std::unique_ptr<Placeholder> clone() const = 0;
 			virtual const std::type_info& type() const = 0;
-			virtual ~placeholder() {}
+			virtual ~Placeholder() {}
 
 		};
-
 		template<class T>
-		struct concrete : public placeholder {
+		struct Concrete : public Placeholder {
 
-			concrete(T&& x)
+			Concrete(T&& x)
 				: value(std::move(x))
 			{}
 
-			concrete(const T& x)
+			Concrete(const T& x)
 				: value(x)
 			{}
 
-			virtual std::unique_ptr<placeholder> clone() const override {
-				return std::unique_ptr<placeholder>(new concrete<T>(value));
+			virtual std::unique_ptr<Placeholder> clone() const override {
+				return std::unique_ptr<Placeholder>(new Concrete<T>(value));
 			}
 
 			virtual const std::type_info& type() const override {
 				return typeid(T);
 			}
-
+			Concrete() {}
 			T value;
-
+			template<class Archive> void save(Archive& ar) const {
+				ar(CEREAL_NVP(value));
+			}
+			template<class Archive> void load(Archive& ar) {
+				ar(CEREAL_NVP(value));
+			}
 		};
+		std::unique_ptr<Placeholder> ptr;
+	public:
 
-		std::unique_ptr<placeholder> ptr;
-
+		template<class Archive> void save(Archive& ar) const {
+			ar(cereal::make_nvp("value", ptr));
+		}
+		template<class Archive> void load(Archive& ar) {
+			ar(cereal::make_nvp("value", ptr));
+		}
 	};
 
 	template<class Type>
 	Type AnyCast(Any& val) {
 		if (val.ptr->type() != typeid(Type))
 			throw BadAnyCast();
-		return static_cast<Any::concrete<Type>*>(val.ptr.get())->value;
+		return static_cast<Any::Concrete<Type>*>(val.ptr.get())->value;
 	}
 
 	template<class Type>
@@ -174,6 +187,16 @@ namespace aly
 			Any res = getValueImpl();
 			return AnyCast<T>(res);
 		}
+		AnyInterface(){}
+		template<class Archive> void save(Archive& ar) const {
+			Any any = getValueImpl();
+			ar(cereal::make_nvp("any", any));
+		}
+		template<class Archive> void load(Archive& ar) {
+			Any any;
+			ar(cereal::make_nvp("any",any));
+			setValue(any);
+		}
 		virtual ~AnyInterface() {}
 	protected:
 		virtual void setValueImpl(Any const & value) = 0;
@@ -183,7 +206,13 @@ namespace aly
 	public:
 		AnyValue(const T& value) :value(value) {
 		}
-		AnyValue() :value() {
+		AnyValue() {
+		}
+		template<class Archive> void save(Archive& ar) const {
+			ar(cereal::base_class<AnyInterface>(this));
+		}
+		template<class Archive> void load(Archive& ar) {
+			ar(cereal::base_class<AnyInterface>(this));
 		}
 	protected:
 		T value;
@@ -196,5 +225,14 @@ namespace aly
 	};
 }
 
+#define REGISTER_ANY_TYPE(T)                 \
+	CEREAL_REGISTER_TYPE(aly::Any::Concrete<T>);	\
+	CEREAL_REGISTER_TYPE(aly::AnyValue<T>);
 
+
+REGISTER_ANY_TYPE(aly::Number);
+REGISTER_ANY_TYPE(aly::Double);
+REGISTER_ANY_TYPE(aly::Float);
+REGISTER_ANY_TYPE(aly::Integer);
+REGISTER_ANY_TYPE(aly::Boolean);
 #endif
