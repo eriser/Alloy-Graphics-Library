@@ -603,7 +603,7 @@ typedef Vector<int16_t, 4> Vector4s;
 typedef Vector<int, 4> Vector4i;
 typedef Vector<uint32_t, 4> Vector4ui;
 typedef Vector<float, 4> Vector4f;
-typedef Vector<double, 4> VectorAd;
+typedef Vector<double, 4> Vector4d;
 
 typedef Vector<uint8_t, 3> Vector3b;
 typedef Vector<uint16_t, 3> Vector3us;
@@ -611,7 +611,7 @@ typedef Vector<int16_t, 3> Vector3s;
 typedef Vector<int, 3> Vector3i;
 typedef Vector<uint32_t, 3> Vector3ui;
 typedef Vector<float, 3> Vector3f;
-typedef Vector<double, 3> VectorAd;
+typedef Vector<double, 3> Vector3d;
 
 typedef Vector<uint8_t, 2> Vector2b;
 typedef Vector<uint16_t, 2> Vector2us;
@@ -619,7 +619,7 @@ typedef Vector<int16_t, 2> Vector2s;
 typedef Vector<int, 2> Vector2i;
 typedef Vector<uint32_t, 2> Vector2ui;
 typedef Vector<float, 2> Vector2f;
-typedef Vector<double, 2> VectorAd;
+typedef Vector<double, 2> Vector2d;
 
 typedef Vector<uint8_t, 1> Vector1b;
 typedef Vector<uint16_t, 1> Vector1us;
@@ -627,7 +627,7 @@ typedef Vector<int16_t, 1> Vector1s;
 typedef Vector<int, 1> Vector1i;
 typedef Vector<uint32_t, 1> Vector1ui;
 typedef Vector<float, 1> Vector1f;
-typedef Vector<double, 1> VectorAd;
+typedef Vector<double, 1> Vector1d;
 
 }
 ;
