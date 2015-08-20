@@ -174,6 +174,11 @@ namespace aly
 			Any res = getValueImpl();
 			return AnyCast<T>(res);
 		}
+		template <typename T>
+		T getValue() {
+			Any res = getValueImpl();
+			return AnyCast<T>(res);
+		}
 	protected:
 		virtual void setValueImpl(Any const & value) = 0;
 		virtual Any getValueImpl() const = 0;
