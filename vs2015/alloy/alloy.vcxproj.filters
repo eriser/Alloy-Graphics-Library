@@ -102,6 +102,9 @@
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyAny.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h">
@@ -216,6 +219,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyNumber.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyAny.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
