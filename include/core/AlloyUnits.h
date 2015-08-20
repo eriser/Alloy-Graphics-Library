@@ -264,6 +264,9 @@ public:
 	Integer(int value) :
 			value(value) {
 	}
+	Integer(const Number& num):value(num.toInteger()){
+
+	}
 	virtual ~Integer() {
 	}
 };
@@ -308,6 +311,9 @@ public:
 	Float(float value) :
 			value(value) {
 	}
+	Float(const Number& num):value(num.toFloat()){
+
+	}
 	virtual ~Float() {
 	}
 };
@@ -351,6 +357,9 @@ public:
 	Double(double value) :
 			value(value) {
 	}
+	Double(const Number& num):value(num.toDouble()){
+
+	}
 	virtual ~Double() {
 	}
 };
@@ -393,6 +402,9 @@ public:
 	}
 	Boolean(bool value) :
 		value(value) {
+	}
+	Boolean(const Number& num):value(num.toBoolean()){
+
 	}
 	virtual ~Boolean() {
 	}
