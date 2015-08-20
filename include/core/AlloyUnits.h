@@ -214,6 +214,11 @@ public:
 			throw std::runtime_error("Number storage type has not been defined.");
 		impl->setValue(val);
 	}
+	virtual std::string type() const {
+                if (impl.get() == nullptr)
+                        throw std::runtime_error("Number storage type has not been defined.");
+                return impl->type();
+        }
 	virtual inline ~Number() {
 
 	}
