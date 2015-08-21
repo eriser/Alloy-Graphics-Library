@@ -246,7 +246,8 @@ public:
 	}
 	void putLast(const std::shared_ptr<Region>& region);
 	void putFirst(const std::shared_ptr<Region>& region);
-
+        void putLast(Region* region);
+        void putFirst(Region* region);
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
