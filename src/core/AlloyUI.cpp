@@ -261,7 +261,38 @@ void Composite::putFirst(const std::shared_ptr<Region>& region) {
 	children = newList;
 	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
-
+void Composite::putLast(Region* region) {
+        size_t idx = 0;
+        size_t pivot = children.size() - 1;
+        std::vector<std::shared_ptr<Region>> newList;
+        for (RegionPtr& child : children) {
+                if (child.get() == region) {
+                        pivot = idx;
+                } else {
+                        newList.push_back(child);
+                }
+                idx++;
+        }
+        newList.push_back(children[pivot]);
+        children = newList;
+        AlloyApplicationContext()->requestUpdateCursorLocator();
+}
+void Composite::putFirst(Region* region) {
+        size_t idx = 0;
+        size_t pivot = 0;
+        std::vector<std::shared_ptr<Region>> newList;
+        for (RegionPtr& child : children) {
+                if (child.get() == region) {
+                        pivot = idx;
+                } else {
+                        newList.push_back(child);
+                }
+                idx++;
+        }
+        newList.insert(newList.begin(), children[pivot]);
+        children = newList;
+        AlloyApplicationContext()->requestUpdateCursorLocator();
+}
 void Composite::clear() {
 	AlloyApplicationContext()->addDeferredTask(
 			[this] {this->children.clear();});
