@@ -216,8 +216,8 @@ typedef struct PlyFile { /* description of PLY file */
 	char **obj_info; /* list of object info items */
 	PlyElement *which_elem; /* element we're currently reading or writing */
 	PlyOtherElems *other_elems; /* "other" elements from a PLY file */
-	PlyPropRules *current_rules; /* current propagation rules */
-	PlyRuleList *rule_list; /* rule list from user */
+	PlyPropRules* current_rules; /* current propagation rules */
+	PlyRuleList* rule_list; /* rule list from user */
 } PlyFile;
 
 /* memory allocation */
