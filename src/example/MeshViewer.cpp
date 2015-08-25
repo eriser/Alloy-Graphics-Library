@@ -30,8 +30,18 @@ MeshViewer::MeshViewer() :
 				1), voxelSize(0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
+	//Mesh tmpMesh;
+	//tmpMesh.load(getFullPath("models/torus.ply"));
+	//tmpMesh.updateVertexNormals();
+	//WriteMeshToFile("torus2.ply",tmpMesh,true);
+	//WriteMeshToFile("torus3.ply", tmpMesh, false);
 	mesh.load(getFullPath("models/monkey.ply"));
+	
+	//WriteMeshToFile("monkey2.ply", mesh, true);
+	//WriteMeshToFile("monkey3.ply", mesh, false);
+	
 	mesh.scale(100.0f);
+	mesh.save("monkey2.ply");
 	//mesh.vertexColors.resize(mesh.vertexLocations.size());
 	//mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
 	MeshNeighborTable vertTable;

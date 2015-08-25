@@ -265,7 +265,7 @@ namespace aly {
 			throw runtime_error(MakeString() << "Could not open " << str);
 	}
 	void WriteBinaryFile(const std::string& str, const std::vector<char>& data) {
-		ofstream file(str, ios::out | ios::app | ios::binary);
+		ofstream file(str, ios::out | ios::binary);
 		if (file.is_open()) {
 			file.write(data.data(), data.size());
 			file.close();
@@ -274,7 +274,7 @@ namespace aly {
 			throw runtime_error(MakeString() << "Could not write " << str);
 	}
 	void WriteBinaryFile(const std::string& str, const char* data, size_t elements) {
-		ofstream file(str, ios::out | ios::app | ios::binary);
+		ofstream file(str, ios::out  | ios::binary);
 		if (file.is_open()) {
 			file.write(data, elements);
 			file.close();

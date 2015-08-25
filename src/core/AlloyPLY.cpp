@@ -87,7 +87,7 @@ namespace aly {
 		void PLYReaderWriter::openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names,
 			const FileFormat& file_type)
 		{
-			out = ofstream(fileName, ios::out | ios::app | ios::binary);
+			out = ofstream(fileName, ios::out | ios::binary);
 			if (!out.is_open()) {
 				return throw std::runtime_error(aly::MakeString() << "Could not open " << fileName << " for writing.");
 			}
@@ -113,7 +113,6 @@ namespace aly {
 			elem = new PlyElement();
 			elem->name = words[1];
 			elem->num = atoi(words[2].c_str());
-			std::cout << "Add element " << elem->name << " " << elem->num << std::endl;
 			plyFile->elems.push_back(std::shared_ptr<PlyElement>(elem));
 		}
 
@@ -172,8 +171,6 @@ namespace aly {
 				prop->name = words[2];
 				prop->is_list = SectionType::Scalar;
 			}
-
-			std::cout << "Add property " << prop->name << " " <<prop->external_type<<" "<< prop->is_list << std::endl;
 			PlyElement *elem = plyFile->elems.back().get();
 			elem->props.push_back(std::shared_ptr<PlyProperty>(prop));
 		}
@@ -351,7 +348,7 @@ namespace aly {
 						out << "property string ";
 						out << " " << prop->name << "\n";
 					}
-					else  if (prop->is_list == SectionType::Scalar) {
+					else {
 						out << "property ";
 						writeScalarType(prop->external_type);
 						out << " " << prop->name << "\n";
@@ -411,7 +408,7 @@ namespace aly {
 						std::string ostr = aly::MakeString() << "\"" << *str << "\"";
 						out << ostr;
 					}
-					else if (prop->is_list == SectionType::Scalar) { /* scalar */
+					else  { /* scalar */
 						item = elem_data + prop->offset;
 						getStoredItem((char *)item, prop->internal_type, &int_val,
 							&uint_val, &double_val);
@@ -454,13 +451,12 @@ namespace aly {
 						std::string *str;
 						item = elem_data + prop->offset;
 						str = (std::string *)item;
-
 						/* write the length */
 						len = str->length() + 1;
 						out << len;
 						out << *str;
 					}
-					else if (prop->is_list == SectionType::Scalar) { /* scalar */
+					else { /* scalar */
 						item = elem_data + prop->offset;
 						item_size = ply_type_size[static_cast<int>(prop->internal_type)];
 						getStoredItem((char *)item, prop->internal_type, &int_val,
@@ -515,7 +511,7 @@ namespace aly {
 			char **elist;
 			PlyElement *elem;
 			std::string orig_line;
-			in = ifstream(fileName, ios::out | ios::app | ios::binary);
+			in = ifstream(fileName, ios::in | ios::binary);
 			if (!in.is_open()) {
 				throw std::runtime_error(MakeString() << "Could not open " << fileName << " for writing.");
 			}
@@ -552,12 +548,9 @@ namespace aly {
 				}
 				else if (words[0] == "comment") {
 					addComment(orig_line);
-					std::cout << "Comment [" << orig_line << "]" << std::endl;
 				}
 				else if (words[0] == "obj_info") {
 					addObjInfo(orig_line);
-
-					std::cout << "Info [" << orig_line << "]" << std::endl;
 				}
 				else if (words[0] == "end_header") {
 					break;
@@ -801,7 +794,7 @@ namespace aly {
 							size += sizeof(char *);
 						}
 					}
-					else if (prop->is_list == SectionType::Scalar&&type_size == ply_type_size[static_cast<int>(prop->external_type)]) {
+					else if (type_size == ply_type_size[static_cast<int>(prop->external_type)]) {
 						prop->offset = size;
 						size += ply_type_size[static_cast<int>(prop->external_type)];
 					}
@@ -1096,7 +1089,6 @@ namespace aly {
 				}
 				else if (prop->is_list == SectionType::String) { /* a string */
 					if (store_it) {
-						char **str_ptr;
 						std::string str = words[which_word++];
 						item = elem_data + prop->offset;
 					}
@@ -1104,7 +1096,7 @@ namespace aly {
 						which_word++;
 					}
 				}
-				else if (prop->is_list == SectionType::Scalar) {/* a scalar */
+				else {/* a scalar */
 					getAsciiItem(words[which_word++], prop->external_type, &int_val,
 						&uint_val, &double_val);
 					if (store_it) {
@@ -1220,7 +1212,7 @@ namespace aly {
 						item = elem_data + prop->offset;
 					}
 				}
-				else if (prop->is_list == SectionType::Scalar) { /* scalar */
+				else { /* scalar */
 					getBinaryItem(prop->external_type, &int_val, &uint_val,
 						&double_val);
 					if (store_it) {
@@ -1291,7 +1283,7 @@ namespace aly {
 					}
 				}
 				else {
-					ss << c;
+					if(c!='\r')ss << c;
 				}
 			}
 			comp = ss.str();
@@ -1303,6 +1295,9 @@ namespace aly {
 			}
 			else {
 				orig_line = line;
+			}
+			if (orig_line.size() > 0 && orig_line[orig_line.size() - 1] == '\r') {
+				orig_line = orig_line.substr(0, orig_line.size() - 1);
 			}
 			return result;
 		}
@@ -1441,18 +1436,18 @@ namespace aly {
 			case DataType::Int8:
 			case DataType::Int16:
 			case DataType::Int32:
-				str = aly::MakeString() << int_val;
+				str = aly::MakeString() << int_val<<" ";
 				out << str;
 				break;
 			case DataType::Uint8:
 			case DataType::Uint16:
 			case DataType::Uint32:
-				str = aly::MakeString() << uint_val;
+				str = aly::MakeString() << uint_val << " ";
 				out << str;
 				break;
 			case DataType::Float32:
 			case DataType::Float64:
-				str = aly::MakeString() << double_val;
+				str = aly::MakeString() << double_val << " ";
 				out << str;
 				break;
 			default:

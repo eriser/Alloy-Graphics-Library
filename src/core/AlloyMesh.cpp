@@ -461,14 +461,13 @@ namespace aly {
 			return false;
 		}
 	}
-	void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
-		std::vector<std::string> elemNames = { "vertex", "face", "normal" };
+	void WriteMeshToFile(const std::string& file, const Mesh& mesh,bool binary) {
+		std::vector<std::string> elemNames = { "vertex", "face"};
 		int i, j, idx;
-		const char* fileName = file.c_str();
 		bool usingTexture = (mesh.textureMap.size() > 0);
 		// Get input and check data
 		PLYReaderWriter ply;
-		ply.openForWriting(fileName, elemNames, FileFormat::BINARY_LE); //
+		ply.openForWriting(file, elemNames,(binary)?FileFormat::BINARY_LE:FileFormat::ASCII); //
 
 		// compute colors, if any
 		int numPts = (int)(mesh.vertexLocations.size());
@@ -816,12 +815,12 @@ namespace aly {
 		// Check to make sure that we can read geometry
 		PlyElement *elem;
 		int index;
-		if ((elem = ply.findElement("vertex")) == NULL
-			|| ply.findProperty(elem, "x", &index) == NULL
-			|| ply.findProperty(elem, "y", &index) == NULL
-			|| ply.findProperty(elem, "z", &index) == NULL
-			|| (elem = ply.findElement("face")) == NULL
-			|| ply.findProperty(elem, "vertex_indices", &index) == NULL) {
+		if ((elem = ply.findElement("vertex")) == nullptr
+			|| ply.findProperty(elem, "x", &index) == nullptr
+			|| ply.findProperty(elem, "y", &index) == nullptr
+			|| ply.findProperty(elem, "z", &index) == nullptr
+			|| (elem = ply.findElement("face")) == nullptr
+			|| ply.findProperty(elem, "vertex_indices", &index) == nullptr) {
 			throw std::runtime_error(
 				MakeString() << "Could not read geometry [" << file << "]");
 		}
@@ -836,16 +835,16 @@ namespace aly {
 		mesh.vertexLocations.clear();
 		mesh.vertexNormals.clear();
 		mesh.vertexColors.clear();
-		if ((elem = ply.findElement("vertex")) != NULL
-			&& ply.findProperty(elem, "red", &index) != NULL
-			&& ply.findProperty(elem, "green", &index) != NULL
-			&& ply.findProperty(elem, "blue", &index) != NULL) {
+		if ((elem = ply.findElement("vertex")) != nullptr
+			&& ply.findProperty(elem, "red", &index) != nullptr
+			&& ply.findProperty(elem, "green", &index) != nullptr
+			&& ply.findProperty(elem, "blue", &index) != nullptr) {
 			RGBPointsAvailable = true;
 		}
-		if ((elem = ply.findElement("vertex")) != NULL
-			&& ply.findProperty(elem, "nx", &index) != NULL
-			&& ply.findProperty(elem, "ny", &index) != NULL
-			&& ply.findProperty(elem, "nz", &index) != NULL) {
+		if ((elem = ply.findElement("vertex")) != nullptr
+			&& ply.findProperty(elem, "nx", &index) != nullptr
+			&& ply.findProperty(elem, "ny", &index) != nullptr
+			&& ply.findProperty(elem, "nz", &index) != nullptr) {
 			hasNormals = true;
 		}
 
