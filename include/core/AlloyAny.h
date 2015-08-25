@@ -41,8 +41,6 @@ namespace aly
 	template<class Type> Type AnyCast(const Any&);
 	template<class Type> Type* AnyCast(Any*);
 	template<class Type> const Type* AnyCast(const Any*);
-	struct BadAnyCast : public std::bad_cast {};
-
 	class Any {
 	public:
 
@@ -158,14 +156,14 @@ namespace aly
 	template<class Type>
 	Type AnyCast(Any& val) {
 		if (val.ptr->type() != typeid(Type))
-			throw BadAnyCast();
+			throw std::runtime_error(aly::MakeString()<<"Could not cast "<<val.ptr->type().name());
 		return static_cast<Any::Concrete<Type>*>(val.ptr.get())->value;
 	}
 
 	template<class Type>
 	Type AnyCast(const Any& val) {
 		if (val.ptr->type() != typeid(Type))
-			throw BadAnyCast();
+		    throw std::runtime_error(aly::MakeString()<<"Could not cast "<<val.ptr->type().name());
 		return static_cast<Any::Concrete<Type>*>(val.ptr.get())->value;
 	}
 
