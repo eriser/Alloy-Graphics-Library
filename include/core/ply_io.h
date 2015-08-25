@@ -64,6 +64,7 @@ extern "C" {
 #define  PLY_LIST    1
 #define  PLY_STRING  2
 
+	/*
 typedef struct _plyVertex {
 	float x[3];             // the usual 3-space position of a vertex
 	float n[3];
@@ -132,7 +133,7 @@ typedef struct _plyFaceTexutre {
 		nvels = 3;
 	}
 } plyFaceTexture;
-
+*/
 typedef struct PlyProperty { /* description of a property */
 
 	char *name; /* property name */

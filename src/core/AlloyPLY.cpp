@@ -45,7 +45,7 @@ namespace aly {
 		******************************************************************************/
 
 		PlyElement* PLYReaderWriter::findElement(const std::string& element) {
-			int i=0;
+			int i = 0;
 			for (i = 0; i < plyFile->elems.size(); i++) {
 				if (element == plyFile->elems[i]->name) {
 					return plyFile->elems[i].get();
@@ -53,11 +53,11 @@ namespace aly {
 			}
 			return nullptr;
 		}
-		
+
 
 		PlyFile* PLYReaderWriter::write(
 			const std::vector<std::string>& elem_names,
-			const FileFormat& file_type){
+			const FileFormat& file_type) {
 			int i;
 			PlyFile *plyFile;
 			PlyElement *elem;
@@ -71,26 +71,27 @@ namespace aly {
 			/* tuck aside the names of the elements */
 
 			plyFile->elems.resize(elem_names.size());
-			for (i = 0; i <elem_names.size(); i++) {
+			for (i = 0; i < elem_names.size(); i++) {
 				elem = (PlyElement *)new PlyElement();
 				plyFile->elems[i] = shared_ptr<PlyElement>(elem);
 				elem->name = elem_names[i];
 				elem->num = 0;
 			}
-			plyFile;
+			return plyFile;
 		}
 		void PLYReaderWriter::openForReading(const std::string& fileName) {
 			std::vector<string> elemNames;
 			openForReading(fileName, &elemNames);
+			plyFile->elemNames = elemNames;
 		}
 		void PLYReaderWriter::openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names,
 			const FileFormat& file_type)
 		{
-			out=ofstream(fileName, ios::out | ios::app | ios::binary);
+			out = ofstream(fileName, ios::out | ios::app | ios::binary);
 			if (!out.is_open()) {
 				return throw std::runtime_error(aly::MakeString() << "Could not open " << fileName << " for writing.");
 			}
-			PlyFile* file = write( elem_names, file_type);
+			PlyFile* file = write(elem_names, file_type);
 			if (file == nullptr) {
 				return throw std::runtime_error(aly::MakeString() << "Could not initialize " << fileName << " for writing.");
 			}
@@ -110,8 +111,9 @@ namespace aly {
 			PlyElement *elem;
 			/* create the new element */
 			elem = new PlyElement();
-			elem->name=words[1];
+			elem->name = words[1];
 			elem->num = atoi(words[2].c_str());
+			std::cout << "Add element " << elem->name << " " << elem->num << std::endl;
 			plyFile->elems.push_back(std::shared_ptr<PlyElement>(elem));
 		}
 
@@ -129,7 +131,11 @@ namespace aly {
 			int i;
 			/* try to match the type name */
 			for (i = static_cast<int>(DataType::StartType) + 1; i < static_cast<int>(DataType::EndType); i++)
-				if (type_name== property_type_names[i])
+				if (type_name == property_type_names[i])
+					return static_cast<DataType>(i);
+
+			for (i = static_cast<int>(DataType::StartType) + 1; i < static_cast<int>(DataType::EndType); i++)
+				if (type_name == old_property_type_names[i])
 					return static_cast<DataType>(i);
 			/* if we get here, we didn't find the type */
 			return DataType::StartType;
@@ -145,26 +151,30 @@ namespace aly {
 		******************************************************************************/
 		void PLYReaderWriter::addProperty(const std::vector<std::string>& words) {
 			PlyProperty *prop;
-			PlyElement *elem;
+
 			/* create the new property */
 			prop = new PlyProperty();
-			if (words[1]=="list") { /* list */
+			prop->external_type = DataType::StartType;
+			if (words[1] == "list") { /* list */
 				prop->count_external = getPropType(words[2]);
 				prop->external_type = getPropType(words[3]);
-				prop->name =words[4];
+				prop->name = words[4];
 				prop->is_list = SectionType::List;
 			}
-			else if (words[1]== "string") { /* string */
+			else if (words[1] == "string") { /* string */
 				prop->count_external = DataType::Int8;
 				prop->external_type = DataType::Int8;
 				prop->name = words[2];
 				prop->is_list = SectionType::String;
 			}
-			else if (words[1] == "scalar") { /* scalr */
+			else  { /* scalar */
 				prop->external_type = getPropType(words[1]);
-				prop->name =words[2];
+				prop->name = words[2];
 				prop->is_list = SectionType::Scalar;
 			}
+
+			std::cout << "Add property " << prop->name << " " <<prop->external_type<<" "<< prop->is_list << std::endl;
+			PlyElement *elem = plyFile->elems.back().get();
 			elem->props.push_back(std::shared_ptr<PlyProperty>(prop));
 		}
 
@@ -203,7 +213,7 @@ namespace aly {
 			appendObjInfo(line.substr(i));
 		}
 		void PLYReaderWriter::elementLayout(const std::string& elem_name, int nelems,
-			int nprops,const std::vector<PlyProperty>& prop_list)
+			int nprops, const std::vector<PlyProperty>& prop_list)
 
 			/******************************************************************************/
 			/*
@@ -224,7 +234,7 @@ namespace aly {
 			/* look for appropriate element */
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw std::runtime_error(aly::MakeString()<<"element_layout_ply: can't find element "<<elem_name);
+				throw std::runtime_error(aly::MakeString() << "element_layout_ply: can't find element " << elem_name);
 			}
 			elem->num = nelems;
 			elem->props = std::vector<std::shared_ptr<PlyProperty>>(nprops);
@@ -256,9 +266,9 @@ namespace aly {
 			/* look for appropriate element */
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw std::runtime_error(aly::MakeString()<<"describeProperty: can't find element "<<elem_name);
+				throw std::runtime_error(aly::MakeString() << "describeProperty: can't find element " << elem_name);
 			}
-			elem_prop =new PlyProperty();
+			elem_prop = new PlyProperty();
 			*elem_prop = *prop;
 			elem->props.push_back(std::shared_ptr<PlyProperty>(elem_prop));
 			elem->store_prop.push_back(NAMED_PROP);
@@ -282,7 +292,7 @@ namespace aly {
 			/* look for appropriate element */
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw runtime_error(aly::MakeString()<<"elementCount: can't find element "<<
+				throw runtime_error(aly::MakeString() << "elementCount: can't find element " <<
 					elem_name);
 			}
 			elem->num = nelems;
@@ -303,26 +313,26 @@ namespace aly {
 			int i, j;
 			PlyElement *elem;
 			PlyProperty *prop;
-			out<<"ply\n";
+			out << "ply\n";
 			switch (plyFile->file_type) {
 			case FileFormat::ASCII:
-				out<<"format ascii 1.0\n";
+				out << "format ascii 1.0\n";
 				break;
 			case FileFormat::BINARY_BE:
-				out<<"format binary_big_endian 1.0\n";
+				out << "format binary_big_endian 1.0\n";
 				break;
 			case FileFormat::BINARY_LE:
-				out <<"format binary_little_endian 1.0\n";
+				out << "format binary_little_endian 1.0\n";
 				break;
 			default:
-				throw std::runtime_error(aly::MakeString()<<"headerComplete: bad file type = "<<plyFile->file_type);
+				throw std::runtime_error(aly::MakeString() << "headerComplete: bad file type = " << plyFile->file_type);
 			}
 			/* write out the comments */
-			for (i = 0; i <plyFile->comments.size(); i++)
+			for (i = 0; i < plyFile->comments.size(); i++)
 				out << "comment " << plyFile->comments[i] << "\n";
 			/* write out object information */
 			for (i = 0; i < plyFile->obj_info.size(); i++)
-				out << "comment " << "obj_info "<< plyFile->obj_info[i] << "\n";
+				out << "comment " << "obj_info " << plyFile->obj_info[i] << "\n";
 			/* write out information about each element */
 			for (i = 0; i < plyFile->elems.size(); i++) {
 				elem = plyFile->elems[i].get();
@@ -331,24 +341,24 @@ namespace aly {
 				for (j = 0; j < elem->props.size(); j++) {
 					prop = elem->props[j].get();
 					if (prop->is_list == SectionType::List) {
-						out<<"property list ";
+						out << "property list ";
 						writeScalarType(prop->count_external);
 						out << " ";
 						writeScalarType(prop->external_type);
-						out << " "<<prop->name<<"\n";
+						out << " " << prop->name << "\n";
 					}
 					else if (prop->is_list == SectionType::String) {
 						out << "property string ";
-						out << " "<<prop->name<<"\n";
+						out << " " << prop->name << "\n";
 					}
 					else  if (prop->is_list == SectionType::Scalar) {
 						out << "property ";
 						writeScalarType(prop->external_type);
-						out<<" "<<prop->name << "\n";
+						out << " " << prop->name << "\n";
 					}
 				}
 			}
-			out<<"end_header\n";
+			out << "end_header\n";
 		}
 		//
 		void PLYReaderWriter::putElement(void* elem_ptr) {
@@ -381,7 +391,7 @@ namespace aly {
 						item = elem_data + prop->count_offset;
 						getStoredItem((char *)item, prop->count_internal, &int_val,
 							&uint_val, &double_val);
-						writeAsciiItem(int_val, uint_val, double_val,prop->count_external);
+						writeAsciiItem(int_val, uint_val, double_val, prop->count_external);
 						list_count = uint_val;
 						item_ptr = (char **)(elem_data + prop->offset);
 						item = item_ptr[0];
@@ -398,14 +408,14 @@ namespace aly {
 						std::string *str;
 						item = elem_data + prop->offset;
 						str = (std::string*)item;
-						std::string ostr=aly::MakeString()<<"\""<<*str<<"\"";
+						std::string ostr = aly::MakeString() << "\"" << *str << "\"";
 						out << ostr;
 					}
 					else if (prop->is_list == SectionType::Scalar) { /* scalar */
 						item = elem_data + prop->offset;
 						getStoredItem((char *)item, prop->internal_type, &int_val,
 							&uint_val, &double_val);
-						writeAsciiItem(int_val, uint_val, double_val,prop->external_type);
+						writeAsciiItem(int_val, uint_val, double_val, prop->external_type);
 					}
 				}
 				out << "\n";
@@ -426,7 +436,7 @@ namespace aly {
 						item_size = ply_type_size[static_cast<int>(prop->count_internal)];
 						getStoredItem((char *)item, prop->count_internal, &int_val,
 							&uint_val, &double_val);
-						writeBinaryItem(int_val, uint_val, double_val,prop->count_external);
+						writeBinaryItem(int_val, uint_val, double_val, prop->count_external);
 						list_count = uint_val;
 						item_ptr = (char **)(elem_data + prop->offset);
 						item = item_ptr[0];
@@ -434,7 +444,7 @@ namespace aly {
 						for (k = 0; k < list_count; k++) {
 							getStoredItem((char *)item, prop->internal_type,
 								&int_val, &uint_val, &double_val);
-							writeBinaryItem( int_val, uint_val, double_val,
+							writeBinaryItem(int_val, uint_val, double_val,
 								prop->external_type);
 							item += item_size;
 						}
@@ -450,7 +460,7 @@ namespace aly {
 						out << len;
 						out << *str;
 					}
-					else if(prop->is_list == SectionType::Scalar){ /* scalar */
+					else if (prop->is_list == SectionType::Scalar) { /* scalar */
 						item = elem_data + prop->offset;
 						item_size = ply_type_size[static_cast<int>(prop->internal_type)];
 						getStoredItem((char *)item, prop->internal_type, &int_val,
@@ -475,7 +485,7 @@ namespace aly {
 			PlyElement *elem;
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw std::runtime_error(aly::MakeString()<<"put_element_setup_ply: can't find element "<<elem_name);
+				throw std::runtime_error(aly::MakeString() << "put_element_setup_ply: can't find element " << elem_name);
 			}
 			plyFile->which_elem = elem;
 		}
@@ -504,10 +514,10 @@ namespace aly {
 			int found_format = 0;
 			char **elist;
 			PlyElement *elem;
-			char *orig_line;
+			std::string orig_line;
 			in = ifstream(fileName, ios::out | ios::app | ios::binary);
 			if (!in.is_open()) {
-				throw std::runtime_error(MakeString()<<"Could not open " << fileName << " for writing.");
+				throw std::runtime_error(MakeString() << "Could not open " << fileName << " for writing.");
 			}
 			/* create record for this object */
 
@@ -515,40 +525,45 @@ namespace aly {
 			plyFile = std::unique_ptr<PlyFile>(new PlyFile());
 			/* read and parse the file's header */
 
-			words = getWords();
-			if (words.size()==0 || words[0]!="ply")
+			words = getWords(orig_line);
+			nwords = words.size();
+			if (words.size() == 0 || words[0] != "ply")
 				throw std::runtime_error(MakeString() << "Could not find 'ply' keyword.");
-			while (words.size()>0) {
-				if (words[0]=="format") {
+			while (words.size() > 0) {
+				if (words[0] == "format") {
 					if (nwords < 3)
 						throw std::runtime_error(MakeString() << "Could not recognize format.");
-					if (words[1]== "ascii")
+					if (words[1] == "ascii")
 						plyFile->file_type = FileFormat::ASCII;
-					else if (words[1]== "binary_big_endian")
+					else if (words[1] == "binary_big_endian")
 						plyFile->file_type = FileFormat::BINARY_BE;
-					else if (words[1]=="binary_little_endian")
+					else if (words[1] == "binary_little_endian")
 						plyFile->file_type = FileFormat::BINARY_LE;
 					else
 						throw std::runtime_error(MakeString() << "Could not recognize format.");
 					plyFile->version = atof(words[2].c_str());
 					found_format = 1;
 				}
-				else if (words[0]== "element") {
+				else if (words[0] == "element") {
 					addElement(words);
 				}
-				else if (words[0]=="property") {
+				else if (words[0] == "property") {
 					addProperty(words);
 				}
-				else if (words[0]=="comment") {
+				else if (words[0] == "comment") {
 					addComment(orig_line);
+					std::cout << "Comment [" << orig_line << "]" << std::endl;
 				}
-				else if (words[0]=="obj_info") {
+				else if (words[0] == "obj_info") {
 					addObjInfo(orig_line);
+
+					std::cout << "Info [" << orig_line << "]" << std::endl;
 				}
-				else if (words[0]=="end_header") {
+				else if (words[0] == "end_header") {
 					break;
 				}
-				words = getWords();
+				words = getWords(orig_line);
+				nwords = words.size();
 			}
 			/* create tags for each property of each element, to be used */
 			/* later to say whether or not to store each property for the user */
@@ -568,7 +583,7 @@ namespace aly {
 
 		}
 
-	
+
 
 		/******************************************************************************
 		Get information about a particular element.
@@ -583,20 +598,23 @@ namespace aly {
 		returns a list of properties, or nullptr if the file doesn't contain that elem
 		******************************************************************************/
 
-		std::vector<std::shared_ptr<PlyProperty>> PLYReaderWriter::getElementDescription(const std::string& elem_name) {
+		std::vector<std::shared_ptr<PlyProperty>> PLYReaderWriter::getElementDescription(const std::string& elem_name, int *nelems, int *nprops) {
 			int i;
 			PlyElement *elem;
 			PlyProperty *prop;
 			std::vector<std::shared_ptr<PlyProperty>> prop_list;
 			/* find information about the element */
 			elem = findElement(elem_name);
+			*nelems = elem->num;
+			*nprops = elem->props.size();
 			if (elem == nullptr)
 				return prop_list;
 			for (i = 0; i < elem->props.size(); i++) {
 				PlyProperty* prop = new PlyProperty();
-				*prop=*elem->props[i];
+				*prop = *elem->props[i];
 				prop_list.push_back(std::shared_ptr<PlyProperty>(prop));
 			}
+
 			return (prop_list);
 		}
 
@@ -611,7 +629,7 @@ namespace aly {
 		prop_list - list of properties
 		******************************************************************************/
 
-		void PLYReaderWriter::getElementSetup(const std::string& elem_name,std::vector<PlyProperty> prop_list) {
+		void PLYReaderWriter::getElementSetup(const std::string& elem_name, std::vector<PlyProperty> prop_list) {
 			int i;
 			PlyElement *elem;
 			PlyProperty *prop;
@@ -775,13 +793,15 @@ namespace aly {
 							prop->count_offset = size;
 							size += ply_type_size[static_cast<int>(prop->count_external)];
 						}
-					} else if (prop->is_list == SectionType::String) {
+					}
+					else if (prop->is_list == SectionType::String) {
 						/* pointer to string */
 						if (type_size == sizeof(char *)) {
 							prop->offset = size;
 							size += sizeof(char *);
 						}
-					} else if (prop->is_list == SectionType::Scalar&&type_size == ply_type_size[static_cast<int>(prop->external_type)]) {
+					}
+					else if (prop->is_list == SectionType::Scalar&&type_size == ply_type_size[static_cast<int>(prop->external_type)]) {
 						prop->offset = size;
 						size += ply_type_size[static_cast<int>(prop->external_type)];
 					}
@@ -803,7 +823,7 @@ namespace aly {
 		Exit:
 		returns pointer to structure containing description of other_props
 		******************************************************************************/
-		PlyOtherProp* PLYReaderWriter::getOtherProperties(PlyElement *elem,int offset) {
+		PlyOtherProp* PLYReaderWriter::getOtherProperties(PlyElement *elem, int offset) {
 			int i;
 			PlyOtherProp *other;
 			PlyProperty *prop;
@@ -860,7 +880,7 @@ namespace aly {
 			/* find information about the element */
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw std::runtime_error(MakeString()<<"ply_get_other_properties: Can't find element "<<elem_name);
+				throw std::runtime_error(MakeString() << "ply_get_other_properties: Can't find element " << elem_name);
 			}
 			other = getOtherProperties(elem, offset);
 			return (other);
@@ -895,11 +915,11 @@ namespace aly {
 			/* create room for the new "other" element, initializing the */
 			/* other data structure if necessary */
 
-			if (plyFile->other_elems.get()==nullptr) {
-				plyFile->other_elems =std::shared_ptr<PlyOtherElems>(new PlyOtherElems());
+			if (plyFile->other_elems.get() == nullptr) {
+				plyFile->other_elems = std::shared_ptr<PlyOtherElems>(new PlyOtherElems());
 			}
 			plyFile->other_elems->other_list.push_back(std::shared_ptr<OtherElem>(other));
-		
+
 			/* save name of element */
 			other->elem_name = elem_name;
 
@@ -907,7 +927,7 @@ namespace aly {
 			other->other_data.resize(elem_count);
 
 			/* set up for getting elements */
-			other->other_props = std::shared_ptr<PlyOtherProp>(getOtherProperties(elem_name,offsetof(OtherData, other_props)));
+			other->other_props = std::shared_ptr<PlyOtherProp>(getOtherProperties(elem_name, offsetof(OtherData, other_props)));
 
 			/* grab all these elements */
 			for (i = 0; i < other->other_data.size(); i++) {
@@ -960,10 +980,10 @@ namespace aly {
 		returns a pointer to the property, or nullptr if not found
 		******************************************************************************/
 
-		PlyProperty* PLYReaderWriter::findProperty(PlyElement *elem,const std::string& prop_name, int *index) {
+		PlyProperty* PLYReaderWriter::findProperty(PlyElement *elem, const std::string& prop_name, int *index) {
 			int i;
 			for (i = 0; i < elem->props.size(); i++)
-				if (prop_name== elem->props[i]->name) {
+				if (prop_name == elem->props[i]->name) {
 					*index = i;
 					return elem->props[i].get();
 				}
@@ -996,7 +1016,7 @@ namespace aly {
 			int list_count;
 			int store_it;
 			char **store_array = nullptr;
-			char *orig_line = nullptr;
+			std::string  orig_line;
 			std::vector<char> other_data;
 			int other_flag;
 
@@ -1018,8 +1038,8 @@ namespace aly {
 
 			/* read in the element */
 
-			words = getWords();
-			if (words.size()==0) {
+			words = getWords(orig_line);
+			if (words.size() == 0) {
 				throw std::runtime_error("getElement: unexpected end of file\n");
 			}
 
@@ -1074,7 +1094,7 @@ namespace aly {
 					}
 
 				}
-				else if (prop->is_list ==SectionType::String) { /* a string */
+				else if (prop->is_list == SectionType::String) { /* a string */
 					if (store_it) {
 						char **str_ptr;
 						std::string str = words[which_word++];
@@ -1192,10 +1212,10 @@ namespace aly {
 				}
 				else if (prop->is_list == SectionType::String) { /* string */
 					int len;
-					in.read((char*)&len,sizeof(int));
+					in.read((char*)&len, sizeof(int));
 					std::vector<char> buff(len);
 					in.read(buff.data(), buff.size());
-					std::string str= std::string(buff.begin(), buff.end());
+					std::string str = std::string(buff.begin(), buff.end());
 					if (store_it) {
 						item = elem_data + prop->offset;
 					}
@@ -1224,11 +1244,11 @@ namespace aly {
 		void PLYReaderWriter::writeScalarType(const DataType& code) {
 			/* make sure this is a valid code */
 
-			if (static_cast<int>(code) <=static_cast<int>(DataType::StartType) || static_cast<int>(code) >= static_cast<int>(DataType::EndType)) {
-				throw std::runtime_error(aly::MakeString()<<"writeScalarType: bad data code = "<< code);
+			if (static_cast<int>(code) <= static_cast<int>(DataType::StartType) || static_cast<int>(code) >= static_cast<int>(DataType::EndType)) {
+				throw std::runtime_error(aly::MakeString() << "writeScalarType: bad data code = " << code);
 			}
 			/* write the code to a file */
-			out<<property_type_names[static_cast<int>(code)];
+			out << property_type_names[static_cast<int>(code)];
 		}
 
 		void PLYReaderWriter::writeScalarType(int code) {
@@ -1255,15 +1275,15 @@ namespace aly {
 		returns a list of words from the line, or nullptr if end-of-file
 		******************************************************************************/
 
-		std::vector<std::string> PLYReaderWriter::getWords() {
+		std::vector<std::string> PLYReaderWriter::getWords(std::string& orig_line) {
 			std::string line;
 			std::vector<std::string> result;
-			getline(in,line);
+			getline(in, line);
 			if (line.size() == 0)return result;
 			std::stringstream ss;
 			std::string comp;
 			for (char c : line) {
-				if (c == ' '||c=='\t'||c=='\n') {
+				if (c == ' ' || c == '\t' || c == '\n') {
 					comp = ss.str();
 					if (comp.size() > 0) {
 						result.push_back(comp);
@@ -1277,6 +1297,12 @@ namespace aly {
 			comp = ss.str();
 			if (comp.size() > 0) {
 				result.push_back(comp);
+			}
+			if (result.size() > 1) {
+				orig_line = line.substr(1+result[0].size());
+			}
+			else {
+				orig_line = line;
 			}
 			return result;
 		}
@@ -1337,7 +1363,7 @@ namespace aly {
 				double_value = *pdouble;
 				return (double_value);
 			default:
-				throw std::runtime_error(MakeString()<<"get_item_value: bad type = "<< type);
+				throw std::runtime_error(MakeString() << "get_item_value: bad type = " << type);
 			}
 
 			return (0.0); /* never actually gets here */
@@ -1366,35 +1392,35 @@ namespace aly {
 			switch (type) {
 			case DataType::Int8:
 				char_val = int_val;
-				out << char_val;
+				out.write(&char_val, sizeof(char_val));
 				break;
 			case DataType::Int16:
 				short_val = int_val;
-				out << short_val;
+				out.write((char*)&short_val, sizeof(short_val));
 				break;
 			case DataType::Int32:
-				out << int_val;
+				out.write((char*)&int_val, sizeof(int_val));
 				break;
 			case DataType::Uint8:
 				uchar_val = uint_val;
-				out << uchar_val;
+				out.write((char*)&uchar_val, sizeof(uchar_val));
 				break;
 			case DataType::Uint16:
 				ushort_val = uint_val;
-				out << ushort_val;
+				out.write((char*)&ushort_val, sizeof(ushort_val));
 				break;
 			case DataType::Uint32:
-				out << uint_val;
+				out.write((char*)&uint_val, sizeof(uint_val));
 				break;
 			case DataType::Float32:
 				float_val = double_val;
-				out << float_val;
+				out.write((char*)&float_val, sizeof(float_val));
 				break;
 			case DataType::Float64:
-				out << double_val;
+				out.write((char*)&double_val, sizeof(double_val));
 				break;
 			default:
-				throw std::runtime_error(MakeString()<<"writeBinaryItem: bad type = "<<type);
+				throw std::runtime_error(MakeString() << "writeBinaryItem: bad type = " << type);
 			}
 		}
 		/******************************************************************************
@@ -1415,8 +1441,8 @@ namespace aly {
 			case DataType::Int8:
 			case DataType::Int16:
 			case DataType::Int32:
-				str=aly::MakeString() << int_val;
-				out<<str;
+				str = aly::MakeString() << int_val;
+				out << str;
 				break;
 			case DataType::Uint8:
 			case DataType::Uint16:
@@ -1430,7 +1456,7 @@ namespace aly {
 				out << str;
 				break;
 			default:
-				throw std::runtime_error(aly::MakeString()<<"writeAsciiItem: bad type =\n"<< type);
+				throw std::runtime_error(aly::MakeString() << "writeAsciiItem: bad type =\n" << type);
 			}
 		}
 		/******************************************************************************
@@ -1447,7 +1473,7 @@ namespace aly {
 		double_val - double-precision floating point value
 		******************************************************************************/
 
-		void PLYReaderWriter::getStoredItem(char *ptr,const DataType& type, int *int_val, unsigned int *uint_val,
+		void PLYReaderWriter::getStoredItem(char *ptr, const DataType& type, int *int_val, unsigned int *uint_val,
 			double *double_val) {
 			switch (type) {
 			case DataType::Int8:
@@ -1491,7 +1517,7 @@ namespace aly {
 				*uint_val = *double_val;
 				break;
 			default:
-				throw runtime_error(aly::MakeString()<<"get_stored_item: bad type = "<< type);
+				throw runtime_error(aly::MakeString() << "get_stored_item: bad type = " << type);
 			}
 		}
 
@@ -1565,7 +1591,7 @@ namespace aly {
 				*uint_val = *double_val;
 				break;
 			default:
-				throw std::runtime_error(MakeString()<<"getBinaryItem: bad type = "<< type);
+				throw std::runtime_error(MakeString() << "getBinaryItem: bad type = " << type);
 			}
 		}
 
@@ -1610,7 +1636,7 @@ namespace aly {
 				break;
 
 			default:
-				throw std::runtime_error(MakeString()<<"getAsciiItem: bad type = "<< type);
+				throw std::runtime_error(MakeString() << "getAsciiItem: bad type = " << type);
 				exit(-1);
 			}
 		}
@@ -1629,7 +1655,7 @@ namespace aly {
 		item - pointer to stored value
 		******************************************************************************/
 
-		void PLYReaderWriter::storeItem(char *item,const DataType& type, int int_val, unsigned int uint_val,
+		void PLYReaderWriter::storeItem(char *item, const DataType& type, int int_val, unsigned int uint_val,
 			double double_val) {
 			unsigned char *puchar;
 			short int *pshort;
@@ -1672,7 +1698,7 @@ namespace aly {
 				*pdouble = double_val;
 				break;
 			default:
-				throw std::runtime_error(MakeString()<<"storeItem: bad type = "<< type);
+				throw std::runtime_error(MakeString() << "storeItem: bad type = " << type);
 			}
 		}
 
@@ -1707,7 +1733,7 @@ namespace aly {
 			plyFile->comments.push_back(comment);
 		}
 
-		
+
 		/******************************************************************************
 		Append object information (arbitrary text) to a PLY file.
 
@@ -1817,7 +1843,7 @@ namespace aly {
 			/* look for appropriate element */
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw std::runtime_error(MakeString()<<"describeElement: can't find element "<<elem_name);
+				throw std::runtime_error(MakeString() << "describeElement: can't find element " << elem_name);
 			}
 			/* now this element is the current element */
 			plyFile->which_elem = elem;
@@ -1838,7 +1864,7 @@ namespace aly {
 			elem_prop = new PlyProperty();
 			elem->props.push_back(std::shared_ptr<PlyProperty>(elem_prop));
 			elem->store_prop.push_back(NAMED_PROP);
-			*elem_prop=*prop;
+			*elem_prop = *prop;
 		}
 
 		/******************************************************************************
@@ -1846,7 +1872,7 @@ namespace aly {
 		they are in an element.
 		******************************************************************************/
 
-		void PLYReaderWriter::describeOtherProperties(PlyOtherProp *other,int offset) {
+		void PLYReaderWriter::describeOtherProperties(PlyOtherProp *other, int offset) {
 			int i;
 			PlyElement *elem;
 			PlyProperty *prop;
@@ -1854,15 +1880,15 @@ namespace aly {
 			/* look for appropriate element */
 			elem = findElement(other->name);
 			if (elem == nullptr) {
-				throw std::runtime_error(MakeString()<<"describe_other_properties_ply: can't find element "<<other->name);
+				throw std::runtime_error(MakeString() << "describe_other_properties_ply: can't find element " << other->name);
 			}
-	
+
 
 			/* copy the other properties */
 
 			for (i = 0; i < other->props.size(); i++) {
 				prop = new PlyProperty();
-				*prop=*other->props[i];
+				*prop = *other->props[i];
 				elem->props.push_back(std::shared_ptr<PlyProperty>(prop));
 				elem->store_prop.push_back(OTHER_PROP);
 			}
@@ -1893,7 +1919,7 @@ namespace aly {
 			for (i = 0; i < other_elems->other_list.size(); i++) {
 				other = other_elems->other_list[i].get();
 				elementCount(other->elem_name, other->other_data.size());
-				describeOtherProperties(other->other_props.get(),offsetof(OtherData, other_props));
+				describeOtherProperties(other->other_props.get(), offsetof(OtherData, other_props));
 			}
 		}
 
@@ -1921,7 +1947,7 @@ namespace aly {
 
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
-				throw std::runtime_error(MakeString()<<"initRule: Can't find element "<< elem_name);
+				throw std::runtime_error(MakeString() << "initRule: Can't find element " << elem_name);
 				exit(-1);
 			}
 
@@ -1940,25 +1966,25 @@ namespace aly {
 
 			/* try to match the element, property and rule name */
 
-			for (std::shared_ptr<PlyRuleElement> rule:*(plyFile->rule_list)) {
-				if (list->element!= elem->name)
+			for (std::shared_ptr<PlyRuleElement> rule : *(plyFile->rule_list)) {
+				if (list->element != elem->name)
 					continue;
 
 				found_prop = 0;
 
 				for (i = 0; i < elem->props.size(); i++)
-					if (list->property== elem->props[i]->name) {
+					if (list->property == elem->props[i]->name) {
 						found_prop = 1;
 						/* look for matching rule name */
 						for (j = 0; rule_name_list[j].code != Rule::EndMarker; j++)
-							if (list->name== rule_name_list[j].name) {
+							if (list->name == rule_name_list[j].name) {
 								rules->rule_list[i] = rule_name_list[j].code;
 								break;
 							}
 					}
 
 				if (!found_prop) {
-					throw std::runtime_error(MakeString()<<"Can't find property "<<list->property<<" for rule "<< list->name);
+					throw std::runtime_error(MakeString() << "Can't find property " << list->property << " for rule " << list->name);
 					continue;
 				}
 			}
@@ -1982,12 +2008,12 @@ namespace aly {
 			/* find the property and modify its rule type */
 
 			for (i = 0; i < elem->props.size(); i++)
-				if (elem->props[i]->name== prop_name) {
+				if (elem->props[i]->name == prop_name) {
 					rules->rule_list[i] = rule_type;
 					return;
 				}
 			/* we didn't find the property if we get here */
-			throw std::runtime_error(MakeString()<<"modifyRule: Can't find property "<<prop_name);
+			throw std::runtime_error(MakeString() << "modifyRule: Can't find property " << prop_name);
 		}
 
 		/******************************************************************************
@@ -2019,10 +2045,10 @@ namespace aly {
 
 		void PLYReaderWriter::weightProps(float weight, void *other_props) {
 			PlyPropRules *rules = plyFile->current_rules.get();
-			
+
 			rules->props.push_back(other_props);
 			rules->weights.push_back(weight);
-			rules->max_props = std::max(6,(int)rules->props.size());
+			rules->max_props = std::max(6, (int)rules->props.size());
 		}
 
 		/******************************************************************************
@@ -2036,7 +2062,7 @@ namespace aly {
 
 		std::vector<char> PLYReaderWriter::getNewProps() {
 			int i, j;
-			
+
 			static int max_vals = 0;
 			PlyPropRules *rules = plyFile->current_rules.get();
 			PlyElement *elem = rules->elem;
@@ -2128,7 +2154,7 @@ namespace aly {
 					break;
 				}
 				default:
-					throw std::runtime_error(MakeString()<<"getNewProps: Bad rule = "<<rules->rule_list[i]);
+					throw std::runtime_error(MakeString() << "getNewProps: Bad rule = " << rules->rule_list[i]);
 				}
 
 				/* store the combined value */
@@ -2145,7 +2171,7 @@ namespace aly {
 		Set the list of user-specified property combination rules.
 		******************************************************************************/
 
-		void PLYReaderWriter::setPropRules( PlyRuleList *prop_rules) {
+		void PLYReaderWriter::setPropRules(PlyRuleList *prop_rules) {
 			plyFile->rule_list = std::shared_ptr<PlyRuleList>(prop_rules);
 		}
 
@@ -2161,7 +2187,7 @@ namespace aly {
 		returns pointer to the new rule list
 		******************************************************************************/
 
-		PlyRuleList* PLYReaderWriter::appendPropRule(PlyRuleList *rule_list,const std::string& name,
+		PlyRuleList* PLYReaderWriter::appendPropRule(PlyRuleList *rule_list, const std::string& name,
 			const std::string& property) {
 			PlyRuleElement *rule;
 			std::string str, str2;
@@ -2169,14 +2195,14 @@ namespace aly {
 
 			/* find . */
 			str = property;
-			int index=property.find('.');
+			int index = property.find('.');
 			/* split string at . */
-			if (index>=0) {
+			if (index >= 0) {
 				str = property.substr(0, index);
-				str2 = property.substr(index+1);
+				str2 = property.substr(index + 1);
 			}
 			else {
-				throw std::runtime_error(MakeString()<<"Can't find property "<<property<<" for rule "<<name);
+				throw std::runtime_error(MakeString() << "Can't find property " << property << " for rule " << name);
 				return (rule_list);
 			}
 			rule = new PlyRuleElement();

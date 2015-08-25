@@ -77,7 +77,7 @@ namespace aly {
 			"uint16", "uint32", "float32", "float64" };
 		const std::string old_property_type_names[] =
 		{ "invalid", "char", "short", "int", "uchar", "ushort", "uint", "float","double" };
-		int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 4, 8 };
+		const int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 4, 8 };
 		template<class C, class R> std::basic_ostream<C, R> & operator <<(
 			std::basic_ostream<C, R> & ss, const DataType& type) {
 			return ss << property_type_names[static_cast<int>(type)];
@@ -89,6 +89,18 @@ namespace aly {
 		enum class SectionType {
 			Scalar = 0, List = 1, String = 2
 		};
+		template<class C, class R> std::basic_ostream<C, R> & operator <<(
+			std::basic_ostream<C, R> & ss, const SectionType& type) {
+			switch (type) {
+			case SectionType::Scalar:
+				return ss << "Scalar";
+			case SectionType::List:
+				return ss << "List";
+			case SectionType::String:
+				return ss << "String";
+			}
+			return ss;
+		}
 		struct plyVertex {
 			float x[3];             // the usual 3-space position of a vertex
 			float n[3];
@@ -125,6 +137,23 @@ namespace aly {
 				nvels = 3;
 			}
 		};
+
+		struct plyFaceTexture {
+			unsigned char nverts;    // number of vertex indices in list
+			unsigned char nvels;    // number of vertex indices in list
+			int *verts;              // vertex index list
+			float* velocity;
+			unsigned char uvcount;
+			float* uvs;
+			plyFaceTexture() {
+				nverts = 0;
+				uvs = NULL;
+				verts = NULL;
+				velocity = NULL;
+				uvcount = 6;
+				nvels = 3;
+			}
+		};
 		struct plyParticle {
 			float x[3];             // the usual 3-space position of a vertex
 			float n[3];
@@ -157,7 +186,7 @@ namespace aly {
 			}
 		};
 		struct PlyProperty { /* description of a property */
-
+			PlyProperty() {}
 			std::string name; /* property name */
 			DataType external_type; /* file's data type */
 			DataType internal_type; /* program's data type */
@@ -166,6 +195,18 @@ namespace aly {
 			DataType count_external; /* file's count type */
 			DataType count_internal; /* program's count type */
 			int count_offset; /* offset byte for list count */
+			PlyProperty(
+				const std::string& name, 
+				const DataType& external_type, 
+				const DataType& internal_type,
+				size_t offset,
+				const SectionType& sectionType = SectionType::Scalar,
+				const DataType& count_external=DataType::StartType,
+				const DataType& count_internal=DataType::StartType,
+				size_t count_offset=0)
+			:name(name),external_type(external_type),internal_type(internal_type),offset((int)offset),is_list(sectionType),count_external(count_external),count_internal(count_internal),count_offset(count_offset){
+
+			}
 		};
 		struct PlyElement { /* description of an element */
 			std::string name; /* element name */
@@ -218,6 +259,7 @@ namespace aly {
 		struct PlyFile { /* description of PLY file */
 			FileFormat file_type; /* ascii or binary */
 			float version; /* version number of file */
+			std::vector<std::string> elemNames;
 			std::vector<std::shared_ptr<PlyElement>> elems; /* list of elements */
 			std::vector<std::string> comments; /* list of comments */
 			std::vector<std::string> obj_info; /* list of object info items */
@@ -228,9 +270,27 @@ namespace aly {
 		};
 		class PLYReaderWriter {
 		public:
-
+			int getNumberOfElements() const {
+				return plyFile->elems.size();
+			}
+			std::vector<std::string> getElementNames() {
+				return plyFile->elemNames;
+			}
 			void openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names, const FileFormat& file_type);
 			void openForReading(const std::string& fileName);
+			void elementCount(const std::string&, int);
+			void describeElement(const std::string&);
+			void describeProperty(const std::string&, PlyProperty *);
+			void appendComment(const std::string&);
+			void appendObjInfo(const std::string&);
+			void headerComplete();
+			void putElementSetup(const std::string&);
+			void putElement(void *);
+			void getProperty(const std::string&, PlyProperty *);
+			void getElement(void *);
+			PlyElement *findElement(const std::string&);
+			PlyProperty *findProperty(PlyElement *, const std::string&, int *);
+			std::vector<std::shared_ptr<PlyProperty>> getElementDescription(const std::string& elem_name, int *nelems, int *nprops);
 		protected:
 			static const int NO_OTHER_PROPS = -1;
 			static const int DONT_STORE_PROP = 0;
@@ -241,16 +301,12 @@ namespace aly {
 			std::ifstream in;
 
 			std::unique_ptr<PlyFile> plyFile;
-			void describeProperty(const std::string&, PlyProperty *);
+			
 		
-			void getProperty(const std::string&, PlyProperty *);
-			void getElement( void *);
 			
 			void openForReading(const std::string& fileName, std::vector<std::string>* elem_names);
 			PlyFile* write(const std::vector<std::string>& elem_names,const FileFormat& file_type);
-
-			void appendComment(const std::string&);
-			void appendObjInfo(const std::string&);
+			void describeProperty(PlyProperty *);
 			std::vector<std::string> getComments();
 			std::vector<std::string> getObjInfo();
 			std::vector<std::string> getElementList();
@@ -261,39 +317,26 @@ namespace aly {
 			PlyOtherProp *getOtherProperties(const std::string&, int);
 			PlyOtherProp *getOtherProperties(int);
 			PlyOtherElems* getOtherElement();
-			void elementCount(const std::string&, int);
-			void elementLayout(const std::string& elem_name, int nelems,int nprops, PlyProperty *prop_list);
-			void describeElement(const std::string&);
-			void describeProperty( PlyProperty *);
 			void describeOtherProperties( PlyOtherProp *, int);
 			void describeOtherElements(PlyOtherElems *);
 			void getElementSetup(const std::string& elem_name, std::vector<PlyProperty> prop_list);
-			std::vector<std::shared_ptr<PlyProperty>> getElementDescription(const std::string& elem_name);
 			void elementLayout(const std::string&, int, int, const std::vector<PlyProperty>& prop_list);
 
-			void headerComplete();
-			void putElementSetup(const std::string&);			
 			void putOtherElements();
 
 			PlyPropRules *initRule(const std::string&);
 			void modifyRule(PlyPropRules *, const std::string&, const Rule&);
-			void startProps(PlyPropRules *);
 			void weightProps(float, void *);
 			std::vector<char> getNewProps();
 			void setPropRules(PlyRuleList *);
 			PlyRuleList *appendPropRule(PlyRuleList *, const std::string&,const std::string&);
-			/* find an element in a plyfile's list */
-			PlyElement *findElement(const std::string&);
-
-			/* find a property in an element's list */
-			PlyProperty *findProperty(PlyElement *, const std::string&, int *);
 
 			/* write to a file the word describing a PLY file data type */
 			void writeScalarType(int);
 			/* write to a file the word describing a PLY file data type */
 			void writeScalarType(const DataType&);
 			/* read a line from a file and break it up into separate words */
-			std::vector<std::string> getWords();
+			std::vector<std::string> getWords(std::string& orig_line);
 
 			/* write an item to a file */
 			void writeBinaryItem(int, unsigned int, double,const DataType& type);
@@ -305,8 +348,6 @@ namespace aly {
 			void addComment(const std::string&);
 			void addObjInfo(const std::string&);
 			DataType getPropType(const std::string& type_name);
-			/* copy a property */
-			void copyProperty(PlyProperty *, PlyProperty *);
 
 			/* store a value into where a pointer and a type specify */
 			void storeItem(char*, const DataType&, int, unsigned int, double);
@@ -323,7 +364,7 @@ namespace aly {
 			/* get a bunch of elements from a file */
 			void asciiGetElement(char*);
 			void binaryGetElement(char*);
-			void putElement(void *);
+
 		};
 	}
 }
