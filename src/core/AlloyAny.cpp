@@ -41,7 +41,8 @@ namespace aly {
 		std::cout << "Value " << v1->getValue<Double>() << std::endl;
 		std::cout << "Value " << v2->getValue<Integer>() << std::endl;
 		std::cout << "Value " << v3->getValue<Boolean>() << std::endl;
-
+		v2->setValue(Integer(17));
+		std::cout << "Value " << v2->getValue<Integer>() << std::endl;
 		{
 			std::ofstream os("any.xml");
 			cereal::XMLOutputArchive archiver(os);

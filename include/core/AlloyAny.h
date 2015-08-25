@@ -164,7 +164,9 @@ namespace aly
 
 	template<class Type>
 	Type AnyCast(const Any& val) {
-		return AnyCast<Type>(Any(val));
+		if (val.ptr->type() != typeid(Type))
+			throw BadAnyCast();
+		return static_cast<Any::Concrete<Type>*>(val.ptr.get())->value;
 	}
 
 	template<class Type>
@@ -180,7 +182,8 @@ namespace aly
 	public:
 		template <typename T>
 		void setValue(const T& value) {
-			setValueImpl(Any(value));
+			Any any = value;
+			setValueImpl(any);
 		}
 		template <typename T>
 		T getValue() const {
