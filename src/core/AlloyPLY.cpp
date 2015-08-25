@@ -26,12 +26,11 @@
 #include <map>
 #include <fstream>
 #include <iostream>
+#include <stddef.h>
+#include <memory>
 using namespace std;
 namespace aly {
 	namespace ply {
-
-
-
 
 		/******************************************************************************
 		Find an element from the element list of a given PLY object.
@@ -87,7 +86,7 @@ namespace aly {
 		void PLYReaderWriter::openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names,
 			const FileFormat& file_type)
 		{
-			out = ofstream(fileName, ios::out | ios::binary);
+			out.open(fileName.c_str(), ios::out | ios::binary);
 			if (!out.is_open()) {
 				return throw std::runtime_error(aly::MakeString() << "Could not open " << fileName << " for writing.");
 			}
@@ -504,7 +503,7 @@ namespace aly {
 			char **elist;
 			PlyElement *elem;
 			std::string orig_line;
-			in = ifstream(fileName, ios::in | ios::binary);
+			in.open(fileName.c_str(), ios::in | ios::binary);
 			if (!in.is_open()) {
 				throw std::runtime_error(MakeString() << "Could not open " << fileName << " for writing.");
 			}
@@ -629,9 +628,8 @@ namespace aly {
 				/* look for actual property */
 				prop = findProperty(elem, prop_list[i].name, &index);
 				if (prop == nullptr) {
-					fprintf(stderr,
-						"Warning:  Can't find property '%s' in element '%s'\n",
-						prop_list[i].name, elem_name);
+					throw std::runtime_error(
+					        aly::MakeString()<<"Warning:  Can't find property "<<prop_list[i].name<<" in element "<<elem_name<<"\n");
 					continue;
 				}
 				/* store its description */
@@ -666,8 +664,7 @@ namespace aly {
 			/* deposit the property information into the element's description */
 			prop_ptr = findProperty(elem, prop->name, &index);
 			if (prop_ptr == nullptr) {
-				fprintf(stderr, "Warning:  Can't find property '%s' in element '%s'\n",
-					prop->name, elem_name);
+				throw std::runtime_error(aly::MakeString()<<"Warning:  Can't find property "<<prop->name<<" in element "<<elem_name);
 				return;
 			}
 			prop_ptr->internal_type = prop->internal_type;
@@ -1783,8 +1780,7 @@ namespace aly {
 			/* deposit the property information into the element's description */
 			prop_ptr = findProperty(elem, prop->name, &index);
 			if (prop_ptr == nullptr) {
-				fprintf(stderr, "Warning:  Can't find property '%s' in element '%s'\n",
-					prop->name, elem->name);
+				throw std::runtime_error(aly::MakeString()<<"Warning:  Can't find property "<<prop->name<<" in element "<<elem->name<<"\n");
 				return;
 			}
 			prop_ptr->internal_type = prop->internal_type;
