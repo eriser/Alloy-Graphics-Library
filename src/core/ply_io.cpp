@@ -30,6 +30,9 @@
  WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
  */
+
+//Do not use! Has licensing restrictions!
+#if 0
 #include "ply_io.h"
 #include "AlloyFileUtil.h"
 #include <stdio.h>
@@ -3046,4 +3049,4 @@ int matches_rule_name(char *name)
 
 	return (0);
 }
-
+#endif

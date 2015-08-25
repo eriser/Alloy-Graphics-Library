@@ -320,6 +320,23 @@ namespace aly {
 			PlyElement *findElement(const std::string&);
 			PlyProperty *findProperty(PlyElement *, const std::string&, int *);
 			std::vector<std::shared_ptr<PlyProperty>> getElementDescription(const std::string& elem_name, int *nelems, int *nprops);
+			void describeProperty(PlyProperty *);
+			std::vector<std::string> getComments();
+			std::vector<std::string> getObjInfo();
+			std::vector<std::string> getElementList();
+			void setupProperty(PlyProperty *);
+			void setupOtherProps(PlyElement *);
+			PlyOtherProp *getOtherProperties(PlyElement*, int);
+			PlyOtherProp *getOtherProperties(const std::string&, int);
+			PlyOtherProp *getOtherProperties(int);
+			PlyOtherElems* getOtherElement();
+			void describeOtherProperties(PlyOtherProp *, int);
+			void describeOtherElements(PlyOtherElems *);
+			void setPropRules(PlyRuleList *);
+			void appendPropRule(PlyRuleList *, const std::string&, const std::string&);
+			DataType getPropType(const std::string& type_name);
+			PlyPropRules *initRule(const std::string&);
+			void modifyRule(PlyPropRules *, const std::string&, const Rule&);
 		protected:
 			static const int NO_OTHER_PROPS = -1;
 			static const int DONT_STORE_PROP = 0;
@@ -330,70 +347,30 @@ namespace aly {
 			std::ifstream in;
 
 			std::unique_ptr<PlyFile> plyFile;
-			
-		
-			
 			void openForReading(const std::string& fileName, std::vector<std::string>* elem_names);
 			PlyFile* write(const std::vector<std::string>& elem_names,const FileFormat& file_type);
-			void describeProperty(PlyProperty *);
-			std::vector<std::string> getComments();
-			std::vector<std::string> getObjInfo();
-			std::vector<std::string> getElementList();
-			void setupProperty(PlyProperty *);
-			void setupOtherProps(PlyElement *);
-
-			PlyOtherProp *getOtherProperties(PlyElement*,int);
-			PlyOtherProp *getOtherProperties(const std::string&, int);
-			PlyOtherProp *getOtherProperties(int);
-			PlyOtherElems* getOtherElement();
-			void describeOtherProperties( PlyOtherProp *, int);
-			void describeOtherElements(PlyOtherElems *);
 			void getElementSetup(const std::string& elem_name, std::vector<PlyProperty> prop_list);
 			void elementLayout(const std::string&, int, int, const std::vector<PlyProperty>& prop_list);
-
 			void putOtherElements();
-
-			PlyPropRules *initRule(const std::string&);
-			void modifyRule(PlyPropRules *, const std::string&, const Rule&);
-			void weightProps(float, void *);
-			std::vector<char> getNewProps();
-			void setPropRules(PlyRuleList *);
-			PlyRuleList *appendPropRule(PlyRuleList *, const std::string&,const std::string&);
-
-			/* write to a file the word describing a PLY file data type */
-			void writeScalarType(int);
-			/* write to a file the word describing a PLY file data type */
-			void writeScalarType(const DataType&);
-			/* read a line from a file and break it up into separate words */
-			std::vector<std::string> getWords(std::string& orig_line);
-
-			/* write an item to a file */
-			void writeBinaryItem(int, unsigned int, double,const DataType& type);
-			void writeAsciiItem(int, unsigned int, double, const DataType& type);
-
-			/* add information to a PLY file descriptor */
-			void addElement(const std::vector<std::string>&);
-			void addProperty(const std::vector<std::string>& words);
 			void addComment(const std::string&);
 			void addObjInfo(const std::string&);
-			DataType getPropType(const std::string& type_name);
-
-			/* store a value into where a pointer and a type specify */
+			void addElement(const std::vector<std::string>&);
+			void addProperty(const std::vector<std::string>& words);
+			void weightProps(float, void *);
+			std::vector<char> getNewProps();
+			void writeScalarType(int);
+			void writeScalarType(const DataType&);
+			std::vector<std::string> getWords(std::string& orig_line);
+			void writeBinaryItem(int, unsigned int, double,const DataType& type);
+			void writeAsciiItem(int, unsigned int, double, const DataType& type);
 			void storeItem(char*, const DataType&, int, unsigned int, double);
 			std::string setupElementRead(int index, int *elem_count);
-			/* return the value of a stored item */
 			 void getStoredItem(char *, const DataType&, int *, unsigned int *, double *);
-
-			/* return the value stored in an item, given ptr to it and its type */
 			double getItemValue(char*,const DataType&);
-			/* get binary or ascii item and store it according to ptr and type */
 			void getAsciiItem(const std::string&, const DataType&, int *, unsigned int *, double *);
 			void getBinaryItem(const DataType& type, int *, unsigned int *, double *);
-
-			/* get a bunch of elements from a file */
 			void asciiGetElement(char*);
 			void binaryGetElement(char*);
-
 		};
 	}
 }

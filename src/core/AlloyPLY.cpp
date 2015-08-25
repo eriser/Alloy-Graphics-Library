@@ -184,9 +184,7 @@ namespace aly {
 		******************************************************************************/
 
 		void PLYReaderWriter::addComment(const std::string& line) {
-			int i;
-			/* skip over "comment" and leading spaces and tabs */
-			i = 7;
+			int i = (int)string("comment").size();
 			while (line[i] == ' ' || line[i] == '\t')
 				i++;
 			std::string str = line;
@@ -202,9 +200,7 @@ namespace aly {
 		******************************************************************************/
 
 		void PLYReaderWriter::addObjInfo(const std::string& line) {
-			int i;
-			/* skip over "obj_info" and leading spaces and tabs */
-			i = 8;
+			int i = (int)string("obj_info").size();
 			while (line[i] == ' ' || line[i] == '\t')
 				i++;
 			appendObjInfo(line.substr(i));
@@ -236,7 +232,6 @@ namespace aly {
 			elem->num = nelems;
 			elem->props = std::vector<std::shared_ptr<PlyProperty>>(nprops);
 			elem->store_prop = std::vector<char>(nprops);
-
 			for (i = 0; i < nprops; i++) {
 				prop = new PlyProperty();
 				*prop = prop_list[i];
@@ -274,7 +269,6 @@ namespace aly {
 		/******************************************************************************/
 
 		void PLYReaderWriter::elementCount(const std::string& elem_name, int nelems)
-
 			/******************************************************************************/
 			/*
 			State how many of a given element will be written.
@@ -286,7 +280,6 @@ namespace aly {
 			*/
 		{
 			PlyElement *elem;
-			/* look for appropriate element */
 			elem = findElement(elem_name);
 			if (elem == nullptr) {
 				throw runtime_error(aly::MakeString() << "elementCount: can't find element " <<
@@ -2040,7 +2033,6 @@ namespace aly {
 
 		void PLYReaderWriter::weightProps(float weight, void *other_props) {
 			PlyPropRules *rules = plyFile->current_rules.get();
-
 			rules->props.push_back(other_props);
 			rules->weights.push_back(weight);
 			rules->max_props = std::max(6, (int)rules->props.size());
@@ -2182,7 +2174,7 @@ namespace aly {
 		returns pointer to the new rule list
 		******************************************************************************/
 
-		PlyRuleList* PLYReaderWriter::appendPropRule(PlyRuleList *rule_list, const std::string& name,
+		void PLYReaderWriter::appendPropRule(PlyRuleList *rule_list, const std::string& name,
 			const std::string& property) {
 			PlyRuleElement *rule;
 			std::string str, str2;
@@ -2198,7 +2190,6 @@ namespace aly {
 			}
 			else {
 				throw std::runtime_error(MakeString() << "Can't find property " << property << " for rule " << name);
-				return (rule_list);
 			}
 			rule = new PlyRuleElement();
 			rule->name = name;
@@ -2207,7 +2198,6 @@ namespace aly {
 
 			/* either start rule list or append to it */
 			rule_list->push_back(std::shared_ptr<PlyRuleElement>(rule));
-			return (rule_list);
 		}
 	}
 }

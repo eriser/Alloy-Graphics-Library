@@ -29,7 +29,9 @@
 
  */
 
-#ifndef __PLY_H__
+
+ //Do not use! Has licensing restrictions!
+#if 0 //__PLY_H__
 #define __PLY_H__
 
 #ifdef __cplusplus
