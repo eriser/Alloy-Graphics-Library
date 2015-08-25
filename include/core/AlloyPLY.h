@@ -268,7 +268,32 @@ namespace aly {
 			std::shared_ptr<PlyPropRules> current_rules; /* current propagation rules */
 			std::shared_ptr<PlyRuleList> rule_list; /* rule list from user */
 		};
+		const PlyProperty MeshVertProps[] = { // property information for a vertex
+			PlyProperty("x", DataType::Float32, DataType::Float32, offsetof(plyVertex, x)),
+			PlyProperty("y", DataType::Float32, DataType::Float32,offsetof(plyVertex, x) + sizeof(float)),
+			PlyProperty("z", DataType::Float32, DataType::Float32,offsetof(plyVertex, x) + sizeof(float) * 2),
+			PlyProperty("nx", DataType::Float32,DataType::Float32, offsetof(plyVertex, n)),
+			PlyProperty("ny", DataType::Float32,DataType::Float32, offsetof(plyVertex, n) + sizeof(float)),
+			PlyProperty("nz", DataType::Float32,DataType::Float32, offsetof(plyVertex, n) + sizeof(float) * 2),
+			PlyProperty("vx", DataType::Float32,DataType::Float32, offsetof(plyVertex, vel)),
+			PlyProperty("vy", DataType::Float32,DataType::Float32, offsetof(plyVertex, vel) + sizeof(float)),
+			PlyProperty("vz", DataType::Float32,DataType::Float32, offsetof(plyVertex, vel) + sizeof(float) * 2),
+			PlyProperty("red", DataType::Float32,DataType::Float32, offsetof(plyVertex, red)),
+			PlyProperty("green", DataType::Uint8,DataType::Uint8, offsetof(plyVertex, green)),
+			PlyProperty("blue",DataType::Uint8,DataType::Uint8, offsetof(plyVertex, blue)),
+			PlyProperty("alpha",DataType::Uint8,DataType::Uint8,offsetof(plyVertex, alpha)) };
+
+		const PlyProperty MeshFaceProps[] = { // property information for a face
+			PlyProperty("vertex_indices", DataType::Int32, DataType::Int32, offsetof(plyFace,verts), SectionType::List, DataType::Uint8, DataType::Uint8, offsetof(plyFace,nverts)),
+			PlyProperty("velocities",DataType::Float32, DataType::Float32,offsetof(plyFace, velocity), SectionType::List, DataType::Uint8,DataType::Uint8,offsetof(plyFace, nvels)),
+			PlyProperty("vertex_indices", DataType::Int32, DataType::Int32, offsetof(plyFaceTexture, verts), SectionType::List, DataType::Uint8, DataType::Uint8,offsetof(plyFaceTexture, nverts)),
+			PlyProperty("texcoord", DataType::Float32, DataType::Float32, offsetof(plyFaceTexture, uvs), SectionType::List, DataType::Uint8, DataType::Uint8,offsetof(plyFaceTexture, uvcount)),
+			PlyProperty("velocities", DataType::Float32, DataType::Float32, offsetof(plyFaceTexture, velocity), SectionType::List, DataType::Uint8, DataType::Uint8,offsetof(plyFaceTexture, nvels))
+		};
 		class PLYReaderWriter {
+		protected:
+			void putElementInternal(void *);
+			void getElementInternal(void *);
 		public:
 			int getNumberOfElements() const {
 				return plyFile->elems.size();
@@ -280,14 +305,18 @@ namespace aly {
 			void openForReading(const std::string& fileName);
 			void elementCount(const std::string&, int);
 			void describeElement(const std::string&);
-			void describeProperty(const std::string&, PlyProperty *);
+			void describeProperty(const std::string&,const PlyProperty *);
 			void appendComment(const std::string&);
 			void appendObjInfo(const std::string&);
 			void headerComplete();
 			void putElementSetup(const std::string&);
-			void putElement(void *);
-			void getProperty(const std::string&, PlyProperty *);
-			void getElement(void *);
+			template<class T> void putElement(T * data) {
+				putElementInternal((void*)data);
+			}
+			void getProperty(const std::string&,const PlyProperty *);
+			template<class T> void getElement(T * data) {
+				getElementInternal((void*)data);
+			}
 			PlyElement *findElement(const std::string&);
 			PlyProperty *findProperty(PlyElement *, const std::string&, int *);
 			std::vector<std::shared_ptr<PlyProperty>> getElementDescription(const std::string& elem_name, int *nelems, int *nprops);

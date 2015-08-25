@@ -249,7 +249,7 @@ namespace aly {
 		}
 		/******************************************************************************/
 
-		void PLYReaderWriter::describeProperty(const std::string& elem_name, PlyProperty *prop)
+		void PLYReaderWriter::describeProperty(const std::string& elem_name,const PlyProperty *prop)
 
 			/******************************************************************************/
 			/*
@@ -361,7 +361,7 @@ namespace aly {
 			out << "end_header\n";
 		}
 		//
-		void PLYReaderWriter::putElement(void* elem_ptr) {
+		void PLYReaderWriter::putElementInternal(void* elem_ptr) {
 			PlyElement *elem;
 			PlyProperty *prop;
 			char* item;
@@ -670,7 +670,7 @@ namespace aly {
 		prop      - property to add to those that will be returned
 		******************************************************************************/
 
-		void PLYReaderWriter::getProperty(const std::string& elem_name, PlyProperty *prop) {
+		void PLYReaderWriter::getProperty(const std::string& elem_name,const PlyProperty *prop) {
 			PlyElement *elem;
 			PlyProperty *prop_ptr;
 			int index;
@@ -703,7 +703,7 @@ namespace aly {
 		elem_ptr - pointer to location where the element information should be put
 		******************************************************************************/
 
-		void PLYReaderWriter::getElement(void *elem_ptr) {
+		void PLYReaderWriter::getElementInternal(void *elem_ptr) {
 			if (plyFile->file_type == FileFormat::ASCII)
 				asciiGetElement((char *)elem_ptr);
 			else

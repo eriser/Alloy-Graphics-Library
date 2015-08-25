@@ -35,28 +35,7 @@
 namespace aly {
 	using namespace std;
 	using namespace ply;
-	PlyProperty MeshVertProps[] = { // property information for a vertex
-			PlyProperty("x", DataType::Float32, DataType::Float32, offsetof(plyVertex, x)),
-			PlyProperty("y", DataType::Float32, DataType::Float32,offsetof(plyVertex, x) + sizeof(float)),
-			PlyProperty("z", DataType::Float32, DataType::Float32,offsetof(plyVertex, x) + sizeof(float) * 2),
-			PlyProperty("nx", DataType::Float32,DataType::Float32, offsetof(plyVertex, n)),
-			PlyProperty("ny", DataType::Float32,DataType::Float32, offsetof(plyVertex, n) + sizeof(float)),
-			PlyProperty("nz", DataType::Float32,DataType::Float32, offsetof(plyVertex, n) + sizeof(float) * 2),
-			PlyProperty("vx", DataType::Float32,DataType::Float32, offsetof(plyVertex, vel)),
-			PlyProperty("vy", DataType::Float32,DataType::Float32, offsetof(plyVertex, vel) + sizeof(float)),
-			PlyProperty("vz", DataType::Float32,DataType::Float32, offsetof(plyVertex, vel) + sizeof(float) * 2),
-			PlyProperty("red", DataType::Float32,DataType::Float32, offsetof(plyVertex, red)),
-			PlyProperty("green", DataType::Uint8,DataType::Uint8, offsetof(plyVertex, green)),
-			PlyProperty("blue",DataType::Uint8,DataType::Uint8, offsetof(plyVertex, blue)),
-			PlyProperty("alpha",DataType::Uint8,DataType::Uint8,offsetof(plyVertex, alpha)) };
-
-	PlyProperty MeshFaceProps[] = { // property information for a face
-			PlyProperty("vertex_indices", DataType::Int32, DataType::Int32, offsetof(plyFace,verts), SectionType::List, DataType::Uint8, DataType::Uint8, offsetof(plyFace,nverts)),
-			PlyProperty("velocities",DataType::Float32, DataType::Float32,offsetof(plyFace, velocity), SectionType::List, DataType::Uint8,DataType::Uint8,offsetof(plyFace, nvels)),
-			PlyProperty("vertex_indices", DataType::Int32, DataType::Int32, offsetof(plyFaceTexture, verts), SectionType::List, DataType::Uint8, DataType::Uint8,offsetof(plyFaceTexture, nverts)),
-			PlyProperty("texcoord", DataType::Float32, DataType::Float32, offsetof(plyFaceTexture, uvs), SectionType::List, DataType::Uint8, DataType::Uint8,offsetof(plyFaceTexture, uvcount)),
-			PlyProperty("velocities", DataType::Float32, DataType::Float32, offsetof(plyFaceTexture, velocity), SectionType::List, DataType::Uint8, DataType::Uint8,offsetof(plyFaceTexture, nvels))
-	};
+	
 	void GLMesh::draw() const {
 		draw(PrimitiveType::ALL);
 	}
@@ -568,7 +547,7 @@ namespace aly {
 				vert.green = pointColors[idx + 1];
 				vert.blue = pointColors[idx + 2];
 			}
-			ply.putElement((void *)&vert);
+			ply.putElement(&vert);
 		}
 		// set up and write the face elements
 		plyFace face;
@@ -588,7 +567,7 @@ namespace aly {
 					faceT.verts[j] = mesh.quadIndexes[i][j];
 					uvs[j] = mesh.textureMap[4 * i + j];
 				}
-				ply.putElement((void *)&faceT);
+				ply.putElement(&faceT);
 			}
 			sz = (int)(mesh.triIndexes.size());
 			for (int i = 0; i < sz; i++) {
@@ -598,7 +577,7 @@ namespace aly {
 					faceT.verts[j] = mesh.triIndexes[i][j];
 					uvs[j] = mesh.textureMap[3 * i + j];
 				}
-				ply.putElement((void *)&faceT);
+				ply.putElement(&faceT);
 			}
 		}
 		else {
@@ -608,7 +587,7 @@ namespace aly {
 					face.nverts = 4;
 					face.verts[j] = mesh.quadIndexes[i][j];
 				}
-				ply.putElement((void *)&face);
+				ply.putElement(&face);
 			}
 			sz = (int)(mesh.triIndexes.size());
 			for (int i = 0; i < sz; i++) {
@@ -616,7 +595,7 @@ namespace aly {
 					face.nverts = 3;
 					face.verts[j] = mesh.triIndexes[i][j];
 				}
-				ply.putElement((void *)&face);
+				ply.putElement(&face);
 			}
 		}
 	}
