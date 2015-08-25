@@ -71,7 +71,7 @@ namespace aly {
 			Rule::Maximum, "min",
 			Rule::Majority, "major",
 			Rule::Same, "same",
-			Rule::EndMarker, "end_marker", };
+			Rule::EndMarker, "end_marker" };
 
 		const std::string property_type_names[] = { "invalid", "int8", "int16", "int32", "uint8",
 			"uint16", "uint32", "float32", "float64" };
@@ -80,11 +80,11 @@ namespace aly {
 		int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 4, 8 };
 		template<class C, class R> std::basic_ostream<C, R> & operator <<(
 			std::basic_ostream<C, R> & ss, const DataType& type) {
-			ss << property_type_names[static_cast<int>(type)];
+			return ss << property_type_names[static_cast<int>(type)];
 		}
 		template<class C, class R> std::basic_ostream<C, R> & operator <<(
 			std::basic_ostream<C, R> & ss, const Rule& type) {
-			ss << rule_name_list[static_cast<int>(type)].name;
+			return ss << rule_name_list[static_cast<int>(type)].name;
 		}
 		enum class SectionType {
 			Scalar = 0, List = 1, String = 2
@@ -139,21 +139,6 @@ namespace aly {
 				radius = 0.0f;
 			}
 		};
-
-		/*
-		struct plyFace {
-			unsigned char nverts;    // number of vertex indices in list
-			unsigned char nvels;    // number of vertex indices in list
-			int *verts;              // vertex index list
-			float* velocity;
-			plyFace() {
-				nverts = 0;
-				verts = nullptr;
-				velocity = nullptr;
-				nvels = 3;
-			}
-		};
-		*/
 		struct plyFaceTexutre {
 			unsigned char nverts;    // number of vertex indices in list
 			unsigned char nvels;    // number of vertex indices in list
@@ -186,7 +171,6 @@ namespace aly {
 			std::string name; /* element name */
 			int num; /* number of elements in this object */
 			int size; /* size of element (bytes) or -1 if variable */
-			int nprops; /* number of properties for this element */
 			std::vector<std::shared_ptr<PlyProperty>>  props; /* list of properties in the file */
 			std::vector<char> store_prop; /* flags: property wanted by user? */
 			int other_offset; /* offset to un-asked-for props, or -1 if none*/
@@ -196,7 +180,6 @@ namespace aly {
 		struct PlyOtherProp { /* describes other properties in an element */
 			std::string name; /* element name */
 			int size; /* size of other_props */
-			int nprops; /* number of properties in other_props */
 			std::vector<std::shared_ptr<PlyProperty>> props; /* list of properties in other_props */
 		};
 
@@ -206,25 +189,20 @@ namespace aly {
 
 		struct OtherElem { /* data for one "other" element */
 			std::string elem_name; /* names of other elements */
-			int elem_count; /* count of instances of each element */
 			std::vector<std::shared_ptr<OtherData>> other_data; /* actual property data for the elements */
-			PlyOtherProp* other_props; /* description of the property data */
+			std::shared_ptr<PlyOtherProp> other_props; /* description of the property data */
 		};
 
 		struct PlyOtherElems { /* "other" elements, not interpreted by user */
-			int num_elems; /* number of other elements */
 			std::vector<std::shared_ptr<OtherElem>> other_list; /* list of data for other elements */
 		};
 		struct PlyPropRules { /* rules for combining "other" properties */
-			PlyElement *elem; /* element whose rules we are making */
+			PlyElement* elem; /* element whose rules we are making */
 			std::vector<Rule> rule_list; /* types of rules (AVERAGE_PLY, MAJORITY_PLY, etc.) */
-			int nprops; /* number of properties we're combining so far */
 			int max_props; /* maximum number of properties we have room for now */
 			std::vector<void*> props; /* list of properties we're combining */
 			std::vector<float> weights; /* list of weights of the properties */
 		};
-
-
 		struct PlyRuleElement {
 			std::string name; /* name of the rule */
 			std::string element; /* name of element that rule applies to */
@@ -240,11 +218,8 @@ namespace aly {
 		struct PlyFile { /* description of PLY file */
 			FileFormat file_type; /* ascii or binary */
 			float version; /* version number of file */
-			int num_elem_types; /* number of element types of object */
 			std::vector<std::shared_ptr<PlyElement>> elems; /* list of elements */
-			int num_comments; /* number of comments */
 			std::vector<std::string> comments; /* list of comments */
-			int num_obj_info; /* number of items of object information */
 			std::vector<std::string> obj_info; /* list of object info items */
 			PlyElement *which_elem; /* element we're currently reading or writing */
 			std::shared_ptr<PlyOtherElems> other_elems; /* "other" elements from a PLY file */
@@ -253,15 +228,15 @@ namespace aly {
 		};
 		class PLYReaderWriter {
 		public:
+
+			void openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names, const FileFormat& file_type);
+			void openForReading(const std::string& fileName);
+		protected:
 			static const int NO_OTHER_PROPS = -1;
 			static const int DONT_STORE_PROP = 0;
 			static const int STORE_PROP = 1;
 			static const int OTHER_PROP = 0;
 			static const int NAMED_PROP = 1;
-			bool open(const std::string& file);
-			bool close();
-
-		protected:
 			std::ofstream out;
 			std::ifstream in;
 
@@ -271,10 +246,9 @@ namespace aly {
 			void getProperty(const std::string&, PlyProperty *);
 			void getElement( void *);
 			
-			PlyFile* openForReading(const std::string& fileName, std::vector<std::string>* elem_names);
+			void openForReading(const std::string& fileName, std::vector<std::string>* elem_names);
 			PlyFile* write(const std::vector<std::string>& elem_names,const FileFormat& file_type);
-			void openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names,const FileFormat& file_type);			
-		
+
 			void appendComment(const std::string&);
 			void appendObjInfo(const std::string&);
 			std::vector<std::string> getComments();

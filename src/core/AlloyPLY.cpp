@@ -46,7 +46,7 @@ namespace aly {
 
 		PlyElement* PLYReaderWriter::findElement(const std::string& element) {
 			int i=0;
-			for (i = 0; i < plyFile->num_elem_types; i++) {
+			for (i = 0; i < plyFile->elems.size(); i++) {
 				if (element == plyFile->elems[i]->name) {
 					return plyFile->elems[i].get();
 				}
@@ -65,9 +65,6 @@ namespace aly {
 
 			plyFile = new PlyFile();
 			plyFile->file_type = file_type;
-			plyFile->num_comments = 0;
-			plyFile->num_obj_info = 0;
-			plyFile->num_elem_types = elem_names.size();
 			plyFile->version = 1.0;
 			plyFile->other_elems = nullptr;
 
@@ -79,9 +76,12 @@ namespace aly {
 				plyFile->elems[i] = shared_ptr<PlyElement>(elem);
 				elem->name = elem_names[i];
 				elem->num = 0;
-				elem->nprops = 0;
 			}
 			plyFile;
+		}
+		void PLYReaderWriter::openForReading(const std::string& fileName) {
+			std::vector<string> elemNames;
+			openForReading(fileName, &elemNames);
 		}
 		void PLYReaderWriter::openForWriting(const std::string& fileName, const std::vector<std::string>& elem_names,
 			const FileFormat& file_type)
@@ -112,7 +112,6 @@ namespace aly {
 			elem = new PlyElement();
 			elem->name=words[1];
 			elem->num = atoi(words[2].c_str());
-			elem->nprops = 0;
 			plyFile->elems.push_back(std::shared_ptr<PlyElement>(elem));
 		}
 
@@ -228,7 +227,6 @@ namespace aly {
 				throw std::runtime_error(aly::MakeString()<<"element_layout_ply: can't find element "<<elem_name);
 			}
 			elem->num = nelems;
-			elem->nprops = nprops;
 			elem->props = std::vector<std::shared_ptr<PlyProperty>>(nprops);
 			elem->store_prop = std::vector<char>(nprops);
 
@@ -263,7 +261,6 @@ namespace aly {
 			elem_prop =new PlyProperty();
 			*elem_prop = *prop;
 			elem->props.push_back(std::shared_ptr<PlyProperty>(elem_prop));
-			elem->nprops = elem->props.size();
 			elem->store_prop.push_back(NAMED_PROP);
 		}
 
@@ -324,7 +321,7 @@ namespace aly {
 			for (i = 0; i <plyFile->comments.size(); i++)
 				out << "comment " << plyFile->comments[i] << "\n";
 			/* write out object information */
-			for (i = 0; i < plyFile->num_obj_info; i++)
+			for (i = 0; i < plyFile->obj_info.size(); i++)
 				out << "comment " << "obj_info "<< plyFile->obj_info[i] << "\n";
 			/* write out information about each element */
 			for (i = 0; i < plyFile->elems.size(); i++) {
@@ -500,37 +497,31 @@ namespace aly {
 		returns a pointer to a PlyFile, used to refer to this file, or nullptr if error
 		******************************************************************************/
 
-		PlyFile* PLYReaderWriter::openForReading(const std::string& fileName, std::vector<std::string>* elem_names) {
+		void PLYReaderWriter::openForReading(const std::string& fileName, std::vector<std::string>* elem_names) {
 			int i, j;
-			PlyFile *plyFile;
 			int nwords;
 			std::vector<std::string> words;
 			int found_format = 0;
 			char **elist;
 			PlyElement *elem;
 			char *orig_line;
-
 			in = ifstream(fileName, ios::out | ios::app | ios::binary);
-	
 			if (!in.is_open()) {
-				return nullptr;
+				throw std::runtime_error(MakeString()<<"Could not open " << fileName << " for writing.");
 			}
 			/* create record for this object */
 
-			plyFile = new PlyFile();
-			plyFile->num_elem_types = 0;
-			plyFile->num_comments = 0;
-			plyFile->num_obj_info = 0;
 
+			plyFile = std::unique_ptr<PlyFile>(new PlyFile());
 			/* read and parse the file's header */
 
 			words = getWords();
 			if (words.size()==0 || words[0]!="ply")
-				return (nullptr);
+				throw std::runtime_error(MakeString() << "Could not find 'ply' keyword.");
 			while (words.size()>0) {
 				if (words[0]=="format") {
 					if (nwords < 3)
-						return (nullptr);
+						throw std::runtime_error(MakeString() << "Could not recognize format.");
 					if (words[1]== "ascii")
 						plyFile->file_type = FileFormat::ASCII;
 					else if (words[1]== "binary_big_endian")
@@ -538,7 +529,7 @@ namespace aly {
 					else if (words[1]=="binary_little_endian")
 						plyFile->file_type = FileFormat::BINARY_LE;
 					else
-						return (nullptr);
+						throw std::runtime_error(MakeString() << "Could not recognize format.");
 					plyFile->version = atof(words[2].c_str());
 					found_format = 1;
 				}
@@ -562,19 +553,19 @@ namespace aly {
 			/* create tags for each property of each element, to be used */
 			/* later to say whether or not to store each property for the user */
 
-			for (i = 0; i < plyFile->num_elem_types; i++) {
+			for (i = 0; i < plyFile->elems.size(); i++) {
 				elem = plyFile->elems[i].get();
-				elem->store_prop.resize(elem->nprops);
-				for (j = 0; j < elem->nprops; j++)
+				elem->store_prop.resize(elem->props.size());
+				for (j = 0; j < elem->props.size(); j++)
 					elem->store_prop[j] = DONT_STORE_PROP;
 				elem->other_offset = NO_OTHER_PROPS; /* no "other" props by default */
 			}
 
 			/* set return values about the elements */
-			elem_names->resize(plyFile->num_elem_types);
-			for (i = 0; i < plyFile->num_elem_types; i++)
+			elem_names->resize(plyFile->elems.size());
+			for (i = 0; i < plyFile->elems.size(); i++)
 				(*elem_names)[i] = plyFile->elems[i]->name;
-			return plyFile;
+
 		}
 
 	
@@ -758,7 +749,7 @@ namespace aly {
 				/* add up the space taken by each property, and save this information */
 				/* away in the property descriptor */
 
-				for (i = 0; i < elem->nprops; i++) {
+				for (i = 0; i < elem->props.size(); i++) {
 
 					/* don't bother with properties we've been asked to store explicitly */
 					if (elem->store_prop[i])
@@ -834,7 +825,7 @@ namespace aly {
 
 			/* save descriptions of each "other" property */
 			nprops = 0;
-			for (i = 0; i < elem->nprops; i++) {
+			for (i = 0; i < elem->props.size(); i++) {
 				if (elem->store_prop[i])
 					continue;
 				prop = new PlyProperty();
@@ -908,20 +899,18 @@ namespace aly {
 				plyFile->other_elems =std::shared_ptr<PlyOtherElems>(new PlyOtherElems());
 			}
 			plyFile->other_elems->other_list.push_back(std::shared_ptr<OtherElem>(other));
-			/* count of element instances in file */
-			other->elem_count = elem_count;
-
+		
 			/* save name of element */
 			other->elem_name = elem_name;
 
 			/* create a list to hold all the current elements */
-			other->other_data.resize(other->elem_count);
+			other->other_data.resize(elem_count);
 
 			/* set up for getting elements */
-			other->other_props = getOtherProperties(elem_name,offsetof(OtherData, other_props));
+			other->other_props = std::shared_ptr<PlyOtherProp>(getOtherProperties(elem_name,offsetof(OtherData, other_props)));
 
 			/* grab all these elements */
-			for (i = 0; i < other->elem_count; i++) {
+			for (i = 0; i < other->other_data.size(); i++) {
 				/* grab and element from the file */
 				other->other_data[i] = std::shared_ptr<OtherData>(new OtherData());
 				getElement((void *)other->other_data[i].get());
@@ -948,13 +937,13 @@ namespace aly {
 
 			/* write out the data for each "other" element */
 
-			for (i = 0; i < plyFile->other_elems->num_elems; i++) {
+			for (i = 0; i < plyFile->other_elems->other_list.size(); i++) {
 
 				other = plyFile->other_elems->other_list[i].get();
 				putElementSetup(other->elem_name);
 
 				/* write out each instance of the current element */
-				for (j = 0; j < other->elem_count; j++)
+				for (j = 0; j < other->other_data.size(); j++)
 					putElement((void *)other->other_data[j].get());
 			}
 		}
@@ -973,7 +962,7 @@ namespace aly {
 
 		PlyProperty* PLYReaderWriter::findProperty(PlyElement *elem,const std::string& prop_name, int *index) {
 			int i;
-			for (i = 0; i < elem->nprops; i++)
+			for (i = 0; i < elem->props.size(); i++)
 				if (prop_name== elem->props[i]->name) {
 					*index = i;
 					return elem->props[i].get();
@@ -1701,7 +1690,7 @@ namespace aly {
 
 		std::vector<std::string> PLYReaderWriter::getElementList() {
 			std::vector<std::string> elist(plyFile->elems.size());
-			for (int i = 0; i < plyFile->num_elem_types; i++)
+			for (int i = 0; i < plyFile->elems.size(); i++)
 				elist[i] = plyFile->elems[i]->name;
 			return elist;
 		}
@@ -1747,7 +1736,7 @@ namespace aly {
 		std::string PLYReaderWriter::setupElementRead(int index, int *elem_count) {
 			PlyElement *elem;
 
-			if (index < 0 || index > plyFile->num_elem_types) {
+			if (index < 0 || index > plyFile->elems.size()) {
 				fprintf(stderr, "Warning:  No element with index %d\n", index);
 				return (0);
 			}
@@ -1876,7 +1865,6 @@ namespace aly {
 				*prop=*other->props[i];
 				elem->props.push_back(std::shared_ptr<PlyProperty>(prop));
 				elem->store_prop.push_back(OTHER_PROP);
-				elem->nprops++;
 			}
 		}
 
@@ -1904,8 +1892,8 @@ namespace aly {
 
 			for (i = 0; i < other_elems->other_list.size(); i++) {
 				other = other_elems->other_list[i].get();
-				elementCount(other->elem_name, other->elem_count);
-				describeOtherProperties(other->other_props,offsetof(OtherData, other_props));
+				elementCount(other->elem_name, other->other_data.size());
+				describeOtherProperties(other->other_props.get(),offsetof(OtherData, other_props));
 			}
 		}
 
@@ -1940,7 +1928,6 @@ namespace aly {
 			rules = new PlyPropRules();
 			rules->elem = elem;
 			rules->max_props = 0;
-			rules->nprops = 0;
 
 			/* default is to use averaging rule */
 			for (i = 0; i < elem->props.size(); i++)
@@ -1959,7 +1946,7 @@ namespace aly {
 
 				found_prop = 0;
 
-				for (i = 0; i < elem->nprops; i++)
+				for (i = 0; i < elem->props.size(); i++)
 					if (list->property== elem->props[i]->name) {
 						found_prop = 1;
 						/* look for matching rule name */
@@ -1994,7 +1981,7 @@ namespace aly {
 
 			/* find the property and modify its rule type */
 
-			for (i = 0; i < elem->nprops; i++)
+			for (i = 0; i < elem->props.size(); i++)
 				if (elem->props[i]->name== prop_name) {
 					rules->rule_list[i] = rule_type;
 					return;
@@ -2019,8 +2006,6 @@ namespace aly {
 			/* save pointer to the rules in the PLY object */
 			ply->current_rules = std::shared_ptr<PlyPropRules>(rules);
 
-			/* get ready for new sets of properties to combine */
-			rules->nprops = 0;
 		}
 
 		/******************************************************************************
@@ -2079,11 +2064,11 @@ namespace aly {
 			vals.resize(rules->props.size());
 
 			/* in case we need a random choice */
-			random_pick = rand() % rules->nprops;
+			random_pick = rand() % rules->props.size();
 
 			/* calculate the combination for each "other" property of the element */
 
-			for (i = 0; i < elem->nprops; i++) {
+			for (i = 0; i < elem->props.size(); i++) {
 
 				/* don't bother with properties we've been asked to store explicitly */
 				if (elem->store_prop[i])
@@ -2095,7 +2080,7 @@ namespace aly {
 
 				/* collect together all the values we're to combine */
 
-				for (j = 0; j < rules->nprops; j++) {
+				for (j = 0; j < rules->props.size(); j++) {
 					data = (char *)rules->props[j];
 					ptr = (void *)(data + offset);
 					getStoredItem((char *)ptr, type, &int_val, &uint_val,
@@ -2109,7 +2094,7 @@ namespace aly {
 				case Rule::Average: {
 					double sum = 0;
 					double weight_sum = 0;
-					for (j = 0; j < rules->nprops; j++) {
+					for (j = 0; j < rules->props.size(); j++) {
 						sum += vals[j] * rules->weights[j];
 						weight_sum += rules->weights[j];
 					}
@@ -2118,14 +2103,14 @@ namespace aly {
 				}
 				case Rule::Minimum: {
 					double_val = vals[0];
-					for (j = 1; j < rules->nprops; j++)
+					for (j = 1; j < rules->props.size(); j++)
 						if (double_val > vals[j])
 							double_val = vals[j];
 					break;
 				}
 				case Rule::Maximum: {
 					double_val = vals[0];
-					for (j = 1; j < rules->nprops; j++)
+					for (j = 1; j < rules->props.size(); j++)
 						if (double_val < vals[j])
 							double_val = vals[j];
 					break;
@@ -2136,7 +2121,7 @@ namespace aly {
 				}
 				case Rule::Same: {
 					double_val = vals[0];
-					for (j = 1; j < rules->nprops; j++)
+					for (j = 1; j < rules->props.size(); j++)
 						if (double_val != vals[j]) {
 							throw std::runtime_error("getNewProps: Error combining properties that should be the same.\n");
 						}
