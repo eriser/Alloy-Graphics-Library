@@ -241,7 +241,7 @@ struct PlyProperty
                     const DataType& count_external = DataType::StartType,
                     const DataType& count_internal = DataType::StartType,
                     size_t count_offset = 0) :
-                name(name), external_type(external_type), internal_type(internal_type), offset((int) offset), is_list(sectionType), count_external(count_external), count_internal(count_internal), count_offset(count_offset)
+                name(name), external_type(external_type), internal_type(internal_type), offset((int) offset), is_list(sectionType), count_external(count_external), count_internal(count_internal), count_offset((int)count_offset)
         {
 
         }
@@ -362,7 +362,7 @@ class PLYReaderWriter
     public:
         int getNumberOfElements() const
         {
-            return plyFile->elems.size();
+            return (int)plyFile->elems.size();
         }
         std::vector<std::string> getElementNames()
         {

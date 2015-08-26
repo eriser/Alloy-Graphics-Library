@@ -78,9 +78,6 @@
     <ClCompile Include="..\..\src\core\CommonShaders.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\ply_io.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\core\sha2.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -198,9 +195,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\CommonShaders.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\core\ply_io.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyFilesystem.h">

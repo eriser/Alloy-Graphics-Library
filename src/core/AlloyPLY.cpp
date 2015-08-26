@@ -452,7 +452,7 @@ void PLYReaderWriter::putElementInternal(void* elem_ptr) {
 				item = elem_data + prop->offset;
 				str = (std::string *) item;
 				/* write the length */
-				len = str->length() + 1;
+				len = (int)str->length() + 1;
 				out << len;
 				out << *str;
 			} else { /* scalar */
@@ -524,7 +524,7 @@ void PLYReaderWriter::openForReading(const std::string& fileName,
 	/* read and parse the file's header */
 
 	words = getWords(orig_line);
-	nwords = words.size();
+	nwords = (int)words.size();
 	if (words.size() == 0 || words[0] != "ply")
 		throw std::runtime_error(
 				MakeString() << "Could not find 'ply' keyword.");
@@ -534,7 +534,7 @@ void PLYReaderWriter::openForReading(const std::string& fileName,
 				throw std::runtime_error(
 						MakeString() << "Could not recognize format.");
 			}
-			plyFile->version = atof(words[2].c_str());
+			plyFile->version =(float) atof(words[2].c_str());
 			if (words[1] == "ascii") {
 				plyFile->file_type = FileFormat::ASCII;
 			} else if (words[1] == "binary_big_endian") {
@@ -557,7 +557,7 @@ void PLYReaderWriter::openForReading(const std::string& fileName,
 			break;
 		}
 		words = getWords(orig_line);
-		nwords = words.size();
+		nwords =(int) words.size();
 	}
 	/* create tags for each property of each element, to be used */
 	/* later to say whether or not to store each property for the user */
@@ -598,7 +598,7 @@ std::vector<std::shared_ptr<PlyProperty>> PLYReaderWriter::getElementDescription
 	/* find information about the element */
 	elem = findElement(elem_name);
 	*nelems = elem->num;
-	*nprops = elem->props.size();
+	*nprops = (int)elem->props.size();
 	if (elem == nullptr)
 		return prop_list;
 	for (i = 0; i < (int) elem->props.size(); i++) {
@@ -1098,35 +1098,35 @@ double PLYReaderWriter::getItemValue(char* item, const DataType& type) {
 	switch (type) {
 	case DataType::Int8:
 		pchar = (char *) item;
-		int_value = *pchar;
+		int_value =(char) *pchar;
 		return ((double) int_value);
 	case DataType::Uint8:
 		puchar = (unsigned char *) item;
-		int_value = *puchar;
+		int_value =(unsigned char) *puchar;
 		return ((double) int_value);
 	case DataType::Int16:
 		pshort = (short int *) item;
-		int_value = *pshort;
+		int_value =(short int) *pshort;
 		return ((double) int_value);
 	case DataType::Uint16:
 		pushort = (unsigned short int *) item;
-		int_value = *pushort;
+		int_value =(unsigned short int) *pushort;
 		return ((double) int_value);
 	case DataType::Int32:
 		pint = (int *) item;
-		int_value = *pint;
+		int_value = (int)*pint;
 		return ((double) int_value);
 	case DataType::Uint32:
 		puint = (unsigned int *) item;
-		uint_value = *puint;
+		uint_value = (unsigned int)*puint;
 		return ((double) uint_value);
 	case DataType::Float32:
 		pfloat = (float *) item;
-		double_value = *pfloat;
+		double_value =(float) *pfloat;
 		return (double_value);
 	case DataType::Float64:
 		pdouble = (double *) item;
-		double_value = *pdouble;
+		double_value = (double)*pdouble;
 		return (double_value);
 	default:
 		throw std::runtime_error(
@@ -1157,18 +1157,18 @@ void PLYReaderWriter::writeBinaryItem(int int_val, unsigned int uint_val,
 
 	switch (type) {
 	case DataType::Int8:
-		char_val = int_val;
+		char_val =(char) int_val;
 		out.write(&char_val, sizeof(char_val));
 		break;
 	case DataType::Int16:
-		short_val = int_val;
+		short_val =(short) int_val;
 		out.write((char*) &short_val, sizeof(short_val));
 		break;
 	case DataType::Int32:
 		out.write((char*) &int_val, sizeof(int_val));
 		break;
 	case DataType::Uint8:
-		uchar_val = uint_val;
+		uchar_val =(unsigned char) uint_val;
 		out.write((char*) &uchar_val, sizeof(uchar_val));
 		break;
 	case DataType::Uint16:
@@ -1179,7 +1179,7 @@ void PLYReaderWriter::writeBinaryItem(int int_val, unsigned int uint_val,
 		out.write((char*) &uint_val, sizeof(uint_val));
 		break;
 	case DataType::Float32:
-		float_val = double_val;
+		float_val = (float)double_val;
 		out.write((char*) &float_val, sizeof(float_val));
 		break;
 	case DataType::Float64:
@@ -1245,44 +1245,44 @@ void PLYReaderWriter::getStoredItem(char *ptr, const DataType& type,
 		int *int_val, unsigned int *uint_val, double *double_val) {
 	switch (type) {
 	case DataType::Int8:
-		*int_val = *((char *) ptr);
-		*uint_val = *int_val;
-		*double_val = *int_val;
+		*int_val = (int)*((char *) ptr);
+		*uint_val = (unsigned int)*int_val;
+		*double_val = (double)*int_val;
 		break;
 	case DataType::Uint8:
-		*uint_val = *((unsigned char *) ptr);
-		*int_val = *uint_val;
-		*double_val = *uint_val;
+		*uint_val = (unsigned int)*((unsigned char *) ptr);
+		*int_val = (int)*uint_val;
+		*double_val =(double) *uint_val;
 		break;
 	case DataType::Int16:
-		*int_val = *((short int *) ptr);
-		*uint_val = *int_val;
-		*double_val = *int_val;
+		*int_val =(int) *((short int *) ptr);
+		*uint_val = (unsigned int)*int_val;
+		*double_val =(double) *int_val;
 		break;
 	case DataType::Uint16:
-		*uint_val = *((unsigned short int *) ptr);
-		*int_val = *uint_val;
-		*double_val = *uint_val;
+		*uint_val =(unsigned int) *((unsigned short int *) ptr);
+		*int_val = (int)*uint_val;
+		*double_val = (double)*uint_val;
 		break;
 	case DataType::Int32:
-		*int_val = *((int *) ptr);
-		*uint_val = *int_val;
-		*double_val = *int_val;
+		*int_val = (int)*((int *) ptr);
+		*uint_val = (unsigned int)*int_val;
+		*double_val = (double)*int_val;
 		break;
 	case DataType::Uint32:
-		*uint_val = *((unsigned int *) ptr);
-		*int_val = *uint_val;
-		*double_val = *uint_val;
+		*uint_val =(unsigned int) *((unsigned int *) ptr);
+		*int_val =(int) *uint_val;
+		*double_val = (double)*uint_val;
 		break;
 	case DataType::Float32:
-		*double_val = *((float *) ptr);
-		*int_val = *double_val;
-		*uint_val = *double_val;
+		*double_val =(double) *((float *) ptr);
+		*int_val = (int)*double_val;
+		*uint_val = (unsigned int)*double_val;
 		break;
 	case DataType::Float64:
-		*double_val = *((double *) ptr);
-		*int_val = *double_val;
-		*uint_val = *double_val;
+		*double_val =(double) *((double *) ptr);
+		*int_val = (int)*double_val;
+		*uint_val = (unsigned int)*double_val;
 		break;
 	default:
 		throw runtime_error(
@@ -1344,20 +1344,20 @@ void PLYReaderWriter::getBinaryItem(const DataType& type, int *int_val,
 	case DataType::Uint32:
 		in.read(ptr, 4);
 		*uint_val = *((unsigned int *) ptr);
-		*int_val = *uint_val;
-		*double_val = *uint_val;
+		*int_val = (int)*uint_val;
+		*double_val = (double)*uint_val;
 		break;
 	case DataType::Float32:
 		in.read(ptr, 4);
 		*double_val = *((float *) ptr);
-		*int_val = *double_val;
-		*uint_val = *double_val;
+		*int_val = (int)*double_val;
+		*uint_val = (unsigned int)*double_val;
 		break;
 	case DataType::Float64:
 		in.read(ptr, 8);
 		*double_val = *((double *) ptr);
-		*int_val = *double_val;
-		*uint_val = *double_val;
+		*int_val = (int)*double_val;
+		*uint_val = (unsigned int)*double_val;
 		break;
 	default:
 		throw std::runtime_error(
@@ -1439,35 +1439,35 @@ void PLYReaderWriter::storeItem(char *item, const DataType& type, int int_val,
 
 	switch (type) {
 	case DataType::Int8:
-		*item = int_val;
+		*item = (char)int_val;
 		break;
 	case DataType::Uint8:
 		puchar = (unsigned char *) item;
-		*puchar = uint_val;
+		*puchar = (unsigned char)uint_val;
 		break;
 	case DataType::Int16:
 		pshort = (short *) item;
-		*pshort = int_val;
+		*pshort = (short)int_val;
 		break;
 	case DataType::Uint16:
 		pushort = (unsigned short *) item;
-		*pushort = uint_val;
+		*pushort = (unsigned short)uint_val;
 		break;
 	case DataType::Int32:
 		pint = (int *) item;
-		*pint = int_val;
+		*pint = (int)int_val;
 		break;
 	case DataType::Uint32:
 		puint = (unsigned int *) item;
-		*puint = uint_val;
+		*puint = (unsigned int)uint_val;
 		break;
 	case DataType::Float32:
 		pfloat = (float *) item;
-		*pfloat = double_val;
+		*pfloat = (float)double_val;
 		break;
 	case DataType::Float64:
 		pdouble = (double *) item;
-		*pdouble = double_val;
+		*pdouble = (double)double_val;
 		break;
 	default:
 		throw std::runtime_error(
