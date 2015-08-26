@@ -224,9 +224,9 @@ public:
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const float2& location,
-			const float2& dimensions, bool flip = false) {
+			const float2& dimensions,float alpha = 1.0f, bool flip = false) {
 		begin().set("flip", flip ? 1 : 0).set("textureImage", imageTexture, 0).set(
-				"bounds", box2px(location, dimensions)).set("viewport",
+				"bounds", box2px(location, dimensions)).set("alpha", alpha).set("viewport",
 				context->getViewport()).draw(imageTexture).end();
 
 	}
