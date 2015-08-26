@@ -294,12 +294,6 @@ struct PlyRuleElement
         std::string element; /* name of element that rule applies to */
         std::string property; /* name of property that rule applies to */
 };
-struct PlyRuleList: public std::list<std::shared_ptr<PlyRuleElement>>
-{
-        std::string name; /* name of the rule */
-        std::string element; /* name of element that rule applies to */
-        std::string property; /* name of property that rule applies to */
-};
 
 struct PlyFile
 { /* description of PLY file */
@@ -312,7 +306,7 @@ struct PlyFile
         PlyElement *which_elem; /* element we're currently reading or writing */
         std::shared_ptr<PlyOtherElems> other_elems; /* "other" elements from a PLY file */
         std::shared_ptr<PlyPropRules> current_rules; /* current propagation rules */
-        std::shared_ptr<PlyRuleList> rule_list; /* rule list from user */
+        std::shared_ptr<std::list<std::shared_ptr<PlyRuleElement>>> rule_list; /* rule list from user */
 };
 const PlyProperty MeshVertProps[] =
 { // property information for a vertex
@@ -451,8 +445,8 @@ class PLYReaderWriter
         PlyOtherElems* getOtherElement();
         void describeOtherProperties(PlyOtherProp *, int);
         void describeOtherElements(PlyOtherElems *);
-        void setPropRules(PlyRuleList *);
-        void appendPropRule(PlyRuleList *,
+        void setPropRules(std::list<std::shared_ptr<PlyRuleElement>> *);
+        void appendPropRule(std::list<std::shared_ptr<PlyRuleElement>> *,
                             const std::string&,
                             const std::string&);
         DataType getPropType(const std::string& type_name);
