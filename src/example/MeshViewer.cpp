@@ -25,7 +25,7 @@
 using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
-				getFullPath("images/JG_Gold.png")), imageShader(getContext(),
+				getFullPath("images/JG_Silver.png")), imageShader(getContext(),
 				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
 				1), voxelSize(0.0f) {
 }
@@ -163,15 +163,16 @@ void MeshViewer::draw(AlloyContext* context) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
 	glEnable(GL_DEPTH_TEST);
-/*
+
 	wireframeShader.draw(edgeFrameBuffer.getTexture(),
 			smoothDepthFrameBuffer1.getTexture(),
 			float2(0.0f, camera.getScale()), float2(960.0f, 480.0f),
 			float2(480, 480), getContext()->getViewport());
+
 	phongShader.draw(smoothDepthFrameBuffer2.getTexture(), camera,
 			float2(960.0f, 480.0f), float2(480, 480),
 			getContext()->getViewport());
-*/
+
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
 			float2(960.0f, 480.0f), float2(480, 480),
 			getContext()->getViewport());

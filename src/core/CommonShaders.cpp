@@ -500,12 +500,14 @@ uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
 void main() {
 ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
-
 vec4 rgba=texelFetch(textureImage, pos,0);
-
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
- rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
+  vec2 px=rgba.xy;
+  rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
+  //if(length(px)>0.95){
+   // rgba=rgba*0.5//;//vec4(1.0,0.0,0.0,1.0);
+  //}
 } else {
  rgba=vec4(0.0,0.0,0.0,0.0);
 }
