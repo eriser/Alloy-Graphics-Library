@@ -477,7 +477,7 @@ layout(location = 1) in vec2 vt;
 MatcapShader::MatcapShader(const std::string& textureImage,
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context), matcapTexture(context) {
-	matcapTexture.load(textureImage);
+	matcapTexture.load(textureImage,false);
 	initialize( { },
 			R"(
 #version 330
@@ -494,18 +494,20 @@ gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			R"(
 #version 330
 in vec2 uv;
+uniform ivec2 depthBufferSize;
 const float PI=3.1415926535;
 uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
 void main() {
-vec4 rgba=texture(textureImage,uv);
+ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+
+vec4 rgba=texelFetch(textureImage, pos,0);
+
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
-
-float lum=clamp(abs(rgba.w),0.0,1.0);
-rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
+ rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
 } else {
-rgba=vec4(0.0,0.0,0.0,0.0);
+ rgba=vec4(0.0,0.0,0.0,0.0);
 }
 gl_FragColor=rgba;
 })");

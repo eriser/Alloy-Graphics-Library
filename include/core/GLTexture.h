@@ -280,6 +280,9 @@ public:
 	inline int height() const {
 		return textureImage.height;
 	}
+	inline int2 dimensions() const {
+		return int2(textureImage.width,textureImage.height);
+	}
 	inline void setEnableMipmap(bool enable) {
 		mipmap = enable;
 	}

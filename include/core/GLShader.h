@@ -58,7 +58,10 @@ public:
 			const std::string& pFragmentShaderString) {
 		initialize(attributes, pVertexShaderString, pFragmentShaderString, "");
 	}
-
+	void initialize(const std::string& pVertexShaderString,
+			const std::string& pFragmentShaderString) {
+		initialize( { }, pVertexShaderString, pFragmentShaderString, "");
+	}
 	GLShader(std::shared_ptr<AlloyContext>& context,
 			const std::initializer_list<std::string>& attributes,
 			const std::string& pVertexShaderString,

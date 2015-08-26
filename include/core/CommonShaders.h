@@ -162,7 +162,7 @@ public:
 			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
 			const box2px& bounds, const box2px& viewport) {
 		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
-				imageTexture, 1).set("bounds", bounds).set("viewport", viewport).draw(
+				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", bounds).set("viewport", viewport).draw(
 				imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
@@ -170,7 +170,7 @@ public:
 			const float2& location, const float2& dimensions,
 			const box2px& viewport) {
 		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
-				imageTexture, 1).set("bounds", box2px(location, dimensions)).set(
+				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", box2px(location, dimensions)).set(
 				"viewport", viewport).draw(imageTexture).end();
 
 	}
