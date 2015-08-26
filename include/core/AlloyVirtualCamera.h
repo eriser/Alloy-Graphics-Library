@@ -66,7 +66,7 @@ public:
 		needsDisplay = d;
 	}
 	float getScale() {
-		return Model(0, 0) * distanceToObject;
+		return distanceToObject;
 	}
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
