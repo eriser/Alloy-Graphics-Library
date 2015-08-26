@@ -56,16 +56,16 @@ public:
 	inline float2 getFocalLength() const {
 		return float2(Projection(0, 0), Projection(1, 1));
 	}
-	float4x4& getPose() {
+	float4x4 getPose() const {
 		return Model;
 	}
-	bool isDirty() {
+	bool isDirty() const {
 		return needsDisplay || changed;
 	}
 	void setDirty(bool d) {
 		needsDisplay = d;
 	}
-	float getScale() {
+	float getScale() const {
 		return distanceToObject;
 	}
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
@@ -85,18 +85,18 @@ public:
 		lookAtPoint = p;
 		changed = true;
 	}
-	float getNearPlane() {
+	float getNearPlane() const {
 		return nearPlane;
 	}
-	float2 getZRange() {
+	float2 getZRange() const {
 		return float2(nearPlane, farPlane);
 	}
-	float getNormalizedDepth(const float4& pt) {
+	float getNormalizedDepth(const float4& pt) const {
 		float4 out = ViewModel * pt;
 		return (-out.z - nearPlane) / (farPlane - nearPlane);
 	}
 	float2 computeNormalizedDepthRange(const Mesh& mesh);
-	float getFarPlane() {
+	float getFarPlane() const {
 		return farPlane;
 	}
 	float3 transform(const float3& pt) {
