@@ -257,43 +257,6 @@ struct PlyElement
         int other_size; /* size of other_props structure */
 };
 
-struct PlyOtherProp
-{ /* describes other properties in an element */
-        std::string name; /* element name */
-        int size; /* size of other_props */
-        std::vector<std::shared_ptr<PlyProperty>> props; /* list of properties in other_props */
-};
-
-struct OtherData
-{ /* for storing other_props for an other element */
-        std::vector<char> other_props;
-};
-
-struct OtherElem
-{ /* data for one "other" element */
-        std::string elem_name; /* names of other elements */
-        std::vector<std::shared_ptr<OtherData>> other_data; /* actual property data for the elements */
-        std::shared_ptr<PlyOtherProp> other_props; /* description of the property data */
-};
-
-struct PlyOtherElems
-{ /* "other" elements, not interpreted by user */
-        std::vector<std::shared_ptr<OtherElem>> other_list; /* list of data for other elements */
-};
-struct PlyPropRules
-{ /* rules for combining "other" properties */
-        PlyElement* elem; /* element whose rules we are making */
-        std::vector<Rule> rule_list; /* types of rules (AVERAGE_PLY, MAJORITY_PLY, etc.) */
-        int max_props; /* maximum number of properties we have room for now */
-        std::vector<void*> props; /* list of properties we're combining */
-        std::vector<float> weights; /* list of weights of the properties */
-};
-struct PlyRuleElement
-{
-        std::string name; /* name of the rule */
-        std::string element; /* name of element that rule applies to */
-        std::string property; /* name of property that rule applies to */
-};
 
 struct PlyFile
 { /* description of PLY file */
@@ -304,9 +267,6 @@ struct PlyFile
         std::vector<std::string> comments; /* list of comments */
         std::vector<std::string> obj_info; /* list of object info items */
         PlyElement *which_elem; /* element we're currently reading or writing */
-        std::shared_ptr<PlyOtherElems> other_elems; /* "other" elements from a PLY file */
-        std::shared_ptr<PlyPropRules> current_rules; /* current propagation rules */
-        std::shared_ptr<std::list<std::shared_ptr<PlyRuleElement>>> rule_list; /* rule list from user */
 };
 const PlyProperty MeshVertProps[] =
 { // property information for a vertex
@@ -438,20 +398,7 @@ class PLYReaderWriter
         std::vector<std::string> getObjInfo();
         std::vector<std::string> getElementList();
         void setupProperty(PlyProperty *);
-        void setupOtherProps(PlyElement *);
-        PlyOtherProp *getOtherProperties(PlyElement*, int);
-        PlyOtherProp *getOtherProperties(const std::string&, int);
-        PlyOtherProp *getOtherProperties(int);
-        PlyOtherElems* getOtherElement();
-        void describeOtherProperties(PlyOtherProp *, int);
-        void describeOtherElements(PlyOtherElems *);
-        void setPropRules(std::list<std::shared_ptr<PlyRuleElement>> *);
-        void appendPropRule(std::list<std::shared_ptr<PlyRuleElement>> *,
-                            const std::string&,
-                            const std::string&);
         DataType getPropType(const std::string& type_name);
-        PlyPropRules *initRule(const std::string&);
-        void modifyRule(PlyPropRules *, const std::string&, const Rule&);
     protected:
         static const int NO_OTHER_PROPS = -1;
         static const int DONT_STORE_PROP = 0;
