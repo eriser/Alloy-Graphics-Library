@@ -102,6 +102,11 @@ ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 	width = (pixel) w;
 	height = (pixel) h;
 }
+ImageGlyph::~ImageGlyph()
+{
+    AlloyContext* context=AlloyApplicationContext().get();
+    if(context)nvgDeleteImage(context->nvgContext, handle);
+}
 ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 		bool mipmap) :
 		Glyph("image_rgba", GlyphType::Image, 0, 0) {
