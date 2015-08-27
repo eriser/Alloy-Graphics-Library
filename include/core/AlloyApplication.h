@@ -51,8 +51,7 @@ public:
 		onResize=onResizeEvent;
 	}
 	static inline std::shared_ptr<AlloyContext>& getContext() {
-		if (context.get() == nullptr)
-			throw std::runtime_error("Cannot get GLFW / NanoVG context.");
+		//if (context.get() == nullptr)throw std::runtime_error("Cannot get GLFW / NanoVG context.");
 		return context;
 	}
 	static inline void removeListener(EventHandler* region) {
