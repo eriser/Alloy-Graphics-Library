@@ -99,7 +99,7 @@ struct ImageGlyph: public Glyph {
 			bool mipmap = false);
 	void draw(const box2px& bounds, const Color& fgColor, const Color& bgColor,
 			AlloyContext* context) override;
-	void set(const ImageRGBA& rgba);
+	void set(const ImageRGBA& rgba,AlloyContext* context);
 	~ImageGlyph();
 };
 struct CheckerboardGlyph: public Glyph {
