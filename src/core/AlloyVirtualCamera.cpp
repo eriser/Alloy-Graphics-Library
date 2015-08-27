@@ -65,12 +65,8 @@ void VirtualCamera::aim(const box2px& bounds) {
 		if (cameraType == CameraType::Perspective) {
 			Projection = Tcamera
 				* perspectiveMatrix(fov, aspectRatio, nearPlane, farPlane);
-		}
-		else {
-			if (cameraType == CameraType::Orthographic) {
-				Projection = Tcamera
-					* orthographicMatrix(1.0f/ aspectRatio,1.0f, nearPlane, farPlane);
-			}
+		} else if (cameraType == CameraType::Orthographic) {
+			Projection = orthographicMatrix(1.0f/ aspectRatio,1.0f, nearPlane, farPlane)*Tcamera;
 		}
 		View = Teye * S * Rw * T * Rm;
 		ViewModel = View * Model;
