@@ -29,8 +29,16 @@ GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
 
 }
 void GLFrameBuffer::initialize(int w, int h) {
+	context->begin();
+	if (mFrameBufferId != 0)
+		glDeleteFramebuffers(1, &mFrameBufferId);
+	if (mDepthBufferId != 0)
+		glDeleteRenderbuffers(1, &mDepthBufferId);
+	mFrameBufferId = 0;
+	mDepthBufferId = 0;
 	texture.load(Image4f(w, h), false);
 	update();
+	context->end();
 }
 GLFrameBuffer::~GLFrameBuffer() {
 	context->begin();
