@@ -162,12 +162,12 @@ void MeshViewer::draw(AlloyContext* context) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(1440.0f, 480.0f), float2(480, 480));
 	glEnable(GL_DEPTH_TEST);
-
+/*
 	wireframeShader.draw(edgeFrameBuffer.getTexture(),
 			smoothDepthFrameBuffer1.getTexture(),
 			float2(0.0f, camera.getScale()), float2(960.0f, 480.0f),
 			float2(480, 480), getContext()->getViewport());
-
+*/
 	phongShader.draw(smoothDepthFrameBuffer2.getTexture(), camera,
 			float2(960.0f, 480.0f), float2(480, 480),
 			getContext()->getViewport());
@@ -211,8 +211,7 @@ void MeshViewer::draw(AlloyContext* context) {
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(), float2(480.0f, 0.0f),
 			float2(480, 480));
-	imageShader.draw(wireframeFrameBuffer.getTexture(), float2(480.0f, 480.0f),
-			float2(480, 480));
+	imageShader.draw(wireframeFrameBuffer.getTexture(), float2(480.0f, 480.0f),float2(480, 480));
 	imageShader.draw(occlusionFrameBuffer.getTexture(), float2(1440.0f, 0.0f),
 			float2(480, 480));
 

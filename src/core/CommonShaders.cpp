@@ -1914,9 +1914,11 @@ gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+if(pos.x+i>=0&&pos.y+j>=0&&pos.x+i<imageSize.x&&pos.y+j<imageSize.y){
       nrgba=texelFetch(textureImage,pos+ivec2(i,j),0);
 if(nrgba.w>=1.0){
       minDistance=min(minDistance,i*i+j*j);
+}
 }
 	}
 }
@@ -1926,9 +1928,11 @@ rgba=mix(edgeColor,innerColor,w);
 minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      if(pos.x+i>=0&&pos.y+j>=0&&pos.x+i<imageSize.x&&pos.y+j<imageSize.y){
       nrgba=texelFetch(textureImage,pos+ivec2(i,j),0);
 if(nrgba.w<1.0){
       minDistance=min(minDistance,i*i+j*j);
+}
 }
 	}
 }
