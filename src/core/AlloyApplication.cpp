@@ -338,6 +338,7 @@ void Application::onWindowSize(int width, int height) {
 	glViewport(0, 0, width, height);
 	if (context->width() != width || context->height() != height) {
 		context->viewSize = int2(width, height);
+
 		context->requestPack();
 		if(onResize)onResize(context->viewSize);
 	}

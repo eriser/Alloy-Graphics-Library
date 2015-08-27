@@ -188,6 +188,8 @@ public:
 	Region(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 	virtual void pack(const pixel2& pos, const pixel2& dims,
 			const double2& dpmm, double pixelRatio, bool clamp = false);
+	virtual void pack(AlloyContext* context);
+	virtual void pack();
 	virtual void draw(AlloyContext* context);
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
@@ -246,8 +248,8 @@ public:
 	}
 	void putLast(const std::shared_ptr<Region>& region);
 	void putFirst(const std::shared_ptr<Region>& region);
-        void putLast(Region* region);
-        void putFirst(Region* region);
+	void putLast(Region* region);
+	void putFirst(Region* region);
 	Composite(
 			const std::string& name = MakeString() << "c" << std::setw(8)
 					<< std::setfill('0') << (REGION_COUNTER++));
@@ -286,10 +288,15 @@ public:
 	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio, bool clamp = false) override;
-	void pack(AlloyContext* context);
+
 	virtual void add(const std::shared_ptr<Region>& region);
 	void add(Region* region); //After add(), composite will own region and be responsible for destroying it.
-	void pack();
+	virtual void pack() override {
+		Region::pack();
+	}
+	virtual void pack(AlloyContext* context) override {
+		Region::pack(context);
+	}
 	void draw();
 };
 
@@ -314,7 +321,6 @@ public:
 	virtual void update(CursorLocator* cursorLocator) override;
 	void pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			double pixelRatio, bool clamp = false) override;
-	void pack(AlloyContext* context);
 	void setNorth(const std::shared_ptr<Region>& region,
 			const AUnit1D& fraction);
 	void setSouth(const std::shared_ptr<Region>& region,
@@ -339,8 +345,12 @@ public:
 	}
 
 	void setCenter(const std::shared_ptr<Region>& region);
-
-	void pack();
+	virtual void pack() override {
+		Region::pack();
+	}
+	virtual void pack(AlloyContext* context) override {
+		Region::pack(context);
+	}
 	void draw();
 };
 

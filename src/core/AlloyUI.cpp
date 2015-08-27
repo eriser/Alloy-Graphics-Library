@@ -61,6 +61,18 @@ Region* Region::locate(const pixel2& cursor) {
 	}
 }
 
+void Region::pack(AlloyContext* context) {
+	if (parent == nullptr) {
+		pack(pixel2(0, 0), pixel2(context->dimensions()), context->dpmm,
+				context->pixelRatio);
+	} else {
+		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
+				context->dpmm, context->pixelRatio);
+	}
+}
+void Region::pack() {
+	pack(AlloyApplicationContext().get());
+}
 void Region::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
@@ -220,7 +232,7 @@ box2px Region::getBounds(bool includeOffset) const {
 box2px Region::getCursorBounds(bool includeOffset) const {
 	box2px box = (isDetached() ? getBounds(includeOffset) : bounds);
 	box.position += dragOffset;
-	if (parent != nullptr &&(!isDetached()&& includeOffset)) {
+	if (parent != nullptr && (!isDetached() && includeOffset)) {
 		box.position += parent->drawOffset();
 		if (AlloyApplicationContext()->getOnTopRegion() != this) {
 			box.intersect(parent->getCursorBounds());
@@ -262,36 +274,36 @@ void Composite::putFirst(const std::shared_ptr<Region>& region) {
 	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
 void Composite::putLast(Region* region) {
-        size_t idx = 0;
-        size_t pivot = children.size() - 1;
-        std::vector<std::shared_ptr<Region>> newList;
-        for (RegionPtr& child : children) {
-                if (child.get() == region) {
-                        pivot = idx;
-                } else {
-                        newList.push_back(child);
-                }
-                idx++;
-        }
-        newList.push_back(children[pivot]);
-        children = newList;
-        AlloyApplicationContext()->requestUpdateCursorLocator();
+	size_t idx = 0;
+	size_t pivot = children.size() - 1;
+	std::vector<std::shared_ptr<Region>> newList;
+	for (RegionPtr& child : children) {
+		if (child.get() == region) {
+			pivot = idx;
+		} else {
+			newList.push_back(child);
+		}
+		idx++;
+	}
+	newList.push_back(children[pivot]);
+	children = newList;
+	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
 void Composite::putFirst(Region* region) {
-        size_t idx = 0;
-        size_t pivot = 0;
-        std::vector<std::shared_ptr<Region>> newList;
-        for (RegionPtr& child : children) {
-                if (child.get() == region) {
-                        pivot = idx;
-                } else {
-                        newList.push_back(child);
-                }
-                idx++;
-        }
-        newList.insert(newList.begin(), children[pivot]);
-        children = newList;
-        AlloyApplicationContext()->requestUpdateCursorLocator();
+	size_t idx = 0;
+	size_t pivot = 0;
+	std::vector<std::shared_ptr<Region>> newList;
+	for (RegionPtr& child : children) {
+		if (child.get() == region) {
+			pivot = idx;
+		} else {
+			newList.push_back(child);
+		}
+		idx++;
+	}
+	newList.insert(newList.begin(), children[pivot]);
+	children = newList;
+	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
 void Composite::clear() {
 	AlloyApplicationContext()->addDeferredTask(
@@ -408,9 +420,7 @@ void Composite::drawDebug(AlloyContext* context) {
 	}
 }
 
-void Composite::pack() {
-	pack(AlloyApplicationContext().get());
-}
+
 void Composite::draw() {
 	draw(AlloyApplicationContext().get());
 }
@@ -596,15 +606,7 @@ Region* BorderComposite::locate(const pixel2& cursor) {
 	}
 	return nullptr;
 }
-void BorderComposite::pack(AlloyContext* context) {
-	if (parent == nullptr) {
-		pack(pixel2(0, 0), pixel2(context->dimensions()), context->dpmm,
-				context->pixelRatio);
-	} else {
-		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
-				context->dpmm, context->pixelRatio);
-	}
-}
+
 void BorderComposite::setNorth(const std::shared_ptr<Region>& region,
 		const AUnit1D& fraction) {
 	if (region->parent != nullptr)
@@ -802,9 +804,6 @@ void BorderComposite::pack(const pixel2& pos, const pixel2& dims,
 	}
 	if (onPack)
 		onPack();
-}
-void BorderComposite::pack() {
-	pack(AlloyApplicationContext().get());
 }
 void BorderComposite::draw() {
 	draw(AlloyApplicationContext().get());
@@ -1008,16 +1007,6 @@ void Region::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		pixel2 dims = parent->bounds.dimensions;
 		bounds.position = aly::clamp(bounds.position, ppos,
 				ppos + dims - bounds.dimensions);
-	}
-}
-
-void Composite::pack(AlloyContext* context) {
-	if (parent == nullptr) {
-		pack(pixel2(0, 0), pixel2(context->dimensions()), context->dpmm,
-				context->pixelRatio);
-	} else {
-		pack(parent->getBoundsPosition(), parent->getBoundsDimensions(),
-				context->dpmm, context->pixelRatio);
 	}
 }
 
@@ -1533,7 +1522,9 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 							context->setOnTopRegion(selectionBox.get());
 							lastValue = this->getValue();
 							box2px bounds = getBounds(false);
-							selectionBox->pack(bounds.position, bounds.dimensions, context->dpmm, context->pixelRatio);
+							selectionBox->pack(bounds.position,
+									bounds.dimensions, context->dpmm,
+									context->pixelRatio);
 							selectionBox->setVisible(true);
 							selectionBox->setSelectionOffset(0);
 							selectionBox->setSelectedIndex(0);

@@ -64,6 +64,7 @@ public:
 	}
 	void setDirty(bool d) {
 		needsDisplay = d;
+		if(d)changed=true;
 	}
 	float getScale() const {
 		return distanceToObject;

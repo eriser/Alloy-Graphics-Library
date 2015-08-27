@@ -229,6 +229,9 @@ public:
 		return screenSize.y;
 	}
 	void addDeferredTask(const std::function<void()>& func);
+	bool hasDeferredTasks() const {
+		return (deferredTasks.size() > 0);
+	}
 	bool executeDeferredTasks();
 	std::shared_ptr<Composite>& getGlassPanel();
 
