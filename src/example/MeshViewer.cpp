@@ -151,6 +151,7 @@ bool MeshViewer::init(Composite& rootNode) {
 		}
 	});
 	camera.setDirty(true);
+	camera.setCameraType(CameraType::Orthographic);
 	return true;
 }
 void MeshViewer::draw(AlloyContext* context) {

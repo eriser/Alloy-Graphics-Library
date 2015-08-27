@@ -1388,6 +1388,19 @@ template<class T> matrix<T, 4, 4> perspectiveMatrix(const T &fovy,
 	M(2, 3) = pz;
 	return M;
 }
+template<class T> matrix<T, 4, 4> orthographicMatrix(const T& scaleX,const T& scaleY,const T &zNear, const T &zFar) {
+	T sx = 2.0f*scaleX;
+	T sy = 2.0f*scaleY;
+	T sz = -(zFar + zNear) / (zFar - zNear);
+	T pz = -(2.0f) / (zFar - zNear);
+	matrix<T, 4, 4> M = matrix<T, 4, 4>::zero();
+	M(0, 0) = sx;
+	M(1, 1) = sy;
+	M(2, 2) = sz;
+	M(3, 3) = 1.0f;
+	M(2, 3) = pz;
+	return M;
+}
 template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,
 		vec<T, 3> center3D, vec<T, 3> upVector3D) {
 	vec<T, 3> forward, side, up;

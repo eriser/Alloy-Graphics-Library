@@ -14,7 +14,7 @@ VirtualCamera::VirtualCamera() :
 				10000.0f), eye(float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(
 				0.2f), strafeSpeed(0.001f), distanceToObject(1.0), mouseDown(
 				false), startTumbling(false), zoomMode(false), changed(true), needsDisplay(
-				true), Projection(float4x4::identity()), View(
+				true),cameraType(CameraType::Perspective), Projection(float4x4::identity()), View(
 				float4x4::identity()), Model(float4x4::identity()) {
 }
 
@@ -62,8 +62,16 @@ void VirtualCamera::aim(const box2px& bounds) {
 		Tcamera(1, 3) = cameraTrans[1];
 		Tcamera(2, 3) = cameraTrans[2];
 
-		Projection = Tcamera
+		if (cameraType == CameraType::Perspective) {
+			Projection = Tcamera
 				* perspectiveMatrix(fov, aspectRatio, nearPlane, farPlane);
+		}
+		else {
+			if (cameraType == CameraType::Orthographic) {
+				Projection = Tcamera
+					* orthographicMatrix(1.0f/ aspectRatio,1.0f, nearPlane, farPlane);
+			}
+		}
 		View = Teye * S * Rw * T * Rm;
 		ViewModel = View * Model;
 		NormalViewModel = transpose(inverse(ViewModel));

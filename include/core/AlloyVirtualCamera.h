@@ -27,6 +27,7 @@
 #include <fstream>
 namespace aly {
 struct Mesh;
+enum class CameraType { Perspective, Orthographic };
 class VirtualCamera: public EventHandler {
 protected:
 	// Camera parameters
@@ -39,7 +40,7 @@ protected:
 	float tumblingSpeed, zoomSpeed, strafeSpeed;
 	float distanceToObject;
 	bool mouseDown, startTumbling, zoomMode, changed, needsDisplay;
-
+	CameraType cameraType;
 	void handleKeyEvent(GLFWwindow* win, int key, int action);
 	void handleButtonEvent(int button, int action);
 	void handleCursorEvent(float x, float y);
@@ -52,6 +53,10 @@ public:
 	void aim(const aly::box2px& bounds);
 	void setPose(const float4x4& m) {
 		Model = m;
+	}
+	void setCameraType(const CameraType& type) {
+		cameraType = type;
+		changed = true;
 	}
 	inline float2 getFocalLength() const {
 		return float2(Projection(0, 0), Projection(1, 1));
