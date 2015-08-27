@@ -291,6 +291,7 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glEnable(GL_DEPTH_TEST);
 	glEnable( GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glfwGetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 	viewSize = int2(width, height);
 	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
