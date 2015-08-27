@@ -500,14 +500,11 @@ uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
 void main() {
 ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
-vec4 rgba=texelFetch(textureImage, pos,0);
+vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
   vec2 px=rgba.xy;
   rgba=texture(matcapTexture,0.5*rgba.xy+0.5);
-  //if(length(px)>0.95){
-   // rgba=rgba*0.5//;//vec4(1.0,0.0,0.0,1.0);
-  //}
 } else {
  rgba=vec4(0.0,0.0,0.0,0.0);
 }
@@ -1832,6 +1829,7 @@ layout(location = 0) in vec3 vp;
 layout(location = 1) in vec2 vt; 
 uniform vec4 bounds;
 uniform vec4 viewport;
+
 out vec2 uv;
 void main() {
 uv=vt;
@@ -1844,10 +1842,11 @@ in vec2 uv;
 uniform ivec2 imageSize;
 uniform int KERNEL_SIZE;
 uniform sampler2D textureImage;
+uniform ivec2 depthBufferSize;
 const int SCALE=2;
 void main() {
-vec4 rgba=texture(textureImage,uv);
-
+ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
 vec4 nrgba;
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
@@ -1907,14 +1906,15 @@ uniform sampler2D textureImage;
 uniform vec4 innerColor,outerColor,edgeColor;
 float w=0;
 void main() {
-vec4 rgba=texture(textureImage,uv);
+ivec2 pos=ivec2(uv.x*imageSize.x,uv.y*imageSize.y);
+vec4 rgba=texelFetch(textureImage,pos,0);
 vec4 nrgba;
 float minDistance=KERNEL_SIZE*KERNEL_SIZE;
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
-      nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
+      nrgba=texelFetch(textureImage,pos+ivec2(i,j),0);
 if(nrgba.w>=1.0){
       minDistance=min(minDistance,i*i+j*j);
 }
@@ -1926,7 +1926,7 @@ rgba=mix(edgeColor,innerColor,w);
 minDistance=KERNEL_SIZE*KERNEL_SIZE;
 for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
 	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
-      nrgba=texture(textureImage,uv+vec2(i/float(imageSize.x),j/float(imageSize.y)));
+      nrgba=texelFetch(textureImage,pos+ivec2(i,j),0);
 if(nrgba.w<1.0){
       minDistance=min(minDistance,i*i+j*j);
 }
@@ -1961,8 +1961,10 @@ gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 in vec2 uv;
 const float PI=3.1415926535;
 uniform sampler2D textureImage;
+uniform ivec2 depthBufferSize;
 void main() {
-vec4 rgba=texture(textureImage,uv);
+ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
 float lum=clamp(abs(rgba.w),0.0,1.0);
@@ -1997,8 +1999,10 @@ const float PI=3.1415926535;
 uniform sampler2D textureImage;
 uniform float zMin;
 uniform float zMax;
+uniform ivec2 depthBufferSize;
 void main() {
-vec4 rgba=texture(textureImage,uv);
+ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
 gl_FragDepth=rgba.w;
 if(rgba.w<1.0){
 	float lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
@@ -2050,6 +2054,8 @@ uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
 uniform float u_radius;
 uniform vec2 focalLength;
+
+uniform ivec2 depthBufferSize;
 float random(vec2 uv,float seed){
   vec2 v=vec2(12.9898,78.233);
   return fract(sin(dot(uv ,vec2(cos(seed)*v.x-sin(6.28*seed)*v.y,cos(6.28*seed)*v.y+sin(6.28*seed)*v.x))) * 43758.5453+seed);
@@ -2064,9 +2070,9 @@ vec4 toWorld(vec2 uv,vec4 rgba){
 	float z=toZ(rgba.w);
 	return vec4(z*(2.0*uv.x-1)/focalLength.x,z*(2.0*uv.y-1)/focalLength.y, z, 1.0);	
 }
-vec2 toCamera(vec4 pt){
+ivec2 toCamera(vec4 pt){
 	float z = pt.z;
-	return vec2(0.5*pt.x*focalLength.x/z+0.5,0.5*pt.y*focalLength.y/z+0.5);	
+	return ivec2(depthBufferSize.x*(0.5*pt.x*focalLength.x/z+0.5),depthBufferSize.y*(0.5*pt.y*focalLength.y/z+0.5));	
 }
 #define KERNEL_SIZE )"
 					<< sampleNormals.size()
@@ -2077,11 +2083,11 @@ void main(void)
 {
    const float CAP_MIN_DISTANCE=0.001f;
    const float CAP_MAX_DISTANCE=0.005f;
-
 	// Calculate out of the current fragment in screen space the view space position.
 	float x = v_texCoord.x;
 	float y = v_texCoord.y;
-	vec4 rgba=texture(textureImage, v_texCoord);
+    ivec2 pos=ivec2(v_texCoord.x*depthBufferSize.x,v_texCoord.y*depthBufferSize.y);
+	vec4 rgba=texelFetch(textureImage, pos,0);
 	gl_FragDepth=rgba.w;
     if(length(rgba.xyz)==0.0){
 		gl_FragColor = vec4( 0,0,0,0);
@@ -2099,8 +2105,8 @@ void main(void)
 	{
 		vec3 sampleVectorView = kernelMatrix * u_kernel[i];	
 		vec4 samplePointNDC = posProj + u_radius * vec4(sampleVectorView, 0.0);
-		vec2 samplePointTexCoord = toCamera(samplePointNDC);   
-		float zSceneNDC = toZ(texture(textureImage, samplePointTexCoord).w);
+		ivec2 samplePointTexCoord = toCamera(samplePointNDC);   
+		float zSceneNDC = toZ(texelFetch(textureImage, samplePointTexCoord,0).w);
 		float delta = zSceneNDC-samplePointNDC.z;
 		if (delta > CAP_MIN_DISTANCE && delta < CAP_MAX_DISTANCE){
 			occlusion += 1.0;
@@ -2138,6 +2144,7 @@ uniform sampler2D textureImage;
 uniform vec2 focalLength;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
+uniform ivec2 depthBufferSize;
 const int MAX_LIGHTS=)"
 					<< N << R"(;
 uniform vec3 lightPositions[)" << N
@@ -2162,7 +2169,8 @@ vec4 toWorld(vec2 uv,vec4 rgba){
 	return vec4(z*(2.0*uv.x-1)/focalLength.x,z*(2.0*uv.y-1)/focalLength.y, z, 1.0);	
 }
 void main() {
-    vec4 rgba=texture(textureImage,uv);
+   ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+    vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
     if(rgba.w>=1.0)discard;
 	vec4 pt=toWorld(uv,rgba);
 	vec3 norm=rgba.xyz;
@@ -2226,10 +2234,13 @@ uniform float zMax;
 uniform vec4 edgeColor;
 uniform vec4 faceColor;
 uniform float LINE_WIDTH;
+
+uniform ivec2 depthBufferSize;
 uniform int scaleInvariant;
 void main() {
-vec4 rgba=texture(textureImage,uv);
-vec4 nd=texture(depthImage,uv);
+ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
+vec4 nd=texelFetch(depthImage, pos,0);
 gl_FragDepth=nd.w;
 if(rgba.w<1.0){
 	float lum;

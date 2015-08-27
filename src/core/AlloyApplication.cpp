@@ -83,7 +83,7 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 }
 Application::Application(int w, int h, const std::string& title,
 		bool showDebugIcon) :
-		frameRate(0.0f), rootRegion("Root"), showDebugIcon(showDebugIcon) {
+		frameRate(0.0f), rootRegion("Root"), showDebugIcon(showDebugIcon),onResize(nullptr) {
 
 	if (context.get() == nullptr) {
 		context.reset(new AlloyContext(w, h, title));
@@ -339,6 +339,7 @@ void Application::onWindowSize(int width, int height) {
 	if (context->width() != width || context->height() != height) {
 		context->viewSize = int2(width, height);
 		context->requestPack();
+		if(onResize)onResize(context->viewSize);
 	}
 }
 void Application::onCursorPos(double xpos, double ypos) {

@@ -237,7 +237,7 @@ public:
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
-		begin().set("KERNEL_SIZE", 4).set("textureImage", imageTexture, 0).set(
+		begin().set("KERNEL_SIZE", 4).set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set(
 				"bounds", bounds).set("imageSize",
 				imageTexture.bounds.dimensions).set("viewport",
 				context->getViewport()).draw(imageTexture).end();
@@ -255,7 +255,7 @@ public:
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
-		begin().set("textureImage", imageTexture, 0).set("bounds", bounds).set(
+		begin().set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set("bounds", bounds).set(
 				"viewport", context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
@@ -273,7 +273,7 @@ public:
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, float2 zRange,
 			const box2px& bounds) {
-		begin().set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
+		begin().set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
 				"zMax", zRange.y).set("bounds", bounds).set("viewport",
 				context->getViewport()).draw(imageTexture).end();
 	}
@@ -395,7 +395,7 @@ public:
 				lightDirections.push_back(light.direction);
 			}
 		}
-		set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
+		set("depthBufferSize",imageTexture.dimensions()).set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
 				"lambertianColors", lambertianColors).set("specularColors",
 				specularColors).set("specularWeights", specularWeights).set(
 				"lightPositions", lightPositions).set("lightDirections",
@@ -433,7 +433,7 @@ public:
 			const GLTexture<T, C, I>& edgeTexture,
 			const GLTexture<T, C, I>& depthTexture, float2 zRange,
 			const box2px& bounds, const box2px& viewport) {
-		begin().set("textureImage", edgeTexture, 0).set("depthImage",
+		begin().set("depthBufferSize",depthTexture.dimensions()).set("textureImage", edgeTexture, 0).set("depthImage",
 				depthTexture, 1).set("LINE_WIDTH", lineWidth).set("edgeColor",
 				edgeColor).set("faceColor", faceColor).set("scaleInvariant",
 				(scaleInvariant) ? 1 : 0).set("zMin", zRange.x), set("zMax",
@@ -460,7 +460,7 @@ public:
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
 			const box2px viewport, VirtualCamera& camera) {
 
-		begin().set("textureImage", imageTexture, 0).set("MIN_DEPTH",
+		begin().set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set("MIN_DEPTH",
 				camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
 				"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
 				"viewport", viewport).set("u_radius", sampleRadius).set(

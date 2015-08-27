@@ -73,8 +73,7 @@ bool MeshViewer::init(Composite& rootNode) {
 		}
 		L.insert(i, i, float1(1.0f + (float) w * vertTable[i].size()));
 		float3 norm = mesh.vertexNormals[i];
-		mesh.vertexLocations[i] += 5.0f * norm
-				* (((rand() % 1024) / 1024.0f) - 0.5f);
+		//mesh.vertexLocations[i] += 5.0f * norm* (((rand() % 1024) / 1024.0f) - 0.5f);
 		b[i] = mesh.vertexLocations[i];
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
@@ -205,7 +204,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		wireframeFrameBuffer.end();
 
 		occlusionFrameBuffer.begin();
-		ambientOcclusionShader.draw(flatDepthFrameBuffer.getTexture(),
+		ambientOcclusionShader.draw(smoothDepthFrameBuffer1.getTexture(),
 				float2(0.0f, 0.0f), float2(480, 480),
 				occlusionFrameBuffer.getViewport(), camera);
 		occlusionFrameBuffer.end();

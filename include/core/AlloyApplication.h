@@ -44,10 +44,12 @@ private:
 	std::shared_ptr<ImageShader> imageShader;
 	std::list<std::exception_ptr> caughtExceptions;
 	std::shared_ptr<GLFrameBuffer> uiFrameBuffer;
-
+	std::function<void(const int2& dimensions)> onResize;
 	void initInternal();
 public:
-
+	void setOnResize(const std::function<void(const int2& dimensions)>& onResizeEvent){
+		onResize=onResizeEvent;
+	}
 	static inline std::shared_ptr<AlloyContext>& getContext() {
 		if (context.get() == nullptr)
 			throw std::runtime_error("Cannot get GLFW / NanoVG context.");
