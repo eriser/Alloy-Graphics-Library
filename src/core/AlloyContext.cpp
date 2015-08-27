@@ -102,6 +102,12 @@ ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 	width = (pixel) w;
 	height = (pixel) h;
 }
+void ImageGlyph::set(const ImageRGBA& rgba){
+    AlloyContext* context = AlloyApplicationContext().get();
+    if(context){
+        nvgUpdateImage(context->nvgContext,handle,rgba.ptr());
+    }
+}
 ImageGlyph::~ImageGlyph()
 {
     AlloyContext* context=AlloyApplicationContext().get();
