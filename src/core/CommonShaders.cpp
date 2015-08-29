@@ -1646,6 +1646,50 @@ void DepthAndTextureShader::draw(
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
+void DepthAndTextureShader::draw(
+	const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+	GLFrameBuffer& frameBuffer, bool flatShading) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
+		flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
+			camera, frameBuffer.getViewport()).set("PoseMat",
+				float4x4::identity());
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
+}
+void DepthAndTextureShader::draw(
+	const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+	VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
+		flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
+			camera, frameBuffer.getViewport());
+	for (std::pair<const Mesh*, float4x4> pr : meshes) {
+		if (pr.first->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+				GLMesh::PrimitiveType::QUADS);
+		}
+		if (pr.first->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+				GLMesh::PrimitiveType::TRIANGLES);
+		}
+	}
+	end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
+}
+
 EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {

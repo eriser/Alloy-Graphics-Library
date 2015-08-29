@@ -93,7 +93,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
 			float3(1.0f, 1.0f, 1.0f));
 
-	camera.setNearFarPlanes(0.01f, 10.0f);
+	camera.setNearFarPlanes(-2.0f, 2.0f);
 	camera.setZoom(0.5f);
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 

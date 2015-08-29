@@ -29,6 +29,7 @@ GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
 
 }
 void GLFrameBuffer::initialize(int w, int h) {
+	if (context.get() == nullptr)throw std::runtime_error("Framebuffer has not been assigend a context.");
 	context->begin();
 	if (mFrameBufferId != 0)
 		glDeleteFramebuffers(1, &mFrameBufferId);

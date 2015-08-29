@@ -110,10 +110,18 @@ public:
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			VirtualCamera& camera, GLFrameBuffer& framebuffer,
 			bool flatShading = false);
+	void draw(const std::list<const Mesh*>& meshes,
+		VirtualCamera& camera, GLFrameBuffer& framebuffer,
+		bool flatShading = false);
+
 	void draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 			VirtualCamera& camera, GLFrameBuffer& framebuffer,
 			bool flatShading = false);
+	void draw(
+		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		VirtualCamera& camera, GLFrameBuffer& framebuffer,
+		bool flatShading = false);
 
 	void draw(const Mesh& mesh, VirtualCamera& camera,
 			GLFrameBuffer& framebuffer, bool flatShading = false) {
