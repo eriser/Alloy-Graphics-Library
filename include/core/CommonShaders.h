@@ -60,25 +60,26 @@ public:
 	GLFrameBuffer& getFrameBuffer() {
 		return framebuffer;
 	}
+	void read(Image2i& faceIdMap);
 	ParticleIdShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void initialize(int w, int h);
 	void draw(const std::initializer_list<const Mesh*>& meshes,
-			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			VirtualCamera& camera, int faceIdOffset = 0,
 			int objectIdOffset = 0, float radius = 1.0f);
 	void draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			VirtualCamera& camera, int faceIdOffset = 0,
 			int objectIdOffset = 0, float radius = 1.0f);
 	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
 			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0,
 			float radius = 1.0f);
 	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			VirtualCamera& camera,int faceIdOffset = 0,
 			int objectIdOffset = 0, float radius = 1.0f);
-	void draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap,
-			int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
-		draw( { &mesh }, camera, faceIdMap, faceIdOffset, objectIdOffset,
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+		int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
+		draw( { &mesh }, camera, faceIdOffset, objectIdOffset,
 				radius);
 	}
 };
@@ -137,25 +138,26 @@ public:
 	GLFrameBuffer& getFrameBuffer() {
 		return framebuffer;
 	}
+	
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void initialize(int w, int h);
+	void read(Image2i& faceIdMap);
 	int draw(const std::initializer_list<const Mesh*>& meshes,
-			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			VirtualCamera& camera, int faceIdOffset = 0,
 			int objectIdOffset = 0,float radius=1.0f);
 	int draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			VirtualCamera& camera, int faceIdOffset = 0,
 			int objectIdOffset = 0, float radius = 1.0f);
-	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
-			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
+	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
 	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset = 0,
+			VirtualCamera& camera,int faceIdOffset = 0,
 			int objectIdOffset = 0, float radius = 1.0f);
 
-	int draw(const Mesh& mesh, VirtualCamera& camera, Image2i& faceIdMap,
+	int draw(const Mesh& mesh, VirtualCamera& camera, 
 			int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
-		return draw( { &mesh }, camera, faceIdMap, faceIdOffset, objectIdOffset,radius);
+		return draw( { &mesh }, camera, faceIdOffset, objectIdOffset,radius);
 	}
 };
 

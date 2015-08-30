@@ -186,11 +186,15 @@ void MeshViewer::draw(AlloyContext* context) {
 		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
 
 		if (once) {
-			faceShader.draw(mesh, camera, faceIdMap);
+			faceShader.draw(mesh, camera);
+
+			faceShader.read(faceIdMap);
 			faceIdMap.writeToXML("face_id.xml");
-			faceShader.draw( { &particles, &mesh }, camera, faceIdMap);
+			faceShader.draw( { &particles, &mesh }, camera);
+			faceShader.read(faceIdMap);
 			faceIdMap.writeToXML("face_particle_id.xml");
-			particleFaceIdShader.draw(mesh, camera, faceIdMap);
+			particleFaceIdShader.draw(mesh, camera);
+			particleFaceIdShader.read(faceIdMap);
 			faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;
 		}

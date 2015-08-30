@@ -279,11 +279,28 @@ void main(void) {
 void ParticleIdShader::initialize(int w, int h) {
 	framebuffer.initialize(w, h);
 }
-void ParticleIdShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
-		Image2i& faceIdMap, int faceIdOffset, int objectIdOffset,
-		float radius) {
+void ParticleIdShader::read(Image2i& faceIdMap) {
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
+	ImageRGBAf& irgba = framebuffer.getTexture().read();
+	size_t idx = 0;
+	int hash;
+	int oid;
+	for (RGBAf rgbaf : irgba.data) {
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
+		if (rgbaf.w > 0.0f) {
+			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
+			hash = -1;
+			oid = -1;
+		}
+		faceIdMap[idx++] = int2(hash, oid);
+	}
+}
+void ParticleIdShader::draw(
+		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,int faceIdOffset, int objectIdOffset,
+		float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 0);
@@ -301,27 +318,11 @@ void ParticleIdShader::draw(
 
 	glEnable(GL_BLEND);
 	framebuffer.end();
-	ImageRGBAf& irgba = framebuffer.getTexture().read();
-	size_t idx = 0;
-	int hash;
-	int oid;
-	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
-		if (rgbaf.w > 0.0f) {
-			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
-			hash = -1;
-			oid = -1;
-		}
-		faceIdMap[idx++] = int2(hash, oid);
-	}
 }
 void ParticleIdShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		VirtualCamera& camera,  int faceIdOffset,
 		int objectIdOffset, float radius) {
-	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 0);
@@ -337,21 +338,6 @@ void ParticleIdShader::draw(
 	end();
 	glEnable(GL_BLEND);
 	framebuffer.end();
-	ImageRGBAf& irgba = framebuffer.getTexture().read();
-	size_t idx = 0;
-	int hash;
-	int oid;
-	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
-		if (rgbaf.w > 0.0f) {
-			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
-			hash = -1;
-			oid = -1;
-		}
-		faceIdMap[idx++] = int2(hash, oid);
-	}
 }
 
 void ParticleIdShader::draw(const std::list<const Mesh*>& meshes,
@@ -392,9 +378,8 @@ void ParticleIdShader::draw(const std::list<const Mesh*>& meshes,
 }
 void ParticleIdShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		VirtualCamera& camera, int faceIdOffset,
 		int objectIdOffset, float radius) {
-	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 0);
@@ -410,21 +395,6 @@ void ParticleIdShader::draw(
 	end();
 	glEnable(GL_BLEND);
 	framebuffer.end();
-	ImageRGBAf& irgba = framebuffer.getTexture().read();
-	size_t idx = 0;
-	int hash;
-	int oid;
-	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
-		if (rgbaf.w > 0.0f) {
-			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
-			hash = -1;
-			oid = -1;
-		}
-		faceIdMap[idx++] = int2(hash, oid);
-	}
 }
 
 CompositeShader::CompositeShader(const std::shared_ptr<AlloyContext>& context) :
@@ -806,11 +776,10 @@ void FaceIdShader::initialize(int w, int h) {
 }
 int FaceIdShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		VirtualCamera& camera, int faceIdOffset,
 		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
-	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -844,30 +813,13 @@ int FaceIdShader::draw(
 	}
 	end();
 	framebuffer.end();
-	glEnable(GL_BLEND);
-	ImageRGBAf& irgba = framebuffer.getTexture().read();
-	size_t idx = 0;
-	int hash;
-	int oid;
-	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
-		if (rgbaf.w > 0.0f) {
-			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
-			hash = -1;
-			oid = -1;
-		}
-		faceIdMap[idx++] = int2(hash, oid);
-	}
 	return faceIdOffset;
 }
 int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		VirtualCamera& camera, int faceIdOffset,
 		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
-	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -903,31 +855,15 @@ int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 	end();
 	framebuffer.end();
 	glEnable(GL_BLEND);
-	ImageRGBAf& irgba = framebuffer.getTexture().read();
-	size_t idx = 0;
-	int hash;
-	int oid;
-	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
-		if (rgbaf.w > 0.0f) {
-			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
-			hash = -1;
-			oid = -1;
-		}
-		faceIdMap[idx++] = int2(hash, oid);
-	}
 	return faceIdOffset;
 }
 
 int FaceIdShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		VirtualCamera& camera, int faceIdOffset,
 		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
-	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -962,29 +898,33 @@ int FaceIdShader::draw(
 	end();
 	framebuffer.end();
 	glEnable(GL_BLEND);
+	return faceIdOffset;
+}
+void FaceIdShader::read(Image2i& faceIdMap) {
+	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	ImageRGBAf& irgba = framebuffer.getTexture().read();
 	size_t idx = 0;
 	int hash;
 	int oid;
 	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
+		int3 rgba = int3((int)rgbaf.x, (int)rgbaf.y, (int)rgbaf.z);
 		if (rgbaf.w > 0.0f) {
 			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
+			oid = ((int)std::floor(rgbaf.w + 0.5f)) - 1;
+		}
+		else {
 			hash = -1;
 			oid = -1;
 		}
 		faceIdMap[idx++] = int2(hash, oid);
 	}
-	return faceIdOffset;
+
 }
 int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		VirtualCamera& camera, int faceIdOffset,
 		int objectIdOffset,float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
-	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1020,21 +960,6 @@ int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
 	end();
 	framebuffer.end();
 	glEnable(GL_BLEND);
-	ImageRGBAf& irgba = framebuffer.getTexture().read();
-	size_t idx = 0;
-	int hash;
-	int oid;
-	for (RGBAf rgbaf : irgba.data) {
-		int3 rgba = int3((int) rgbaf.x, (int) rgbaf.y, (int) rgbaf.z);
-		if (rgbaf.w > 0.0f) {
-			hash = (rgba.x) | (rgba.y << 12) | (rgba.z << 24);
-			oid = ((int) std::floor(rgbaf.w + 0.5f)) - 1;
-		} else {
-			hash = -1;
-			oid = -1;
-		}
-		faceIdMap[idx++] = int2(hash, oid);
-	}
 	return faceIdOffset;
 }
 
