@@ -35,7 +35,7 @@
 namespace aly {
 	using namespace std;
 	using namespace ply;
-	
+
 	void GLMesh::draw() const {
 		draw(PrimitiveType::ALL);
 	}
@@ -461,13 +461,13 @@ namespace aly {
 			return false;
 		}
 	}
-	void WriteMeshToFile(const std::string& file, const Mesh& mesh,bool binary) {
-		std::vector<std::string> elemNames = { "vertex", "face"};
+	void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
+		std::vector<std::string> elemNames = { "vertex", "face" };
 		int i, j, idx;
 		bool hasTexture = (mesh.textureMap.size() > 0);
 		// Get input and check data
 		PLYReaderWriter ply;
-		ply.openForWriting(file, elemNames,(binary)?FileFormat::BINARY_LE:FileFormat::ASCII); //
+		ply.openForWriting(file, elemNames, (binary) ? FileFormat::BINARY_LE : FileFormat::ASCII); //
 
 		// compute colors, if any
 		int numPts = (int)(mesh.vertexLocations.size());
@@ -561,8 +561,10 @@ namespace aly {
 		plyFaceTexture faceT;
 		int verts[256];
 		float2 uvs[4];
+		float velocity[3];
 		face.verts = verts;
 		faceT.verts = verts;
+		faceT.velocity = velocity;
 		faceT.uvs = (float*)uvs;
 		ply.putElementSetup("face");
 		if (hasTexture) {
@@ -858,11 +860,11 @@ namespace aly {
 		bool hasTexture = false;
 
 		if ((elem = ply.findElement("face")) != nullptr &&
-			ply.findProperty(elem,"texcoord", &index) != nullptr)
+			ply.findProperty(elem, "texcoord", &index) != nullptr)
 		{
 			hasTexture = true;
 			std::string textureFile;
-			for (string comment: ply.getComments())
+			for (string comment : ply.getComments())
 			{
 				const string keyName("TextureFile");
 				int offset = (int)comment.find(keyName, 0);
@@ -874,7 +876,7 @@ namespace aly {
 
 			}
 			std::string texturePath = RemoveTrailingSlash(GetParentDirectory(file)) + ALY_PATH_SEPARATOR + GetFileName(textureFile);
-			if (textureFile.size()>0&&FileExists(texturePath)) {
+			if (textureFile.size() > 0 && FileExists(texturePath)) {
 				ReadImageFromFile(texturePath, mesh.textureImage);
 			}
 		}
@@ -887,9 +889,9 @@ namespace aly {
 		plyFace face;
 		face.verts = verts;
 		face.velocity = velocity;
-		
+
 		plyFaceTexture faceTex;
-		faceTex.uvs =uvs;
+		faceTex.uvs = uvs;
 		faceTex.verts = verts;
 		faceTex.velocity = velocity;
 
@@ -957,7 +959,7 @@ namespace aly {
 								uint3(faceTex.verts[0], faceTex.verts[1], faceTex.verts[2]));
 						}
 						for (int i = 0;i < faceTex.nverts;i++) {
-							mesh.textureMap.append(float2(faceTex.uvs[2*i],faceTex.uvs[2*i+1]));
+							mesh.textureMap.append(float2(faceTex.uvs[2 * i], faceTex.uvs[2 * i + 1]));
 						}
 					}
 				}

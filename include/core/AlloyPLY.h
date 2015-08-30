@@ -155,6 +155,7 @@ struct plyVertex
             alpha = 0;
         }
 };
+
 struct plyFace
 {
         unsigned char nverts;    // number of vertex indices in list
@@ -169,7 +170,6 @@ struct plyFace
             nvels = 3;
         }
 };
-
 struct plyFaceTexture
 {
         unsigned char nverts;    // number of vertex indices in list

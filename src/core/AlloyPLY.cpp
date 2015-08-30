@@ -184,9 +184,9 @@ void PLYReaderWriter::addProperty(const std::vector<std::string>& words) {
  ******************************************************************************/
 
 void PLYReaderWriter::addComment(const std::string& line) {
-	int i = line.find("comment");
+	int i = (int)line.find("comment");
 	if (i >= 0) {
-		i = i + std::string("comment").size();
+		i = i + (int)std::string("comment").size();
 	}
 	else {
 		i = 0;
@@ -207,9 +207,9 @@ void PLYReaderWriter::addComment(const std::string& line) {
  ******************************************************************************/
 
 void PLYReaderWriter::addObjInfo(const std::string& line) {
-	int i = line.find("obj_info");
+	int i = (int)line.find("obj_info");
 	if (i >= 0) {
-		i = i + std::string("obj_info").size();
+		i = i + (int)std::string("obj_info").size();
 	}
 	else {
 		i = 0;
