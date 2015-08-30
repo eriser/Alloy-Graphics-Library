@@ -181,9 +181,9 @@ struct plyFaceTexture
         plyFaceTexture()
         {
             nverts = 0;
-            uvs = NULL;
-            verts = NULL;
-            velocity = NULL;
+            uvs = nullptr;
+            verts = nullptr;
+            velocity = nullptr;
             uvcount = 6;
             nvels = 3;
         }
@@ -320,16 +320,15 @@ const PlyProperty MeshFaceProps[] =
                     SectionType::List,
                     DataType::Uint8,
                     DataType::Uint8,
-                    offsetof(plyFace, nverts)), PlyProperty("velocities",
-                                                            DataType::Float32,
-                                                            DataType::Float32,
-                                                            offsetof(plyFace,
-                                                                     velocity),
-                                                            SectionType::List,
-                                                            DataType::Uint8,
-                                                            DataType::Uint8,
-                                                            offsetof(plyFace,
-                                                                     nvels)),
+                    offsetof(plyFace, nverts)), 
+	PlyProperty("velocities",
+    DataType::Float32,
+    DataType::Float32,
+    offsetof(plyFace,velocity),
+	SectionType::List,
+    DataType::Uint8,
+    DataType::Uint8,
+    offsetof(plyFace, nvels)),
                 PlyProperty("vertex_indices",
                             DataType::Int32,
                             DataType::Int32,

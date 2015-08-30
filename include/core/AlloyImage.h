@@ -675,8 +675,12 @@ typedef Image<float, 1, ImageType::FLOAT> Image1f;
 
 void WriteImageToFile(const std::string& file, const ImageRGBA& img);
 void WriteImageToFile(const std::string& file, const ImageRGB& img);
+void WriteImageToFile(const std::string& file, const ImageRGBAf& img);
+void WriteImageToFile(const std::string& file, const ImageRGBf& img);
 void ReadImageFromFile(const std::string& file, ImageRGBA& img);
 void ReadImageFromFile(const std::string& file, ImageRGB& img);
+void ReadImageFromFile(const std::string& file, ImageRGBAf& img);
+void ReadImageFromFile(const std::string& file, ImageRGBf& img);
 }
 ;
 

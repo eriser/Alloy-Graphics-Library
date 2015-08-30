@@ -374,11 +374,16 @@ namespace aly {
 		return RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + file;
 	}
 	std::string GetFileNameWithoutExtension(const std::string& fileName) {
-		if (fileName.find_last_of(".") != string::npos
-			&& fileName.find_last_of(ALY_PATH_SEPARATOR) != string::npos) {
-			size_t start = fileName.find_last_of(ALY_PATH_SEPARATOR) + 1;
-			size_t end = fileName.find_last_of(".");
-			return fileName.substr(start, end - start);
+		if (fileName.find_last_of(".") != string::npos){
+			if (fileName.find_last_of(ALY_PATH_SEPARATOR) != string::npos) {
+				size_t start = fileName.find_last_of(ALY_PATH_SEPARATOR) + 1;
+				size_t end = fileName.find_last_of(".");
+				return fileName.substr(start, end - start);
+			}
+			else {
+				size_t end = fileName.find_last_of(".");
+				return fileName.substr(0, end);
+			}
 		}
 		return fileName;
 	}
@@ -399,7 +404,9 @@ namespace aly {
 			size_t end = fileName.find_last_of(ALY_PATH_SEPARATOR);
 			return fileName.substr(0, end);
 		}
-		return fileName;
+		else {
+			return "";
+		}
 	}
 	std::string GetParentDirectory(const std::string& file) {
 		if (file.find_last_of(ALY_PATH_SEPARATOR) != string::npos&&file.find_last_of(ALY_PATH_SEPARATOR) == file.size() - 1) {

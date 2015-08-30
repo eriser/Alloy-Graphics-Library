@@ -30,11 +30,31 @@ MeshViewer::MeshViewer() :
 				1), voxelSize(0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
-	//Mesh tmpMesh;
-	//tmpMesh.load(getFullPath("models/torus.ply"));
-	//tmpMesh.updateVertexNormals();
-	//WriteMeshToFile("torus2.ply",tmpMesh,true);
-	//WriteMeshToFile("torus3.ply", tmpMesh, false);
+	Mesh tmpMesh;
+	tmpMesh.load(getFullPath("models/torus.ply"));
+	tmpMesh.updateVertexNormals();
+	tmpMesh.textureMap.resize(tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0;i < tmpMesh.textureMap.size();i++) {
+		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f, (rand() % 1024) / 1024.0f);
+	}
+	WriteMeshToFile("torus2.ply",tmpMesh,true);
+	ReadMeshFromFile("torus2.ply", tmpMesh);
+	WriteMeshToFile("torus3.ply", tmpMesh, false);
+	ReadMeshFromFile("torus3.ply", tmpMesh);
+	
+	tmpMesh.load(getFullPath("models/icosahedron.ply"));
+	tmpMesh.updateVertexNormals();
+	tmpMesh.textureMap.resize(tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0;i < tmpMesh.textureMap.size();i++) {
+		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f, (rand() % 1024) / 1024.0f);
+	}
+
+	WriteMeshToFile("icosahedron2.ply", tmpMesh, true);
+	ReadMeshFromFile("icosahedron2.ply", tmpMesh);
+	tmpMesh.textureImage.resize(640, 480);
+	tmpMesh.textureImage.set(RGBAf(1.0f, 0.0, 0.0, 1.0f));
+	WriteMeshToFile("icosahedron3.ply", tmpMesh, false);
+	ReadMeshFromFile("icosahedron3.ply", tmpMesh);
 	mesh.load(getFullPath("models/monkey.ply"));
 
 	//WriteMeshToFile("monkey2.ply", mesh, true);

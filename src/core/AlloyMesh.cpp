@@ -464,7 +464,7 @@ namespace aly {
 	void WriteMeshToFile(const std::string& file, const Mesh& mesh,bool binary) {
 		std::vector<std::string> elemNames = { "vertex", "face"};
 		int i, j, idx;
-		bool usingTexture = (mesh.textureMap.size() > 0);
+		bool hasTexture = (mesh.textureMap.size() > 0);
 		// Get input and check data
 		PLYReaderWriter ply;
 		ply.openForWriting(file, elemNames,(binary)?FileFormat::BINARY_LE:FileFormat::ASCII); //
@@ -507,7 +507,7 @@ namespace aly {
 		}
 		ply.elementCount("face", numPolys);
 
-		if (usingTexture) {
+		if (hasTexture) {
 			ply.describeProperty("face", &MeshFaceProps[2]);
 			ply.describeProperty("face", &MeshFaceProps[3]);
 		}
@@ -517,9 +517,12 @@ namespace aly {
 
 		// write a comment and an object information field
 		ply.appendComment("PLY File");
-		if (usingTexture) {
-			std::string comment = "TextureFile texture.png";
+		if (mesh.textureImage.size()>0) {
+			std::string textureFile = GetFileNameWithoutExtension(file) + ".png";
+			std::string comment = "TextureFile " + textureFile;
 			ply.appendComment(comment);
+			std::cout << "Write " << textureFile << std::endl;
+			WriteImageToFile(GetParentDirectory(file) + ALY_PATH_SEPARATOR + textureFile, mesh.textureImage);
 		}
 		ply.appendObjInfo("ImageSci");
 		// complete the header
@@ -552,12 +555,12 @@ namespace aly {
 		plyFace face;
 		plyFaceTexture faceT;
 		int verts[256];
-		float2 uvs[3];
+		float2 uvs[4];
 		face.verts = verts;
 		faceT.verts = verts;
 		faceT.uvs = (float*)uvs;
 		ply.putElementSetup("face");
-		if (usingTexture) {
+		if (hasTexture) {
 			int sz = (int)(mesh.quadIndexes.size());
 			for (int i = 0; i < sz; i++) {
 				faceT.nverts = 4;
@@ -835,6 +838,8 @@ namespace aly {
 		mesh.vertexLocations.clear();
 		mesh.vertexNormals.clear();
 		mesh.vertexColors.clear();
+		mesh.textureMap.clear();
+		mesh.textureImage.clear();
 		if ((elem = ply.findElement("vertex")) != nullptr
 			&& ply.findProperty(elem, "red", &index) != nullptr
 			&& ply.findProperty(elem, "green", &index) != nullptr
@@ -847,13 +852,47 @@ namespace aly {
 			&& ply.findProperty(elem, "nz", &index) != nullptr) {
 			hasNormals = true;
 		}
+		bool hasTexture = false;
+
+		if ((elem = ply.findElement("face")) != nullptr &&
+			ply.findProperty(elem,"texcoord", &index) != nullptr)
+		{
+			hasTexture = true;
+			std::string textureFile;
+			for (string comment: ply.getComments())
+			{
+				std::cout << "Comment " << comment << std::endl;
+				const string keyName("TextureFile");
+				int offset = (int)comment.find(keyName, 0);
+				if (offset >= 0)
+				{
+					textureFile = comment.substr(offset + keyName.size() + 1);
+
+					std::cout << "Read " << textureFile << " [" << comment << "]" << std::endl;
+					break;
+				}
+
+			}
+			std::string texturePath = RemoveTrailingSlash(GetParentDirectory(file)) + ALY_PATH_SEPARATOR + GetFileName(textureFile);
+			if (FileExists(texturePath)) {
+				ReadImageFromFile(texturePath, mesh.textureImage);
+			}
+		}
 
 		int verts[256];
 		float velocity[3];
-		plyFace face;
+		float uvs[8];
+
 		plyVertex vertex;
+		plyFace face;
 		face.verts = verts;
 		face.velocity = velocity;
+		
+		plyFaceTexture faceTex;
+		faceTex.uvs =uvs;
+		faceTex.verts = verts;
+		faceTex.velocity = velocity;
+
 		memset(verts, 0, sizeof(verts));
 		std::vector<std::string> elist = ply.getElementNames();
 		std::string elemName;
@@ -903,17 +942,38 @@ namespace aly {
 				// Create a polygonal array
 				numPolys = numElems;
 				// Get the face properties
-				ply.getProperty(elemName, &MeshFaceProps[0]);
-				for (j = 0; j < numPolys; j++) {
-					ply.getElement(&face);
-					if (face.nverts == 4) {
-						mesh.quadIndexes.append(
-							uint4(face.verts[0], face.verts[1], face.verts[2],
-								face.verts[3]));
+				if (hasTexture) {
+					ply.getProperty(elemName, &MeshFaceProps[2]);
+					ply.getProperty(elemName, &MeshFaceProps[3]);
+					for (j = 0; j < numPolys; j++) {
+						ply.getElement(&faceTex);
+						if (faceTex.nverts == 4) {
+							mesh.quadIndexes.append(
+								uint4(faceTex.verts[0], faceTex.verts[1], faceTex.verts[2],
+									faceTex.verts[3]));
+						}
+						else if (faceTex.nverts == 3) {
+							mesh.triIndexes.append(
+								uint3(faceTex.verts[0], faceTex.verts[1], faceTex.verts[2]));
+						}
+						for (int i = 0;i < faceTex.nverts;i++) {
+							mesh.textureMap.append(float2(faceTex.uvs[2*i],faceTex.uvs[2*i+1]));
+						}
 					}
-					else if (face.nverts == 3) {
-						mesh.triIndexes.append(
-							uint3(face.verts[0], face.verts[1], face.verts[2]));
+				}
+				else {
+					ply.getProperty(elemName, &MeshFaceProps[0]);
+					for (j = 0; j < numPolys; j++) {
+						ply.getElement(&face);
+						if (face.nverts == 4) {
+							mesh.quadIndexes.append(
+								uint4(face.verts[0], face.verts[1], face.verts[2],
+									face.verts[3]));
+						}
+						else if (face.nverts == 3) {
+							mesh.triIndexes.append(
+								uint3(face.verts[0], face.verts[1], face.verts[2]));
+						}
 					}
 				}
 			}							//if face
