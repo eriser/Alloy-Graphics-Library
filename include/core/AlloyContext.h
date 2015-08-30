@@ -173,7 +173,7 @@ struct Region;
 class AlloyContext {
 private:
 	std::list<std::string> assetDirectories;
-	std::shared_ptr<Font> fonts[4];
+	std::shared_ptr<Font> fonts[8];
 	static std::mutex contextLock;
 	GLFWwindow* current;
 	bool dirtyLayout = false;

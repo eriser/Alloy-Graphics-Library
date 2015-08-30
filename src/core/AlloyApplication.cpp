@@ -38,6 +38,13 @@ void Application::initInternal() {
 	context->loadFont(FontType::Bold, "sans-bold", "fonts/Roboto-Bold.ttf");
 	context->loadFont(FontType::Italic, "sans-italic",
 			"fonts/Roboto-Italic.ttf");
+	context->loadFont(FontType::Code, "sans", "fonts/Hack-Regular.ttf");
+	context->loadFont(FontType::CodeBold, "sans-bold", "fonts/Hack-Bold.ttf");
+	context->loadFont(FontType::CodeItalic, "sans-bold-italic",
+		"fonts/Hack-Italic.ttf");
+	context->loadFont(FontType::CodeBoldItalic, "sans-bold-italic",
+		"fonts/Hack-BoldItalic.ttf");
+
 	context->loadFont(FontType::Icon, "icons", "fonts/fontawesome.ttf");
 	glfwSetWindowUserPointer(context->window, this);
 	glfwSetWindowRefreshCallback(context->window,
