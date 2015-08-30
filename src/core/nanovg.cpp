@@ -18,11 +18,11 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "../../include/core/nanovg.h"
+#include "nanovg.h"
 #define FONTSTASH_IMPLEMENTATION
-#include "../../include/core/fontstash.h"
+#include "fontstash.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../include/core/stb_image.h"
+#include "stb_image.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4100)  // unreferenced formal parameter
