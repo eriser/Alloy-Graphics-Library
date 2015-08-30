@@ -681,7 +681,15 @@ void ReadImageFromFile(const std::string& file, ImageRGBA& img);
 void ReadImageFromFile(const std::string& file, ImageRGB& img);
 void ReadImageFromFile(const std::string& file, ImageRGBAf& img);
 void ReadImageFromFile(const std::string& file, ImageRGBf& img);
-}
-;
+
+void ConvertImage(const ImageRGBAf& in,ImageRGBA& out);
+void ConvertImage(const ImageRGBf& in, ImageRGB& out);
+void ConvertImage(const ImageRGBA& in, ImageRGBAf& out);
+void ConvertImage(const ImageRGB& in, ImageRGBf& out);
+void ConvertImage(const ImageRGBA& in, ImageRGB& out);
+void ConvertImage(const ImageRGBAf& in, ImageRGBf& out);
+void ConvertImage(const ImageRGB& in, ImageRGBA& out);
+void ConvertImage(const ImageRGBf& in, ImageRGBAf& out);
+};
 
 #endif

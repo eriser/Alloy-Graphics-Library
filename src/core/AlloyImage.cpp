@@ -458,7 +458,7 @@ namespace aly {
 			ct = RGBf(cs.x / 255.0f, cs.y / 255.0f, cs.z / 255.0f);
 		}
 	}
-	void WriteImageToFile(const std::string& file,const ImageRGBAf& img) {
+	void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 		ImageRGBA rgb;
 		rgb.resize(img.width, img.height);
 		rgb.id = img.id;
@@ -467,14 +467,14 @@ namespace aly {
 		size_t index = 0;
 		for (RGBAf& ct : img.data) {
 			rgb[index++] = RGBA(
-				clamp((int)(ct.x * 255.0f), 0, 255), 
-				clamp((int)(ct.y * 255.0f), 0, 255), 
-				clamp((int)(ct.z * 255.0f), 0, 255), 
+				clamp((int)(ct.x * 255.0f), 0, 255),
+				clamp((int)(ct.y * 255.0f), 0, 255),
+				clamp((int)(ct.z * 255.0f), 0, 255),
 				clamp((int)(ct.w * 255.0f), 0, 255));
 		}
 		WriteImageToFile(file, rgb);
 	}
-	void WriteImageToFile(const std::string& file,const ImageRGBf& img) {
+	void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 		ImageRGB rgb;
 		rgb.resize(img.width, img.height);
 		rgb.id = img.id;
@@ -488,5 +488,99 @@ namespace aly {
 				clamp((int)(ct.z * 255.0f), 0, 255));
 		}
 		WriteImageToFile(file, rgb);
+	}
+
+	void ConvertImage(const ImageRGBf& in, ImageRGB& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBf& ct : in.data) {
+			out[index++] = RGB(
+				clamp((int)(ct.x * 255.0f), 0, 255),
+				clamp((int)(ct.y * 255.0f), 0, 255),
+				clamp((int)(ct.z * 255.0f), 0, 255));
+		}
+	}
+	void ConvertImage(const ImageRGBAf& in, ImageRGBA& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBAf& ct : in.data) {
+			out[index++] = RGBA(
+				clamp((int)(ct.x * 255.0f), 0, 255),
+				clamp((int)(ct.y * 255.0f), 0, 255),
+				clamp((int)(ct.z * 255.0f), 0, 255),
+				clamp((int)(ct.w * 255.0f), 0, 255));
+		}
+	}
+	void ConvertImage(const ImageRGBA& in, ImageRGBAf& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBAf& ct : out.data) {
+			RGBA cs = in[index++];
+			ct = RGBAf(cs.x / 255.0f, cs.y / 255.0f, cs.z / 255.0f, cs.w / 255.0f);
+		}
+	}
+	void ConvertImage(const ImageRGB& in, ImageRGBf& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBf& ct : out.data) {
+			RGB cs = in[index++];
+			ct = RGBf(cs.x / 255.0f, cs.y / 255.0f, cs.z / 255.0f);
+		}
+	}
+	void ConvertImage(const ImageRGB& in, ImageRGBA& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBA& ct : out.data) {
+			RGB cs = in[index++];
+			ct = RGBA(cs,255);
+		}
+	}
+	void ConvertImage(const ImageRGBf& in, ImageRGBAf& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBAf& ct : out.data) {
+			RGBf cs = in[index++];
+			ct = RGBAf(cs, 1.0f);
+		}
+	}
+	void ConvertImage(const ImageRGBAf& in, ImageRGBf& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGBf& ct : out.data) {
+			RGBAf cs = in[index++];
+			ct = cs.xyz();
+		}
+	}
+	void ConvertImage(const ImageRGBA& in, ImageRGB& out) {
+		out.resize(in.width, in.height);
+		out.id = in.id;
+		out.x = in.x;
+		out.y = in.y;
+		size_t index = 0;
+		for (RGB& ct : out.data) {
+			RGBA cs = in[index++];
+			ct = cs.xyz();
+		}
 	}
 }
