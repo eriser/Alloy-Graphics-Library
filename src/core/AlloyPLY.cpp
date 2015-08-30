@@ -184,9 +184,16 @@ void PLYReaderWriter::addProperty(const std::vector<std::string>& words) {
  ******************************************************************************/
 
 void PLYReaderWriter::addComment(const std::string& line) {
-	int i = (int) string("comment").size();
+	int i = line.find("comment");
+	if (i >= 0) {
+		i = i + std::string("comment").size();
+	}
+	else {
+		i = 0;
+	}
 	while (line[i] == ' ' || line[i] == '\t')
 		i++;
+
 	std::string str = line;
 	appendComment(str.substr(i));
 }
@@ -200,7 +207,13 @@ void PLYReaderWriter::addComment(const std::string& line) {
  ******************************************************************************/
 
 void PLYReaderWriter::addObjInfo(const std::string& line) {
-	int i = (int) string("obj_info").size();
+	int i = line.find("obj_info");
+	if (i >= 0) {
+		i = i + std::string("obj_info").size();
+	}
+	else {
+		i = 0;
+	}
 	while (line[i] == ' ' || line[i] == '\t')
 		i++;
 	appendObjInfo(line.substr(i));
@@ -329,7 +342,7 @@ void PLYReaderWriter::headerComplete() {
 		out << "comment " << plyFile->comments[i] << "\n";
 	/* write out object information */
 	for (i = 0; i < (int) plyFile->obj_info.size(); i++)
-		out << "comment " << "obj_info " << plyFile->obj_info[i] << "\n";
+		out << "obj_info " << plyFile->obj_info[i] << "\n";
 	/* write out information about each element */
 	for (i = 0; i < (int) plyFile->elems.size(); i++) {
 		elem = plyFile->elems[i].get();
@@ -1062,11 +1075,7 @@ std::vector<std::string> PLYReaderWriter::getWords(std::string& orig_line) {
 	if (comp.size() > 0) {
 		result.push_back(comp);
 	}
-	if (result.size() > 1) {
-		orig_line = line.substr(1 + result[0].size());
-	} else {
-		orig_line = line;
-	}
+	orig_line = line;
 	if (orig_line.size() > 0 && orig_line[orig_line.size() - 1] == '\r') {
 		orig_line = orig_line.substr(0, orig_line.size() - 1);
 	}

@@ -517,12 +517,17 @@ namespace aly {
 
 		// write a comment and an object information field
 		ply.appendComment("PLY File");
-		if (mesh.textureImage.size()>0) {
+		if (mesh.textureImage.size() > 0) {
 			std::string textureFile = GetFileNameWithoutExtension(file) + ".png";
 			std::string comment = "TextureFile " + textureFile;
 			ply.appendComment(comment);
-			std::cout << "Write " << textureFile << std::endl;
-			WriteImageToFile(GetParentDirectory(file) + ALY_PATH_SEPARATOR + textureFile, mesh.textureImage);
+			std::string root = RemoveTrailingSlash(GetParentDirectory(file));
+			if (root.size() > 0) {
+				WriteImageToFile(root + ALY_PATH_SEPARATOR + textureFile, mesh.textureImage);
+			}
+			else {
+				WriteImageToFile(textureFile, mesh.textureImage);
+			}
 		}
 		ply.appendObjInfo("ImageSci");
 		// complete the header
@@ -709,8 +714,6 @@ namespace aly {
 		}
 		count += sz / stride;
 		mEstimatedVoxelSize /= count;
-
-		std::cout << "Estimated voxel size =" << mEstimatedVoxelSize << std::endl;
 		return mEstimatedVoxelSize;
 	}
 	box3f Mesh::updateBoundingBox() {
@@ -861,20 +864,17 @@ namespace aly {
 			std::string textureFile;
 			for (string comment: ply.getComments())
 			{
-				std::cout << "Comment " << comment << std::endl;
 				const string keyName("TextureFile");
 				int offset = (int)comment.find(keyName, 0);
 				if (offset >= 0)
 				{
 					textureFile = comment.substr(offset + keyName.size() + 1);
-
-					std::cout << "Read " << textureFile << " [" << comment << "]" << std::endl;
 					break;
 				}
 
 			}
 			std::string texturePath = RemoveTrailingSlash(GetParentDirectory(file)) + ALY_PATH_SEPARATOR + GetFileName(textureFile);
-			if (FileExists(texturePath)) {
+			if (textureFile.size()>0&&FileExists(texturePath)) {
 				ReadImageFromFile(texturePath, mesh.textureImage);
 			}
 		}

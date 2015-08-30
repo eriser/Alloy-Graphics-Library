@@ -418,13 +418,10 @@ class PLYReaderWriter
                            int,
                            int,
                            const std::vector<PlyProperty>& prop_list);
-        void putOtherElements();
         void addComment(const std::string&);
         void addObjInfo(const std::string&);
         void addElement(const std::vector<std::string>&);
         void addProperty(const std::vector<std::string>& words);
-        void weightProps(float, void *);
-        std::vector<char> getNewProps();
         void writeScalarType(int);
         void writeScalarType(const DataType&);
         std::vector<std::string> getWords(std::string& orig_line);
