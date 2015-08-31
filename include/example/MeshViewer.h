@@ -45,6 +45,7 @@ private:
 	aly::WireframeShader wireframeShader;
 	aly::PhongShader phongShader;
 	aly::PhongShader phongShader2;
+	aly::ParticleMatcapShader particleMatcapShader;
 	aly::CompositeShader compositeShader;
 	aly::GLFrameBuffer edgeFrameBuffer;
 

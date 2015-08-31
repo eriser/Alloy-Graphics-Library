@@ -25,7 +25,7 @@
 using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
-				getFullPath("images/JG_Silver.png")), imageShader(getContext(),
+				getFullPath("images/JG_Silver.png")), particleMatcapShader(getFullPath("images/JG_Silver.png")), imageShader(getContext(),
 				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
 				1), voxelSize(0.0f) {
 }
@@ -56,7 +56,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	WriteMeshToFile("icosahedron3.ply", tmpMesh, false);
 	ReadMeshFromFile("icosahedron3.ply", tmpMesh);
 	mesh.load(getFullPath("models/monkey.ply"));
-
+	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	//WriteMeshToFile("monkey2.ply", mesh, true);
 	//WriteMeshToFile("monkey3.ply", mesh, false);
 
@@ -96,6 +96,7 @@ bool MeshViewer::init(Composite& rootNode) {
 		float3 norm = mesh.vertexNormals[i];
 		//mesh.vertexLocations[i] += 5.0f * norm* (((rand() % 1024) / 1024.0f) - 0.5f);
 		b[i] = mesh.vertexLocations[i];
+		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
 	SolveCG(b, L, mesh.vertexLocations);
@@ -213,7 +214,6 @@ void MeshViewer::draw(AlloyContext* context) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 			float2(w * 3, h), float2(w, h));
 	glEnable(GL_DEPTH_TEST);
-
 	wireframeShader.draw(edgeFrameBuffer.getTexture(),
 			smoothDepthFrameBuffer1.getTexture(),
 			float2(0.0f, camera.getScale()), float2(2 * w, h), float2(w, h),
@@ -225,9 +225,11 @@ void MeshViewer::draw(AlloyContext* context) {
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
 			float2(2 * w, h), float2(w, h), getContext()->getViewport(), RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
 
-	matcapShader.draw(particleFrameBuffer.getTexture(), camera,
+	particleMatcapShader.draw({ mesh }, camera, box2px(float2(2 * w, h), float2(w, h)), getContext()->getViewport());
+	/*
+		matcapShader.draw(particleFrameBuffer.getTexture(), camera,
 			float2(2 * w, h), float2(w, h), getContext()->getViewport(),RGBAf(1.0f,0.5f,0.4f,1.0f));
-
+			*/
 	glDisable(GL_DEPTH_TEST);
 	if (once) {
 		colorBuffer1.getTexture().read().writeToXML("color1.xml");

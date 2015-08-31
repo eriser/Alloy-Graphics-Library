@@ -104,6 +104,30 @@ public:
 		draw( { &mesh }, camera, framebuffer, radius);
 	}
 };
+class ParticleMatcapShader : public GLShader {
+private:
+	GLTextureRGBA matcapTexture;
+public:
+	ParticleMatcapShader(const std::string& textureImage,
+		const std::shared_ptr<AlloyContext>& context =
+		AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius =
+		1.0f);
+	void draw(
+		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius =
+		1.0f);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+		const box2px& bounds, const box2px& viewport, float radius = 1.0f);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius =
+		1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera,
+		const box2px& bounds, const box2px& viewport, float radius = 1.0f) {
+		draw({ &mesh }, camera,bounds,viewport, radius);
+	}
+};
 class DepthAndTextureShader: public GLShader {
 public:
 	DepthAndTextureShader(const std::shared_ptr<AlloyContext>& context =
