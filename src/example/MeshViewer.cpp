@@ -25,9 +25,9 @@
 using namespace aly;
 MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
-				getFullPath("images/JG_Silver.png")), particleMatcapShader(getFullPath("images/JG_Silver.png")), imageShader(getContext(),
+				getFullPath("images/JG_Silver.png")), imageShader(getContext(),
 				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
-				1), voxelSize(0.0f) {
+				1), voxelSize(0.0f),particleMatcapShader(getFullPath("images/JG_Silver.png")) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	Mesh tmpMesh;
@@ -225,7 +225,8 @@ void MeshViewer::draw(AlloyContext* context) {
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
 			float2(2 * w, h), float2(w, h), getContext()->getViewport(), RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
 
-	particleMatcapShader.draw({ mesh }, camera, box2px(float2(2 * w, h), float2(w, h)), getContext()->getViewport());
+	particleMatcapShader.draw({ &mesh }, camera, box2px(float2(2 * w, h), float2(w, h)), getContext()->getViewport());
+
 	/*
 		matcapShader.draw(particleFrameBuffer.getTexture(), camera,
 			float2(2 * w, h), float2(w, h), getContext()->getViewport(),RGBAf(1.0f,0.5f,0.4f,1.0f));

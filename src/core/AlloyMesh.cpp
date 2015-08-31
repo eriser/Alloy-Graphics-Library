@@ -45,8 +45,8 @@ namespace aly {
 			mesh.setDirty(false);
 		}
 		context->begin();
-		glBindVertexArray(vao);
-		CHECK_GL_ERROR();
+		if(vao>0)glBindVertexArray(vao);
+
 		if ((type == GLMesh::PrimitiveType::ALL
 			|| type == GLMesh::PrimitiveType::POINTS) && vertexCount > 0) {
 			if (vertexBuffer > 0) {
