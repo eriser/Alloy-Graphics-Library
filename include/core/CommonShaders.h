@@ -170,18 +170,18 @@ public:
 					AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
-			const box2px& bounds, const box2px& viewport) {
+			const box2px& bounds, const box2px& viewport,const RGBAf& tint=RGBA(1,1,1,1)) {
 		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
-				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", bounds).set("viewport", viewport).draw(
+				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", bounds).set("viewport", viewport).set("tint",tint).draw(
 				imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
 			const float2& location, const float2& dimensions,
-			const box2px& viewport) {
+			const box2px& viewport, const RGBAf& tint = RGBAf(1, 1, 1, 1)) {
 		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
 				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", box2px(location, dimensions)).set(
-				"viewport", viewport).draw(imageTexture).end();
+				"viewport", viewport).set("tint",tint).draw(imageTexture).end();
 
 	}
 };

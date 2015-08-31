@@ -223,10 +223,10 @@ void MeshViewer::draw(AlloyContext* context) {
 			float2(2 * w, h), float2(w, h), getContext()->getViewport());
 
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
-			float2(2 * w, h), float2(w, h), getContext()->getViewport());
+			float2(2 * w, h), float2(w, h), getContext()->getViewport(), RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
 
 	matcapShader.draw(particleFrameBuffer.getTexture(), camera,
-			float2(2 * w, h), float2(w, h), getContext()->getViewport());
+			float2(2 * w, h), float2(w, h), getContext()->getViewport(),RGBAf(1.0f,0.5f,0.4f,1.0f));
 
 	glDisable(GL_DEPTH_TEST);
 	if (once) {
