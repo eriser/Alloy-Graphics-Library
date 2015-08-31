@@ -265,6 +265,7 @@ R"(
 		EmitVertex();
 		vp=v + vec4(+r, -r, 0, 0);
 		vx=ProjMat*(vp);
+                vx=vx/vx.w;
 		vx.x=0.5*(vx.x+1);
 		vx.y=0.5*(1-vx.y);
 		pos=vx.xy*bounds.zw+bounds.xy;
@@ -273,6 +274,7 @@ R"(
 		EmitVertex();
 		vp=v + vec4(-r, +r, 0, 0);
 		vx=ProjMat*(vp);
+                vx=vx/vx.w;
 		vx.x=0.5*(vx.x+1);
 		vx.y=0.5*(1-vx.y);
 		pos=vx.xy*bounds.zw+bounds.xy;
@@ -282,6 +284,7 @@ R"(
 
 		vp=v + vec4(+r, +r, 0, 0);
 		vx=ProjMat*(vp);
+                vx=vx/vx.w;
 		vx.x=0.5*(vx.x+1);
 		vx.y=0.5*(1-vx.y);
 		pos=vx.xy*bounds.zw+bounds.xy;
