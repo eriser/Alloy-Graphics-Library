@@ -27,14 +27,14 @@ MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
 				getFullPath("images/JG_Silver.png")), imageShader(getContext(),
 				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
-				1), voxelSize(0.0f),particleMatcapShader(getFullPath("images/JG_Silver.png")) {
+				1), particleMatcapShader(getFullPath("images/JG_Silver.png")),voxelSize(0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	Mesh tmpMesh;
 	tmpMesh.load(getFullPath("models/torus.ply"));
 	tmpMesh.updateVertexNormals();
 	tmpMesh.textureMap.resize(tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0;i < tmpMesh.textureMap.size();i++) {
+	for (int i = 0;i <(int) tmpMesh.textureMap.size();i++) {
 		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f, (rand() % 1024) / 1024.0f);
 	}
 	WriteMeshToFile("torus2.ply",tmpMesh,true);
@@ -45,7 +45,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	tmpMesh.load(getFullPath("models/icosahedron.ply"));
 	tmpMesh.updateVertexNormals();
 	tmpMesh.textureMap.resize(tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0;i < tmpMesh.textureMap.size();i++) {
+	for (int i = 0;i <(int) tmpMesh.textureMap.size();i++) {
 		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f, (rand() % 1024) / 1024.0f);
 	}
 
@@ -93,7 +93,7 @@ bool MeshViewer::init(Composite& rootNode) {
 			L.insert(i, v, float1(-w));
 		}
 		L.insert(i, i, float1(1.0f + (float) w * vertTable[i].size()));
-		float3 norm = mesh.vertexNormals[i];
+		//float3 norm = mesh.vertexNormals[i];
 		//mesh.vertexLocations[i] += 5.0f * norm* (((rand() % 1024) / 1024.0f) - 0.5f);
 		b[i] = mesh.vertexLocations[i];
 		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);

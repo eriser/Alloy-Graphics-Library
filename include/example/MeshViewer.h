@@ -45,10 +45,10 @@ private:
 	aly::WireframeShader wireframeShader;
 	aly::PhongShader phongShader;
 	aly::PhongShader phongShader2;
-	aly::ParticleMatcapShader particleMatcapShader;
 	aly::CompositeShader compositeShader;
 	aly::GLFrameBuffer edgeFrameBuffer;
 
+	aly::ParticleMatcapShader particleMatcapShader;
 	aly::GLFrameBuffer occlusionFrameBuffer;
 	aly::GLFrameBuffer flatDepthFrameBuffer;
 	aly::GLFrameBuffer smoothDepthFrameBuffer2;
