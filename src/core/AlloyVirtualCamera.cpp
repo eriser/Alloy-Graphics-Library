@@ -14,8 +14,11 @@ VirtualCamera::VirtualCamera() :
 				10000.0f), eye(float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(
 				0.2f), strafeSpeed(0.001f), distanceToObject(1.0), mouseDown(
 				false), startTumbling(false), zoomMode(false), changed(true), needsDisplay(
-				true),cameraType(CameraType::Perspective), Projection(float4x4::identity()), View(
-				float4x4::identity()), Model(float4x4::identity()) {
+				true), cameraType(CameraType::Perspective), Projection(
+				float4x4::identity()), View(float4x4::identity()), Model(
+				float4x4::identity()), ViewModel(float4x4::identity()), NormalViewModel(
+				float4x4::identity()), NormalView(float4x4::identity()), ViewInverse(
+				float4x4::identity()), ViewModelInverse(float4x4::identity()) {
 }
 
 void VirtualCamera::lookAt(const float3& p, float dist) {
@@ -64,14 +67,18 @@ void VirtualCamera::aim(const box2px& bounds) {
 
 		if (cameraType == CameraType::Perspective) {
 			Projection = Tcamera
-				* perspectiveMatrix(fov, aspectRatio, nearPlane, farPlane);
+					* perspectiveMatrix(fov, aspectRatio, nearPlane, farPlane);
 		} else if (cameraType == CameraType::Orthographic) {
-			Projection = Tcamera*orthographicMatrix(1.0f/ aspectRatio,1.0f, nearPlane, farPlane);
+			Projection = Tcamera
+					* orthographicMatrix(1.0f / aspectRatio, 1.0f, nearPlane,
+							farPlane);
 		}
 		View = Teye * S * Rw * T * Rm;
 		ViewModel = View * Model;
-		NormalViewModel = transpose(inverse(ViewModel));
-		NormalView = transpose(inverse(View));
+		ViewModelInverse = inverse(ViewModel);
+		NormalViewModel = transpose(ViewModelInverse);
+		ViewInverse = inverse(View);
+		NormalView = transpose(ViewInverse);
 		needsDisplay = true;
 	}
 }

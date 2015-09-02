@@ -49,6 +49,7 @@ public:
 
 	float4x4 Projection, View, Model;
 	float4x4 ViewModel, NormalViewModel, NormalView;
+	float4x4 ViewInverse, ViewModelInverse;
 	VirtualCamera();
 	void aim(const aly::box2px& bounds);
 	void setPose(const float4x4& m) {
@@ -105,10 +106,62 @@ public:
 	float getFarPlane() const {
 		return farPlane;
 	}
-	float3 transform(const float3& pt) {
+	inline float3 transformWorldToScreen(const float3& pt) const {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
 		float4 p = Projection * View * Model * ptp;
 		return float3(p[0] / p[3], p[1] / p[3], p[2] / p[3]);
+	}
+	inline float3 transformScreenToWorld(const float3& pt) const {
+		float4 ptp;
+		float A=Projection(2,2);
+		float B=Projection(2,3);
+		float C=Projection(3,2);
+		float fx=Projection(0, 0);
+		float fy=Projection(1, 1);
+		ptp.z=B/(C*pt.z-A);
+		ptp.x=pt.x*ptp.z*C/fx;
+		ptp.y=pt.y*ptp.z*C/fy;
+		ptp.w=1.0f;
+		ptp=ViewModelInverse*ptp;
+		return ptp.xyz()/ptp.w;
+	}
+	inline float3 transformWorldToNormalizedImage(const float3& pt) const {
+		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
+		float4 p = Projection * View * Model * ptp;
+		return float3(0.5f*(p[0] / p[3]+1.0f), 0.5f*(1.0f-p[1] / p[3]), p[2] / p[3]);
+	}
+	inline float3 transformWorldToImage(const float3& pt,int w,int h) const {
+		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
+		float4 p = Projection * View * Model * ptp;
+		return float3(w*0.5f*(p[0] / p[3]+1.0f), h*0.5f*(1.0f-p[1] / p[3]), p[2] / p[3]);
+	}
+	inline float3 transformNormalizedImageToWorld(const float3& pt) const {
+		float4 ptp;
+		float A=Projection(2,2);
+		float B=Projection(2,3);
+		float C=Projection(3,2);
+		float fx=Projection(0, 0);
+		float fy=Projection(1, 1);
+		ptp.z=B/(C*pt.z-A);
+		ptp.x=(2.0f*pt.x-1.0f)*ptp.z*C/fx;
+		ptp.y=(1.0f-2.0f*pt.y)*ptp.z*C/fy;
+		ptp.w=1.0f;
+		ptp=ViewModelInverse*ptp;
+		return ptp.xyz()/ptp.w;
+	}
+	inline float3 transformImageToWorld(const float3& pt,int w,int h) const {
+		float4 ptp;
+		float A=Projection(2,2);
+		float B=Projection(2,3);
+		float C=Projection(3,2);
+		float fx=Projection(0, 0);
+		float fy=Projection(1, 1);
+		ptp.z=B/(C*pt.z-A);
+		ptp.x=(2.0f*pt.x/(float)w-1.0f)*ptp.z*C/fx;
+		ptp.y=(1.0f-2.0f*pt.y/(float)h)*ptp.z*C/fy;
+		ptp.w=1.0f;
+		ptp=ViewModelInverse*ptp;
+		return ptp.xyz()/ptp.w;
 	}
 	void resetTranslation() {
 		cameraTrans = float3(0, 0, 0);
