@@ -108,7 +108,7 @@ public:
 	}
 	inline float3 transformWorldToScreen(const float3& pt) const {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
-		float4 p = Projection * View * Model * ptp;
+		float4 p = Projection * ViewModel * ptp;
 		return float3(p[0] / p[3], p[1] / p[3], p[2] / p[3]);
 	}
 	inline float3 transformScreenToWorld(const float3& pt) const {
@@ -127,12 +127,12 @@ public:
 	}
 	inline float3 transformWorldToNormalizedImage(const float3& pt) const {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
-		float4 p = Projection * View * Model * ptp;
+		float4 p = Projection * ViewModel* ptp;
 		return float3(0.5f*(p[0] / p[3]+1.0f), 0.5f*(1.0f-p[1] / p[3]), p[2] / p[3]);
 	}
 	inline float3 transformWorldToImage(const float3& pt,int w,int h) const {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
-		float4 p = Projection * View * Model * ptp;
+		float4 p = Projection * ViewModel * ptp;
 		return float3(w*0.5f*(p[0] / p[3]+1.0f), h*0.5f*(1.0f-p[1] / p[3]), p[2] / p[3]);
 	}
 	inline float3 transformNormalizedImageToWorld(const float3& pt) const {
