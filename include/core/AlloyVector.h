@@ -54,16 +54,12 @@ public:
 	}
 	template<class Archive>
 	void save(Archive & archive) const {
-		archive(
-				cereal::make_nvp(MakeString() << "vector" << C,
-						EncodeBase64(data)));
+		archive(cereal::make_nvp(MakeString() << "vector" << C,data));
 	}
 
 	template<class Archive>
 	void load(Archive & archive) {
-		std::string str;
-		archive(cereal::make_nvp(MakeString() << "vector" << C, str));
-		DecodeBase64(str, data);
+		archive(cereal::make_nvp(MakeString() << "vector" << C,data));
 	}
 
 	void set(const T& val) {
