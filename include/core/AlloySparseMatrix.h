@@ -50,7 +50,7 @@ public:
 
 	}
 	template<class Archive> void serialize(Archive & archive) {
-		archive(CEREAL_NVP(rows), CEREAL_NVP(cols), cereal::make_nvp("matrix",storage));
+		archive(CEREAL_NVP(rows), CEREAL_NVP(cols), cereal::make_nvp(MakeString()<<"matrix"<<C,storage));
 	}
 	std::list<IndexValue<T, C>>& operator[](size_t index) {
 		return storage[index];
