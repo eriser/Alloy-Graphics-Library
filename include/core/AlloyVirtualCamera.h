@@ -201,8 +201,6 @@ class VirtualCamera: public EventHandler
         inline float3 transformScreenDepthToWorld(const float3& pt) const
         {
             float4 ptp;
-            float A = Projection(2, 2);
-            float B = Projection(2, 3);
             float C = Projection(3, 2);
             float fx = Projection(0, 0);
             float fy = Projection(1, 1);
@@ -216,8 +214,6 @@ class VirtualCamera: public EventHandler
         inline float3 transformNormalizedImageDepthToWorld(const float3& pt) const
         {
             float4 ptp;
-            float A = Projection(2, 2);
-            float B = Projection(2, 3);
             float C = Projection(3, 2);
             float fx = Projection(0, 0);
             float fy = Projection(1, 1);
@@ -233,8 +229,6 @@ class VirtualCamera: public EventHandler
                                                  int h) const
         {
             float4 ptp;
-            float A = Projection(2, 2);
-            float B = Projection(2, 3);
             float C = Projection(3, 2);
             float fx = Projection(0, 0);
             float fy = Projection(1, 1);
