@@ -181,8 +181,9 @@ public:
 		set(img.data.data());
 	}
 
-	Image<T,C,I>& operator=(const Image<T, C, I>& rhs) {
-		if (this == &rhs)return *this;
+	Image<T, C, I>& operator=(const Image<T, C, I>& rhs) {
+		if (this == &rhs)
+			return *this;
 		this->resize(rhs.width, rhs.height);
 		this->x = x;
 		this->y = y;
@@ -290,7 +291,7 @@ template<class T, int C, ImageType I> std::string Image<T, C, I>::updateHashCode
 		std::uniform_int_distribution<int> wSampler(0, width - 1);
 		std::uniform_int_distribution<int> hSampler(0, height - 1);
 		std::vector<vec<T, C>> sample(MAX_SAMPLES);
-		for (int i = 0; i < (int)MAX_SAMPLES; i++) {
+		for (int i = 0; i < (int) MAX_SAMPLES; i++) {
 			sample[i] = this->operator()(wSampler(mt), hSampler(mt));
 		}
 		hashCode = HashCode(sample, method);
@@ -342,6 +343,23 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 #pragma omp parallel for
 	for (int offset = 0; offset < (int) sz; offset++) {
 		func(im1.data[offset], im2.data[offset], im3.data[offset]);
+	}
+}
+template<class T, int C, ImageType I> void Transform(
+		Image<T, C, I>& im1,
+		const Image<T, C, I>& im2,
+		const Image<T, C, I>& im3,
+		const Image<T, C, I>& im4,
+		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,const vec<T, C>&)>& func) {
+	if (im1.dimensions() != im2.dimensions())
+		throw std::runtime_error(
+				MakeString() << "Image dimensions do not match. "
+						<< im1.dimensions() << "!=" << im2.dimensions());
+	size_t sz = im1.size();
+#pragma omp parallel for
+	for (int offset = 0; offset < (int) sz; offset++) {
+		func(im1.data[offset], im2.data[offset], im3.data[offset],
+				im4.data[offset]);
 	}
 }
 template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
@@ -682,7 +700,7 @@ void ReadImageFromFile(const std::string& file, ImageRGB& img);
 void ReadImageFromFile(const std::string& file, ImageRGBAf& img);
 void ReadImageFromFile(const std::string& file, ImageRGBf& img);
 
-void ConvertImage(const ImageRGBAf& in,ImageRGBA& out);
+void ConvertImage(const ImageRGBAf& in, ImageRGBA& out);
 void ConvertImage(const ImageRGBf& in, ImageRGB& out);
 void ConvertImage(const ImageRGBA& in, ImageRGBAf& out);
 void ConvertImage(const ImageRGB& in, ImageRGBf& out);
@@ -690,6 +708,7 @@ void ConvertImage(const ImageRGBA& in, ImageRGB& out);
 void ConvertImage(const ImageRGBAf& in, ImageRGBf& out);
 void ConvertImage(const ImageRGB& in, ImageRGBA& out);
 void ConvertImage(const ImageRGBf& in, ImageRGBAf& out);
-};
+}
+;
 
 #endif

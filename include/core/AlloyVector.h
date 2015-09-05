@@ -54,12 +54,12 @@ public:
 	}
 	template<class Archive>
 	void save(Archive & archive) const {
-		archive(cereal::make_nvp(MakeString() << "vector" << C,data));
+		archive(cereal::make_nvp(MakeString() << "vector" << C, data));
 	}
 
 	template<class Archive>
 	void load(Archive & archive) {
-		archive(cereal::make_nvp(MakeString() << "vector" << C,data));
+		archive(cereal::make_nvp(MakeString() << "vector" << C, data));
 	}
 
 	void set(const T& val) {
@@ -102,7 +102,8 @@ public:
 		set(img.data.data());
 	}
 	Vector<T, C>& operator=(const Vector<T, C>& rhs) {
-		if (this == &rhs)return *this;
+		if (this == &rhs)
+			return *this;
 		this->resize(rhs.size());
 		this->set(rhs.data.data());
 		return *this;
@@ -199,6 +200,23 @@ template<class T, int C> void Transform(Vector<T, C>& im1,
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
+template<class T, int C> void Transform(
+		Vector<T, C>& im1,
+		const Vector<T, C>& im2,
+		const Vector<T, C>& im3,
+		const Vector<T, C>& im4,
+		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,const vec<T, C>&)>& func) {
+	if (im1.size() != im2.size())
+		throw std::runtime_error(
+				MakeString() << "Vector dimensions do not match. " << im1.size()
+								<< "!=" << im2.size());
+	size_t sz = im1.size();
+#pragma omp parallel for
+	for (int offset = 0; offset < (int) sz; offset++) {
+		func(im1.data[offset], im2.data[offset], im3.data[offset],
+				im4.data[offset]);
+	}
+}
 template<class T, int C> void Transform(Vector<T, C>& im1,
 		const Vector<T, C>& im2, const Vector<T, C>& im3,
 		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)>& func) {
@@ -255,6 +273,19 @@ template<class T, int C> void ScaleAdd(Vector<T, C>& out,
 	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2, const vec<T, C>& val3) {val1 = val2+scalar * val3;};
 	Transform(out, in1, in2, f);
+}
+template<class T, int C> void ScaleAdd(Vector<T, C>& out,
+		const Vector<T, C>& in1, const vec<T, C>& scalar2,
+		const Vector<T, C>& in2, const vec<T, C>& scalar3,
+		const Vector<T, C>& in3) {
+	out.resize(in1.size());
+	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
+			[=](vec<T, C>& out,
+					const vec<T, C>& val1,
+					const vec<T, C>& val2,
+					const vec<T, C>& val3) {
+				out = val1+scalar2*val2+scalar3 * val3;};
+	Transform(out, in1, in2, in3, f);
 }
 template<class T, int C> void ScaleSubtract(Vector<T, C>& out,
 		const vec<T, C>& scalar, const Vector<T, C>& in) {
@@ -518,7 +549,8 @@ template<class T, int C> vec<T, C> maxVec(const Vector<T, C>& a) {
 		T tmp(std::numeric_limits<T>::min());
 //#pragma omp parallel for reduction(max:tmp)
 		for (int i = 0; i < (int) sz; i++) {
-			if(a[i][c]>tmp)tmp = a[i][c];
+			if (a[i][c] > tmp)
+				tmp = a[i][c];
 		}
 		ans[c] = tmp;
 	}
@@ -532,7 +564,8 @@ template<class T, int C> vec<T, C> minVec(const Vector<T, C>& a) {
 		T tmp(std::numeric_limits<T>::max());
 //#pragma omp parallel for reduction(min:tmp)
 		for (int i = 0; i < (int) sz; i++) {
-			if (a[i][c]<tmp)tmp = a[i][c];
+			if (a[i][c] < tmp)
+				tmp = a[i][c];
 		}
 		ans[c] = tmp;
 	}
@@ -544,7 +577,8 @@ template<class T, int C> T max(const Vector<T, C>& a) {
 //#pragma omp parallel for reduction(max:tmp)
 	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
-			if (a[i][c]>tmp)tmp = a[i][c];
+			if (a[i][c] > tmp)
+				tmp = a[i][c];
 		}
 	}
 	return tmp;
@@ -555,7 +589,8 @@ template<class T, int C> T min(const Vector<T, C>& a) {
 //#pragma omp parallel for reduction(min:tmp)
 	for (int i = 0; i < (int) sz; i++) {
 		for (int c = 0; c < C; c++) {
-			if (a[i][c]<tmp)tmp = a[i][c];
+			if (a[i][c] < tmp)
+				tmp = a[i][c];
 		}
 	}
 	return tmp;

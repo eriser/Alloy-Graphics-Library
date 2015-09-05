@@ -292,6 +292,23 @@ template<class T, int C, ImageType I> void Transform(Volume<T, C, I>& im1,
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
+template<class T, int C, ImageType I> void Transform(
+		Volume<T, C, I>& im1,
+		const Volume<T, C, I>& im2,
+		const Volume<T, C, I>& im3,
+		const Volume<T, C, I>& im4,
+		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,const vec<T, C>&)>& func) {
+	if (im1.dimensions() != im2.dimensions())
+		throw std::runtime_error(
+				MakeString() << "Volume dimensions do not match. "
+						<< im1.dimensions() << "!=" << im2.dimensions());
+	size_t sz = im1.size();
+#pragma omp parallel for
+	for (int offset = 0; offset < (int) sz; offset++) {
+		func(im1.data[offset], im2.data[offset], im3.data[offset],
+				im4.data[offset]);
+	}
+}
 template<class T, int C, ImageType I> void Transform(Volume<T, C, I>& im1,
 		const std::function<void(vec<T, C>&)>& func) {
 	size_t sz = im1.size();
