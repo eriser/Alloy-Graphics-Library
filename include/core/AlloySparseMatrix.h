@@ -24,27 +24,16 @@
 #include "cereal/types/vector.hpp"
 #include "cereal/types/list.hpp"
 #include "cereal/types/tuple.hpp"
+#include "cereal/types/map.hpp"
 #include "cereal/types/memory.hpp"
 #include <vector>
 #include <list>
+#include <map>
 namespace aly {
-template<class T, int C> struct IndexValue: public std::pair<size_t, vec<T, C>> {
-	IndexValue() :
-			std::pair<size_t, vec<T, C>>() {
 
-	}
-	template<class Archive> void serialize(Archive & archive) {
-		archive(cereal::make_nvp("index", this->first),
-				cereal::make_nvp("value", this->second));
-	}
-	IndexValue(size_t index, const vec<T, C>& v) :
-			std::pair<size_t, vec<T, C>>(index, v) {
-
-	}
-};
 template<class T, int C> struct SparseMatrix {
 private:
-	std::vector<std::list<IndexValue<T, C>>>storage;
+	std::vector<std::map<size_t, vec<T, C>>>storage;
 public:
 	size_t rows, cols;
 	SparseMatrix():rows(0),cols(0) {
@@ -53,39 +42,36 @@ public:
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(rows), CEREAL_NVP(cols), cereal::make_nvp(MakeString()<<"matrix"<<C,storage));
 	}
-	std::list<IndexValue<T, C>>& operator[](size_t index) {
+	std::map<size_t, vec<T, C>>& operator[](size_t index) {
 		return storage[index];
 	}
-	const std::list<IndexValue<T, C>>& operator[](size_t index) const {
+	const std::map<size_t, vec<T, C>>& operator[](size_t index) const {
 		return storage[index];
 	}
 	SparseMatrix(size_t rows, size_t cols) :storage(rows),rows(rows),cols(cols) {
 	}
 	void insert(size_t i, size_t j, const vec<T, C>& value) {
-		storage[i].push_back(IndexValue<T, C>(j, value));
+		storage[i][j]= value;
 	}
 	void set(size_t i, size_t j, const vec<T, C>& value) {
-		for(IndexValue<T, C>& iv:storage[i]) {
-			if(iv.first==j) {
-				iv.second=value;
-				return;
-			}
+		if(storage[i].find(j)==storage[i].end()) {
+			insert(i,j,value);
+		} else {
+			storage[i][j]=value;
 		}
-		insert(i,j,value);
 	}
 	vec<T,C> get(int i,int j) const {
-		for(IndexValue<T, C>& iv:storage[i]) {
-			if(iv.first==j) {
-				return iv.second;
-			}
+		if(storage[i].find(j)==storage[i].end()) {
+			return vec<T,C>(T(0));
+		} else {
+			return storage[i][j];
 		}
-		return vec<T,C>(T(0));
 	}
 	SparseMatrix<T, C> transpose() {
 		SparseMatrix<T, C> M(cols, rows);
 		size_t i = 0;
-		for (std::list<IndexValue<T, C>>& row : storage) {
-			for (IndexValue<T, C>& iv : row) {
+		for (std::map<size_t,vec<T, C>>& row : storage) {
+			for (std::pair<size_t,vec<T, C>>& iv : row) {
 				M.insert(iv.first, i, iv.second);
 			}
 			i++;
@@ -93,19 +79,7 @@ public:
 		return M;
 	}
 };
-template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, C>& A,
-		const Vector<T, C>& v) {
-	Vector<T, C> out(v.size());
-	size_t sz = v.size();
-#pragma omp parallel for
-	for (int i = 0; i < (int) sz; i++) {
-		vec<double, C> sum(0.0);
-		for (const IndexValue<T, C>& pr : A[i]) {
-			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
-		}
-		out[i] = vec<T, C>(sum);
-	}
-}
+
 template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
 		const Vector<T, C>& v) {
 	Vector<T, C> out(v.size());
@@ -113,13 +87,12 @@ template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, 1>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, 1>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * (double) pr.second.x;
 		}
 		out[i] = vec<T, C>(sum);
 	}
 }
-
 template<class T, int C> void Multiply(Vector<T, C>& out,
 		const SparseMatrix<T, 1>& A, const Vector<T, C>& v) {
 	out.resize(v.size());
@@ -127,7 +100,7 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, 1>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, 1>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * (double) pr.second.x;
 		}
 		out[i] = vec<T, C>(sum);
@@ -141,7 +114,7 @@ template<class T, int C> void AddMultiply(Vector<T, C>& out,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, 1>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, 1>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * (double) pr.second.x;
 		}
 		out[i] = b[i] + vec<T, C>(sum);
@@ -155,10 +128,23 @@ template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, 1>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, 1>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * (double) pr.second.x;
 		}
 		out[i] = b[i] - vec<T, C>(sum);
+	}
+}
+template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, C>& A,
+		const Vector<T, C>& v) {
+	Vector<T, C> out(v.size());
+	size_t sz = v.size();
+#pragma omp parallel for
+	for (int i = 0; i < (int) sz; i++) {
+		vec<double, C> sum(0.0);
+		for (const std::pair<size_t, vec<T, C>>& pr : A[i]) {
+			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
+		}
+		out[i] = vec<T, C>(sum);
 	}
 }
 template<class T, int C> void Multiply(Vector<T, C>& out,
@@ -168,7 +154,7 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, C>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, C>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
 		}
 		out[i] = vec<T, C>(sum);
@@ -183,7 +169,7 @@ template<class T, int C> void AddMultiply(Vector<T, C>& out,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, C>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, C>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
 		}
 		out[i] = b[i] + vec<T, C>(sum);
@@ -197,7 +183,7 @@ template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
 #pragma omp parallel for
 	for (int i = 0; i < (int) sz; i++) {
 		vec<double, C> sum(0.0);
-		for (const IndexValue<T, C>& pr : A[i]) {
+		for (const std::pair<size_t, vec<T, C>>& pr : A[i]) {
 			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
 		}
 		out[i] = b[i] - vec<T, C>(sum);
