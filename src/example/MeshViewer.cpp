@@ -27,26 +27,31 @@ MeshViewer::MeshViewer() :
 		Application(1920, 960, "Mesh Viewer"), matcapShader(
 				getFullPath("images/JG_Silver.png")), imageShader(getContext(),
 				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
-				1), particleMatcapShader(getFullPath("images/JG_Silver.png")),voxelSize(0.0f) {
+				1), particleMatcapShader(getFullPath("images/JG_Silver.png")), voxelSize(
+				0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
 	Mesh tmpMesh;
 	tmpMesh.load(getFullPath("models/torus.ply"));
 	tmpMesh.updateVertexNormals();
-	tmpMesh.textureMap.resize(tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0;i <(int) tmpMesh.textureMap.size();i++) {
-		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f, (rand() % 1024) / 1024.0f);
+	tmpMesh.textureMap.resize(
+			tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0; i < (int) tmpMesh.textureMap.size(); i++) {
+		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
+				(rand() % 1024) / 1024.0f);
 	}
-	WriteMeshToFile("torus2.ply",tmpMesh,true);
+	WriteMeshToFile("torus2.ply", tmpMesh, true);
 	ReadMeshFromFile("torus2.ply", tmpMesh);
 	WriteMeshToFile("torus3.ply", tmpMesh, false);
 	ReadMeshFromFile("torus3.ply", tmpMesh);
-	
+
 	tmpMesh.load(getFullPath("models/icosahedron.ply"));
 	tmpMesh.updateVertexNormals();
-	tmpMesh.textureMap.resize(tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0;i <(int) tmpMesh.textureMap.size();i++) {
-		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f, (rand() % 1024) / 1024.0f);
+	tmpMesh.textureMap.resize(
+			tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0; i < (int) tmpMesh.textureMap.size(); i++) {
+		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
+				(rand() % 1024) / 1024.0f);
 	}
 
 	WriteMeshToFile("icosahedron2.ply", tmpMesh, true);
@@ -93,13 +98,28 @@ bool MeshViewer::init(Composite& rootNode) {
 			L.insert(i, v, float1(-w));
 		}
 		L.insert(i, i, float1(1.0f + (float) w * vertTable[i].size()));
-		//float3 norm = mesh.vertexNormals[i];
-		//mesh.vertexLocations[i] += 5.0f * norm* (((rand() % 1024) / 1024.0f) - 0.5f);
+		float3 norm = mesh.vertexNormals[i];
+		mesh.vertexLocations[i] += 5.0f * norm
+				* (((rand() % 1024) / 1024.0f) - 0.5f);
 		b[i] = mesh.vertexLocations[i];
-		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
+		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
+				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
-	SolveCG(b, L, mesh.vertexLocations);
+/*
+	SolveCG(b, L, mesh.vertexLocations,100,1E-6f,
+			[this](int iter,double err) {
+		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+	});
+	*/
+
+	SolveBICGStab(b, L, mesh.vertexLocations,100,1E-6f,
+			[this](int iter,double err) {
+		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+	}
+	);
+
+
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();
@@ -133,8 +153,8 @@ bool MeshViewer::init(Composite& rootNode) {
 
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
 
-	int w=getContext()->width()/4;
-	int h=getContext()->height()/2;
+	int w = getContext()->width() / 4;
+	int h = getContext()->height() / 2;
 	edgeFrameBuffer.initialize(w, h);
 	smoothDepthFrameBuffer1.initialize(w, h);
 	smoothDepthFrameBuffer2.initialize(w, h);
@@ -223,14 +243,17 @@ void MeshViewer::draw(AlloyContext* context) {
 			float2(2 * w, h), float2(w, h), getContext()->getViewport());
 
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
-			float2(2 * w, h), float2(w, h), getContext()->getViewport(), RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
+			float2(2 * w, h), float2(w, h), getContext()->getViewport(),
+			RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
 
-	particleMatcapShader.draw({ &mesh }, camera, box2px(float2(2 * w, h), float2(w, h)), getContext()->getViewport());
+	particleMatcapShader.draw( { &mesh }, camera,
+			box2px(float2(2 * w, h), float2(w, h)),
+			getContext()->getViewport());
 
 	/*
-		matcapShader.draw(particleFrameBuffer.getTexture(), camera,
-			float2(2 * w, h), float2(w, h), getContext()->getViewport(),RGBAf(1.0f,0.5f,0.4f,1.0f));
-			*/
+	 matcapShader.draw(particleFrameBuffer.getTexture(), camera,
+	 float2(2 * w, h), float2(w, h), getContext()->getViewport(),RGBAf(1.0f,0.5f,0.4f,1.0f));
+	 */
 	glDisable(GL_DEPTH_TEST);
 	if (once) {
 		colorBuffer1.getTexture().read().writeToXML("color1.xml");

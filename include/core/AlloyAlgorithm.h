@@ -41,6 +41,9 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 	Subtract(*rcurrent, b, Ap);
 	p = *rcurrent;
 	err = lengthVecSqr(*rcurrent);
+	double e = lengthL1(err) / N;
+	if (iterationMonitor)
+		iterationMonitor(0, e);
 	for (int iter = 0; iter < iters; iter++) {
 		Multiply(Ap, A, p);
 		vec<double, C> denom = dotVec(p, Ap);
@@ -55,7 +58,7 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		vec<double, C> err = lengthVecSqr(*rnext);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter, e);
+			iterationMonitor(iter+1, e);
 		if (e < tolerance)
 			break;
 		denom = lengthVecSqr(*rcurrent);
@@ -85,6 +88,9 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 	Subtract(*rcurrent, b, Ap);
 	p = *rcurrent;
 	err = lengthVecSqr(*rcurrent);
+	double e = lengthL1(err) / N;
+	if (iterationMonitor)
+		iterationMonitor(0, e);
 	for (int iter = 0; iter < iters; iter++) {
 		Multiply(Ap, A, p);
 		vec<double, C> denom = dotVec(p, Ap);
@@ -99,7 +105,7 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		vec<double, C> err = lengthVecSqr(*rnext);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter, e);
+			iterationMonitor(iter+1, e);
 		if (e < tolerance)
 			break;
 		denom = lengthVecSqr(*rcurrent);
@@ -118,62 +124,124 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
 	const double ZERO_TOLERANCE = 1E-16;
-	vec<double, C> err(0.0);
 	size_t N = b.size();
 	Vector<T, C> p(N);
 	Vector<T, C> Ap(N);
 
-	Vector<T, C>* r(N);
+	Vector<T, C> r(N);
 	Vector<T, C> rinit = x;
 	Vector<T, C> delta(N);
 	Vector<T, C> v(N);
 	Vector<T, C> s(N);
 	Vector<T, C> t(N);
 
-	v.set(vec<T, C>(0));
-	p.set(vec<T, C>(0));
+	vec<double, C> err(T(0));
+	v.set(vec<T, C>(T(0)));
+	p.set(vec<T, C>(T(0)));
 
 	vec<double, C> rhoNext;
 	vec<double, C> rho(1);
-	vec<double, C> alpha(1), beta;
-	vec<double, C> omega(1);
+	vec<T, C> alpha(1), beta;
+	vec<T, C> omega(1);
 
 	Multiply(Ap, A, x);
 	Subtract(r, b, Ap);
-	p = r;
 	err = lengthVecSqr(r);
+	double e = lengthL1(err) / N;
+	if (iterationMonitor)
+		iterationMonitor(0, e);
+
 	for (int iter = 0; iter < iters; iter++) {
 		rhoNext = dotVec(rinit, r);
-		beta = (rhoNext / rho) / (alpha / omega);
-
+		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
 		ScaleSubtract(delta, p, omega, v);
 		ScaleAdd(p, r, beta, delta);
 		Multiply(v, A, p);
-		alpha = rho / dotVec(rinit, v);
+		alpha = vec<T, C>(rho / dotVec(rinit, v));
 		ScaleSubtract(s, r, alpha, v);
-
-		if (lengthL1(s) < N * tolerance) {
+		if (lengthL1(s) < N * ZERO_TOLERANCE) {
 			ScaleAdd(x, x, alpha, p);
 			break;
 		}
 		Multiply(t, A, s);
-		vec<double, C> denom = lengthVecSqr(t, t);
-		for (int c = 0; c < C; c++) {
-			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
-				denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
-			}
-		}
-		omega = dotVec(t, s) / denom;
-		ScaleAdd(x, x, alpha, p);
-		ScaleAdd(x, x, omega, s);
-		ScaleSubtract(r, s, omega, t);
+		omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
+		ScaleAdd(x, alpha, p);
+		ScaleAdd(x, omega, s);
 
-		Multiply(Ap, A, p);
+		ScaleSubtract(r, s, omega, t);
+		rho = rhoNext;
+
+		Multiply(Ap, A, x);
 		Subtract(delta, b, Ap);
+
 		vec<double, C> err = lengthVecSqr(delta);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter, e);
+			iterationMonitor(iter+1, e);
+		if (e < tolerance)
+			break;
+
+	}
+}
+template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
+		const SparseMatrix<T, 1>& A, Vector<T, C>& x, int iters = 100,
+		T tolerance = 1E-6f,
+		const std::function<void(int, double)>& iterationMonitor = nullptr) {
+	const double ZERO_TOLERANCE = 1E-16;
+
+	size_t N = b.size();
+	Vector<T, C> p(N);
+	Vector<T, C> Ap(N);
+
+	Vector<T, C> r(N);
+	Vector<T, C> rinit = x;
+	Vector<T, C> delta(N);
+	Vector<T, C> v(N);
+	Vector<T, C> s(N);
+	Vector<T, C> t(N);
+
+	vec<double, C> err(T(0));
+	v.set(vec<T, C>(T(0)));
+	p.set(vec<T, C>(T(0)));
+
+	vec<double, C> rhoNext;
+	vec<double, C> rho(1);
+	vec<T, C> alpha(1), beta;
+	vec<T, C> omega(1);
+
+	Multiply(Ap, A, x);
+	Subtract(r, b, Ap);
+	err = lengthVecSqr(r);
+	double e = lengthL1(err) / N;
+	if (iterationMonitor)
+		iterationMonitor(0, e);
+
+	for (int iter = 0; iter < iters; iter++) {
+		rhoNext = dotVec(rinit, r);
+		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
+		ScaleSubtract(delta, p, omega, v);
+		ScaleAdd(p, r, beta, delta);
+		Multiply(v, A, p);
+		alpha = vec<T, C>(rho / dotVec(rinit, v));
+		ScaleSubtract(s, r, alpha, v);
+		if (lengthL1(s) < N * ZERO_TOLERANCE) {
+			ScaleAdd(x, x, alpha, p);
+			break;
+		}
+		Multiply(t, A, s);
+		omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
+		ScaleAdd(x, alpha, p);
+		ScaleAdd(x, omega, s);
+		ScaleSubtract(r, s, omega, t);
+		rho = rhoNext;
+
+		Multiply(Ap, A, x);
+		Subtract(delta, b, Ap);
+
+		vec<double, C> err = lengthVecSqr(delta);
+		double e = lengthL1(err) / N;
+		if (iterationMonitor)
+			iterationMonitor(iter+1, e);
 		if (e < tolerance)
 			break;
 
