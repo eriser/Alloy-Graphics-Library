@@ -107,22 +107,19 @@ bool MeshViewer::init(Composite& rootNode) {
 		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
 				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
-	/*
 	//WriteMeshToFile("smoothed_before.ply", mesh);
 
 	SolveCG(b, L, mesh.vertexLocations,100,1E-6f,
 			[this](int iter,double err) {
 		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	});
-	WriteMeshToFile("smoothed_cg.ply", mesh);
-*/
-
+	//WriteMeshToFile("smoothed_cg.ply", mesh);
 	SolveBICGStab(b, L, mesh.vertexLocations,100,1E-6f,
 			[this](int iter,double err) {
 		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	}
 	);
-	//WriteMeshToFile("smoothed_bicg.ply", mesh);
+	WriteMeshToFile("smoothed_bicg.ply", mesh);
 
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
