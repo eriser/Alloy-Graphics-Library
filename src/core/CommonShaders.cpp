@@ -218,7 +218,7 @@ void main(void) {
 		float cr=sqrt(r*r-rxy*rxy);
 		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 		vec3 norm=normalize(vec3(pos.x-center.x,pos.y-center.y,cr));
-		gl_FragColor=color*texture(matcapTexture,0.5*norm.xy+0.5);
+		gl_FragColor=color*texture(matcapTexture,-0.5*norm.xy+0.5);
 		gl_FragDepth=d;
 	}
 }
