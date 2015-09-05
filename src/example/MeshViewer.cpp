@@ -114,13 +114,12 @@ bool MeshViewer::init(Composite& rootNode) {
 	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	 });
 	 */
-	//WriteMeshToFile("smoothed_cg.ply", mesh);
+	std::cout<<"Am I here!?"<<std::endl;
 	SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
 			[this](int iter,double err) {
 				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 			});
-
-	WriteMeshToFile("smoothed_bicg.ply", mesh);
+	//WriteMeshToFile("smoothed_bicg.ply", mesh);
 
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
