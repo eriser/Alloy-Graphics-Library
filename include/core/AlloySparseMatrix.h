@@ -53,7 +53,7 @@ public:
 	void set(size_t i, size_t j, const vec<T, C>& value) {
 		storage[i][j]=value;
 	}
-	vec<T,C> get(int i,int j) const {
+	vec<T,C> get(size_t i,size_t j) const {
 		if(storage[i].find(j)==storage[i].end()) {
 			return vec<T,C>(T(0));
 		} else {
