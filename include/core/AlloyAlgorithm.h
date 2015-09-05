@@ -27,7 +27,8 @@ namespace aly {
 bool SANITY_CHECK_ALGO();
 template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
-		T tolerance = 1E-6f) {
+		T tolerance = 1E-6f,
+		const std::function<void(int, double)>& iterationMonitor = nullptr) {
 	const double ZERO_TOLERANCE = 1E-16;
 	vec<double, C> err(0.0);
 	size_t N = b.size();
@@ -52,7 +53,10 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		ScaleAdd(x, vec<T, C>(alpha), p);
 		ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
 		vec<double, C> err = lengthVecSqr(*rnext);
-		if (lengthL1(err) < N * tolerance)
+		double e = lengthL1(err) / N;
+		if (iterationMonitor)
+			iterationMonitor(iter, e);
+		if (e < tolerance)
 			break;
 		denom = lengthVecSqr(*rcurrent);
 		for (int c = 0; c < C; c++) {
@@ -67,7 +71,8 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 }
 template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		const SparseMatrix<T, 1>& A, Vector<T, C>& x, int iters = 100,
-		T tolerance = 1E-6f) {
+		T tolerance = 1E-6f,
+		const std::function<void(int, double)>& iterationMonitor = nullptr) {
 	const double ZERO_TOLERANCE = 1E-16;
 	vec<double, C> err(0.0);
 	size_t N = b.size();
@@ -92,7 +97,10 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		ScaleAdd(x, vec<T, C>(alpha), p);
 		ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
 		vec<double, C> err = lengthVecSqr(*rnext);
-		if (lengthL1(err) < N * tolerance)
+		double e = lengthL1(err) / N;
+		if (iterationMonitor)
+			iterationMonitor(iter, e);
+		if (e < tolerance)
 			break;
 		denom = lengthVecSqr(*rcurrent);
 		for (int c = 0; c < C; c++) {
@@ -103,6 +111,72 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		vec<double, C> beta = err / denom;
 		ScaleAdd(p, *rnext, vec<T, C>(beta), p);
 		std::swap(rcurrent, rnext);
+	}
+}
+template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
+		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
+		T tolerance = 1E-6f,
+		const std::function<void(int, double)>& iterationMonitor = nullptr) {
+	const double ZERO_TOLERANCE = 1E-16;
+	vec<double, C> err(0.0);
+	size_t N = b.size();
+	Vector<T, C> p(N);
+	Vector<T, C> Ap(N);
+
+	Vector<T, C>* r(N);
+	Vector<T, C> rinit = x;
+	Vector<T, C> delta(N);
+	Vector<T, C> v(N);
+	Vector<T, C> s(N);
+	Vector<T, C> t(N);
+
+	v.set(vec<T, C>(0));
+	p.set(vec<T, C>(0));
+
+	vec<double, C> rhoNext;
+	vec<double, C> rho(1);
+	vec<double, C> alpha(1), beta;
+	vec<double, C> omega(1);
+
+	Multiply(Ap, A, x);
+	Subtract(r, b, Ap);
+	p = r;
+	err = lengthVecSqr(r);
+	for (int iter = 0; iter < iters; iter++) {
+		rhoNext = dotVec(rinit, r);
+		beta = (rhoNext / rho) / (alpha / omega);
+
+		ScaleSubtract(delta, p, omega, v);
+		ScaleAdd(p, r, beta, delta);
+		Multiply(v, A, p);
+		alpha = rho / dotVec(rinit, v);
+		ScaleSubtract(s, r, alpha, v);
+
+		if (lengthL1(s) < N * tolerance) {
+			ScaleAdd(x, x, alpha, p);
+			break;
+		}
+		Multiply(t, A, s);
+		vec<double, C> denom = lengthVecSqr(t, t);
+		for (int c = 0; c < C; c++) {
+			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+				denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+			}
+		}
+		omega = dotVec(t, s) / denom;
+		ScaleAdd(x, x, alpha, p);
+		ScaleAdd(x, x, omega, s);
+		ScaleSubtract(r, s, omega, t);
+
+		Multiply(Ap, A, p);
+		Subtract(delta, b, Ap);
+		vec<double, C> err = lengthVecSqr(delta);
+		double e = lengthL1(err) / N;
+		if (iterationMonitor)
+			iterationMonitor(iter, e);
+		if (e < tolerance)
+			break;
+
 	}
 }
 }
