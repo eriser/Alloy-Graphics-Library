@@ -50,15 +50,8 @@ public:
 	}
 	SparseMatrix(size_t rows, size_t cols) :storage(rows),rows(rows),cols(cols) {
 	}
-	void insert(size_t i, size_t j, const vec<T, C>& value) {
-		storage[i][j]= value;
-	}
 	void set(size_t i, size_t j, const vec<T, C>& value) {
-		if(storage[i].find(j)==storage[i].end()) {
-			insert(i,j,value);
-		} else {
-			storage[i][j]=value;
-		}
+		storage[i][j]=value;
 	}
 	vec<T,C> get(int i,int j) const {
 		if(storage[i].find(j)==storage[i].end()) {

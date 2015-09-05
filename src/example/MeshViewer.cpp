@@ -97,9 +97,9 @@ bool MeshViewer::init(Composite& rootNode) {
 
 		const float w = 0.9f;
 		for (uint32_t v : vertTable[i]) {
-			L.insert(i, v, float1(-w));
+			L.set(i, v, float1(-w));
 		}
-		L.insert(i, i, float1(1.0f + (float) w * vertTable[i].size()));
+		L.set(i, i, float1(1.0f + (float) w * vertTable[i].size()));
 		float3 norm = mesh.vertexNormals[i];
 		mesh.vertexLocations[i] += 5.0f * norm
 				* (((rand() % 1024) / 1024.0f) - 0.5f);
@@ -108,18 +108,17 @@ bool MeshViewer::init(Composite& rootNode) {
 				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
-/*
-	SolveCG(b, L, mesh.vertexLocations,100,1E-6f,
-			[this](int iter,double err) {
-		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
-	});
-	*/
+	/*
+	 SolveCG(b, L, mesh.vertexLocations,100,1E-6f,
+	 [this](int iter,double err) {
+	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+	 });
+	 */
 	//WriteMeshToFile("smoothed_cg.ply", mesh);
-	SolveBICGStab(b, L, mesh.vertexLocations,100,1E-6f,
+	SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
 			[this](int iter,double err) {
-		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
-	}
-	);
+				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+			});
 
 	WriteMeshToFile("smoothed_bicg.ply", mesh);
 

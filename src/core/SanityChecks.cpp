@@ -18,8 +18,8 @@
 #include <iostream>
 #include <fstream>
 #ifndef ALY_WINDOWS
-	#pragma GCC diagnostic ignored "-Wunused-variable"
-	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 namespace aly {
 bool SANITY_CHECK_ALGO() {
@@ -28,7 +28,7 @@ bool SANITY_CHECK_ALGO() {
 	Vector4f x(A.cols);
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (int jj = -2; jj <= 2; jj++) {
-			A.insert(i, i + jj, float4(0.2f));
+			A.set(i, i + jj, float4(0.2f));
 		}
 		b[i] = float4((rand() % 1000) / 1000.0f);
 	}
@@ -226,8 +226,8 @@ bool SANITY_CHECK_LINALG() {
 		std::cout << im1 << std::endl;
 		std::cout << im2 << std::endl;
 		Vector4f im3 = -im1;
-		float d1 =(float)( dot(im1, im2) + length(im1) + lengthL1(im2) + max(im1)
-				- min(im1));
+		float d1 = (float) (dot(im1, im2) + length(im1) + lengthL1(im2)
+				+ max(im1) - min(im1));
 		float4 d2 = float4(dotVec(im1, im2)) + float4(lengthVec(im2))
 				+ lengthVecL1(im1) + maxVec(im1) - minVec(im1);
 		Vector4f out = float4(1, 2, 3, 1) + im2;
