@@ -211,8 +211,6 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 	for (int iter = 0; iter < iters; iter++) {
 		rhoNext = dotVec(rinit, r);
 		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
-		std::cout << iter << ") " << rho << " " << rhoNext << " " << alpha
-				<< " " << omega << " " << beta << std::endl;
 		ScaleAdd(p, r, beta, p, -beta * omega, v);
 		Multiply(v, A, p);
 		alpha = vec<T, C>(rho / dotVec(rinit, v));

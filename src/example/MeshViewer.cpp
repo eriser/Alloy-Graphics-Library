@@ -114,7 +114,6 @@ bool MeshViewer::init(Composite& rootNode) {
 	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	 });
 	 */
-	std::cout<<"Am I here!?"<<std::endl;
 	SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
 			[this](int iter,double err) {
 				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
