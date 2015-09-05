@@ -133,7 +133,34 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
 		out[i] = vec<T, C>(sum);
 	}
 }
-
+template<class T, int C> void AddMultiply(Vector<T, C>& out,
+		const Vector<T, C>& b, const SparseMatrix<T, 1>& A,
+		const Vector<T, C>& v) {
+	out.resize(v.size());
+	size_t sz = v.size();
+#pragma omp parallel for
+	for (int i = 0; i < (int) sz; i++) {
+		vec<double, C> sum(0.0);
+		for (const IndexValue<T, 1>& pr : A[i]) {
+			sum += vec<double, C>(v[pr.first]) * (double) pr.second.x;
+		}
+		out[i] = b[i] + vec<T, C>(sum);
+	}
+}
+template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
+		const Vector<T, C>& b, const SparseMatrix<T, 1>& A,
+		const Vector<T, C>& v) {
+	out.resize(v.size());
+	size_t sz = v.size();
+#pragma omp parallel for
+	for (int i = 0; i < (int) sz; i++) {
+		vec<double, C> sum(0.0);
+		for (const IndexValue<T, 1>& pr : A[i]) {
+			sum += vec<double, C>(v[pr.first]) * (double) pr.second.x;
+		}
+		out[i] = b[i] - vec<T, C>(sum);
+	}
+}
 template<class T, int C> void Multiply(Vector<T, C>& out,
 		const SparseMatrix<T, C>& A, const Vector<T, C>& v) {
 	out.resize(v.size());
@@ -145,6 +172,35 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
 			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
 		}
 		out[i] = vec<T, C>(sum);
+	}
+}
+
+template<class T, int C> void AddMultiply(Vector<T, C>& out,
+		const Vector<T, C>& b, const SparseMatrix<T, C>& A,
+		const Vector<T, C>& v) {
+	out.resize(v.size());
+	size_t sz = v.size();
+#pragma omp parallel for
+	for (int i = 0; i < (int) sz; i++) {
+		vec<double, C> sum(0.0);
+		for (const IndexValue<T, C>& pr : A[i]) {
+			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
+		}
+		out[i] = b[i] + vec<T, C>(sum);
+	}
+}
+template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
+		const Vector<T, C>& b, const SparseMatrix<T, C>& A,
+		const Vector<T, C>& v) {
+	out.resize(v.size());
+	size_t sz = v.size();
+#pragma omp parallel for
+	for (int i = 0; i < (int) sz; i++) {
+		vec<double, C> sum(0.0);
+		for (const IndexValue<T, C>& pr : A[i]) {
+			sum += vec<double, C>(v[pr.first]) * vec<double, C>(pr.second);
+		}
+		out[i] = b[i] - vec<T, C>(sum);
 	}
 }
 typedef SparseMatrix<float, 4> SparseMatrix4f;

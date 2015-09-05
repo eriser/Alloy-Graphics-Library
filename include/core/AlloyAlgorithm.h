@@ -169,9 +169,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		ScaleSubtract(r, s, omega, t);
 		rho = rhoNext;
 
-		Multiply(Ap, A, x);
-		Subtract(delta, b, Ap);
-
+		SubtractMultiply(delta, b, A, x);
 		vec<double, C> err = lengthVecSqr(delta);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
@@ -232,9 +230,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		ScaleSubtract(r, s, omega, t);
 		rho = rhoNext;
 
-		Multiply(Ap, A, x);
-		Subtract(delta, b, Ap);
-
+		SubtractMultiply(delta, b, A, x);
 		vec<double, C> err = lengthVecSqr(delta);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
