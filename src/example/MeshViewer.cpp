@@ -91,6 +91,8 @@ bool MeshViewer::init(Composite& rootNode) {
 	SparseMatrix<float, 1> L(mesh.vertexLocations.size(),
 			mesh.vertexLocations.size());
 	Vector3f b(L.rows);
+	srand(213823);
+	/*
 	for (size_t i = 0; i < L.rows; i++) {
 
 		const float w = 0.9f;
@@ -106,20 +108,22 @@ bool MeshViewer::init(Composite& rootNode) {
 				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
-/*
+
 	SolveCG(b, L, mesh.vertexLocations,100,1E-6f,
 			[this](int iter,double err) {
 		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	});
-	*/
-
+	WriteMeshToFile("smoothed_cg.ply", mesh);
+*/
+/*
 	SolveBICGStab(b, L, mesh.vertexLocations,100,1E-6f,
 			[this](int iter,double err) {
 		std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	}
 	);
 
-
+	WriteMeshToFile("smoothed_bicg.ply", mesh);
+*/
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();
