@@ -24,221 +24,218 @@
 #include "AlloyVector.h"
 #include "AlloySparseMatrix.h"
 namespace aly {
-bool SANITY_CHECK_ALGO();
-template<class T, int C> void SolveCG(const Vector<T, C>& b,
+	bool SANITY_CHECK_ALGO();
+	template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
-	const double ZERO_TOLERANCE = 1E-16;
-	vec<double, C> err(0.0);
-	size_t N = b.size();
-	Vector<T, C> p(N);
-	Vector<T, C> Ap(N);
-	Multiply(Ap, A, x);
-	Vector<T, C> tmp1(N), tmp2(N);
-	Vector<T, C>* rcurrent = &tmp1;
-	Vector<T, C>* rnext = &tmp2;
-	Subtract(*rcurrent, b, Ap);
-	p = *rcurrent;
-	err = lengthVecSqr(*rcurrent);
-	double e = lengthL1(err) / N;
-	if (iterationMonitor)
-		iterationMonitor(0, e);
-	for (int iter = 0; iter < iters; iter++) {
-		Multiply(Ap, A, p);
-		vec<double, C> denom = dotVec(p, Ap);
-		for (int c = 0; c < C; c++) {
-			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
-				denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
-			}
-		}
-		vec<double, C> alpha = lengthVecSqr(*rcurrent) / denom;
-		ScaleAdd(x, vec<T, C>(alpha), p);
-		ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
-		vec<double, C> err = lengthVecSqr(*rnext);
+		const double ZERO_TOLERANCE = 1E-16;
+		vec<double, C> err(0.0);
+		size_t N = b.size();
+		Vector<T, C> p(N);
+		Vector<T, C> Ap(N);
+		Multiply(Ap, A, x);
+		Vector<T, C> tmp1(N), tmp2(N);
+		Vector<T, C>* rcurrent = &tmp1;
+		Vector<T, C>* rnext = &tmp2;
+		Subtract(*rcurrent, b, Ap);
+		p = *rcurrent;
+		err = lengthVecSqr(*rcurrent);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter + 1, e);
-		if (e < tolerance)
-			break;
-		denom = lengthVecSqr(*rcurrent);
-		for (int c = 0; c < C; c++) {
-			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
-				denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+			iterationMonitor(0, e);
+		for (int iter = 0; iter < iters; iter++) {
+			Multiply(Ap, A, p);
+			vec<double, C> denom = dotVec(p, Ap);
+			for (int c = 0; c < C; c++) {
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+				}
 			}
+			vec<double, C> alpha = lengthVecSqr(*rcurrent) / denom;
+			ScaleAdd(x, vec<T, C>(alpha), p);
+			ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
+			vec<double, C> err = lengthVecSqr(*rnext);
+			double e = lengthL1(err) / N;
+			if (iterationMonitor)
+				iterationMonitor(iter + 1, e);
+			if (e < tolerance)
+				break;
+			denom = lengthVecSqr(*rcurrent);
+			for (int c = 0; c < C; c++) {
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+				}
+			}
+			vec<double, C> beta = err / denom;
+			ScaleAdd(p, *rnext, vec<T, C>(beta), p);
+			std::swap(rcurrent, rnext);
 		}
-		vec<double, C> beta = err / denom;
-		ScaleAdd(p, *rnext, vec<T, C>(beta), p);
-		std::swap(rcurrent, rnext);
 	}
-}
-template<class T, int C> void SolveCG(const Vector<T, C>& b,
+	template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		const SparseMatrix<T, 1>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
-	const double ZERO_TOLERANCE = 1E-16;
-	vec<double, C> err(0.0);
-	size_t N = b.size();
-	Vector<T, C> p(N);
-	Vector<T, C> Ap(N);
-	Multiply(Ap, A, x);
-	Vector<T, C> tmp1(N), tmp2(N);
-	Vector<T, C>* rcurrent = &tmp1;
-	Vector<T, C>* rnext = &tmp2;
-	Subtract(*rcurrent, b, Ap);
-	p = *rcurrent;
-	err = lengthVecSqr(*rcurrent);
-	double e = lengthL1(err) / N;
-	if (iterationMonitor)
-		iterationMonitor(0, e);
-	for (int iter = 0; iter < iters; iter++) {
-		Multiply(Ap, A, p);
-		vec<double, C> denom = dotVec(p, Ap);
-		for (int c = 0; c < C; c++) {
-			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
-				denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
-			}
-		}
-		vec<double, C> alpha = lengthVecSqr(*rcurrent) / denom;
-		ScaleAdd(x, vec<T, C>(alpha), p);
-		ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
-		vec<double, C> err = lengthVecSqr(*rnext);
+		const double ZERO_TOLERANCE = 1E-16;
+		vec<double, C> err(0.0);
+		size_t N = b.size();
+		Vector<T, C> p(N);
+		Vector<T, C> Ap(N);
+		Multiply(Ap, A, x);
+		Vector<T, C> tmp1(N), tmp2(N);
+		Vector<T, C>* rcurrent = &tmp1;
+		Vector<T, C>* rnext = &tmp2;
+		Subtract(*rcurrent, b, Ap);
+		p = *rcurrent;
+		err = lengthVecSqr(*rcurrent);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter + 1, e);
-		if (e < tolerance)
-			break;
-		denom = lengthVecSqr(*rcurrent);
-		for (int c = 0; c < C; c++) {
-			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
-				denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+			iterationMonitor(0, e);
+		for (int iter = 0; iter < iters; iter++) {
+			Multiply(Ap, A, p);
+			vec<double, C> denom = dotVec(p, Ap);
+			for (int c = 0; c < C; c++) {
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+				}
 			}
+			vec<double, C> alpha = lengthVecSqr(*rcurrent) / denom;
+			ScaleAdd(x, vec<T, C>(alpha), p);
+			ScaleSubtract(*rnext, *rcurrent, vec<T, C>(alpha), Ap);
+			vec<double, C> err = lengthVecSqr(*rnext);
+			double e = lengthL1(err) / N;
+			if (iterationMonitor)
+				iterationMonitor(iter + 1, e);
+			if (e < tolerance)
+				break;
+			denom = lengthVecSqr(*rcurrent);
+			for (int c = 0; c < C; c++) {
+				if (std::abs(denom[c]) < ZERO_TOLERANCE) {
+					denom[c] = (denom[c] < 0) ? -ZERO_TOLERANCE : ZERO_TOLERANCE;
+				}
+			}
+			vec<double, C> beta = err / denom;
+			ScaleAdd(p, *rnext, vec<T, C>(beta), p);
+			std::swap(rcurrent, rnext);
 		}
-		vec<double, C> beta = err / denom;
-		ScaleAdd(p, *rnext, vec<T, C>(beta), p);
-		std::swap(rcurrent, rnext);
 	}
-}
-template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
+	template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
-	const double ZERO_TOLERANCE = 1E-16;
-	size_t N = b.size();
-	Vector<T, C> p(N);
-	Vector<T, C> Ap(N);
+		const double ZERO_TOLERANCE = 1E-16;
+		size_t N = b.size();
+		Vector<T, C> p(N);
+		Vector<T, C> Ap(N);
 
-	Vector<T, C> r(N);
-	Vector<T, C> rinit = x;
-	Vector<T, C> delta(N);
-	Vector<T, C> v(N);
-	Vector<T, C> s(N);
-	Vector<T, C> t(N);
+		Vector<T, C> r(N);
+		Vector<T, C> rinit = x;
+		Vector<T, C> delta(N);
+		Vector<T, C> v(N);
+		Vector<T, C> s(N);
+		Vector<T, C> t(N);
 
-	vec<double, C> err(T(0));
-	v.set(vec<T, C>(T(0)));
-	p.set(vec<T, C>(T(0)));
+		vec<double, C> err(T(0));
+		v.set(vec<T, C>(T(0)));
+		p.set(vec<T, C>(T(0)));
 
-	vec<double, C> rhoNext;
-	vec<double, C> rho(1);
-	vec<T, C> alpha(1), beta;
-	vec<T, C> omega(1);
+		vec<double, C> rhoNext;
+		vec<double, C> rho(1);
+		vec<T, C> alpha(1), beta;
+		vec<T, C> omega(1);
 
-	Multiply(Ap, A, x);
-	Subtract(r, b, Ap);
-	err = lengthVecSqr(r);
-	double e = lengthL1(err) / N;
-	if (iterationMonitor)
-		iterationMonitor(0, e);
-
-	for (int iter = 0; iter < iters; iter++) {
-		rhoNext = dotVec(rinit, r);
-		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
-		ScaleAdd(p, r, beta, p, -beta * omega, v);
-		Multiply(v, A, p);
-		alpha = vec<T, C>(rho / dotVec(rinit, v));
-		ScaleSubtract(s, r, alpha, v);
-		if (lengthL1(s) < N * ZERO_TOLERANCE) {
-			ScaleAdd(x, x, alpha, p);
-			break;
-		}
-		Multiply(t, A, s);
-		omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
-		ScaleAdd(x, x, alpha, p, omega, s);
-
-		ScaleSubtract(r, s, omega, t);
-		rho = rhoNext;
-
-		SubtractMultiply(delta, b, A, x);
-		vec<double, C> err = lengthVecSqr(delta);
+		Multiply(Ap, A, x);
+		Subtract(r, b, Ap);
+		err = lengthVecSqr(r);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter + 1, e);
-		if (e < tolerance)
-			break;
+			iterationMonitor(0, e);
 
+		for (int iter = 0; iter < iters; iter++) {
+			rhoNext = dotVec(rinit, r);
+			beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
+			ScaleAdd(p, r, beta, p, -beta * omega, v);
+			Multiply(v, A, p);
+			alpha = vec<T, C>(rho / dotVec(rinit, v));
+			ScaleSubtract(s, r, alpha, v);
+			if (lengthL1(s) < N * ZERO_TOLERANCE) {
+				ScaleAdd(x, x, alpha, p);
+				break;
+			}
+			Multiply(t, A, s);
+			omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
+			ScaleAdd(x, x, alpha, p, omega, s);
+
+			ScaleSubtract(r, s, omega, t);
+			rho = rhoNext;
+
+			SubtractMultiply(delta, b, A, x);
+			vec<double, C> err = lengthVecSqr(delta);
+			double e = lengthL1(err) / N;
+			if (iterationMonitor)
+				iterationMonitor(iter + 1, e);
+			if (e < tolerance)
+				break;
+
+		}
 	}
-}
-template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
+	template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		const SparseMatrix<T, 1>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
-	const double ZERO_TOLERANCE = 1E-16;
+		const double ZERO_TOLERANCE = 1E-16;
 
-	size_t N = b.size();
-	Vector<T, C> p(N);
-	Vector<T, C> Ap(N);
+		size_t N = b.size();
+		Vector<T, C> p(N);
+		Vector<T, C> r(N);
+		Vector<T, C> rinit = x;
+		Vector<T, C> delta(N);
+		Vector<T, C> v(N);
+		Vector<T, C> s(N);
+		Vector<T, C> t(N);
 
-	Vector<T, C> r(N);
-	Vector<T, C> rinit = x;
-	Vector<T, C> delta(N);
-	Vector<T, C> v(N);
-	Vector<T, C> s(N);
-	Vector<T, C> t(N);
+		vec<double, C> err(T(0));
+		v.set(vec<T, C>(T(0)));
+		p.set(vec<T, C>(T(0)));
 
-	vec<double, C> err(T(0));
-	v.set(vec<T, C>(T(0)));
-	p.set(vec<T, C>(T(0)));
+		vec<double, C> rhoNext(1);
+		vec<double, C> rho(1);
+		vec<T, C> alpha(1), beta(1);
+		vec<T, C> omega(1);
 
-	vec<double, C> rhoNext;
-	vec<double, C> rho(1);
-	vec<T, C> alpha(1), beta;
-	vec<T, C> omega(1);
-
-	Multiply(Ap, A, x);
-	Subtract(r, b, Ap);
-	err = lengthVecSqr(r);
-	double e = lengthL1(err) / N;
-	if (iterationMonitor)
-		iterationMonitor(0, e);
-
-	for (int iter = 0; iter < iters; iter++) {
-		rhoNext = dotVec(rinit, r);
-		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
-		ScaleAdd(p, r, beta, p, -beta * omega, v);
-		Multiply(v, A, p);
-		alpha = vec<T, C>(rho / dotVec(rinit, v));
-		ScaleSubtract(s, r, alpha, v);
-		if (lengthL1(s) < N * ZERO_TOLERANCE) {
-			ScaleAdd(x, x, alpha, p);
-			break;
-		}
-		Multiply(t, A, s);
-		omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
-		ScaleAdd(x, x, alpha, p, omega, s);
-
-		ScaleSubtract(r, s, omega, t);
-		rho = rhoNext;
-
-		SubtractMultiply(delta, b, A, x);
-		vec<double, C> err = lengthVecSqr(delta);
+		SubtractMultiply(r, b, A, x);
+		err = lengthVecSqr(r);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
-			iterationMonitor(iter + 1, e);
-		if (e < tolerance)
-			break;
+			iterationMonitor(0, e);
 
+		for (int iter = 0; iter < iters; iter++) {
+			rhoNext = dotVec(rinit, r);
+			beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
+			ScaleAdd(p, r, beta, p, -beta * omega, v);
+			Multiply(v, A, p);
+			alpha = vec<T, C>(rho / dotVec(rinit, v));
+			ScaleSubtract(s, r, alpha, v);
+			if (lengthL1(s) < N * ZERO_TOLERANCE) {
+				ScaleAdd(x, x, alpha, p);
+				break;
+			}
+			Multiply(t, A, s);
+			omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
+			ScaleAdd(x, x, alpha, p, omega, s);
+
+			ScaleSubtract(r, s, omega, t);
+			rho = rhoNext;
+
+			SubtractMultiply(delta, b, A, x);
+			vec<double, C> err = lengthVecSqr(delta);
+			double e = lengthL1(err) / N;
+			if (iterationMonitor)
+				iterationMonitor(iter + 1, e);
+			if (e < tolerance)
+				break;
+
+		}
 	}
-}
 }
 #endif
