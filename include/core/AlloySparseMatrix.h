@@ -65,7 +65,7 @@ public:
 		size_t i = 0;
 		for (std::map<size_t,vec<T, C>>& row : storage) {
 			for (std::pair<size_t,vec<T, C>>& iv : row) {
-				M.insert(iv.first, i, iv.second);
+				M.set(iv.first, i, iv.second);
 			}
 			i++;
 		}
