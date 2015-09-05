@@ -34,7 +34,8 @@ template<class T, int C> struct IndexValue: public std::pair<size_t, vec<T, C>> 
 
 	}
 	template<class Archive> void serialize(Archive & archive) {
-		archive(cereal::make_nvp("index",this->first),cereal::make_nvp("value",this->second));
+		archive(cereal::make_nvp("index", this->first),
+				cereal::make_nvp("value", this->second));
 	}
 	IndexValue(size_t index, const vec<T, C>& v) :
 			std::pair<size_t, vec<T, C>>(index, v) {
@@ -46,7 +47,7 @@ private:
 	std::vector<std::list<IndexValue<T, C>>>storage;
 public:
 	size_t rows, cols;
-	SparseMatrix():rows(0),cols(0){
+	SparseMatrix():rows(0),cols(0) {
 
 	}
 	template<class Archive> void serialize(Archive & archive) {
@@ -62,6 +63,23 @@ public:
 	}
 	void insert(size_t i, size_t j, const vec<T, C>& value) {
 		storage[i].push_back(IndexValue<T, C>(j, value));
+	}
+	void set(size_t i, size_t j, const vec<T, C>& value) {
+		for(IndexValue<T, C>& iv:storage[i]) {
+			if(iv.first==j) {
+				iv.second=value;
+				return;
+			}
+		}
+		insert(i,j,value);
+	}
+	vec<T,C> get(int i,int j) const {
+		for(IndexValue<T, C>& iv:storage[i]) {
+			if(iv.first==j) {
+				return iv.second;
+			}
+		}
+		return vec<T,C>(T(0));
 	}
 	SparseMatrix<T, C> transpose() {
 		SparseMatrix<T, C> M(cols, rows);
