@@ -18,10 +18,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlloyVolume.h"
-#include "AlloyCommon.h"
-#include "AlloyFileUtil.h"
 #include "AlloyMath.h"
+#include "svd3.h"
 namespace aly {
+void SVD(const matrix<float, 3, 3>& M, matrix<float, 3, 3>& U,
+		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt) {
+	svd(M(0, 0), M(0, 1), M(0, 2), M(1, 0), M(1, 1), M(1, 2), M(2, 0), M(2, 1),
+			M(2, 2), U(0, 0), U(0, 1), U(0, 2), U(1, 0), U(1, 1), U(1, 2),
+			U(2, 0), U(2, 1), U(2, 2), D(0, 0), D(0, 1), D(0, 2), D(1, 0),
+			D(1, 1), D(1, 2), D(2, 0), D(2, 1), D(2, 2), Vt(0, 0), Vt(0, 1),
+			Vt(0, 2), Vt(1, 0), Vt(1, 1), Vt(1, 2), Vt(2, 0), Vt(2, 1),
+			Vt(2, 2));
 
+}
 }

@@ -1207,7 +1207,8 @@ template<class T> matrix<T, 4, 4> MakeScale(T scale) {
 	return matrix<T, 4, 4>(vec<T, 4>(scale, 0, 0, 0), vec<T, 4>(0, scale, 0, 0),
 			vec<T, 4>(0, 0, scale, 0), vec<T, 4>(0, 0, 0, 1));
 }
-
+void SVD(const matrix<float, 3, 3>& M, matrix<float, 3, 3>& U,
+		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt);
 template<class T> T Angle(const vec<T, 3>& v0, const vec<T, 3>& v1,
 		const vec<T, 3>& v2) {
 	vec<T, 3> v = v0 - v1;
@@ -1388,9 +1389,10 @@ template<class T> matrix<T, 4, 4> perspectiveMatrix(const T &fovy,
 	M(2, 3) = pz;
 	return M;
 }
-template<class T> matrix<T, 4, 4> orthographicMatrix(const T& scaleX,const T& scaleY,const T &zNear, const T &zFar) {
-	T sx = 2.0f*scaleX;
-	T sy = 2.0f*scaleY;
+template<class T> matrix<T, 4, 4> orthographicMatrix(const T& scaleX,
+		const T& scaleY, const T &zNear, const T &zFar) {
+	T sx = 2.0f * scaleX;
+	T sy = 2.0f * scaleY;
 	T pz = -(zFar + zNear) / (zFar - zNear);
 	T sz = -(2.0f) / (zFar - zNear);
 	matrix<T, 4, 4> M = matrix<T, 4, 4>::zero();
