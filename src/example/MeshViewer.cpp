@@ -70,14 +70,11 @@ bool MeshViewer::init(Composite& rootNode) {
 	//mesh.vertexColors.resize(mesh.vertexLocations.size());
 	//mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
 	MeshNeighborTable vertTable;
+
 	CreateOrderedVertexNeighborTable(mesh, vertTable);
-
-
-	CreateVertexNeighborTable(mesh, vertTable, false);
-
+	//CreateVertexNeighborTable(mesh, vertTable, false);
 	srand(1023172413L);
 	mesh.updateVertexNormals();
-
 	/*
 	 SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
 	 for (size_t i = 0;i < L.rows;i++) {
@@ -111,20 +108,18 @@ bool MeshViewer::init(Composite& rootNode) {
 				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
+
+	SolveCG(b, L, mesh.vertexLocations, 100, 1E-6f,
+			[this](int iter,double err) {
+				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+			});
 	/*
-	 SolveCG(b, L, mesh.vertexLocations,100,1E-6f,
+	 SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
 	 [this](int iter,double err) {
 	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	 });
 	 */
-	/*
-	SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
-			[this](int iter,double err) {
-				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
-			});
-			*/
 	//WriteMeshToFile("smoothed_bicg.ply", mesh);
-
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();

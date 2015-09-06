@@ -1042,40 +1042,78 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 #pragma omp parallel for
 	for (int n = 0; n < N; n++) {
 		std::vector<uint32_t>& nbrs = vertNbrs[n];
-		std::list<uint32_t> outList;
-		int pivotIndex = 0;
-		uint32_t second, first;
-		bool found = true;
-		/*
-		std::cout << "in " << n << ": ";
-		for (uint32_t elem : nbrs) {
-			std::cout << elem << " ";
-		}
-		std::cout << std::endl;
-		*/
-		while (nbrs.size() > 0 && found) {
-			first = nbrs[pivotIndex];
-			second = nbrs[pivotIndex + 1];
-			nbrs[pivotIndex] = -1;
-			nbrs[pivotIndex + 1] = -1;
-			found = false;
-			for (int i = 0; i < (int) nbrs.size(); i += 2) {
-				if (nbrs[i] == second) {
-					pivotIndex = i;
-					outList.push_back(first);
-					found = true;
-					break;
+		if (nbrs.size() > 0) {
+			vertNbrsOut[n].clear();
+			bool found;
+			std::list<uint32_t> chain;
+			chain.push_back(nbrs[0]);
+			chain.push_back(nbrs[1]);
+			nbrs[0] = -1;
+			nbrs[1] = -1;
+			do {
+				uint32_t front = chain.front();
+				uint32_t back = chain.back();
+				found = false;
+				for (int i = 0; i < (int) nbrs.size(); i += 2) {
+					if (nbrs[i] == back) {
+						chain.push_back(nbrs[i + 1]);
+						nbrs[i + 1] = -1;
+						found = true;
+						break;
+					}
 				}
+				if (!found) {
+					for (int i = 1; i < (int) nbrs.size(); i += 2) {
+						if (nbrs[i] == front) {
+							chain.push_front(nbrs[i - 1]);
+							nbrs[i - 1] = -1;
+							found = true;
+							break;
+						}
+					}
+				}
+				if (!found) {
+					if(chain.front()==chain.back())chain.pop_back();
+					if (chain.size() > 0) {
+						vertNbrsOut[n].insert(vertNbrsOut[n].end(),
+								chain.begin(), chain.end());
+						chain.clear();
+					}
+					for (int i = 0; i < (int) nbrs.size(); i += 2) {
+						if (nbrs[i] != (uint32_t) -1
+								&& nbrs[i + 1] != (uint32_t) -1) {
+							chain.push_back(nbrs[i]);
+							chain.push_back(nbrs[i + 1]);
+							found = true;
+							break;
+						}
+					}
+				}
+			} while (found);
+
+			if (chain.size() > 0) {
+				if(chain.front()==chain.back())chain.pop_back();
+				vertNbrsOut[n].insert(vertNbrsOut[n].end(), chain.begin(),
+						chain.end());
+/*
+				nbrs=vertNbrs[n];
+				std::cout << "in " << n << ": ";
+				for (int i = 0; i < nbrs.size(); i += 2) {
+					std::cout << "(" << nbrs[i] << "," << nbrs[i + 1] << ") ";
+				}
+				std::cout << std::endl;
+
+				std::cout << "out " << n << ": ";
+				for (uint32_t elem : vertNbrsOut[n]) {
+					std::cout << elem << " ";
+				}
+
+				std::cout << std::endl;
+				*/
 			}
+
+
 		}
-		/*
-		std::cout << "out " << n << ": ";
-		for (uint32_t elem : outList) {
-			std::cout << elem << " ";
-		}
-		std::cout << std::endl;
-		*/
-		vertNbrsOut[n] = outList;
 	}
 }
 
