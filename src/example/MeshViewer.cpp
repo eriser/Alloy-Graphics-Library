@@ -70,6 +70,9 @@ bool MeshViewer::init(Composite& rootNode) {
 	//mesh.vertexColors.resize(mesh.vertexLocations.size());
 	//mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
 	MeshNeighborTable vertTable;
+	CreateOrderedVertexNeighborTable(mesh, vertTable);
+
+
 	CreateVertexNeighborTable(mesh, vertTable, false);
 
 	srand(1023172413L);
@@ -114,10 +117,12 @@ bool MeshViewer::init(Composite& rootNode) {
 	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	 });
 	 */
+	/*
 	SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
 			[this](int iter,double err) {
 				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 			});
+			*/
 	//WriteMeshToFile("smoothed_bicg.ply", mesh);
 
 	mesh.updateVertexNormals();
