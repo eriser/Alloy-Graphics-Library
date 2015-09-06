@@ -1073,8 +1073,9 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 					}
 				}
 				if (!found) {
-					if(chain.front()==chain.back())chain.pop_back();
 					if (chain.size() > 0) {
+						if (chain.front() == chain.back())
+							chain.pop_back();
 						vertNbrsOut[n].insert(vertNbrsOut[n].end(),
 								chain.begin(), chain.end());
 						chain.clear();
@@ -1092,26 +1093,26 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 			} while (found);
 
 			if (chain.size() > 0) {
-				if(chain.front()==chain.back())chain.pop_back();
+				if (chain.front() == chain.back())
+					chain.pop_back();
 				vertNbrsOut[n].insert(vertNbrsOut[n].end(), chain.begin(),
 						chain.end());
-/*
-				nbrs=vertNbrs[n];
-				std::cout << "in " << n << ": ";
-				for (int i = 0; i < nbrs.size(); i += 2) {
-					std::cout << "(" << nbrs[i] << "," << nbrs[i + 1] << ") ";
-				}
-				std::cout << std::endl;
+				/*
+				 nbrs=vertNbrs[n];
+				 std::cout << "in " << n << ": ";
+				 for (int i = 0; i < nbrs.size(); i += 2) {
+				 std::cout << "(" << nbrs[i] << "," << nbrs[i + 1] << ") ";
+				 }
+				 std::cout << std::endl;
 
-				std::cout << "out " << n << ": ";
-				for (uint32_t elem : vertNbrsOut[n]) {
-					std::cout << elem << " ";
-				}
+				 std::cout << "out " << n << ": ";
+				 for (uint32_t elem : vertNbrsOut[n]) {
+				 std::cout << elem << " ";
+				 }
 
-				std::cout << std::endl;
-				*/
+				 std::cout << std::endl;
+				 */
 			}
-
 
 		}
 	}
