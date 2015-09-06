@@ -38,6 +38,7 @@
 namespace aly {
 bool SANITY_CHECK_MATH();
 bool SANITY_CHECK_CEREAL();
+bool SANITY_CHECK_SVD();
 template<typename T> T min(const T& x, const T& y) {
 	return ((x) < (y) ? (x) : (y));
 }
@@ -792,7 +793,9 @@ template<class T> vec<T, 4> qinverse(const vec<T, 4> & q) {
 template<class T> vec<T, 4> qmul(const vec<T, 4> & a, const vec<T, 4> & b) {
 	return {a.x*b.w+a.w*b.x+a.y*b.z-a.z*b.y, a.y*b.w+a.w*b.y+a.z*b.x-a.x*b.z, a.z*b.w+a.w*b.z+a.x*b.y-a.y*b.x, a.w*b.w-a.x*b.x-a.y*b.y-a.z*b.z};
 }
-
+template<class T> matrix<T, 3, 3> q2matrix(const vec<T, 4> & q) {
+	return {qrotate_x(q), qrotate_y(q), qrotate_z(q)};
+}
 // Compute spatial rotations of 3D vectors via the quaternion product qvq*
 template<class T> vec<T, 3> qrotate_x(const vec<T, 4> & q) {
 	return {q.w*q.w+q.x*q.x-q.y*q.y-q.z*q.z, (q.x*q.y+q.z*q.w)*2, (q.z*q.x-q.y*q.w)*2};
@@ -806,6 +809,11 @@ template<class T> vec<T, 3> qrotate_z(const vec<T, 4> & q) {
 template<class T> vec<T, 3> qrotate(const vec<T, 4> & q, const vec<T, 3> & v) {
 	return qrotate_x(q) * v.x + qrotate_y(q) * v.y + qrotate_z(q) * v.z;
 } // q [x,y,z,0] q*
+
+template<class T> vec<T, 3> qaxis(const vec<T, 4> & q) {
+	auto a = qangle(q);
+	return a < 0.0000001 ? vec<T, 3>(1, 0, 0) : q.xyz() * (1 / sin(a / 2));
+}
 
 template<class T, int M> vec<T, M> operator -(const vec<T, M> & a) {
 	vec<T, M> result;
@@ -1198,6 +1206,15 @@ template<class T> matrix<T, 4, 4> MakeScale(const vec<T, 3>& scale) {
 			vec<T, 4>(0, scale.y, 0, 0), vec<T, 4>(0, 0, scale.z, 0),
 			vec<T, 4>(0, 0, 0, 1));
 }
+template<class T> matrix<T, 3, 3> MakeDiagonal(const vec<T, 3>& scale) {
+	return matrix<T, 3, 3>(vec<T, 3>(scale.x, 0, 0), vec<T, 3>(0, scale.y, 0),
+			vec<T, 3>(0, 0, scale.z));
+}
+template<class T> matrix<T, 4, 4> MakeDiagonal(const vec<T, 4>& scale) {
+	return matrix<T, 4, 4>(vec<T, 4>(scale.x, 0, 0, 0),
+			vec<T, 4>(0, scale.y, 0, 0), vec<T, 4>(0, 0, scale.z, 0),
+			vec<T, 4>(0, 0, 0, scale.w));
+}
 template<class T> matrix<T, 4, 4> MakeScale(const vec<T, 4>& scale) {
 	return matrix<T, 4, 4>(vec<T, 4>(scale.x, 0, 0, 0),
 			vec<T, 4>(0, scale.y, 0, 0), vec<T, 4>(0, 0, scale.z, 0),
@@ -1207,8 +1224,94 @@ template<class T> matrix<T, 4, 4> MakeScale(T scale) {
 	return matrix<T, 4, 4>(vec<T, 4>(scale, 0, 0, 0), vec<T, 4>(0, scale, 0, 0),
 			vec<T, 4>(0, 0, scale, 0), vec<T, 4>(0, 0, 0, 1));
 }
-void SVD(const matrix<float, 3, 3>& M, matrix<float, 3, 3>& U,
-		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt);
+/*
+
+ The MIT License (MIT)
+
+ Copyright (c) 2014 Stan Melax
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ */
+
+template<class T> vec<T, 3> GetDiagonal(const matrix<T, 3, 3> &m) {
+	return {m.x.x, m.y.y, m.z.z};
+}
+template<class T> vec<T, 4> GetDiagonal(const matrix<T, 4, 4> &m) {
+	return {m.x.x, m.y.y, m.z.z,m.w.w};
+}
+template<class T> vec<T, 4> Diagonalizer(const matrix<T, 3, 3> &A) {
+	// A must be a symmetric matrix.
+	// returns orientation of the principle axes.
+	// returns quaternion q such that its corresponding column major matrix Q
+	// can be used to Diagonalize A
+	// Diagonal matrix D = transpose(Q) * A * (Q);  thus  A == Q*D*QT
+	// The directions of q (cols of Q) are the eigenvectors D's diagonal is the eigenvalues
+	// As per 'col' convention if matrix<T,3,3> Q = qgetmatrix(q); then Q*v = q*v*conj(q)
+	int maxsteps = 24;  // certainly wont need that many.
+	int i;
+	vec<T, 4> q(0, 0, 0, 1);
+	for (i = 0; i < maxsteps; i++) {
+		matrix<T, 3, 3> Q = q2matrix(q); // Q*v == q*v*conj(q)
+		matrix<T, 3, 3> D = transpose(Q) * A * Q;  // A = Q*D*Q^T
+		vec<T, 3> offdiag(D[1][2], D[0][2], D[0][1]); // elements not on the diagonal
+		vec<T, 3> om(fabsf(offdiag.x), fabsf(offdiag.y), fabsf(offdiag.z)); // mag of each offdiag elem
+		int k = (om.x > om.y && om.x > om.z) ? 0 : (om.y > om.z) ? 1 : 2; // index of largest element of offdiag
+		int k1 = (k + 1) % 3;
+		int k2 = (k + 2) % 3;
+		if (offdiag[k] == 0.0f)
+			break;  // diagonal already
+		float thet = (D[k2][k2] - D[k1][k1]) / (2.0f * offdiag[k]);
+		float sgn = (thet > 0.0f) ? 1.0f : -1.0f;
+		thet *= sgn; // make it positive
+		float t = sgn
+				/ (thet + ((thet < 1.E6f) ? sqrtf(thet * thet + 1.0f) : thet)); // sign(T)/(|T|+sqrt(T^2+1))
+		float c = 1.0f / sqrtf(t * t + 1.0f); //  c= 1/(t^2+1) , t=s/c
+		if (c == 1.0f)
+			break;  // no room for improvement - reached machine precision.
+		vec<T, 4> jr(0, 0, 0, 0); // jacobi rotation for this iteration.
+		jr[k] = sgn * sqrtf((1.0f - c) / 2.0f); // using 1/2 angle identity sin(a/2) = sqrt((1-cos(a))/2)
+		jr[k] *= -1.0f; // note we want a final result semantic that takes D to A, not A to D
+		jr.w = sqrtf(1.0f - (jr[k] * jr[k]));
+		if (jr.w == 1.0f)
+			break; // reached limits of floating point precision
+		q = qmul(q, jr);
+		q = normalize(q);
+	}
+	float h = 1.0f / sqrtf(2.0f);  // M_SQRT2
+	auto e =
+			[&q, &A]() {return GetDiagonal(transpose(q2matrix(q))* A* q2matrix(q));}; // current ordering of eigenvals of q
+	q = (e().x < e().z) ? qmul(q, vec<T, 4>(0, h, 0, h)) : q;
+	q = (e().y < e().z) ? qmul(q, vec<T, 4>(h, 0, 0, h)) : q;
+	q = (e().x < e().y) ? qmul(q, vec<T, 4>(0, 0, h, h)) : q; // size order z,y,x so xy spans a planeish spread
+	q = (qrotate_z(q).z < 0) ? qmul(q, vec<T, 4>(1, 0, 0, 0)) : q;
+	q = (qrotate_y(q).y < 0) ? qmul(q, vec<T, 4>(0, 0, 1, 0)) : q;
+	q = (q.w < 0) ? -q : q;
+	//matrix<T,3,3> M = transpose(q2matrix(q)) * A * q2matrix(q);  // to test result
+	return q;
+}
+template<class T> void Eigen(const matrix<T, 3, 3> &A, matrix<T, 3, 3>& Q,
+		matrix<T, 3, 3>& D) {
+	vec<T, 4> q = Diagonalizer(A);
+	Q = q2matrix(q);
+	D = transpose(Q) * A * Q;
+}
+
 template<class T> T Angle(const vec<T, 3>& v0, const vec<T, 3>& v1,
 		const vec<T, 3>& v2) {
 	vec<T, 3> v = v0 - v1;

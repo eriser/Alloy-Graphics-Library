@@ -17,6 +17,7 @@
 #include "cereal/archives/binary.hpp"
 #include <iostream>
 #include <fstream>
+#include <random>
 #ifndef ALY_WINDOWS
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
@@ -211,6 +212,46 @@ bool SANITY_CHECK_IMAGE() {
 		std::cout << e.what() << std::endl;
 		return false;
 	}
+}
+bool SANITY_CHECK_SVD() {
+
+	int N = 100;
+	std::uniform_real_distribution<float> r(-1.0f, 1.0f);
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	float3x3 M = float3x3::identity();
+	float3x3 R = SubMatrix(
+			MakeRotationMatrix(normalize(float3(r(gen), r(gen), r(gen))),
+					(float) (r(gen) * M_PI * 2)));
+	float3x3 S = SubMatrix(MakeScale(float3(r(gen), r(gen), r(gen))));
+	std::vector<float3> in(N);
+	float3 avgIn;
+	float3 avgOut;
+	for (int n = 0; n < N; n++) {
+		float x = 10 * r(gen);
+		float y = 10 * r(gen);
+		float z = 10 * r(gen);
+		float3 pt(x, y, z);
+		float3 qt = R * pt - pt;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				M(i, j) += qt[i] * qt[j];
+			}
+		}
+	}
+	std::cout << "M=\n" << M << std::endl;
+	float3x3 Q, D;
+	Eigen(M, Q, D);
+	std::cout << "Q=\n" << Q << std::endl;
+	std::cout << "R=\n" << R << std::endl;
+	std::cout << "D=\n" << D << std::endl;
+	float3x3 QDQt = Q * D * transpose(Q);
+	std::cout << "QDQt=\n" << QDQt * inverse(M) << std::endl;
+
+	/*
+
+	 */
+	return true;
 }
 bool SANITY_CHECK_LINALG() {
 
