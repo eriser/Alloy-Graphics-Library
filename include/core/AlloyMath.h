@@ -1326,6 +1326,15 @@ void SVD(const matrix<double, 3, 3> &A, matrix<double, 3, 3>& U,
 void SVD(const matrix<double, 4, 4> &A, matrix<double, 4, 4>& U,
 		matrix<double, 4, 4>& D, matrix<double, 4, 4>& Vt);
 
+template<class T> matrix<T, 3, 3> FactorRotation(const matrix<T, 3, 3> A) {
+	matrix<T, 3, 3> U, D, Vt;
+	SVD(A, U, D, Vt);
+	matrix<T, 3, 3> R = U * Vt;
+	if (determinant(R) < 0) {
+		R = U * MakeDiagonal(vec<T,3>(1, 1, -1)) * Vt;
+	}
+	return R;
+}
 template<class T> T Angle(const vec<T, 3>& v0, const vec<T, 3>& v1,
 		const vec<T, 3>& v2) {
 	vec<T, 3> v = v0 - v1;
