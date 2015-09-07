@@ -1321,6 +1321,11 @@ void SVD(const matrix<float, 3, 3> &A, matrix<float, 3, 3>& U,
 void SVD(const matrix<float, 4, 4> &A, matrix<float, 4, 4>& U,
 		matrix<float, 4, 4>& D, matrix<float, 4, 4>& Vt);
 
+void SVD(const matrix<double, 3, 3> &A, matrix<double, 3, 3>& U,
+		matrix<double, 3, 3>& D, matrix<double, 3, 3>& Vt);
+void SVD(const matrix<double, 4, 4> &A, matrix<double, 4, 4>& U,
+		matrix<double, 4, 4>& D, matrix<double, 4, 4>& Vt);
+
 template<class T> T Angle(const vec<T, 3>& v0, const vec<T, 3>& v1,
 		const vec<T, 3>& v2) {
 	vec<T, 3> v = v0 - v1;

@@ -42,7 +42,7 @@ static double pythag(double a, double b) {
  * SVD algorithm adapted from Numerical Recipes, originally written by Luke Tierney and David Betz.
  */
 
-template<class T, int m, int n> void svd(const matrix<T, m, n>& M,
+template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 		matrix<T, m, m>& U, matrix<T, m, n>& D, matrix<T, n, n>& Vt) {
 	double v[n][n];
 	double u[m][m];
@@ -52,7 +52,8 @@ template<class T, int m, int n> void svd(const matrix<T, m, n>& M,
 	double c, f, h, s, x, y, z;
 	double anorm = 0.0, g = 0.0, scale = 0.0;
 	if (m < n) {
-		throw std::runtime_error("SVD error, rows must be greater than cols.");
+		throw std::runtime_error(
+				"SVD error, rows must be greater than or equal to cols.");
 	}
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
@@ -288,11 +289,18 @@ template<class T, int m, int n> void svd(const matrix<T, m, n>& M,
 
 void SVD(const matrix<float, 3, 3> &A, matrix<float, 3, 3>& U,
 		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt) {
-	svd(A, U, D, Vt);
+	SVD_INTERNAL(A, U, D, Vt);
 }
 void SVD(const matrix<float, 4, 4> &A, matrix<float, 4, 4>& U,
 		matrix<float, 4, 4>& D, matrix<float, 4, 4>& Vt) {
-	svd(A, U, D, Vt);
+	SVD_INTERNAL(A, U, D, Vt);
 }
-
+void SVD(const matrix<double, 3, 3> &A, matrix<double, 3, 3>& U,
+		matrix<double, 3, 3>& D, matrix<double, 3, 3>& Vt) {
+	SVD_INTERNAL(A, U, D, Vt);
+}
+void SVD(const matrix<double, 4, 4> &A, matrix<double, 4, 4>& U,
+		matrix<double, 4, 4>& D, matrix<double, 4, 4>& Vt) {
+	SVD_INTERNAL(A, U, D, Vt);
+}
 }
