@@ -37,9 +37,58 @@ static double pythag(double a, double b) {
 		result = 0.0;
 	return (result);
 }
+/******************************************************************************
+ * XLISP-STAT 2.1 Copyright (c) 1990, by Luke Tierney
+ * XLISP version 2.1, Copyright (c) 1989, by David Betz.
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation, and that the name of Luke Tierney and David Betz not be
+ * used in advertising or publicity pertaining to distribution of the software
+ * without specific, written prior permission.  Luke Tierney and David Betz
+ * make no representations about the suitability of this software for any
+ * purpose. It is provided "as is" without express or implied warranty.
+ *
+ * LUKE TIERNEY AND DAVID BETZ DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
+ * IN NO EVENT SHALL LUKE TIERNEY NOR DAVID BETZ BE LIABLE FOR ANY SPECIAL,
+ * INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+ * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF THIS SOFTWARE.
+ *
+ * XLISP-STAT AUTHOR:
+ *               Luke Tierney
+ *               School of Statistics
+ *               University of Minnesota
+ *               Minneapolis, MN 55455
+ *               (612) 625-7843
+ *
+ *       Email Address:
+ *               internet: luke@umnstat.stat.umn.edu
+ *
+ * XLISP AUTHOR:
+ *              David Betz
+ *              P.O. Box 144
+ *              Peterborough, NH 03458
+ *              (603) 924-4145
+ ******************************************************************************
+ * XLISP-STAT 2.1 was ported to the Amiga by
+ *              J.K. Lindsey
+ *              Faculty of Economic, Business and Social Sciences,
+ *              University of Liege,
+ *              Sart Tilman B31,
+ *              4000 Liege,
+ *              Belgium
+ *              32-41-56.29.64
+ *
+ * The above permission and disclaimer also applies to all of the specifically
+ * Amiga portions of this software, with the restriction that the Amiga
+ * version not be used for any military-related applications.
+ ******************************************************************************
 
-/*
- * SVD algorithm adapted from Numerical Recipes, originally written by Luke Tierney and David Betz.
  */
 
 template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
