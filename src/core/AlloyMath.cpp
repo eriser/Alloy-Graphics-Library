@@ -25,18 +25,7 @@
 #include <math.h>
 using namespace std;
 namespace aly {
-static double pythag(double a, double b) {
-	double at = std::abs(a), bt = std::abs(b), ct, result;
-	if (at > bt) {
-		ct = bt / at;
-		result = at * std::sqrt(1.0 + ct * ct);
-	} else if (bt > 0.0) {
-		ct = at / bt;
-		result = bt * std::sqrt(1.0 + ct * ct);
-	} else
-		result = 0.0;
-	return (result);
-}
+
 /******************************************************************************
  * XLISP-STAT 2.1 Copyright (c) 1990, by Luke Tierney
  * XLISP version 2.1, Copyright (c) 1989, by David Betz.
@@ -90,7 +79,18 @@ static double pythag(double a, double b) {
  ******************************************************************************
 
  */
-
+static double pythag(double a, double b) {
+	double at = std::abs(a), bt = std::abs(b), ct, result;
+	if (at > bt) {
+		ct = bt / at;
+		result = at * std::sqrt(1.0 + ct * ct);
+	} else if (bt > 0.0) {
+		ct = at / bt;
+		result = bt * std::sqrt(1.0 + ct * ct);
+	} else
+		result = 0.0;
+	return (result);
+}
 template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 		matrix<T, m, m>& U, matrix<T, m, n>& D, matrix<T, n, n>& Vt) {
 	double v[n][n];
@@ -118,40 +118,40 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 				scale += std::abs((double) u[k][i]);
 			if (scale) {
 				for (k = i; k < m; k++) {
-					u[k][i] = (T) ((double) u[k][i] / scale);
+					u[k][i] = ((double) u[k][i] / scale);
 					s += ((double) u[k][i] * (double) u[k][i]);
 				}
 				f = (double) u[i][i];
 				g = -sign(std::sqrt(s), f);
 				h = f * g - s;
-				u[i][i] = (T) (f - g);
+				u[i][i] = (f - g);
 				if (i != n - 1) {
 					for (j = l; j < n; j++) {
 						for (s = 0.0, k = i; k < m; k++)
 							s += ((double) u[k][i] * (double) u[k][j]);
 						f = s / h;
 						for (k = i; k < m; k++)
-							u[k][j] += (T) (f * (double) u[k][i]);
+							u[k][j] += (f * (double) u[k][i]);
 					}
 				}
 				for (k = i; k < m; k++)
-					u[k][i] = (T) ((double) u[k][i] * scale);
+					u[k][i] = ((double) u[k][i] * scale);
 			}
 		}
-		w[i] = (T) (scale * g);
+		w[i] = (scale * g);
 		g = s = scale = 0.0;
 		if (i < m && i != n - 1) {
 			for (k = l; k < n; k++)
 				scale += std::abs((double) u[i][k]);
 			if (scale) {
 				for (k = l; k < n; k++) {
-					u[i][k] = (T) ((double) u[i][k] / scale);
+					u[i][k] = ((double) u[i][k] / scale);
 					s += ((double) u[i][k] * (double) u[i][k]);
 				}
 				f = (double) u[i][l];
 				g = -sign(std::sqrt(s), f);
 				h = f * g - s;
-				u[i][l] = (T) (f - g);
+				u[i][l] = (f - g);
 				for (k = l; k < n; k++)
 					rv1[k] = (double) u[i][k] / h;
 				if (i != m - 1) {
@@ -159,11 +159,11 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 						for (s = 0.0, k = l; k < n; k++)
 							s += ((double) u[j][k] * (double) u[i][k]);
 						for (k = l; k < n; k++)
-							u[j][k] += (T) (s * rv1[k]);
+							u[j][k] += (s * rv1[k]);
 					}
 				}
 				for (k = l; k < n; k++)
-					u[i][k] = (T) ((double) u[i][k] * scale);
+					u[i][k] = ((double) u[i][k] * scale);
 			}
 		}
 		anorm = std::max(anorm, (std::abs((double) w[i]) + std::abs(rv1[i])));
@@ -172,12 +172,12 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 		if (i < n - 1) {
 			if (g) {
 				for (j = l; j < n; j++)
-					v[j][i] = (T) (((double) u[i][j] / (double) u[i][l]) / g);
+					v[j][i] = (((double) u[i][j] / (double) u[i][l]) / g);
 				for (j = l; j < n; j++) {
 					for (s = 0.0, k = l; k < n; k++)
 						s += ((double) u[i][k] * (double) v[k][j]);
 					for (k = l; k < n; k++)
-						v[k][j] += (T) (s * (double) v[k][i]);
+						v[k][j] += (s * (double) v[k][i]);
 				}
 			}
 			for (j = l; j < n; j++)
@@ -201,11 +201,11 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 						s += ((double) u[k][i] * (double) u[k][j]);
 					f = (s / (double) u[i][i]) * g;
 					for (k = i; k < m; k++)
-						u[k][j] += (T) (f * (double) u[k][i]);
+						u[k][j] += (f * (double) u[k][i]);
 				}
 			}
 			for (j = i; j < m; j++)
-				u[j][i] = (T) ((double) u[j][i] * g);
+				u[j][i] = ((double) u[j][i] * g);
 		} else {
 			for (j = i; j < m; j++)
 				u[j][i] = 0.0;
@@ -232,15 +232,15 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 					if (std::abs(f) + anorm != anorm) {
 						g = (double) w[i];
 						h = pythag(f, g);
-						w[i] = (T) h;
+						w[i] = h;
 						h = 1.0 / h;
 						c = g * h;
 						s = (-f * h);
 						for (j = 0; j < m; j++) {
 							y = (double) u[j][nm];
 							z = (double) u[j][i];
-							u[j][nm] = (T) (y * c + z * s);
-							u[j][i] = (T) (z * c - y * s);
+							u[j][nm] = (y * c + z * s);
+							u[j][i] = (z * c - y * s);
 						}
 					}
 				}
@@ -248,7 +248,7 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 			z = (double) w[k];
 			if (l == k) {
 				if (z < 0.0) {
-					w[k] = (T) (-z);
+					w[k] = (-z);
 					for (j = 0; j < n; j++)
 						v[j][k] = (-v[j][k]);
 				}
@@ -291,11 +291,11 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 				for (jj = 0; jj < n; jj++) {
 					x = (double) v[jj][j];
 					z = (double) v[jj][i];
-					v[jj][j] = (T) (x * c + z * s);
-					v[jj][i] = (T) (z * c - x * s);
+					v[jj][j] = (x * c + z * s);
+					v[jj][i] = (z * c - x * s);
 				}
 				z = pythag(f, h);
-				w[j] = (T) z;
+				w[j] = z;
 				if (z) {
 					z = 1.0 / z;
 					c = f * z;
@@ -306,13 +306,13 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 				for (jj = 0; jj < m; jj++) {
 					y = (double) u[jj][j];
 					z = (double) u[jj][i];
-					u[jj][j] = (T) (y * c + z * s);
-					u[jj][i] = (T) (z * c - y * s);
+					u[jj][j] = (y * c + z * s);
+					u[jj][i] = (z * c - y * s);
 				}
 			}
 			rv1[l] = 0.0;
 			rv1[k] = f;
-			w[k] = (T) x;
+			w[k] = x;
 		}
 	}
 	for (int i = 0; i < m; i++) {
