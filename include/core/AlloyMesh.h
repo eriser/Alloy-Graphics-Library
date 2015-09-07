@@ -115,12 +115,14 @@ public:
 	virtual ~Mesh();
 };
 void ReadMeshFromFile(const std::string& file, Mesh& mesh);
-void WriteMeshToFile(const std::string& file, const Mesh& mesh,bool binary=true);
+void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
+		true);
 
 typedef std::vector<std::list<uint32_t>> MeshNeighborTable;
 void CreateVertexNeighborTable(const Mesh& mesh, MeshNeighborTable& vertNbrs,
 		bool addDuplicates = false);
-void CreateOrderedVertexNeighborTable(const Mesh& mesh, MeshNeighborTable& vertNbrs);
+void CreateOrderedVertexNeighborTable(const Mesh& mesh,
+		MeshNeighborTable& vertNbrs, bool leaveTail = false);
 void CreateFaceNeighborTable(const Mesh& mesh, MeshNeighborTable& faceNbrs);
 }
 #endif /* MESH_H_ */

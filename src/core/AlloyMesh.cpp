@@ -1012,7 +1012,9 @@ inline uint64_t faceHashCode(const uint2& val) {
 	return ((uint64_t) val.y) << 32 | ((uint64_t) val.x);
 }
 void CreateOrderedVertexNeighborTable(const Mesh& mesh,
-		std::vector<std::list<uint32_t>>& vertNbrsOut) {
+		std::vector<std::list<uint32_t>>& vertNbrsOut, bool leaveTail) {
+	//Leave tail means to not remove the duplicate vertex neighbor at the end of the neighbor list.
+	//Non-manifold edges will not have a tail, so the tail can be used to detect them in simple (common) cases.
 	vertNbrsOut.resize(mesh.vertexLocations.size());
 	std::vector<std::vector<uint32_t>> vertNbrs(mesh.vertexLocations.size());
 	for (const uint3& face : mesh.triIndexes.data) {
@@ -1074,7 +1076,7 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 				}
 				if (!found) {
 					if (chain.size() > 0) {
-						if (chain.front() == chain.back())
+						if (!leaveTail && chain.front() == chain.back())
 							chain.pop_back();
 						vertNbrsOut[n].insert(vertNbrsOut[n].end(),
 								chain.begin(), chain.end());
@@ -1093,7 +1095,7 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 			} while (found);
 
 			if (chain.size() > 0) {
-				if (chain.front() == chain.back())
+				if (!leaveTail && chain.front() == chain.back())
 					chain.pop_back();
 				vertNbrsOut[n].insert(vertNbrsOut[n].end(), chain.begin(),
 						chain.end());
