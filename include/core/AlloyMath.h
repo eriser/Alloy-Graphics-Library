@@ -1331,7 +1331,17 @@ template<class T> matrix<T, 3, 3> FactorRotation(const matrix<T, 3, 3> A) {
 	SVD(A, U, D, Vt);
 	matrix<T, 3, 3> R = U * Vt;
 	if (determinant(R) < 0) {
-		R = U * MakeDiagonal(vec<T,3>(1, 1, -1)) * Vt;
+		R = U * MakeDiagonal(vec<T, 3>(1, 1, -1)) * Vt;
+	}
+	return R;
+}
+template<class T> matrix<T, 3, 3> FactorRotationInverse(
+		const matrix<T, 3, 3> A) {
+	matrix<T, 3, 3> U, D, Vt;
+	SVD(A, U, D, Vt);
+	matrix<T, 3, 3> R = transpose(Vt) * transpose(U);
+	if (determinant(R) < 0) {
+		R = transpose(Vt) * MakeDiagonal(vec<T, 3>(1, 1, -1)) * transpose(U);
 	}
 	return R;
 }
