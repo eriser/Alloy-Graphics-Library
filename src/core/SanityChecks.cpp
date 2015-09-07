@@ -222,7 +222,7 @@ bool SANITY_CHECK_SVD() {
 	float3x3 M = float3x3::identity();
 	float3x3 R = SubMatrix(
 			MakeRotationMatrix(normalize(float3(r(gen), r(gen), r(gen))),
-					(float) (r(gen) * M_PI * 2)));
+					(float) (r(gen) * ALY_PI * 2)));
 	float3x3 S = SubMatrix(MakeScale(float3(r(gen), r(gen), r(gen))));
 	std::vector<float3> in(N);
 	float3 avgIn;

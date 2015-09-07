@@ -1040,7 +1040,7 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		vertNbrs[face.w].push_back(face.z);
 		vertNbrs[face.w].push_back(face.x);
 	}
-	int N = vertNbrs.size();
+	int N = (int)vertNbrs.size();
 #pragma omp parallel for
 	for (int n = 0; n < N; n++) {
 		std::vector<uint32_t>& nbrs = vertNbrs[n];

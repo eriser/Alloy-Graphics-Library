@@ -28,6 +28,7 @@
     <ClCompile Include="..\..\src\core\AlloyDrawUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyFileUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyImage.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyMath.cpp" />
     <ClCompile Include="..\..\src\core\AlloyMesh.cpp" />
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp" />
     <ClCompile Include="..\..\src\core\AlloyPLY.cpp" />
