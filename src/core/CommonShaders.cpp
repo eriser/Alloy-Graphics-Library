@@ -306,14 +306,14 @@ R"(
 				viewport).set("PoseMat", float4x4::identity()).draw(
 					meshes, GLMesh::PrimitiveType::POINTS);
 		end();
-		glScissor(viewport.position.x, viewport.position.x, viewport.dimensions.x, viewport.dimensions.y);
+		glScissor((int)viewport.position.x, (int)viewport.position.x, (int)viewport.dimensions.x, (int)viewport.dimensions.y);
 		glDisable(GL_SCISSOR_TEST);
 	}
 	void ParticleMatcapShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius) {
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(bounds.position.x, viewport.dimensions.y - bounds.position.y - bounds.dimensions.y, bounds.dimensions.x, bounds.dimensions.y);
+		glScissor((int)bounds.position.x, (int)(viewport.dimensions.y - bounds.position.y - bounds.dimensions.y), (int)bounds.dimensions.x, (int)bounds.dimensions.y);
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("matcapTexture", matcapTexture, 0).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set("bounds", bounds).set("viewport", viewport).set(camera,
 				viewport);
@@ -322,7 +322,7 @@ R"(
 				GLMesh::PrimitiveType::POINTS);
 		}
 		end();
-		glScissor(viewport.position.x, viewport.position.x, viewport.dimensions.x, viewport.dimensions.y);
+		glScissor((int)viewport.position.x, (int)viewport.position.x, (int)viewport.dimensions.x, (int)viewport.dimensions.y);
 		glDisable(GL_SCISSOR_TEST);
 	}
 
