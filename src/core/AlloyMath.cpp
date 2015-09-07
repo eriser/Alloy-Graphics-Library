@@ -51,6 +51,9 @@ template<class T, int m, int n> void svd(const matrix<T, m, n>& M,
 	int flag, i, its, j, jj, k, l, nm;
 	double c, f, h, s, x, y, z;
 	double anorm = 0.0, g = 0.0, scale = 0.0;
+	if (m < n) {
+		throw std::runtime_error("SVD error, rows must be greater than cols.");
+	}
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
 			u[i][j] = M(i, j);
