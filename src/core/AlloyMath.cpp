@@ -18,9 +18,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "Eigen/Core.h"
-#include "Eigen/Dense.h"
 #include "AlloyMath.h"
+#include <Eigen/Core>
+#include <Eigen/Dense>
 using namespace std;
 using namespace Eigen;
 namespace aly {
