@@ -247,7 +247,12 @@ bool SANITY_CHECK_SVD() {
 	std::cout << "D=\n" << D << std::endl;
 	float3x3 QDQt = Q * D * transpose(Q);
 	std::cout << "QDQt=\n" << QDQt * inverse(M) << std::endl;
-
+	float3x3 U,Vt;
+	SVD(M,U,D,Vt);
+	std::cout << "U=\n" << U << std::endl;
+	std::cout << "D=\n" << D << std::endl;
+	std::cout << "Vt=\n" << Vt << std::endl;
+	std::cout << "UDVt=\n" << U*D*Vt*inverse(M)  << std::endl;
 	/*
 
 	 */

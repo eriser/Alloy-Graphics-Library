@@ -1311,6 +1311,10 @@ template<class T> void Eigen(const matrix<T, 3, 3> &A, matrix<T, 3, 3>& Q,
 	Q = q2matrix(q);
 	D = transpose(Q) * A * Q;
 }
+void SVD(const matrix<float, 3, 3> &A, matrix<float, 3, 3>& U,
+		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt);
+void SVD(const matrix<float, 4, 4> &A, matrix<float, 4, 4>& U,
+		matrix<float, 4, 4>& D, matrix<float, 4, 4>& Vt);
 
 template<class T> T Angle(const vec<T, 3>& v0, const vec<T, 3>& v1,
 		const vec<T, 3>& v2) {

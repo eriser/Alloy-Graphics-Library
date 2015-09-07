@@ -18,7 +18,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "Eigen/Core.h"
+#include "Eigen/Dense.h"
 #include "AlloyMath.h"
+using namespace std;
+using namespace Eigen;
 namespace aly {
-
+void SVD(const matrix<float, 3, 3> &A, matrix<float, 3, 3>& U,
+		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt) {
+	Matrix3f m;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			m(i, j) = A(i, j);
+		}
+	}
+	std::cout << "A=\n" << m << std::endl;
+	JacobiSVD<Matrix3f> svd(m, ComputeFullU | ComputeFullV);
+	auto values = svd.singularValues();
+	D = MakeDiagonal(float3(values[0], values[1], values[2]));
+	Matrix3f u = svd.matrixU();
+	Matrix3f v = svd.matrixV();
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			U(i, j) = u(i, j);
+			Vt(i, j) = v(j, i);
+		}
+	}
+}
+void SVD(const matrix<float, 4, 4> &A, matrix<float, 4, 4>& U,
+		matrix<float, 4, 4>& D, matrix<float, 4, 4>& Vt) {
+	Matrix4f m;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			m(i, j) = A(i, j);
+		}
+	}
+	JacobiSVD<Matrix4f> svd(m, ComputeFullU | ComputeFullV);
+	auto values = svd.singularValues();
+	D = MakeDiagonal(float4(values[0], values[1], values[2], values[3]));
+	Matrix4f u = svd.matrixU();
+	Matrix4f v = svd.matrixV();
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			U(i, j) = u(i, j);
+			Vt(i, j) = v(j, i);
+		}
+	}
+}
 }
