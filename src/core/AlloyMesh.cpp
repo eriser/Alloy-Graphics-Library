@@ -1117,7 +1117,22 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		}
 	}
 }
-
+void Mesh::convertQuadsToTriangles() {
+	for (const uint4& face : quadIndexes.data) {
+		float3 pt1 = vertexLocations[face.x];
+		float3 pt2 = vertexLocations[face.y];
+		float3 pt3 = vertexLocations[face.z];
+		float3 pt4 = vertexLocations[face.w];
+		if (distanceSqr(pt1, pt3) < distanceSqr(pt2, pt4)) {
+			triIndexes.push_back(uint3(face.x, face.y, face.z));
+			triIndexes.push_back(uint3(face.z, face.w, face.x));
+		} else {
+			triIndexes.push_back(uint3(face.x, face.y, face.w));
+			triIndexes.push_back(uint3(face.w, face.y, face.z));
+		}
+	}
+	quadIndexes.clear();
+}
 void CreateFaceNeighborTable(const Mesh& mesh,
 		std::vector<std::list<uint32_t>>& faceNbrs) {
 	faceNbrs.resize(mesh.triIndexes.size() + mesh.quadIndexes.size());

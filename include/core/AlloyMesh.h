@@ -108,6 +108,7 @@ public:
 	bool load(const std::string& file);
 	void updateVertexNormals(int SMOOTH_ITERATIONS = 0, float DOT_TOLERANCE =
 			0.75f);
+	void convertQuadsToTriangles();
 	void mapIntoBoundingBox(float voxelSize);
 	void mapOutOfBoundingBox(float voxelSize);
 	bool save(const std::string& file);
