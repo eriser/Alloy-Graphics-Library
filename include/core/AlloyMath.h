@@ -48,7 +48,12 @@ template<typename T> T max(const T& x, const T& y) {
 template<typename T> T clamp(const T& val, const T& min, const T& max) {
 	return aly::min(aly::max(val, min), max);
 }
-
+template<typename T> T sign(const T& a, const T& b) {
+	return ((b) >= 0.0 ? std::abs(a) : -std::abs(a));
+}
+template<typename T> T sign(const T& a) {
+	return (a == 0) ? T(0) : ((a > 0.0) ? T(1) : T(-1));
+}
 // This is free and unencumbered software released into the public domain.
 // For more information, please refer to <http://unlicense.org/>
 

@@ -1,7 +1,0 @@
-#include "Core"
-#include <Eigen/SVD>
-#include "LU"
-#include "Cholesky"
-#include "QR"
-#include "Geometry"
-#include "Eigenvalues"
