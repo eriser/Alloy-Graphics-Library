@@ -111,7 +111,7 @@ namespace aly {
 		float extent;
 		float3 direction;
 		float3 origin;
-		float3 lastIntersect;
+		float3 lastIntersect = NO_HIT_PT;
 		KDSegment() {
 		}
 		static KDSegment createFromPoints(const float3& p1, const float3& p2);
@@ -130,10 +130,13 @@ namespace aly {
 	class KDTriangle:public KDBox {
 	protected:
 		float3 pts[3];
-		float3 lastIntersectionPoint=NO_HIT_PT;
+		float3 lastIntersect=NO_HIT_PT;
 	public:
-		float3 getLastIntersectionPoint() const {
-			return lastIntersectionPoint;
+		float3 getLastIntersect() const {
+			return lastIntersect;
+		}
+		void setLastIntersect(const float3& p) {
+			lastIntersect = p;
 		}
 		KDTriangle(int depth=0):KDBox(depth) {
 		}

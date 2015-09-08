@@ -702,11 +702,11 @@ namespace aly {
 			kDiff = intersect - p1;
 			double l = dot(seg.direction, kDiff);
 			if (l >= 0 && l <= len) {
-				lastIntersectionPoint = intersect;
+				lastIntersect = intersect;
 				return intersect;
 			}
 		}
-		lastIntersectionPoint = NO_HIT_PT;
+		lastIntersect = NO_HIT_PT;
 		return NO_HIT_PT;
 
 	}
@@ -784,7 +784,7 @@ namespace aly {
 				}
 			}
 		}
-		lastIntersectionPoint = intersect;
+		lastIntersect = intersect;
 		return intersect;
 	}
 	double KDTriangle::distance(const float3& p) {
@@ -990,7 +990,7 @@ namespace aly {
 		if (fSqrDistance < (float) 0.0) {
 			fSqrDistance = (float) 0.0;
 		}
-		lastIntersectionPoint = pts[0] + kEdge0*(float)fS + kEdge1*(float)fT;
+		lastIntersect = pts[0] + kEdge0*(float)fS + kEdge1*(float)fT;
 		return std::sqrt(fSqrDistance);
 	}
 	void KDTree::build(const Mesh& mesh, int maxDepth) {
