@@ -264,11 +264,11 @@ public:
 		float3 lastPoint;
 		return intersectSegmentDistance(p1, p2, lastPoint, lastTriangle);
 	}
-	double signedDistance(const float3& r, KDTriangle*& lastTriangle) const {
+	double closestPointSignedDistance(const float3& r, KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
 		return closestPointSignedDistance(r, lastPoint, lastTriangle);
 	}
-	double signedDistance(const float3& pt, KDTriangle*& lastTriangle) const {
+	double closestPoint(const float3& pt, KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
 		return closestPoint(pt, lastPoint, lastTriangle);
 	}
