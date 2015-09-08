@@ -25,7 +25,8 @@
 
 namespace aly {
 struct Mesh;
-static const float3 NO_HIT_POINT = float3(std::numeric_limits<float>::infinity());
+static const float3 NO_HIT_POINT = float3(
+		std::numeric_limits<float>::infinity());
 class KDBox {
 protected:
 	int depth;
@@ -199,12 +200,12 @@ public:
 			float3& lastPoint, KDTriangle*& lastTriangle) const;
 	double intersectSegmentDistance(const float3& p1, const float3& p2,
 			float3& lastPoint, KDTriangle*& lastTriangle) const;
-	double signedDistance(const float3& r, float3& lastPoint,
+	double closestPointSignedDistance(const float3& r, float3& lastPoint,
 			KDTriangle*& lastTriangle) const;
-	double distance(const float3& pt, float3& lastPoint,
+	double closestPoint(const float3& pt, float3& lastPoint,
 			KDTriangle*& lastTriangle) const;
-	double distance(const float3& r, const float3& v, float3& lastPoint,
-			KDTriangle*& lastTriangle) const;
+	double closestPointOutside(const float3& r, const float3& v,
+			float3& lastPoint, KDTriangle*& lastTriangle) const;
 
 	double intersectRayDistance(const float3& p1, const float3& v,
 			float3& lastPoint) const {
@@ -216,17 +217,19 @@ public:
 		KDTriangle* lastTriangle;
 		return intersectSegmentDistance(p1, p2, lastPoint, lastTriangle);
 	}
-	double signedDistance(const float3& r, float3& lastPoint) const {
+	double closestPointSignedDistance(const float3& r,
+			float3& lastPoint) const {
 		KDTriangle* lastTriangle;
-		return signedDistance(r, lastPoint, lastTriangle);
+		return closestPointSignedDistance(r, lastPoint, lastTriangle);
 	}
-	double distance(const float3& pt, float3& lastPoint) const {
+	double closestPoint(const float3& pt, float3& lastPoint) const {
 		KDTriangle* lastTriangle;
-		return distance(pt, lastPoint, lastTriangle);
+		return closestPoint(pt, lastPoint, lastTriangle);
 	}
-	double distance(const float3& r, const float3& v, float3& lastPoint) const {
+	double closestPointOutside(const float3& r, const float3& v,
+			float3& lastPoint) const {
 		KDTriangle* lastTriangle;
-		return distance(r, v, lastPoint, lastTriangle);
+		return closestPointOutside(r, v, lastPoint, lastTriangle);
 	}
 
 	double intersectRayDistance(const float3& p1, const float3& v) const {
@@ -239,20 +242,20 @@ public:
 		KDTriangle* lastTriangle;
 		return intersectSegmentDistance(p1, p2, lastPoint, lastTriangle);
 	}
-	double signedDistance(const float3& r) const {
+	double closestPointSignedDistance(const float3& r) const {
 		float3 lastPoint;
 		KDTriangle* lastTriangle;
-		return signedDistance(r, lastPoint, lastTriangle);
+		return closestPointSignedDistance(r, lastPoint, lastTriangle);
 	}
-	double distance(const float3& pt) const {
+	double closestPoint(const float3& pt) const {
 		float3 lastPoint;
 		KDTriangle* lastTriangle;
-		return distance(pt, lastPoint, lastTriangle);
+		return closestPoint(pt, lastPoint, lastTriangle);
 	}
-	double distance(const float3& r, const float3& v) const {
+	double closestPointOutside(const float3& r, const float3& v) const {
 		float3 lastPoint;
 		KDTriangle* lastTriangle;
-		return distance(r, v, lastPoint, lastTriangle);
+		return closestPointOutside(r, v, lastPoint, lastTriangle);
 	}
 
 	double intersectRayDistance(const float3& p1, const float3& v,
@@ -267,16 +270,16 @@ public:
 	}
 	double signedDistance(const float3& r, KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
-		return signedDistance(r, lastPoint, lastTriangle);
+		return closestPointSignedDistance(r, lastPoint, lastTriangle);
 	}
 	double distance(const float3& pt, KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
-		return distance(pt, lastPoint, lastTriangle);
+		return closestPoint(pt, lastPoint, lastTriangle);
 	}
 	double distance(const float3& r, const float3& v,
 			KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
-		return distance(r, v, lastPoint, lastTriangle);
+		return closestPointOutside(r, v, lastPoint, lastTriangle);
 	}
 };
 }

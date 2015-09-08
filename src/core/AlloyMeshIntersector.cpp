@@ -1165,7 +1165,7 @@ namespace aly {
 					tri = dynamic_cast<KDTriangle*>(box.get());
 					float3 intersect = tri->intersectionPointSegment(p1, v);
 					if (intersect != NO_HIT_POINT) {
-						d = distance(p1, intersect, lastTriangle);
+						d = closestPoint(p1, intersect, lastTriangle);
 						if (d < mind) {
 							mind = d;
 							resultTriangle = tri;
@@ -1208,7 +1208,7 @@ namespace aly {
 					tri = dynamic_cast<KDTriangle*>(box.get());
 					float3 intersect = tri->intersectionPointSegment(p1, p2);
 					if (intersect != nullptr) {
-						d = distance(p1, intersect, lastTriangle);
+						d = closestPoint(p1, intersect, lastTriangle);
 						if (d < mind) {
 							mind = d;
 							resultTriangle = tri;
@@ -1229,9 +1229,9 @@ namespace aly {
 			return mind;
 		}
 	}
-	double KDTree::signedDistance(const float3& r, float3& lastPoint,
+	double KDTree::closestPointSignedDistance(const float3& r, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
-		double d = distance(r, lastPoint, lastTriangle);
+		double d = closestPoint(r, lastPoint, lastTriangle);
 		if (d >= 0) {
 			float3 norm = lastTriangle->getNormal();
 			float3 center = lastTriangle->getCentroid();
@@ -1242,7 +1242,7 @@ namespace aly {
 			return std::numeric_limits<float>::infinity();
 		}
 	}
-	double KDTree::distance(const float3& pt, float3& lastPoint,
+	double KDTree::closestPoint(const float3& pt, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
 		if (root->getChildren().size() == 0)
 			throw new std::runtime_error("KD-Tree has not been initialized.");
@@ -1282,7 +1282,7 @@ namespace aly {
 		}
 	}
 
-	double KDTree::distance(const float3& r, const float3& v, float3& lastPoint,
+	double KDTree::closestPointOutside(const float3& r, const float3& v, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
 		if (root->getChildren().size() == 0)
 			throw new std::runtime_error("KD-Tree has not been initialized.");
