@@ -952,7 +952,6 @@ void KDTree::buildTree(int maxDepth) {
 		if (children.size() < 2)
 			continue;
 		sz = (int) children.size() * 2;
-
 		std::vector<KDBoxEdge> edges;
 		splitPos = splitPosition(children, edges, box);
 		if (splitPos <= 0 || splitPos == sz - 1) {
@@ -1008,7 +1007,7 @@ int KDTree::splitPosition(std::vector<KDBox*>& children,
 	double val;
 	double minCost;
 	int sz;
-	KDBoxEdge e1, e2;
+	//KDBoxEdge e1, e2;
 	float3 v = box->getMax() - box->getMin();
 	if (v.x > v.y && v.x > v.z)
 		dim = 0;
@@ -1034,16 +1033,15 @@ int KDTree::splitPosition(std::vector<KDBox*>& children,
 			prod = v.x * v.y;
 			break;
 		}
-		e1.set(box, dim, true);
-		e2.set(box, dim, false);
+
 		sz = (int) children.size() * 2;
-		edges.resize(sz);
+		edges.clear();
 		for (int i = 0; i < sz; i++) {
 			KDBox* child = children[i / 2];
-			edges[i] = KDBoxEdge(child, dim, (i % 2 == 1) ? true : false);
+			edges.push_back(KDBoxEdge(child, dim, (i % 2 == 1) ? true : false));
 		}
 
-		std::sort(edges.begin(), edges.end(),
+		std::sort(edges.begin(), edges.begin()+edges.size(),
 				[](const KDBoxEdge& e1, const KDBoxEdge& e2) {
 					if (e1.getValue() == e2.getValue()) {
 						if (e1.isMin() && !e2.isMin()) {
@@ -1068,6 +1066,9 @@ int KDTree::splitPosition(std::vector<KDBox*>& children,
 		// generated
 		// minCost=intersectCost*nAbove;
 		minCost = 1E30;
+
+		KDBoxEdge e1(box, dim, true);
+		KDBoxEdge e2(box, dim, false);
 		for (int i = 0; i < sz; i++) {
 			if (!edges[i].isMin())
 				nAbove--;
