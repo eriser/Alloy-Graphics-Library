@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\src\core\AlloyImage.cpp" />
     <ClCompile Include="..\..\src\core\AlloyMath.cpp" />
     <ClCompile Include="..\..\src\core\AlloyMesh.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyMeshIntersector.cpp" />
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp" />
     <ClCompile Include="..\..\src\core\AlloyPLY.cpp" />
     <ClCompile Include="..\..\src\core\AlloySimulation.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="..\..\include\core\AlloyImage.h" />
     <ClInclude Include="..\..\include\core\AlloyMath.h" />
     <ClInclude Include="..\..\include\core\AlloyMesh.h" />
+    <ClInclude Include="..\..\include\core\AlloyMeshIntersector.h" />
     <ClInclude Include="..\..\include\core\AlloyNumber.h" />
     <ClInclude Include="..\..\include\core\AlloyPLY.h" />
     <ClInclude Include="..\..\include\core\AlloySimulation.h" />
