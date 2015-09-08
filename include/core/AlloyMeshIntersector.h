@@ -170,7 +170,8 @@ struct KDBoxDistance {
 
 };
 inline bool operator<(const KDBoxDistance& a, const KDBoxDistance& b) {
-	return (a.dist < b.dist);
+	//Priority queue puts largest first, so we need to use a >= operator to get ascending order.
+	return (a.dist >= b.dist);
 }
 class KDTree {
 protected:
