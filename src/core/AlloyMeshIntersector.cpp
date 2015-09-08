@@ -1163,7 +1163,7 @@ namespace aly {
 				if (box->isLeaf) {
 					countIntersects++;
 					tri = dynamic_cast<KDTriangle*>(box.get());
-					float3 intersect = tri->intersectionPointSegment(p1, v);
+					float3 intersect = tri->intersectionPointRay(p1, v);
 					if (intersect != NO_HIT_POINT) {
 						d = distance(p1, intersect, lastTriangle);
 						if (d < mind) {
