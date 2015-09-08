@@ -18,6 +18,44 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+
+// Geometric Tools LLC, Redmond WA 98052
+// Copyright (c) 1998-2015
+// Distributed under the Boost Software License, Version 1.0.
+// http://www.boost.org/LICENSE_1_0.txt
+// http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
+
+/*
+pbrt source code is Copyright(c) 1998-2015
+Matt Pharr, Greg Humphreys, and Wenzel Jakob.
+
+This file is part of pbrt.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+- Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+- Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
 #include "AlloyMeshIntersector.h"
 namespace aly {
 	void KDBox::update() {
@@ -143,14 +181,13 @@ namespace aly {
 	bool KDBox::intersectsSegment(const float3& org, const float3& end) const {
 		if (inside(org) || inside(end))
 			return true;
-
 		float3 dr = end - org;
 		float len = length(dr);
 		dr /= len;
-		double minB[] = { minPoint.x, minPoint.y, minPoint.z };
-		double maxB[] = { maxPoint.x, maxPoint.y, maxPoint.z };
-		double origin[] = { org.x, org.y, org.z };
-		double dir[] = { dr.x, dr.y, dr.z };
+		double3 minB(minPoint);
+		double3 maxB(maxPoint);
+		double3 origin(org);
+		double3 dir(dr);
 		float3 coord;
 		int3 quadrant;
 		bool inside = true;
@@ -176,7 +213,6 @@ namespace aly {
 		if (inside) {
 			return true;
 		}
-		/* Calculate T distances to candidate planes */
 		for (i = 0; i < 3; i++) {
 			if (quadrant[i] != MIDDLE && dir[i] != 0.) {
 				maxT[i] = (candidatePlane[i] - origin[i]) / dir[i];
@@ -185,13 +221,11 @@ namespace aly {
 				maxT[i] = -1.;
 			}
 		}
-		/* Get largest of the maxT's for final choice of intersection */
 		whichPlane = 0;
 		for (i = 1; i < 3; i++) {
 			if (maxT[whichPlane] < maxT[i])
 				whichPlane = i;
 		}
-		/* Check final candidate actually inside box */;
 		if (maxT[whichPlane] < 0) {
 			return false;
 		}
@@ -548,7 +582,7 @@ namespace aly {
 		return false;
 	}
 	float3 KDSegment::intersectsPlane(const float3& center, const float3& kNormal) {
-		static const float EPS = 5e-4f;
+		static const float EPS = 1E-30f;
 		float A = kNormal.x;
 		float B = kNormal.y;
 		float C = kNormal.z;
@@ -557,15 +591,15 @@ namespace aly {
 		float denom = (A * direction.x + B * direction.y + C * direction.z);
 		if (denom != 0) {
 			float u = numer / denom;
-			if (u >EPS && u < extent - EPS) {
+			if (u > EPS && u < extent - EPS) {
 				return origin + direction*u;
 			}
 			else {
-				return float3(std::numeric_limits<float>::max());
+				return NO_HIT_PT;
 			}
 		}
 		else {
-			return float3(std::numeric_limits<float>::max());
+			return NO_HIT_PT;
 		}
 	}
 	double3 KDTriangle::toBary(const float3& p) const {
@@ -619,7 +653,7 @@ namespace aly {
 			fDdN = -fDdN;
 		}
 		else {
-			return float3(std::numeric_limits<float>::max());
+			return NO_HIT_PT;
 		}
 		float3 crs = cross(kDiff, kEdge2);
 		double fDdQxE2 = fSign * dot(dr, crs);
@@ -952,7 +986,6 @@ namespace aly {
 				}
 			}
 		}
-
 		// account for numerical round-off error
 		if (fSqrDistance < (float) 0.0) {
 			fSqrDistance = (float) 0.0;
@@ -972,17 +1005,16 @@ namespace aly {
 	void KDTree::buildTree(const std::shared_ptr<KDBox>& initBox, int maxDepth) {
 		std::list<std::shared_ptr<KDBox>> boxes;
 		boxes.push_back(initBox);
-		std::shared_ptr<KDBox> box = initBox;
 		int sz;
 		int splitPos;
 		std::vector<KDBoxEdge> edges;
 		std::shared_ptr<KDBox> leftChild;
 		std::shared_ptr<KDBox> rightChild;
-		int initSz = (int)box->getChildren().size() * 2;
+		int initSz = (int)initBox->getChildren().size() * 2;
 		edges.resize(initSz);
 		int depthCount = 0;
-		while (boxes.size()>0) {
-			box = boxes.front();
+		while (boxes.size() > 0) {
+			std::shared_ptr<KDBox> box = boxes.front();
 			boxes.pop_front();
 			if (box->getDepth() > maxDepth)
 				continue;
@@ -1071,7 +1103,7 @@ namespace aly {
 			e1.set(box, dim, true);
 			e2.set(box, dim, false);
 			for (int i = 0; i < sz; i++) {
-				std::shared_ptr<KDBox> child = children[i / 2];
+				std::shared_ptr<KDBox>& child = children[i / 2];
 				edges[i].set(child, dim, (i % 2 == 1) ? true : false);
 			}
 			std::sort(edges.begin(), edges.end());
