@@ -1035,10 +1035,10 @@ int KDTree::splitPosition(std::vector<KDBox*>& children,
 		}
 
 		sz = (int) children.size() * 2;
-		edges.clear();
+		edges.resize(sz);
 		for (int i = 0; i < sz; i++) {
 			KDBox* child = children[i / 2];
-			edges.push_back(KDBoxEdge(child, dim, (i % 2 == 1) ? true : false));
+			edges[i]=KDBoxEdge(child, dim, (i % 2 == 1) ? true : false);
 		}
 
 		std::sort(edges.begin(), edges.begin()+edges.size(),
