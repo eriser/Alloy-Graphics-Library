@@ -63,6 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <list>
 #include <queue>
 namespace aly {
+	static const double ZERO_TOLERANCE = 1E-6;
 	void KDBox::update() {
 		minPoint.x = minPoint.y = minPoint.z = 1E30f;
 		maxPoint.x = maxPoint.y = maxPoint.z = -1E30f;
@@ -267,7 +268,7 @@ namespace aly {
 		seg.extent = 1E30f;
 		return seg;
 	}
-	double KDSegment::distance(KDSegment& seg) {
+	double KDSegment::distance(const KDSegment& seg,float3& lastIntersect) {
 		float3 kDiff = origin - seg.origin;
 		double fA01 = -dot(direction, seg.direction);
 		double fB0 = dot(kDiff, direction);
@@ -563,12 +564,10 @@ namespace aly {
 		float3 tmpDir = direction;
 		tmpDir *= (float)fS0;
 		m_kClosestPoint0 = origin + tmpDir;
-		setLastIntersect(m_kClosestPoint1);
-
-		tmpDir = seg.direction;
-		tmpDir *= (float)fS1;
-		m_kClosestPoint1 = seg.origin + tmpDir;
-		seg.setLastIntersect(m_kClosestPoint1);
+		lastIntersect = m_kClosestPoint0;
+		//tmpDir = seg.direction;
+		//tmpDir *= (float)fS1;
+		//m_kClosestPoint1 = seg.origin + tmpDir;
 		return std::sqrt(std::abs(fSqrDist));
 	}
 	bool KDSegment::intersectsPoint(const float3& test) {
@@ -685,21 +684,22 @@ namespace aly {
 		float3 intersect = NO_HIT_PT;
 		double d;
 		KDSegment e1 = KDSegment::createFromPoints(pts[0], pts[1]);
-		d = seg.distance(e1);
+		float3 lastIntersect;
+		d = seg.distance(e1,lastIntersect);
 		if (d < EPS) {
-			intersect = e1.getLastIntersect();
+			intersect = lastIntersect;
 		}
 		else {
 			KDSegment e2 = KDSegment::createFromPoints(pts[1], pts[2]);
-			d = seg.distance(e2);
+			d = seg.distance(e2, lastIntersect);
 			if (d < EPS) {
-				intersect = e2.getLastIntersect();
+				intersect = lastIntersect;
 			}
 			else {
 				KDSegment e3 = KDSegment::createFromPoints(pts[2], pts[0]);
-				d = seg.distance(e3);
+				d = seg.distance(e3,lastIntersect);
 				if (d < EPS) {
-					intersect = e3.getLastIntersect();
+					intersect = lastIntersect;
 				}
 			}
 		}
@@ -707,11 +707,9 @@ namespace aly {
 			kDiff = intersect - p1;
 			double l = dot(seg.direction, kDiff);
 			if (l >= 0 && l <= len) {
-				lastIntersect = intersect;
 				return intersect;
 			}
 		}
-		lastIntersect = NO_HIT_PT;
 		return NO_HIT_PT;
 
 	}
@@ -771,28 +769,28 @@ namespace aly {
 		float3 intersect = NO_HIT_PT;
 		double d;
 		KDSegment e1 = KDSegment::createFromPoints(pts[0], pts[1]);
-		d = seg.distance(e1);
+		float3 lastIntersect;
+		d = seg.distance(e1, lastIntersect);
 		if (d < EPS) {
-			intersect = e1.getLastIntersect();
+			intersect = lastIntersect;
 		}
 		else {
 			KDSegment e2 = KDSegment::createFromPoints(pts[1], pts[2]);
-			d = seg.distance(e2);
+			d = seg.distance(e2, lastIntersect);
 			if (d < EPS) {
-				intersect = e2.getLastIntersect();
+				intersect = lastIntersect;
 			}
 			else {
 				KDSegment e3 = KDSegment::createFromPoints(pts[2], pts[0]);
-				d = seg.distance(e3);
+				d = seg.distance(e3, lastIntersect);
 				if (d < EPS) {
-					intersect = e3.getLastIntersect();
+					intersect = lastIntersect;
 				}
 			}
 		}
-		lastIntersect = intersect;
 		return intersect;
 	}
-	double KDTriangle::distance(const float3& p) {
+	double KDTriangle::distance(const float3& p, float3& lastIntersect) {
 		float3 p1 = pts[0];
 		float3 p2 = pts[1];
 		float3 p3 = pts[2];
@@ -1145,7 +1143,7 @@ namespace aly {
 		} while (bestSplit == -1 && retry > 0);
 		return bestSplit;
 	}
-	double KDTree::intersectRayDistance(float3 p1, float3 v) {
+	double KDTree::intersectRayDistance(const float3& p1,const float3& v,float3& lastPoint, KDTriangle*& lastTriangle) {
 		if (root->getChildren().size() == 0)
 			throw new std::runtime_error("KD-Tree has not been initialized.");
 		std::list<std::shared_ptr<KDBox>> boxes;
@@ -1156,6 +1154,7 @@ namespace aly {
 		KDTriangle* resultTriangle = nullptr;
 		float3 resultIntersect = NO_HIT_PT;
 		KDTriangle* tri;
+		float3 lastIntersect;
 		int countIntersects = 0;
 		while (boxes.size() > 0) {
 			std::shared_ptr<KDBox>& box = boxes.front();
@@ -1166,7 +1165,7 @@ namespace aly {
 					tri = dynamic_cast<KDTriangle*>(box.get());
 					float3 intersect = tri->intersectionPoint(p1, v);
 					if (intersect != NO_HIT_PT) {
-						d = distance(p1, intersect);
+						d = distance(p1, intersect,lastTriangle);
 						if (d < mind) {
 							mind = d;
 							resultTriangle = tri;
@@ -1186,7 +1185,7 @@ namespace aly {
 			return mind;
 		}
 	}
-	double KDTree::intersectSegmentDistance(float3 p1, float3 p2) {
+	double KDTree::intersectSegmentDistance(const float3& p1,const float3& p2, float3& lastPoint, KDTriangle*& lastTriangle) {
 		if (root->getChildren().size() == 0)
 			throw new std::runtime_error("KD-Tree has not been initialized.");
 		std::list<std::shared_ptr<KDBox>> boxes;
@@ -1208,7 +1207,7 @@ namespace aly {
 					tri = dynamic_cast<KDTriangle*>(box.get());
 					float3 intersect = tri->intersectionPoint(p1, p2);
 					if (intersect != nullptr) {
-						d = distance(p1, intersect);
+						d = distance(p1, intersect,lastTriangle);
 						if (d < mind) {
 							mind = d;
 							resultTriangle = tri;
@@ -1228,8 +1227,8 @@ namespace aly {
 			return mind;
 		}
 	}
-	double KDTree::signedDistance(float3 r) {
-		double d = distance(r);
+	double KDTree::signedDistance(const float3& r, float3& lastPoint, KDTriangle*& lastTriangle) {
+		double d = distance(r,lastPoint,lastTriangle);
 		if (d >= 0) {
 			float3 norm = lastTriangle->getNormal();
 			float3 center = lastTriangle->getCentroid();
@@ -1240,7 +1239,7 @@ namespace aly {
 			return std::numeric_limits<float>::infinity();
 		}
 	}
-	double KDTree::distance(float3 pt) {
+	double KDTree::distance(const float3& pt,float3& lastPoint, KDTriangle*& lastTriangle) {
 		if (root->getChildren().size() == 0)
 			throw new std::runtime_error("KD-Tree has not been initialized.");
 		double d;
@@ -1249,18 +1248,19 @@ namespace aly {
 		queue.push(KDBoxDistance(pt, getRoot()));
 		lastTriangle = nullptr;
 		lastPoint = NO_HIT_PT;
+		float3 lastIntersect = NO_HIT_PT;
 		while (queue.size() > 0) {
 			KDBoxDistance boxd = queue.top();
 			queue.pop();
 			if ((d = boxd.dist) < mind) {
 				if (boxd.box->isLeaf) {
 					KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box.get());
-					d = tri->distance(pt);
+					d = tri->distance(pt, lastIntersect);
 					boxd.dist = d;
 					if (d < mind) {
 						mind = d;
 						lastTriangle = tri;
-						lastPoint = tri->getLastIntersect();
+						lastPoint = lastIntersect;
 					}
 				}
 				else {
@@ -1278,7 +1278,7 @@ namespace aly {
 		}
 	}
 
-	double KDTree::distance(float3 r, float3 v) {
+	double KDTree::distance(const float3& r,const float3& v,float3& lastPoint, KDTriangle*& lastTriangle) {
 		if (root->getChildren().size() == 0)
 			throw new std::runtime_error("KD-Tree has not been initialized.");
 
@@ -1291,16 +1291,17 @@ namespace aly {
 		lastPoint = NO_HIT_PT;
 		float3 pt;
 		float3 testv;
+		float3 lastIntersect;
 		while (queue.size() > 0) {
 			KDBoxDistance boxd = queue.top();
 			queue.pop();
 			if ((d = boxd.dist) < mind) {
 				if (boxd.box->isLeaf) {
 					KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box.get());
-					d = tri->distance(r);
+					d = tri->distance(r,lastIntersect);
 					boxd.dist = d;
 					if (d < mind) {
-						pt = tri->getLastIntersect();
+						pt = lastIntersect;
 						testv = pt - r;
 						// Test if point is on one side of plane
 						if (dot(testv, v) >= 0) {
