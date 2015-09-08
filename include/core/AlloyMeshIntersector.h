@@ -25,7 +25,7 @@
 
 namespace aly {
 struct Mesh;
-static const float3 NO_HIT_PT = float3(std::numeric_limits<float>::infinity());
+static const float3 NO_HIT_POINT = float3(std::numeric_limits<float>::infinity());
 class KDBox {
 protected:
 	int depth;

@@ -545,10 +545,10 @@ float3 KDSegment::intersectionPointRay(const float3& center,
 		if (u > EPS && u < extent - EPS) {
 			return origin + direction * u;
 		} else {
-			return NO_HIT_PT;
+			return NO_HIT_POINT;
 		}
 	} else {
-		return NO_HIT_PT;
+		return NO_HIT_POINT;
 	}
 }
 double3 KDTriangle::toBary(const float3& p) const {
@@ -596,7 +596,7 @@ float3 KDTriangle::intersectionPointSegment(const float3& p1,
 		fSign = (double) -1.0;
 		fDdN = -fDdN;
 	} else {
-		return NO_HIT_PT;
+		return NO_HIT_POINT;
 	}
 	float3 crs = cross(kDiff, kEdge2);
 	double fDdQxE2 = fSign * dot(dr, crs);
@@ -615,7 +615,7 @@ float3 KDTriangle::intersectionPointSegment(const float3& p1,
 			}
 		}
 	}
-	float3 intersect = NO_HIT_PT;
+	float3 intersect = NO_HIT_POINT;
 	double d;
 	KDSegment e1 = KDSegment::createFromSegment(pts[0], pts[1]);
 	float3 lastIntersect;
@@ -635,14 +635,14 @@ float3 KDTriangle::intersectionPointSegment(const float3& p1,
 			}
 		}
 	}
-	if (intersect != NO_HIT_PT) {
+	if (intersect != NO_HIT_POINT) {
 		kDiff = intersect - p1;
 		double l = dot(seg.direction, kDiff);
 		if (l >= 0 && l <= len) {
 			return intersect;
 		}
 	}
-	return NO_HIT_PT;
+	return NO_HIT_POINT;
 
 }
 float3 KDTriangle::intersectionPointRay(const float3& org,
@@ -667,7 +667,7 @@ float3 KDTriangle::intersectionPointRay(const float3& org,
 		// System.out.println("SEGMENT PARALLEL !");
 		// Segment and triangle are parallel, call it a "no intersection"
 		// even if the segment does intersect.
-		return NO_HIT_PT;
+		return NO_HIT_POINT;
 	}
 	float3 crs = cross(kDiff, kEdge2);
 	double fDdQxE2 = fSign * dot(dr, crs);
@@ -708,7 +708,7 @@ float3 KDTriangle::intersectionPointRay(const float3& org,
 			}
 		}
 	}
-	return NO_HIT_PT;
+	return NO_HIT_POINT;
 }
 double KDTriangle::distance(const float3& p, float3& lastIntersect) const {
 	float3 p1 = pts[0];
@@ -1056,7 +1056,7 @@ double KDTree::intersectRayDistance(const float3& p1, const float3& v,
 	double d;
 	double mind = 1E30;
 	KDTriangle* resultTriangle = nullptr;
-	float3 resultIntersect = NO_HIT_PT;
+	float3 resultIntersect = NO_HIT_POINT;
 	KDTriangle* tri;
 	float3 lastIntersect;
 	int countIntersects = 0;
@@ -1068,7 +1068,7 @@ double KDTree::intersectRayDistance(const float3& p1, const float3& v,
 				countIntersects++;
 				tri = dynamic_cast<KDTriangle*>(box.get());
 				float3 intersect = tri->intersectionPointSegment(p1, v);
-				if (intersect != NO_HIT_PT) {
+				if (intersect != NO_HIT_POINT) {
 					d = distance(p1, intersect, lastTriangle);
 					if (d < mind) {
 						mind = d;
@@ -1099,9 +1099,9 @@ double KDTree::intersectSegmentDistance(const float3& p1, const float3& p2,
 	double d;
 	double mind = 1E30;
 	KDTriangle* resultTriangle = nullptr;
-	float3 resultIntersect = NO_HIT_PT;
+	float3 resultIntersect = NO_HIT_POINT;
 	KDTriangle* tri;
-	lastPoint = NO_HIT_PT;
+	lastPoint = NO_HIT_POINT;
 	lastTriangle = nullptr;
 	while (boxes.size() > 0) {
 		std::shared_ptr<KDBox>& box = boxes.front();
@@ -1152,8 +1152,8 @@ double KDTree::distance(const float3& pt, float3& lastPoint,
 	std::priority_queue<KDBoxDistance> queue;
 	queue.push(KDBoxDistance(pt, getRoot()));
 	lastTriangle = nullptr;
-	lastPoint = NO_HIT_PT;
-	float3 lastIntersect = NO_HIT_PT;
+	lastPoint = NO_HIT_POINT;
+	float3 lastIntersect = NO_HIT_POINT;
 	while (queue.size() > 0) {
 		KDBoxDistance boxd = queue.top();
 		queue.pop();
@@ -1192,7 +1192,7 @@ double KDTree::distance(const float3& r, const float3& v, float3& lastPoint,
 	queue.push(KDBoxDistance(r, getRoot()));
 
 	lastTriangle = nullptr;
-	lastPoint = NO_HIT_PT;
+	lastPoint = NO_HIT_POINT;
 	float3 pt;
 	float3 testv;
 	float3 lastIntersect;
