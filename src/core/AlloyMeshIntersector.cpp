@@ -579,7 +579,7 @@ double3 KDTriangle::toBary(const float3& p) const {
 }
 float3 KDTriangle::intersectionPointSegment(const float3& p1,
 		const float3& p2) const {
-	static const float EPS = 5e-4f;
+	static const float EPS = 1e-5f;
 	// compute the offset origin, edges, and normal
 	KDSegment seg = KDSegment::createFromSegment(p1, p2);
 	float3 dr = seg.direction;
@@ -588,11 +588,6 @@ float3 KDTriangle::intersectionPointSegment(const float3& p1,
 	float3 kEdge1 = pts[1] - pts[0];
 	float3 kEdge2 = pts[2] - pts[0];
 	float3 kNormal = cross(kEdge1, kEdge2);
-	// Solve Q + t*D = b1*E1 + b2*E2 (Q = kDiff, D = segment direction,
-	// E1 = kEdge1, E2 = kEdge2, N = Cross(E1,E2)) by
-	// |Dot(D,N)|*b1 = sign(Dot(D,N))*Dot(D,Cross(Q,E2))
-	// |Dot(D,N)|*b2 = sign(Dot(D,N))*Dot(D,Cross(E1,Q))
-	// |Dot(D,N)|*t = -sign(Dot(D,N))*Dot(Q,N)
 	double fDdN = dot(dr, kNormal);
 	double fSign;
 	if (fDdN > 0) {
@@ -612,13 +607,8 @@ float3 KDTriangle::intersectionPointSegment(const float3& p1,
 			if (fDdQxE2 + fDdE1xQ <= fDdN) {
 				// line intersects triangle, check if segment does
 				double fQdN = -fSign * dot(kDiff, kNormal);
-				double fExtDdN = len * fDdN;
-				/*
-				 * if (-fExtDdN <= fQdN && fQdN <= fExtDdN) {
-				 */
 				double fInv = ((double) 1.0) / fDdN;
 				double m_fSegmentT = fQdN * fInv;
-
 				if (m_fSegmentT >= 0 && m_fSegmentT <= len) {
 					return p1 + dr * (float) m_fSegmentT;
 				}
@@ -657,7 +647,7 @@ float3 KDTriangle::intersectionPointSegment(const float3& p1,
 }
 float3 KDTriangle::intersectionPointRay(const float3& org,
 		const float3& v) const {
-	static const float EPS = 5e-4f;
+	static const float EPS = 1e-5f;
 	// compute the offset origin, edges, and normal
 	KDSegment seg = KDSegment::createFromRay(org, v);
 	float3 dr = seg.direction;
@@ -666,12 +656,6 @@ float3 KDTriangle::intersectionPointRay(const float3& org,
 	float3 kEdge1 = pts[1] - pts[0];
 	float3 kEdge2 = pts[2] - pts[0];
 	float3 kNormal = cross(kEdge1, kEdge2);
-
-	// Solve Q + t*D = b1*E1 + b2*E2 (Q = kDiff, D = segment direction,
-	// E1 = kEdge1, E2 = kEdge2, N = Cross(E1,E2)) by
-	// |Dot(D,N)|*b1 = sign(Dot(D,N))*Dot(D,Cross(Q,E2))
-	// |Dot(D,N)|*b2 = sign(Dot(D,N))*Dot(D,Cross(E1,Q))
-	// |Dot(D,N)|*t = -sign(Dot(D,N))*Dot(Q,N)
 	double fDdN = dot(dr, kNormal);
 	double fSign;
 	if (fDdN > 0) {
@@ -699,35 +683,32 @@ float3 KDTriangle::intersectionPointRay(const float3& org,
 					// segment intersects triangle
 					double fInv = ((double) 1.0) / fDdN;
 					double m_fSegmentT = fQdN * fInv;
-					// double m_fTriB1 = fDdQxE2*fInv;
-					// double m_fTriB2 = fDdE1xQ*fInv;
-					// double m_fTriB0 = (double)1.0 - m_fTriB1 - m_fTriB2;
 					return org + dr * (float) m_fSegmentT;
 				}
 			}
 		}
 	}
-	float3 intersect = NO_HIT_PT;
+	//Handle cracks between triangle faces
 	double d;
 	KDSegment e1 = KDSegment::createFromSegment(pts[0], pts[1]);
 	float3 lastIntersect;
 	d = seg.distance(e1, lastIntersect);
 	if (d < EPS) {
-		intersect = lastIntersect;
+		return lastIntersect;
 	} else {
 		KDSegment e2 = KDSegment::createFromSegment(pts[1], pts[2]);
 		d = seg.distance(e2, lastIntersect);
 		if (d < EPS) {
-			intersect = lastIntersect;
+			return lastIntersect;
 		} else {
 			KDSegment e3 = KDSegment::createFromSegment(pts[2], pts[0]);
 			d = seg.distance(e3, lastIntersect);
 			if (d < EPS) {
-				intersect = lastIntersect;
+				return lastIntersect;
 			}
 		}
 	}
-	return intersect;
+	return NO_HIT_PT;
 }
 double KDTriangle::distance(const float3& p, float3& lastIntersect) const {
 	float3 p1 = pts[0];
@@ -1122,7 +1103,6 @@ double KDTree::intersectSegmentDistance(const float3& p1, const float3& p2,
 	KDTriangle* tri;
 	lastPoint = NO_HIT_PT;
 	lastTriangle = nullptr;
-	int countIntersects = 0;
 	while (boxes.size() > 0) {
 		std::shared_ptr<KDBox>& box = boxes.front();
 		boxes.pop_front();
