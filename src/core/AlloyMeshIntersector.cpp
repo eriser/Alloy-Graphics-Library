@@ -57,6 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "AlloyMeshIntersector.h"
+#include <algorithm>
+#include <list>
 namespace aly {
 	void KDBox::update() {
 		minPoint.x = minPoint.y = minPoint.z = 1E30f;

@@ -23,8 +23,7 @@
 #define ALLOYMESHKDTREE_H_
 #include "AlloyMath.h"
 #include "AlloyMesh.h"
-#include <algorithm>
-#include <list>
+
 namespace aly {
 	
 	static const double ZERO_TOLERANCE = 1E-6;
