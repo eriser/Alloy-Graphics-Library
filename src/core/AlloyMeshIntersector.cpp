@@ -970,6 +970,7 @@ void KDTree::buildTree(int maxDepth) {
 			if (edges[i].isMin()) {
 				edges[i].getBox()->setDepth(leftChild->getDepth() + 1);
 				lchildren.push_back(edges[i].getBox());
+
 			}
 		}
 		for (int i = splitPos + 1; i < sz; i++) {
@@ -1113,7 +1114,7 @@ double KDTree::intersectRayDistance(const float3& p1, const float3& v,
 			if (box->isLeaf) {
 				countIntersects++;
 				tri = dynamic_cast<KDTriangle*>(box);
-				float3 intersect = tri->intersectionPointSegment(p1, v);
+				float3 intersect = tri->intersectionPointRay(p1, v);
 				if (intersect != NO_HIT_POINT) {
 					d = closestPoint(p1, intersect, lastTriangle);
 					if (d < mind) {
