@@ -12,6 +12,7 @@
 #include "AlloyMesh.h"
 #include "AlloyAlgorithm.h"
 #include "AlloySparseMatrix.h"
+#include "AlloyMeshIntersector.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
 #include "cereal/archives/binary.hpp"
@@ -38,6 +39,53 @@ bool SANITY_CHECK_ALGO() {
 	cereal::JSONOutputArchive archiver(os);
 	archiver(A);
 
+	return true;
+}
+bool SANITY_CHECK_KDTREE(){
+	Mesh mesh;
+	std::cout<<"Load Mesh"<<std::endl;
+	mesh.load(AlloyDefaultContext()->getFullPath("models/icosahedron.ply"));
+	std::cout<<"Create KD Tree"<<std::endl;
+	KDTree kdTree(mesh);
+return true;
+}
+bool SANITY_CHECK_SPARSE_SOLVE() {
+	MeshNeighborTable vertTable;
+	Mesh mesh;
+	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
+	CreateOrderedVertexNeighborTable(mesh, vertTable);
+	//CreateVertexNeighborTable(mesh, vertTable, false);
+	srand(1023172413L);
+	mesh.updateVertexNormals();
+	SparseMatrix<float, 1> L(mesh.vertexLocations.size(),
+			mesh.vertexLocations.size());
+	Vector3f b(L.rows);
+	srand(213823);
+	for (size_t i = 0; i < L.rows; i++) {
+
+		const float w = 0.9f;
+		for (uint32_t v : vertTable[i]) {
+			L.set(i, v, float1(-w));
+		}
+		L.set(i, i, float1(1.0f + (float) w * vertTable[i].size()));
+		float3 norm = mesh.vertexNormals[i];
+		mesh.vertexLocations[i] += 5.0f * norm
+				* (((rand() % 1024) / 1024.0f) - 0.5f);
+		b[i] = mesh.vertexLocations[i];
+		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
+				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
+	}
+	//WriteMeshToFile("smoothed_before.ply", mesh);
+	/*
+	 SolveCG(b, L, mesh.vertexLocations, 100, 1E-6f,
+	 [this](int iter,double err) {
+	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+	 });
+	 */
+	SolveBICGStab(b, L, mesh.vertexLocations, 500, 1E-6f,
+			[=](int iter,double err) {
+				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
+			});
 	return true;
 }
 bool SANITY_CHECK_MATH() {

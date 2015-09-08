@@ -38,6 +38,7 @@
 #include "AlloyApplication.h"
 #include "AlloyWorker.h"
 #include "AlloyMesh.h"
+#include "AlloyMeshIntersector.h"
 #include "AlloyVirtualCamera.h"
 #include "AlloySparseMatrix.h"
 #include "AlloyAlgorithm.h"

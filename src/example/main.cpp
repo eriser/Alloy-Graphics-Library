@@ -42,7 +42,7 @@ int main() {
 	 }*/
 	try {
 		//SANITY_CHECK_ANY();
-		SANITY_CHECK_SVD();
+		//SANITY_CHECK_SVD();
 		//SANITY_CHECK_ALGO();
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
@@ -62,6 +62,9 @@ int main() {
 		*/
 		//ExampleUI app;
 		MeshViewer app;
+
+
+		SANITY_CHECK_KDTREE();
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {

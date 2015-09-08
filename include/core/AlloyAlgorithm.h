@@ -25,6 +25,7 @@
 #include "AlloySparseMatrix.h"
 namespace aly {
 bool SANITY_CHECK_ALGO();
+bool SANITY_CHECK_SPARSE_SOLVE();
 template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,

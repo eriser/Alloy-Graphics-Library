@@ -62,68 +62,10 @@ bool MeshViewer::init(Composite& rootNode) {
 	ReadMeshFromFile("icosahedron3.ply", tmpMesh);
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
-	//WriteMeshToFile("monkey2.ply", mesh, true);
-	//WriteMeshToFile("monkey3.ply", mesh, false);
-
 	mesh.scale(100.0f);
-	//mesh.save("monkey2.ply");
-	//mesh.vertexColors.resize(mesh.vertexLocations.size());
-	//mesh.vertexColors.set(float4(1.0f, 0.0f, 0.0f, 1.0f));
-	MeshNeighborTable vertTable;
-
-	CreateOrderedVertexNeighborTable(mesh, vertTable);
-	//CreateVertexNeighborTable(mesh, vertTable, false);
-	srand(1023172413L);
-	mesh.updateVertexNormals();
-	/*
-	 SparseMatrix<float, 3> L(mesh.vertexLocations.size(), mesh.vertexLocations.size());
-	 for (size_t i = 0;i < L.rows;i++) {
-	 for(uint32_t v:vertTable[i]){
-	 L.insert(i, v, float3(-w));
-	 }
-	 L.insert(i,i,float3(1.0f+(float)w* vertTable[i].size()));
-	 float3 norm = mesh.vertexNormals[i];
-	 mesh.vertexLocations[i] +=5.0f*norm*(((rand() % 1024) / 1024.0f)-0.5f);
-	 b[i] = mesh.vertexLocations[i];
-	 }
-	 */
-
-	SparseMatrix<float, 1> L(mesh.vertexLocations.size(),
-			mesh.vertexLocations.size());
-	Vector3f b(L.rows);
-	srand(213823);
-
-	for (size_t i = 0; i < L.rows; i++) {
-
-		const float w = 0.9f;
-		for (uint32_t v : vertTable[i]) {
-			L.set(i, v, float1(-w));
-		}
-		L.set(i, i, float1(1.0f + (float) w * vertTable[i].size()));
-		float3 norm = mesh.vertexNormals[i];
-		mesh.vertexLocations[i] += 5.0f * norm
-				* (((rand() % 1024) / 1024.0f) - 0.5f);
-		b[i] = mesh.vertexLocations[i];
-		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
-				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
-	}
-	//WriteMeshToFile("smoothed_before.ply", mesh);
-
-	SolveCG(b, L, mesh.vertexLocations, 100, 1E-6f,
-			[this](int iter,double err) {
-				std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
-			});
-	/*
-	 SolveBICGStab(b, L, mesh.vertexLocations, 100, 1E-6f,
-	 [this](int iter,double err) {
-	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
-	 });
-	 */
-	//WriteMeshToFile("smoothed_bicg.ply", mesh);
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();
-	//WriteMeshToFile("smoothed_after.ply", mesh);
 
 	mesh2.load(getFullPath("models/armadillo.ply"));
 

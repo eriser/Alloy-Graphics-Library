@@ -24,6 +24,7 @@
 #include "AlloyMath.h"
 
 namespace aly {
+bool SANITY_CHECK_KDTREE();
 struct Mesh;
 static const float3 NO_HIT_POINT = float3(
 		std::numeric_limits<float>::infinity());
@@ -31,7 +32,7 @@ class KDBox {
 protected:
 	int depth;
 	float3 minPoint, maxPoint;
-	std::vector<std::shared_ptr<KDBox>> children;
+	std::vector<KDBox*> children;
 	static const int LEFT = 0, RIGHT = 1, MIDDLE = 2;
 public:
 	const bool isLeaf;
@@ -39,13 +40,13 @@ public:
 			depth(depth), isLeaf(false) {
 		minPoint = float3(0, 0, 0);
 		maxPoint = float3(0, 0, 0);
-		children = std::vector<std::shared_ptr<KDBox>>();
+		children = std::vector<KDBox*>();
 	}
 	KDBox(int depth, bool isLeaf) :
 			depth(depth), isLeaf(isLeaf) {
 		minPoint = float3(0, 0, 0);
 		maxPoint = float3(0, 0, 0);
-		children = std::vector<std::shared_ptr<KDBox>>();
+		children = std::vector<KDBox*>();
 	}
 	int getDepth() const {
 		return depth;
@@ -59,10 +60,10 @@ public:
 	float3 getMax() const {
 		return maxPoint;
 	}
-	std::vector<std::shared_ptr<KDBox>>& getChildren() {
+	std::vector<KDBox*>& getChildren() {
 		return children;
 	}
-	const std::vector<std::shared_ptr<KDBox>>& getChildren() const {
+	const std::vector<KDBox*>& getChildren() const {
 		return children;
 	}
 	double volume() const {
@@ -72,7 +73,7 @@ public:
 	bool intersects(const KDBox& test) const;
 	bool inside(const float3& test) const;
 	virtual void update();
-	double distanceToBox(const float3& p);
+	double distanceToBox(const float3& p) const;
 	bool intersectRayBox(const float3& org, const float3& dr) const;
 	bool intersectSegmentBox(const float3& org, const float3& end) const;
 	virtual ~KDBox() {
@@ -81,38 +82,29 @@ public:
 
 class KDBoxEdge {
 protected:
-	double val;
+	double value;
 	bool start;
-	std::shared_ptr<KDBox> box;
+	KDBox* box;
 public:
-	std::shared_ptr<KDBox>& getBox() {
+	KDBox* getBox() {
 		return box;
 	}
 	double getValue() const {
-		return val;
+		return value;
 	}
 	bool isMin() const {
 		return start;
 	}
-	void set(const std::shared_ptr<KDBox>& b, int dim, bool start);
+	void set(KDBox* b, int dim, bool start);
 	KDBoxEdge() :
-			val(0), start(true) {
+			value(1E30), start(true), box(nullptr) {
 	}
-	friend bool operator <(const KDBoxEdge& e1, const KDBoxEdge& e2);
+	KDBoxEdge(KDBox* b, int dim, bool start) {
+		set(b, dim, start);
+	}
+	~KDBoxEdge(){}
 };
-inline bool operator <(const KDBoxEdge& e1, const KDBoxEdge& e2) {
-	if (e1.val == e2.val) {
-		if (e1.start && !e2.start) {
-			return true;
-		} else if (!e1.start && e2.start) {
-			return false;
-		} else {
-			return true; //equals case
-		}
-	} else {
-		return (e1.val < e2.val);
-	}
-}
+
 class KDSegment {
 public:
 	float extent;
@@ -162,9 +154,9 @@ public:
 };
 
 struct KDBoxDistance {
-	std::shared_ptr<KDBox> box;
+	KDBox* box;
 	double dist;
-	KDBoxDistance(const float3& ref, const std::shared_ptr<KDBox>& tri) :
+	KDBoxDistance(const float3& ref,KDBox* tri) :
 			box(tri) {
 		dist = tri->distanceToBox(ref);
 	}
@@ -177,19 +169,23 @@ inline bool operator<(const KDBoxDistance& a, const KDBoxDistance& b) {
 class KDTree {
 protected:
 	std::shared_ptr<KDBox> root;
+	std::vector<std::shared_ptr<KDBox>> storage;
 	const double intersectCost = 80;
 	const double traversalCost = 1;
 	const double emptyBonus = 0.2;
-	int splitPosition(std::vector<std::shared_ptr<KDBox>>& children,
-			std::vector<KDBoxEdge>& edges, const std::shared_ptr<KDBox>& box);
-	void buildTree(const std::shared_ptr<KDBox>& initBox, int maxDepth);
+	int splitPosition(std::vector<KDBox*>& children,
+			std::vector<KDBoxEdge>& edges,KDBox* box);
+	void buildTree(int maxDepth);
 public:
-	std::shared_ptr<KDBox>& getRoot() {
-		return root;
+	void reset(){
+		root.reset();
+		storage.clear();
+		storage.shrink_to_fit();
 	}
-	const std::shared_ptr<KDBox>& getRoot() const {
-		return root;
+	KDBox* getRoot() const {
+		return root.get();
 	}
+
 	void build(const Mesh& mesh, int maxDepth = 16);
 	KDTree(const Mesh& mesh, int maxDepth = 16) {
 		build(mesh, maxDepth);
