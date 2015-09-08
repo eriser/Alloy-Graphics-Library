@@ -268,11 +268,11 @@ public:
 		float3 lastPoint;
 		return closestPointSignedDistance(r, lastPoint, lastTriangle);
 	}
-	double distance(const float3& pt, KDTriangle*& lastTriangle) const {
+	double signedDistance(const float3& pt, KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
 		return closestPoint(pt, lastPoint, lastTriangle);
 	}
-	double distance(const float3& r, const float3& v,
+	double closestPointOutside(const float3& r, const float3& v,
 			KDTriangle*& lastTriangle) const {
 		float3 lastPoint;
 		return closestPointOutside(r, v, lastPoint, lastTriangle);
