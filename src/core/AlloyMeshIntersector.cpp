@@ -987,7 +987,7 @@ namespace aly {
 			}
 			id++;
 		}
-		for (uint3 tri : mesh.triIndexes.data) {
+		for (const uint3& tri : mesh.triIndexes.data) {
 			root->getChildren().push_back(
 				std::shared_ptr<KDTriangle>(
 					new KDTriangle(mesh.vertexLocations[tri.x],
