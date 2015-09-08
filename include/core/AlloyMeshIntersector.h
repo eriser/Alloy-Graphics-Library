@@ -133,7 +133,7 @@ protected:
 public:
 	const uint64_t id;
 	KDTriangle(const float3& pt1, const float3& pt2, const float3& pt3,
-			uint64_t id=0, int depth = 0) :
+			uint64_t id = 0, int depth = 0) :
 			KDBox(depth, true), id(id) {
 		pts[0] = pt1;
 		pts[1] = pt2;
@@ -188,8 +188,8 @@ public:
 	const std::shared_ptr<KDBox>& getRoot() const {
 		return root;
 	}
-	void build(const Mesh& mesh, int maxDepth);
-	KDTree(const Mesh& mesh, int maxDepth) {
+	void build(const Mesh& mesh, int maxDepth = 16);
+	KDTree(const Mesh& mesh, int maxDepth = 16) {
 		build(mesh, maxDepth);
 	}
 	KDTree() {
