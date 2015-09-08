@@ -22,12 +22,11 @@
 #ifndef ALLOYMESHKDTREE_H_
 #define ALLOYMESHKDTREE_H_
 #include "AlloyMath.h"
-#include "AlloyMesh.h"
 
 namespace aly {
-	
+	struct Mesh;
 	static const double ZERO_TOLERANCE = 1E-6;
-	static const float3 NO_HIT_PT=float3(std::numeric_limits<float>::infinity());
+	static const float3 NO_HIT_PT = float3(std::numeric_limits<float>::infinity());
 	class KDBox {
 	protected:
 		int depth;
@@ -35,8 +34,14 @@ namespace aly {
 		std::vector<std::shared_ptr<KDBox>> children;
 		static const int LEFT = 0, RIGHT = 1, MIDDLE = 2;
 	public:
-		KDBox(int depth=0):depth(depth) {
-			minPoint =float3(0, 0, 0);
+		const bool isLeaf;
+		KDBox(int depth = 0) :depth(depth), isLeaf(false) {
+			minPoint = float3(0, 0, 0);
+			maxPoint = float3(0, 0, 0);
+			children = std::vector<std::shared_ptr<KDBox>>();
+		}
+		KDBox(int depth, bool isLeaf) :depth(depth), isLeaf(isLeaf) {
+			minPoint = float3(0, 0, 0);
 			maxPoint = float3(0, 0, 0);
 			children = std::vector<std::shared_ptr<KDBox>>();
 		}
@@ -86,7 +91,7 @@ namespace aly {
 			return start;
 		}
 		void set(const std::shared_ptr<KDBox>& b, int dim, bool start);
-		KDBoxEdge():val(0),start(true) {
+		KDBoxEdge() :val(0), start(true) {
 		}
 		bool operator <(const KDBoxEdge& e1) {
 			if (val == e1.val) {
@@ -101,7 +106,7 @@ namespace aly {
 				}
 			}
 			else {
-				return (val<e1.val);
+				return (val < e1.val);
 			}
 		}
 	};
@@ -126,10 +131,10 @@ namespace aly {
 		}
 
 	};
-	class KDTriangle:public KDBox {
+	class KDTriangle :public KDBox {
 	protected:
 		float3 pts[3];
-		float3 lastIntersect=NO_HIT_PT;
+		float3 lastIntersect = NO_HIT_PT;
 	public:
 		float3 getLastIntersect() const {
 			return lastIntersect;
@@ -137,16 +142,21 @@ namespace aly {
 		void setLastIntersect(const float3& p) {
 			lastIntersect = p;
 		}
-		KDTriangle(int depth=0):KDBox(depth) {
+		KDTriangle(int depth = 0) :KDBox(depth, true) {
+		}
+		KDTriangle(const float3& pt1, const float3& pt2, const float3& pt3, int depth = 0) :KDBox(depth, true) {
+			pts[0] = pt1;
+			pts[1] = pt2;
+			pts[2] = pt3;
 		}
 		float3 getNormal() const {
-			return normalize(cross(pts[1]-pts[0], pts[2] - pts[0]));
+			return normalize(cross(pts[1] - pts[0], pts[2] - pts[0]));
 		}
 		float getArea() const {
 			return 0.5f*length(cross(pts[1] - pts[0], pts[2] - pts[0]));
 		}
 		float3 getCentroid() {
-			return 0.3333333f*(pts[0]+ pts[1] + pts[2]);
+			return 0.3333333f*(pts[0] + pts[1] + pts[2]);
 		}
 		float3 fromBary(const double3& b) {
 			return float3((float)(pts[0].x * b.x + pts[1].x * b.y + pts[2].x
@@ -159,12 +169,26 @@ namespace aly {
 		float3 intersectionPointRay(const float3& org, const float3& v);
 		double distance(const float3& p);
 	};
+
+	struct KDBoxDistance {
+		std::shared_ptr<KDBox> box;
+		double dist;
+		KDBoxDistance(const float3& ref, const std::shared_ptr<KDBox>& tri) :box(tri) {
+			dist = tri->distanceToBox(ref);
+		}
+
+	};
+	inline bool operator<(const KDBoxDistance& a, const KDBoxDistance& b) {
+		return (a.dist < b.dist);
+	}
 	class KDTree {
 	protected:
 		std::shared_ptr<KDBox> root;
 		const double intersectCost = 80;
 		const double traversalCost = 1;
 		const double emptyBonus = 0.2;
+		KDTriangle* lastTriangle = nullptr;
+		float3 lastPoint = NO_HIT_PT;
 		int splitPosition(std::vector<std::shared_ptr<KDBox>>& children, std::vector<KDBoxEdge>& edges, const std::shared_ptr<KDBox>& box);
 		void buildTree(const std::shared_ptr<KDBox>& initBox, int maxDepth);
 	public:
@@ -177,6 +201,11 @@ namespace aly {
 		}
 		KDTree() {
 		}
+		double intersectRayDistance(float3 p1, float3 v);
+		double intersectSegmentDistance(float3 p1, float3 p2);
+		double signedDistance(float3 r);
+		double distance(float3 pt);
+		double distance(float3 r, float3 v);
 	};
 }
 #endif
