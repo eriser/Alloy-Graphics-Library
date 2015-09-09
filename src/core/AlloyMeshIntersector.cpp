@@ -1284,7 +1284,7 @@ namespace aly {
 		while (queue.size() > 0) {
 			KDBoxDistance boxd = queue.top();
 			queue.pop();
-			if (boxd.dist <= mind) {
+			if (boxd.dist <=  mind|| boxd.box->isLeaf) {
 				if (boxd.box->isLeaf) {
 						mind = boxd.dist;
 						KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
@@ -1330,7 +1330,7 @@ namespace aly {
 		while (queue.size() > 0) {
 			KDBoxDistance boxd = queue.top();
 			queue.pop();
-			if(boxd.dist <= mind) {
+			if(boxd.dist <= mind || boxd.box->isLeaf) {
 				if (boxd.box->isLeaf) {
 					mind = boxd.dist;
 					KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
