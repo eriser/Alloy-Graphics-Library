@@ -78,8 +78,7 @@ bool SANITY_CHECK_KDTREE(){
 		for (int j = 0;j < rgba.height;j++) {
 			float3 pt1 = bbox.position + bbox.dimensions*float3(i / (float)rgba.width, 0.5f, j / (float)rgba.height);
 			float3 lastPoint(0.0f);
-			KDTriangle* tri;
-			double d = kdTree.closestPoint(pt1,lastPoint,tri);
+			double d = kdTree.closestPoint(pt1,lastPoint);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
 			}
@@ -95,8 +94,7 @@ bool SANITY_CHECK_KDTREE(){
 		for (int j = 0;j < rgba.height;j++) {
 			float3 pt1 = bbox.position + bbox.dimensions*float3(i / (float)rgba.width, 0.5f, j / (float)rgba.height);
 			float3 lastPoint(0.0f);
-			KDTriangle* tri;
-			double d = kdTree.closestPoint(pt1,0.1f,lastPoint,tri);
+			double d = kdTree.closestPoint(pt1,0.1f,lastPoint);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
 			}
