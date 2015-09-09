@@ -263,7 +263,7 @@ namespace aly {
 			KDTriangle* lastTriangle;
 			return intersectSegmentDistance(p1, p2, lastPoint, lastTriangle);
 		}
-		double approximateClosestPointSignedDistance(const float3& r) const {
+		double closestPointSignedDistance(const float3& r) const {
 			float3 lastPoint;
 			KDTriangle* lastTriangle;
 			return closestPointSignedDistance(r, lastPoint, lastTriangle);
