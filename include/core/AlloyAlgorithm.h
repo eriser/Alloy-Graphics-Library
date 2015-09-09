@@ -130,7 +130,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 	Vector<T, C> Ap(N);
 
 	Vector<T, C> r(N);
-	Vector<T, C> rinit = x;
+	Vector<T, C> rinit;
 	Vector<T, C> delta(N);
 	Vector<T, C> v(N);
 	Vector<T, C> s(N);
@@ -147,6 +147,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 
 	Multiply(Ap, A, x);
 	Subtract(r, b, Ap);
+	rinit = r;
 	err = lengthVecSqr(r);
 	double e = lengthL1(err) / N;
 	if (iterationMonitor)
@@ -157,7 +158,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
 		ScaleAdd(p, r, beta, p, -beta * omega, v);
 		Multiply(v, A, p);
-		alpha = vec<T, C>(rho / dotVec(rinit, v));
+		alpha = vec<T, C>(rhoNext / dotVec(rinit, v));
 		ScaleSubtract(s, r, alpha, v);
 		if (lengthL1(s) < N * ZERO_TOLERANCE) {
 			ScaleAdd(x, x, alpha, p);
@@ -189,7 +190,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 	size_t N = b.size();
 	Vector<T, C> p(N);
 	Vector<T, C> r(N);
-	Vector<T, C> rinit = x;
+	Vector<T, C> rinit;
 	Vector<T, C> delta(N);
 	Vector<T, C> v(N);
 	Vector<T, C> s(N);
@@ -205,6 +206,7 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 	vec<T, C> omega(1);
 
 	SubtractMultiply(r, b, A, x);
+	rinit = r;
 	err = lengthVecSqr(r);
 	double e = lengthL1(err) / N;
 	if (iterationMonitor)
@@ -214,10 +216,10 @@ template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
 		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
 		ScaleAdd(p, r, beta, p, -beta * omega, v);
 		Multiply(v, A, p);
-		alpha = vec<T, C>(rho / dotVec(rinit, v));
+		alpha = vec<T, C>(rhoNext / dotVec(rinit, v));
 		ScaleSubtract(s, r, alpha, v);
 		if (lengthL1(s) < N * ZERO_TOLERANCE) {
-			ScaleAdd(x, x, alpha, p);
+			ScaleAdd(x, alpha, p);
 			break;
 		}
 		Multiply(t, A, s);

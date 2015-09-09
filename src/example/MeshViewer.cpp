@@ -31,38 +31,36 @@ MeshViewer::MeshViewer() :
 				0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
-	Mesh tmpMesh;
-	tmpMesh.load(getFullPath("models/torus.ply"));
-	tmpMesh.updateVertexNormals();
-	tmpMesh.textureMap.resize(
-			tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0; i < (int) tmpMesh.textureMap.size(); i++) {
-		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
-				(rand() % 1024) / 1024.0f);
-	}
-	WriteMeshToFile("torus2.ply", tmpMesh, true);
-	ReadMeshFromFile("torus2.ply", tmpMesh);
-	WriteMeshToFile("torus3.ply", tmpMesh, false);
-	ReadMeshFromFile("torus3.ply", tmpMesh);
 
-	tmpMesh.load(getFullPath("models/icosahedron.ply"));
-	tmpMesh.updateVertexNormals();
-	tmpMesh.textureMap.resize(
-			tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0; i < (int) tmpMesh.textureMap.size(); i++) {
-		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
-				(rand() % 1024) / 1024.0f);
-	}
-
-	WriteMeshToFile("icosahedron2.ply", tmpMesh, true);
-	ReadMeshFromFile("icosahedron2.ply", tmpMesh);
-	tmpMesh.textureImage.resize(640, 480);
-	tmpMesh.textureImage.set(RGBAf(1.0f, 0.0, 0.0, 1.0f));
-	WriteMeshToFile("icosahedron3.ply", tmpMesh, false);
-	ReadMeshFromFile("icosahedron3.ply", tmpMesh);
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
+	MeshNeighborTable vertTable;
+	CreateOrderedVertexNeighborTable(mesh, vertTable);
+	srand(1023172413L);
+	mesh.updateVertexNormals();
+	SparseMatrix<float, 1> L(mesh.vertexLocations.size(),
+		mesh.vertexLocations.size());
+	Vector3f b(L.rows);
+	srand(213823);
+	for (size_t i = 0; i < L.rows; i++) {
+		const float w = 0.9f;
+		for (uint32_t v : vertTable[i]) {
+			L.set(i, v, float1(-w));
+		}
+		L.set(i, i, float1(1.0f + (float)w * vertTable[i].size()));
+		float3 norm = mesh.vertexNormals[i];
+		mesh.vertexLocations[i] += 5.0f * norm
+			* (((rand() % 1024) / 1024.0f) - 0.5f);
+		b[i] = mesh.vertexLocations[i];
+		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
+			((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
+	}
+	SolveBICGStab(b, L, mesh.vertexLocations, 500, 1E-6f,
+		[=](int iter, double err) {
+		std::cout << "Iteration " << iter << ":: " << err << std::endl;
+	});
+
 	mesh.updateVertexNormals();
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();

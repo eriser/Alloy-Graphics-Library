@@ -64,7 +64,8 @@ int main() {
 		MeshViewer app;
 
 
-		SANITY_CHECK_KDTREE();
+		//SANITY_CHECK_KDTREE();
+		
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {

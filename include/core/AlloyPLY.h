@@ -34,6 +34,7 @@
 #include <stddef.h>
 namespace aly
 {
+	bool SANITY_CHECK_MESH_IO();
 namespace ply
 {
 enum class FileFormat

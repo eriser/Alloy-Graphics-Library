@@ -106,6 +106,38 @@ bool SANITY_CHECK_KDTREE(){
 	rgba.writeToXML("closest_clamped.xml");
 return true;
 }
+bool SANITY_CHECK_MESH_IO() {
+	Mesh tmpMesh;
+	tmpMesh.load(AlloyDefaultContext()->getFullPath("models/torus.ply"));
+	tmpMesh.updateVertexNormals();
+	tmpMesh.textureMap.resize(
+		tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0; i < (int)tmpMesh.textureMap.size(); i++) {
+		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
+			(rand() % 1024) / 1024.0f);
+	}
+	WriteMeshToFile("torus2.ply", tmpMesh, true);
+	ReadMeshFromFile("torus2.ply", tmpMesh);
+	WriteMeshToFile("torus3.ply", tmpMesh, false);
+	ReadMeshFromFile("torus3.ply", tmpMesh);
+
+	tmpMesh.load(AlloyDefaultContext()->getFullPath("models/icosahedron.ply"));
+	tmpMesh.updateVertexNormals();
+	tmpMesh.textureMap.resize(
+		tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0; i < (int)tmpMesh.textureMap.size(); i++) {
+		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
+			(rand() % 1024) / 1024.0f);
+	}
+
+	WriteMeshToFile("icosahedron2.ply", tmpMesh, true);
+	ReadMeshFromFile("icosahedron2.ply", tmpMesh);
+	tmpMesh.textureImage.resize(640, 480);
+	tmpMesh.textureImage.set(RGBAf(1.0f, 0.0, 0.0, 1.0f));
+	WriteMeshToFile("icosahedron3.ply", tmpMesh, false);
+	ReadMeshFromFile("icosahedron3.ply", tmpMesh);
+	return true;
+}
 bool SANITY_CHECK_SPARSE_SOLVE() {
 	MeshNeighborTable vertTable;
 	Mesh mesh;
