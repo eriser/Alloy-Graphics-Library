@@ -28,6 +28,7 @@ namespace aly {
 	struct Mesh;
 	static const float3 NO_HIT_POINT = float3(
 		std::numeric_limits<float>::infinity());
+	static const float NO_HIT_DISTANCE=std::numeric_limits<float>::infinity();
 	class KDBox {
 	protected:
 		int depth;
@@ -181,8 +182,9 @@ namespace aly {
 	}
 	inline bool operator<(const KDBoxDistance& a, const KDBoxDistance& b) {
 		//Priority queue puts largest first, so we need to use a >= operator to get ascending order.
-		return (a.dist >= b.dist);
+		return (a.dist > b.dist);
 	}
+
 	class KDTree {
 	protected:
 		std::shared_ptr<KDBox> root;

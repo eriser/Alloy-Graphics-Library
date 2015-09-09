@@ -1186,18 +1186,16 @@ namespace aly {
 		KDTriangle* resultTriangle = nullptr;
 		float3 resultIntersect = NO_HIT_POINT;
 		KDTriangle* tri;
-		float3 lastIntersect;
-		int countIntersects = 0;
 		while (boxes.size() > 0) {
 			KDBox* box = boxes.front();
+			//std::cout << *box << std::endl;
 			boxes.pop_front();
 			if (box->intersectRayBox(p1, v)) {
 				if (box->isLeaf) {
-					countIntersects++;
 					tri = dynamic_cast<KDTriangle*>(box);
 					float3 intersect = tri->intersectionPointRay(p1, v);
 					if (intersect != NO_HIT_POINT) {
-						d = closestPoint(p1, intersect, lastTriangle);
+						d = distance(p1,intersect);
 						if (d < mind) {
 							mind = d;
 							resultTriangle = tri;
@@ -1212,7 +1210,7 @@ namespace aly {
 		lastTriangle = resultTriangle;
 		lastPoint = resultIntersect;
 		if (resultTriangle == nullptr) {
-			return -1;
+			return NO_HIT_DISTANCE;
 		}
 		else {
 			return mind;
@@ -1229,8 +1227,6 @@ namespace aly {
 		KDTriangle* resultTriangle = nullptr;
 		float3 resultIntersect = NO_HIT_POINT;
 		KDTriangle* tri;
-		lastPoint = NO_HIT_POINT;
-		lastTriangle = nullptr;
 		while (boxes.size() > 0) {
 			KDBox* box = boxes.front();
 			boxes.pop_front();
@@ -1238,8 +1234,8 @@ namespace aly {
 				if (box->isLeaf) {
 					tri = dynamic_cast<KDTriangle*>(box);
 					float3 intersect = tri->intersectionPointSegment(p1, p2);
-					if (intersect != nullptr) {
-						d = closestPoint(p1, intersect, lastTriangle);
+					if (intersect ==NO_HIT_POINT) {
+						d = distance(p1, intersect);
 						if (d < mind) {
 							mind = d;
 							resultTriangle = tri;
@@ -1254,7 +1250,7 @@ namespace aly {
 		lastTriangle = resultTriangle;
 		lastPoint = resultIntersect;
 		if (resultTriangle == nullptr) {
-			return -1;
+			return NO_HIT_DISTANCE;
 		}
 		else {
 			return mind;
@@ -1270,7 +1266,7 @@ namespace aly {
 			return sign(dot(diff, norm)) * d;
 		}
 		else {
-			return std::numeric_limits<float>::infinity();
+			return NO_HIT_DISTANCE;
 		}
 	}
 	double KDTree::closestPoint(const float3& pt, float3& lastPoint,
@@ -1306,7 +1302,7 @@ namespace aly {
 			}
 		}
 		if (lastTriangle == nullptr) {
-			return -1;
+			return NO_HIT_DISTANCE;
 		}
 		else {
 			return mind;
@@ -1355,7 +1351,7 @@ namespace aly {
 			}
 		}
 		if (lastTriangle == nullptr) {
-			return -1;
+			return NO_HIT_DISTANCE;
 		}
 		else {
 			return mind;

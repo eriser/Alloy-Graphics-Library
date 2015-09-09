@@ -12,6 +12,7 @@
 #include "AlloyMesh.h"
 #include "AlloyAlgorithm.h"
 #include "AlloySparseMatrix.h"
+#include "AlloyVirtualCamera.h"
 #include "AlloyMeshIntersector.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
@@ -44,10 +45,38 @@ bool SANITY_CHECK_ALGO() {
 bool SANITY_CHECK_KDTREE(){
 	Mesh mesh;
 	std::cout<<"Load Mesh"<<std::endl;
-	mesh.load(AlloyDefaultContext()->getFullPath("models/icosahedron.ply"));
+	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
 	std::cout<<"Create KD Tree"<<std::endl;
 	KDTree kdTree(mesh);
-
+	VirtualCamera camera;
+	camera.setNearFarPlanes(0.1f, 2.0f);
+	camera.setZoom(0.75f);
+	mesh.updateBoundingBox();
+	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
+		float3(1.0f, 1.0f, 1.0f));
+	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
+	camera.aim(box2px(float2(0,0),float2(320,240)));
+	Image4f rgba(320,240);
+	//int i = rgba.width / 2;
+	//int j = rgba.height / 2;
+#pragma omp parallel for
+	for (int i = 0;i < rgba.width;i++) {
+		for (int j = 0;j < rgba.height;j++) {
+			float3 pt1 = camera.transformImageToWorld(float3(i, j, 0.0f), rgba.width, rgba.height);
+			float3 pt2=camera.transformImageToWorld(float3(i, j, 1.0f), rgba.width, rgba.height);
+			float3 v = normalize(pt2 - pt1);
+			float3 lastPoint(0.0f);
+			//std::cout << "V " << v << std::endl;
+			double d=kdTree.intersectRayDistance(pt1,v,lastPoint);
+			if (d != NO_HIT_DISTANCE) {
+				rgba(i, j) = float4(lastPoint, d);
+			}
+			else {
+				rgba(i, j) = float4(0, 0, 0, 0);
+			}
+		}
+	}
+	rgba.writeToXML("depth.xml");
 return true;
 }
 bool SANITY_CHECK_SPARSE_SOLVE() {
