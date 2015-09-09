@@ -84,9 +84,9 @@ double KDBox::distanceToBox(const float3& p) const {
 		return -1;
 	}
 	float3 ref;
-	ref.x = aly::clamp(p.x,  minPoint.x,maxPoint.x);
-	ref.y = aly::clamp(p.y,  minPoint.y,maxPoint.y);
-	ref.z = aly::clamp(p.z,  minPoint.z,maxPoint.z);
+	ref.x = aly::clamp(p.x, minPoint.x, maxPoint.x);
+	ref.y = aly::clamp(p.y, minPoint.y, maxPoint.y);
+	ref.z = aly::clamp(p.z, minPoint.z, maxPoint.z);
 	return distance(p, ref);
 }
 bool KDBox::intersects(const KDBox& test) const {
@@ -104,8 +104,8 @@ bool KDBox::inside(const float3& test) const {
 			&& (test.z >= minPoint.z) && (test.z <= maxPoint.z);
 }
 bool KDBox::intersectRayBox(const float3& org, const float3& dr) const {
-	double3 minB = { minPoint.x, minPoint.y, minPoint.z };
-	double3 maxB = { maxPoint.x, maxPoint.y, maxPoint.z };
+	double3 minB(minPoint);
+	double3 maxB(maxPoint);
 	double3 origin(org);
 	double3 dir(dr);
 	double3 coord;
@@ -1176,8 +1176,8 @@ double KDTree::intersectSegmentDistance(const float3& p1, const float3& p2,
 		return mind;
 	}
 }
-double KDTree::closestPointSignedDistance(const float3& r,
-		float3& lastPoint, KDTriangle*& lastTriangle) const {
+double KDTree::closestPointSignedDistance(const float3& r, float3& lastPoint,
+		KDTriangle*& lastTriangle) const {
 	double d = closestPoint(r, lastPoint, lastTriangle);
 	if (d >= 0) {
 		float3 norm = lastTriangle->getNormal();
@@ -1205,7 +1205,7 @@ double KDTree::closestPoint(const float3& pt, const float& maxDistance,
 		if (boxd.box->isLeaf) {
 			KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
 			d = tri->distance(pt, lastIntersect);
-			if (d < triangleDist) {
+			if (d <= triangleDist) {
 				triangleDist = d;
 				lastTriangle = tri;
 				lastPoint = lastIntersect;
