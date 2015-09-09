@@ -178,7 +178,7 @@ namespace aly {
 	};
 	template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const KDBoxDistance& a) {
-		return ss << a->box << ": " << a->dist;
+		return ss << a.box << ": " << a.dist;
 	}
 	inline bool operator<(const KDBoxDistance& a, const KDBoxDistance& b) {
 		//Priority queue puts largest first, so we need to use a >= operator to get ascending order.
