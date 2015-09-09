@@ -257,17 +257,17 @@ namespace aly {
 			KDTriangle* lastTriangle;
 			return intersectSegmentDistance(p1, p2, lastPoint, lastTriangle);
 		}
-		double closestPointSignedDistance(const float3& r) const {
+		double approximateClosestPointSignedDistance(const float3& r) const {
 			float3 lastPoint;
 			KDTriangle* lastTriangle;
 			return approximateClosestPointSignedDistance(r, lastPoint, lastTriangle);
 		}
-		double closestPoint(const float3& pt) const {
+		double approximateClosestPoint(const float3& pt) const {
 			float3 lastPoint;
 			KDTriangle* lastTriangle;
 			return approximateClosestPoint(pt, lastPoint, lastTriangle);
 		}
-		double closestPointOutside(const float3& r, const float3& v) const {
+		double approximateClosestPointOutside(const float3& r, const float3& v) const {
 			float3 lastPoint;
 			KDTriangle* lastTriangle;
 			return approximateClosestPointOutside(r, v, lastPoint, lastTriangle);
@@ -283,15 +283,15 @@ namespace aly {
 			float3 lastPoint;
 			return intersectSegmentDistance(p1, p2, lastPoint, lastTriangle);
 		}
-		double closestPointSignedDistance(const float3& r, KDTriangle*& lastTriangle) const {
+		double approximateClosestPointSignedDistance(const float3& r, KDTriangle*& lastTriangle) const {
 			float3 lastPoint;
 			return approximateClosestPointSignedDistance(r, lastPoint, lastTriangle);
 		}
-		double closestPoint(const float3& pt, KDTriangle*& lastTriangle) const {
+		double approximateClosestPoint(const float3& pt, KDTriangle*& lastTriangle) const {
 			float3 lastPoint;
 			return approximateClosestPoint(pt, lastPoint, lastTriangle);
 		}
-		double closestPointOutside(const float3& r, const float3& v,
+		double approximateClosestPointOutside(const float3& r, const float3& v,
 			KDTriangle*& lastTriangle) const {
 			float3 lastPoint;
 			return approximateClosestPointOutside(r, v, lastPoint, lastTriangle);
