@@ -1275,6 +1275,7 @@ namespace aly {
 			throw new std::runtime_error("KD-Tree has not been initialized.");
 		double d;
 		double mind = 1E30;
+		double triangleDist = 1E30;
 		std::priority_queue<KDBoxDistance> queue;
 		queue.push(KDBoxDistance(pt, getRoot()));
 		lastTriangle = nullptr;
@@ -1283,20 +1284,21 @@ namespace aly {
 		while (queue.size() > 0) {
 			KDBoxDistance boxd = queue.top();
 			queue.pop();
-			if ((d = boxd.dist) < mind) {
+			if (boxd.dist <= mind) {
 				if (boxd.box->isLeaf) {
-					KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
-					d = tri->distance(pt, lastIntersect);
-					boxd.dist = d;
-					if (d < mind) {
-						mind = d;
-						lastTriangle = tri;
-						lastPoint = lastIntersect;
-					}
+						mind = boxd.dist;
+						KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
+						d = tri->distance(pt, lastIntersect);
+						if (d < triangleDist) {
+							triangleDist = d;
+							lastTriangle = tri;
+							lastPoint = lastIntersect;
+						}
 				}
 				else {
 					for (KDBox* child : boxd.box->getChildren()) {
-						queue.push(KDBoxDistance(pt, child));
+						KDBoxDistance kdb(pt, child);
+						queue.push(kdb);
 					}
 				}
 			}
@@ -1305,7 +1307,7 @@ namespace aly {
 			return NO_HIT_DISTANCE;
 		}
 		else {
-			return mind;
+			return triangleDist;
 		}
 	}
 
@@ -1316,6 +1318,7 @@ namespace aly {
 
 		double d;
 		double mind = 1E30;
+		double triangleDist = 1E30;
 		std::priority_queue<KDBoxDistance> queue;
 		queue.push(KDBoxDistance(r, getRoot()));
 
@@ -1327,17 +1330,18 @@ namespace aly {
 		while (queue.size() > 0) {
 			KDBoxDistance boxd = queue.top();
 			queue.pop();
-			if ((d = boxd.dist) < mind) {
+			if(boxd.dist <= mind) {
 				if (boxd.box->isLeaf) {
+					mind = boxd.dist;
 					KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
 					d = tri->distance(r, lastIntersect);
 					boxd.dist = d;
-					if (d < mind) {
+					if (d < triangleDist) {
 						pt = lastIntersect;
 						testv = pt - r;
 						// Test if point is on one side of plane
 						if (dot(testv, v) >= 0) {
-							mind = d;
+							triangleDist = d;
 							lastTriangle = tri;
 							lastPoint = pt;
 						}

@@ -44,10 +44,8 @@ bool SANITY_CHECK_ALGO() {
 }
 bool SANITY_CHECK_KDTREE(){
 	Mesh mesh;
-	std::cout<<"Load Mesh"<<std::endl;
 	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
-	std::cout<<"Create KD Tree"<<std::endl;
-	KDTree kdTree(mesh);
+	KDTree kdTree(mesh,6);
 	VirtualCamera camera;
 	camera.setNearFarPlanes(0.1f, 2.0f);
 	camera.setZoom(0.75f);
@@ -57,8 +55,6 @@ bool SANITY_CHECK_KDTREE(){
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 	camera.aim(box2px(float2(0,0),float2(320,240)));
 	Image4f rgba(320,240);
-	//int i = rgba.width / 2;
-	//int j = rgba.height / 2;
 #pragma omp parallel for
 	for (int i = 0;i < rgba.width;i++) {
 		for (int j = 0;j < rgba.height;j++) {
@@ -66,7 +62,6 @@ bool SANITY_CHECK_KDTREE(){
 			float3 pt2=camera.transformImageToWorld(float3(i, j, 1.0f), rgba.width, rgba.height);
 			float3 v = normalize(pt2 - pt1);
 			float3 lastPoint(0.0f);
-			//std::cout << "V " << v << std::endl;
 			double d=kdTree.intersectRayDistance(pt1,v,lastPoint);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
@@ -77,6 +72,23 @@ bool SANITY_CHECK_KDTREE(){
 		}
 	}
 	rgba.writeToXML("depth.xml");
+	rgba.set(float4(0.0f));
+	box3f bbox = mesh.getBoundingBox();
+#pragma omp parallel for
+	for (int i = 0;i < rgba.width;i++) {
+		for (int j = 0;j < rgba.height;j++) {
+			float3 pt1 = bbox.position + bbox.dimensions*float3(i / (float)rgba.width, 0.5f, j / (float)rgba.height);
+			float3 lastPoint(0.0f);
+			double d = kdTree.closestPoint(pt1, lastPoint);
+			if (d != NO_HIT_DISTANCE) {
+				rgba(i, j) = float4(lastPoint, d);
+			}
+			else {
+				rgba(i, j) = float4(0, 0, 0, 0);
+			}
+		}
+	}
+	rgba.writeToXML("closest.xml");
 return true;
 }
 bool SANITY_CHECK_SPARSE_SOLVE() {
