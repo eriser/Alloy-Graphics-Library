@@ -84,9 +84,9 @@ double KDBox::distanceToBox(const float3& p) const {
 		return -1;
 	}
 	float3 ref;
-	ref.x = aly::clamp(p.x, maxPoint.x, minPoint.x);
-	ref.y = aly::clamp(p.y, maxPoint.y, minPoint.y);
-	ref.z = aly::clamp(p.z, maxPoint.z, minPoint.z);
+	ref.x = aly::clamp(p.x,  minPoint.x,maxPoint.x);
+	ref.y = aly::clamp(p.y,  minPoint.y,maxPoint.y);
+	ref.z = aly::clamp(p.z,  minPoint.z,maxPoint.z);
 	return distance(p, ref);
 }
 bool KDBox::intersects(const KDBox& test) const {
@@ -1176,9 +1176,9 @@ double KDTree::intersectSegmentDistance(const float3& p1, const float3& p2,
 		return mind;
 	}
 }
-double KDTree::approximateClosestPointSignedDistance(const float3& r,
+double KDTree::closestPointSignedDistance(const float3& r,
 		float3& lastPoint, KDTriangle*& lastTriangle) const {
-	double d = approximateClosestPoint(r, lastPoint, lastTriangle);
+	double d = closestPoint(r, lastPoint, lastTriangle);
 	if (d >= 0) {
 		float3 norm = lastTriangle->getNormal();
 		float3 center = lastTriangle->getCentroid();
@@ -1188,7 +1188,44 @@ double KDTree::approximateClosestPointSignedDistance(const float3& r,
 		return NO_HIT_DISTANCE;
 	}
 }
-double KDTree::approximateClosestPoint(const float3& pt, float3& lastPoint,
+double KDTree::closestPoint(const float3& pt, const float& maxDistance,
+		float3& lastPoint, KDTriangle*& lastTriangle) const {
+	if (root->getChildren().size() == 0)
+		throw new std::runtime_error("KD-Tree has not been initialized.");
+	double d;
+	double triangleDist = maxDistance;
+	std::priority_queue<KDBoxDistance> queue;
+	queue.push(KDBoxDistance(pt, getRoot()));
+	lastTriangle = nullptr;
+	lastPoint = NO_HIT_POINT;
+	float3 lastIntersect = NO_HIT_POINT;
+	while (queue.size() > 0) {
+		KDBoxDistance boxd = queue.top();
+		queue.pop();
+		if (boxd.box->isLeaf) {
+			KDTriangle* tri = dynamic_cast<KDTriangle*>(boxd.box);
+			d = tri->distance(pt, lastIntersect);
+			if (d < triangleDist) {
+				triangleDist = d;
+				lastTriangle = tri;
+				lastPoint = lastIntersect;
+			}
+		} else {
+			for (KDBox* child : boxd.box->getChildren()) {
+				KDBoxDistance kdb(pt, child);
+				if (kdb.dist <= maxDistance) {
+					queue.push(kdb);
+				}
+			}
+		}
+	}
+	if (lastTriangle == nullptr) {
+		return NO_HIT_DISTANCE;
+	} else {
+		return triangleDist;
+	}
+}
+double KDTree::closestPoint(const float3& pt, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");
@@ -1228,7 +1265,7 @@ double KDTree::approximateClosestPoint(const float3& pt, float3& lastPoint,
 	}
 }
 
-double KDTree::approximateClosestPointOutside(const float3& r, const float3& v,
+double KDTree::closestPointOutside(const float3& r, const float3& v,
 		float3& lastPoint, KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");

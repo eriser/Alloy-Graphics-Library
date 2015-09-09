@@ -79,7 +79,8 @@ bool SANITY_CHECK_KDTREE(){
 		for (int j = 0;j < rgba.height;j++) {
 			float3 pt1 = bbox.position + bbox.dimensions*float3(i / (float)rgba.width, 0.5f, j / (float)rgba.height);
 			float3 lastPoint(0.0f);
-			double d = kdTree.closestPoint(pt1, lastPoint);
+			KDTriangle* tri;
+			double d = kdTree.closestPoint(pt1,lastPoint,tri);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
 			}
