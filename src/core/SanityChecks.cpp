@@ -47,6 +47,7 @@ bool SANITY_CHECK_KDTREE(){
 	mesh.load(AlloyDefaultContext()->getFullPath("models/icosahedron.ply"));
 	std::cout<<"Create KD Tree"<<std::endl;
 	KDTree kdTree(mesh);
+
 return true;
 }
 bool SANITY_CHECK_SPARSE_SOLVE() {

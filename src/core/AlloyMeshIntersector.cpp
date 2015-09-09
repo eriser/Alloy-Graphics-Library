@@ -183,6 +183,7 @@ namespace aly {
 		default:
 			value = 0;
 		}
+
 	}
 	bool KDBox::intersectSegmentBox(const float3& org, const float3& end) const {
 		if (inside(org) || inside(end))
@@ -1066,8 +1067,11 @@ namespace aly {
 			children.push_back(leftChild);
 			children.push_back(rightChild);
 			box->update();
+			//std::cout << "Left: " << *leftChild<<std::endl;
+			//std::cout << "Right: " << *rightChild << std::endl;
 			boxes.push_back(leftChild);
 			boxes.push_back(rightChild);
+
 		}
 	}
 	int KDTree::splitPosition(std::vector<KDBox*>& children,
