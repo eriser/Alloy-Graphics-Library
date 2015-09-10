@@ -76,11 +76,11 @@ public:
 	vec<T, C> operator()(size_t i,size_t j) const {
 		return get(i,j);
 	}
-	SparseMatrix<T, C> transpose() {
+	SparseMatrix<T, C> transpose() const {
 		SparseMatrix<T, C> M(cols, rows);
 #pragma omp parallel for
 		for(int i=0;i<(int)storage.size();i++) {
-			for (std::pair<size_t,vec<T, C>>& iv : storage[i]) {
+			for (const std::pair<size_t,vec<T, C>>& iv : storage[i]) {
 				M.set(iv.first, i, iv.second);
 			}
 		}

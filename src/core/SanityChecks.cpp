@@ -172,6 +172,7 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 	std::cout << A << std::endl;
 	std::cout << B << std::endl;
 	SparseMatrix1f C = A * B;
+	C=C.transpose();
 	{
 		auto Cd = Ad * Bd;
 		std::cout << "Cd=\n" << Cd << std::endl;
