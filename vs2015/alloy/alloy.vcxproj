@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\core\AlloyAlgorithm.cpp" />
     <ClCompile Include="..\..\src\core\AlloyAnimator.cpp" />
     <ClCompile Include="..\..\src\core\AlloyAny.cpp" />
     <ClCompile Include="..\..\src\core\AlloyApplication.cpp" />
@@ -55,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h" />
-    <ClInclude Include="..\..\include\core\AlloyAlgorithm.h" />
     <ClInclude Include="..\..\include\core\AlloyAnimator.h" />
     <ClInclude Include="..\..\include\core\AlloyAny.h" />
     <ClInclude Include="..\..\include\core\AlloyApplication.h" />
