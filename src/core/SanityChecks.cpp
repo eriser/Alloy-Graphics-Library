@@ -197,7 +197,7 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 		std::cout << "C=\n" << Cd << std::endl;
 	}
 	A = A.transpose();
-	std::cout << "At" << A << std::endl;
+	std::cout << "At=\n" << A << std::endl;
 	return true;
 	MeshNeighborTable vertTable;
 	Mesh mesh;
