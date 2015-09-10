@@ -59,7 +59,7 @@ public:
 
 	template<class Archive>
 	void load(Archive & archive) {
-		archive(cereal::make_nvp(MakeString() << "vector" << C, data));
+		archive(cereal::make_nvp(MakeString() << "vector" << C,storage));
 	}
 
 	void set(const T& val) {
