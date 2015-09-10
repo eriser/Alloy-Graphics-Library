@@ -39,7 +39,7 @@ public:
 	inline bool isRunning() const {
 		return running;
 	}
-	inline bool isCanceled() const {
+	inline const bool& isCanceled() const {
 		return requestCancel;
 	}
 	inline bool isComplete() const {
