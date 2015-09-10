@@ -37,8 +37,8 @@ void GLFrameBuffer::initialize(int w, int h) {
 		glDeleteRenderbuffers(1, &mDepthBufferId);
 	mFrameBufferId = 0;
 	mDepthBufferId = 0;
-	texture.load(Image4f(w, h), false);
 	context->end();
+	texture.load(Image4f(w, h), false);
 	update();
 }
 GLFrameBuffer::~GLFrameBuffer() {
