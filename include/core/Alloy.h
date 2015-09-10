@@ -22,6 +22,7 @@
 #ifndef ALLOY_H_
 #define ALLOY_H_
 
+#include <AlloySparseSolve.h>
 #include "AlloyAny.h"
 #include "AlloyFileUtil.h"
 #include "AlloyImage.h"
@@ -41,7 +42,6 @@
 #include "AlloyMeshIntersector.h"
 #include "AlloyVirtualCamera.h"
 #include "AlloySparseMatrix.h"
-#include "AlloyAlgorithm.h"
 #include "CommonShaders.h"
 
 #endif /* ALLOY_H_ */

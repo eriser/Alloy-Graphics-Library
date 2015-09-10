@@ -4,13 +4,13 @@
  *  Created on: May 15, 2015
  *      Author: blake
  */
+#include <AlloySparseSolve.h>
 #include "AlloyMath.h"
 #include "AlloyImage.h"
 #include "AlloyVector.h"
 #include "AlloyFileUtil.h"
 #include "AlloyUI.h"
 #include "AlloyMesh.h"
-#include "AlloyAlgorithm.h"
 #include "AlloySparseMatrix.h"
 #include "AlloyVirtualCamera.h"
 #include "AlloyMeshIntersector.h"
