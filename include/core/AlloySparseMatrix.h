@@ -252,7 +252,7 @@ template<class T, int C> void AddMultiply(Vector<T, C>& out,
 {
     out.resize(A.cols);
 #pragma omp parallel for
-    for (int i = 0; i < A.cols; i++)
+    for (int i = 0; i <(int) A.cols; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, C>>& pr : A[i])
