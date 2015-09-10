@@ -137,6 +137,7 @@ template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
         }
         out[i] = vec<T, C>(sum);
     }
+    return out;
 }
 template<class T, int C> SparseMatrix<T, C> operator*(const SparseMatrix<T, C>& A,
                                                       const SparseMatrix<T, C>& B)
@@ -227,6 +228,7 @@ template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, C>& A,
         }
         out[i] = vec<T, C>(sum);
     }
+    return out;
 }
 template<class T, int C> void Multiply(Vector<T, C>& out,
                                        const SparseMatrix<T, C>& A,
