@@ -31,7 +31,7 @@ MeshViewer::MeshViewer() :
 				0.0f) {
 }
 bool MeshViewer::init(Composite& rootNode) {
-
+	SANITY_CHECK_SPARSE_SOLVE();
 	mesh.load(getFullPath("models/monkey.ply"));
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);

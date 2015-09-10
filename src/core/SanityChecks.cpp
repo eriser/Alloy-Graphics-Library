@@ -42,31 +42,32 @@ bool SANITY_CHECK_ALGO() {
 
 	return true;
 }
-bool SANITY_CHECK_KDTREE(){
+bool SANITY_CHECK_KDTREE() {
 	Mesh mesh;
 	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
-	KDTree kdTree(mesh,6);
+	KDTree kdTree(mesh, 6);
 	VirtualCamera camera;
 	camera.setNearFarPlanes(0.1f, 2.0f);
 	camera.setZoom(0.75f);
 	mesh.updateBoundingBox();
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
-		float3(1.0f, 1.0f, 1.0f));
+			float3(1.0f, 1.0f, 1.0f));
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
-	camera.aim(box2px(float2(0,0),float2(320,240)));
-	Image4f rgba(320,240);
+	camera.aim(box2px(float2(0, 0), float2(320, 240)));
+	Image4f rgba(320, 240);
 #pragma omp parallel for
-	for (int i = 0;i < rgba.width;i++) {
-		for (int j = 0;j < rgba.height;j++) {
-			float3 pt1 = camera.transformImageToWorld(float3(i, j, 0.0f), rgba.width, rgba.height);
-			float3 pt2=camera.transformImageToWorld(float3(i, j, 1.0f), rgba.width, rgba.height);
+	for (int i = 0; i < rgba.width; i++) {
+		for (int j = 0; j < rgba.height; j++) {
+			float3 pt1 = camera.transformImageToWorld(float3(i, j, 0.0f),
+					rgba.width, rgba.height);
+			float3 pt2 = camera.transformImageToWorld(float3(i, j, 1.0f),
+					rgba.width, rgba.height);
 			float3 v = normalize(pt2 - pt1);
 			float3 lastPoint(0.0f);
-			double d=kdTree.intersectRayDistance(pt1,v,lastPoint);
+			double d = kdTree.intersectRayDistance(pt1, v, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
-			}
-			else {
+			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
 		}
@@ -74,15 +75,17 @@ bool SANITY_CHECK_KDTREE(){
 	rgba.writeToXML("depth.xml");
 	box3f bbox = mesh.getBoundingBox();
 #pragma omp parallel for
-	for (int i = 0;i < rgba.width;i++) {
-		for (int j = 0;j < rgba.height;j++) {
-			float3 pt1 = bbox.position + bbox.dimensions*float3(i / (float)rgba.width, 0.5f, j / (float)rgba.height);
+	for (int i = 0; i < rgba.width; i++) {
+		for (int j = 0; j < rgba.height; j++) {
+			float3 pt1 = bbox.position
+					+ bbox.dimensions
+							* float3(i / (float) rgba.width, 0.5f,
+									j / (float) rgba.height);
 			float3 lastPoint(0.0f);
-			double d = kdTree.closestPoint(pt1,lastPoint);
+			double d = kdTree.closestPoint(pt1, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
-			}
-			else {
+			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
 		}
@@ -90,31 +93,33 @@ bool SANITY_CHECK_KDTREE(){
 	rgba.writeToXML("closest.xml");
 
 #pragma omp parallel for
-	for (int i = 0;i < rgba.width;i++) {
-		for (int j = 0;j < rgba.height;j++) {
-			float3 pt1 = bbox.position + bbox.dimensions*float3(i / (float)rgba.width, 0.5f, j / (float)rgba.height);
+	for (int i = 0; i < rgba.width; i++) {
+		for (int j = 0; j < rgba.height; j++) {
+			float3 pt1 = bbox.position
+					+ bbox.dimensions
+							* float3(i / (float) rgba.width, 0.5f,
+									j / (float) rgba.height);
 			float3 lastPoint(0.0f);
-			double d = kdTree.closestPoint(pt1,0.1f,lastPoint);
+			double d = kdTree.closestPoint(pt1, 0.1f, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
 				rgba(i, j) = float4(lastPoint, d);
-			}
-			else {
+			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
 		}
 	}
 	rgba.writeToXML("closest_clamped.xml");
-return true;
+	return true;
 }
 bool SANITY_CHECK_MESH_IO() {
 	Mesh tmpMesh;
 	tmpMesh.load(AlloyDefaultContext()->getFullPath("models/torus.ply"));
 	tmpMesh.updateVertexNormals();
 	tmpMesh.textureMap.resize(
-		tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0; i < (int)tmpMesh.textureMap.size(); i++) {
+			tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0; i < (int) tmpMesh.textureMap.size(); i++) {
 		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
-			(rand() % 1024) / 1024.0f);
+				(rand() % 1024) / 1024.0f);
 	}
 	WriteMeshToFile("torus2.ply", tmpMesh, true);
 	ReadMeshFromFile("torus2.ply", tmpMesh);
@@ -124,10 +129,10 @@ bool SANITY_CHECK_MESH_IO() {
 	tmpMesh.load(AlloyDefaultContext()->getFullPath("models/icosahedron.ply"));
 	tmpMesh.updateVertexNormals();
 	tmpMesh.textureMap.resize(
-		tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
-	for (int i = 0; i < (int)tmpMesh.textureMap.size(); i++) {
+			tmpMesh.quadIndexes.size() * 4 + tmpMesh.triIndexes.size() * 3);
+	for (int i = 0; i < (int) tmpMesh.textureMap.size(); i++) {
 		tmpMesh.textureMap[i] = float2((rand() % 1024) / 1024.0f,
-			(rand() % 1024) / 1024.0f);
+				(rand() % 1024) / 1024.0f);
 	}
 
 	WriteMeshToFile("icosahedron2.ply", tmpMesh, true);
@@ -139,11 +144,62 @@ bool SANITY_CHECK_MESH_IO() {
 	return true;
 }
 bool SANITY_CHECK_SPARSE_SOLVE() {
+	SparseMatrix1f A(4, 3);
+	SparseMatrix1f B(3, 4);
+	float4x3 Ad;
+	float3x4 Bd;
+	A(0, 0) = float1(1.2f);
+	A(3, 2) = float1(3.5f);
+	A(2, 2) = float1(1);
+	A(1, 1) = float1(3);
+	A(0, 2) = float1(4);
+
+	B(0, 0) = float1(1.0f);
+	B(2, 1) = float1(2.5f);
+	B(2, 2) = float1(7);
+	B(1, 1) = float1(0.1);
+	B(2, 0) = float1(2);
+	for (int i = 0; i < (int)A.rows; i++) {
+		for (int j = 0; j < (int)A.cols; j++) {
+			Ad(i, j) = A(i, j);
+		}
+	}
+	for (int i = 0; i < (int)B.rows; i++) {
+		for (int j = 0; j < (int)B.cols; j++) {
+			Bd(i, j) = B(i, j);
+		}
+	}
+	std::cout << A << std::endl;
+	std::cout << B << std::endl;
+	SparseMatrix1f C = A * B;
+	{
+		auto Cd = Ad * Bd;
+		std::cout << "Cd=\n" << Cd << std::endl;
+		for (int i = 0; i < (int) C.rows; i++) {
+			for (int j = 0; j < (int) C.cols; j++) {
+				Cd(i, j) = C(i, j);
+			}
+		}
+		std::cout << "C=\n" << Cd << std::endl;
+		std::cout << Cd << std::endl;
+	}
+	C = B * A;
+	{
+		auto Cd = Bd * Ad;
+		std::cout << "Cd=\n" << Cd << std::endl;
+		for (int i = 0; i < (int) C.rows; i++) {
+			for (int j = 0; j < (int) C.cols; j++) {
+				Cd(i, j) = C(i, j);
+			}
+		}
+		std::cout << "C=\n" << Cd << std::endl;
+		std::cout << Cd << std::endl;
+	}
+	return true;
 	MeshNeighborTable vertTable;
 	Mesh mesh;
 	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
 	CreateOrderedVertexNeighborTable(mesh, vertTable);
-	//CreateVertexNeighborTable(mesh, vertTable, false);
 	srand(1023172413L);
 	mesh.updateVertexNormals();
 	SparseMatrix<float, 1> L(mesh.vertexLocations.size(),
@@ -161,8 +217,6 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 		mesh.vertexLocations[i] += 5.0f * norm
 				* (((rand() % 1024) / 1024.0f) - 0.5f);
 		b[i] = mesh.vertexLocations[i];
-		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
-				((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
 	/*

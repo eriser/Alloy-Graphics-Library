@@ -42,36 +42,62 @@ public:
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(rows), CEREAL_NVP(cols), cereal::make_nvp(MakeString()<<"matrix"<<C,storage));
 	}
-	std::map<size_t, vec<T, C>>& operator[](size_t index) {
-		return storage[index];
+	std::map<size_t, vec<T, C>>& operator[](size_t i) {
+		if(i>=rows||i<0)throw std::runtime_error(MakeString()<<"Index ("<<i<<",*) exceeds matrix bounds ["<<rows<<","<<cols<<"]");
+		return storage[i];
 	}
-	const std::map<size_t, vec<T, C>>& operator[](size_t index) const {
-		return storage[index];
+	const std::map<size_t, vec<T, C>>& operator[](size_t i) const {
+		if(i>=rows||i<0)throw std::runtime_error(MakeString()<<"Index ("<<i<<",*) exceeds matrix bounds ["<<rows<<","<<cols<<"]");
+		return storage[i];
 	}
 	SparseMatrix(size_t rows, size_t cols) :storage(rows),rows(rows),cols(cols) {
 	}
 	void set(size_t i, size_t j, const vec<T, C>& value) {
+		if(i>=rows||j>=cols||i<0||j<0)throw std::runtime_error(MakeString()<<"Index ("<<i<<","<<j<<") exceeds matrix bounds ["<<rows<<","<<cols<<"]");
 		storage[i][j]=value;
 	}
+	void set(size_t i, size_t j, const T& value) {
+		if(i>=rows||j>=cols||i<0||j<0)throw std::runtime_error(MakeString()<<"Index ("<<i<<","<<j<<") exceeds matrix bounds ["<<rows<<","<<cols<<"]");
+		storage[i][j]=vec<T, C>(value);
+	}
+	vec<T, C>& operator()(size_t i,size_t j) {
+		if(i>=rows||j>=cols||i<0||j<0)throw std::runtime_error(MakeString()<<"Index ("<<i<<","<<j<<") exceeds matrix bounds ["<<rows<<","<<cols<<"]");
+		return storage[i][j];
+	}
+
 	vec<T,C> get(size_t i,size_t j) const {
+		if(i>=rows||j>=cols||i<0||j<0)throw std::runtime_error(MakeString()<<"Index ("<<i<<","<<j<<") exceeds matrix bounds ["<<rows<<","<<cols<<"]");
 		if(storage[i].find(j)==storage[i].end()) {
 			return vec<T,C>(T(0));
 		} else {
-			return storage[i][j];
+			return storage[i].at(j);
 		}
+	}
+	vec<T, C> operator()(size_t i,size_t j) const {
+		return get(i,j);
 	}
 	SparseMatrix<T, C> transpose() {
 		SparseMatrix<T, C> M(cols, rows);
-		size_t i = 0;
-		for (std::map<size_t,vec<T, C>>& row : storage) {
-			for (std::pair<size_t,vec<T, C>>& iv : row) {
+#pragma omp parallel for
+		for(int i=0;i<(int)storage.size();i++) {
+			for (std::pair<size_t,vec<T, C>>& iv : storage[i]) {
 				M.set(iv.first, i, iv.second);
 			}
-			i++;
 		}
 		return M;
 	}
 };
+template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <<(
+		std::basic_ostream<A, B> & ss, const SparseMatrix<T, C>& M) {
+	for (int i = 0; i < M.rows; i++) {
+		ss << "M[" << i << ",*]=";
+		for (const std::pair<size_t, vec<T, C>>& pr : M[i]) {
+			ss << "<" << pr.first << ":" << pr.second << "> ";
+		}
+		ss << std::endl;
+	}
+	return ss;
+}
 
 template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
 		const Vector<T, C>& v) {
@@ -86,6 +112,35 @@ template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
 		out[i] = vec<T, C>(sum);
 	}
 }
+
+template<class T, int C> SparseMatrix<T, C> operator*(
+		const SparseMatrix<T, C>& A, const SparseMatrix<T, C>& B) {
+	if (A.cols != B.rows)
+		throw std::runtime_error(
+				MakeString()
+						<< "Cannot multiply matrices. Inner dimensions do not match. "
+						<< "[" << A.rows << "," << A.cols << "] * [" << B.rows
+						<< "," << B.cols << "]");
+	SparseMatrix<T, C> out(A.rows, B.cols);
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (int j = 0; j < (int) out.cols; j++) {
+			vec<double, C> sum(0.0);
+			for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+				sum += vec<double, C>(pr.second)
+						* vec<double, C>(B.get(pr.first, j));
+			}
+			for (int c = 0; c < C; c++) {
+				if (sum[c] != 0) {
+					out.set(i, j, vec<T, C>(sum));
+					break;
+				}
+			}
+		}
+	}
+	return out;
+}
+
 template<class T, int C> void Multiply(Vector<T, C>& out,
 		const SparseMatrix<T, 1>& A, const Vector<T, C>& v) {
 	out.resize(v.size());
