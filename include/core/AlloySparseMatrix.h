@@ -126,9 +126,9 @@ template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <
 template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
                                                 const Vector<T, C>& v)
 {
-    Vector<T, C> out(A.cols);
+    Vector<T, C> out(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, 1>>& pr : A[i])
@@ -167,9 +167,9 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
                                        const SparseMatrix<T, 1>& A,
                                        const Vector<T, C>& v)
 {
-    out.resize(A.cols);
+    out.resize(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, 1>>& pr : A[i])
@@ -184,9 +184,9 @@ template<class T, int C> void AddMultiply(Vector<T, C>& out,
                                           const SparseMatrix<T, 1>& A,
                                           const Vector<T, C>& v)
 {
-    out.resize(A.cols);
+    out.resize(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, 1>>& pr : A[i])
@@ -201,9 +201,9 @@ template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
                                                const SparseMatrix<T, 1>& A,
                                                const Vector<T, C>& v)
 {
-    out.resize(A.cols);
+    out.resize(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, 1>>& pr : A[i])
@@ -216,9 +216,9 @@ template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
 template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, C>& A,
                                                 const Vector<T, C>& v)
 {
-    Vector<T, C> out(A.cols);
+    Vector<T, C> out(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, C>>& pr : A[i])
@@ -232,9 +232,9 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
                                        const SparseMatrix<T, C>& A,
                                        const Vector<T, C>& v)
 {
-    out.resize(A.cols);
+    out.resize(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, C>>& pr : A[i])
@@ -250,9 +250,9 @@ template<class T, int C> void AddMultiply(Vector<T, C>& out,
                                           const SparseMatrix<T, C>& A,
                                           const Vector<T, C>& v)
 {
-    out.resize(A.cols);
+    out.resize(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i <(int) A.cols; i++)
+    for (int i = 0; i < A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, C>>& pr : A[i])
@@ -267,9 +267,9 @@ template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
                                                const SparseMatrix<T, C>& A,
                                                const Vector<T, C>& v)
 {
-    out.resize(A.cols);
+    out.resize(A.rows);
 #pragma omp parallel for
-    for (int i = 0; i < (int) A.cols; i++)
+    for (int i = 0; i < (int) A.rows; i++)
     {
         vec<double, C> sum(0.0);
         for (const std::pair<size_t, vec<T, C>>& pr : A[i])
