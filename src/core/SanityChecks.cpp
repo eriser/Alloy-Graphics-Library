@@ -172,7 +172,7 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 	std::cout << A << std::endl;
 	std::cout << B << std::endl;
 	SparseMatrix1f C;
-	C=C.transpose();
+
 	{
 		auto Cd = Ad * Bd;
 		C = A * B;
@@ -195,8 +195,9 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 			}
 		}
 		std::cout << "C=\n" << Cd << std::endl;
-		std::cout << Cd << std::endl;
 	}
+	A = A.transpose();
+	std::cout << "At" << A << std::endl;
 	return true;
 	MeshNeighborTable vertTable;
 	Mesh mesh;
