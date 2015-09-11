@@ -104,9 +104,9 @@ public:
 	static SparseMatrix<T, C> identity(size_t M,size_t N)
 	{
 		SparseMatrix<T, C> A(M,N);
-		size_t K=aly::min(M,N);
+		int K=(int)aly::min(M,N);
 #pragma omp parallel for
-		for (size_t k=0;k<K;k++)
+		for (int k=0;k<K;k++)
 		{
 			A[k][k]=vec<T,C>(T(1));
 		}
