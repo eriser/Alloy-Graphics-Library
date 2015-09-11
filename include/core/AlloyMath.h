@@ -1316,11 +1316,15 @@ template<class T> void Eigen(const matrix<T, 3, 3> &A, matrix<T, 3, 3>& Q,
 	Q = q2matrix(q);
 	D = transpose(Q) * A * Q;
 }
+void SVD(const matrix<float, 2, 2> &A, matrix<float, 2, 2>& U,
+		matrix<float, 2, 2>& D, matrix<float, 2, 2>& Vt);
 void SVD(const matrix<float, 3, 3> &A, matrix<float, 3, 3>& U,
 		matrix<float, 3, 3>& D, matrix<float, 3, 3>& Vt);
 void SVD(const matrix<float, 4, 4> &A, matrix<float, 4, 4>& U,
 		matrix<float, 4, 4>& D, matrix<float, 4, 4>& Vt);
 
+void SVD(const matrix<double, 2, 2> &A, matrix<double, 2, 2>& U,
+		matrix<double, 2, 2>& D, matrix<double, 2, 2>& Vt);
 void SVD(const matrix<double, 3, 3> &A, matrix<double, 3, 3>& U,
 		matrix<double, 3, 3>& D, matrix<double, 3, 3>& Vt);
 void SVD(const matrix<double, 4, 4> &A, matrix<double, 4, 4>& U,
