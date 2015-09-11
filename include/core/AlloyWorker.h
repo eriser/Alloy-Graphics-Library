@@ -39,8 +39,11 @@ public:
 	inline bool isRunning() const {
 		return running;
 	}
-	inline const bool& isCanceled() const {
+	inline bool isCanceled() const {
 		return requestCancel;
+	}
+	inline bool* isCanceledPtr() {
+		return &requestCancel;
 	}
 	inline bool isComplete() const {
 		return complete;
@@ -49,7 +52,7 @@ public:
 	Worker(const std::function<void()>& func);
 	Worker(const std::function<void()>& func, const std::function<void()>& end);
 	void execute();
-	void cancel();
+	void cancel(bool block=true);
 	virtual ~Worker();
 };
 class RecurrentWorker: public Worker {

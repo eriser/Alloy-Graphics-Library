@@ -54,10 +54,14 @@ void Worker::execute() {
 Worker::~Worker() {
 	cancel();
 }
-void Worker::cancel() {
-	if (workerThread.joinable()) {
+void Worker::cancel(bool block) {
+	if (block) {
+		if (workerThread.joinable()) {
+			requestCancel = true;
+			workerThread.join();
+		}
+	} else {
 		requestCancel = true;
-		workerThread.join();
 	}
 }
 RecurrentWorker::RecurrentWorker(const std::function<bool(uint64_t)>& func,
