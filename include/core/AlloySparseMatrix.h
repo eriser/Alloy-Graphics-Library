@@ -112,6 +112,16 @@ public:
 		}
 		return A;
 	}
+	static SparseMatrix<T, C> diagonal(const Vector<T,C>& v)
+	{
+		SparseMatrix<T, C> A(v.size(),v.size());
+#pragma omp parallel for
+		for (int k = 0;k<(int)v.size();k++)
+		{
+			A[k][k] = v[k];
+		}
+		return A;
+	}
 };
 template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <<(
 		std::basic_ostream<A, B> & ss, const SparseMatrix<T, C>& M) {
