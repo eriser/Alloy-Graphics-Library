@@ -279,7 +279,7 @@ template<class T, int C> SparseMatrix<T, C> operator-(const T& v,
 #pragma omp parallel for
 	for (int i = 0; i < (int) out.rows; i++) {
 		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
-			out[i][pr.first] = vec<T, C>(v) + pr.second;
+			out[i][pr.first] = vec<T, C>(v) - pr.second;
 		}
 	}
 	return out;
