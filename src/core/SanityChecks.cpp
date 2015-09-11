@@ -159,32 +159,32 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 	B(2, 2) = float1(7);
 	B(1, 1) = float1(0.1);
 	B(2, 0) = float1(2);
-	for (int i = 0; i < (int)A.rows; i++) {
-		for (int j = 0; j < (int)A.cols; j++) {
+	for (int i = 0; i < (int) A.rows; i++) {
+		for (int j = 0; j < (int) A.cols; j++) {
 			Ad(i, j) = A(i, j);
 		}
 	}
-	for (int i = 0; i < (int)B.rows; i++) {
-		for (int j = 0; j < (int)B.cols; j++) {
+	for (int i = 0; i < (int) B.rows; i++) {
+		for (int j = 0; j < (int) B.cols; j++) {
 			Bd(i, j) = B(i, j);
 		}
 	}
 	std::cout << A << std::endl;
 	std::cout << B << std::endl;
 	SparseMatrix1f C;
-
+	SparseMatrix4f I = SparseMatrix4f::identity(30, 25);
 	{
 		auto Cd = Ad * Bd;
 		C = A * B;
 		std::cout << "Cd=\n" << Cd << std::endl;
-		for (int i = 0; i < (int)C.rows; i++) {
-			for (int j = 0; j < (int)C.cols; j++) {
+		for (int i = 0; i < (int) C.rows; i++) {
+			for (int j = 0; j < (int) C.cols; j++) {
 				Cd(i, j) = C(i, j);
 			}
 		}
-		std::cout << "C=\n"<< Cd << std::endl;
+		std::cout << "C=\n" << Cd << std::endl;
 	}
-	
+
 	{
 		C = B * A;
 		auto Cd = Bd * Ad;

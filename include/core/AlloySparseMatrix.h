@@ -101,6 +101,17 @@ public:
 		}
 		return M;
 	}
+	static SparseMatrix<T, C> identity(size_t M,size_t N)
+	{
+		SparseMatrix<T, C> A(M,N);
+		size_t K=aly::min(M,N);
+#pragma omp parallel for
+		for (size_t k=0;k<K;k++)
+		{
+			A[k][k]=vec<T,C>(T(1));
+		}
+		return A;
+	}
 };
 template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <<(
 		std::basic_ostream<A, B> & ss, const SparseMatrix<T, C>& M) {
