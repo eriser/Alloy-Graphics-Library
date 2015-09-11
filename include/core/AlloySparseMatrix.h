@@ -228,6 +228,51 @@ template<class T, int C> SparseMatrix<T, C> operator*(
 	}
 	return out;
 }
+
+template<class T, int C> SparseMatrix<T, C> operator*(const T& v,
+		const SparseMatrix<T, C>& A) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = v * pr.second;
+		}
+	}
+	return out;
+}
+template<class T, int C> SparseMatrix<T, C> operator/(const T& v,
+		const SparseMatrix<T, C>& A) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = v / pr.second;
+		}
+	}
+	return out;
+}
+template<class T, int C> SparseMatrix<T, C> operator+(const T& v,
+		const SparseMatrix<T, C>& A) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = vec<T, C>(v) + pr.second;
+		}
+	}
+	return out;
+}
+template<class T, int C> SparseMatrix<T, C> operator-(const T& v,
+		const SparseMatrix<T, C>& A) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = vec<T, C>(v) + pr.second;
+		}
+	}
+	return out;
+}
 template<class T, int C> SparseMatrix<T, C> operator*(const vec<T, C>& v,
 		const SparseMatrix<T, C>& A) {
 	SparseMatrix<T, C> out = A;
@@ -309,6 +354,52 @@ template<class T, int C> SparseMatrix<T, C> operator*(
 
 template<class T, int C> SparseMatrix<T, C> operator/(
 		const SparseMatrix<T, C>& A, const vec<T, C>& v) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = pr.second / v;
+		}
+	}
+	return out;
+}
+
+template<class T, int C> SparseMatrix<T, C> operator-(
+		const SparseMatrix<T, C>& A, const T& v) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = pr.second - vec<T, C>(v);
+		}
+	}
+	return out;
+}
+template<class T, int C> SparseMatrix<T, C> operator+(
+		const SparseMatrix<T, C>& A, const T& v) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = pr.second + vec<T, C>(v);
+		}
+	}
+	return out;
+}
+template<class T, int C> SparseMatrix<T, C> operator*(
+		const SparseMatrix<T, C>& A, const T& v) {
+	SparseMatrix<T, C> out = A;
+#pragma omp parallel for
+	for (int i = 0; i < (int) out.rows; i++) {
+		for (std::pair<size_t, vec<T, C>> pr : A[i]) {
+			out[i][pr.first] = pr.second * v;
+		}
+	}
+	return out;
+}
+
+template<class T, int C> SparseMatrix<T, C> operator/(
+		const SparseMatrix<T, C>& A, const T& v) {
 	SparseMatrix<T, C> out = A;
 #pragma omp parallel for
 	for (int i = 0; i < (int) out.rows; i++) {
