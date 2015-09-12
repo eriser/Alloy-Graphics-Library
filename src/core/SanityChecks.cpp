@@ -123,31 +123,32 @@ bool SANITY_CHECK_DENSE() {
 	float r = h * 0.4;
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
-			if (length(float2(i - w / 2, j - h / 2)) < r) {
-				img1(i, j).w = 0;
-			}
+			float diff = r - length(float2(i - w / 2, j - h / 2));
+			float alpha = 1.0f - clamp(diff / 64, 0.0f, 1.0f);
+			img1(i, j).w = alpha;
 		}
 	}
+	WriteImageToFile("init.png", img1);
 	ImageRGBAf out;
-	out=img1;
+	out = img1;
 
 	std::cout << "Normal Laplace Fill" << std::endl;
 	LaplaceFill(img1, out, 128);
 	WriteImageToFile("laplace_fill.png", out);
 
 	std::cout << "Pyramid Laplace Fill" << std::endl;
-	out=img1;
-	LaplaceFill(img1, out, 64, 6);
+	out = img1;
+	LaplaceFill(img1, out, 32, 6);
 	WriteImageToFile("laplace_fill_pyr.png", out);
 
-	out=img2;
+	out = img2;
 	std::cout << "Normal Poisson Blend" << std::endl;
-	PoissonBlend(img1, out,128);
+	PoissonBlend(img1, out, 128);
 	WriteImageToFile("poisson_blend.png", out);
 	out = img2;
 
 	std::cout << "Pyramid Poisson Blend" << std::endl;
-	PoissonBlend(img1, out, 64, 6);
+	PoissonBlend(img1, out, 32, 6);
 	WriteImageToFile("poisson_blend_pyr.png", out);
 	std::cout << "Done!" << std::endl;
 

@@ -59,20 +59,20 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 #pragma omp parallel for
 	for (int j = 1; j < sourceImg.height - 1; j++) {
 		for (int i = 1; i < sourceImg.width - 1; i++) {
-			if (sourceImg(i, j).w > 0) {
-				float4 val1 = sourceImg(i, j);
-				float4 val2 = sourceImg(i, j + 1);
-				float4 val3 = sourceImg(i, j - 1);
-				float4 val4 = sourceImg(i + 1, j);
-				float4 val5 = sourceImg(i - 1, j);
-				float4 div = val1 - 0.25f * (val2 + val3 + val4 + val5);
-				div.w = 0.0f;
-				divergence(i, j) = div;
-				targetImg(i, j) = float4(sourceImg(i, j).xyz(), 1.0f);
-			} else {
-				divergence(i, j) = float4(0.0f);
-				targetImg(i, j).w = 1.0;
-			}
+			float4 src = sourceImg(i, j);
+			float4 tar = targetImg(i, j);
+			float alpha = src.w;
+			tar.w = 1.0f;
+			src.w = 1.0f;
+			float4 val1 = sourceImg(i, j);
+			float4 val2 = sourceImg(i, j + 1);
+			float4 val3 = sourceImg(i, j - 1);
+			float4 val4 = sourceImg(i + 1, j);
+			float4 val5 = sourceImg(i - 1, j);
+			float4 div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+			div.w = 0.0f;
+			divergence(i, j) = alpha * div;
+			targetImg(i, j) = mix(tar, src, alpha);
 		}
 	}
 	const int xShift[] = { 0, 0, 1, 1 };
@@ -80,8 +80,8 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	for (int iter = 0; iter < iterations; iter++) {
 		for (int k = 0; k < 4; k++) {
 #pragma omp parallel for
-			for (int j = yShift[k]+1; j < sourceImg.height-1; j += 2) {
-				for (int i = xShift[k]+1; i < sourceImg.width-1; i += 2) {
+			for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2) {
+				for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2) {
 					float4 div = targetImg(i, j)
 							- 0.25f
 									* (targetImg(i, j - 1) + targetImg(i, j + 1)
@@ -146,8 +146,8 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	for (int iter = 0; iter < iterations; iter++) {
 		for (int k = 0; k < 4; k++) {
 #pragma omp parallel for
-			for (int j = yShift[k]+1; j < sourceImg.height-1; j += 2) {
-				for (int i = xShift[k]+1; i < sourceImg.width-1; i += 2) {
+			for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2) {
+				for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2) {
 					float4 div = targetImg(i, j)
 							- 0.25f
 									* (targetImg(i, j - 1) + targetImg(i, j + 1)
