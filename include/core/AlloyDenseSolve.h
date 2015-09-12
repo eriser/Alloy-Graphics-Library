@@ -23,6 +23,17 @@
 #include "AlloyMath.h"
 #include "AlloyImage.h"
 namespace aly {
-	void PoissonFill(const Image4f& in, Image4f& out, int iterations = 128, float lambda = 0.99f);
+bool SANITY_CHECK_DENSE();
+
+void PoissonBlend(const Image4f& in, Image4f& out, int iterations, int levels,
+		float lambda = 0.99f);
+void PoissonBlend(const Image4f& in, Image4f& out, int iterations,
+		float lambda = 0.99f);
+
+void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		int levels, float lambda = 0.99f);
+void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		float lambda = 0.99f);
+
 }
 #endif

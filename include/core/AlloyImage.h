@@ -306,7 +306,7 @@ public:
 		static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16,
 				4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 },
 				{ 1, 4, 6, 4, 1 } };
-		out.resize(width * 2, height * 2);
+		if(out.size()==0)out.resize(width * 2, height * 2);
 #pragma omp parallel for
 		for (int i = 0; i < out.width; i++) {
 			for (int j = 0; j < out.height; j++) {

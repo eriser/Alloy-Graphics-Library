@@ -42,6 +42,7 @@
 #include "AlloyMeshIntersector.h"
 #include "AlloyVirtualCamera.h"
 #include "AlloySparseMatrix.h"
+#include "AlloyDenseSolve.h"
 #include "CommonShaders.h"
 
 #endif /* ALLOY_H_ */

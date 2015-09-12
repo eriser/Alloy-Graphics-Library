@@ -11,6 +11,7 @@
 #include "AlloyFileUtil.h"
 #include "AlloyUI.h"
 #include "AlloyMesh.h"
+#include "AlloyDenseSolve.h"
 #include "AlloySparseMatrix.h"
 #include "AlloyVirtualCamera.h"
 #include "AlloyMeshIntersector.h"
@@ -111,6 +112,47 @@ bool SANITY_CHECK_KDTREE() {
 	rgba.writeToXML("closest_clamped.xml");
 	return true;
 }
+bool SANITY_CHECK_DENSE() {
+	ImageRGBAf img1, img2;
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			img1);
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfsunset.png"),
+			img2);
+	int w = img1.width;
+	int h = img1.height;
+	float r = h * 0.4;
+	for (int i = 0; i < w; i++) {
+		for (int j = 0; j < h; j++) {
+			if (length(float2(i - w / 2, j - h / 2)) < r) {
+				img1(i, j).w = 0;
+			}
+		}
+	}
+	ImageRGBAf out;
+	out=img1;
+
+	std::cout << "Normal Laplace Fill" << std::endl;
+	LaplaceFill(img1, out, (int) r);
+	WriteImageToFile("laplace_fill.png", out);
+
+	std::cout << "Pyramid Laplace Fill" << std::endl;
+	out=img1;
+	LaplaceFill(img1, out, 64, 6);
+	WriteImageToFile("laplace_fill_pyr.png", out);
+
+	out=img2;
+	std::cout << "Normal Poisson Blend" << std::endl;
+	PoissonBlend(img1, out, (int) r);
+	WriteImageToFile("poisson_blend.png", out);
+	out = img2;
+
+	std::cout << "Pyramid Poisson Blend" << std::endl;
+	PoissonBlend(img1, out, 64, 6);
+	WriteImageToFile("poisson_blend_pyr.png", out);
+	std::cout << "Done!" << std::endl;
+
+	return true;
+}
 bool SANITY_CHECK_PYRAMID() {
 	ImageRGBAf img;
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
@@ -122,13 +164,13 @@ bool SANITY_CHECK_PYRAMID() {
 	ImageRGBAf imgUp = imgDown.upsample();
 	WriteImageToFile("image_upsample.png", imgUp);
 	ImageRGBAf imgUpDown = imgUp.downsample();
-	ImageRGBAf diff(imgUpDown.width,imgUpDown.height);
+	ImageRGBAf diff(imgUpDown.width, imgUpDown.height);
 	float1 val;
-	val=3.0f;
-	for(int i=0;i<imgUpDown.width;i++){
-		for(int j=0;j<imgUpDown.height;j++){
-			RGBAf c=float4(imgDown(i,j))-float4(imgUpDown(i,j));
-			diff(i,j)=float4(c.xyz(),1.0f);
+	val = 3.0f;
+	for (int i = 0; i < imgUpDown.width; i++) {
+		for (int j = 0; j < imgUpDown.height; j++) {
+			RGBAf c = float4(imgDown(i, j)) - float4(imgUpDown(i, j));
+			diff(i, j) = float4(c.xyz(), 1.0f);
 		}
 	}
 	diff.writeToXML("image_diff.xml");

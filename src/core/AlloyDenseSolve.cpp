@@ -19,48 +19,146 @@
  * THE SOFTWARE.
  */
 #include "AlloyDenseSolve.h"
+#include "AlloyFileUtil.h"
 namespace aly {
-	void PoissonFill(const Image4f& in, Image4f& out, int iterations , float lambda) {
-		Image4f divergence(in.width, in.height);
-		divergence.set(float4(0.0f));
+void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		int levels, float lambda) {
+	if (sourceImg.dimensions() != targetImg.dimensions())
+		throw std::runtime_error(
+				"Cannot solve. Image dimensions do not match ");
+	if (levels <= 1) {
+		PoissonBlend(sourceImg, targetImg, iterations, lambda);
+	} else {
+		std::vector<Image4f> srcPyramid(levels);
+		std::vector<Image4f> tarPyramid(levels);
+		srcPyramid[0] = sourceImg;
+		tarPyramid[0] = targetImg;
+		for (int l = 1; l < levels; l++) {
+			srcPyramid[l - 1].downsample(srcPyramid[l]);
+			tarPyramid[l - 1].downsample(tarPyramid[l]);
+		}
+		for (int l = levels - 1; l >= 1; l--) {
+			LaplaceFill(srcPyramid[l], tarPyramid[l], iterations, lambda);
+			tarPyramid[l].upsample(tarPyramid[l - 1]);
+		}
+		targetImg = tarPyramid[0];
+		LaplaceFill(sourceImg, targetImg, iterations, lambda);
+	}
+}
+
+void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		float lambda) {
+	if (sourceImg.dimensions() != targetImg.dimensions())
+		throw std::runtime_error(
+				MakeString()
+						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< sourceImg.dimensions() << " "
+						<< targetImg.dimensions());
+	Image4f divergence(sourceImg.width, sourceImg.height);
+	divergence.set(float4(0.0f));
 #pragma omp parallel for
-		for (int j = 1; j < in.height - 1; j++) {
-			for (int i = 1; i < in.width - 1; i++) {
-				float4 val1 = in(i, j);
-				float4 val2 = in(i, j + 1);
-				float4 val3 = in(i, j - 1);
-				float4 val4 = in(i + 1, j);
-				float4 val5 = in(i - 1, j);
-				float4 div = val1 - 0.25f*(val2 + val3 + val4 + val5);
-				if (val1.w > 0.0f&&val2.w>0.0f&&val3.w > 0.0f&&val4.w > 0.0f&&val5.w > 0.0f) {
-					div.w = 0.0f;
-				}
-				else {
-					div = float4(0.0f);
-				}
-				out(i, j) = val1;
+	for (int j = 1; j < sourceImg.height - 1; j++) {
+		for (int i = 1; i < sourceImg.width - 1; i++) {
+			if (sourceImg(i, j).w > 0) {
+				float4 val1 = sourceImg(i, j);
+				float4 val2 = sourceImg(i, j + 1);
+				float4 val3 = sourceImg(i, j - 1);
+				float4 val4 = sourceImg(i + 1, j);
+				float4 val5 = sourceImg(i - 1, j);
+				float4 div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+				div.w = 0.0f;
 				divergence(i, j) = div;
-			}
-		}
-		for (int iter = 0; iter < iterations; iter++) {
-			for (int k = 0; k < 4; k++) {
-#pragma omp parallel for
-				for (int j = 0; j < in.height; j += 2) {
-					for (int i = 0; i < in.width; i += 2) {
-						if (in(i,j).w>0) {
-							float4 div = out(i, j) - 0.25f*(out(i, j - 1) + out(i, j + 1) + out(i - 1, j) + out(i + 1, j));
-							div = (div - divergence(i, j));
-							div.w = 0.0f;
-							out(i, j) -= lambda*div;
-						}
-					}
-				}
-			}
-		}
-		for (float4& c : out.data) {
-			if (c.w > 0.0f) {
-				c /= c.w;
+				targetImg(i, j) = float4(sourceImg(i, j).xyz(), 1.0f);
+			} else {
+				divergence(i, j) = float4(0.0f);
+				targetImg(i, j).w = 1.0;
 			}
 		}
 	}
+	const int xShift[] = { 0, 0, 1, 1 };
+	const int yShift[] = { 0, 1, 0, 1 };
+	for (int iter = 0; iter < iterations; iter++) {
+		for (int k = 0; k < 4; k++) {
+#pragma omp parallel for
+			for (int j = yShift[k]+1; j < sourceImg.height-1; j += 2) {
+				for (int i = xShift[k]+1; i < sourceImg.width-1; i += 2) {
+					float4 div = targetImg(i, j)
+							- 0.25f
+									* (targetImg(i, j - 1) + targetImg(i, j + 1)
+											+ targetImg(i - 1, j)
+											+ targetImg(i + 1, j));
+					div = (div - divergence(i, j));
+					targetImg(i, j) -= lambda * div;
+				}
+			}
+		}
+	}
+}
+void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		int levels, float lambda) {
+	if (sourceImg.dimensions() != targetImg.dimensions())
+		throw std::runtime_error(
+				"Cannot solve. Image dimensions do not match ");
+	if (levels <= 1) {
+		PoissonBlend(sourceImg, targetImg, iterations, lambda);
+	} else {
+		std::vector<Image4f> srcPyramid(levels);
+		std::vector<Image4f> tarPyramid(levels);
+		srcPyramid[0] = sourceImg;
+		tarPyramid[0] = targetImg;
+		for (int l = 1; l < levels; l++) {
+			srcPyramid[l - 1].downsample(srcPyramid[l]);
+			tarPyramid[l - 1].downsample(tarPyramid[l]);
+		}
+		for (int l = levels - 1; l >= 1; l--) {
+			PoissonBlend(srcPyramid[l], tarPyramid[l], iterations, lambda);
+			tarPyramid[l].upsample(tarPyramid[l - 1]);
+		}
+		targetImg = tarPyramid[0];
+		PoissonBlend(sourceImg, targetImg, iterations, lambda);
+	}
+}
+void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		float lambda) {
+	if (sourceImg.dimensions() != targetImg.dimensions())
+		throw std::runtime_error(
+				MakeString()
+						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< sourceImg.dimensions() << " "
+						<< targetImg.dimensions());
+	Image4f divergence(sourceImg.width, sourceImg.height);
+#pragma omp parallel for
+	for (int j = 1; j < sourceImg.height - 1; j++) {
+		for (int i = 1; i < sourceImg.width - 1; i++) {
+			float4 val1 = sourceImg(i, j);
+			float4 val2 = sourceImg(i, j + 1);
+			float4 val3 = sourceImg(i, j - 1);
+			float4 val4 = sourceImg(i + 1, j);
+			float4 val5 = sourceImg(i - 1, j);
+			float4 div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+			div.w = 0.0f;
+			divergence(i, j) = div;
+
+		}
+	}
+	const int xShift[] = { 0, 0, 1, 1 };
+	const int yShift[] = { 0, 1, 0, 1 };
+	for (int iter = 0; iter < iterations; iter++) {
+		for (int k = 0; k < 4; k++) {
+#pragma omp parallel for
+			for (int j = yShift[k]+1; j < sourceImg.height-1; j += 2) {
+				for (int i = xShift[k]+1; i < sourceImg.width-1; i += 2) {
+					float4 div = targetImg(i, j)
+							- 0.25f
+									* (targetImg(i, j - 1) + targetImg(i, j + 1)
+											+ targetImg(i - 1, j)
+											+ targetImg(i + 1, j));
+					div = (div - divergence(i, j));
+					targetImg(i, j) -= lambda * div;
+				}
+			}
+		}
+	}
+}
+
 }
