@@ -18,8 +18,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef ALLOYALGORITGM_H_
-#define ALLOYALGORITGM_H_
+#ifndef ALLOYSPARSESOLVE_H_
+#define ALLOYSPARSESOLVE_H_
 #include "AlloyMath.h"
 #include "AlloyVector.h"
 #include "AlloySparseMatrix.h"
