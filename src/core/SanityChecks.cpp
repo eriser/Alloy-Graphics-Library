@@ -111,6 +111,22 @@ bool SANITY_CHECK_KDTREE() {
 	rgba.writeToXML("closest_clamped.xml");
 	return true;
 }
+bool SANITY_CHECK_PYRAMID() {
+	ImageRGBA img;
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			img);
+	std::cout<<"Down sample"<<std::endl;
+	ImageRGBA imgDown=img.pyramidDown();
+
+	WriteImageToFile("image_downsample.png",imgDown);
+
+	std::cout<<"Up sample"<<std::endl;
+	ImageRGBA imgUp=imgDown.pyramidUp();
+
+	WriteImageToFile("image_usample.png",imgUp);
+
+	return true;
+}
 bool SANITY_CHECK_MESH_IO() {
 	Mesh tmpMesh;
 	tmpMesh.load(AlloyDefaultContext()->getFullPath("models/torus.ply"));

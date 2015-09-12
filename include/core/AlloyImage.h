@@ -31,6 +31,7 @@
 #include <random>
 namespace aly {
 bool SANITY_CHECK_IMAGE();
+bool SANITY_CHECK_PYRAMID();
 enum class ImageType {
 	BYTE = 0,
 	UBYTE = 1,
@@ -280,6 +281,63 @@ public:
 			f(offset, data[offset]);
 		}
 	}
+	void pyramidDown(Image<T, C, I>& out) {
+		static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16,
+				4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 },
+				{ 1, 4, 6, 4, 1 } };
+		out.resize(width / 2, height / 2);
+#pragma omp parallel for
+		for (int i = 0; i < out.width; i++) {
+			for (int j = 0; j < out.height; j++) {
+				vec<double, C> vsum(0.0);
+				for (int ii = 0; ii < 5; ii++) {
+					for (int jj = 0; jj < 5; jj++) {
+						vsum += Kernel[ii][jj]
+								* vec<double, C>(
+										operator()(2 * i + ii - 2,
+												2 * j + jj - 2));
+					}
+				}
+				out(i, j) = vec<T, C>(vsum / 256.0);
+			}
+		}
+	}
+	void pyramidUp(Image<T, C, I>& out) {
+		static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16,
+				4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 },
+				{ 1, 4, 6, 4, 1 } };
+
+		out.resize(width * 2, height * 2);
+		out.set(vec<T, C>(T(0)));
+#pragma omp parallel for
+		for (int i = 0; i < out.width; i++) {
+			for (int j = 0; j < out.height; j++) {
+				vec<double, C> vsum(0.0);
+				for (int ii = 0; ii < 5; ii++) {
+					for (int jj = 0; jj < 5; jj++) {
+						int iii = i + ii - 2;
+						int jjj = j + jj - 2;
+						if (iii % 2 == 0 && jjj % 2 == 0) {
+							vsum += Kernel[ii][jj]
+									* vec<double, C>(
+											operator()(iii / 2, jjj / 2));
+						}
+					}
+				}
+				out(i, j) = vec<T, C>(vsum / 64.0);
+			}
+		}
+	}
+	Image<T, C, I> pyramidDown() {
+		Image<T, C, I> out;
+		pyramidDown(out);
+		return out;
+	}
+	Image<T, C, I> pyramidUp() {
+		Image<T, C, I> out;
+		pyramidUp(out);
+		return out;
+	}
 };
 template<class T, int C, ImageType I> std::string Image<T, C, I>::updateHashCode(
 		size_t MAX_SAMPLES, HashMethod method) {
@@ -345,12 +403,12 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 		func(im1.data[offset], im2.data[offset], im3.data[offset]);
 	}
 }
-template<class T, int C, ImageType I> void Transform(
-		Image<T, C, I>& im1,
-		const Image<T, C, I>& im2,
-		const Image<T, C, I>& im3,
+template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
+		const Image<T, C, I>& im2, const Image<T, C, I>& im3,
 		const Image<T, C, I>& im4,
-		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,const vec<T, C>&)>& func) {
+		const std::function<
+				void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,
+						const vec<T, C>&)>& func) {
 	if (im1.dimensions() != im2.dimensions())
 		throw std::runtime_error(
 				MakeString() << "Image dimensions do not match. "
@@ -604,7 +662,7 @@ template<class T, int C, ImageType I> void WriteImageToRawFile(
 		typeName = "Double";
 		break;
 	}
-	//std::cout << vstr.str() << std::endl;
+//std::cout << vstr.str() << std::endl;
 	std::stringstream sstr;
 	sstr << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	sstr << "<!-- MIPAV header file -->\n";
