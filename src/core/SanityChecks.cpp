@@ -112,19 +112,16 @@ bool SANITY_CHECK_KDTREE() {
 	return true;
 }
 bool SANITY_CHECK_PYRAMID() {
-	ImageRGBA img;
+	ImageRGBAf img;
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
 			img);
 	std::cout << "Down sample" << std::endl;
-	ImageRGBA imgDown = img.pyramidDown();
-
+	ImageRGBAf imgDown = img.pyramidDown();
 	WriteImageToFile("image_downsample.png", imgDown);
-
 	std::cout << "Up sample" << std::endl;
-	ImageRGBA imgUp = imgDown.pyramidUp();
-
+	ImageRGBAf imgUp = imgDown.pyramidUp();
 	WriteImageToFile("image_upsample.png", imgUp);
-	ImageRGBA imgUpDown = imgUp.pyramidDown();
+	ImageRGBAf imgUpDown = imgUp.pyramidDown();
 	ImageRGBAf diff(imgUpDown.width,imgUpDown.height);
 	float1 val;
 	val=3.0f;

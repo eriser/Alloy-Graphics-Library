@@ -303,28 +303,12 @@ public:
 		}
 	}
 	void pyramidUp(Image<T, C, I>& out) {
-		static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16,
-				4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 },
-				{ 1, 4, 6, 4, 1 } };
-
 		out.resize(width * 2, height * 2);
 		out.set(vec<T, C>(T(0)));
 #pragma omp parallel for
 		for (int i = 0; i < out.width; i++) {
 			for (int j = 0; j < out.height; j++) {
-				vec<double, C> vsum(0.0);
-				for (int ii = 0; ii < 5; ii++) {
-					for (int jj = 0; jj < 5; jj++) {
-						int iii = i + ii - 2;
-						int jjj = j + jj - 2;
-						if (iii % 2 == 0 && jjj % 2 == 0) {
-							vsum += Kernel[ii][jj]
-									* vec<double, C>(
-											operator()(iii / 2, jjj / 2));
-						}
-					}
-				}
-				out(i, j) = vec<T, C>(vsum / 64.0);
+				out(i, j) = operator()(i*0.5f, j*0.5f);
 			}
 		}
 	}
