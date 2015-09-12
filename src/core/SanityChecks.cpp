@@ -123,11 +123,18 @@ bool SANITY_CHECK_PYRAMID() {
 	std::cout << "Up sample" << std::endl;
 	ImageRGBA imgUp = imgDown.pyramidUp();
 
-	WriteImageToFile("image_usample.png", imgUp);
+	WriteImageToFile("image_upsample.png", imgUp);
 	ImageRGBA imgUpDown = imgUp.pyramidDown();
-	ImageRGBA diff = imgDown - imgUpDown;
-	WriteImageToFile("image_diff.png", diff);
-
+	ImageRGBAf diff(imgUpDown.width,imgUpDown.height);
+	float1 val;
+	val=3.0f;
+	for(int i=0;i<imgUpDown.width;i++){
+		for(int j=0;j<imgUpDown.height;j++){
+			RGBAf c=float4(imgDown(i,j))-float4(imgUpDown(i,j));
+			diff(i,j)=float4(c.xyz(),1.0f);
+		}
+	}
+	diff.writeToXML("image_diff.xml");
 	return true;
 }
 bool SANITY_CHECK_MESH_IO() {

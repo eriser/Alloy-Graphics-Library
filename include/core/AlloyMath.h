@@ -95,10 +95,15 @@ template<class T> struct vec<T, 1> {
 	bool operator >(const vec & r) const {
 		return (x > r.x);
 	}
+	vec<T,1>& operator =(const T& r) {
+		x=r;
+		return *this;
+	}
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(x));
 	}
 };
+
 // A vector with exactly M elements, each of which is an instance of type T. Can also be thought of as an M x 1 matrix.
 template<class T, int M> struct vec;
 template<class T> struct vec<T, 2> {
@@ -218,6 +223,9 @@ template<class T> struct vec<T, 4> {
 	}
 	vec<T, 3> xyz() const {
 		return vec<T, 3>(x, y, z);
+	}
+	vec<T, 3> xy() const {
+		return vec<T, 2>(x, y);
 	}
 
 	bool operator ==(const vec & r) const {
