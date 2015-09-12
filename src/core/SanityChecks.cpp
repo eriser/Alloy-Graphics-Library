@@ -115,15 +115,18 @@ bool SANITY_CHECK_PYRAMID() {
 	ImageRGBA img;
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
 			img);
-	std::cout<<"Down sample"<<std::endl;
-	ImageRGBA imgDown=img.pyramidDown();
+	std::cout << "Down sample" << std::endl;
+	ImageRGBA imgDown = img.pyramidDown();
 
-	WriteImageToFile("image_downsample.png",imgDown);
+	WriteImageToFile("image_downsample.png", imgDown);
 
-	std::cout<<"Up sample"<<std::endl;
-	ImageRGBA imgUp=imgDown.pyramidUp();
+	std::cout << "Up sample" << std::endl;
+	ImageRGBA imgUp = imgDown.pyramidUp();
 
-	WriteImageToFile("image_usample.png",imgUp);
+	WriteImageToFile("image_usample.png", imgUp);
+	ImageRGBA imgUpDown = imgUp.pyramidDown();
+	ImageRGBA diff = imgDown - imgUpDown;
+	WriteImageToFile("image_diff.png", diff);
 
 	return true;
 }
