@@ -25,7 +25,10 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		int levels, float lambda) {
 	if (sourceImg.dimensions() != targetImg.dimensions())
 		throw std::runtime_error(
-				"Cannot solve. Image dimensions do not match ");
+				MakeString()
+						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< sourceImg.dimensions() << " "
+						<< targetImg.dimensions());
 	if (levels <= 1) {
 		PoissonBlend(sourceImg, targetImg, iterations, lambda);
 	} else {
@@ -79,6 +82,7 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	const int yShift[] = { 0, 1, 0, 1 };
 	for (int iter = 0; iter < iterations; iter++) {
 		for (int k = 0; k < 4; k++) {
+			//Assumes color at boundary of target image is fixed!
 #pragma omp parallel for
 			for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2) {
 				for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2) {
@@ -98,7 +102,10 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		int levels, float lambda) {
 	if (sourceImg.dimensions() != targetImg.dimensions())
 		throw std::runtime_error(
-				"Cannot solve. Image dimensions do not match ");
+				MakeString()
+						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< sourceImg.dimensions() << " "
+						<< targetImg.dimensions());
 	if (levels <= 1) {
 		PoissonBlend(sourceImg, targetImg, iterations, lambda);
 	} else {
@@ -145,6 +152,7 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	const int yShift[] = { 0, 1, 0, 1 };
 	for (int iter = 0; iter < iterations; iter++) {
 		for (int k = 0; k < 4; k++) {
+			//Assumes color at boundary of target image is fixed!
 #pragma omp parallel for
 			for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2) {
 				for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2) {
