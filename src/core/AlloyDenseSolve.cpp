@@ -26,7 +26,7 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	if (sourceImg.dimensions() != targetImg.dimensions())
 		throw std::runtime_error(
 				MakeString()
-						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< "Cannot solve. Image dimensions do not match "
 						<< sourceImg.dimensions() << " "
 						<< targetImg.dimensions());
 	if (levels <= 1) {
@@ -54,7 +54,7 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	if (sourceImg.dimensions() != targetImg.dimensions())
 		throw std::runtime_error(
 				MakeString()
-						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< "Cannot solve. Image dimensions do not match "
 						<< sourceImg.dimensions() << " "
 						<< targetImg.dimensions());
 	Image4f divergence(sourceImg.width, sourceImg.height);
@@ -103,7 +103,7 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	if (sourceImg.dimensions() != targetImg.dimensions())
 		throw std::runtime_error(
 				MakeString()
-						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< "Cannot solve. Image dimensions do not match "
 						<< sourceImg.dimensions() << " "
 						<< targetImg.dimensions());
 	if (levels <= 1) {
@@ -130,7 +130,7 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	if (sourceImg.dimensions() != targetImg.dimensions())
 		throw std::runtime_error(
 				MakeString()
-						<< "Cannot solve Laplace. Image dimensions do not match "
+						<< "Cannot solve. Image dimensions do not match "
 						<< sourceImg.dimensions() << " "
 						<< targetImg.dimensions());
 	Image4f divergence(sourceImg.width, sourceImg.height);
