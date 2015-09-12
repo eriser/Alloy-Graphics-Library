@@ -132,7 +132,7 @@ bool SANITY_CHECK_DENSE() {
 	out=img1;
 
 	std::cout << "Normal Laplace Fill" << std::endl;
-	LaplaceFill(img1, out, (int) r);
+	LaplaceFill(img1, out, 128);
 	WriteImageToFile("laplace_fill.png", out);
 
 	std::cout << "Pyramid Laplace Fill" << std::endl;
@@ -142,7 +142,7 @@ bool SANITY_CHECK_DENSE() {
 
 	out=img2;
 	std::cout << "Normal Poisson Blend" << std::endl;
-	PoissonBlend(img1, out, (int) r);
+	PoissonBlend(img1, out,128);
 	WriteImageToFile("poisson_blend.png", out);
 	out = img2;
 
