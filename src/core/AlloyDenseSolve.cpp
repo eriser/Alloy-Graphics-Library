@@ -51,7 +51,7 @@ namespace aly {
 							float4 div = out(i, j) - 0.25f*(out(i, j - 1) + out(i, j + 1) + out(i - 1, j) + out(i + 1, j));
 							div = (div - divergence(i, j));
 							div.w = 0.0f;
-							out(i, j) = out(i, j) - lambda*div;
+							out(i, j) -= lambda*div;
 						}
 					}
 				}
