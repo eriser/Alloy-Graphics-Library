@@ -262,7 +262,7 @@ public:
 	}
 	void downSample(Volume<T, C, I>& out) const {
 		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
-				1, 0 } }, { { 1, 4, 1 }, { 4, 8, 4 }, { 1, 4, 1 } }, {
+				1, 0 } }, { { 1, 4, 1 }, { 4, 12, 4 }, { 1, 4, 1 } }, {
 				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
 		out.resize(rows / 2, cols / 2, slices / 2);
 #pragma omp parallel for
@@ -281,14 +281,14 @@ public:
 							}
 						}
 					}
-					out(i, j, k) = vec<T, C>(vsum / 44.0);
+					out(i, j, k) = vec<T, C>(vsum / 48.0);
 				}
 			}
 		}
 	}
 	void upSample(Volume<T, C, I>& out) const {
 		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
-				1, 0 } }, { { 1, 4, 1 }, { 4, 8, 4 }, { 1, 4, 1 } }, {
+				1, 0 } }, { { 1, 4, 1 }, { 4, 12, 4 }, { 1, 4, 1 } }, {
 				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
 		if (out.size() == 0)
 			out.resize(rows * 2, cols * 2, slices * 2);
@@ -312,7 +312,7 @@ public:
 								}
 							}
 						}
-						out(i, j, k) = vec<T, C>(8.0 * vsum / 44.0);
+						out(i, j, k) = vec<T, C>( vsum / 6.0);
 					}
 				}
 			}
