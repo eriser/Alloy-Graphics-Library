@@ -69,27 +69,8 @@ enum class DataType
     Float64 = 8,
     EndType = 9
 };
-enum class Rule
-{
-    NoRule = 0,
-    Average = 1,
-    Majority = 2,
-    Minimum = 3,
-    Maximum = 4,
-    Same = 5,
-    Random = 6,
-    EndMarker = -1
-};
 
-struct RuleName
-{
-        Rule code;
-        std::string name;
-};
-static RuleName rule_name_list[] =
-{ Rule::Average, "avg", Rule::Random, "rnd", Rule::Minimum, "max",
-        Rule::Maximum, "min", Rule::Majority, "major", Rule::Same, "same",
-        Rule::EndMarker, "end_marker" };
+
 
 const std::string property_type_names[] =
 { "invalid", "int8", "int16", "int32", "uint8", "uint16", "uint32", "float32",
@@ -105,12 +86,7 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ost
 {
     return ss << property_type_names[static_cast<int>(type)];
 }
-template<class C, class R> std::basic_ostream<C, R> & operator <<(std::basic_ostream<
-                                                                          C, R> & ss,
-                                                                  const Rule& type)
-{
-    return ss << rule_name_list[static_cast<int>(type)].name;
-}
+
 enum class SectionType
 {
     Scalar = 0, List = 1, String = 2
