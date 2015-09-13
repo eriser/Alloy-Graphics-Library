@@ -70,7 +70,7 @@
 
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STBI_INCLUDE_STB_IMAGE_H
-
+#pragma warning( disable : 4312 )
 // Limitations:
 //    - no jpeg progressive support
 //    - non-HDR formats support 8-bit samples only (jpeg, png)
