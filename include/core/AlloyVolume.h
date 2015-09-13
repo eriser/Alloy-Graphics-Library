@@ -261,9 +261,9 @@ public:
 		}
 	}
 	void downSample(Volume<T, C, I>& out) const {
-		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
-				1, 0 } }, { { 1, 4, 1 }, { 4, 12, 4 }, { 1, 4, 1 } }, {
-				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
+		static const double Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
+				1, 0 } }, { { 1, 4, 1 }, { 4, 12, 4 }, { 1, 4, 1 } }, { { 0, 1,
+				0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
 		out.resize(rows / 2, cols / 2, slices / 2);
 #pragma omp parallel for
 		for (int i = 0; i < out.rows; i++) {
@@ -287,9 +287,9 @@ public:
 		}
 	}
 	void upSample(Volume<T, C, I>& out) const {
-		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
-				1, 0 } }, { { 1, 4, 1 }, { 4, 12, 4 }, { 1, 4, 1 } }, {
-				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
+		static const double Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
+				1, 0 } }, { { 1, 4, 1 }, { 4, 12, 4 }, { 1, 4, 1 } }, { { 0, 1,
+				0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
 		if (out.size() == 0)
 			out.resize(rows * 2, cols * 2, slices * 2);
 #pragma omp parallel for
@@ -312,7 +312,7 @@ public:
 								}
 							}
 						}
-						out(i, j, k) = vec<T, C>( vsum / 6.0);
+						out(i, j, k) = vec<T, C>(vsum / 6.0);
 					}
 				}
 			}
