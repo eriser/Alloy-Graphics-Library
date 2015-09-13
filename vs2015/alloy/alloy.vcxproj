@@ -94,6 +94,7 @@
     <ClInclude Include="..\..\include\core\sha1.h" />
     <ClInclude Include="..\..\include\core\sha2.h" />
     <ClInclude Include="..\..\include\core\stb_image.h" />
+    <ClInclude Include="..\..\include\core\stb_image_write.h" />
     <ClInclude Include="..\..\include\core\stb_truetype.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

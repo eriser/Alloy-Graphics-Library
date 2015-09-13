@@ -236,5 +236,8 @@
     <ClInclude Include="..\..\include\core\AlloySparseSolve.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\core\stb_image_write.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
