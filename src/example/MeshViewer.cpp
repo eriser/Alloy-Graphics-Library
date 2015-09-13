@@ -171,6 +171,7 @@ void MeshViewer::draw(AlloyContext* context) {
 	 float2(2 * w, h), float2(w, h), getContext()->getViewport(),RGBAf(1.0f,0.5f,0.4f,1.0f));
 	 */
 	glDisable(GL_DEPTH_TEST);
+	/*
 	if (once) {
 		colorBuffer1.getTexture().read().writeToXML("color1.xml");
 		colorBuffer2.getTexture().read().writeToXML("color2.xml");
@@ -178,7 +179,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		smoothDepthFrameBuffer2.getTexture().read().writeToXML("depth2.xml");
 		once = false;
 	}
-
+*/
 	if (camera.isDirty()) {
 		outlineFrameBuffer.begin();
 		DistanceFieldShader.draw(flatDepthFrameBuffer.getTexture(),
