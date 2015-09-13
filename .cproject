@@ -62,12 +62,10 @@
 									<listOptionValue builtIn="false" value="Xdamage"/>
 									<listOptionValue builtIn="false" value="drm"/>
 									<listOptionValue builtIn="false" value="pthread"/>
-									<listOptionValue builtIn="false" value="png"/>
 									<listOptionValue builtIn="false" value="freetype"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="rt"/>
 									<listOptionValue builtIn="false" value="dl"/>
-									<listOptionValue builtIn="false" value="z"/>
 									<listOptionValue builtIn="false" value="stdc++"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.714322512" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
@@ -152,12 +150,10 @@
 									<listOptionValue builtIn="false" value="Xdamage"/>
 									<listOptionValue builtIn="false" value="drm"/>
 									<listOptionValue builtIn="false" value="pthread"/>
-									<listOptionValue builtIn="false" value="png"/>
 									<listOptionValue builtIn="false" value="freetype"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="rt"/>
 									<listOptionValue builtIn="false" value="dl"/>
-									<listOptionValue builtIn="false" value="z"/>
 									<listOptionValue builtIn="false" value="stdc++"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.479514854" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
