@@ -120,6 +120,7 @@ void MeshViewer::draw(AlloyContext* context) {
 				false);
 		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
 
+		/*
 		if (once) {
 			faceShader.draw(mesh, camera);
 
@@ -133,6 +134,7 @@ void MeshViewer::draw(AlloyContext* context) {
 			faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;
 		}
+		*/
 
 	}
 	glDisable(GL_DEPTH_TEST);
