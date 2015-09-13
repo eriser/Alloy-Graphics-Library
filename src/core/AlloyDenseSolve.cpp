@@ -36,12 +36,12 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		srcPyramid[0] = sourceImg;
 		tarPyramid[0] = targetImg;
 		for (int l = 1; l < levels; l++) {
-			srcPyramid[l - 1].downsample(srcPyramid[l]);
-			tarPyramid[l - 1].downsample(tarPyramid[l]);
+			srcPyramid[l - 1].downSample(srcPyramid[l]);
+			tarPyramid[l - 1].downSample(tarPyramid[l]);
 		}
 		for (int l = levels - 1; l >= 1; l--) {
 			LaplaceFill(srcPyramid[l], tarPyramid[l], iterations, lambda);
-			tarPyramid[l].upsample(tarPyramid[l - 1]);
+			tarPyramid[l].upSample(tarPyramid[l - 1]);
 		}
 		targetImg = tarPyramid[0];
 		LaplaceFill(sourceImg, targetImg, iterations, lambda);
@@ -115,14 +115,14 @@ void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 		tarPyramid[0] = targetImg;
 		outPyramid[0] = outImg;
 		for (int l = 1; l < levels; l++) {
-			srcPyramid[l - 1].downsample(srcPyramid[l]);
-			tarPyramid[l - 1].downsample(tarPyramid[l]);
-			outPyramid[l - 1].downsample(outPyramid[l]);
+			srcPyramid[l - 1].downSample(srcPyramid[l]);
+			tarPyramid[l - 1].downSample(tarPyramid[l]);
+			outPyramid[l - 1].downSample(outPyramid[l]);
 		}
 		for (int l = levels - 1; l >= 1; l--) {
 			PoissonInpaint(srcPyramid[l], tarPyramid[l], outPyramid[l],
 					iterations, lambda);
-			outPyramid[l].upsample(outPyramid[l - 1]);
+			outPyramid[l].upSample(outPyramid[l - 1]);
 		}
 		outImg = outPyramid[0];
 		PoissonInpaint(sourceImg, targetImg, outImg, iterations, lambda);
@@ -202,12 +202,12 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		srcPyramid[0] = sourceImg;
 		tarPyramid[0] = targetImg;
 		for (int l = 1; l < levels; l++) {
-			srcPyramid[l - 1].downsample(srcPyramid[l]);
-			tarPyramid[l - 1].downsample(tarPyramid[l]);
+			srcPyramid[l - 1].downSample(srcPyramid[l]);
+			tarPyramid[l - 1].downSample(tarPyramid[l]);
 		}
 		for (int l = levels - 1; l >= 1; l--) {
 			PoissonBlend(srcPyramid[l], tarPyramid[l], iterations, lambda);
-			tarPyramid[l].upsample(tarPyramid[l - 1]);
+			tarPyramid[l].upSample(tarPyramid[l - 1]);
 		}
 		targetImg = tarPyramid[0];
 		PoissonBlend(sourceImg, targetImg, iterations, lambda);
