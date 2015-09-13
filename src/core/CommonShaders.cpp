@@ -709,8 +709,10 @@ TextureMeshShader::TextureMeshShader(
 	ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 	vec4 rgba=texelFetch(depthBuffer, pos,0);//Do not interpolate depth buffer!
 	gl_FragDepth=rgba.w;
-	if(rgba.w<1.0){
-	  rgba=texture(textureImage,(rgba.xy-texBounds.xy)/(texBounds.zw));
+    vec2 pix=(rgba.xy-texBounds.xy)/(texBounds.zw);
+	
+    if(rgba.w<1.0&&pix.x>=0&&pix.y>=0&&pix.x<=1.0&&pix.y<=1){
+	  rgba=texture(textureImage,pix);
 	} else {
 	 rgba=vec4(0.0,0.0,0.0,0.0);
 	}
