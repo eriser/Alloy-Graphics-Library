@@ -187,7 +187,9 @@
 #ifndef STBI_NO_STDIO
 
 #if defined(_MSC_VER) && _MSC_VER >= 1400
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS // suppress warnings about fopen()
+#endif
 #pragma warning(push)
 #pragma warning(disable:4996)   // suppress even more warnings about fopen()
 #endif

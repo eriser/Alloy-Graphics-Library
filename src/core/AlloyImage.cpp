@@ -26,7 +26,13 @@
 #include <fstream>
 #include <png.h>
 
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // suppress warnings about fopen()
+#endif
+
+#if !(defined(WIN32) || defined(_WIN32))
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 namespace aly {
 	void WriteImageToFile(const std::string& _file, const ImageRGB& image) {
 		std::string file = ReplaceFileExtension(_file, "png");

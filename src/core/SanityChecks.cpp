@@ -67,7 +67,7 @@ bool SANITY_CHECK_KDTREE() {
 			float3 lastPoint(0.0f);
 			double d = kdTree.intersectRayDistance(pt1, v, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
-				rgba(i, j) = float4(lastPoint, d);
+				rgba(i, j) = float4(lastPoint, (float)d);
 			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
@@ -85,7 +85,7 @@ bool SANITY_CHECK_KDTREE() {
 			float3 lastPoint(0.0f);
 			double d = kdTree.closestPoint(pt1, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
-				rgba(i, j) = float4(lastPoint, d);
+				rgba(i, j) = float4(lastPoint, (float)d);
 			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}

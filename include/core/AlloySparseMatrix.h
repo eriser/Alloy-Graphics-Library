@@ -240,9 +240,9 @@ template<class T, int C> SparseMatrix<T, C> operator*(
 #pragma omp parallel for
 	for (int i = 0; i < (int) out.rows; i++) { //a[i,*]
 		for (std::pair<size_t, vec<T, C>> pr1 : A[i]) { //a[i,k]
-			int k = pr1.first;
+			int k = (int)pr1.first;
 			for (std::pair<size_t, vec<T, C>> pr2 : B[k]) { //b[k,j]
-				int j = pr2.first;
+				int j = (int)pr2.first;
 				out[i][j] += pr1.second * pr2.second;
 			}
 		}

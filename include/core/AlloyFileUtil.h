@@ -34,6 +34,9 @@
 #include <sstream>
 #include "sha1.h"
 #include "sha2.h"
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // suppress warnings about fopen()
+#endif
 namespace aly {
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")

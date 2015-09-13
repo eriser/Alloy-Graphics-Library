@@ -28,6 +28,7 @@
 #include "stdint.h"
 #include "AlloyFileUtil.h"
 #include "AlloyCommon.h"
+
 #if defined(WIN32) || defined(_WIN32)
 #define  WIN32_LEAN_AND_MEAN
 
@@ -587,7 +588,7 @@ namespace aly {
 		return narrow;
 	}
 	bool MakeDirectory(const std::string& dir) {
-		return CreateDirectory(ToWString(dir).c_str(), NULL);
+		return (CreateDirectory(ToWString(dir).c_str(), NULL))?true:false;
 	}
 
 	std::time_t FileTimeToTime(const FILETIME& ft) {
@@ -766,7 +767,6 @@ namespace aly {
 		DWORD cchBuffer;
 		WCHAR* driveStrings;
 		UINT driveType;
-		PWSTR driveTypeString;
 		// Find out how big a buffer we need
 		cchBuffer = GetLogicalDriveStrings(0, NULL);
 		driveStrings = (WCHAR*)malloc((cchBuffer + 1) * sizeof(TCHAR));
