@@ -70,8 +70,12 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 			float4 val3 = sourceImg(i, j - 1);
 			float4 val4 = sourceImg(i + 1, j);
 			float4 val5 = sourceImg(i - 1, j);
-			float4 div = val1 - 0.25f * (val2 + val3 + val4 + val5);
-			div.w = 0.0f;
+			float4 div(0.0f);
+			if (val1.w > 0 && val2.w > 0 && val3.w > 0 && val4.w > 0
+					&& val5.w > 0) {
+				div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+				div.w = 0.0f;
+			}
 			divergence(i, j) = alpha * div;
 			targetImg(i, j) = mix(tar, src, alpha);
 		}
@@ -153,16 +157,24 @@ void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 			float4 val3 = sourceImg(i, j - 1);
 			float4 val4 = sourceImg(i + 1, j);
 			float4 val5 = sourceImg(i - 1, j);
-			float4 divSrc = val1 - 0.25f * (val2 + val3 + val4 + val5);
-			divSrc.w = 0.0f;
+			float4 divSrc(0.0f);
+			if (val1.w > 0 && val2.w > 0 && val3.w > 0 && val4.w > 0
+					&& val5.w > 0) {
+				divSrc = val1 - 0.25f * (val2 + val3 + val4 + val5);
+				divSrc.w = 0.0f;
+			}
 
 			val1 = targetImg(i, j);
 			val2 = targetImg(i, j + 1);
 			val3 = targetImg(i, j - 1);
 			val4 = targetImg(i + 1, j);
 			val5 = targetImg(i - 1, j);
-			float4 divTar = val1 - 0.25f * (val2 + val3 + val4 + val5);
-			divTar.w = 0.0f;
+			float4 divTar(0.0f);
+			if (val1.w > 0 && val2.w > 0 && val3.w > 0 && val4.w > 0
+					&& val5.w > 0) {
+				divTar = val1 - 0.25f * (val2 + val3 + val4 + val5);
+				divTar.w = 0.0f;
+			}
 			divergence(i, j) = mix(divTar, divSrc, alpha);
 		}
 	}
@@ -229,8 +241,12 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 			float4 val3 = sourceImg(i, j - 1);
 			float4 val4 = sourceImg(i + 1, j);
 			float4 val5 = sourceImg(i - 1, j);
-			float4 div = val1 - 0.25f * (val2 + val3 + val4 + val5);
-			div.w = 0.0f;
+			float4 div(0.0f);
+			if (val1.w > 0 && val2.w > 0 && val3.w > 0 && val4.w > 0
+					&& val5.w > 0) {
+				div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+				div.w = 0.0f;
+			}
 			divergence(i, j) = div;
 
 		}
