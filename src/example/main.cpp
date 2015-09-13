@@ -23,51 +23,25 @@
 #include "AlloyFileUtil.h"
 using namespace aly;
 int main() {
-	/*
-	 std::vector<std::string> fileTest={"/","/v","/var/tmp/","/var/tmp","/usr/lib/up"};
-	 for(std::string str:fileTest){
-	 std::vector<std::string> listing;
-	 std::string rootDir=GetParentDirectory(str);
-	 std::cout<<str<<" ROOT "<<rootDir<<std::endl;
-	 std::vector<std::string> files=GetDirectoryListing(rootDir);
-	 std::vector<std::string> suggestions=AutoComplete(str,files,5);
-	 int i=0;
-	 for(std::string suggestion:suggestions){
-	 std::cout<<i++<<") "<<suggestion<<std::endl;
-	 }
-	 }
-
-	 for(FileDescription& fd:GetDirectoryDescriptionListing(ALY_PATH_SEPARATOR)){
-	 std::cout<<fd<<std::endl;
-	 }*/
 	try {
+
+		//UI Test case
+		//ExampleUI app;
+
+		//Mesh Render Test case
+		MeshViewer app;
+
 		//SANITY_CHECK_ANY();
 		//SANITY_CHECK_SVD();
 		//SANITY_CHECK_ALGO();
 		//SANITY_CHECK_IMAGE();
 		//SANITY_CHECK_UI();
 		//SANITY_CHECK_CEREAL();
-		//std::cout<<*AlloyApplicationContext()->getFont(FontType::Normal)<<std::endl;
-		/*
-		std::cout << "EXECUTABLE " << GetExecutableDirectory() << std::endl;
-		std::cout << "USER " << GetUserNameString() << std::endl;
-		std::cout << "CWD " << GetCurrentWorkingDirectory() << std::endl;
-		std::cout << "HOME " << GetHomeDirectory() << std::endl;
-		std::cout << "DOWNLOADS " << GetDownloadsDirectory() << std::endl;
-		std::cout << "DESKTOP " << GetDesktopDirectory() << std::endl;
-		std::cout << "DOCUMENTS " << GetDocumentsDirectory() << std::endl;
-		for (std::string dir : GetDrives()) {
-			std::cout << "DRIVE " << dir << std::endl;
-		}
-		*/
-		//ExampleUI app;
-		MeshViewer app;
-
-
 		//SANITY_CHECK_KDTREE();
 		//SANITY_CHECK_PYRAMID();
 		//SANITY_CHECK_SPARSE_SOLVE();
 		//SANITY_CHECK_DENSE();
+
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
