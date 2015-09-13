@@ -31,7 +31,7 @@ enum class CameraType {
 	Perspective, Orthographic
 };
 struct CameraParameters: public EventHandler {
-	bool changed = true;
+	bool changed;
 	float nearPlane, farPlane;
 	float4x4 Projection, View, Model;
 	float4x4 ViewModel, NormalViewModel, NormalView;
@@ -173,7 +173,6 @@ protected:
 	void handleCursorEvent(float x, float y);
 	void handleScrollEvent(int pos);
 public:
-
 	VirtualCamera();
 	void aim(const aly::box2px& bounds) override;
 	void setPose(const float4x4& m) {
