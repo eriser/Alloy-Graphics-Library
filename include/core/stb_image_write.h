@@ -117,7 +117,9 @@ STBIWDEF int stbi_write_hdr(char const *filename, int w, int h, int comp, const 
 #ifdef STB_IMAGE_WRITE_IMPLEMENTATION
 
 #ifdef _WIN32
-   #define _CRT_SECURE_NO_WARNINGS
+	#ifndef _CRT_SECURE_NO_WARNINGS
+	   #define _CRT_SECURE_NO_WARNINGS
+	#endif
    #define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 

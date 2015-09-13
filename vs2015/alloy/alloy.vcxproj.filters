@@ -237,7 +237,7 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\stb_image_write.h">
-      <Filter>include</Filter>
+      <Filter>thirdparty</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

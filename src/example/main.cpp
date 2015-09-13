@@ -66,7 +66,8 @@ int main() {
 
 		//SANITY_CHECK_KDTREE();
 		//SANITY_CHECK_PYRAMID();
-		//SANITY_CHECK_DENSE();
+		//SANITY_CHECK_SPARSE_SOLVE();
+		SANITY_CHECK_DENSE();
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
