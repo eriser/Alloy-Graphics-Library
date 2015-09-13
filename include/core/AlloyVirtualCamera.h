@@ -24,6 +24,7 @@
 
 #include "AlloyMath.h"
 #include "AlloyContext.h"
+#include "cereal/cereal.hpp"
 #include <fstream>
 namespace aly {
 struct Mesh;
@@ -37,6 +38,22 @@ struct CameraParameters: public EventHandler {
 	float4x4 ViewModel, NormalViewModel, NormalView;
 	float4x4 ViewInverse, ViewModelInverse;
 	CameraParameters();
+	template<class Archive>
+	void save(Archive & archive) const {
+		archive(CEREAL_NVP(Projection), CEREAL_NVP(View), CEREAL_NVP(Model),
+				CEREAL_NVP(nearPlane), CEREAL_NVP(farPlane));
+	}
+
+	template<class Archive>
+	void load(Archive & archive) {
+		archive(CEREAL_NVP(Projection), CEREAL_NVP(View), CEREAL_NVP(Model),
+				CEREAL_NVP(nearPlane), CEREAL_NVP(farPlane));
+		ViewModel = View * Model;
+		ViewModelInverse = inverse(ViewModel);
+		NormalViewModel = transpose(ViewModelInverse);
+		ViewInverse = inverse(View);
+		NormalView = transpose(ViewInverse);
+	}
 	inline float3 transformWorldToScreen(const float3& pt) const {
 		float4 ptp(pt[0], pt[1], pt[2], 1.0f);
 		float4 p = Projection * ViewModel * ptp;
