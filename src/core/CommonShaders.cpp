@@ -19,9 +19,9 @@
  * THE SOFTWARE.
  */
 
+#include <AlloyCamera.h>
 #include "CommonShaders.h"
 #include "AlloyMesh.h"
-#include "AlloyVirtualCamera.h"
 #include <set>
 namespace aly {
 ParticleDepthShader::ParticleDepthShader(

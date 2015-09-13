@@ -20,9 +20,9 @@
  */
 #ifndef GLSHADER_H_
 #define GLSHADER_H_
+#include <AlloyCamera.h>
 #include "AlloyContext.h"
 #include "GLTexture.h"
-#include "AlloyVirtualCamera.h"
 #include "AlloyMesh.h"
 #include <vector>
 #include <string>

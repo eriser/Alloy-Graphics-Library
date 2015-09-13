@@ -31,6 +31,16 @@ struct Mesh;
 enum class CameraType {
 	Perspective, Orthographic
 };
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const CameraType& type) {
+	switch (type) {
+	case CameraType::Perspective:
+		return ss << "Perspective";
+	case CameraType::Orthographic:
+		return ss << "Orthographic";
+	}
+	return ss;
+}
 struct CameraParameters: public EventHandler {
 	bool changed;
 	float nearPlane, farPlane;
@@ -172,7 +182,7 @@ struct CameraParameters: public EventHandler {
 	}
 	virtual float getScale() const;
 };
-class VirtualCamera: public CameraParameters {
+class Camera: public CameraParameters {
 protected:
 	// Camera parameters
 	float4x4 Rw, Rm;
@@ -190,7 +200,7 @@ protected:
 	void handleCursorEvent(float x, float y);
 	void handleScrollEvent(int pos);
 public:
-	VirtualCamera();
+	Camera();
 	void aim(const aly::box2px& bounds) override;
 	void setPose(const float4x4& m) {
 		Model = m;

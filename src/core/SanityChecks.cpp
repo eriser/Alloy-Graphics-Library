@@ -4,6 +4,7 @@
  *  Created on: May 15, 2015
  *      Author: blake
  */
+#include <AlloyCamera.h>
 #include <AlloySparseSolve.h>
 #include "AlloyMath.h"
 #include "AlloyImage.h"
@@ -13,7 +14,6 @@
 #include "AlloyMesh.h"
 #include "AlloyDenseSolve.h"
 #include "AlloySparseMatrix.h"
-#include "AlloyVirtualCamera.h"
 #include "AlloyMeshIntersector.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
@@ -47,7 +47,7 @@ bool SANITY_CHECK_KDTREE() {
 	Mesh mesh;
 	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
 	KDTree kdTree(mesh, 6);
-	VirtualCamera camera;
+	Camera camera;
 	camera.setNearFarPlanes(0.1f, 2.0f);
 	camera.setZoom(0.75f);
 	mesh.updateBoundingBox();

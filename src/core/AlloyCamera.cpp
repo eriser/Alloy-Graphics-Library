@@ -1,5 +1,4 @@
-#include "AlloyVirtualCamera.h"
-
+#include <AlloyCamera.h>
 #include "GLShader.h"
 #include "AlloyMesh.h"
 #include <string>
@@ -7,7 +6,7 @@
 #include <fstream>
 
 namespace aly {
-const float VirtualCamera::sDeg2rad = ALY_PI / 180.0f;
+const float Camera::sDeg2rad = ALY_PI / 180.0f;
 CameraParameters::CameraParameters() :
 		changed(true), nearPlane(0.1f), farPlane(10000.0f), Projection(
 				float4x4::identity()), View(float4x4::identity()), Model(
@@ -15,7 +14,7 @@ CameraParameters::CameraParameters() :
 				float4x4::identity()), NormalView(float4x4::identity()), ViewInverse(
 				float4x4::identity()), ViewModelInverse(float4x4::identity()) {
 }
-VirtualCamera::VirtualCamera() :
+Camera::Camera() :
 		CameraParameters(), Rw(float4x4::identity()), Rm(float4x4::identity()), cameraTrans(
 				0, 0, 0), mouseXPos(0), mouseYPos(0), fov(60.0f), eye(
 				float3(0.0f, 0.0f, -1.0f)), tumblingSpeed(0.5f), zoomSpeed(
@@ -29,21 +28,21 @@ float CameraParameters::getScale() const {
 	SVD(A, U, D, Vt);
 	return std::abs(D(0, 0));
 }
-void VirtualCamera::lookAt(const float3& p, float dist) {
+void Camera::lookAt(const float3& p, float dist) {
 	lookAtPoint = p;
 	distanceToObject = dist;
 	changed = true;
 	needsDisplay = true;
 }
 
-void VirtualCamera::setSpeed(float zoomSpeed, float strafeSpeed,
+void Camera::setSpeed(float zoomSpeed, float strafeSpeed,
 		float tumblingSpeed) {
 	zoomSpeed = std::max(0.0001f, zoomSpeed);
 	strafeSpeed = std::max(0.0001f, strafeSpeed);
 	tumblingSpeed = std::max(0.01f, tumblingSpeed);
 }
 
-void VirtualCamera::aim(const box2px& bounds) {
+void Camera::aim(const box2px& bounds) {
 	float aspectRatio = bounds.dimensions.x / (float) bounds.dimensions.y;
 	if (changed) {
 		changed = false;
@@ -100,7 +99,7 @@ void CameraParameters::aim(const box2px& bounds) {
 		NormalView = transpose(ViewInverse);
 	}
 }
-float2 VirtualCamera::computeNormalizedDepthRange(const Mesh& mesh) {
+float2 Camera::computeNormalizedDepthRange(const Mesh& mesh) {
 	box3f bbox = mesh.getBoundingBox();
 	float4 center = bbox.center().xyzw();
 	float4 origin = inverse(ViewModel) * float4(0, 0, 0, 1);
@@ -111,7 +110,7 @@ float2 VirtualCamera::computeNormalizedDepthRange(const Mesh& mesh) {
 			center + 0.5f * bbox.dimensions.z * float4(ray, 0));
 	return float2(zMin, zMax);
 }
-void VirtualCamera::handleKeyEvent(GLFWwindow* win, int key, int action) {
+void Camera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 	if ((char) key == 'A') {
 		Rm = MakeRotationY((float) (2 * sDeg2rad)) * Rm;
 		changed = true;
@@ -167,7 +166,7 @@ void VirtualCamera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 	changed = true;
 }
 
-void VirtualCamera::handleButtonEvent(int button, int action) {
+void Camera::handleButtonEvent(int button, int action) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT) {
 		if (action == GLFW_PRESS)
 			mouseDown = true;
@@ -188,7 +187,7 @@ void VirtualCamera::handleButtonEvent(int button, int action) {
 	changed = true;
 }
 
-bool VirtualCamera::onEventHandler(AlloyContext* context,
+bool Camera::onEventHandler(AlloyContext* context,
 		const InputEvent& event) {
 	if (!event.isAltDown() && !event.isShiftDown() && !event.isControlDown()) {
 		switch (event.type) {
@@ -211,7 +210,7 @@ bool VirtualCamera::onEventHandler(AlloyContext* context,
 		return false;
 	}
 }
-void VirtualCamera::handleCursorEvent(float x, float y) {
+void Camera::handleCursorEvent(float x, float y) {
 	if (startTumbling) {
 		mouseXPos = x;
 		mouseYPos = y;
@@ -233,7 +232,7 @@ void VirtualCamera::handleCursorEvent(float x, float y) {
 	mouseXPos = x;
 	mouseYPos = y;
 }
-void VirtualCamera::handleScrollEvent(int pos) {
+void Camera::handleScrollEvent(int pos) {
 	distanceToObject = std::max(1E-3f,
 			(1 - pos * zoomSpeed) * distanceToObject);
 	changed = true;
