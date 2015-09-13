@@ -113,42 +113,52 @@ bool SANITY_CHECK_KDTREE() {
 	return true;
 }
 bool SANITY_CHECK_DENSE() {
-	ImageRGBAf img1, img2;
+	ImageRGBAf src, tar;
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
-			img1);
+			src);
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfsunset.png"),
-			img2);
-	int w = img1.width;
-	int h = img1.height;
+			tar);
+	int w = src.width;
+	int h = src.height;
 	float r = h * 0.4;
+	ImageRGBAf mask = tar;
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
 			float diff = r - length(float2(i - w / 2, j - h / 2));
-			float alpha = 1.0f - clamp(diff / 64, 0.0f, 1.0f);
-			img1(i, j).w = alpha;
+			float alpha = 1.0f - clamp(diff / 128, 0.0f, 1.0f);
+			mask(i, j).w = alpha;
 		}
 	}
-	WriteImageToFile("init.png", img1);
+	WriteImageToFile("init.png", mask);
 	ImageRGBAf out;
-	out = img1;
-
+	out = tar;
 	std::cout << "Normal Laplace Fill" << std::endl;
-	LaplaceFill(img1, out, 128);
+	LaplaceFill(mask, out, 128);
 	WriteImageToFile("laplace_fill.png", out);
 
 	std::cout << "Pyramid Laplace Fill" << std::endl;
-	out = img1;
-	LaplaceFill(img1, out, 32, 6);
+	out = tar;
+	LaplaceFill(mask, out, 64, 6);
 	WriteImageToFile("laplace_fill_pyr.png", out);
 
-	out = img2;
+	out = tar;
+	std::cout << "Poisson Inpaint" << std::endl;
+	PoissonInpaint(mask, src, out, 128);
+	WriteImageToFile("poisson_inpaint.png", out);
+
+	std::cout << "Poisson Inpaint Pyramid" << std::endl;
+	out = tar;
+	PoissonInpaint(mask, src, out, 64, 6);
+	WriteImageToFile("poisson_inpaint_pyr.png", out);
+
+	out = tar;
 	std::cout << "Normal Poisson Blend" << std::endl;
-	PoissonBlend(img1, out, 128);
+	PoissonBlend(src, out, 128);
 	WriteImageToFile("poisson_blend.png", out);
-	out = img2;
+	out = tar;
 
 	std::cout << "Pyramid Poisson Blend" << std::endl;
-	PoissonBlend(img1, out, 32, 6);
+	PoissonBlend(src, out, 32, 6);
 	WriteImageToFile("poisson_blend_pyr.png", out);
 	std::cout << "Done!" << std::endl;
 
