@@ -29,7 +29,7 @@
 #include "AlloyUnits.h"
 #include <initializer_list>
 namespace aly {
-class CameraParameters;
+struct CameraParameters;
 class DepthAndNormalShader: public GLShader {
 public:
 	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& context =
