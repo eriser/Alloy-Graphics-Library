@@ -72,9 +72,6 @@
     <ClCompile Include="..\..\src\core\AlloyMesh.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\AlloyVirtualCamera.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\core\CommonShaders.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -109,6 +106,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\core\AlloyDenseSolve.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyCamera.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -197,9 +197,6 @@
     <ClInclude Include="..\..\include\core\AlloyMesh.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\core\AlloyVirtualCamera.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\core\CommonShaders.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -238,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\core\stb_image_write.h">
       <Filter>thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyCamera.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

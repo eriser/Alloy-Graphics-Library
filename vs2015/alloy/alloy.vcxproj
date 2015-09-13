@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\src\core\AlloyAnimator.cpp" />
     <ClCompile Include="..\..\src\core\AlloyAny.cpp" />
     <ClCompile Include="..\..\src\core\AlloyApplication.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyCamera.cpp" />
     <ClCompile Include="..\..\src\core\AlloyContext.cpp" />
     <ClCompile Include="..\..\src\core\AlloyCursorLocator.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDenseSolve.cpp" />
@@ -37,7 +38,6 @@
     <ClCompile Include="..\..\src\core\AlloySparseMatrix.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUI.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUnits.cpp" />
-    <ClCompile Include="..\..\src\core\AlloyVirtualCamera.cpp" />
     <ClCompile Include="..\..\src\core\AlloyVolume.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWidget.cpp" />
     <ClCompile Include="..\..\src\core\AlloyWorker.cpp" />
@@ -58,6 +58,7 @@
     <ClInclude Include="..\..\include\core\AlloyAnimator.h" />
     <ClInclude Include="..\..\include\core\AlloyAny.h" />
     <ClInclude Include="..\..\include\core\AlloyApplication.h" />
+    <ClInclude Include="..\..\include\core\AlloyCamera.h" />
     <ClInclude Include="..\..\include\core\AlloyCommon.h" />
     <ClInclude Include="..\..\include\core\AlloyContext.h" />
     <ClInclude Include="..\..\include\core\AlloyCursorLocator.h" />
@@ -78,7 +79,6 @@
     <ClInclude Include="..\..\include\core\AlloyUI.h" />
     <ClInclude Include="..\..\include\core\AlloyUnits.h" />
     <ClInclude Include="..\..\include\core\AlloyVector.h" />
-    <ClInclude Include="..\..\include\core\AlloyVirtualCamera.h" />
     <ClInclude Include="..\..\include\core\AlloyVolume.h" />
     <ClInclude Include="..\..\include\core\AlloyWidget.h" />
     <ClInclude Include="..\..\include\core\AlloyWorker.h" />
