@@ -260,6 +260,78 @@ public:
 			f(offset, data[offset]);
 		}
 	}
+	void downsample(Image<T, C, I>& out) const {
+		static double const Kernel[3][3][3]=
+		{		{{0,1,0},{1,4,1},{0,1,0}},
+				{{1,4,1},{4,8,4},{1,4,1}},
+				{{0,1,0},{1,4,1},{0,1,0}}
+		};
+		out.resize(rows / 2, cols / 2);
+#pragma omp parallel for
+		for (int i = 0; i < out.rows; i++) {
+			for (int j = 0; j < out.cols; j++) {
+				for (int k = 0; k < out.slices; k++) {
+					vec<double, C> vsum(0.0);
+					for (int ii = 0; ii < 3; ii++) {
+						for (int jj = 0; jj < 3; jj++) {
+							for (int kk = 0; kk < 3; kk++) {
+								vsum += Kernel[ii][jj][kk]
+										* vec<double, C>(
+												operator()(2 * i + ii - 1,
+														2 * j + jj - 1,
+														2 * k + kk - 1));
+							}
+						}
+					}
+					out(i, j, k) = vec<T, C>(vsum / 44.0);
+				}
+			}
+		}
+	}
+	void upsample(Volume<T, C, I>& out) const {
+		static double const Kernel[3][3][3]=
+		{		{{0,1,0},{1,4,1},{0,1,0}},
+				{{1,4,1},{4,8,4},{1,4,1}},
+				{{0,1,0},{1,4,1},{0,1,0}}
+		};
+		if (out.size() == 0)
+			out.resize(rows * 2, cols * 2, slices * 2);
+#pragma omp parallel for
+		for (int i = 0; i < out.rows; i++) {
+			for (int j = 0; j < out.cols; j++) {
+				for (int k = 0; k < out.slices; k++) {
+					vec<double, C> vsum(0.0);
+					for (int ii = 0; ii < 3; ii++) {
+						for (int jj = 0; jj < 3; jj++) {
+							for (int kk = 0; kk < 3; kk++) {
+								int iii = i + ii - 1;
+								int jjj = j + jj - 1;
+								int kkk = k + kk - 1;
+								if (iii % 2 == 0 && jjj % 2 == 0
+										&& kkk % 2 == 0) {
+									vsum += Kernel[ii][jj][kk]
+											* vec<double, C>(
+													operator()(iii / 2, jjj / 2,
+															kkk / 2));
+								}
+							}
+						}
+						out(i, j, k) = vec<T, C>(8.0 * vsum / 44.0);
+					}
+				}
+			}
+		}
+	}
+	Volume<T, C, I> downsample() const {
+		Volume<T, C, I> out;
+		downsample(out);
+		return out;
+	}
+	Volume<T, C, I> upsample() const {
+		Volume<T, C, I> out;
+		upsample(out);
+		return out;
+	}
 	vec<T, C> min() const {
 		vec<T, C> minVal(std::numeric_limits<T>::max());
 		for (vec<T, C>& val : data) {
@@ -373,7 +445,8 @@ public:
 		var = var / (double) (data.size() - 1);
 		return vec<T, C>(aly::sqrt(var));
 	}
-};
+}
+;
 template<class T, int C, ImageType I> std::string Volume<T, C, I>::updateHashCode(
 		size_t MAX_SAMPLES, HashMethod method) {
 	if (MAX_SAMPLES == 0) {
