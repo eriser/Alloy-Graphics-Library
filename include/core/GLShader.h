@@ -295,7 +295,7 @@ public:
 				value.a);
 		return *this;
 	}
-	inline GLShader& set(VirtualCamera& camera, const box2px& bounds) {
+	inline GLShader& set(CameraParameters& camera, const box2px& bounds) {
 		enableCheck();
 		camera.aim(bounds);
 		set("ProjMat", camera.Projection);

@@ -115,7 +115,7 @@ void main(void) {
 }
 
 void ParticleDepthShader::draw(const std::initializer_list<const Mesh*>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -130,7 +130,7 @@ void ParticleDepthShader::draw(const std::initializer_list<const Mesh*>& meshes,
 }
 void ParticleDepthShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -148,7 +148,7 @@ void ParticleDepthShader::draw(
 }
 
 void ParticleDepthShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -162,7 +162,7 @@ void ParticleDepthShader::draw(const std::list<const Mesh*>& meshes,
 }
 void ParticleDepthShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& framebuffer, float radius) {
+		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -298,7 +298,7 @@ void main(void) {
 }
 
 void ParticleMatcapShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
+		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
 		const box2px& bounds, const box2px& viewport, float radius) {
 	glEnable(GL_SCISSOR_TEST);
 	glScissor((int) bounds.position.x,
@@ -317,7 +317,7 @@ void ParticleMatcapShader::draw(
 }
 void ParticleMatcapShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, const box2px& bounds, const box2px& viewport,
+		CameraParameters& camera, const box2px& bounds, const box2px& viewport,
 		float radius) {
 	glEnable(GL_SCISSOR_TEST);
 	glScissor((int) bounds.position.x,
@@ -339,7 +339,7 @@ void ParticleMatcapShader::draw(
 }
 
 void ParticleMatcapShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, const box2px& bounds, const box2px& viewport,
+		CameraParameters& camera, const box2px& bounds, const box2px& viewport,
 		float radius) {
 	glEnable(GL_SCISSOR_TEST);
 	glScissor((int) bounds.position.x,
@@ -358,7 +358,7 @@ void ParticleMatcapShader::draw(const std::list<const Mesh*>& meshes,
 }
 void ParticleMatcapShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, const box2px& bounds, const box2px& viewport,
+		CameraParameters& camera, const box2px& bounds, const box2px& viewport,
 		float radius) {
 	glEnable(GL_SCISSOR_TEST);
 	glScissor((int) bounds.position.x,
@@ -497,7 +497,7 @@ void ParticleIdShader::read(Image2i& faceIdMap) {
 	}
 }
 void ParticleIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
@@ -519,7 +519,7 @@ void ParticleIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 }
 void ParticleIdShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
@@ -539,7 +539,7 @@ void ParticleIdShader::draw(
 }
 
 void ParticleIdShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, Image2i& faceIdMap, int faceIdOffset,
+		CameraParameters& camera, Image2i& faceIdMap, int faceIdOffset,
 		int objectIdOffset, float radius) {
 	faceIdMap.resize(framebuffer.width(), framebuffer.height());
 	framebuffer.begin();
@@ -576,7 +576,7 @@ void ParticleIdShader::draw(const std::list<const Mesh*>& meshes,
 }
 void ParticleIdShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
@@ -1012,7 +1012,7 @@ void FaceIdShader::initialize(int w, int h) {
 }
 int FaceIdShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
@@ -1050,7 +1050,7 @@ int FaceIdShader::draw(
 	return faceIdOffset;
 }
 int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
@@ -1091,7 +1091,7 @@ int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 
 int FaceIdShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
@@ -1149,7 +1149,7 @@ void FaceIdShader::read(Image2i& faceIdMap) {
 
 }
 int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, int faceIdOffset, int objectIdOffset,
+		CameraParameters& camera, int faceIdOffset, int objectIdOffset,
 		float radius) {
 	glDisable(GL_BLEND);
 	const bool flatShading = true;
@@ -1562,7 +1562,7 @@ if(IS_QUAD!=0){
 
 }
 void DepthAndNormalShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
+		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
 		GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
@@ -1581,7 +1581,7 @@ void DepthAndNormalShader::draw(
 }
 void DepthAndNormalShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -1605,7 +1605,7 @@ void DepthAndNormalShader::draw(
 	frameBuffer.end();
 }
 void DepthAndNormalShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -1623,7 +1623,7 @@ void DepthAndNormalShader::draw(const std::list<const Mesh*>& meshes,
 }
 void DepthAndNormalShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -1754,7 +1754,7 @@ DepthAndTextureShader::DepthAndTextureShader(
 
 }
 void DepthAndTextureShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
+		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
 		GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
@@ -1773,7 +1773,7 @@ void DepthAndTextureShader::draw(
 }
 void DepthAndTextureShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -1797,7 +1797,7 @@ void DepthAndTextureShader::draw(
 	frameBuffer.end();
 }
 void DepthAndTextureShader::draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -1815,7 +1815,7 @@ void DepthAndTextureShader::draw(const std::list<const Mesh*>& meshes,
 }
 void DepthAndTextureShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glClearColor(0, 0, 0, 1);
@@ -1997,7 +1997,7 @@ if(IS_QUAD!=0){
 					 })");
 }
 void EdgeDepthAndNormalShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, VirtualCamera& camera,
+		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
 		GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
