@@ -260,7 +260,7 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	void downsample(Volume<T, C, I>& out) const {
+	void downSample(Volume<T, C, I>& out) const {
 		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
 				1, 0 } }, { { 1, 4, 1 }, { 4, 8, 4 }, { 1, 4, 1 } }, {
 				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
@@ -286,7 +286,7 @@ public:
 			}
 		}
 	}
-	void upsample(Volume<T, C, I>& out) const {
+	void upSample(Volume<T, C, I>& out) const {
 		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
 				1, 0 } }, { { 1, 4, 1 }, { 4, 8, 4 }, { 1, 4, 1 } }, {
 				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
@@ -318,14 +318,14 @@ public:
 			}
 		}
 	}
-	Volume<T, C, I> downsample() const {
+	Volume<T, C, I> downSample() const {
 		Volume<T, C, I> out;
-		downsample(out);
+		downSample(out);
 		return out;
 	}
-	Volume<T, C, I> upsample() const {
+	Volume<T, C, I> upSample() const {
 		Volume<T, C, I> out;
-		upsample(out);
+		upSample(out);
 		return out;
 	}
 	vec<T, C> min() const {

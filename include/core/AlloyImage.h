@@ -281,7 +281,7 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	void downsample(Image<T, C, I>& out) const {
+	void downSample(Image<T, C, I>& out) const {
 		static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16,
 				4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 },
 				{ 1, 4, 6, 4, 1 } };
@@ -302,7 +302,7 @@ public:
 			}
 		}
 	}
-	void upsample(Image<T, C, I>& out) const {
+	void upSample(Image<T, C, I>& out) const {
 		static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16,
 				4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 },
 				{ 1, 4, 6, 4, 1 } };
@@ -327,14 +327,14 @@ public:
 			}
 		}
 	}
-	Image<T, C, I> downsample() const {
+	Image<T, C, I> downSample() const {
 		Image<T, C, I> out;
-		downsample(out);
+		downSample(out);
 		return out;
 	}
-	Image<T, C, I> upsample() const {
+	Image<T, C, I> upSample() const {
 		Image<T, C, I> out;
-		upsample(out);
+		upSample(out);
 		return out;
 	}
 	vec<T, C> min() const {
