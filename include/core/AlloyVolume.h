@@ -144,8 +144,9 @@ public:
 		set(img.data.data());
 	}
 	Volume<T, C, I>& operator=(const Volume<T, C, I>& rhs) {
-		if (this == &rhs)return *this;
-		this->resize(rhs.rows, rhs.cols,rhs.slices);
+		if (this == &rhs)
+			return *this;
+		this->resize(rhs.rows, rhs.cols, rhs.slices);
 		this->x = x;
 		this->y = y;
 		this->z = z;
@@ -259,6 +260,119 @@ public:
 			f(offset, data[offset]);
 		}
 	}
+	vec<T, C> min() {
+		vec<T, C> minVal(std::numeric_limits<T>::max());
+		for (vec<T, C>& val : data) {
+			minVal = aly::minVec(val, minVal);
+		}
+		return minVal;
+	}
+	vec<T, C> max() {
+		vec<T, C> maxVal(std::numeric_limits<T>::min());
+		for (vec<T, C>& val : data) {
+			maxVal = aly::maxVec(val, maxVal);
+		}
+		return maxVal;
+	}
+	std::pair<vec<T, C>, vec<T, C>> range() {
+		vec<T, C> maxVal(std::numeric_limits<T>::min());
+		vec<T, C> minVal(std::numeric_limits<T>::max());
+		for (vec<T, C>& val : data) {
+			maxVal = aly::maxVec(val, maxVal);
+			minVal = aly::minVec(val, minVal);
+		}
+		return std::pair<vec<T, C>, vec<T, C>>(minVal, maxVal);
+	}
+	vec<T, C> mean() {
+		vec<double, C> mean(0.0);
+		for (vec<T, C>& val : data) {
+			mean += vec<double, C>(val);
+		}
+		mean = mean / (double) data.size();
+		return vec<T, C>(mean);
+	}
+	vec<T, C> median() {
+		std::vector<T> bands[C];
+		for (int c = 0; c < C; c++) {
+			bands[c].resize(data.size());
+		}
+		size_t index = 0;
+		for (vec<T, C>& val : data) {
+			for (int c = 0; c < C; c++) {
+				bands[c][index] = val[c];
+			}
+			index++;
+		}
+#pragma omp parallel for
+		for (int c = 0; c < C; c++) {
+			std::sort(bands[c].begin(), bands[c].end());
+		}
+		vec<T, C> med;
+		if (data.size() % 2 == 0) {
+			for (int c = 0; c < C; c++) {
+				med[c] = T(
+						((double) bands[c][data.size() / 2]
+								+ (double) bands[c][data.size() / 2 - 1])
+								* 0.5f);
+			}
+		} else {
+			for (int c = 0; c < C; c++) {
+				med[c] = bands[c][data.size() / 2];
+			}
+		}
+		return med;
+	}
+	vec<T, C> mad() {
+		if (data.size() <= 2)
+			return vec<T, C>(T(0));
+		vec<T, C> med = median();
+		std::vector<T> bands[C];
+		for (int c = 0; c < C; c++) {
+			bands[c].resize(data.size());
+		}
+		size_t index = 0;
+		for (vec<T, C>& val : data) {
+			vec<T, C> e = aly::abs(val - med);
+			for (int c = 0; c < C; c++) {
+				bands[c][index] = e[c];
+			}
+			index++;
+		}
+#pragma omp parallel for
+		for (int c = 0; c < C; c++) {
+			std::sort(bands[c].begin(), bands[c].end());
+		}
+		vec<T, C> mad;
+		if (data.size() % 2 == 0) {
+			for (int c = 0; c < C; c++) {
+				mad[c] = T(
+						((double) bands[c][data.size() / 2]
+								+ (double) bands[c][data.size() / 2 - 1])
+								* 0.5f);
+			}
+		} else {
+			for (int c = 0; c < C; c++) {
+				mad[c] = bands[c][data.size() / 2];
+			}
+		}
+		return mad;
+	}
+	vec<T, C> madStdDev() {
+		return vec<T, C>(1.4826 * vec<double, C>(mad()));
+	}
+	vec<T, C> stdDev() {
+		if (data.size() < 2) {
+			return vec<T, C>(T(0));
+		}
+		vec<T, C> avg = mean();
+		vec<double, C> var(0.0);
+		for (vec<T, C>& val : data) {
+			vec<double, C> e = vec<double, C>(val - avg);
+			var += e * e;
+		}
+		var = var / (double) (data.size() - 1);
+		return vec<T, C>(aly::sqrt(var));
+	}
 };
 template<class T, int C, ImageType I> std::string Volume<T, C, I>::updateHashCode(
 		size_t MAX_SAMPLES, HashMethod method) {
@@ -292,12 +406,12 @@ template<class T, int C, ImageType I> void Transform(Volume<T, C, I>& im1,
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
-template<class T, int C, ImageType I> void Transform(
-		Volume<T, C, I>& im1,
-		const Volume<T, C, I>& im2,
-		const Volume<T, C, I>& im3,
+template<class T, int C, ImageType I> void Transform(Volume<T, C, I>& im1,
+		const Volume<T, C, I>& im2, const Volume<T, C, I>& im3,
 		const Volume<T, C, I>& im4,
-		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,const vec<T, C>&)>& func) {
+		const std::function<
+				void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,
+						const vec<T, C>&)>& func) {
 	if (im1.dimensions() != im2.dimensions())
 		throw std::runtime_error(
 				MakeString() << "Volume dimensions do not match. "

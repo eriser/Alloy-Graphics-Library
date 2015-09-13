@@ -118,6 +118,17 @@ bool SANITY_CHECK_DENSE() {
 			src);
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfsunset.png"),
 			tar);
+
+	std::cout << "Min " << src.min() << std::endl;
+	std::cout << "Max " << src.max() << std::endl;
+	std::cout << "Range " <<src.range()<< std::endl;
+	std::cout << "Mean " << src.mean() << std::endl;
+	std::cout << "Median " << src.median() << std::endl;
+	std::cout << "Std. Dev. " << src.stdDev() << std::endl;
+	std::cout << "Mad " << src.mad() << std::endl;
+	std::cout << "Mad Std. Dev. " << src.madStdDev() << std::endl;
+	std::cout << "Min " << aly::min(float3(4, 3, 2), float3(2, 4, 3))
+			<< std::endl;
 	int w = src.width;
 	int h = src.height;
 	float r = h * 0.4;

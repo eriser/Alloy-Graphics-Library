@@ -95,8 +95,8 @@ template<class T> struct vec<T, 1> {
 	bool operator >(const vec & r) const {
 		return (x > r.x);
 	}
-	vec<T,1>& operator =(const T& r) {
-		x=r;
+	vec<T, 1>& operator =(const T& r) {
+		x = r;
 		return *this;
 	}
 	template<class Archive> void serialize(Archive & archive) {
@@ -607,6 +607,27 @@ template<class T, int M> vec<T, M> max(const vec<T, M> & l,
 		result[m] = std::max(l[m], r[m]);
 	return result;
 }
+template<class T, int M> vec<T, M> min(const vec<T, M> & l,
+		const vec<T, M> & r) {
+	vec<T, M> result;
+	for (int m = 0; m < M; m++)
+		result[m] = std::min(l[m], r[m]);
+	return result;
+}
+template<class T, int M> vec<T, M> maxVec(const vec<T, M> & l,
+		const vec<T, M> & r) {
+	vec<T, M> result;
+	for (int m = 0; m < M; m++)
+		result[m] = std::max(l[m], r[m]);
+	return result;
+}
+template<class T, int M> vec<T, M> minVec(const vec<T, M> & l,
+		const vec<T, M> & r) {
+	vec<T, M> result;
+	for (int m = 0; m < M; m++)
+		result[m] = std::min(l[m], r[m]);
+	return result;
+}
 template<class T, int M> T max(const vec<T, M> & l) {
 	T result = std::numeric_limits<T>::min();
 	for (int m = 0; m < M; m++)
@@ -617,13 +638,6 @@ template<class T, int M> T min(const vec<T, M> & l) {
 	T result = std::numeric_limits<T>::max();
 	for (int m = 0; m < M; m++)
 		result = std::min(l[m], result);
-	return result;
-}
-template<class T, int M> vec<T, M> min(const vec<T, M> & l,
-		const vec<T, M> & r) {
-	vec<T, M> result;
-	for (int m = 0; m < M; m++)
-		result[m] = std::min(l[m], r[m]);
 	return result;
 }
 
@@ -1105,6 +1119,26 @@ template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
 template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const vec<T, 4> & v) {
 	return ss << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+}
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss,
+		const std::pair<vec<T, 1>, vec<T, 1>> & v) {
+	return ss << "<" << v.first << ", " << v.second << ">";
+}
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss,
+		const std::pair<vec<T, 2>, vec<T, 2>> & v) {
+	return ss << "<" << v.first << ", " << v.second << ">";
+}
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss,
+		const std::pair<vec<T, 3>, vec<T, 3>> & v) {
+	return ss << "<" << v.first << ", " << v.second << ">";
+}
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss,
+		const std::pair<vec<T, 4>, vec<T, 4>> & v) {
+	return ss << "<" << v.first << ", " << v.second << ">";
 }
 
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
