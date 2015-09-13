@@ -260,21 +260,21 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	vec<T, C> min() {
+	vec<T, C> min() const {
 		vec<T, C> minVal(std::numeric_limits<T>::max());
 		for (vec<T, C>& val : data) {
 			minVal = aly::minVec(val, minVal);
 		}
 		return minVal;
 	}
-	vec<T, C> max() {
+	vec<T, C> max() const {
 		vec<T, C> maxVal(std::numeric_limits<T>::min());
 		for (vec<T, C>& val : data) {
 			maxVal = aly::maxVec(val, maxVal);
 		}
 		return maxVal;
 	}
-	std::pair<vec<T, C>, vec<T, C>> range() {
+	std::pair<vec<T, C>, vec<T, C>> range() const {
 		vec<T, C> maxVal(std::numeric_limits<T>::min());
 		vec<T, C> minVal(std::numeric_limits<T>::max());
 		for (vec<T, C>& val : data) {
@@ -283,7 +283,7 @@ public:
 		}
 		return std::pair<vec<T, C>, vec<T, C>>(minVal, maxVal);
 	}
-	vec<T, C> mean() {
+	vec<T, C> mean() const {
 		vec<double, C> mean(0.0);
 		for (vec<T, C>& val : data) {
 			mean += vec<double, C>(val);
@@ -291,7 +291,7 @@ public:
 		mean = mean / (double) data.size();
 		return vec<T, C>(mean);
 	}
-	vec<T, C> median() {
+	vec<T, C> median() const {
 		std::vector<T> bands[C];
 		for (int c = 0; c < C; c++) {
 			bands[c].resize(data.size());
@@ -322,7 +322,7 @@ public:
 		}
 		return med;
 	}
-	vec<T, C> mad() {
+	vec<T, C> mad() const {
 		if (data.size() <= 2)
 			return vec<T, C>(T(0));
 		vec<T, C> med = median();
@@ -357,10 +357,10 @@ public:
 		}
 		return mad;
 	}
-	vec<T, C> madStdDev() {
+	vec<T, C> madStdDev() const {
 		return vec<T, C>(1.4826 * vec<double, C>(mad()));
 	}
-	vec<T, C> stdDev() {
+	vec<T, C> stdDev() const {
 		if (data.size() < 2) {
 			return vec<T, C>(T(0));
 		}
