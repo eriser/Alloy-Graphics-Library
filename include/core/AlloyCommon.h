@@ -58,6 +58,11 @@ namespace aly {
 		}
 		return ss.str();
 	}
+	inline bool ContainsStringNoCase(const std::string& str, const std::string& pattern) {
+		std::string strl = ToLower(str);
+		std::string patternl = ToLower(pattern);
+		return (strl.find(patternl) != std::string::npos);
+	}
 }
 
 #endif /* ALLOYCOMMON_H_ */
