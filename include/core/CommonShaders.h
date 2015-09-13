@@ -65,22 +65,21 @@ public:
 			AlloyDefaultContext());
 	void initialize(int w, int h);
 	void draw(const std::initializer_list<const Mesh*>& meshes,
-			VirtualCamera& camera, int faceIdOffset = 0,
-			int objectIdOffset = 0, float radius = 1.0f);
+			VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
 	void draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera, int faceIdOffset = 0,
-			int objectIdOffset = 0, float radius = 1.0f);
+			VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
 	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
 			Image2i& faceIdMap, int faceIdOffset = 0, int objectIdOffset = 0,
 			float radius = 1.0f);
 	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera,int faceIdOffset = 0,
-			int objectIdOffset = 0, float radius = 1.0f);
-	void draw(const Mesh& mesh, VirtualCamera& camera,
-		int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
-		draw( { &mesh }, camera, faceIdOffset, objectIdOffset,
-				radius);
+			VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera, int faceIdOffset = 0,
+			int objectIdOffset = 0, float radius = 1.0f) {
+		draw( { &mesh }, camera, faceIdOffset, objectIdOffset, radius);
 	}
 };
 class ParticleDepthShader: public GLShader {
@@ -104,28 +103,28 @@ public:
 		draw( { &mesh }, camera, framebuffer, radius);
 	}
 };
-class ParticleMatcapShader : public GLShader {
+class ParticleMatcapShader: public GLShader {
 private:
 	GLTextureRGBA matcapTexture;
 public:
 	ParticleMatcapShader(const std::string& textureImage,
-		const std::shared_ptr<AlloyContext>& context =
-		AlloyDefaultContext());
+			const std::shared_ptr<AlloyContext>& context =
+					AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
-		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius =
-		1.0f);
+			VirtualCamera& camera, const box2px& bounds, const box2px& viewport,
+			float radius = 1.0f);
 	void draw(
-		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius =
-		1.0f);
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, const box2px& bounds, const box2px& viewport,
+			float radius = 1.0f);
 	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
-		const box2px& bounds, const box2px& viewport, float radius = 1.0f);
+			const box2px& bounds, const box2px& viewport, float radius = 1.0f);
 	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, const box2px& bounds, const box2px& viewport, float radius =
-		1.0f);
-	void draw(const Mesh& mesh, VirtualCamera& camera,
-		const box2px& bounds, const box2px& viewport, float radius = 1.0f) {
-		draw({ &mesh }, camera,bounds,viewport, radius);
+			VirtualCamera& camera, const box2px& bounds, const box2px& viewport,
+			float radius = 1.0f);
+	void draw(const Mesh& mesh, VirtualCamera& camera, const box2px& bounds,
+			const box2px& viewport, float radius = 1.0f) {
+		draw( { &mesh }, camera, bounds, viewport, radius);
 	}
 };
 class DepthAndTextureShader: public GLShader {
@@ -135,18 +134,16 @@ public:
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			VirtualCamera& camera, GLFrameBuffer& framebuffer,
 			bool flatShading = false);
-	void draw(const std::list<const Mesh*>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& framebuffer,
-		bool flatShading = false);
+	void draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+			GLFrameBuffer& framebuffer, bool flatShading = false);
 
 	void draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 			VirtualCamera& camera, GLFrameBuffer& framebuffer,
 			bool flatShading = false);
-	void draw(
-		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		VirtualCamera& camera, GLFrameBuffer& framebuffer,
-		bool flatShading = false);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+			VirtualCamera& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
 
 	void draw(const Mesh& mesh, VirtualCamera& camera,
 			GLFrameBuffer& framebuffer, bool flatShading = false) {
@@ -162,26 +159,27 @@ public:
 	GLFrameBuffer& getFrameBuffer() {
 		return framebuffer;
 	}
-	
+
 	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void initialize(int w, int h);
 	void read(Image2i& faceIdMap);
 	int draw(const std::initializer_list<const Mesh*>& meshes,
-			VirtualCamera& camera, int faceIdOffset = 0,
-			int objectIdOffset = 0,float radius=1.0f);
+			VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
 	int draw(
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera, int faceIdOffset = 0,
-			int objectIdOffset = 0, float radius = 1.0f);
-	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
+			VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
+	int draw(const std::list<const Mesh*>& meshes, VirtualCamera& camera,
+			int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f);
 	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-			VirtualCamera& camera,int faceIdOffset = 0,
-			int objectIdOffset = 0, float radius = 1.0f);
+			VirtualCamera& camera, int faceIdOffset = 0, int objectIdOffset = 0,
+			float radius = 1.0f);
 
-	int draw(const Mesh& mesh, VirtualCamera& camera, 
-			int faceIdOffset = 0, int objectIdOffset = 0, float radius = 1.0f) {
-		return draw( { &mesh }, camera, faceIdOffset, objectIdOffset,radius);
+	int draw(const Mesh& mesh, VirtualCamera& camera, int faceIdOffset = 0,
+			int objectIdOffset = 0, float radius = 1.0f) {
+		return draw( { &mesh }, camera, faceIdOffset, objectIdOffset, radius);
 	}
 };
 
@@ -194,18 +192,49 @@ public:
 					AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
-			const box2px& bounds, const box2px& viewport,const RGBAf& tint=RGBAf(1,1,1,1)) {
+			const box2px& bounds, const box2px& viewport, const RGBAf& tint =
+					RGBAf(1, 1, 1, 1)) {
 		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
-				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", bounds).set("viewport", viewport).set("tint",tint).draw(
-				imageTexture).end();
+				imageTexture, 1).set("depthBufferSize",
+				imageTexture.dimensions()).set("bounds", bounds).set("viewport",
+				viewport).set("tint", tint).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, VirtualCamera& camera,
 			const float2& location, const float2& dimensions,
 			const box2px& viewport, const RGBAf& tint = RGBAf(1, 1, 1, 1)) {
 		begin().set("matcapTexture", matcapTexture, 0).set("textureImage",
-				imageTexture, 1).set("depthBufferSize",imageTexture.dimensions()).set("bounds", box2px(location, dimensions)).set(
-				"viewport", viewport).set("tint",tint).draw(imageTexture).end();
+				imageTexture, 1).set("depthBufferSize",
+				imageTexture.dimensions()).set("bounds",
+				box2px(location, dimensions)).set("viewport", viewport).set(
+				"tint", tint).draw(imageTexture).end();
+
+	}
+};
+class TextureMeshShader: public GLShader {
+public:
+	TextureMeshShader(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext());
+	template<class T, int C, ImageType I> void draw(
+			const GLTexture<T, C, I>& depthBuffer,
+			const GLTextureRGBAf& texture, VirtualCamera& camera,
+			const box2px& bounds, const box2px& viewport,
+			const box2px& textureBounds = box2px(float2(0, 0), float2(1, 1))) {
+		begin().set("textureImage", texture, 0).set("depthBuffer", depthBuffer,
+				1).set("depthBufferSize", depthBuffer.dimensions()).set(
+				"bounds", bounds).set("viewport", viewport).set("texBounds",
+				textureBounds).draw(depthBuffer).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+			const GLTexture<T, C, I>& depthBuffer,
+			const GLTextureRGBAf& texture, VirtualCamera& camera,
+			const float2& location, const float2& dimensions,
+			const box2px& viewport,
+			const box2px& textureBounds = box2px(float2(0, 0), float2(1, 1))) {
+		begin().set("textureImage", texture, 0).set("depthBuffer", depthBuffer,
+				1).set("depthBufferSize", depthBuffer.dimensions()).set(
+				"bounds", box2px(location, dimensions)).set("viewport",
+				viewport).set("texBounds", textureBounds).draw(depthBuffer).end();
 
 	}
 };
@@ -258,10 +287,10 @@ public:
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const float2& location,
-			const float2& dimensions,float alpha = 1.0f, bool flip = false) {
+			const float2& dimensions, float alpha = 1.0f, bool flip = false) {
 		begin().set("flip", flip ? 1 : 0).set("textureImage", imageTexture, 0).set(
-				"bounds", box2px(location, dimensions)).set("alpha", alpha).set("viewport",
-				context->getViewport()).draw(imageTexture).end();
+				"bounds", box2px(location, dimensions)).set("alpha", alpha).set(
+				"viewport", context->getViewport()).draw(imageTexture).end();
 
 	}
 };
@@ -271,7 +300,8 @@ public:
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
-		begin().set("KERNEL_SIZE", 4).set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set(
+		begin().set("KERNEL_SIZE", 4).set("depthBufferSize",
+				imageTexture.dimensions()).set("textureImage", imageTexture, 0).set(
 				"bounds", bounds).set("imageSize",
 				imageTexture.bounds.dimensions).set("viewport",
 				context->getViewport()).draw(imageTexture).end();
@@ -289,7 +319,8 @@ public:
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
-		begin().set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set("bounds", bounds).set(
+		begin().set("depthBufferSize", imageTexture.dimensions()).set(
+				"textureImage", imageTexture, 0).set("bounds", bounds).set(
 				"viewport", context->getViewport()).draw(imageTexture).end();
 	}
 	template<class T, int C, ImageType I> void draw(
@@ -307,7 +338,8 @@ public:
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, float2 zRange,
 			const box2px& bounds) {
-		begin().set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set("zMin", zRange.x), set(
+		begin().set("depthBufferSize", imageTexture.dimensions()).set(
+				"textureImage", imageTexture, 0).set("zMin", zRange.x), set(
 				"zMax", zRange.y).set("bounds", bounds).set("viewport",
 				context->getViewport()).draw(imageTexture).end();
 	}
@@ -429,7 +461,8 @@ public:
 				lightDirections.push_back(light.direction);
 			}
 		}
-		set("depthBufferSize",imageTexture.dimensions()).set("ambientColors", ambientColors).set("diffuseColors", diffuseColors).set(
+		set("depthBufferSize", imageTexture.dimensions()).set("ambientColors",
+				ambientColors).set("diffuseColors", diffuseColors).set(
 				"lambertianColors", lambertianColors).set("specularColors",
 				specularColors).set("specularWeights", specularWeights).set(
 				"lightPositions", lightPositions).set("lightDirections",
@@ -467,9 +500,10 @@ public:
 			const GLTexture<T, C, I>& edgeTexture,
 			const GLTexture<T, C, I>& depthTexture, float2 zRange,
 			const box2px& bounds, const box2px& viewport) {
-		begin().set("depthBufferSize",depthTexture.dimensions()).set("textureImage", edgeTexture, 0).set("depthImage",
-				depthTexture, 1).set("LINE_WIDTH", lineWidth).set("edgeColor",
-				edgeColor).set("faceColor", faceColor).set("scaleInvariant",
+		begin().set("depthBufferSize", depthTexture.dimensions()).set(
+				"textureImage", edgeTexture, 0).set("depthImage", depthTexture,
+				1).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
+				"faceColor", faceColor).set("scaleInvariant",
 				(scaleInvariant) ? 1 : 0).set("zMin", zRange.x), set("zMax",
 				zRange.y).set("bounds", bounds).set("viewport", viewport).draw(
 				edgeTexture).end();
@@ -494,7 +528,8 @@ public:
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
 			const box2px viewport, VirtualCamera& camera) {
 
-		begin().set("depthBufferSize",imageTexture.dimensions()).set("textureImage", imageTexture, 0).set("MIN_DEPTH",
+		begin().set("depthBufferSize", imageTexture.dimensions()).set(
+				"textureImage", imageTexture, 0).set("MIN_DEPTH",
 				camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
 				"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
 				"viewport", viewport).set("u_radius", sampleRadius).set(

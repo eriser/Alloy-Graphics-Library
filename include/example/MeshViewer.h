@@ -47,6 +47,7 @@ private:
 	aly::PhongShader phongShader2;
 	aly::CompositeShader compositeShader;
 	aly::GLFrameBuffer edgeFrameBuffer;
+	aly::TextureMeshShader texMeshShader;
 
 	aly::ParticleMatcapShader particleMatcapShader;
 	aly::GLFrameBuffer occlusionFrameBuffer;

@@ -67,7 +67,7 @@ int main() {
 		//SANITY_CHECK_KDTREE();
 		//SANITY_CHECK_PYRAMID();
 		SANITY_CHECK_DENSE();
-		//app.run(1);
+		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
