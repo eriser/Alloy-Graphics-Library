@@ -260,13 +260,11 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	void downsample(Image<T, C, I>& out) const {
-		static double const Kernel[3][3][3]=
-		{		{{0,1,0},{1,4,1},{0,1,0}},
-				{{1,4,1},{4,8,4},{1,4,1}},
-				{{0,1,0},{1,4,1},{0,1,0}}
-		};
-		out.resize(rows / 2, cols / 2);
+	void downsample(Volume<T, C, I>& out) const {
+		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
+				1, 0 } }, { { 1, 4, 1 }, { 4, 8, 4 }, { 1, 4, 1 } }, {
+				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
+		out.resize(rows / 2, cols / 2, slices / 2);
 #pragma omp parallel for
 		for (int i = 0; i < out.rows; i++) {
 			for (int j = 0; j < out.cols; j++) {
@@ -289,11 +287,9 @@ public:
 		}
 	}
 	void upsample(Volume<T, C, I>& out) const {
-		static double const Kernel[3][3][3]=
-		{		{{0,1,0},{1,4,1},{0,1,0}},
-				{{1,4,1},{4,8,4},{1,4,1}},
-				{{0,1,0},{1,4,1},{0,1,0}}
-		};
+		static double const Kernel[3][3][3] = { { { 0, 1, 0 }, { 1, 4, 1 }, { 0,
+				1, 0 } }, { { 1, 4, 1 }, { 4, 8, 4 }, { 1, 4, 1 } }, {
+				{ 0, 1, 0 }, { 1, 4, 1 }, { 0, 1, 0 } } };
 		if (out.size() == 0)
 			out.resize(rows * 2, cols * 2, slices * 2);
 #pragma omp parallel for
