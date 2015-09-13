@@ -22,7 +22,7 @@
 #ifndef ALLOY_H_
 #define ALLOY_H_
 
-#include <AlloyCamera.h>
+#include "AlloyCamera.h"
 #include "AlloyAny.h"
 #include "AlloyFileUtil.h"
 #include "AlloyImage.h"
