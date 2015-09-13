@@ -36,6 +36,10 @@ bool MeshViewer::init(Composite& rootNode) {
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
 	mesh.updateVertexNormals();
+	for (int i = 0; i < mesh.vertexLocations.size(); i++) {
+		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
+			((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
+	}
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();
 
@@ -125,17 +129,17 @@ void MeshViewer::draw(AlloyContext* context) {
 			faceShader.draw(mesh, camera);
 
 			faceShader.read(faceIdMap);
-			faceIdMap.writeToXML("face_id.xml");
+			//faceIdMap.writeToXML("face_id.xml");
 			faceShader.draw( { &particles, &mesh }, camera);
 			faceShader.read(faceIdMap);
-			faceIdMap.writeToXML("face_particle_id.xml");
+			//faceIdMap.writeToXML("face_particle_id.xml");
 			particleFaceIdShader.draw(mesh, camera);
 			particleFaceIdShader.read(faceIdMap);
-			faceIdMap.writeToXML("particle_face_id.xml");
+			//faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;
 		}
+		
 		*/
-
 	}
 	glDisable(GL_DEPTH_TEST);
 	float2 dRange = camera.computeNormalizedDepthRange(mesh);
