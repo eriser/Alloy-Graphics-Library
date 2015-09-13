@@ -228,7 +228,7 @@ namespace aly {
 		const char c = ALY_PATH_SEPARATOR.c_str()[0];
 		return Split(file, c);
 	}
-	std::string concat(const std::vector<std::string>& list) {
+	std::string Concat(const std::vector<std::string>& list) {
 		std::stringstream ss;
 		for (std::string str : list) {
 			ss << str;
