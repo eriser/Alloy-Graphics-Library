@@ -98,7 +98,9 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 }
 void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 		Image4f& outImg, int iterations, int levels, float lambda) {
-	if (sourceImg.dimensions() != targetImg.dimensions())
+	//Assumes mask is encoded in the W channel of the source image.
+	if (sourceImg.dimensions() != targetImg.dimensions()
+			|| sourceImg.dimensions() != outImg.dimensions())
 		throw std::runtime_error(
 				MakeString() << "Cannot solve. Image dimensions do not match "
 						<< sourceImg.dimensions() << " "
@@ -128,6 +130,7 @@ void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 }
 void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 		Image4f& outImg, int iterations, float lambda) {
+	//Assumes mask is encoded in the W channel of the source image.
 	if (sourceImg.dimensions() != targetImg.dimensions()
 			|| sourceImg.dimensions() != outImg.dimensions())
 		throw std::runtime_error(
@@ -160,7 +163,7 @@ void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 			val5 = targetImg(i - 1, j);
 			float4 divTar = val1 - 0.25f * (val2 + val3 + val4 + val5);
 			divTar.w = 0.0f;
-			divergence(i, j) = mix(divTar,divSrc,  alpha);
+			divergence(i, j) = mix(divTar, divSrc, alpha);
 		}
 	}
 	const int xShift[] = { 0, 0, 1, 1 };
