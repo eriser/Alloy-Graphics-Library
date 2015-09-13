@@ -59,9 +59,9 @@ bool SANITY_CHECK_KDTREE() {
 #pragma omp parallel for
 	for (int i = 0; i < rgba.width; i++) {
 		for (int j = 0; j < rgba.height; j++) {
-			float3 pt1 = camera.transformImageToWorld(float3(i, j, 0.0f),
+			float3 pt1 = camera.transformImageToWorld(float3((float)i, (float)j, 0.0f),
 					rgba.width, rgba.height);
-			float3 pt2 = camera.transformImageToWorld(float3(i, j, 1.0f),
+			float3 pt2 = camera.transformImageToWorld(float3((float)i, (float)j, 1.0f),
 					rgba.width, rgba.height);
 			float3 v = normalize(pt2 - pt1);
 			float3 lastPoint(0.0f);
@@ -103,7 +103,7 @@ bool SANITY_CHECK_KDTREE() {
 			float3 lastPoint(0.0f);
 			double d = kdTree.closestPoint(pt1, 0.1f, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
-				rgba(i, j) = float4(lastPoint, d);
+				rgba(i, j) = float4(lastPoint, (float)d);
 			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
@@ -131,11 +131,11 @@ bool SANITY_CHECK_DENSE() {
 			<< std::endl;
 	int w = src.width;
 	int h = src.height;
-	float r = h * 0.4;
+	float r = h * 0.4f;
 	ImageRGBAf mask = tar;
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
-			float diff = r - length(float2(i - w / 2, j - h / 2));
+			float diff = r - length(float2((float)(i - w / 2), (float)(j - h / 2)));
 			float alpha = 1.0f - clamp(diff / 128, 0.0f, 1.0f);
 			mask(i, j).w = alpha;
 		}
@@ -244,7 +244,7 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 	B(0, 0) = float1(1.0f);
 	B(2, 1) = float1(2.5f);
 	B(2, 2) = float1(7);
-	B(1, 1) = float1(0.1);
+	B(1, 1) = float1(0.1f);
 	B(2, 0) = float1(2);
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (int j = 0; j < (int) A.cols; j++) {
