@@ -1470,7 +1470,7 @@ void FileField::setValue(const std::string& text) {
 				this->label = text;
 			}
 		}
-		segmentedPath = splitPath(value);
+		segmentedPath = SplitPath(value);
 		textStart = 0;
 		moveCursorTo((int) value.size());
 	}
@@ -1546,7 +1546,7 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 		case InputType::Scroll:
 			break;
 		}
-		segmentedPath = splitPath(value);
+		segmentedPath = SplitPath(value);
 	}
 	return Region::onEventHandler(context, e);
 }

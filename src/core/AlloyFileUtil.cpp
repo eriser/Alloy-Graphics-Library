@@ -104,7 +104,7 @@ namespace aly {
 		}
 		return std::string(str);
 	}
-	std::vector<std::string> split(const std::string &str, char delim) {
+	std::vector<std::string> Split(const std::string &str, char delim) {
 		std::stringstream ss;
 		std::vector<std::string> elems;
 		std::string delimString = "";
@@ -224,9 +224,9 @@ namespace aly {
 			<< std::setfill('0') << timed->tm_mday << "/"
 			<< timed->tm_year + 1900;
 	}
-	std::vector<std::string> splitPath(const std::string& file) {
+	std::vector<std::string> SplitPath(const std::string& file) {
 		const char c = ALY_PATH_SEPARATOR.c_str()[0];
-		return split(file, c);
+		return Split(file, c);
 	}
 	std::string concat(const std::vector<std::string>& list) {
 		std::stringstream ss;

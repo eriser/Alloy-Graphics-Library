@@ -26,19 +26,38 @@
 #include <sstream>
 #include <iomanip>
 #include <ios>
+#include <locale>
 namespace aly {
-struct MakeString {
-	std::ostringstream ss;
-	operator std::string() const {
+	struct MakeString {
+		std::ostringstream ss;
+		operator std::string() const {
+			return ss.str();
+		}
+		template<class T> MakeString & operator <<(const T & val) {
+			ss.setf(std::ios::fixed, std::ios::floatfield);
+			ss << val;
+			return *this;
+		}
+	};
+	inline bool ContainsString(const std::string& str, const std::string& pattern) {
+		return (str.find(pattern) != std::string::npos);
+	}
+	inline std::string ToLower(const std::string& str) {
+		std::stringstream ss;
+		static const std::locale local;
+		for (char c : str) {
+			ss << std::tolower(c,local);
+		}
 		return ss.str();
 	}
-	template<class T> MakeString & operator <<(const T & val) {
-		ss.setf(std::ios::fixed, std::ios::floatfield);
-		ss << val;
-		return *this;
+	inline std::string ToUpper(const std::string& str) {
+		std::stringstream ss;
+		static const std::locale local;
+		for (char c : str) {
+			ss << std::toupper(c, local);
+		}
+		return ss.str();
 	}
-};
-
 }
 
 #endif /* ALLOYCOMMON_H_ */

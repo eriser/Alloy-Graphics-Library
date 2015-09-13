@@ -110,9 +110,9 @@ namespace aly {
 	bool IsDirectory(const std::string& file);
 	bool IsFile(const std::string& file);
 	std::string CodePointToUTF8(int cp);
-	std::vector<std::string> split(const std::string& str, char c);
-	std::vector<std::string> splitPath(const std::string& file);
-	std::string concat(const std::vector<std::string>& list);
+	std::vector<std::string> Split(const std::string& str, char c);
+	std::vector<std::string> SplitPath(const std::string& file);
+	std::string Concat(const std::vector<std::string>& list);
 	std::string FormatTime(const std::time_t& time);
 	std::string FormatDate(const std::time_t& time);
 	std::string FormatDateAndTime(const std::time_t& time);
