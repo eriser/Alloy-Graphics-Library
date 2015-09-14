@@ -39,7 +39,7 @@ namespace aly {
 			return *this;
 		}
 	};
-	inline bool ContainsString(const std::string& str, const std::string& pattern) {
+	inline bool Contains(const std::string& str, const std::string& pattern) {
 		return (str.find(pattern) != std::string::npos);
 	}
 	inline std::string ToLower(const std::string& str) {
@@ -58,7 +58,7 @@ namespace aly {
 		}
 		return ss.str();
 	}
-	inline bool ContainsStringNoCase(const std::string& str, const std::string& pattern) {
+	inline bool ContainsIgnoreCase(const std::string& str, const std::string& pattern) {
 		std::string strl = ToLower(str);
 		std::string patternl = ToLower(pattern);
 		return (strl.find(patternl) != std::string::npos);
