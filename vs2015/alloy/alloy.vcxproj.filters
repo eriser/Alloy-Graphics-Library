@@ -111,6 +111,9 @@
     <ClCompile Include="..\..\src\core\AlloyCamera.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\ImageProcessing.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h">
@@ -237,6 +240,9 @@
       <Filter>thirdparty</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyCamera.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\ImageProcessing.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

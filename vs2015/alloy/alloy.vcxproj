@@ -46,6 +46,7 @@
     <ClCompile Include="..\..\src\core\GLFrameBuffer.cpp" />
     <ClCompile Include="..\..\src\core\GLShader.cpp" />
     <ClCompile Include="..\..\src\core\GLTexture.cpp" />
+    <ClCompile Include="..\..\src\core\ImageProcessing.cpp" />
     <ClCompile Include="..\..\src\core\nanovg.cpp" />
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
     <ClCompile Include="..\..\src\core\sha1.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="..\..\include\core\GLFrameBuffer.h" />
     <ClInclude Include="..\..\include\core\GLShader.h" />
     <ClInclude Include="..\..\include\core\GLTexture.h" />
+    <ClInclude Include="..\..\include\core\ImageProcessing.h" />
     <ClInclude Include="..\..\include\core\nanovg.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl_utils.h" />
