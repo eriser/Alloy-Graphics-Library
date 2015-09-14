@@ -44,5 +44,6 @@
 #include "AlloyDenseSolve.h"
 #include "AlloySparseSolve.h"
 #include "CommonShaders.h"
+#include "ImageProcessing.h"
 
 #endif /* ALLOY_H_ */

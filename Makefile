@@ -1,6 +1,7 @@
 
 SRC := $(wildcard src/core/*.cpp)
 OBJS := $(patsubst %.cpp,%.o,$(wildcard src/core/*.cpp))
+DS := $(patsubst %.cpp,%.d,$(wildcard src/core/*.cpp src/example/*.cpp))
 EXOBJS := $(patsubst %.cpp,%.o,$(wildcard src/example/*.cpp))
 CXX = g++
 CC = gcc
@@ -21,7 +22,7 @@ example : $(EXOBJS) alloy
 	
 clean :
 	clear
-	$(RM) $(OBJS) $(EXOBJS)
+	$(RM) $(OBJS) $(EXOBJS) $(DS)
 	$(RM) liballoy.a
 	$(RM) example
 	

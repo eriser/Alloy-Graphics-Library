@@ -13,6 +13,7 @@
 #include "AlloyUI.h"
 #include "AlloyMesh.h"
 #include "AlloyDenseSolve.h"
+#include "ImageProcessing.h"
 #include "AlloySparseMatrix.h"
 #include "AlloyMeshIntersector.h"
 #include "cereal/archives/xml.hpp"
@@ -59,15 +60,17 @@ bool SANITY_CHECK_KDTREE() {
 #pragma omp parallel for
 	for (int i = 0; i < rgba.width; i++) {
 		for (int j = 0; j < rgba.height; j++) {
-			float3 pt1 = camera.transformImageToWorld(float3((float)i, (float)j, 0.0f),
-					rgba.width, rgba.height);
-			float3 pt2 = camera.transformImageToWorld(float3((float)i, (float)j, 1.0f),
-					rgba.width, rgba.height);
+			float3 pt1 = camera.transformImageToWorld(
+					float3((float) i, (float) j, 0.0f), rgba.width,
+					rgba.height);
+			float3 pt2 = camera.transformImageToWorld(
+					float3((float) i, (float) j, 1.0f), rgba.width,
+					rgba.height);
 			float3 v = normalize(pt2 - pt1);
 			float3 lastPoint(0.0f);
 			double d = kdTree.intersectRayDistance(pt1, v, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
-				rgba(i, j) = float4(lastPoint, (float)d);
+				rgba(i, j) = float4(lastPoint, (float) d);
 			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
@@ -85,7 +88,7 @@ bool SANITY_CHECK_KDTREE() {
 			float3 lastPoint(0.0f);
 			double d = kdTree.closestPoint(pt1, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
-				rgba(i, j) = float4(lastPoint, (float)d);
+				rgba(i, j) = float4(lastPoint, (float) d);
 			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
@@ -103,13 +106,59 @@ bool SANITY_CHECK_KDTREE() {
 			float3 lastPoint(0.0f);
 			double d = kdTree.closestPoint(pt1, 0.1f, lastPoint);
 			if (d != NO_HIT_DISTANCE) {
-				rgba(i, j) = float4(lastPoint, (float)d);
+				rgba(i, j) = float4(lastPoint, (float) d);
 			} else {
 				rgba(i, j) = float4(0, 0, 0, 0);
 			}
 		}
 	}
 	rgba.writeToXML("closest_clamped.xml");
+	return true;
+}
+bool SANITY_CHECK_IMAGE_PROCESSING() {
+	ImageRGBAf img;
+	ImageRGBAf laplacian;
+	ImageRGBAf smoothed;
+	ImageRGBAf gX, gY;
+
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			img);
+	const int N = 5;
+	Smooth<N, N>(img, smoothed);
+	Laplacian<N, N>(img, laplacian);
+	Gradient<N, N>(img, gX, gY);
+	Kernel<double, N, N> kernel;
+	std::cout << "Smoothed=\n";
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			std::cout << kernel.filter[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	std::cout << "Gradient=\n";
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			std::cout << "(" << kernel.filterGradX[i][j] << ", "
+					<< kernel.filterGradY[i][j] << ") ";
+		}
+		std::cout << std::endl;
+	}
+
+	std::cout << "Laplacian=\n";
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			std::cout << kernel.filterLaplacian[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+	WriteImageToFile("smoothed.png", smoothed);
+
+	laplacian.writeToXML("laplacian.xml");
+
+	gX.writeToXML("gradient_x.xml");
+	gY.writeToXML("gradient_y.xml");
+
 	return true;
 }
 bool SANITY_CHECK_DENSE() {
@@ -121,7 +170,7 @@ bool SANITY_CHECK_DENSE() {
 
 	std::cout << "Min " << src.min() << std::endl;
 	std::cout << "Max " << src.max() << std::endl;
-	std::cout << "Range " <<src.range()<< std::endl;
+	std::cout << "Range " << src.range() << std::endl;
 	std::cout << "Mean " << src.mean() << std::endl;
 	std::cout << "Median " << src.median() << std::endl;
 	std::cout << "Std. Dev. " << src.stdDev() << std::endl;
@@ -135,7 +184,8 @@ bool SANITY_CHECK_DENSE() {
 	ImageRGBAf mask = tar;
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
-			float diff = r - length(float2((float)(i - w / 2), (float)(j - h / 2)));
+			float diff = r
+					- length(float2((float) (i - w / 2), (float) (j - h / 2)));
 			float alpha = 1.0f - clamp(diff / 128, 0.0f, 1.0f);
 			mask(i, j).w = alpha;
 		}
