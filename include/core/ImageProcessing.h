@@ -99,12 +99,12 @@ template<class T, size_t M, size_t N> void GaussianKernelLaplacian(
 		}
 	}
 }
-template<class T, size_t M, size_t N> struct Kernel {
+template<class T, size_t M, size_t N> struct GaussianOperators {
 	T filter[M][N];
 	T filterGradX[M][N];
 	T filterGradY[M][N];
 	T filterLaplacian[M][N];
-	Kernel(T sigmaX = T(0.607902736 * (M - 1) * 0.5),
+	GaussianOperators(T sigmaX = T(0.607902736 * (M - 1) * 0.5),
 			T sigmaY = T(0.607902736 * (N - 1) * 0.5)) {
 		T sum = 0;
 		T sum2 = 0;

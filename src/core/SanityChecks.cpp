@@ -127,7 +127,7 @@ bool SANITY_CHECK_IMAGE_PROCESSING() {
 	Smooth<N, N>(img, smoothed);
 	Laplacian<N, N>(img, laplacian);
 	Gradient<N, N>(img, gX, gY);
-	Kernel<double, N, N> kernel;
+	GaussianOperators<double, N, N> kernel;
 	std::cout << "Smoothed=\n";
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
