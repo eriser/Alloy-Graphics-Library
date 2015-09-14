@@ -113,9 +113,9 @@ template<size_t M, size_t N, class T, int C, ImageType I> void Gradient(
 		for (int j = 0; j < image.height; j++) {
 			vec<double, C> vsumX(0.0);
 			vec<double, C> vsumY(0.0);
-			for (int ii = 0; ii < N; ii++) {
+			for (int ii = 0; ii < M; ii++) {
 				for (int jj = 0; jj < N; jj++) {
-					vec<T, C> val = image(i + ii - N / 2, j + jj - N / 2);
+					vec<T, C> val = image(i + ii - M / 2, j + jj - N / 2);
 					vsumX += kernel.filterGradX[ii][jj] * vec<double, C>(val);
 					vsumY += kernel.filterGradY[ii][jj] * vec<double, C>(val);
 				}
@@ -133,9 +133,9 @@ template<size_t M, size_t N, class T, int C, ImageType I> void Laplacian(
 	for (int i = 0; i < image.width; i++) {
 		for (int j = 0; j < image.height; j++) {
 			vec<double, C> vsum(0.0);
-			for (int ii = 0; ii < N; ii++) {
+			for (int ii = 0; ii < M; ii++) {
 				for (int jj = 0; jj < N; jj++) {
-					vec<T, C> val = image(i + ii - N / 2, j + jj - N / 2);
+					vec<T, C> val = image(i + ii - M / 2, j + jj - N / 2);
 					vsum += kernel.filterLaplacian[ii][jj]
 							* vec<double, C>(val);
 				}
@@ -152,9 +152,9 @@ template<size_t M, size_t N, class T, int C, ImageType I> void Smooth(
 	for (int i = 0; i < image.width; i++) {
 		for (int j = 0; j < image.height; j++) {
 			vec<double, C> vsum(0.0);
-			for (int ii = 0; ii < N; ii++) {
+			for (int ii = 0; ii < M; ii++) {
 				for (int jj = 0; jj < N; jj++) {
-					vec<T, C> val = image(i + ii - N / 2, j + jj - N / 2);
+					vec<T, C> val = image(i + ii - M / 2, j + jj - N / 2);
 					vsum += kernel.filter[ii][jj] * vec<double, C>(val);
 				}
 			}
