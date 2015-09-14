@@ -63,7 +63,6 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 			float4 src = sourceImg(i, j);
 			float4 tar = targetImg(i, j);
 			float alpha = src.w;
-			tar.w = 1.0f;
 			src.w = 1.0f;
 			float4 val1 = sourceImg(i, j);
 			float4 val2 = sourceImg(i, j + 1);
@@ -149,8 +148,6 @@ void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 			float4 src = sourceImg(i, j);
 			float4 out = outImg(i, j);
 			float alpha = src.w;
-
-			out.w = 1.0f;
 			src.w = 1.0f;
 			float4 val1 = sourceImg(i, j);
 			float4 val2 = sourceImg(i, j + 1);
