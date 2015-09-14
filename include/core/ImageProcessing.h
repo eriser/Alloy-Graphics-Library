@@ -24,13 +24,16 @@
 namespace aly {
 bool SANITY_CHECK_IMAGE_PROCESSING();
 template<class T, size_t M, size_t N> void GaussianKernel(T (&kernel)[M][N],
-		T sigma = T(0.607902736 * (std::min(M, N) - 1) * 0.5)) {
+		T sigmaX = T(0.607902736 * (M - 1) * 0.5),
+		T sigmaY = T(0.607902736 * (N - 1) * 0.5)) {
 	T sum = 0;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			T x = T(i - 0.5 * (M - 1));
 			T y = T(j - 0.5 * (N - 1));
-			T w = T(std::exp(-0.5 * (x * x + y * y) / (sigma * sigma)));
+			double xn = x / sigmaX;
+			double yn = y / sigmaY;
+			T w = T(std::exp(-0.5 * (xn * xn + yn * yn)));
 			sum += w;
 			kernel[i][j] = w;
 		}
@@ -44,18 +47,19 @@ template<class T, size_t M, size_t N> void GaussianKernel(T (&kernel)[M][N],
 }
 
 template<class T, size_t M, size_t N> void GaussianKernelDerivative(
-		T (&gX)[M][N], T (&gY)[M][N],
-		T sigma = T(0.607902736 * (std::min(M, N) - 1) * 0.5)) {
+		T (&gX)[M][N], T (&gY)[M][N], T sigmaX = T(0.607902736 * (M - 1) * 0.5),
+		T sigmaY = T(0.607902736 * (N - 1) * 0.5)) {
 	T sum = 0;
-	T alpha = T(1.0 / (sigma * sigma));
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			T x = T(i - 0.5 * (M - 1));
 			T y = T(j - 0.5 * (N - 1));
-			T w = T(std::exp(-0.5 * (x * x + y * y) / (sigma * sigma)));
+			double xn = x / sigmaX;
+			double yn = y / sigmaY;
+			T w = T(std::exp(-0.5 * (xn * xn + yn * yn)));
 			sum += w;
-			gX[i][j] = alpha * w * x;
-			gY[i][j] = alpha * w * y;
+			gX[i][j] = w * xn / sigmaX;
+			gY[i][j] = w * yn / sigmaY;
 
 		}
 	}
@@ -68,19 +72,21 @@ template<class T, size_t M, size_t N> void GaussianKernelDerivative(
 	}
 }
 template<class T, size_t M, size_t N> void GaussianKernelLaplacian(
-		T (&kernel)[M][N],
-		T sigma = T(0.607902736 * (std::min(M, N) - 1) * 0.5)) {
+		T (&kernel)[M][N], T sigmaX = T(0.607902736 * (M - 1) * 0.5), T sigmaY =
+				T(0.607902736 * (N - 1) * 0.5)) {
 	T sum = 0;
 	T sum2 = 0;
-	T beta = T(1.0 / (sigma * sigma * sigma * sigma));
-	T alpha = T(1.0 / (sigma * sigma));
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			T x = T(i - 0.5 * (M - 1));
 			T y = T(j - 0.5 * (N - 1));
-			T w = T(std::exp(-0.5 * (x * x + y * y) / (sigma * sigma)));
+			double xn = x / sigmaX;
+			double yn = y / sigmaY;
+			T w = T(std::exp(-0.5 * (xn * xn + yn * yn)));
 			sum += w;
-			T ww = w * ((x * x + y * y) * beta - alpha);
+			T ww = w
+					* (xn * xn / (sigmaX * sigmaX) + yn * yn / (sigmaY * sigmaY)
+						   - 1 / (sigmaX * sigmaX)       - 1 / (sigmaY * sigmaY));
 			sum2 += ww;
 			kernel[i][j] = ww;
 		}
@@ -98,10 +104,11 @@ template<class T, size_t M, size_t N> struct Kernel {
 	T filterGradX[M][N];
 	T filterGradY[M][N];
 	T filterLaplacian[M][N];
-	Kernel(T sigma = T(0.607902736 * (std::min(M, N) - 1) * 0.5)) {
-		GaussianKernel(filter, sigma);
-		GaussianKernelDerivative(filterGradX, filterGradY, sigma);
-		GaussianKernelLaplacian(filterLaplacian, sigma);
+	Kernel(T sigmaX = T(0.607902736 * (M - 1) * 0.5),
+			T sigmaY = T(0.607902736 * (N - 1) * 0.5)) {
+		GaussianKernel(filter, sigmaX, sigmaY);
+		GaussianKernelDerivative(filterGradX, filterGradY, sigmaX, sigmaY);
+		GaussianKernelLaplacian(filterLaplacian, sigmaX, sigmaY);
 
 	}
 };
