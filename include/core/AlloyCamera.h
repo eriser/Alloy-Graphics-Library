@@ -180,6 +180,9 @@ struct CameraParameters: public EventHandler {
 	float2 getZRange() const {
 		return float2(nearPlane, farPlane);
 	}
+	virtual void setDirty(bool d) {
+		changed = true;
+	}
 	virtual float getScale() const;
 };
 class Camera: public CameraParameters {
@@ -218,7 +221,7 @@ public:
 	bool isDirty() const {
 		return needsDisplay || changed;
 	}
-	void setDirty(bool d) {
+	virtual void setDirty(bool d) override {
 		needsDisplay = d;
 		if (d)
 			changed = true;
