@@ -171,6 +171,11 @@ struct CameraParameters: public EventHandler {
 	inline float2 getFocalLength() const {
 		return float2(Projection(0, 0), Projection(1, 1));
 	}
+	void setNearFarPlanes(float n, float f) {
+		nearPlane = n;
+		farPlane = f;
+		changed = true;
+	}
 	float getNearPlane() const {
 		return nearPlane;
 	}
@@ -229,11 +234,7 @@ public:
 
 	virtual bool onEventHandler(AlloyContext* context, const InputEvent& event)
 			override;
-	void setNearFarPlanes(float n, float f) {
-		nearPlane = n;
-		farPlane = f;
-		changed = true;
-	}
+
 	void setFieldOfView(float degrees) {
 		fov = degrees;
 		changed = true;
