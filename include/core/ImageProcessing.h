@@ -96,7 +96,7 @@ template<class T, size_t M, size_t N> struct Kernel {
 	T filterGradX[M][N];
 	T filterGradY[M][N];
 	T filterLaplacian[M][N];
-	Kernel(T sigma = T(0.7*(std::min(M, N) - 1) * 0.5)) {
+	Kernel(T sigma = T(0.78*(std::min(M, N) - 1) * 0.5)) {
 		GaussianKernel(filter, sigma);
 		GaussianKernelDerivative(filterGradX, filterGradY, sigma);
 		GaussianKernelLaplacian(filterLaplacian, sigma);
