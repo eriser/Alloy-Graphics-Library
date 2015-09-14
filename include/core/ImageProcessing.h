@@ -106,17 +106,44 @@ template<class T, size_t M, size_t N> struct Kernel {
 	T filterLaplacian[M][N];
 	Kernel(T sigmaX = T(0.607902736 * (M - 1) * 0.5),
 			T sigmaY = T(0.607902736 * (N - 1) * 0.5)) {
-		GaussianKernel(filter, sigmaX, sigmaY);
-		GaussianKernelDerivative(filterGradX, filterGradY, sigmaX, sigmaY);
-		GaussianKernelLaplacian(filterLaplacian, sigmaX, sigmaY);
-
+		T sum = 0;
+		T sum2 = 0;
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
+				T x = T(i - 0.5 * (M - 1));
+				T y = T(j - 0.5 * (N - 1));
+				double xn = x / sigmaX;
+				double yn = y / sigmaY;
+				T w = T(std::exp(-0.5 * (xn * xn + yn * yn)));
+				filter[i][j] = w;
+				filterGradX[i][j] = w * xn / sigmaX;
+				filterGradY[i][j] = w * yn / sigmaY;
+				sum += w;
+				T ww = w
+					* (xn * xn / (sigmaX * sigmaX) + yn * yn / (sigmaY * sigmaY)
+						- 1 / (sigmaX * sigmaX) - 1 / (sigmaY * sigmaY));
+				sum2 += ww;
+				filterLaplacian[i][j] = ww;
+			}
+		}
+		sum = T(1) / sum;
+		sum2 /= T(M * N);
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
+				filterLaplacian[i][j] = (filterLaplacian[i][j] - sum2) * sum;
+				filter[i][j] *=sum;
+				filterGradX[i][j] *= sum;
+				filterGradY[i][j] *= sum;
+			}
+		}
 	}
 };
 template<size_t M, size_t N, class T, int C, ImageType I> void Gradient(
-		const Image<T, C, I>& image, Image<T, C, I>& gX, Image<T, C, I>& gY) {
+		const Image<T, C, I>& image, Image<T, C, I>& gX, Image<T, C, I>& gY, double sigmaX = (0.607902736 * (M - 1) * 0.5),
+	double sigmaY = (0.607902736 * (N - 1) * 0.5)) {
 
 	double filterX[M][N], filterY[M][N];
-	GaussianKernelDerivative(filterX, filterY);
+	GaussianKernelDerivative(filterX, filterY,sigmaX,sigmaY);
 
 	gX.resize(image.width, image.height);
 	gY.resize(image.width, image.height);
@@ -138,9 +165,10 @@ template<size_t M, size_t N, class T, int C, ImageType I> void Gradient(
 	}
 }
 template<size_t M, size_t N, class T, int C, ImageType I> void Laplacian(
-		const Image<T, C, I>& image, Image<T, C, I>& L) {
+		const Image<T, C, I>& image, Image<T, C, I>& L, double sigmaX = (0.607902736 * (M - 1) * 0.5),
+	double sigmaY = (0.607902736 * (N - 1) * 0.5)) {
 	double filter[M][N];
-	GaussianKernelLaplacian(filter);
+	GaussianKernelLaplacian(filter,sigmaX,sigmaY);
 	L.resize(image.width, image.height);
 #pragma omp parallel for
 	for (int i = 0; i < image.width; i++) {
@@ -157,9 +185,10 @@ template<size_t M, size_t N, class T, int C, ImageType I> void Laplacian(
 	}
 }
 template<size_t M, size_t N, class T, int C, ImageType I> void Smooth(
-		const Image<T, C, I>& image, Image<T, C, I>& B) {
+		const Image<T, C, I>& image, Image<T, C, I>& B, double sigmaX = (0.607902736 * (M - 1) * 0.5),
+	double sigmaY = (0.607902736 * (N - 1) * 0.5)) {
 	double filter[M][N];
-	GaussianKernel(filter);
+	GaussianKernel(filter,sigmaX,sigmaY);
 	B.resize(image.width, image.height);
 #pragma omp parallel for
 	for (int i = 0; i < image.width; i++) {
