@@ -1503,7 +1503,9 @@ template<class T, int M> struct box {
 	box() :
 			position((T) 0), dimensions((T) 0) {
 	}
-
+        template<class Archive> void serialize(Archive & archive) {
+                archive(CEREAL_NVP(position),CEREAL_NVP(dimensions));
+        }
 	box(vec<T, M> pt, vec<T, M> dims) :
 			position(pt), dimensions(dims) {
 	}
