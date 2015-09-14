@@ -70,7 +70,7 @@ template<class T> struct vec<T, 1> {
 	explicit vec(T s = (T) 0) :
 			x(s) {
 	}
-	template<class U> explicit vec(const vec<U, 2> & r) :
+	template<class U> explicit vec(const vec<U, 1> & r) :
 			x(T(r.x)) {
 	}
 	const T & operator [](int i) const {
