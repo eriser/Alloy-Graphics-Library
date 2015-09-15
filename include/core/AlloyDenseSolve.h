@@ -37,6 +37,8 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		int levels, float lambda = 0.99f);
 void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		float lambda = 0.99f);
+void LaplaceFill(const Image2f& sourceImg,Image2f& targetImg,int iterations, float lambda=0.99f);
+
 
 }
 #endif
