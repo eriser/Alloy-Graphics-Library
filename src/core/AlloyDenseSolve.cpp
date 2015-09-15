@@ -47,7 +47,68 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		LaplaceFill(sourceImg, targetImg, iterations, lambda);
 	}
 }
-
+void LaplaceFill(const Image2f& sourceImg,
+                 Image2f& targetImg,
+                 int iterations,
+                 float lambda)
+{
+    if (sourceImg.dimensions() != targetImg.dimensions())
+        throw std::runtime_error(MakeString()
+                << "Cannot solve. Image dimensions do not match "
+                << sourceImg.dimensions() << " " << targetImg.dimensions());
+    Image2f divergence(sourceImg.width, sourceImg.height);
+    divergence.set(float2(0.0f));
+#pragma omp parallel for
+    for (int j = 1; j < sourceImg.height - 1; j++)
+    {
+        for (int i = 1; i < sourceImg.width - 1; i++)
+        {
+            float2 src = sourceImg(i, j);
+            float2 tar = targetImg(i, j);
+            float alpha = src.y;
+            src.y = 1.0f;
+            float2 val1 = sourceImg(i, j);
+            float2 val2 = sourceImg(i, j + 1);
+            float2 val3 = sourceImg(i, j - 1);
+            float2 val4 = sourceImg(i + 1, j);
+            float2 val5 = sourceImg(i - 1, j);
+            float2 div(0.0f);
+            if (val1.y > 0 && val2.y > 0 && val3.y > 0 && val4.y > 0
+                    && val5.y > 0)
+            {
+                div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+                div.y = 0.0f;
+            }
+            divergence(i, j) = alpha * div;
+            targetImg(i, j) = mix(tar, src, alpha);
+        }
+    }
+    const int xShift[] =
+    { 0, 0, 1, 1 };
+    const int yShift[] =
+    { 0, 1, 0, 1 };
+    for (int iter = 0; iter < iterations; iter++)
+    {
+        for (int k = 0; k < 4; k++)
+        {
+            //Assumes color at boundary of target image is fixed!
+#pragma omp parallel for
+            for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2)
+            {
+                for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2)
+                {
+                    float2 div = targetImg(i, j)
+                            - 0.25f
+                                    * (targetImg(i, j - 1) + targetImg(i, j + 1)
+                                            + targetImg(i - 1, j)
+                                            + targetImg(i + 1, j));
+                    div = (div - divergence(i, j));
+                    targetImg(i, j) -= lambda * div;
+                }
+            }
+        }
+    }
+}
 void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 		float lambda) {
 	if (sourceImg.dimensions() != targetImg.dimensions())
