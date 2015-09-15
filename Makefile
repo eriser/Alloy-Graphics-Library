@@ -15,17 +15,17 @@ alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)
 	ranlib liballoy.a
 
-example : $(EXOBJS) alloy
+example : $(EXOBJS)
 	$(CXX) $(LDLIBS) -o "example" $(EXOBJS) $(LIBS) 
-	
-
-	
+		
 clean :
 	clear
 	$(RM) $(OBJS) $(EXOBJS) $(DS)
 	$(RM) liballoy.a
 	$(RM) example
 	
-all : example
+all : 
+	make -j8 alloy
+	make example
 	
-default : example
+default : alloy
