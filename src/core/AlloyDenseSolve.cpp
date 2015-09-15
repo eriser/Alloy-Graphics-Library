@@ -250,23 +250,36 @@ void PoissonBlend(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 	}
 	const int xShift[] = { 0, 0, 1, 1 };
 	const int yShift[] = { 0, 1, 0, 1 };
-	for (int iter = 0; iter < iterations; iter++) {
-		for (int k = 0; k < 4; k++) {
-			//Assumes color at boundary of target image is fixed!
+   const float THRESHOLD = 0.5;
+    for (int iter = 0; iter < iterations; iter++)
+    {
+        for (int k = 0; k < 4; k++)
+        {
+            //Assumes color at boundary of target image is fixed!
 #pragma omp parallel for
-			for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2) {
-				for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2) {
-					float4 div = targetImg(i, j)
-							- 0.25f
-									* (targetImg(i, j - 1) + targetImg(i, j + 1)
-											+ targetImg(i - 1, j)
-											+ targetImg(i + 1, j));
-					div = (div - divergence(i, j));
-					targetImg(i, j) -= lambda * div;
-				}
-			}
-		}
-	}
+            for (int j = yShift[k] + 1; j < sourceImg.height - 1; j += 2)
+            {
+                for (int i = xShift[k] + 1; i < sourceImg.width - 1; i += 2)
+                {
+                    float4 val1 = targetImg(i, j);
+                    float4 val2 = targetImg(i, j + 1);
+                    float4 val3 = targetImg(i, j - 1);
+                    float4 val4 = targetImg(i + 1, j);
+                    float4 val5 = targetImg(i - 1, j);
+                    float4 div(0.0f);
+                    if (val1.w >= THRESHOLD && val2.w >= THRESHOLD
+                            && val3.w >= THRESHOLD && val4.w >= THRESHOLD
+                            && val5.w >= THRESHOLD)
+                    {
+                        div = val1 - 0.25f * (val2 + val3 + val4 + val5);
+                        div = (div - divergence(i, j));
+                        div.w = 0;
+                        targetImg(i, j) -= lambda * div;
+                    }
+                }
+            }
+        }
+    }
 }
 
 }
