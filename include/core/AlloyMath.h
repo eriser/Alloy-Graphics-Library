@@ -224,7 +224,7 @@ template<class T> struct vec<T, 4> {
 	vec<T, 3> xyz() const {
 		return vec<T, 3>(x, y, z);
 	}
-	vec<T, 3> xy() const {
+	vec<T, 2> xy() const {
 		return vec<T, 2>(x, y);
 	}
 
