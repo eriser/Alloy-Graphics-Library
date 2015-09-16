@@ -29,10 +29,36 @@ void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
 						<< sourceImg.dimensions() << " "
 						<< targetImg.dimensions());
 	if (levels <= 1) {
-		PoissonBlend(sourceImg, targetImg, iterations, lambda);
+		LaplaceFill(sourceImg, targetImg, iterations, lambda);
 	} else {
 		std::vector<Image4f> srcPyramid(levels);
 		std::vector<Image4f> tarPyramid(levels);
+		srcPyramid[0] = sourceImg;
+		tarPyramid[0] = targetImg;
+		for (int l = 1; l < levels; l++) {
+			srcPyramid[l - 1].downSample(srcPyramid[l]);
+			tarPyramid[l - 1].downSample(tarPyramid[l]);
+		}
+		for (int l = levels - 1; l >= 1; l--) {
+			LaplaceFill(srcPyramid[l], tarPyramid[l], iterations, lambda);
+			tarPyramid[l].upSample(tarPyramid[l - 1]);
+		}
+		targetImg = tarPyramid[0];
+		LaplaceFill(sourceImg, targetImg, iterations, lambda);
+	}
+}
+void LaplaceFill(const Image2f& sourceImg, Image2f& targetImg, int iterations,
+		int levels, float lambda) {
+	if (sourceImg.dimensions() != targetImg.dimensions())
+		throw std::runtime_error(
+				MakeString() << "Cannot solve. Image dimensions do not match "
+						<< sourceImg.dimensions() << " "
+						<< targetImg.dimensions());
+	if (levels <= 1) {
+		LaplaceFill(sourceImg, targetImg, iterations, lambda);
+	} else {
+		std::vector<Image2f> srcPyramid(levels);
+		std::vector<Image2f> tarPyramid(levels);
 		srcPyramid[0] = sourceImg;
 		tarPyramid[0] = targetImg;
 		for (int l = 1; l < levels; l++) {
