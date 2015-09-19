@@ -123,6 +123,27 @@ bool SANITY_CHECK_IMAGE_PROCESSING() {
 
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
 			img);
+
+	ImageRGB img2;
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			img2);
+
+	ImageRGBA img3;
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			img3);
+
+	ImageRGBf img4;
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			img4);
+	Image1f gray;
+	ConvertImage(img, gray);
+	Image1b gray2;
+	ConvertImage(img2, gray2);
+	Image2f gray3;
+	ConvertImage(img2, gray);
+	ConvertImage(img3, gray);
+	ConvertImage(img4, gray2);
+	ConvertImage(img3, gray2);
 	const int N = 5;
 	Smooth<N, N>(img, smoothed);
 	Laplacian<N, N>(img, laplacian);

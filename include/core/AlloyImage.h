@@ -198,6 +198,14 @@ public:
 	int2 position() const {
 		return int2(x, y);
 	}
+	void setPosition(int xx, int yy) {
+		x = xx;
+		y = yy;
+	}
+	void setPosition(const int2& pos) {
+		x = pos.x;
+		y = pos.y;
+	}
 	size_t size() const {
 		return data.size();
 	}
@@ -878,6 +886,76 @@ void ConvertImage(const ImageRGBA& in, ImageRGB& out);
 void ConvertImage(const ImageRGBAf& in, ImageRGBf& out);
 void ConvertImage(const ImageRGB& in, ImageRGBA& out);
 void ConvertImage(const ImageRGBf& in, ImageRGBAf& out);
+
+template<class T, ImageType I> void ConvertImage(const Image<T, 4, I>& in,
+		Image<T, 1, I>& out, bool sRGB = true) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+
+	if (sRGB) {
+#pragma omp parallel for
+		for (int i = 0; i < N; i++) {
+			vec<T, 4> c = in[i];
+			out[i] = vec<T, 1>(T(0.21 * c.x + 0.72 * c.y + 0.07 * c.z));
+		}
+	} else {
+#pragma omp parallel for
+		for (int i = 0; i < N; i++) {
+			vec<T, 4> c = in[i];
+			out[i] = vec<T, 1>(T(0.30 * c.x + 0.59 * c.y + 0.11 * c.z));
+		}
+	}
+}
+template<class T, ImageType I> void ConvertImage(const Image<T, 4, I>& in,
+		Image<T, 2, I>& out, bool sRGB = true) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+
+	if (sRGB) {
+#pragma omp parallel for
+		for (int i = 0; i < N; i++) {
+			vec<T, 4> c = in[i];
+			out[i] = vec<T, 2>(T(0.21 * c.x + 0.72 * c.y + 0.07 * c.z), c.w);
+		}
+	} else {
+#pragma omp parallel for
+		for (int i = 0; i < N; i++) {
+			vec<T, 4> c = in[i];
+			out[i] = vec<T, 2>(T(0.30 * c.x + 0.59 * c.y + 0.11 * c.z), c.w);
+		}
+	}
+}
+template<class T, ImageType I> void ConvertImage(const Image<T, 3, I>& in,
+		Image<T, 1, I>& out, bool sRGB = true) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+
+	if (sRGB) {
+#pragma omp parallel for
+		for (int i = 0; i < N; i++) {
+			vec<T, 3> c = in[i];
+			out[i] = vec<T, 1>(T(0.21 * c.x + 0.72 * c.y + 0.07 * c.z));
+		}
+	} else {
+#pragma omp parallel for
+		for (int i = 0; i < N; i++) {
+			vec<T, 3> c = in[i];
+			out[i] = vec<T, 1>(T(0.30 * c.x + 0.59 * c.y + 0.11 * c.z));
+		}
+	}
+}
+
+void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB = true);
+void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB = true);
+void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB = true);
+void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB = true);
+
 }
 ;
 
