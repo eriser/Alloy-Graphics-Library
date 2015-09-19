@@ -873,6 +873,13 @@ void WriteImageToFile(const std::string& file, const ImageRGBA& img);
 void WriteImageToFile(const std::string& file, const ImageRGB& img);
 void WriteImageToFile(const std::string& file, const ImageRGBAf& img);
 void WriteImageToFile(const std::string& file, const ImageRGBf& img);
+
+
+void WriteImageToFile(const std::string& file, const Image1f& img);
+void WriteImageToFile(const std::string& file, const Image1b& img);
+void ReadImageFromFile(const std::string& file, Image1b& img);
+void ReadImageFromFile(const std::string& file, Image1f& img);
+
 void ReadImageFromFile(const std::string& file, ImageRGBA& img);
 void ReadImageFromFile(const std::string& file, ImageRGB& img);
 void ReadImageFromFile(const std::string& file, ImageRGBAf& img);

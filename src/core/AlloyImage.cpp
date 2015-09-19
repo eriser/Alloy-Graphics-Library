@@ -138,6 +138,14 @@ void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 		throw std::runtime_error(MakeString() << "Could not write " << outFile);
 	}
 }
+void WriteImageToFile(const std::string& file, const Image1b& image) {
+	std::string ext = GetFileExtension(file);
+	std::string outFile = ReplaceFileExtension(file, "png");
+	if (!stbi_write_png(outFile.c_str(), image.width, image.height, 1,
+			image.ptr(),  image.width)) {
+		throw std::runtime_error(MakeString() << "Could not write " << outFile);
+	}
+}
 void WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	std::string outFile = ReplaceFileExtension(file, "png");
 	if (!stbi_write_png(outFile.c_str(), image.width, image.height, 4,
@@ -151,6 +159,20 @@ void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 	stbi_convert_iphone_png_to_rgb(1);
 	int w, h, n;
 	img = stbi_load(file.c_str(), &w, &h, &n, 4);
+	if (img == NULL) {
+		throw std::runtime_error(
+				MakeString() << "Could not read file " << file);
+	}
+	image.resize(w, h);
+	image.set(img);
+	stbi_image_free(img);
+}
+void ReadImageFromFile(const std::string& file, Image1b& image) {
+	unsigned char* img;
+	stbi_set_unpremultiply_on_load(1);
+	stbi_convert_iphone_png_to_rgb(1);
+	int w, h, n;
+	img = stbi_load(file.c_str(), &w, &h, &n, 1);
 	if (img == NULL) {
 		throw std::runtime_error(
 				MakeString() << "Could not read file " << file);
@@ -228,6 +250,32 @@ void ReadImageFromFile(const std::string& file, ImageRGBf& img) {
 		}
 	}
 }
+void ReadImageFromFile(const std::string& file, Image1f& img) {
+	std::string ext = GetFileExtension(file);
+	if (ext == "hdr") {
+		int w, h, n;
+		float *data = stbi_loadf(file.c_str(), &w, &h, &n, 1);
+		if (data == NULL) {
+			throw std::runtime_error(
+					MakeString() << "Could not read file " << file);
+		}
+		img.resize(w, h);
+		img.set(data);
+		stbi_image_free(data);
+	} else {
+		Image1b rgb;
+		ReadImageFromFile(file, rgb);
+		img.resize(rgb.width, rgb.height);
+		img.id = rgb.id;
+		img.x = rgb.x;
+		img.y = rgb.y;
+		size_t index = 0;
+		for (float1& ct : img.data) {
+			ubyte1 cs = rgb[index++];
+			ct.x = cs.x / 255.0f;
+		}
+	}
+}
 void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 	std::string ext = GetFileExtension(file);
 	if (ext == "hdr") {
@@ -248,6 +296,27 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 					clamp((int) (ct.y * 255.0f), 0, 255),
 					clamp((int) (ct.z * 255.0f), 0, 255),
 					clamp((int) (ct.w * 255.0f), 0, 255));
+		}
+		WriteImageToFile(file, rgb);
+	}
+}
+void WriteImageToFile(const std::string& file, const Image1f& img) {
+	std::string ext = GetFileExtension(file);
+	if (ext == "hdr") {
+		if (!stbi_write_hdr(file.c_str(), img.width, img.height, 1,
+				img.ptr())) {
+			throw std::runtime_error(
+					MakeString() << "Could not write " << file);
+		}
+	} else {
+		Image1f rgb;
+		rgb.resize(img.width, img.height);
+		rgb.id = img.id;
+		rgb.x = img.x;
+		rgb.y = img.y;
+		size_t index = 0;
+		for (float1& ct : img.data) {
+			rgb[index++].x = clamp((int) (ct.x * 255.0f), 0, 255);
 		}
 		WriteImageToFile(file, rgb);
 	}
