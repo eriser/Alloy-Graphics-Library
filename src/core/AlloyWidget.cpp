@@ -1700,7 +1700,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
-					CoordPX(600, 400), FileDialogType::SaveFile));
+					CoordPX(600, 400), FileDialogType::OpenFile));
 
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(
@@ -1744,6 +1744,59 @@ void FileSelector::setValue(const std::string& file) {
 	fileDialog->setValue(file);
 }
 void FileSelector::openFileDialog(AlloyContext* context,
+		const std::string& workingDirectory) {
+	fileDialog->setValue(workingDirectory);
+	if (!fileDialog->isVisible()) {
+		fileDialog->setVisible(true);
+		context->getGlassPanel()->setVisible(true);
+	} else {
+		fileDialog->setVisible(false);
+		context->getGlassPanel()->setVisible(false);
+	}
+}
+
+FileButton::FileButton(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims,const FileDialogType& type) : IconButton((type==FileDialogType::SaveFile)?0xF0C7:0xf115,pos,dims) {
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	setRoundCorners(true);
+	std::shared_ptr<Composite>& glassPanel =
+			AlloyApplicationContext()->getGlassPanel();
+	fileDialog = std::shared_ptr<FileDialog>(
+			new FileDialog("File Dialog",
+					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
+					CoordPX(600, 400),type));
+	glassPanel->add(fileDialog);
+	fileDialog->onOpen = [this](const std::string& file) {
+		if (onChange)onChange(file);
+	};
+	setAspectRatio(1.01f);
+	setAspectRule(AspectRule::FixedHeight);
+	foregroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	borderColor = MakeColor(COLOR_NONE);
+	borderWidth=UnitPX(2.0f);
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	iconColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	setRoundCorners(true);
+	onMouseDown =
+			[this](AlloyContext* context, const InputEvent& event) {
+				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					std::string file = getValue();
+					AlloyApplicationContext()->setMouseFocusObject(nullptr);
+					if (FileExists(file)) {
+						openFileDialog(context,GetParentDirectory(file));
+					} else {
+						openFileDialog(context, GetCurrentWorkingDirectory());
+					}
+					return true;
+				}
+				return false;
+			};
+}
+void FileButton::setValue(const std::string& file) {
+
+	fileDialog->setValue(file);
+}
+void FileButton::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
 	fileDialog->setValue(workingDirectory);
 	if (!fileDialog->isVisible()) {

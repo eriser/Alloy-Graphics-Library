@@ -206,13 +206,35 @@ bool ExampleUI::init(Composite& rootNode) {
 	geomRegion->add(
 			selector = new FileSelector("Mesh", CoordPX(2, 5),
 					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f)));
+
 	selector->addFileExtensionRule("Portable Network Graphics", "png");
 	selector->addFileExtensionRule("XML", { "raw", "xml" });
 	selector->addFileExtensionRule("Text", "txt");
+	selector->setValue("mesh.obj");
+
+	FileButton* fbutton;
+	geomRegion->add(
+			fbutton = new FileButton("Mesh", CoordPX(2, 5),
+					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f),
+					FileDialogType::SaveFile));
+
+	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
+	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
+	fbutton->addFileExtensionRule("Text", "txt");
+	fbutton->setValue("mesh.obj");
+
+	geomRegion->add(
+			fbutton = new FileButton("Mesh", CoordPX(2, 5),
+					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f),
+					FileDialogType::OpenMultiFile));
+
+	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
+	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
+	fbutton->addFileExtensionRule("Text", "txt");
+	fbutton->setValue("mesh.obj");
 
 	geomRegion->setOrientation(Orientation::Vertical);
 	geomRegion->add(scrollRegion);
-	selector->setValue("mesh.obj");
 	RegionPtr apprRegion = RegionPtr(
 			new aly::Region("Appearance", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
@@ -222,9 +244,9 @@ bool ExampleUI::init(Composite& rootNode) {
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
 	lightRegion->setOrientation(Orientation::Vertical);
 	SelectionPtr dropdown2 = SelectionPtr(
-		new Selection("Selection", CoordPX(0, 0), CoordPX(200, 30),
-			std::vector<std::string> { "Mission", "Bernal Heights",
-			"Noe Valley", "Telegraph Hill", "North Beach" }));
+			new Selection("Selection", CoordPX(0, 0), CoordPX(200, 30),
+					std::vector<std::string> { "Mission", "Bernal Heights",
+							"Noe Valley", "Telegraph Hill", "North Beach" }));
 	lightRegion->add(dropdown2);
 	expandBar->add(lightRegion, true);
 	RegionPtr renderingRegion = RegionPtr(

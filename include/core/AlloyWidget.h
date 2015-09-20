@@ -462,7 +462,32 @@ public:
 	void openFileDialog(AlloyContext* context,
 			const std::string& workingDirectory = GetCurrentWorkingDirectory());
 };
+class FileButton: public IconButton {
+private:
+	std::shared_ptr<FileDialog> fileDialog;
+public:
 
+	std::function<void(const std::string& file)> onChange;
+	void addFileExtensionRule(const std::string& name,
+			const std::string& extension) {
+		fileDialog->addFileExtensionRule(name, extension);
+	}
+	void addFileExtensionRule(const std::string& name,
+			const std::initializer_list<std::string>& extension) {
+		fileDialog->addFileExtensionRule(name, extension);
+	}
+	void setFileExtensionRule(int index) {
+		fileDialog->setFileExtensionRule(index);
+	}
+	FileButton(const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims, const FileDialogType& type);
+	void setValue(const std::string& file);
+	std::string getValue() {
+		return fileDialog->getValue();
+	}
+	void openFileDialog(AlloyContext* context,
+			const std::string& workingDirectory = GetCurrentWorkingDirectory());
+};
 typedef std::shared_ptr<TextButton> ButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
