@@ -622,21 +622,28 @@ void SliderHandle::draw(AlloyContext* context) {
 	nvgStroke(nvg);
 
 }
-bool Selection::handleMouseClick(AlloyContext* context,const InputEvent& event) {
+bool Selection::handleMouseClick(AlloyContext* context,
+		const InputEvent& event) {
 	if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-		context->setOnTopRegion(selectionBox.get());
 		box2px bounds = getBounds(false);
-		selectionBox->pack(bounds.position, bounds.dimensions, context->dpmm, context->pixelRatio);
-		selectionBox->setVisible(true);
+		selectionBox->pack(bounds.position, bounds.dimensions, context->dpmm,
+				context->pixelRatio);
 		selectionBox->setSelectionOffset(0);
 		selectionBox->setSelectedIndex(0);
+		show(context);
 		return true;
-	}
-	else if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
-		context->removeOnTopRegion(selectionBox.get());
-		selectionBox->setVisible(false);
+	} else if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
+		hide(context);
 	}
 	return false;
+}
+void Selection::hide(AlloyContext* context) {
+	context->removeOnTopRegion(selectionBox.get());
+	selectionBox->setVisible(false);
+}
+void Selection::show(AlloyContext* context) {
+	context->setOnTopRegion(selectionBox.get());
+	selectionBox->setVisible(true);
 }
 Selection::Selection(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions, const std::vector<std::string>& options) :
@@ -656,7 +663,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 			UnitPercent(1.0f),
 			AlloyApplicationContext()->theme.DARK_TEXT.toRGBA(),
 			HorizontalAlignment::Center, VerticalAlignment::Middle);
-	selectionBox = SelectionBoxPtr(new SelectionBox(label+"_box", options));
+	selectionBox = SelectionBoxPtr(new SelectionBox(label + "_box", options));
 	selectionBox->setDetached(true);
 	selectionBox->setVisible(false);
 	selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
@@ -693,8 +700,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 	selectionBox->onMouseUp =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if(event.button==GLFW_MOUSE_BUTTON_LEFT) {
-					context->removeOnTopRegion(selectionBox.get());
-					selectionBox->setVisible(false);
+					hide(context);
 					int newSelection=selectionBox->getSelectedIndex();
 					if(newSelection<0) {
 						selectionBox->setSelectedIndex(selectedIndex);
@@ -709,8 +715,7 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 					selectionLabel->label=this->getValue();
 					return true;
 				} else if(event.button==GLFW_MOUSE_BUTTON_RIGHT) {
-					context->removeOnTopRegion(selectionBox.get());
-					selectionBox->setVisible(false);
+					hide(context);
 				}
 				return false;
 			};
@@ -730,16 +735,16 @@ Selection::Selection(const std::string& label, const AUnit2D& position,
 		}
 		return true;
 	};
-	Application::addListener(this);
+
 }
 
 void Selection::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseContainedIn(this);
 	box2px bounds = getBounds();
-	if(!hover&&selectionBox->isVisible()&&!context->isLeftMouseButtonDown()) {
-		context->removeOnTopRegion(selectionBox.get());
-		selectionBox->setVisible(false);
+	if (!hover && selectionBox->isVisible()
+			&& !context->isLeftMouseButtonDown()) {
+		hide(context);
 	}
 	if (hover) {
 		nvgBeginPath(nvg);
@@ -1717,6 +1722,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	openIcon->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+					fileLocation->hideDropDown(context);
 					std::string file = getValue();
 					AlloyApplicationContext()->setMouseFocusObject(nullptr);
 					if (FileExists(file)) {
@@ -2289,7 +2295,7 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 	cellPadding.y = 2;
 }
 CompositePtr ExpandBar::add(const std::shared_ptr<Region>& region,
-		bool expanded) {
+bool expanded) {
 	CompositePtr container = MakeComposite("Content Container",
 			CoordPX(0.0f, 0.0f),
 			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f));

@@ -487,6 +487,10 @@ public:
 			override;
 	virtual inline ~FileField() {
 	}
+	void hideDropDown(AlloyContext* context) {
+		selectionBox->setVisible(false);
+		context->removeOnTopRegion(selectionBox.get());
+	}
 	FileField(const std::string& name, const AUnit2D& position,
 			const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;

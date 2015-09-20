@@ -238,6 +238,7 @@ private:
 	bool handleMouseClick(AlloyContext* context, const InputEvent& event);
 public:
 	std::function<void(int)> onSelect;
+	//bool onEventHandler(AlloyContext* context, const InputEvent& event)override;
 	inline int getSelectedIndex() const {
 		return selectedIndex;
 	}
@@ -250,6 +251,8 @@ public:
 	std::string getSelection(int index) {
 		return selectionBox->getSelection(index);
 	}
+	void hide(AlloyContext* context);
+	void show(AlloyContext* context);
 	void setValue(int selection) {
 		selectedIndex = selection;
 		selectionBox->setSelectedIndex(selection);

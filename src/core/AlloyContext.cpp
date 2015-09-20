@@ -102,13 +102,13 @@ ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 	width = (pixel) w;
 	height = (pixel) h;
 }
-void ImageGlyph::set(const ImageRGBA& rgba,AlloyContext* context){
-	nvgUpdateImage(context->nvgContext,handle,rgba.ptr());
+void ImageGlyph::set(const ImageRGBA& rgba, AlloyContext* context) {
+	nvgUpdateImage(context->nvgContext, handle, rgba.ptr());
 }
-ImageGlyph::~ImageGlyph()
-{
-    AlloyContext* context=AlloyApplicationContext().get();
-    if(context)nvgDeleteImage(context->nvgContext, handle);
+ImageGlyph::~ImageGlyph() {
+	AlloyContext* context = AlloyApplicationContext().get();
+	if (context)
+		nvgDeleteImage(context->nvgContext, handle);
 }
 ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 		bool mipmap) :
@@ -228,7 +228,7 @@ bool AlloyContext::isOnTop(Region* region) const {
 bool AlloyContext::fireListeners(const InputEvent& event) {
 	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
 		EventHandler* handler = *iter;
-		if (handler->onEventHandler(this, event))
+		if(handler->onEventHandler(this, event))
 			return true;
 	}
 	return false;
