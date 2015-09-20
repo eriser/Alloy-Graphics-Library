@@ -1700,7 +1700,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
-					CoordPX(600, 400)));
+					CoordPX(600, 400), FileDialogType::OpenFile));
 
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(
@@ -1874,7 +1874,7 @@ void FileEntry::draw(AlloyContext* context) {
 bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 		const InputEvent& e) {
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (enableMultiSelection) {
+		if (type != FileDialogType::OpenMultiFile) {
 			if (entry->isSelected()) {
 				entry->setSelected(false);
 				for (auto iter = lastSelected.begin();
@@ -1910,7 +1910,7 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 		}
 		return true;
 	} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-		if (!enableMultiSelection) {
+		if (type != FileDialogType::OpenMultiFile) {
 			if (lastSelected.size() > 0) {
 				fileLocation->setValue(
 						GetParentDirectory(
@@ -1936,12 +1936,7 @@ bool FileDialog::onMouseUp(FileEntry* entry, AlloyContext* context,
 		const InputEvent& e) {
 	return false;
 }
-void FileDialog::setEnableMultiSelection(bool enable) {
-	enableMultiSelection = enable;
-}
-bool FileDialog::isMultiSelectionEnabled() {
-	return enableMultiSelection;
-}
+
 void FileDialog::updateDirectoryList() {
 	setSelectedFile(fileLocation->getValue());
 }
@@ -2009,8 +2004,8 @@ void FileDialog::setSelectedFile(const std::string& file) {
 
 }
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
-		const AUnit2D& dims, pixel fileEntryHeight) :
-		Composite(name, pos, dims), fileEntryHeight(fileEntryHeight) {
+		const AUnit2D& dims, const FileDialogType& type, pixel fileEntryHeight) :
+		Composite(name, pos, dims), type(type), fileEntryHeight(fileEntryHeight) {
 	containerRegion = std::shared_ptr<BorderComposite>(
 			new BorderComposite("Container", CoordPX(0, 15),
 					CoordPerPX(1.0, 1.0, -15, -15)));
@@ -2247,9 +2242,7 @@ void FileDialog::setValue(const std::string& file) {
 std::string FileDialog::getValue() const {
 	return fileLocation->getValue();
 }
-void FileDialog::setFileSelectionType(FileType type) {
-	fileType = type;
-}
+
 void FileDialog::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = containerRegion->getBounds();

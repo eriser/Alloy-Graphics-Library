@@ -399,8 +399,7 @@ private:
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;
 	std::vector<std::shared_ptr<FileEntry>> fileEntries;
-	bool enableMultiSelection = false;
-	FileType fileType = FileType::File;
+
 	void setSelectedFile(const std::string& file);
 
 	bool onMouseDown(FileEntry* entry, AlloyContext* context,
@@ -412,6 +411,7 @@ private:
 	bool onMouseUp(FileEntry* entry, AlloyContext* context,
 			const InputEvent& e);
 	pixel fileEntryHeight;
+	FileDialogType type;
 	void updateDirectoryList();
 	bool updateValidity();
 public:
@@ -424,11 +424,9 @@ public:
 	bool valid = false;
 	std::function<void(const std::string&)> onOpen;
 	virtual void draw(AlloyContext* context) override;
-	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
+	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,const FileDialogType& type,
 			pixel fileEntryHeight = 30);
-	void setEnableMultiSelection(bool enable);
-	void setFileSelectionType(FileType type);
-	bool isMultiSelectionEnabled();
+
 	void setValue(const std::string& file);
 	std::string getValue() const;
 	void setFileExtensionRule(int index) {
