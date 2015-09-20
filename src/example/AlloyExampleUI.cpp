@@ -303,9 +303,14 @@ bool ExampleUI::init(Composite& rootNode) {
 	fbutton->setValue("mesh.obj");
 
 	center->add(
-		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 0.0f, 65.0f), CoordPX(40, 40),
+		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 45.0f,0.0f), CoordPX(40, 40),
 			FileDialogType::OpenMultiFile));
 
+	ColorSelectorPtr colorselect = ColorSelectorPtr(
+		new ColorSelector("Color", CoordPercent(0.5f, 0.0f),
+			CoordPX(200, 50)));
+	colorselect->setColor(Color(200, 128, 32));
+	center->add(colorselect);
 	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
 	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
 	fbutton->addFileExtensionRule("Text", "txt");
