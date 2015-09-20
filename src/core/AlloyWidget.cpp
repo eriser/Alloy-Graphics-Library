@@ -511,9 +511,11 @@ void IconButton::draw(AlloyContext* context) {
 		nvgFill(nvg);
 
 	}
+	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
+		context->pixelRatio);
 	box2px ibounds = bounds;
 	ibounds.position += offset;
-	float th = ibounds.dimensions.y - ((hover) ? 2 : 4);
+	float th = ibounds.dimensions.y -2*lineWidth - ((hover) ? 2 : 4);
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
@@ -523,8 +525,7 @@ void IconButton::draw(AlloyContext* context) {
 					context->theme.HIGHLIGHT : *iconColor, *backgroundColor,
 			nullptr);
 
-	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
-			context->pixelRatio);
+
 
 	if (borderColor->a > 0) {
 		if (iconType == IconType::CIRCLE) {
@@ -1705,10 +1706,10 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("None", CoordPX(0, 0), CoordPercent(1.0f, 1.0f)));
-	fileDialog->onOpen = [this](const std::string& file) {
-		fileLocation->setValue(file);
+	fileDialog->onSelect = [this](const std::vector<std::string>& file) {
+		fileLocation->setValue(file.front());
 
-		if (onChange)onChange(file);
+		if (onChange)onChange(file.front());
 	};
 	openIcon = std::shared_ptr<IconButton>(
 			new IconButton(0xf115, CoordPerPX(0.0f, 0.0f, 2.0f, 4.0f),
@@ -1766,16 +1767,21 @@ FileButton::FileButton(const std::string& name, const AUnit2D& pos,
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
 					CoordPX(600, 400),type));
 	glassPanel->add(fileDialog);
-	fileDialog->onOpen = [this](const std::string& file) {
-		if (onChange)onChange(file);
-	};
-	setAspectRatio(1.01f);
-	setAspectRule(AspectRule::FixedHeight);
-	foregroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	if(type==FileDialogType::SaveFile){
+		fileDialog->onSelect = [this](const std::vector<std::string>& file) {
+			if (onSave)onSave(file.front());
+		};
+	}
+	else {
+		fileDialog->onSelect = [this](const std::vector<std::string>& file) {
+			if (onOpen)onOpen(file);
+		};
+	}
+	foregroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	borderColor = MakeColor(COLOR_NONE);
 	borderWidth=UnitPX(2.0f);
-	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
-	iconColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	backgroundColor = MakeColor(COLOR_NONE);
+	iconColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	setRoundCorners(true);
 	onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
@@ -1928,20 +1934,28 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 		const InputEvent& e) {
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 		if (type == FileDialogType::OpenMultiFile) {
-			if (entry->isSelected()) {
-				entry->setSelected(false);
-				for (auto iter = lastSelected.begin();
-						iter != lastSelected.end(); iter++) {
-					if (*iter == entry) {
-						lastSelected.erase(iter);
-						break;
+			if (entry->fileDescription.fileType == FileType::File) {
+				if (entry->isSelected()) {
+					entry->setSelected(false);
+					for (auto iter = lastSelected.begin();
+					iter != lastSelected.end(); iter++) {
+						if (*iter == entry) {
+							lastSelected.erase(iter);
+							break;
+						}
 					}
 				}
-			} else {
-				entry->setSelected(true);
-				lastSelected.push_back(entry);
+				else {
+					entry->setSelected(true);
+					lastSelected.push_back(entry);
+				}
+			}
+			else {
+				setSelectedFile(entry->fileDescription.fileLocation);
+				fileLocation->setValue(entry->fileDescription.fileLocation);
 			}
 			updateValidity();
+
 		} else if (type == FileDialogType::OpenFile) {
 			if (entry->fileDescription.fileType == FileType::File) {
 				if (!entry->isSelected()) {
@@ -2002,12 +2016,13 @@ void FileDialog::updateDirectoryList() {
 	setSelectedFile(fileLocation->getValue());
 }
 bool FileDialog::updateValidity() {
-	std::string file = fileLocation->getValue();
 	FileFilterRule* rule =
 			(fileTypeSelect->getSelectedIndex() >= 0) ?
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
 					nullptr;
 	if (type == FileDialogType::SaveFile) {
+
+		std::string file = fileLocation->getValue();
 		std::string fileName = GetFileName(file);
 		if (fileName.size() > 0 && !IsDirectory(file)
 				&& (rule == nullptr || rule->accept(file))) {
@@ -2019,7 +2034,9 @@ bool FileDialog::updateValidity() {
 					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
 			valid = false;
 		}
-	} else {
+	} else if(type==FileDialogType::OpenFile){
+
+		std::string file = fileLocation->getValue();
 		if (FileExists(file) && IsFile(file)
 				&& (rule == nullptr || rule->accept(file))) {
 			valid = true;
@@ -2029,6 +2046,29 @@ bool FileDialog::updateValidity() {
 			actionButton->backgroundColor = MakeColor(
 					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
 			valid = false;
+		}
+	}
+	else if (type == FileDialogType::OpenMultiFile) {
+		valid = true;
+		for (std::shared_ptr<FileEntry> entry : fileEntries) {
+			if (entry->isSelected()) {
+				std::string file = entry->fileDescription.fileLocation;
+				if (FileExists(file) && IsFile(file)
+					&& (rule == nullptr || rule->accept(file))) {
+				}
+				else {
+					valid = false;
+					break;
+				}
+			}
+		}
+		if (valid) {
+			actionButton->backgroundColor = MakeColor(
+				AlloyApplicationContext()->theme.LIGHT_TEXT);
+		}
+		else {
+			actionButton->backgroundColor = MakeColor(
+				AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
 		}
 	}
 	return valid;
@@ -2093,7 +2133,21 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			[this](AlloyContext* context,const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 					if (valid) {
-						if (this->onOpen)this->onOpen(this->getValue());
+						if (this->onSelect)
+						{
+							std::vector<std::string> files;
+							if (this->type != FileDialogType::OpenMultiFile) {
+								files.push_back(this->getValue());
+							}
+							else {
+								for (std::shared_ptr<FileEntry> entry : this->fileEntries) {
+									if (entry->isSelected()) {
+										files.push_back(entry->fileDescription.fileLocation);
+									}
+								}
+							}
+							if(files.size()>0)this->onSelect(files);
+						}
 						this->setVisible(false);
 						context->getGlassPanel()->setVisible(false);
 						return true;

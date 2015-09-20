@@ -212,26 +212,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	selector->addFileExtensionRule("Text", "txt");
 	selector->setValue("mesh.obj");
 
-	FileButton* fbutton;
-	geomRegion->add(
-			fbutton = new FileButton("Mesh", CoordPX(2, 5),
-					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f),
-					FileDialogType::SaveFile));
 
-	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
-	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
-	fbutton->addFileExtensionRule("Text", "txt");
-	fbutton->setValue("mesh.obj");
-
-	geomRegion->add(
-			fbutton = new FileButton("Mesh", CoordPX(2, 5),
-					CoordPerPX(1.0, 0.0f, -4.0f, 30.0f),
-					FileDialogType::OpenMultiFile));
-
-	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
-	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
-	fbutton->addFileExtensionRule("Text", "txt");
-	fbutton->setValue("mesh.obj");
 
 	geomRegion->setOrientation(Orientation::Vertical);
 	geomRegion->add(scrollRegion);
@@ -311,7 +292,24 @@ bool ExampleUI::init(Composite& rootNode) {
 	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
 			CoordPX(200.0f, 50.0f), Theme::Default.DARK,
 			Theme::Default.LIGHT_TEXT);
+	FileButton* fbutton;
+	center->add(
+		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 0.0f, 0.0f), CoordPX(40, 40),
+			FileDialogType::SaveFile));
 
+	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
+	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
+	fbutton->addFileExtensionRule("Text", "txt");
+	fbutton->setValue("mesh.obj");
+
+	center->add(
+		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 0.0f, 65.0f), CoordPX(40, 40),
+			FileDialogType::OpenMultiFile));
+
+	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
+	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
+	fbutton->addFileExtensionRule("Text", "txt");
+	fbutton->setValue("mesh.obj");
 	center->add(hslider1);
 
 	center->add(hslider2);

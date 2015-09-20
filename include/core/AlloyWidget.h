@@ -422,7 +422,7 @@ public:
 
 	friend class FileEntry;
 	bool valid = false;
-	std::function<void(const std::string&)> onOpen;
+	std::function<void(const std::vector<std::string>&)> onSelect;
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,const FileDialogType& type,
 			pixel fileEntryHeight = 30);
@@ -467,7 +467,8 @@ private:
 	std::shared_ptr<FileDialog> fileDialog;
 public:
 
-	std::function<void(const std::string& file)> onChange;
+	std::function<void(const std::vector<std::string>& file)> onOpen;
+	std::function<void(const std::string& file)> onSave;
 	void addFileExtensionRule(const std::string& name,
 			const std::string& extension) {
 		fileDialog->addFileExtensionRule(name, extension);
