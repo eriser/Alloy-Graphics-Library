@@ -95,6 +95,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	switch (type) {
 	case FileDialogType::OpenFile:
 		return ss << "Open File";
+	case FileDialogType::OpenMultiFile:
+		return ss << "Open Multiple Files";
 	case FileDialogType::SaveFile:
 		return ss << "Save File";
 	}

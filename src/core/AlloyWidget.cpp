@@ -1700,7 +1700,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
-					CoordPX(600, 400), FileDialogType::OpenFile));
+					CoordPX(600, 400), FileDialogType::SaveFile));
 
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(
@@ -1874,7 +1874,7 @@ void FileEntry::draw(AlloyContext* context) {
 bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 		const InputEvent& e) {
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (type != FileDialogType::OpenMultiFile) {
+		if (type == FileDialogType::OpenMultiFile) {
 			if (entry->isSelected()) {
 				entry->setSelected(false);
 				for (auto iter = lastSelected.begin();
@@ -1889,7 +1889,7 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 				lastSelected.push_back(entry);
 			}
 			updateValidity();
-		} else {
+		} else if (type == FileDialogType::OpenFile) {
 			if (entry->fileDescription.fileType == FileType::File) {
 				if (!entry->isSelected()) {
 					for (FileEntry* child : lastSelected) {
@@ -1904,6 +1904,14 @@ bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
 
 			} else {
 				setSelectedFile(entry->fileDescription.fileLocation);
+				fileLocation->setValue(entry->fileDescription.fileLocation);
+			}
+			updateValidity();
+		} else if (type == FileDialogType::SaveFile) {
+			if (entry->fileDescription.fileType == FileType::Directory) {
+				setSelectedFile(entry->fileDescription.fileLocation);
+				fileLocation->setValue(entry->fileDescription.fileLocation);
+			} else {
 				fileLocation->setValue(entry->fileDescription.fileLocation);
 			}
 			updateValidity();
@@ -1946,15 +1954,29 @@ bool FileDialog::updateValidity() {
 			(fileTypeSelect->getSelectedIndex() >= 0) ?
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
 					nullptr;
-	if (FileExists(file) && IsFile(file)
-			&& (rule == nullptr || rule->accept(file))) {
-		valid = true;
-		openButton->backgroundColor = MakeColor(
-				AlloyApplicationContext()->theme.LIGHT_TEXT);
+	if (type == FileDialogType::SaveFile) {
+		std::string fileName = GetFileName(file);
+		if (fileName.size() > 0 && !IsDirectory(file)
+				&& (rule == nullptr || rule->accept(file))) {
+			valid = true;
+			actionButton->backgroundColor = MakeColor(
+					AlloyApplicationContext()->theme.LIGHT_TEXT);
+		} else {
+			actionButton->backgroundColor = MakeColor(
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
+			valid = false;
+		}
 	} else {
-		openButton->backgroundColor = MakeColor(
-				AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
-		valid = false;
+		if (FileExists(file) && IsFile(file)
+				&& (rule == nullptr || rule->accept(file))) {
+			valid = true;
+			actionButton->backgroundColor = MakeColor(
+					AlloyApplicationContext()->theme.LIGHT_TEXT);
+		} else {
+			actionButton->backgroundColor = MakeColor(
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
+			valid = false;
+		}
 	}
 	return valid;
 }
@@ -2009,10 +2031,12 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	containerRegion = std::shared_ptr<BorderComposite>(
 			new BorderComposite("Container", CoordPX(0, 15),
 					CoordPerPX(1.0, 1.0, -15, -15)));
-	openButton = std::shared_ptr<TextIconButton>(
-			new TextIconButton("Open", 0xf115,
-					CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f), CoordPX(100, 30)));
-	openButton->onMouseDown =
+	actionButton = std::shared_ptr<TextIconButton>(
+			new TextIconButton(
+					(type == FileDialogType::SaveFile) ? "Save" : "Open",
+					0xf115, CoordPerPX(1.0f, 0.0f, -10.0f, 5.0f),
+					CoordPX(100, 30)));
+	actionButton->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 					if (valid) {
@@ -2041,7 +2065,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	fileTypeSelect->onSelect = [this](int index) {
 		this->updateDirectoryList();
 	};
-	openButton->setOrigin(Origin::TopRight);
+	actionButton->setOrigin(Origin::TopRight);
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("File Location", CoordPX(10, 7),
 					CoordPerPX(1.0f, 0.0f, -55.0f, 30.0f)));
@@ -2049,6 +2073,11 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			AlloyApplicationContext()->theme.LIGHT);
 	fileLocation->onTextEntered = [this](TextField* field) {
 		this->updateDirectoryList();
+	};
+	fileLocation->onKeyInput = [this](TextField* field) {
+		if(this->type==FileDialogType::SaveFile) {
+			this->updateValidity();
+		}
 	};
 	upDirButton = std::shared_ptr<IconButton>(
 			new IconButton(0xf062, CoordPerPX(1.0, 0.0, -40, 7),
@@ -2080,7 +2109,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 			CoordPercent(1.0f, 1.0f));
 	CompositePtr northRegion = MakeComposite("Selection Bar", CoordPX(0, 0),
 			CoordPercent(1.0f, 1.0f));
-	southRegion->add(openButton);
+	southRegion->add(actionButton);
 	southRegion->add(fileTypeSelect);
 	northRegion->add(fileLocation);
 	northRegion->add(upDirButton);
