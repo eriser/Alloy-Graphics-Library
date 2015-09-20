@@ -52,7 +52,7 @@ void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB) {
 		for (int i = 0; i < N; i++) {
 			ubyte4 c = in[i];
 			out[i] = float1(
-					(float) (0.21 * c.x + 0.72 * c.y + 0.07 * c.z) / 255.0f);
+					(float) (0.30 * c.x + 0.59 * c.y + 0.11 * c.z) / 255.0f);
 		}
 	}
 }
@@ -74,7 +74,7 @@ void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB) {
 		for (int i = 0; i < N; i++) {
 			ubyte3 c = in[i];
 			out[i] = float1(
-					(float) (0.21 * c.x + 0.72 * c.y + 0.07 * c.z) / 255.0f);
+					(float) (0.30 * c.x + 0.59 * c.y + 0.11 * c.z) / 255.0f);
 		}
 	}
 }
@@ -99,7 +99,7 @@ void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB) {
 			float4 c = in[i];
 			out[i] = ubyte1(
 					(uint8_t) clamp(
-							255 * (0.21 * c.x + 0.72 * c.y + 0.07 * c.z), 0.0,
+							255 * (0.30 * c.x + 0.59 * c.y + 0.11 * c.z), 0.0,
 							255.0));
 		}
 	}
@@ -125,7 +125,7 @@ void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB) {
 			float3 c = in[i];
 			out[i] = ubyte1(
 					(uint8_t) clamp(
-							255 * (0.21 * c.x + 0.72 * c.y + 0.07 * c.z), 0.0,
+							255 * (0.30 * c.x + 0.59 * c.y + 0.11 * c.z), 0.0,
 							255.0));
 		}
 	}
@@ -142,7 +142,7 @@ void WriteImageToFile(const std::string& file, const Image1b& image) {
 	std::string ext = GetFileExtension(file);
 	std::string outFile = ReplaceFileExtension(file, "png");
 	if (!stbi_write_png(outFile.c_str(), image.width, image.height, 1,
-			image.ptr(),  image.width)) {
+			image.ptr(), image.width)) {
 		throw std::runtime_error(MakeString() << "Could not write " << outFile);
 	}
 }
