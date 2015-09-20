@@ -185,7 +185,21 @@ void CheckerboardGlyph::draw(const box2px& bounds, const Color& fgColor,
 
 }
 void AlloyContext::addAssetDirectory(const std::string& dir) {
-	assetDirectories.push_back(dir);
+	std::string dirCopy=dir;
+	if (ALY_PATH_SEPARATOR[0] != '/') {
+		for (char& c : dirCopy) {
+			if (c == '/') {
+				c = ALY_PATH_SEPARATOR[0];
+			}
+		}
+	} else if (ALY_PATH_SEPARATOR[0] != '\\') {
+		for (char& c : dirCopy) {
+			if (c == '\\') {
+				c = ALY_PATH_SEPARATOR[0];
+			}
+		}
+	}
+	assetDirectories.push_back(dirCopy);
 }
 std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,
 		const std::string& name, const std::string& file) {
@@ -194,27 +208,42 @@ std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,
 	return fonts[static_cast<int>(type)];
 }
 std::string AlloyContext::getFullPath(const std::string& partialFile) {
+	std::string fileName = partialFile;
+	if (ALY_PATH_SEPARATOR[0] != '/') {
+		for (char& c : fileName) {
+			if (c == '/') {
+				c = ALY_PATH_SEPARATOR[0];
+			}
+		}
+	}
+	else if (ALY_PATH_SEPARATOR[0] != '\\') {
+		for (char& c : fileName) {
+			if (c == '\\') {
+				c = ALY_PATH_SEPARATOR[0];
+			}
+		}
+	}
 	for (std::string& dir : assetDirectories) {
-		std::string fullPath = RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR+partialFile;
+		std::string fullPath = RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR+ fileName;
 		if (FileExists(fullPath)) {
 			return fullPath;
 		}
 	}
 	std::string executableDir = GetExecutableDirectory();
 	for (std::string& dir : assetDirectories) {
-		std::string fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + partialFile;
+		std::string fullPath = RemoveTrailingSlash(executableDir) + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
 		if (FileExists(fullPath)) {
 			return fullPath;
 		}
 	}
-	std::cout<<"Could not find \""<<partialFile<<"\"\nThis is where I looked:"<<std::endl;
+	std::cout<<"Could not find \""<< fileName <<"\"\nThis is where I looked:"<<std::endl;
 	for (std::string& dir : assetDirectories) {
-		std::string fullPath=RemoveTrailingSlash(dir) +ALY_PATH_SEPARATOR +partialFile;
+		std::string fullPath=RemoveTrailingSlash(dir) +ALY_PATH_SEPARATOR + fileName;
 		std::cout<<"\""<<fullPath<<"\""<<std::endl;
-		fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + partialFile;
+		fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
 		std::cout << "\"" << fullPath << "\"" << std::endl;
 	}
-	throw std::runtime_error(MakeString()<<"Could not find \""<<partialFile<<"\"");
+	throw std::runtime_error(MakeString()<<"Could not find \""<< fileName <<"\"");
 	return std::string("");
 }
 void AlloyContext::setDragObject(Region* region) {

@@ -411,7 +411,7 @@ private:
 	bool onMouseUp(FileEntry* entry, AlloyContext* context,
 			const InputEvent& e);
 	pixel fileEntryHeight;
-	FileDialogType type;
+	const FileDialogType type;
 	void updateDirectoryList();
 	bool updateValidity();
 public:

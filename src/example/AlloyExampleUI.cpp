@@ -201,7 +201,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			MakeRegion("Region 2", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(0, 255, 0)));
 	expandBar->add(geomRegion, true);
-
+	std::string exampleFile = getContext()->getFullPath("models"+ALY_PATH_SEPARATOR+"monkey.ply");
 	FileSelector* selector;
 	geomRegion->add(
 			selector = new FileSelector("Mesh", CoordPX(2, 5),
@@ -210,7 +210,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	selector->addFileExtensionRule("Portable Network Graphics", "png");
 	selector->addFileExtensionRule("XML", { "raw", "xml" });
 	selector->addFileExtensionRule("Text", "txt");
-	selector->setValue("mesh.obj");
+	selector->setValue(exampleFile);
 
 
 
@@ -300,7 +300,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
 	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
 	fbutton->addFileExtensionRule("Text", "txt");
-	fbutton->setValue("mesh.obj");
+	fbutton->setValue(exampleFile);
 
 	center->add(
 		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 45.0f,0.0f), CoordPX(40, 40),
@@ -314,7 +314,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
 	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
 	fbutton->addFileExtensionRule("Text", "txt");
-	fbutton->setValue("mesh.obj");
+	fbutton->setValue(exampleFile);
 	center->add(hslider1);
 
 	center->add(hslider2);

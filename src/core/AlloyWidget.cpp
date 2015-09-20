@@ -1699,10 +1699,10 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 			AlloyApplicationContext()->getGlassPanel();
 
 	fileDialog = std::shared_ptr<FileDialog>(
-			new FileDialog("File Dialog",
+			new FileDialog("Open File",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
 					CoordPX(600, 400), FileDialogType::OpenFile));
-
+	fileDialog->setVisible(false);
 	glassPanel->add(fileDialog);
 	fileLocation = std::shared_ptr<FileField>(
 			new FileField("None", CoordPX(0, 0), CoordPercent(1.0f, 1.0f)));
@@ -1766,6 +1766,7 @@ FileButton::FileButton(const std::string& name, const AUnit2D& pos,
 			new FileDialog("File Dialog",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
 					CoordPX(600, 400),type));
+	fileDialog->setVisible(false);
 	glassPanel->add(fileDialog);
 	if(type==FileDialogType::SaveFile){
 		fileDialog->onSelect = [this](const std::vector<std::string>& file) {
