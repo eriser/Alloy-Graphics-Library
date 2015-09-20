@@ -34,6 +34,95 @@
 #endif
 
 namespace aly {
+void ConvertImage(const Image1f& in, ImageRGBAf& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		float lum = in[i].x;
+		out[i] = float4(lum, lum, lum, 1.0f);
+	}
+}
+void ConvertImage(const Image1f& in, ImageRGBf& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		float lum = in[i].x;
+		out[i] = float3(lum, lum, lum);
+	}
+}
+void ConvertImage(const Image1b& in, ImageRGBAf& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		float lum = in[i].x / 255.0f;
+		out[i] = float4(lum, lum, lum, 1.0f);
+	}
+}
+void ConvertImage(const Image1b& in, ImageRGBf& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		float lum = in[i].x / 255.0f;
+		out[i] = float3(lum, lum, lum);
+	}
+}
+void ConvertImage(const Image1b& in, ImageRGBA& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		ubyte lum = in[i].x;
+		out[i] = RGBA(lum, lum, lum, 255);
+	}
+}
+void ConvertImage(const Image1b& in, ImageRGB& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		ubyte lum = in[i].x;
+		out[i] = RGB(lum, lum, lum);
+	}
+}
+
+void ConvertImage(const Image1f& in, ImageRGBA& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		ubyte lum = (ubyte) clamp(255.0 * in[i].x, 0.0, 255.0);
+		out[i] = RGBA(lum, lum, lum, 255);
+	}
+}
+void ConvertImage(const Image1f& in, ImageRGB& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		ubyte lum = (ubyte) clamp(255.0 * in[i].x, 0.0, 255.0);
+		out[i] = RGB(lum, lum, lum);
+	}
+}
 void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;

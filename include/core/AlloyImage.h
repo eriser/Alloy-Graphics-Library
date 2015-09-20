@@ -874,7 +874,6 @@ void WriteImageToFile(const std::string& file, const ImageRGB& img);
 void WriteImageToFile(const std::string& file, const ImageRGBAf& img);
 void WriteImageToFile(const std::string& file, const ImageRGBf& img);
 
-
 void WriteImageToFile(const std::string& file, const Image1f& img);
 void WriteImageToFile(const std::string& file, const Image1b& img);
 void ReadImageFromFile(const std::string& file, Image1b& img);
@@ -963,6 +962,14 @@ void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB = true);
 void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB = true);
 void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB = true);
 
+void ConvertImage(const Image1f& in, ImageRGBAf& out);
+void ConvertImage(const Image1f& in, ImageRGBf& out);
+void ConvertImage(const Image1b& in, ImageRGBAf& out);
+void ConvertImage(const Image1b& in, ImageRGBf& out);
+void ConvertImage(const Image1b& in, ImageRGBA& out);
+void ConvertImage(const Image1b& in, ImageRGB& out);
+void ConvertImage(const Image1f& in, ImageRGBA& out);
+void ConvertImage(const Image1f& in, ImageRGB& out);
 }
 ;
 
