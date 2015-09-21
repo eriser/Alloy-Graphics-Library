@@ -38,7 +38,7 @@ void ConvertImage(const Image1f& in, ImageRGBAf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x;
@@ -49,7 +49,7 @@ void ConvertImage(const Image1f& in, ImageRGBf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x;
@@ -60,7 +60,7 @@ void ConvertImage(const Image1b& in, ImageRGBAf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x / 255.0f;
@@ -71,7 +71,7 @@ void ConvertImage(const Image1b& in, ImageRGBf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x / 255.0f;
@@ -82,7 +82,7 @@ void ConvertImage(const Image1b& in, ImageRGBA& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = in[i].x;
@@ -93,7 +93,7 @@ void ConvertImage(const Image1b& in, ImageRGB& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = in[i].x;
@@ -105,7 +105,7 @@ void ConvertImage(const Image1f& in, ImageRGBA& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = (ubyte) clamp(255.0 * in[i].x, 0.0, 255.0);
@@ -116,7 +116,7 @@ void ConvertImage(const Image1f& in, ImageRGB& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = (ubyte) clamp(255.0 * in[i].x, 0.0, 255.0);
@@ -127,7 +127,7 @@ void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -149,7 +149,7 @@ void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -171,7 +171,7 @@ void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -197,7 +197,7 @@ void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -398,7 +398,7 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 					MakeString() << "Could not write " << file);
 		}
 	} else {
-		Image1f rgb;
+		Image1b rgb;
 		rgb.resize(img.width, img.height);
 		rgb.id = img.id;
 		rgb.x = img.x;

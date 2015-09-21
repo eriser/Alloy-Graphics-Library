@@ -2130,7 +2130,7 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 												double deltaT=200;
 												scrollingDown=true;
 												while(scrollingDown) {
-													addVerticalScrollPosition(10.0f);
+													if (!addVerticalScrollPosition(10.0f))break;
 													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 													deltaT=std::max(30.0,0.75*deltaT);
 												}
@@ -2149,7 +2149,7 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 												double deltaT=200;
 												scrollingUp=true;
 												while(scrollingUp) {
-													addVerticalScrollPosition(-10.0f);
+													if (!addVerticalScrollPosition(-10.0f))break;
 													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 													deltaT=std::max(30.0,0.75*deltaT);
 												}

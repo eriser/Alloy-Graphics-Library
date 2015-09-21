@@ -246,8 +246,8 @@ public:
 	const_iterator cend() const {
 		return children.cend();
 	}
-	void addVerticalScrollPosition(float pix);
-	void addHorizontalScrollPosition(float pix);
+	bool addVerticalScrollPosition(float pix);
+	bool addHorizontalScrollPosition(float pix);
 	void putLast(const std::shared_ptr<Region>& region);
 	void putFirst(const std::shared_ptr<Region>& region);
 	void putLast(Region* region);

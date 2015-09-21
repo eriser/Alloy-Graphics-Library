@@ -425,7 +425,7 @@ void Composite::drawDebug(AlloyContext* context) {
 void Composite::draw() {
 	draw(AlloyApplicationContext().get());
 }
-void Composite::addVerticalScrollPosition(float t) {
+bool Composite::addVerticalScrollPosition(float t) {
 	if (verticalScrollHandle->addDragOffset(pixel2(0.0f, t))) {
 		this->scrollPosition.y =
 				(this->verticalScrollHandle->getBoundsPositionY()
@@ -434,11 +434,12 @@ void Composite::addVerticalScrollPosition(float t) {
 								(float) this->verticalScrollTrack->getBoundsDimensionsY()
 										- (float) this->verticalScrollHandle->getBoundsDimensionsY());
 		AlloyApplicationContext()->requestPack();
+		return true;
 	}
-
+	return false;
 }
 
-void Composite::addHorizontalScrollPosition(float t) {
+bool Composite::addHorizontalScrollPosition(float t) {
 	if (horizontalScrollHandle->addDragOffset(pixel2(t, 0.0f))) {
 		this->scrollPosition.x =
 				(this->horizontalScrollHandle->getBoundsPositionX()
@@ -448,7 +449,9 @@ void Composite::addHorizontalScrollPosition(float t) {
 										- (float) this->horizontalScrollHandle->getBoundsDimensionsX());
 
 		AlloyApplicationContext()->requestPack();
+		return true;
 	}
+	return false;
 }
 void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
