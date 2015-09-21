@@ -340,10 +340,22 @@ public:
 	ExpandBar(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 };
 class FileDialog;
-class FileEntry: public Region {
-private:
+class ListEntry : public Region {
+protected:
 	std::string iconCodeString;
-	std::string fileName;
+	std::string label;
+	bool selected;
+public:
+	FileDescription fileDescription;
+	AUnit1D fontSize;
+	void setSelected(bool selected);
+	bool isSelected();
+	ListEntry(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims);
+	virtual void draw(AlloyContext* context) override;
+};
+class FileEntry: public ListEntry {
+private:
 	std::string creationTime;
 	std::string lastModifiedTime;
 	std::string lastAccessTime;
@@ -353,11 +365,9 @@ private:
 public:
 	FileDescription fileDescription;
 	AUnit1D fontSize;
-	void setSelected(bool selected);
-	bool isSelected();
+
 	FileEntry(FileDialog* dialog, const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
-	virtual void draw(AlloyContext* context) override;
 	void setValue(const FileDescription& fileDescription);
 };
 struct FileFilterRule {
@@ -384,21 +394,31 @@ struct FileFilterRule {
 	virtual ~FileFilterRule() {
 	}
 };
+class ListBox : public Composite {
+protected:
+	bool enableMultiSelection;
+	box2px dragBox;
+public:
+	std::vector<std::shared_ptr<ListEntry>> fileEntries;
+	std::list<ListEntry*> lastSelected;
+	ListBox(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
+	virtual void draw(AlloyContext* context) override;
+	void setEnableMultiSelection(bool enable) {
+		enableMultiSelection = enable;
+	}
+};
 class FileDialog: public Composite {
 private:
-
-	std::list<FileEntry*> lastSelected;
 	std::vector<std::shared_ptr<FileFilterRule>> filterRules;
 	std::shared_ptr<FileField> fileLocation;
 	std::shared_ptr<Composite> directoryTree;
-	std::shared_ptr<Composite> directoryList;
+	std::shared_ptr<ListBox> directoryList;
 	std::shared_ptr<Selection> fileTypeSelect;
 	std::shared_ptr<TextIconButton> actionButton;
 	std::shared_ptr<IconButton> upDirButton;
 
 	std::shared_ptr<IconButton> cancelButton;
 	std::shared_ptr<BorderComposite> containerRegion;
-	std::vector<std::shared_ptr<FileEntry>> fileEntries;
 
 	void setSelectedFile(const std::string& file);
 

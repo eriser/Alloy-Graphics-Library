@@ -237,9 +237,10 @@ public:
 	bool executeDeferredTasks();
 	std::shared_ptr<Composite>& getGlassPanel();
 
-	inline pixel2 getCursorDownPosition() const {
+	inline pixel2 getRelativeCursorDownPosition() const {
 		return cursorDownPosition;
 	}
+	pixel2 getAbsoluteCursorDownPosition() const;
 	bool fireListeners(const InputEvent& event);
 	void setDragObject(Region* region);
 	inline bool isMouseOver(Region* region) {
@@ -270,11 +271,16 @@ public:
 	inline bool isMouseDown(Region* region) {
 		return (mouseDownRegion == region);
 	}
+	inline bool isMouseDown() {
+		return (mouseDownRegion != nullptr);
+	}
 	bool isOnTop(Region* region) const;
 	inline bool isMouseDrag(Region* region) {
 		return (mouseDownRegion == region && leftMouseButton);
 	}
-
+	inline bool isMouseDrag() {
+		return (mouseDownRegion != nullptr && leftMouseButton);
+	}
 	double pixelRatio;
 
 	void update(Composite& rootNode);
