@@ -267,21 +267,36 @@ public:
 		return data[clamp(ij.x, 0, width - 1)
 				+ clamp(ij.y, 0, height - 1) * width];
 	}
-	template<class K> vec<K, C> operator()(const K x, const K y) {
-		int i = static_cast<int>(std::floor(x));
-		int j = static_cast<int>(std::floor(y));
-		vec<K, C> rgb00 = ConvertType<K, T, C>(operator()(i, j));
-		vec<K, C> rgb10 = ConvertType<K, T, C>(operator()(i + 1, j));
-		vec<K, C> rgb11 = ConvertType<K, T, C>(operator()(i + 1, j + 1));
-		vec<K, C> rgb01 = ConvertType<K, T, C>(operator()(i, j + 1));
-		K dx = x - i;
-		K dy = y - j;
-		return ((rgb00 * (K(1) - dx) + rgb10 * dx) * (K(1) - dy)
-				+ (rgb01 * (K(1) - dx) + rgb11 * dx) * dy);
-	}
-	template<class K> inline vec<K, C> operator()(const vec<K, 2>& pt) {
-		return operator()(pt.x, pt.y);
-	}
+ 	template<class K> vec<float, C> operator()(float x, float y)
+        {
+            int i = static_cast<int>(std::floor(x));
+            int j = static_cast<int>(std::floor(y));
+            vec<float, C> rgb00 = vec<float, C>(operator()(i, j));
+            vec<float, C> rgb10 = vec<float, C>(operator()(i + 1, j));
+            vec<float, C> rgb11 = vec<float, C>(operator()(i + 1, j + 1));
+            vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
+            float dx = x - i;
+            float dy = y - j;
+            return ((rgb00 * (K(1) - dx) + rgb10 * dx) * (K(1) - dy)
+                    + (rgb01 * (K(1) - dx) + rgb11 * dx) * dy);
+        }
+        template<class K> vec<float, C> operator()(float x, float y) const
+        {
+            int i = static_cast<int>(std::floor(x));
+            int j = static_cast<int>(std::floor(y));
+            vec<float, C> rgb00 = vec<float, C>(operator()(i, j));
+            vec<float, C> rgb10 = vec<float, C>(operator()(i + 1, j));
+            vec<float, C> rgb11 = vec<float, C>(operator()(i + 1, j + 1));
+            vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
+            float dx = x - i;
+            float dy = y - j;
+            return ((rgb00 * (K(1) - dx) + rgb10 * dx) * (K(1) - dy)
+                    + (rgb01 * (K(1) - dx) + rgb11 * dx) * dy);
+        }
+        template<class K> inline vec<float, C> operator()(const vec<float, 2>& pt)
+        {
+            return operator()(pt.x, pt.y);
+        }
 	template<class F> void apply(F f) {
 		size_t sz = size();
 #pragma omp parallel for
