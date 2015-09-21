@@ -2003,8 +2003,10 @@ bool FileDialog::updateValidity() {
 		}
 	} else if (type == FileDialogType::OpenMultiFile) {
 		valid = true;
+		int count=0;
 		for (std::shared_ptr<ListEntry> entry : directoryList->fileEntries) {
 			if (entry->isSelected()) {
+				count++;
 				std::string file =
 						dynamic_cast<FileEntry*>(entry.get())->fileDescription.fileLocation;
 				if (FileExists(file) && IsFile(file)
@@ -2015,6 +2017,7 @@ bool FileDialog::updateValidity() {
 				}
 			}
 		}
+		valid&=(count>0);
 		if (valid) {
 			actionButton->backgroundColor = MakeColor(
 					AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -2092,7 +2095,12 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 						dragBox.dimensions = endPt - stPt;
 						dragBox.intersect(getBounds());
 					}
-					else if(!context->isMouseDown()) {
+					else if(!context->isMouseDown()&&e.type==InputType::MouseButton) {
+						if(dragBox.dimensions.x>0&& dragBox.dimensions.y>0){
+							std::cout<<"Mouse Up "<<dragBox<<std::endl;
+						}
+						dragBox = box2px(float2(0, 0), float2(0, 0));
+					} else {
 						dragBox = box2px(float2(0, 0), float2(0, 0));
 					}
 				}
@@ -2333,6 +2341,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 									GetParentDirectory(dynamic_cast<FileEntry*>(directoryList->lastSelected.front())->fileDescription.fileLocation));
 						}
 					}
+					updateValidity();
 				}
 			};
 //directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
