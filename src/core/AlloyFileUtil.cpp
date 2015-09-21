@@ -535,8 +535,11 @@ namespace aly {
 	std::string GetCurrentWorkingDirectory() {
 		char path[4096];
 		memset(path, 0, sizeof(path));
-		getcwd(path, 4096);
-		return std::string(path);
+		if(getcwd(path, 4096)!=nullptr){
+			return std::string(path);
+		} else {
+			return "";
+		}
 	}
 	std::string GetUserNameString() {
 		struct passwd *pw;
@@ -572,7 +575,7 @@ namespace aly {
 		char result[4096];
 		memset(result, 0, sizeof(result));
 		//Only works on Linux! No mac support!
-		readlink("/proc/self/exe", result, 4096);
+		ssize_t sz=readlink("/proc/self/exe", result, 4096);
 		return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
 	}
 #else 
