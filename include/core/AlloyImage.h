@@ -267,7 +267,8 @@ public:
 		return data[clamp(ij.x, 0, width - 1)
 				+ clamp(ij.y, 0, height - 1) * width];
 	}
- 	template<class K> vec<float, C> operator()(float x, float y)
+ 
+        vec<float, C> operator()(float x, float y)
         {
             int i = static_cast<int>(std::floor(x));
             int j = static_cast<int>(std::floor(y));
@@ -277,10 +278,10 @@ public:
             vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
             float dx = x - i;
             float dy = y - j;
-            return ((rgb00 * (K(1) - dx) + rgb10 * dx) * (K(1) - dy)
-                    + (rgb01 * (K(1) - dx) + rgb11 * dx) * dy);
+            return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
+                    + (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
         }
-        template<class K> vec<float, C> operator()(float x, float y) const
+        vec<float, C> operator()(float x, float y) const
         {
             int i = static_cast<int>(std::floor(x));
             int j = static_cast<int>(std::floor(y));
@@ -290,8 +291,34 @@ public:
             vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
             float dx = x - i;
             float dy = y - j;
-            return ((rgb00 * (K(1) - dx) + rgb10 * dx) * (K(1) - dy)
-                    + (rgb01 * (K(1) - dx) + rgb11 * dx) * dy);
+            return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
+                    + (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
+        }
+        vec<double, C> operator()(double x, double y)
+        {
+            int i = static_cast<int>(std::floor(x));
+            int j = static_cast<int>(std::floor(y));
+            vec<double, C> rgb00 = vec<double, C>(operator()(i, j));
+            vec<double, C> rgb10 = vec<double, C>(operator()(i + 1, j));
+            vec<double, C> rgb11 = vec<double, C>(operator()(i + 1, j + 1));
+            vec<double, C> rgb01 = vec<double, C>(operator()(i, j + 1));
+            double dx = x - i;
+            double dy = y - j;
+            return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
+                    + (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
+        }
+        vec<double, C> operator()(double x, double y) const
+        {
+            int i = static_cast<int>(std::floor(x));
+            int j = static_cast<int>(std::floor(y));
+            vec<double, C> rgb00 = vec<double, C>(operator()(i, j));
+            vec<double, C> rgb10 = vec<double, C>(operator()(i + 1, j));
+            vec<double, C> rgb11 = vec<double, C>(operator()(i + 1, j + 1));
+            vec<double, C> rgb01 = vec<double, C>(operator()(i, j + 1));
+            double dx = x - i;
+            double dy = y - j;
+            return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
+                    + (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
         }
         template<class K> inline vec<float, C> operator()(const vec<float, 2>& pt)
         {
