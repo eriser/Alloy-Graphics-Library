@@ -36,7 +36,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
 	mesh.updateVertexNormals();
-	for (int i = 0; i < mesh.vertexLocations.size(); i++) {
+	for (int i = 0; i < (int)mesh.vertexLocations.size(); i++) {
 		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
 			((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
@@ -114,7 +114,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	return true;
 }
 void MeshViewer::draw(AlloyContext* context) {
-	static bool once = true;
+	//static bool once = true;
 	glEnable(GL_DEPTH_TEST);
 	if (camera.isDirty()) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);

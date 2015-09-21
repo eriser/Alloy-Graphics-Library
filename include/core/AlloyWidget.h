@@ -340,17 +340,18 @@ public:
 	ExpandBar(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 };
 class FileDialog;
+class ListBox;
 class ListEntry : public Region {
 protected:
 	std::string iconCodeString;
 	std::string label;
 	bool selected;
+	ListBox* dialog;
 public:
-	FileDescription fileDescription;
 	AUnit1D fontSize;
 	void setSelected(bool selected);
 	bool isSelected();
-	ListEntry(const std::string& name, const AUnit2D& pos,
+	ListEntry(ListBox* listBox,const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
@@ -360,12 +361,8 @@ private:
 	std::string lastModifiedTime;
 	std::string lastAccessTime;
 	std::string fileSize;
-	bool selected;
-	FileDialog* dialog;
 public:
 	FileDescription fileDescription;
-	AUnit1D fontSize;
-
 	FileEntry(FileDialog* dialog, const std::string& name, const AUnit2D& pos,
 			const AUnit2D& dims);
 	void setValue(const FileDescription& fileDescription);
@@ -406,6 +403,8 @@ public:
 	void setEnableMultiSelection(bool enable) {
 		enableMultiSelection = enable;
 	}
+	bool onMouseDown(ListEntry* entry, AlloyContext* context,const InputEvent& e);
+	std::function<void(ListEntry*)> onSelect;
 };
 class FileDialog: public Composite {
 private:
@@ -421,20 +420,13 @@ private:
 	std::shared_ptr<BorderComposite> containerRegion;
 
 	void setSelectedFile(const std::string& file);
-
-	bool onMouseDown(FileEntry* entry, AlloyContext* context,
-			const InputEvent& e);
-	bool onMouseOver(FileEntry* entry, AlloyContext* context,
-			const InputEvent& e);
-	bool onMouseDrag(FileEntry* entry, AlloyContext* context,
-			const InputEvent& e);
-	bool onMouseUp(FileEntry* entry, AlloyContext* context,
-			const InputEvent& e);
-	pixel fileEntryHeight;
 	const FileDialogType type;
+	pixel fileEntryHeight;
 	void updateDirectoryList();
 	bool updateValidity();
 public:
+
+
 	void addFileExtensionRule(const std::string& name,
 			const std::string& extension);
 	void addFileExtensionRule(const std::string& name,

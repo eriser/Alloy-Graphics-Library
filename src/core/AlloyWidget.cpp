@@ -512,10 +512,10 @@ void IconButton::draw(AlloyContext* context) {
 
 	}
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
-		context->pixelRatio);
+			context->pixelRatio);
 	box2px ibounds = bounds;
 	ibounds.position += offset;
-	float th = ibounds.dimensions.y -2*lineWidth - ((hover) ? 2 : 4);
+	float th = ibounds.dimensions.y - 2 * lineWidth - ((hover) ? 2 : 4);
 	nvgFontSize(nvg, th);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
@@ -524,8 +524,6 @@ void IconButton::draw(AlloyContext* context) {
 			(hover && borderColor->a > 0) ?
 					context->theme.HIGHLIGHT : *iconColor, *backgroundColor,
 			nullptr);
-
-
 
 	if (borderColor->a > 0) {
 		if (iconType == IconType::CIRCLE) {
@@ -897,7 +895,8 @@ double Slider::getBlendValue() const {
 bool HorizontalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if (region == sliderHandle.get()) {
-		region->setDragOffset(event.cursor, context->getRelativeCursorDownPosition());
+		region->setDragOffset(event.cursor,
+				context->getRelativeCursorDownPosition());
 		update();
 		if (onChangeEvent)
 			onChangeEvent(value);
@@ -1058,7 +1057,8 @@ bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 bool VerticalSlider::onMouseDrag(AlloyContext* context, Region* region,
 		const InputEvent& event) {
 	if (region == sliderHandle.get()) {
-		region->setDragOffset(event.cursor, context->getRelativeCursorDownPosition());
+		region->setDragOffset(event.cursor,
+				context->getRelativeCursorDownPosition());
 		update();
 		if (onChangeEvent)
 			onChangeEvent(value);
@@ -1757,7 +1757,9 @@ void FileSelector::openFileDialog(AlloyContext* context,
 }
 
 FileButton::FileButton(const std::string& name, const AUnit2D& pos,
-		const AUnit2D& dims,const FileDialogType& type) : IconButton((type==FileDialogType::SaveFile)?0xF0C7:0xf115,pos,dims) {
+		const AUnit2D& dims, const FileDialogType& type) :
+		IconButton((type == FileDialogType::SaveFile) ? 0xF0C7 : 0xf115, pos,
+				dims) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	setRoundCorners(true);
 	std::shared_ptr<Composite>& glassPanel =
@@ -1765,39 +1767,37 @@ FileButton::FileButton(const std::string& name, const AUnit2D& pos,
 	fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
 					CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
-					CoordPX(600, 400),type));
+					CoordPX(600, 400), type));
 	fileDialog->setVisible(false);
 	glassPanel->add(fileDialog);
-	if(type==FileDialogType::SaveFile){
+	if (type == FileDialogType::SaveFile) {
 		fileDialog->onSelect = [this](const std::vector<std::string>& file) {
 			if (onSave)onSave(file.front());
 		};
-	}
-	else {
+	} else {
 		fileDialog->onSelect = [this](const std::vector<std::string>& file) {
 			if (onOpen)onOpen(file);
 		};
 	}
 	foregroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	borderColor = MakeColor(COLOR_NONE);
-	borderWidth=UnitPX(2.0f);
+	borderWidth = UnitPX(2.0f);
 	backgroundColor = MakeColor(COLOR_NONE);
 	iconColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	setRoundCorners(true);
-	onMouseDown =
-			[this](AlloyContext* context, const InputEvent& event) {
-				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					std::string file = getValue();
-					AlloyApplicationContext()->setMouseFocusObject(nullptr);
-					if (FileExists(file)) {
-						openFileDialog(context,GetParentDirectory(file));
-					} else {
-						openFileDialog(context, GetCurrentWorkingDirectory());
-					}
-					return true;
-				}
-				return false;
-			};
+	onMouseDown = [this](AlloyContext* context, const InputEvent& event) {
+		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			std::string file = getValue();
+			AlloyApplicationContext()->setMouseFocusObject(nullptr);
+			if (FileExists(file)) {
+				openFileDialog(context,GetParentDirectory(file));
+			} else {
+				openFileDialog(context, GetCurrentWorkingDirectory());
+			}
+			return true;
+		}
+		return false;
+	};
 }
 void FileButton::setValue(const std::string& file) {
 
@@ -1814,15 +1814,61 @@ void FileButton::openFileDialog(AlloyContext* context,
 		context->getGlassPanel()->setVisible(false);
 	}
 }
-ListEntry::ListEntry(const std::string& name,
-	const AUnit2D& pos, const AUnit2D& dims) :
-	Region(name, pos, dims),fontSize(
-		UnitPercent(0.8f)) {
+ListEntry::ListEntry(ListBox* listBox, const std::string& name,
+		const AUnit2D& pos, const AUnit2D& dims) :
+		Region(name, pos, dims), dialog(listBox), fontSize(UnitPercent(0.8f)) {
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	this->borderColor = MakeColor(COLOR_NONE);
 	this->selected = false;
+	this->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
+		return dialog->onMouseDown(this, context, e);
+	};
+
 }
-FileEntry::FileEntry(FileDialog* dialog, const std::string& name,const AUnit2D& pos, const AUnit2D& dims) :ListEntry(name, pos, dims), dialog(dialog), fileDescription() {
+bool ListBox::onMouseDown(ListEntry* entry, AlloyContext* context,
+		const InputEvent& e) {
+	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (enableMultiSelection) {
+			if (entry->isSelected()) {
+				entry->setSelected(false);
+				for (auto iter = lastSelected.begin();
+						iter != lastSelected.end(); iter++) {
+					if (*iter == entry) {
+						lastSelected.erase(iter);
+						break;
+					}
+				}
+			} else {
+				entry->setSelected(true);
+				lastSelected.push_back(entry);
+			}
+
+		} else {
+			if (!entry->isSelected()) {
+				for (ListEntry* child : lastSelected) {
+					child->setSelected(false);
+				}
+				entry->setSelected(true);
+				lastSelected.clear();
+				lastSelected.push_back(entry);
+			}
+		}
+		if (onSelect)
+			onSelect(entry);
+		return true;
+	} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+		for (ListEntry* child : lastSelected) {
+			child->setSelected(false);
+		}
+		if (onSelect)
+			onSelect(nullptr);
+		return true;
+	}
+	return false;
+}
+FileEntry::FileEntry(FileDialog* dialog, const std::string& name,
+		const AUnit2D& pos, const AUnit2D& dims) :
+		ListEntry(dialog->directoryList.get(), name, pos, dims), fileDescription() {
 }
 void FileEntry::setValue(const FileDescription& description) {
 	this->fileDescription = description;
@@ -1834,18 +1880,6 @@ void FileEntry::setValue(const FileDescription& description) {
 	creationTime = FormatDateAndTime(fileDescription.creationTime);
 	lastAccessTime = FormatDateAndTime(fileDescription.lastModifiedTime);
 	lastModifiedTime = FormatDateAndTime(fileDescription.lastModifiedTime);
-	this->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
-		return dialog->onMouseDown(this, context, e);
-	};
-	this->onMouseUp = [this](AlloyContext* context, const InputEvent& e) {
-		return dialog->onMouseUp(this, context, e);
-	};
-	this->onMouseDrag = [this](AlloyContext* context, const InputEvent& e) {
-		return dialog->onMouseDrag(this,context,e);
-	};
-	this->onMouseOver = [this](AlloyContext* context, const InputEvent& e) {
-		return dialog->onMouseOver(this, context, e);
-	};
 
 }
 void ListEntry::setSelected(bool selected) {
@@ -1929,90 +1963,9 @@ void ListEntry::draw(AlloyContext* context) {
 	nvgText(nvg,
 			2 * AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
 					+ iw + xoff,
-			bounds.position.y + bounds.dimensions.y / 2 + yoff,
-			label.c_str(), nullptr);
+			bounds.position.y + bounds.dimensions.y / 2 + yoff, label.c_str(),
+			nullptr);
 	popScissor(nvg);
-}
-bool FileDialog::onMouseDown(FileEntry* entry, AlloyContext* context,
-		const InputEvent& e) {
-	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (type == FileDialogType::OpenMultiFile) {
-			if (entry->fileDescription.fileType == FileType::File) {
-				if (entry->isSelected()) {
-					entry->setSelected(false);
-					for (auto iter = directoryList->lastSelected.begin();
-					iter != directoryList->lastSelected.end(); iter++) {
-						if (*iter == entry) {
-							directoryList->lastSelected.erase(iter);
-							break;
-						}
-					}
-				}
-				else {
-					entry->setSelected(true);
-					directoryList->lastSelected.push_back(entry);
-				}
-			}
-			else {
-				setSelectedFile(entry->fileDescription.fileLocation);
-				fileLocation->setValue(entry->fileDescription.fileLocation);
-			}
-			updateValidity();
-
-		} else if (type == FileDialogType::OpenFile) {
-			if (entry->fileDescription.fileType == FileType::File) {
-				if (!entry->isSelected()) {
-					for (ListEntry* child : directoryList->lastSelected) {
-						child->setSelected(false);
-					}
-					entry->setSelected(true);
-					fileLocation->setValue(entry->fileDescription.fileLocation);
-
-					directoryList->lastSelected.clear();
-					directoryList->lastSelected.push_back(entry);
-				}
-
-			} else {
-				setSelectedFile(entry->fileDescription.fileLocation);
-				fileLocation->setValue(entry->fileDescription.fileLocation);
-			}
-			updateValidity();
-		} else if (type == FileDialogType::SaveFile) {
-			if (entry->fileDescription.fileType == FileType::Directory) {
-				setSelectedFile(entry->fileDescription.fileLocation);
-				fileLocation->setValue(entry->fileDescription.fileLocation);
-			} else {
-				fileLocation->setValue(entry->fileDescription.fileLocation);
-			}
-			updateValidity();
-		}
-		return true;
-	} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-		if (type != FileDialogType::OpenMultiFile) {
-			if (directoryList->lastSelected.size() > 0) {
-				fileLocation->setValue(
-						GetParentDirectory(
-							directoryList->lastSelected.front()->fileDescription.fileLocation));
-			}
-		}
-		for (ListEntry* child : directoryList->lastSelected) {
-			child->setSelected(false);
-		}
-		return true;
-	}
-	return false;
-}
-bool FileDialog::onMouseOver(FileEntry* entry, AlloyContext* context,
-		const InputEvent& e) {
-	return false;
-}
-bool FileDialog::onMouseDrag(FileEntry* entry, AlloyContext* context,
-		const InputEvent& e) {
-	return false;
-}
-bool FileDialog::onMouseUp(FileEntry* entry, AlloyContext* context,
-		const InputEvent& e) {
-	return false;
 }
 
 void FileDialog::updateDirectoryList() {
@@ -2024,7 +1977,6 @@ bool FileDialog::updateValidity() {
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
 					nullptr;
 	if (type == FileDialogType::SaveFile) {
-
 		std::string file = fileLocation->getValue();
 		std::string fileName = GetFileName(file);
 		if (fileName.size() > 0 && !IsDirectory(file)
@@ -2037,8 +1989,7 @@ bool FileDialog::updateValidity() {
 					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
 			valid = false;
 		}
-	} else if(type==FileDialogType::OpenFile){
-
+	} else if (type == FileDialogType::OpenFile) {
 		std::string file = fileLocation->getValue();
 		if (FileExists(file) && IsFile(file)
 				&& (rule == nullptr || rule->accept(file))) {
@@ -2050,16 +2001,15 @@ bool FileDialog::updateValidity() {
 					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
 			valid = false;
 		}
-	}
-	else if (type == FileDialogType::OpenMultiFile) {
+	} else if (type == FileDialogType::OpenMultiFile) {
 		valid = true;
 		for (std::shared_ptr<ListEntry> entry : directoryList->fileEntries) {
 			if (entry->isSelected()) {
-				std::string file = entry->fileDescription.fileLocation;
+				std::string file =
+						dynamic_cast<FileEntry*>(entry.get())->fileDescription.fileLocation;
 				if (FileExists(file) && IsFile(file)
-					&& (rule == nullptr || rule->accept(file))) {
-				}
-				else {
+						&& (rule == nullptr || rule->accept(file))) {
+				} else {
 					valid = false;
 					break;
 				}
@@ -2067,11 +2017,10 @@ bool FileDialog::updateValidity() {
 		}
 		if (valid) {
 			actionButton->backgroundColor = MakeColor(
-				AlloyApplicationContext()->theme.LIGHT_TEXT);
-		}
-		else {
+					AlloyApplicationContext()->theme.LIGHT_TEXT);
+		} else {
 			actionButton->backgroundColor = MakeColor(
-				AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
+					AlloyApplicationContext()->theme.LIGHT_TEXT.toDarker(0.5f));
 		}
 	}
 	return valid;
@@ -2114,56 +2063,57 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		i++;
 	}
 	directoryList->clear();
-	AlloyApplicationContext()->addDeferredTask([this]() {
-		for (std::shared_ptr<ListEntry>& entry : directoryList->fileEntries) {
-			if(entry->parent==nullptr)directoryList->add(entry);
-		}
-	});
+	AlloyApplicationContext()->addDeferredTask(
+			[this]() {
+				for (std::shared_ptr<ListEntry>& entry : directoryList->fileEntries) {
+					if(entry->parent==nullptr)directoryList->add(entry);
+				}
+			});
 
 }
-ListBox::ListBox(const std::string& name, const AUnit2D& pos, const AUnit2D& dims):Composite(name,pos,dims) {
+ListBox::ListBox(const std::string& name, const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Composite(name, pos, dims) {
 	enableMultiSelection = false;
-	backgroundColor = MakeColor(
-		AlloyApplicationContext()->theme.LIGHT);
-	borderColor = MakeColor(
-		AlloyApplicationContext()->theme.DARK);
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	borderWidth = UnitPX(1.0f);
-	setOrientation(Orientation::Vertical, pixel2(0, 2),
-		pixel2(0, 2));
+	setOrientation(Orientation::Vertical, pixel2(0, 2), pixel2(0, 2));
 	setScrollEnabled(true);
 	dragBox = box2px(float2(0, 0), float2(0, 0));
-	onEvent = [this](AlloyContext* context, const InputEvent& e) {
-		if (e.type == InputType::Cursor || e.type == InputType::MouseButton) {
-			if (context->isMouseDrag()) {
-				float2 cursorDown = context->getAbsoluteCursorDownPosition();
-				float2 stPt = aly::min(cursorDown, e.cursor);
-				float2 endPt = aly::max(cursorDown, e.cursor);
-				dragBox.position = stPt;
-				dragBox.dimensions = endPt - stPt;
-				dragBox.intersect(getBounds());
-			}
-			else if(!context->isMouseDown()){
-				dragBox = box2px(float2(0, 0), float2(0, 0));
-			}
-		}
-		return false;
-	};
+	onEvent =
+			[this](AlloyContext* context, const InputEvent& e) {
+				if (e.type == InputType::Cursor || e.type == InputType::MouseButton) {
+					if (context->isMouseDrag()) {
+						float2 cursorDown = context->getAbsoluteCursorDownPosition();
+						float2 stPt = aly::min(cursorDown, e.cursor);
+						float2 endPt = aly::max(cursorDown, e.cursor);
+						dragBox.position = stPt;
+						dragBox.dimensions = endPt - stPt;
+						dragBox.intersect(getBounds());
+					}
+					else if(!context->isMouseDown()) {
+						dragBox = box2px(float2(0, 0), float2(0, 0));
+					}
+				}
+				return false;
+			};
 }
 void ListBox::draw(AlloyContext* context) {
 	Composite::draw(context);
 	NVGcontext* nvg = context->nvgContext;
-	
+
 	if (dragBox.dimensions.x > 0 && dragBox.dimensions.y > 0) {
 
 		nvgBeginPath(nvg);
 		nvgRect(nvg, dragBox.position.x, dragBox.position.y,
-			dragBox.dimensions.x, dragBox.dimensions.y);
+				dragBox.dimensions.x, dragBox.dimensions.y);
 		nvgFillColor(nvg, context->theme.DARK.toSemiTransparent(0.5f));
 		nvgFill(nvg);
 
 		nvgBeginPath(nvg);
 		nvgRect(nvg, dragBox.position.x, dragBox.position.y,
-			dragBox.dimensions.x, dragBox.dimensions.y);
+				dragBox.dimensions.x, dragBox.dimensions.y);
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgStrokeColor(nvg, context->theme.DARK);
 		nvgStroke(nvg);
@@ -2193,7 +2143,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 							else {
 								for (std::shared_ptr<ListEntry> entry : directoryList->fileEntries) {
 									if (entry->isSelected()) {
-										files.push_back(entry->fileDescription.fileLocation);
+										files.push_back(dynamic_cast<FileEntry*>(entry.get())->fileDescription.fileLocation);
 									}
 								}
 							}
@@ -2350,9 +2300,42 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	directoryList = std::shared_ptr<ListBox>(
 			new ListBox("Container", CoordPX(0, 0),
 					CoordPerPX(1.0f, 1.0, -10.0f, 0.0f)));
+	directoryList->setEnableMultiSelection(
+			type == FileDialogType::OpenMultiFile);
+	directoryList->onSelect =
+			[this](ListEntry* lentry) {
+				if(lentry!=nullptr) {
+					FileEntry* entry = dynamic_cast<FileEntry*>(lentry);
+					if (this->type == FileDialogType::OpenMultiFile) {
+						if (entry->fileDescription.fileType == FileType::Directory) {
+							setSelectedFile(entry->fileDescription.fileLocation);
+							fileLocation->setValue(entry->fileDescription.fileLocation);
+						}
+						updateValidity();
 
-
-	//directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+					} else if (this->type == FileDialogType::OpenFile) {
+						setSelectedFile(entry->fileDescription.fileLocation);
+						fileLocation->setValue(entry->fileDescription.fileLocation);
+						updateValidity();
+					} else if (this->type == FileDialogType::SaveFile) {
+						if (entry->fileDescription.fileType == FileType::Directory) {
+							setSelectedFile(entry->fileDescription.fileLocation);
+							fileLocation->setValue(entry->fileDescription.fileLocation);
+						} else {
+							fileLocation->setValue(entry->fileDescription.fileLocation);
+						}
+						updateValidity();
+					}
+				} else {
+					if (this->type != FileDialogType::OpenMultiFile) {
+						if (directoryList->lastSelected.size() > 0) {
+							fileLocation->setValue(
+									GetParentDirectory(dynamic_cast<FileEntry*>(directoryList->lastSelected.front())->fileDescription.fileLocation));
+						}
+					}
+				}
+			};
+//directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	directoryTree->borderColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 	directoryTree->borderWidth = UnitPX(1.0f);
@@ -2476,7 +2459,7 @@ bool expanded) {
 	region->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	region->borderColor = MakeColor(AlloyApplicationContext()->theme.NEUTRAL);
 	region->borderWidth = UnitPX(2.0f);
-	//region->setRoundCorners(true);
+//region->setRoundCorners(true);
 	container->add(region);
 	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(
 			new ExpandRegion(region->name, container, CoordPX(0.0f, 0.0f),
