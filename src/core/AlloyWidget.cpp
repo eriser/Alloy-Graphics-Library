@@ -1824,60 +1824,6 @@ ListEntry::ListEntry(ListBox* listBox, const std::string& name,
 		return dialog->onMouseDown(this, context, e);
 	};
 
-	/*
-	this->onEvent =
-			[this](AlloyContext* context, const InputEvent& event) {
-				if(event.type==InputType::Cursor&&(int)options.size()>maxDisplayEntries) {
-					box2px bounds=this->getBounds();
-					int elements =
-					(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
-					float entryHeight = bounds.dimensions.y / elements;
-
-					box2px lastBounds=bounds,firstBounds=bounds;
-					lastBounds.position.y=bounds.position.y+bounds.dimensions.y-entryHeight;
-					lastBounds.dimensions.y=entryHeight;
-					firstBounds.dimensions.y=entryHeight;
-					if(lastBounds.contains(event.cursor)) {
-						if(downTimer.get()==nullptr) {
-							downTimer=std::shared_ptr<Timer>(new Timer([this] {
-												double deltaT=200;
-												scrollingDown=true;
-												while(scrollingDown&&selectionOffset<(int)options.size()-maxDisplayEntries) {
-													this->selectionOffset++;
-													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
-													deltaT=std::max(30.0,0.75*deltaT);
-												}
-											},nullptr,500,30));
-							downTimer->execute();
-						}
-					} else {
-						if(downTimer.get()!=nullptr) {
-							scrollingDown=false;
-							downTimer.reset();
-						}
-					}
-					if(firstBounds.contains(event.cursor)) {
-						if(upTimer.get()==nullptr) {
-							upTimer=std::shared_ptr<Timer>(new Timer([this] {
-												double deltaT=200;
-												scrollingUp=true;
-												while(scrollingUp&&selectionOffset>0) {
-													this->selectionOffset--;
-													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
-													deltaT=std::max(30.0,0.75*deltaT);
-												}
-											},nullptr,500,30));
-							upTimer->execute();
-						}
-					} else {
-						if(upTimer.get()!=nullptr) {
-							scrollingUp=false;
-							upTimer.reset();
-						}
-					}
-				}
-			};
-			*/
 }
 bool ListBox::onMouseDown(ListEntry* entry, AlloyContext* context,
 		const InputEvent& e) {
@@ -2134,6 +2080,8 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
 		Composite(name, pos, dims) {
 	enableMultiSelection = false;
+	scrollingDown = false;
+	scrollingUp = false;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	borderWidth = UnitPX(1.0f);
@@ -2169,6 +2117,53 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 						dragBox = box2px(float2(0, 0), float2(0, 0));
 					}
 				}
+				if(e.type==InputType::Cursor) {
+					box2px bounds=this->getBounds();
+					box2px lastBounds=bounds,firstBounds=bounds;
+					float entryHeight=30;
+					lastBounds.position.y=bounds.position.y+bounds.dimensions.y-entryHeight;
+					lastBounds.dimensions.y=entryHeight;
+					firstBounds.dimensions.y=entryHeight;
+					if(lastBounds.contains(e.cursor)) {
+						if(downTimer.get()==nullptr) {
+							downTimer=std::shared_ptr<Timer>(new Timer([this] {
+												double deltaT=200;
+												scrollingDown=true;
+												while(scrollingDown) {
+													addVerticalScrollPosition(10.0f);
+													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
+													deltaT=std::max(30.0,0.75*deltaT);
+												}
+											},nullptr,500,30));
+							downTimer->execute();
+						}
+					} else {
+						if(downTimer.get()!=nullptr) {
+							scrollingDown=false;
+							downTimer.reset();
+						}
+					}
+					if(firstBounds.contains(e.cursor)) {
+						if(upTimer.get()==nullptr) {
+							upTimer=std::shared_ptr<Timer>(new Timer([this] {
+												double deltaT=200;
+												scrollingUp=true;
+												while(scrollingUp) {
+													addVerticalScrollPosition(-10.0f);
+													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
+													deltaT=std::max(30.0,0.75*deltaT);
+												}
+											},nullptr,500,30));
+							upTimer->execute();
+						}
+					} else {
+						if(upTimer.get()!=nullptr) {
+							scrollingUp=false;
+							upTimer.reset();
+						}
+					}
+				}
+
 				return false;
 			};
 }

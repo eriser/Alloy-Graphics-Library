@@ -134,7 +134,7 @@ public:
 	std::function<bool(AlloyContext* context, const InputEvent& event)> onScroll;
 	std::function<bool(AlloyContext* context, const InputEvent& event)> onMouseDrag;
 	void setDragOffset(const pixel2& cursor, const pixel2& delta);
-	void addDragOffset(const pixel2& delta);
+	bool addDragOffset(const pixel2& delta);
 
 	inline void setDragEnabled(bool enabled) {
 		dragEnabled = enabled;
@@ -246,6 +246,8 @@ public:
 	const_iterator cend() const {
 		return children.cend();
 	}
+	void addVerticalScrollPosition(float pix);
+	void addHorizontalScrollPosition(float pix);
 	void putLast(const std::shared_ptr<Region>& region);
 	void putFirst(const std::shared_ptr<Region>& region);
 	void putLast(Region* region);

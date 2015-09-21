@@ -396,6 +396,8 @@ protected:
 	bool enableMultiSelection;
 	box2px dragBox;
 	std::shared_ptr<Timer> downTimer, upTimer;
+	bool scrollingDown;
+	bool scrollingUp;
 public:
 	box2px getDragBox() const {
 		return dragBox;

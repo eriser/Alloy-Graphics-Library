@@ -198,7 +198,8 @@ void Region::setDragOffset(const pixel2& cursor, const pixel2& delta) {
 		dragOffset = bounds.clamp(cursor - delta, pbounds) - d;
 	}
 }
-void Region::addDragOffset(const pixel2& delta) {
+bool Region::addDragOffset(const pixel2& delta) {
+	pixel2 oldOffset = dragOffset;
 	box2px bounds = getBounds();
 	pixel2 d = (bounds.position - dragOffset);
 	box2px pbounds = parent->getBounds();
@@ -207,6 +208,7 @@ void Region::addDragOffset(const pixel2& delta) {
 	} else {
 		dragOffset = bounds.clamp(bounds.position + delta, pbounds) - d;
 	}
+	return (oldOffset != dragOffset);
 }
 Region::Region(const std::string& name) :
 		position(CoordPX(0, 0)), dimensions(CoordPercent(1, 1)), name(name) {
@@ -420,11 +422,34 @@ void Composite::drawDebug(AlloyContext* context) {
 	}
 }
 
-
 void Composite::draw() {
 	draw(AlloyApplicationContext().get());
 }
+void Composite::addVerticalScrollPosition(float t) {
+	if (verticalScrollHandle->addDragOffset(pixel2(0.0f, t))) {
+		this->scrollPosition.y =
+				(this->verticalScrollHandle->getBoundsPositionY()
+						- this->verticalScrollTrack->getBoundsPositionY())
+						/ std::max(1.0f,
+								(float) this->verticalScrollTrack->getBoundsDimensionsY()
+										- (float) this->verticalScrollHandle->getBoundsDimensionsY());
+		AlloyApplicationContext()->requestPack();
+	}
 
+}
+
+void Composite::addHorizontalScrollPosition(float t) {
+	if (horizontalScrollHandle->addDragOffset(pixel2(t, 0.0f))) {
+		this->scrollPosition.x =
+				(this->horizontalScrollHandle->getBoundsPositionX()
+						- this->horizontalScrollTrack->getBoundsPositionX())
+						/ std::max(1.0f,
+								(float) this->horizontalScrollTrack->getBoundsDimensionsX()
+										- (float) this->horizontalScrollHandle->getBoundsDimensionsX());
+
+		AlloyApplicationContext()->requestPack();
+	}
+}
 void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 	Region::pack(pos, dims, dpmm, pixelRatio);
