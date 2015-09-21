@@ -400,6 +400,12 @@ protected:
 	bool scrollingUp;
 	std::vector<std::shared_ptr<ListEntry>> listEntries;
 	std::list<ListEntry*> lastSelected;
+	void addToActiveList(ListEntry* entry) {
+		lastSelected.push_back(entry);
+	}
+	void clearActiveList() {
+		lastSelected.clear();
+	}
 public:
 	box2px getDragBox() const {
 		return dragBox;
@@ -411,12 +417,7 @@ public:
 		listEntries.push_back(entry);
 	}
 	void update();
-	void addToActiveList(ListEntry* entry) {
-		lastSelected.push_back(entry);
-	}
-	void clearActiveList() {
-		lastSelected.clear();
-	}
+
 	ListEntry* getLastSelected() {
 		if (lastSelected.size() > 0)
 			return lastSelected.back();

@@ -2040,18 +2040,14 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		dir = GetParentDirectory(file);
 		select = true;
 	}
-	directoryList->clearActiveList();
 	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(
 			dir);
 	int i = 0;
-
-	directoryList->clearActiveList();
 	FileFilterRule* rule =
 			(fileTypeSelect->getSelectedIndex() >= 0) ?
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
 					nullptr;
 	updateValidity();
-
 	for (FileDescription& fd : descriptions) {
 		if (rule != nullptr && fd.fileType == FileType::File
 				&& !rule->accept(fd.fileLocation)) {
@@ -2063,8 +2059,6 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		entry->setValue(fd);
 		if (select && entry->fileDescription.fileLocation == file) {
 			entry->setSelected(true);
-			directoryList->clearActiveList();
-			directoryList->addToActiveList(entry);
 		}
 		i++;
 	}
@@ -2073,10 +2067,15 @@ void FileDialog::setSelectedFile(const std::string& file) {
 }
 void ListBox::update() {
 	clear();
+	lastSelected.clear();
 	AlloyApplicationContext()->addDeferredTask(
 		[this]() {
+		lastSelected.clear();
 		for (std::shared_ptr<ListEntry> entry :listEntries) {
 			if (entry->parent == nullptr)add(entry);
+			if (entry->isSelected()) {
+				lastSelected.push_back(entry.get());
+			}
 		}
 	});
 }

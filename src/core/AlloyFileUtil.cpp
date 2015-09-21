@@ -492,6 +492,18 @@ namespace aly {
 			closedir(dirp);
 			std::sort(files.begin(), files.end());
 		}
+		std::vector<FileDescription> directories;
+		std::vector<FileDescription> filesOnly;
+		for (FileDescription fd : files) {
+			if (fd.fileType == FileType::Directory) {
+				directories.push_back(fd);
+			}
+			else {
+				filesOnly.push_back(fd);
+			}
+		}
+		files = directories;
+		files.insert(files.end(), filesOnly.begin(), filesOnly.end());
 		return files;
 	}
 	std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
@@ -658,6 +670,18 @@ namespace aly {
 			}
 		} while (FindNextFile(h, &fd));
 		FindClose(h);
+		std::vector<FileDescription> directories;
+		std::vector<FileDescription> filesOnly;
+		for (FileDescription fd : files) {
+			if (fd.fileType == FileType::Directory) {
+				directories.push_back(fd);
+			}
+			else {
+				filesOnly.push_back(fd);
+			}
+		}
+		files = directories;
+		files.insert(files.end(), filesOnly.begin(), filesOnly.end());
 		return files;
 	}
 	std::vector<std::string> GetDirectoryListing(const std::string& dirName) {
