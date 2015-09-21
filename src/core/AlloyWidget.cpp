@@ -2124,7 +2124,7 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 					lastBounds.position.y=bounds.position.y+bounds.dimensions.y-entryHeight;
 					lastBounds.dimensions.y=entryHeight;
 					firstBounds.dimensions.y=entryHeight;
-					if(lastBounds.contains(e.cursor)) {
+					if(lastBounds.contains(e.cursor)||(dragBox.dimensions.x*dragBox.dimensions.y>0&&e.cursor.y>bounds.dimensions.y+bounds.position.y)) {
 						if(downTimer.get()==nullptr) {
 							downTimer=std::shared_ptr<Timer>(new Timer([this] {
 												double deltaT=200;
@@ -2143,7 +2143,7 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 							downTimer.reset();
 						}
 					}
-					if(firstBounds.contains(e.cursor)) {
+					if(firstBounds.contains(e.cursor)||(dragBox.dimensions.x*dragBox.dimensions.y>0&&e.cursor.y<bounds.position.y)) {
 						if(upTimer.get()==nullptr) {
 							upTimer=std::shared_ptr<Timer>(new Timer([this] {
 												double deltaT=200;
