@@ -240,7 +240,7 @@ public:
 	inline pixel2 getRelativeCursorDownPosition() const {
 		return cursorDownPosition;
 	}
-	pixel2 getAbsoluteCursorDownPosition() const;
+	pixel2 getCursorDownPosition() const;
 	bool fireListeners(const InputEvent& event);
 	void setDragObject(Region* region);
 	inline bool isMouseOver(Region* region) {

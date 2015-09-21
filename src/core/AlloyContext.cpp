@@ -254,7 +254,7 @@ bool AlloyContext::isOnTop(Region* region) const {
 	return (onTopRegion != nullptr
 			&& (onTopRegion == region || region->hasParent(onTopRegion)));
 }
-pixel2 AlloyContext::getAbsoluteCursorDownPosition() const {
+pixel2 AlloyContext::getCursorDownPosition() const {
 	return cursorDownPosition + ((mouseDownRegion != nullptr) ? mouseDownRegion->getBoundsPosition() : pixel2(0.0f));
 }
 bool AlloyContext::fireListeners(const InputEvent& event) {

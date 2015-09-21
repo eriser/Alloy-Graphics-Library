@@ -1827,42 +1827,44 @@ ListEntry::ListEntry(ListBox* listBox, const std::string& name,
 }
 bool ListBox::onMouseDown(ListEntry* entry, AlloyContext* context,
 		const InputEvent& e) {
-	if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (enableMultiSelection) {
-			if (entry->isSelected()) {
-				entry->setSelected(false);
-				for (auto iter = lastSelected.begin();
-						iter != lastSelected.end(); iter++) {
-					if (*iter == entry) {
-						lastSelected.erase(iter);
-						break;
+	if (e.isDown()) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			if (enableMultiSelection) {
+				if (entry->isSelected()) {
+					entry->setSelected(false);
+					for (auto iter = lastSelected.begin();
+							iter != lastSelected.end(); iter++) {
+						if (*iter == entry) {
+							lastSelected.erase(iter);
+							break;
+						}
 					}
+				} else {
+					entry->setSelected(true);
+					lastSelected.push_back(entry);
 				}
-			} else {
-				entry->setSelected(true);
-				lastSelected.push_back(entry);
-			}
 
-		} else {
-			if (!entry->isSelected()) {
-				for (ListEntry* child : lastSelected) {
-					child->setSelected(false);
+			} else {
+				if (!entry->isSelected()) {
+					for (ListEntry* child : lastSelected) {
+						child->setSelected(false);
+					}
+					entry->setSelected(true);
+					lastSelected.clear();
+					lastSelected.push_back(entry);
 				}
-				entry->setSelected(true);
-				lastSelected.clear();
-				lastSelected.push_back(entry);
 			}
+			if (onSelect)
+				onSelect(entry);
+			return true;
+		} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+			for (ListEntry* child : lastSelected) {
+				child->setSelected(false);
+			}
+			if (onSelect)
+				onSelect(nullptr);
+			return true;
 		}
-		if (onSelect)
-			onSelect(entry);
-		return true;
-	} else if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-		for (ListEntry* child : lastSelected) {
-			child->setSelected(false);
-		}
-		if (onSelect)
-			onSelect(nullptr);
-		return true;
 	}
 	return false;
 }
@@ -1893,7 +1895,7 @@ void ListEntry::draw(AlloyContext* context) {
 	NVGcontext* nvg = context->nvgContext;
 	bool hover = context->isMouseOver(this);
 	bool down = context->isMouseDown(this);
-
+	bool selected = this->selected || dialog->isDraggingOver(this);
 	int xoff = 0;
 	int yoff = 0;
 	if (down) {
@@ -2003,8 +2005,8 @@ bool FileDialog::updateValidity() {
 		}
 	} else if (type == FileDialogType::OpenMultiFile) {
 		valid = true;
-		int count=0;
-		for (std::shared_ptr<ListEntry> entry : directoryList->fileEntries) {
+		int count = 0;
+		for (std::shared_ptr<ListEntry> entry : directoryList->listEntries) {
 			if (entry->isSelected()) {
 				count++;
 				std::string file =
@@ -2017,7 +2019,7 @@ bool FileDialog::updateValidity() {
 				}
 			}
 		}
-		valid&=(count>0);
+		valid &= (count > 0);
 		if (valid) {
 			actionButton->backgroundColor = MakeColor(
 					AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -2042,7 +2044,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(
 			dir);
 	int i = 0;
-	directoryList->fileEntries.clear();
+	directoryList->listEntries.clear();
 	FileFilterRule* rule =
 			(fileTypeSelect->getSelectedIndex() >= 0) ?
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
@@ -2056,7 +2058,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		}
 		FileEntry* entry = new FileEntry(this, MakeString() << "Entry " << i,
 				CoordPX(2, 0), CoordPerPX(1.0f, 0.0f, -4.0f, fileEntryHeight));
-		directoryList->fileEntries.push_back(std::shared_ptr<FileEntry>(entry));
+		directoryList->listEntries.push_back(std::shared_ptr<FileEntry>(entry));
 		entry->setValue(fd);
 		if (select && entry->fileDescription.fileLocation == file) {
 			entry->setSelected(true);
@@ -2068,7 +2070,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 	directoryList->clear();
 	AlloyApplicationContext()->addDeferredTask(
 			[this]() {
-				for (std::shared_ptr<ListEntry>& entry : directoryList->fileEntries) {
+				for (std::shared_ptr<ListEntry>& entry : directoryList->listEntries) {
 					if(entry->parent==nullptr)directoryList->add(entry);
 				}
 			});
@@ -2088,16 +2090,25 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 			[this](AlloyContext* context, const InputEvent& e) {
 				if (e.type == InputType::Cursor || e.type == InputType::MouseButton) {
 					if (context->isMouseDrag()) {
-						float2 cursorDown = context->getAbsoluteCursorDownPosition();
-						float2 stPt = aly::min(cursorDown, e.cursor);
-						float2 endPt = aly::max(cursorDown, e.cursor);
-						dragBox.position = stPt;
-						dragBox.dimensions = endPt - stPt;
-						dragBox.intersect(getBounds());
+						if(enableMultiSelection) {
+							float2 cursorDown = context->getCursorDownPosition();
+							float2 stPt = aly::min(cursorDown, e.cursor);
+							float2 endPt = aly::max(cursorDown, e.cursor);
+							dragBox.position = stPt;
+							dragBox.dimensions = endPt - stPt;
+							dragBox.intersect(getBounds());
+						}
 					}
 					else if(!context->isMouseDown()&&e.type==InputType::MouseButton) {
-						if(dragBox.dimensions.x>0&& dragBox.dimensions.y>0){
-							std::cout<<"Mouse Up "<<dragBox<<std::endl;
+						if(enableMultiSelection) {
+							for(std::shared_ptr<ListEntry> entry:listEntries) {
+								if(!entry->isSelected()) {
+									if(dragBox.intersects(entry->getBounds())) {
+										lastSelected.push_back(entry.get());
+										entry->setSelected(true);
+									}
+								}
+							}
 						}
 						dragBox = box2px(float2(0, 0), float2(0, 0));
 					} else {
@@ -2110,9 +2121,7 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 void ListBox::draw(AlloyContext* context) {
 	Composite::draw(context);
 	NVGcontext* nvg = context->nvgContext;
-
 	if (dragBox.dimensions.x > 0 && dragBox.dimensions.y > 0) {
-
 		nvgBeginPath(nvg);
 		nvgRect(nvg, dragBox.position.x, dragBox.position.y,
 				dragBox.dimensions.x, dragBox.dimensions.y);
@@ -2125,6 +2134,13 @@ void ListBox::draw(AlloyContext* context) {
 		nvgStrokeWidth(nvg, 2.0f);
 		nvgStrokeColor(nvg, context->theme.DARK);
 		nvgStroke(nvg);
+	}
+}
+bool ListBox::isDraggingOver(ListEntry* entry) {
+	if (entry->isSelected() || dragBox.intersects(entry->getBounds())) {
+		return true;
+	} else {
+		return false;
 	}
 }
 FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
@@ -2149,7 +2165,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 								files.push_back(this->getValue());
 							}
 							else {
-								for (std::shared_ptr<ListEntry> entry : directoryList->fileEntries) {
+								for (std::shared_ptr<ListEntry> entry : directoryList->listEntries) {
 									if (entry->isSelected()) {
 										files.push_back(dynamic_cast<FileEntry*>(entry.get())->fileDescription.fileLocation);
 									}

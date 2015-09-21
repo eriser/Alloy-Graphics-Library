@@ -1530,6 +1530,17 @@ template<class T, int M> struct box {
 		}
 		position = mn;
 	}
+	inline bool intersects(const box<T, M>& other) const {
+		vec<T, M> mn = aly::max(position, other.position);
+		vec<T, M> mx = aly::min(max(), other.max());
+		vec<T,M>  dims = mx - mn;
+		T size=1;
+		for (int m = 0; m < M; m++) {
+			dims[m] = std::max(dims[m], (T) 0);
+			size*=dims[m];
+		}
+		return (size>0);
+	}
 	inline vec<T, M> max() const {
 		return position + dimensions;
 	}

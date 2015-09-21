@@ -222,7 +222,6 @@ void PoissonInpaint(const Image4f& sourceImg, const Image4f& targetImg,
 	for (int j = 1; j < sourceImg.height - 1; j++) {
 		for (int i = 1; i < sourceImg.width - 1; i++) {
 			float4 src = sourceImg(i, j);
-			float4 out = outImg(i, j);
 			float alpha = src.w;
 			src.w = 1.0f;
 			float4 val1 = sourceImg(i, j);
@@ -318,7 +317,6 @@ void PoissonInpaint(const Image2f& sourceImg, const Image2f& targetImg,
 	for (int j = 1; j < sourceImg.height - 1; j++) {
 		for (int i = 1; i < sourceImg.width - 1; i++) {
 			float2 src = sourceImg(i, j);
-			float2 out = outImg(i, j);
 			float alpha = src.y;
 			src.y = 1.0f;
 			float2 val1 = sourceImg(i, j);

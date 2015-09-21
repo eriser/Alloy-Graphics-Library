@@ -341,7 +341,7 @@ public:
 };
 class FileDialog;
 class ListBox;
-class ListEntry : public Region {
+class ListEntry: public Region {
 protected:
 	std::string iconCodeString;
 	std::string label;
@@ -351,8 +351,8 @@ public:
 	AUnit1D fontSize;
 	void setSelected(bool selected);
 	bool isSelected();
-	ListEntry(ListBox* listBox,const std::string& name, const AUnit2D& pos,
-		const AUnit2D& dims);
+	ListEntry(ListBox* listBox, const std::string& name, const AUnit2D& pos,
+			const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
 class FileEntry: public ListEntry {
@@ -391,19 +391,24 @@ struct FileFilterRule {
 	virtual ~FileFilterRule() {
 	}
 };
-class ListBox : public Composite {
+class ListBox: public Composite {
 protected:
 	bool enableMultiSelection;
 	box2px dragBox;
 public:
-	std::vector<std::shared_ptr<ListEntry>> fileEntries;
+	box2px getDragBox() const {
+		return dragBox;
+	}
+	bool isDraggingOver(ListEntry* entry);
+	std::vector<std::shared_ptr<ListEntry>> listEntries;
 	std::list<ListEntry*> lastSelected;
 	ListBox(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 	void setEnableMultiSelection(bool enable) {
 		enableMultiSelection = enable;
 	}
-	bool onMouseDown(ListEntry* entry, AlloyContext* context,const InputEvent& e);
+	bool onMouseDown(ListEntry* entry, AlloyContext* context,
+			const InputEvent& e);
 	std::function<void(ListEntry*)> onSelect;
 };
 class FileDialog: public Composite {
@@ -426,7 +431,6 @@ private:
 	bool updateValidity();
 public:
 
-
 	void addFileExtensionRule(const std::string& name,
 			const std::string& extension);
 	void addFileExtensionRule(const std::string& name,
@@ -436,8 +440,8 @@ public:
 	bool valid = false;
 	std::function<void(const std::vector<std::string>&)> onSelect;
 	virtual void draw(AlloyContext* context) override;
-	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,const FileDialogType& type,
-			pixel fileEntryHeight = 30);
+	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
+			const FileDialogType& type, pixel fileEntryHeight = 30);
 
 	void setValue(const std::string& file);
 	std::string getValue() const;
@@ -492,8 +496,8 @@ public:
 	void setFileExtensionRule(int index) {
 		fileDialog->setFileExtensionRule(index);
 	}
-	FileButton(const std::string& name, const AUnit2D& pos,
-			const AUnit2D& dims, const FileDialogType& type);
+	FileButton(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
+			const FileDialogType& type);
 	void setValue(const std::string& file);
 	std::string getValue() {
 		return fileDialog->getValue();
