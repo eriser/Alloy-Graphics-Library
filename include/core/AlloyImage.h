@@ -898,7 +898,7 @@ template<class T, ImageType I> void ConvertImage(const Image<T, 4, I>& in,
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N =(int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -940,7 +940,7 @@ template<class T, ImageType I> void ConvertImage(const Image<T, 3, I>& in,
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = out.size();
+	int N = (int)out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
