@@ -328,6 +328,14 @@ public:
         {
             return operator()(pt.x, pt.y);
         }
+        inline vec<float, C> operator()(const vec<float, 2>& pt) const 
+        {
+            return operator()(pt.x, pt.y);
+        }
+        inline vec<double, C> operator()(const vec<double, 2>& pt) const 
+        {
+            return operator()(pt.x, pt.y);
+        }
 	template<class F> void apply(F f) {
 		size_t sz = size();
 #pragma omp parallel for
