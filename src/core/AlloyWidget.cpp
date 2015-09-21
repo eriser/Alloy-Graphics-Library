@@ -1824,6 +1824,60 @@ ListEntry::ListEntry(ListBox* listBox, const std::string& name,
 		return dialog->onMouseDown(this, context, e);
 	};
 
+	/*
+	this->onEvent =
+			[this](AlloyContext* context, const InputEvent& event) {
+				if(event.type==InputType::Cursor&&(int)options.size()>maxDisplayEntries) {
+					box2px bounds=this->getBounds();
+					int elements =
+					(maxDisplayEntries > 0) ?std::min(maxDisplayEntries,(int)options.size()) : (int) options.size();
+					float entryHeight = bounds.dimensions.y / elements;
+
+					box2px lastBounds=bounds,firstBounds=bounds;
+					lastBounds.position.y=bounds.position.y+bounds.dimensions.y-entryHeight;
+					lastBounds.dimensions.y=entryHeight;
+					firstBounds.dimensions.y=entryHeight;
+					if(lastBounds.contains(event.cursor)) {
+						if(downTimer.get()==nullptr) {
+							downTimer=std::shared_ptr<Timer>(new Timer([this] {
+												double deltaT=200;
+												scrollingDown=true;
+												while(scrollingDown&&selectionOffset<(int)options.size()-maxDisplayEntries) {
+													this->selectionOffset++;
+													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
+													deltaT=std::max(30.0,0.75*deltaT);
+												}
+											},nullptr,500,30));
+							downTimer->execute();
+						}
+					} else {
+						if(downTimer.get()!=nullptr) {
+							scrollingDown=false;
+							downTimer.reset();
+						}
+					}
+					if(firstBounds.contains(event.cursor)) {
+						if(upTimer.get()==nullptr) {
+							upTimer=std::shared_ptr<Timer>(new Timer([this] {
+												double deltaT=200;
+												scrollingUp=true;
+												while(scrollingUp&&selectionOffset>0) {
+													this->selectionOffset--;
+													std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
+													deltaT=std::max(30.0,0.75*deltaT);
+												}
+											},nullptr,500,30));
+							upTimer->execute();
+						}
+					} else {
+						if(upTimer.get()!=nullptr) {
+							scrollingUp=false;
+							upTimer.reset();
+						}
+					}
+				}
+			};
+			*/
 }
 bool ListBox::onMouseDown(ListEntry* entry, AlloyContext* context,
 		const InputEvent& e) {

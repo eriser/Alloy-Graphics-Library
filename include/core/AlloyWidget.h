@@ -395,6 +395,7 @@ class ListBox: public Composite {
 protected:
 	bool enableMultiSelection;
 	box2px dragBox;
+	std::shared_ptr<Timer> downTimer, upTimer;
 public:
 	box2px getDragBox() const {
 		return dragBox;
