@@ -398,13 +398,32 @@ protected:
 	std::shared_ptr<Timer> downTimer, upTimer;
 	bool scrollingDown;
 	bool scrollingUp;
+	std::vector<std::shared_ptr<ListEntry>> listEntries;
+	std::list<ListEntry*> lastSelected;
 public:
 	box2px getDragBox() const {
 		return dragBox;
 	}
+	std::vector<std::shared_ptr<ListEntry>>& getEntries() {
+		return listEntries;
+	}
+	void addEntry(const std::shared_ptr<ListEntry>& entry) {
+		listEntries.push_back(entry);
+	}
+	void update();
+	void addToActiveList(ListEntry* entry) {
+		lastSelected.push_back(entry);
+	}
+	void clearActiveList() {
+		lastSelected.clear();
+	}
+	ListEntry* getLastSelected() {
+		if (lastSelected.size() > 0)
+			return lastSelected.back();
+		else 
+			return nullptr;
+	}
 	bool isDraggingOver(ListEntry* entry);
-	std::vector<std::shared_ptr<ListEntry>> listEntries;
-	std::list<ListEntry*> lastSelected;
 	ListBox(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 	void setEnableMultiSelection(bool enable) {

@@ -2006,7 +2006,7 @@ bool FileDialog::updateValidity() {
 	} else if (type == FileDialogType::OpenMultiFile) {
 		valid = true;
 		int count = 0;
-		for (std::shared_ptr<ListEntry> entry : directoryList->listEntries) {
+		for (std::shared_ptr<ListEntry> entry : directoryList->getEntries()) {
 			if (entry->isSelected()) {
 				count++;
 				std::string file =
@@ -2040,11 +2040,12 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		dir = GetParentDirectory(file);
 		select = true;
 	}
-	directoryList->lastSelected.clear();
+	directoryList->clearActiveList();
 	std::vector<FileDescription> descriptions = GetDirectoryDescriptionListing(
 			dir);
 	int i = 0;
-	directoryList->listEntries.clear();
+
+	directoryList->clearActiveList();
 	FileFilterRule* rule =
 			(fileTypeSelect->getSelectedIndex() >= 0) ?
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
@@ -2058,23 +2059,26 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		}
 		FileEntry* entry = new FileEntry(this, MakeString() << "Entry " << i,
 				CoordPX(2, 0), CoordPerPX(1.0f, 0.0f, -4.0f, fileEntryHeight));
-		directoryList->listEntries.push_back(std::shared_ptr<FileEntry>(entry));
+		directoryList->addEntry(std::shared_ptr<FileEntry>(entry));
 		entry->setValue(fd);
 		if (select && entry->fileDescription.fileLocation == file) {
 			entry->setSelected(true);
-			directoryList->lastSelected.clear();
-			directoryList->lastSelected.push_back(entry);
+			directoryList->clearActiveList();
+			directoryList->addToActiveList(entry);
 		}
 		i++;
 	}
-	directoryList->clear();
-	AlloyApplicationContext()->addDeferredTask(
-			[this]() {
-				for (std::shared_ptr<ListEntry>& entry : directoryList->listEntries) {
-					if(entry->parent==nullptr)directoryList->add(entry);
-				}
-			});
+	directoryList->update();
 
+}
+void ListBox::update() {
+	clear();
+	AlloyApplicationContext()->addDeferredTask(
+		[this]() {
+		for (std::shared_ptr<ListEntry> entry :listEntries) {
+			if (entry->parent == nullptr)add(entry);
+		}
+	});
 }
 ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
@@ -2214,7 +2218,7 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 								files.push_back(this->getValue());
 							}
 							else {
-								for (std::shared_ptr<ListEntry> entry : directoryList->listEntries) {
+								for (std::shared_ptr<ListEntry> entry : directoryList->getEntries()) {
 									if (entry->isSelected()) {
 										files.push_back(dynamic_cast<FileEntry*>(entry.get())->fileDescription.fileLocation);
 									}
@@ -2401,9 +2405,10 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 					}
 				} else {
 					if (this->type != FileDialogType::OpenMultiFile) {
-						if (directoryList->lastSelected.size() > 0) {
+						ListEntry* entry = directoryList->getLastSelected();
+						if (entry!=nullptr) {
 							fileLocation->setValue(
-									GetParentDirectory(dynamic_cast<FileEntry*>(directoryList->lastSelected.front())->fileDescription.fileLocation));
+									GetParentDirectory(dynamic_cast<FileEntry*>(entry)->fileDescription.fileLocation));
 						}
 					}
 					updateValidity();
