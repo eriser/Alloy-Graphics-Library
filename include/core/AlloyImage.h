@@ -320,7 +320,11 @@ public:
             return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
                     + (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
         }
-        template<class K> inline vec<float, C> operator()(const vec<float, 2>& pt)
+        inline vec<float, C> operator()(const vec<float, 2>& pt)
+        {
+            return operator()(pt.x, pt.y);
+        }
+        inline vec<double, C> operator()(const vec<double, 2>& pt)
         {
             return operator()(pt.x, pt.y);
         }
