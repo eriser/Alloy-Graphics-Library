@@ -31,9 +31,11 @@ namespace aly {
 bool SANITY_CHECK_DENSE_MATRIX() {
 	{
 		DenseMatrix1f A(17, 9);
+		Vector1f b(A.cols);
 		for (int i = 0; i < A.rows; i++) {
 			for (int j = 0; j < A.cols; j++) {
 				A[i][j] = float1((rand() % 1000) / 1000.0f);
+				b[j] = float1((rand() % 1000) / 1000.0f);
 			}
 		}
 		std::cout << "A=" << A << std::endl;
@@ -50,6 +52,16 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "U=" << S << std::endl;
 		std::cout << "D=" << D << std::endl;
 		std::cout << "Vt=" << Vt << std::endl;
+
+		Vector1f x1 = Solve(A, b);
+		std::cout << "X1=\n" << x1 << std::endl;
+		std::cout << "r1=\n" << A * x1 - b << std::endl;
+
+		/*
+		 Vector1f x2 = SolveLU(A, b);
+		 std::cout << "X2=\n" << x2 << std::endl;
+		 std::cout << "r2=\n" << A*x2-b << std::endl;
+		 */
 	}
 
 	{

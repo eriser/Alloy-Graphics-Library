@@ -165,18 +165,6 @@ template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <
 	return ss;
 }
 
-template<class T, int C> Vector<T, C> operator*(const DenseMatrix<T, 1>& A,
-		const Vector<T, C>& v) {
-	Vector<T, C> out(A.rows);
-	for (int i = 0; i < A.rows; i++) {
-		vec<T, C> sum(0.0);
-		for (int j = 0; j < A.cols; j++) {
-			sum += A[i][j].x * v[j];
-		}
-		out[i] = sum;
-	}
-	return out;
-}
 template<class T, int C> Vector<T, C> operator*(const DenseMatrix<T, C>& A,
 		const Vector<T, C>& v) {
 	Vector<T, C> out(A.rows);
@@ -428,7 +416,8 @@ template<class T, int C> DenseMatrix<T, C>& operator-=(
  */
 
 template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
-		DenseMatrix<T, C>& U, DenseMatrix<T, C>& D, DenseMatrix<T, C>& Vt) {
+		DenseMatrix<T, C>& U, DenseMatrix<T, C>& D, DenseMatrix<T, C>& Vt,
+		double zeroTolerance = 0) {
 	const int m = M.rows;
 	const int n = M.cols;
 	double v[n][n];
@@ -459,7 +448,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 			if (i < m) {
 				for (k = i; k < m; k++)
 					scale += std::abs((double) u[k][i]);
-				if (scale) {
+				if (scale > zeroTolerance) {
 					for (k = i; k < m; k++) {
 						u[k][i] = ((double) u[k][i] / scale);
 						s += ((double) u[k][i] * (double) u[k][i]);
@@ -486,7 +475,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 			if (i < m && i != n - 1) {
 				for (k = l; k < n; k++)
 					scale += std::abs((double) u[i][k]);
-				if (scale) {
+				if (scale > zeroTolerance) {
 					for (k = l; k < n; k++) {
 						u[i][k] = ((double) u[i][k] / scale);
 						s += ((double) u[i][k] * (double) u[i][k]);
@@ -514,7 +503,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		}
 		for (i = n - 1; i >= 0; i--) {
 			if (i < n - 1) {
-				if (g) {
+				if (std::abs(g) > zeroTolerance) {
 					for (j = l; j < n; j++)
 						v[j][i] = (((double) u[i][j] / (double) u[i][l]) / g);
 					for (j = l; j < n; j++) {
@@ -537,7 +526,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 			if (i < n - 1)
 				for (j = l; j < n; j++)
 					u[i][j] = 0.0;
-			if (g) {
+			if (std::abs(g) > zeroTolerance) {
 				g = 1.0 / g;
 				if (i != n - 1) {
 					for (j = l; j < n; j++) {
@@ -681,7 +670,34 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		}
 	}
 }
-
+template<class T, int C> DenseMatrix<T, C> inverse(const DenseMatrix<T, C>& M,
+		double zeroTolerance = 0.0) {
+	DenseMatrix<T, C> U, D, Vt;
+	SVD(M, U, D, Vt);
+	int K = aly::min(D.rows, D.cols);
+	for (int k = 0; k < K; k++) {
+		vec<double, C> d = vec<double, C>(D[k][k]);
+		for (int c = 0; c < C; c++) {
+			if (std::abs(d[c]) > zeroTolerance) {
+				d[c] = 1.0 / d[c];
+			}
+		}
+		D[k][k] = vec<T, C>(d);
+	}
+	DenseMatrix<T, C> Minv = (U * D * Vt).transpose();
+	return Minv;
+}
+template<class T, int C> Vector<T, C> Solve(const DenseMatrix<T, C>& A,
+		const Vector<T, C>& b) {
+	if (A.rows != b.size()) {
+		throw std::runtime_error(
+				MakeString()
+						<< "Matrix row dimensions and vector length must agree. A=["
+						<< A.rows << "," << A.cols << "] b=[" << b.size()
+						<< "]");
+	}
+	return inverse(A) * b;
+}
 //Back port of NIST's Java Implementation of LINPACK called JAMA. Code is licensed for free use in the public domain. http://math.nist.gov/javanumerics/jama/
 /** LU Decomposition.
  <P>
@@ -696,7 +712,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
  linear equations.  This will fail if isNonsingular() returns false.
  */
 
-template<class T, int C> void LU(const DenseMatrix<T, C>& A,
+template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, C>& L, DenseMatrix<T, C>& U) {
 	const int m = A.rows;
 	const int n = A.cols;
@@ -707,6 +723,7 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 	double* LUrowi;
 	L.resize(m, n);
 	U.resize(n, n);
+	bool nonSingular = true;
 	for (int cc = 0; cc < C; cc++) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
@@ -753,6 +770,12 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
+		for (int j = 0; j < n; j++) {
+			if (LU[j][j] == 0) {
+				nonSingular = false;
+				break;
+			}
+		}
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i > j) {
@@ -773,8 +796,43 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
+
 	}
+	return nonSingular;
 }
+/*
+ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
+ const Vector<T, C>& b) {
+ int m = A.rows;
+ int n = A.cols;
+ if (A.rows != b.size()) {
+ throw std::runtime_error(
+ MakeString()
+ << "Matrix row dimensions and vector length must agree. A=["
+ << A.rows << "," << A.cols << "] b=[" << b.size()
+ << "]");
+ }
+ Vector<T, C> x = b;
+ DenseMatrix<T, C> L, U;
+ bool nonSingular = LU(A, L, U);
+ if (!nonSingular) {
+ throw std::runtime_error("Matrix is singular.");
+ }
+ for (int k = 0; k < m; k++) {
+ for (int i = k + 1; i < m; i++) {
+ x[i] -= x[k] * L[i][k];
+ }
+ }
+ // Solve U*X = Y;
+ for (int k = n - 1; k >= 0; k--) {
+ x[k] /= U[k][k];
+ for (int i = 0; i < k; i++) {
+ x[i] -= x[k] * U[i][k];
+ }
+ }
+ return x;
+ }
+ */
 /** QR Decomposition.
  <P>
  For an m-by-n matrix A with m >= n, the QR decomposition is an m-by-n
