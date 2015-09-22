@@ -2033,7 +2033,6 @@ bool FileDialog::updateValidity() {
 void FileDialog::setSelectedFile(const std::string& file) {
 	std::string dir;
 	bool select = false;
-	updateValidity();
 	if (IsDirectory(file)) {
 		dir = file;
 	} else {
@@ -2047,7 +2046,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 			(fileTypeSelect->getSelectedIndex() >= 0) ?
 					filterRules[fileTypeSelect->getSelectedIndex()].get() :
 					nullptr;
-	updateValidity();
+	directoryList->clearEntries();
 	for (FileDescription& fd : descriptions) {
 		if (rule != nullptr && fd.fileType == FileType::File
 				&& !rule->accept(fd.fileLocation)) {
@@ -2062,6 +2061,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 		}
 		i++;
 	}
+	updateValidity();
 	directoryList->update();
 
 }

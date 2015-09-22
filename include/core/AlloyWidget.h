@@ -416,12 +416,16 @@ public:
 	void addEntry(const std::shared_ptr<ListEntry>& entry) {
 		listEntries.push_back(entry);
 	}
+	void clearEntries() {
+		listEntries.clear();
+		lastSelected.clear();
+	}
 	void update();
 
 	ListEntry* getLastSelected() {
 		if (lastSelected.size() > 0)
 			return lastSelected.back();
-		else 
+		else
 			return nullptr;
 	}
 	bool isDraggingOver(ListEntry* entry);
