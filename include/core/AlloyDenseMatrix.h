@@ -684,10 +684,9 @@ template<class T, int C> DenseMatrix<T, C> inverse(const DenseMatrix<T, C>& M,
 		}
 		D[k][k] = vec<T, C>(d);
 	}
-	DenseMatrix<T, C> Minv = (U * D * Vt).transpose();
-	return Minv;
+	return (U * D * Vt).transpose();
 }
-template<class T, int C> Vector<T, C> Solve(const DenseMatrix<T, C>& A,
+template<class T, int C> Vector<T, C> SolveSVD(const DenseMatrix<T, C>& A,
 		const Vector<T, C>& b) {
 	if (A.rows != b.size()) {
 		throw std::runtime_error(
@@ -696,7 +695,14 @@ template<class T, int C> Vector<T, C> Solve(const DenseMatrix<T, C>& A,
 						<< A.rows << "," << A.cols << "] b=[" << b.size()
 						<< "]");
 	}
-	return inverse(A) * b;
+	if (A.rows != A.cols) {
+		DenseMatrix<T, C> At = A.transpose();
+		DenseMatrix<T, C> AtA = At * A;
+		Vector<T, C> Atb = At * b;
+		return inverse(AtA) * Atb;
+	} else {
+		return inverse(A) * b;
+	}
 }
 //Back port of NIST's Java Implementation of LINPACK called JAMA. Code is licensed for free use in the public domain. http://math.nist.gov/javanumerics/jama/
 /** LU Decomposition.
@@ -800,39 +806,78 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 	}
 	return nonSingular;
 }
-/*
- template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
- const Vector<T, C>& b) {
- int m = A.rows;
- int n = A.cols;
- if (A.rows != b.size()) {
- throw std::runtime_error(
- MakeString()
- << "Matrix row dimensions and vector length must agree. A=["
- << A.rows << "," << A.cols << "] b=[" << b.size()
- << "]");
- }
- Vector<T, C> x = b;
- DenseMatrix<T, C> L, U;
- bool nonSingular = LU(A, L, U);
- if (!nonSingular) {
- throw std::runtime_error("Matrix is singular.");
- }
- for (int k = 0; k < m; k++) {
- for (int i = k + 1; i < m; i++) {
- x[i] -= x[k] * L[i][k];
- }
- }
- // Solve U*X = Y;
- for (int k = n - 1; k >= 0; k--) {
- x[k] /= U[k][k];
- for (int i = 0; i < k; i++) {
- x[i] -= x[k] * U[i][k];
- }
- }
- return x;
- }
- */
+
+template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
+		const Vector<T, C>& b) {
+
+	if (A.rows != b.size()) {
+		throw std::runtime_error(
+				MakeString()
+						<< "Matrix row dimensions and vector length must agree. A=["
+						<< A.rows << "," << A.cols << "] b=[" << b.size()
+						<< "]");
+	}
+	if (A.rows != A.cols) {
+		DenseMatrix<T, C> At = A.transpose();
+		DenseMatrix<T, C> AtA = At * A;
+		Vector<T, C> Atb = At * b;
+		int m = AtA.rows;
+		int n = AtA.cols;
+		Vector<T, C> x(A.cols);
+		Vector<T, C> y(A.cols);
+		DenseMatrix<T, C> L, U;
+		bool nonSingular = LU(AtA, L, U);
+		if (!nonSingular) {
+			throw std::runtime_error("Matrix is singular.");
+		}
+		// Forward solve Ly = b
+		for (int i = 0; i < n; i++) {
+			y[i] = Atb[i];
+			for (int j = 0; j < i; j++) {
+				y[i] -= L[i][j] * y[j];
+			}
+			y[i] /= L[i][i];
+		}
+		// Backward solve Ux = y
+		for (int i = n - 1; i >= 0; i--) {
+			x[i] = y[i];
+			for (int j = i + 1; j < n; j++) {
+				x[i] -= U[i][j] * x[j];
+			}
+			x[i] /= U[i][i];
+		}
+		return x;
+	} else {
+		int m = A.rows;
+		int n = A.cols;
+
+		Vector<T, C> x(A.cols);
+		Vector<T, C> y(A.cols);
+		DenseMatrix<T, C> L, U;
+		bool nonSingular = LU(A, L, U);
+		if (!nonSingular) {
+			throw std::runtime_error("Matrix is singular.");
+		}
+		// Forward solve Ly = b
+		for (int i = 0; i < n; i++) {
+			y[i] = b[i];
+			for (int j = 0; j < i; j++) {
+				y[i] -= L[i][j] * y[j];
+			}
+			y[i] /= L[i][i];
+		}
+		// Backward solve Ux = y
+		for (int i = n - 1; i >= 0; i--) {
+			x[i] = y[i];
+			for (int j = i + 1; j < n; j++) {
+				x[i] -= U[i][j] * x[j];
+			}
+			x[i] /= U[i][i];
+		}
+		return x;
+	}
+}
+
 /** QR Decomposition.
  <P>
  For an m-by-n matrix A with m >= n, the QR decomposition is an m-by-n
@@ -845,7 +890,7 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
  of simultaneous linear equations.  This will fail if isFullRank()
  returns false.
  */
-template<class T, int C> void QR(const DenseMatrix<T, C>& A,
+template<class T, int C> bool QR(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, C>& Q, DenseMatrix<T, C>& R) {
 	const int m = A.rows;
 	const int n = A.cols;
@@ -853,6 +898,7 @@ template<class T, int C> void QR(const DenseMatrix<T, C>& A,
 	double Rdiag[n];
 	R.resize(n, n);
 	Q.resize(m, n);
+	bool nonSingular = true;
 	for (int cc = 0; cc < C; cc++) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
@@ -897,6 +943,12 @@ template<class T, int C> void QR(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
+		for (int j = 0; j < n; j++) {
+			if (Rdiag[j] == 0) {
+				nonSingular = false;
+				break;
+			}
+		}
 		for (int k = n - 1; k >= 0; k--) {
 			for (int i = 0; i < m; i++) {
 				Q[i][k][cc] = T(0.0);
@@ -916,6 +968,90 @@ template<class T, int C> void QR(const DenseMatrix<T, C>& A,
 			}
 		}
 	}
+	return nonSingular;
+}
+
+template<class T, int C> Vector<T, C> SolveQR(const DenseMatrix<T, C>& A,
+		const Vector<T, C>& b) {
+
+	if (A.rows != b.size()) {
+		throw std::runtime_error(
+				MakeString()
+						<< "Matrix row dimensions and vector length must agree. A=["
+						<< A.rows << "," << A.cols << "] b=[" << b.size()
+						<< "]");
+	}
+	if (A.rows != A.cols) {
+		DenseMatrix<T, C> At = A.transpose();
+		DenseMatrix<T, C> AtA = At * A;
+		Vector<T, C> Atb = At * b;
+		int m = AtA.rows;
+		int n = AtA.cols;
+		Vector<T, C> x(A.cols);
+		DenseMatrix<T, C> Q, R;
+		bool nonSingular = QR(AtA, Q, R);
+		if (!nonSingular) {
+			throw std::runtime_error("Matrix is singular.");
+		}
+		// Compute Y = transpose(Q)*B
+		x = Q.transpose() * Atb;
+		// Solve R*X = Y;
+		for (int k = n - 1; k >= 0; k--) {
+			x[k] /= R[k][k];
+			for (int i = 0; i < k; i++) {
+				x[i] -= x[k] * R[i][k];
+			}
+		}
+		return x;
+	} else {
+		int m = A.rows;
+		int n = A.cols;
+
+		Vector<T, C> x(A.cols);
+		DenseMatrix<T, C> Q, R;
+		bool nonSingular = QR(A, Q, R);
+		if (!nonSingular) {
+			throw std::runtime_error("Matrix is singular.");
+		}
+		// Compute Y = transpose(Q)*B
+		x = Q.transpose() * b;
+		// Solve R*X = Y;
+		for (int k = n - 1; k >= 0; k--) {
+			x[k] /= R[k][k];
+			for (int i = 0; i < k; i++) {
+				x[i] -= x[k] * R[i][k];
+			}
+		}
+		return x;
+	}
+}
+enum class MatrixFactorization {
+	SVD, QR, LU
+};
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const MatrixFactorization& type) {
+	switch (type) {
+	case MatrixFactorization::SVD:
+		return ss << "SVD";
+	case MatrixFactorization::QR:
+		return ss << "QR";
+	case MatrixFactorization::LU:
+		return ss << "LU";
+	}
+	return ss;
+}
+template<class T, int C> Vector<T, C> Solve(const DenseMatrix<T, C>& A,
+		const Vector<T, C>& b, MatrixFactorization factor =
+				MatrixFactorization::SVD) {
+	switch (factor) {
+	case MatrixFactorization::SVD:
+		return SolveSVD(A, b);
+	case MatrixFactorization::QR:
+		return SolveQR(A, b);
+	case MatrixFactorization::LU:
+		return SolveLU(A, b);
+	}
+	return Vector<T, C>();
 }
 typedef DenseMatrix<float, 4> DenseMatrix4f;
 typedef DenseMatrix<float, 3> DenseMatrix3f;

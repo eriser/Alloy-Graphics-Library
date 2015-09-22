@@ -31,11 +31,13 @@ namespace aly {
 bool SANITY_CHECK_DENSE_MATRIX() {
 	{
 		DenseMatrix1f A(17, 9);
-		Vector1f b(A.cols);
+		Vector1f b2(A.cols);
+		Vector1f b1(A.rows);
 		for (int i = 0; i < A.rows; i++) {
 			for (int j = 0; j < A.cols; j++) {
 				A[i][j] = float1((rand() % 1000) / 1000.0f);
-				b[j] = float1((rand() % 1000) / 1000.0f);
+				b2[j] = float1((rand() % 1000) / 1000.0f);
+				b1[i] = float1((rand() % 1000) / 1000.0f);
 			}
 		}
 		std::cout << "A=" << A << std::endl;
@@ -47,21 +49,36 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "Q=" << Q << std::endl;
 		std::cout << "R=" << R << std::endl;
 
+		Vector1f x1 = Solve(A, b1);
+		std::cout << "X1=\n" << x1 << std::endl;
+		std::cout << "r1=\n" << A * x1 - b1 << std::endl;
+
+		Vector1f x2 = SolveLU(A, b1);
+		std::cout << "X2=\n" << x2 << std::endl;
+		std::cout << "r2=\n" << A * x2 - b1 << std::endl;
+
+		Vector1f x3 = SolveQR(A, b1);
+		std::cout << "X3=\n" << x3 << std::endl;
+		std::cout << "r3=\n" << A * x3 - b1 << std::endl;
+
 		A = A.transpose() * A;
 		SVD(A, S, D, Vt);
 		std::cout << "U=" << S << std::endl;
 		std::cout << "D=" << D << std::endl;
 		std::cout << "Vt=" << Vt << std::endl;
 
-		Vector1f x1 = Solve(A, b);
+		x1 = Solve(A, b2);
 		std::cout << "X1=\n" << x1 << std::endl;
-		std::cout << "r1=\n" << A * x1 - b << std::endl;
+		std::cout << "r1=\n" << A * x1 - b2 << std::endl;
 
-		/*
-		 Vector1f x2 = SolveLU(A, b);
-		 std::cout << "X2=\n" << x2 << std::endl;
-		 std::cout << "r2=\n" << A*x2-b << std::endl;
-		 */
+		x2 = SolveLU(A, b2);
+		std::cout << "X2=\n" << x2 << std::endl;
+		std::cout << "r2=\n" << A * x2 - b2 << std::endl;
+
+		x3 = SolveQR(A, b2);
+		std::cout << "X3=\n" << x3 << std::endl;
+		std::cout << "r3=\n" << A * x3 - b2 << std::endl;
+
 	}
 
 	{
