@@ -132,11 +132,20 @@ public:
 template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <<(
 		std::basic_ostream<A, B> & ss, const DenseMatrix<T, C>& M) {
 	ss << "\n";
-	for (int i = 0; i < M.rows; i++) {
-		ss << "[";
-		for (int j = 0; j < M.cols; j++) {
-			ss << std::setprecision(10) << std::setw(16) << M[i][j]
-					<< ((j < M.cols - 1) ? "," : "]\n");
+	if (C == 1) {
+		for (int i = 0; i < M.rows; i++) {
+			ss << "[";
+			for (int j = 0; j < M.cols; j++) {
+				ss << std::setprecision(10) << std::setw(16) << M[i][j]
+						<< ((j < M.cols - 1) ? "," : "]\n");
+			}
+		}
+	} else {
+		for (int i = 0; i < M.rows; i++) {
+			ss << "[";
+			for (int j = 0; j < M.cols; j++) {
+				ss << M[i][j] << ((j < M.cols - 1) ? "," : "]\n");
+			}
 		}
 	}
 	return ss;
@@ -658,6 +667,21 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		}
 	}
 }
+
+//Back port of NIST's Java Implementation of LINPACK called JAMA. Code is licensed for free use in the public domain. http://math.nist.gov/javanumerics/jama/
+/** LU Decomposition.
+ <P>
+ For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n
+ unit lower triangular matrix L, an n-by-n upper triangular matrix U,
+ and a permutation vector piv of length m so that A(piv,:) = L*U.
+ If m < n, then L is m-by-m and U is m-by-n.
+ <P>
+ The LU decompostion with pivoting always exists, even if the matrix is
+ singular, so the constructor will never fail.  The primary use of the
+ LU decomposition is in the solution of square systems of simultaneous
+ linear equations.  This will fail if isNonsingular() returns false.
+ */
+
 template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, C>& L, DenseMatrix<T, C>& U) {
 	const int m = A.rows;
@@ -667,6 +691,8 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 	double LUcolj[m];
 	int pivsign;
 	double* LUrowi;
+	L.resize(m, n);
+	U.resize(n, n);
 	for (int cc = 0; cc < C; cc++) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
@@ -713,7 +739,6 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
-		L.resize(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i > j) {
@@ -725,7 +750,6 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
-		U.resize(n, n);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i <= j) {
@@ -737,12 +761,26 @@ template<class T, int C> void LU(const DenseMatrix<T, C>& A,
 		}
 	}
 }
+/** QR Decomposition.
+ <P>
+ For an m-by-n matrix A with m >= n, the QR decomposition is an m-by-n
+ orthogonal matrix Q and an n-by-n upper triangular matrix R so that
+ A = Q*R.
+ <P>
+ The QR decompostion always exists, even if the matrix does not have
+ full rank, so the constructor will never fail.  The primary use of the
+ QR decomposition is in the least squares solution of nonsquare systems
+ of simultaneous linear equations.  This will fail if isFullRank()
+ returns false.
+ */
 template<class T, int C> void QR(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, C>& Q, DenseMatrix<T, C>& R) {
 	const int m = A.rows;
 	const int n = A.cols;
 	double QR[m][n];
 	double Rdiag[n];
+	R.resize(n, n);
+	Q.resize(m, n);
 	for (int cc = 0; cc < C; cc++) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
@@ -775,7 +813,7 @@ template<class T, int C> void QR(const DenseMatrix<T, C>& A,
 			}
 			Rdiag[k] = -nrm;
 		}
-		R.resize(n, n);
+
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i < j) {
@@ -787,7 +825,6 @@ template<class T, int C> void QR(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
-		Q.resize(m, n);
 		for (int k = n - 1; k >= 0; k--) {
 			for (int i = 0; i < m; i++) {
 				Q[i][k][cc] = T(0.0);

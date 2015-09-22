@@ -29,26 +29,53 @@
 #endif
 namespace aly {
 bool SANITY_CHECK_DENSE_MATRIX() {
-	DenseMatrix1f A(17, 9);
-	for (int i = 0; i < A.rows; i++) {
-		for (int j = 0; j < A.cols; j++) {
-			A[i][j] = float1((rand() % 1000) / 1000.0f);
+	{
+		DenseMatrix1f A(17, 9);
+		for (int i = 0; i < A.rows; i++) {
+			for (int j = 0; j < A.cols; j++) {
+				A[i][j] = float1((rand() % 1000) / 1000.0f);
+			}
 		}
-	}
-	std::cout << "A=" << A << std::endl;
-	DenseMatrix1f L, U, Q, R, S, D, Vt;
-	LU(A, L, U);
-	std::cout << "L=" << L << std::endl;
-	std::cout << "U=" << U << std::endl;
-	QR(A, Q, R);
-	std::cout << "Q=" << Q << std::endl;
-	std::cout << "R=" << R << std::endl;
+		std::cout << "A=" << A << std::endl;
+		DenseMatrix1f L, U, Q, R, S, D, Vt;
+		LU(A, L, U);
+		std::cout << "L=" << L << std::endl;
+		std::cout << "U=" << U << std::endl;
+		QR(A, Q, R);
+		std::cout << "Q=" << Q << std::endl;
+		std::cout << "R=" << R << std::endl;
 
-	A = A.transpose() * A;
-	SVD(A, S, D, Vt);
-	std::cout << "U=" << S << std::endl;
-	std::cout << "D=" << D << std::endl;
-	std::cout << "Vt=" << Vt << std::endl;
+		A = A.transpose() * A;
+		SVD(A, S, D, Vt);
+		std::cout << "U=" << S << std::endl;
+		std::cout << "D=" << D << std::endl;
+		std::cout << "Vt=" << Vt << std::endl;
+	}
+
+	{
+		DenseMatrix3f A(8, 6);
+		for (int i = 0; i < A.rows; i++) {
+			for (int j = 0; j < A.cols; j++) {
+				for (int cc = 0; cc < 3; cc++) {
+					A[i][j][cc] = float1((rand() % 1000) / 1000.0f);
+				}
+			}
+		}
+		std::cout << "A=" << A << std::endl;
+		DenseMatrix3f L, U, Q, R, S, D, Vt;
+		LU(A, L, U);
+		std::cout << "L=" << L << std::endl;
+		std::cout << "U=" << U << std::endl;
+		QR(A, Q, R);
+		std::cout << "Q=" << Q << std::endl;
+		std::cout << "R=" << R << std::endl;
+
+		A = A.transpose() * A;
+		SVD(A, S, D, Vt);
+		std::cout << "U=" << S << std::endl;
+		std::cout << "D=" << D << std::endl;
+		std::cout << "Vt=" << Vt << std::endl;
+	}
 	return true;
 }
 bool SANITY_CHECK_ALGO() {
