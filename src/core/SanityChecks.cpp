@@ -15,6 +15,7 @@
 #include "AlloyDenseSolve.h"
 #include "ImageProcessing.h"
 #include "AlloySparseMatrix.h"
+#include "AlloyDenseMatrix.h"
 #include "AlloyMeshIntersector.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
@@ -27,6 +28,29 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 namespace aly {
+bool SANITY_CHECK_DENSE_MATRIX() {
+	DenseMatrix1f A(17, 9);
+	for (int i = 0; i < A.rows; i++) {
+		for (int j = 0; j < A.cols; j++) {
+			A[i][j] = float1((rand() % 1000) / 1000.0f);
+		}
+	}
+	std::cout << "A=" << A << std::endl;
+	DenseMatrix1f L, U, Q, R, S, D, Vt;
+	LU(A, L, U);
+	std::cout << "L=" << L << std::endl;
+	std::cout << "U=" << U << std::endl;
+	QR(A, Q, R);
+	std::cout << "Q=" << Q << std::endl;
+	std::cout << "R=" << R << std::endl;
+
+	A = A.transpose() * A;
+	SVD(A, S, D, Vt);
+	std::cout << "U=" << S << std::endl;
+	std::cout << "D=" << D << std::endl;
+	std::cout << "Vt=" << Vt << std::endl;
+	return true;
+}
 bool SANITY_CHECK_ALGO() {
 	SparseMatrix<float, 4> A(128, 128);
 	Vector4f b(A.rows);
@@ -182,7 +206,7 @@ bool SANITY_CHECK_IMAGE_PROCESSING() {
 
 	return true;
 }
-bool SANITY_CHECK_DENSE() {
+bool SANITY_CHECK_DENSE_SOLVE() {
 	ImageRGBAf src, tar;
 	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
 			src);

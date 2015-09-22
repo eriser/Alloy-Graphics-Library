@@ -41,6 +41,7 @@
 #include "AlloyMesh.h"
 #include "AlloyMeshIntersector.h"
 #include "AlloySparseMatrix.h"
+#include "AlloyDenseMatrix.h"
 #include "AlloyDenseSolve.h"
 #include "AlloySparseSolve.h"
 #include "CommonShaders.h"

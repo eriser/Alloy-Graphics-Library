@@ -30,7 +30,7 @@
 #include <list>
 #include <map>
 namespace aly {
-
+bool SANITY_CHECK_DENSE_MATRIX();
 template<class T, int C> struct DenseMatrix {
 private:
 	std::vector<std::vector<vec<T, C>>>storage;
@@ -42,7 +42,7 @@ public:
 						MakeString() << "matrix"<<C,
 						storage));
 	}
-	std::vector<size_t, vec<T, C>>& operator[](size_t i) {
+	std::vector<vec<T, C>>& operator[](size_t i) {
 		if (i >= rows || i < 0)
 		throw std::runtime_error(
 				MakeString() << "Index (" << i
@@ -50,7 +50,7 @@ public:
 				<< cols << "]");
 		return storage[i];
 	}
-	const std::vector<size_t, vec<T, C>>& operator[](size_t i) const {
+	const std::vector<vec<T, C>>& operator[](size_t i) const {
 		if (i >= rows || i < 0)
 		throw std::runtime_error(
 				MakeString() << "Index (" << i
@@ -60,8 +60,13 @@ public:
 	}
 	DenseMatrix(): rows(0),cols(0) {
 	}
-	DenseMatrix(size_t rows, size_t cols) :
+	DenseMatrix(int rows, int cols) :
 	rows(rows), cols(cols),storage(rows,std::vector<vec<T,C>>(cols)) {
+	}
+	void resize(int rows,int cols) {
+		storage=std::vector<std::vector<vec<T,C>>>(rows,std::vector<vec<T,C>>(cols));
+		this->rows=rows;
+		this->cols=cols;
 	}
 	void set(size_t i, size_t j, const vec<T, C>& value) {
 		if (i >= rows || j >= cols || i < 0 || j < 0)
@@ -127,11 +132,11 @@ public:
 template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <<(
 		std::basic_ostream<A, B> & ss, const DenseMatrix<T, C>& M) {
 	ss << "\n";
-	for (int n = 0; n < M.rows; n++) {
+	for (int i = 0; i < M.rows; i++) {
 		ss << "[";
-		for (int m = 0; m < M.cols; m++) {
-			ss << std::setprecision(10) << std::setw(16) << A(n, m)
-					<< ((m < M.cols - 1) ? "," : "]\n");
+		for (int j = 0; j < M.cols; j++) {
+			ss << std::setprecision(10) << std::setw(16) << M[i][j]
+					<< ((j < M.cols - 1) ? "," : "]\n");
 		}
 	}
 	return ss;
@@ -181,66 +186,7 @@ template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, 1>& A,
-		const DenseMatrix<T, C>& B) {
-	if (A.cols != B.rows)
-		throw std::runtime_error(
-				MakeString()
-						<< "Cannot multiply matrices. Inner dimensions do not match. "
-						<< "[" << A.rows << "," << A.cols << "] * [" << B.rows
-						<< "," << B.cols << "]");
-	DenseMatrix<T, C> out(A.rows, B.cols);
-	for (int i = 0; i < out.rows; i++) {
-		for (int j = 0; j < out.cols; j++) {
-			vec<T, C> sum(0.0);
-			for (int k = 0; k < A.cols; k++) {
-				sum += A[i][k].x * B[k][j];
-			}
-			out[i][j] = sum;
-		}
-	}
-	return out;
-}
-template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, C>& B,
-		const DenseMatrix<T, 1>& A) {
-	if (A.cols != B.rows)
-		throw std::runtime_error(
-				MakeString()
-						<< "Cannot multiply matrices. Inner dimensions do not match. "
-						<< "[" << A.rows << "," << A.cols << "] * [" << B.rows
-						<< "," << B.cols << "]");
-	DenseMatrix<T, C> out(A.rows, B.cols);
-	for (int i = 0; i < out.rows; i++) {
-		for (int j = 0; j < out.cols; j++) {
-			vec<T, C> sum(0.0);
-			for (int k = 0; k < A.cols; k++) {
-				sum += A[i][k] * B[k][j].x;
-			}
-			out[i][j] = sum;
-		}
-	}
-	return out;
-}
-template<class T, int C> DenseMatrix<T, 1> operator*(const DenseMatrix<T, 1>& B,
-		const DenseMatrix<T, 1>& A) {
-	if (A.cols != B.rows)
-		throw std::runtime_error(
-				MakeString()
-						<< "Cannot multiply matrices. Inner dimensions do not match. "
-						<< "[" << A.rows << "," << A.cols << "] * [" << B.rows
-						<< "," << B.cols << "]");
-	DenseMatrix<T, 1> out(A.rows, B.cols);
-	for (int i = 0; i < out.rows; i++) {
-		for (int j = 0; j < out.cols; j++) {
-			vec<T, 1> sum(0.0);
-			for (int k = 0; k < A.cols; k++) {
-				sum.x += A[i][k].x * B[k][j].x;
-			}
-			out[i][j] = sum;
-		}
-	}
-	return out;
-}
+
 template<class T, int C> DenseMatrix<T, C> operator-(
 		const DenseMatrix<T, C>& A) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
@@ -460,8 +406,8 @@ template<class T, int C> DenseMatrix<T, C>& operator-=(
 
 template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		DenseMatrix<T, C>& U, DenseMatrix<T, C>& D, DenseMatrix<T, C>& Vt) {
-	int m = M.rows;
-	int n = M.cols;
+	const int m = M.rows;
+	const int n = M.cols;
 	double v[n][n];
 	double u[m][m];
 	double w[n];
@@ -469,6 +415,9 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 	int flag, i, its, j, jj, k, l, nm;
 	double c, f, h, s, x, y, z;
 	double anorm, g, scale;
+	U.resize(m, m);
+	Vt.resize(n, n);
+	D.resize(m, n);
 	for (int cc = 0; cc < C; cc++) {
 		anorm = 0.0, g = 0.0, scale = 0.0;
 		if (m < n) {
@@ -477,7 +426,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		}
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				u[i][j] = M[i][j][cc];
+				u[i][j] = (double) M[i][j][cc];
 			}
 		}
 		for (i = 0; i < n; i++) {
@@ -705,6 +654,156 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				Vt[i][j][cc] = (T) v[j][i];
+			}
+		}
+	}
+}
+template<class T, int C> void LU(const DenseMatrix<T, C>& A,
+		DenseMatrix<T, C>& L, DenseMatrix<T, C>& U) {
+	const int m = A.rows;
+	const int n = A.cols;
+	double LU[m][n];
+	int piv[m];
+	double LUcolj[m];
+	int pivsign;
+	double* LUrowi;
+	for (int cc = 0; cc < C; cc++) {
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				LU[i][j] = (double) A[i][j][cc];
+			}
+		}
+		for (int i = 0; i < m; i++) {
+			piv[i] = i;
+		}
+		pivsign = 1;
+		for (int j = 0; j < n; j++) {
+			for (int i = 0; i < m; i++) {
+				LUcolj[i] = LU[i][j];
+			}
+			for (int i = 0; i < m; i++) {
+				LUrowi = &LU[i][0];
+				int kmax = aly::min(i, j);
+				double s = 0.0;
+				for (int k = 0; k < kmax; k++) {
+					s += LUrowi[k] * LUcolj[k];
+				}
+				LUrowi[j] = LUcolj[i] -= s;
+			}
+			int p = j;
+			for (int i = j + 1; i < m; i++) {
+				if (std::abs(LUcolj[i]) > std::abs(LUcolj[p])) {
+					p = i;
+				}
+			}
+			if (p != j) {
+				for (int k = 0; k < n; k++) {
+					double t = LU[p][k];
+					LU[p][k] = LU[j][k];
+					LU[j][k] = t;
+				}
+				int k = piv[p];
+				piv[p] = piv[j];
+				piv[j] = k;
+				pivsign = -pivsign;
+			}
+			if (j < m & LU[j][j] != 0.0) {
+				for (int i = j + 1; i < m; i++) {
+					LU[i][j] /= LU[j][j];
+				}
+			}
+		}
+		L.resize(m, n);
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				if (i > j) {
+					L[i][j][cc] = LU[i][j];
+				} else if (i == j) {
+					L[i][j][cc] = T(1.0);
+				} else {
+					L[i][j][cc] = T(0.0);
+				}
+			}
+		}
+		U.resize(n, n);
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (i <= j) {
+					U[i][j][cc] = LU[i][j];
+				} else {
+					U[i][j][cc] = T(0.0);
+				}
+			}
+		}
+	}
+}
+template<class T, int C> void QR(const DenseMatrix<T, C>& A,
+		DenseMatrix<T, C>& Q, DenseMatrix<T, C>& R) {
+	const int m = A.rows;
+	const int n = A.cols;
+	double QR[m][n];
+	double Rdiag[n];
+	for (int cc = 0; cc < C; cc++) {
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				QR[i][j] = (double) A[i][j][cc];
+			}
+		}
+		for (int k = 0; k < n; k++) {
+			double nrm = 0;
+			for (int i = k; i < m; i++) {
+				nrm = pythag(nrm, QR[i][k]);
+			}
+			if (nrm != 0.0) {
+				if (QR[k][k] < 0) {
+					nrm = -nrm;
+				}
+				for (int i = k; i < m; i++) {
+					QR[i][k] /= nrm;
+				}
+				QR[k][k] += 1.0;
+				for (int j = k + 1; j < n; j++) {
+					double s = 0.0;
+					for (int i = k; i < m; i++) {
+						s += QR[i][k] * QR[i][j];
+					}
+					s = -s / QR[k][k];
+					for (int i = k; i < m; i++) {
+						QR[i][j] += s * QR[i][k];
+					}
+				}
+			}
+			Rdiag[k] = -nrm;
+		}
+		R.resize(n, n);
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (i < j) {
+					R[i][j][cc] = QR[i][j];
+				} else if (i == j) {
+					R[i][j][cc] = Rdiag[i];
+				} else {
+					R[i][j][cc] = T(0.0);
+				}
+			}
+		}
+		Q.resize(m, n);
+		for (int k = n - 1; k >= 0; k--) {
+			for (int i = 0; i < m; i++) {
+				Q[i][k][cc] = T(0.0);
+			}
+			Q[k][k][cc] = T(1.0);
+			for (int j = k; j < n; j++) {
+				if (QR[k][k] != 0) {
+					double s = 0.0;
+					for (int i = k; i < m; i++) {
+						s += QR[i][k] * Q[i][j][cc];
+					}
+					s = -s / QR[k][k];
+					for (int i = k; i < m; i++) {
+						Q[i][j][cc] += s * QR[i][k];
+					}
+				}
 			}
 		}
 	}

@@ -23,7 +23,7 @@
 #include "AlloyMath.h"
 #include "AlloyImage.h"
 namespace aly {
-bool SANITY_CHECK_DENSE();
+bool SANITY_CHECK_DENSE_SOLVE();
 
 void PoissonBlend(const Image4f& in, Image4f& out, int iterations, int levels,float lambda = 0.99f);
 void PoissonBlend(const Image4f& in, Image4f& out, int iterations,float lambda = 0.99f);
