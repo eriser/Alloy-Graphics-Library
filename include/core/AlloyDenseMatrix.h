@@ -64,9 +64,11 @@ public:
 	rows(rows), cols(cols),storage(rows,std::vector<vec<T,C>>(cols)) {
 	}
 	void resize(int rows,int cols) {
-		storage=std::vector<std::vector<vec<T,C>>>(rows,std::vector<vec<T,C>>(cols));
-		this->rows=rows;
-		this->cols=cols;
+		if(this->rows!=rows||this->cols!=cols) {
+			storage=std::vector<std::vector<vec<T,C>>>(rows,std::vector<vec<T,C>>(cols));
+			this->rows=rows;
+			this->cols=cols;
+		}
 	}
 	void set(size_t i, size_t j, const vec<T, C>& value) {
 		if (i >= rows || j >= cols || i < 0 || j < 0)
@@ -115,16 +117,28 @@ public:
 	}
 	static DenseMatrix<T, C> identity(size_t M, size_t N) {
 		DenseMatrix<T, C> A(M, N);
-		int K = (int) aly::min(M, N);
-		for (int k = 0; k < K; k++) {
-			A[k][k] = vec<T, C>(T(1));
+		for (int i = 0; i < M; i++) {
+			for (int j=0;j < N;j++) {
+				A[i][j]=vec<T, C>(T((i==j)?1:0));
+			}
+		}
+		return A;
+	}
+	static DenseMatrix<T, C> zero(size_t M, size_t N) {
+		DenseMatrix<T, C> A(M, N);
+		for (int i = 0; i < M; i++) {
+			for (int j=0;j < N;j++) {
+				A[i][j]=vec<T, C>(T(0));
+			}
 		}
 		return A;
 	}
 	static DenseMatrix<T, C> diagonal(const Vector<T, C>& v) {
-		DenseMatrix<T, C> A(v.size(), v.size());
-		for (int k = 0; k < (int) v.size(); k++) {
-			A[k][k] = v[k];
+		DenseMatrix<T, C> A((int)v.size(), (int)v.size());
+		for (int i = 0; i < A.rows; i++) {
+			for (int j=0;j < A.cols;j++) {
+				A[i][j]=vec<T, C>(T((i==j)?v[i]:0));
+			}
 		}
 		return A;
 	}
