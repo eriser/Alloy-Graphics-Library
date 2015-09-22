@@ -253,14 +253,14 @@ public:
 	vec<T, C>& operator[](const size_t i) {
 		return data[i];
 	}
-	vec<T, C>& operator()(const int i, const int j) {
+	vec<T, C>& operator()(int i,int j) {
 		return data[clamp(i, 0, width - 1) + clamp(j, 0, height - 1) * width];
 	}
 	vec<T, C>& operator()(const int2 ij) {
 		return data[clamp(ij.x, 0, width - 1)
 				+ clamp(ij.y, 0, height - 1) * width];
 	}
-	const vec<T, C>& operator()(const int i, const int j) const {
+	const vec<T, C>& operator()(int i, int j) const {
 		return data[clamp(i, 0, width - 1) + clamp(j, 0, height - 1) * width];
 	}
 	const vec<T, C>& operator()(const int2 ij) const {
