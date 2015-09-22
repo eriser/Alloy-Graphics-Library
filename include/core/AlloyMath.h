@@ -1358,6 +1358,18 @@ template<class T> void Eigen(const matrix<T, 3, 3> &A, matrix<T, 3, 3>& Q,
 	Q = q2matrix(q);
 	D = transpose(Q) * A * Q;
 }
+inline static double pythag(double a, double b) {
+	double at = std::abs(a), bt = std::abs(b), ct, result;
+	if (at > bt) {
+		ct = bt / at;
+		result = at * std::sqrt(1.0 + ct * ct);
+	} else if (bt > 0.0) {
+		ct = at / bt;
+		result = bt * std::sqrt(1.0 + ct * ct);
+	} else
+		result = 0.0;
+	return (result);
+}
 void SVD(const matrix<float, 2, 2> &A, matrix<float, 2, 2>& U,
 		matrix<float, 2, 2>& D, matrix<float, 2, 2>& Vt);
 void SVD(const matrix<float, 3, 3> &A, matrix<float, 3, 3>& U,

@@ -19,4 +19,7 @@
  * THE SOFTWARE.
  */
 #include "AlloyDenseMatrix.h"
+namespace aly {
 
+
+}

@@ -76,18 +76,7 @@ namespace aly {
  ******************************************************************************
 
  */
-static double pythag(double a, double b) {
-	double at = std::abs(a), bt = std::abs(b), ct, result;
-	if (at > bt) {
-		ct = bt / at;
-		result = at * std::sqrt(1.0 + ct * ct);
-	} else if (bt > 0.0) {
-		ct = at / bt;
-		result = bt * std::sqrt(1.0 + ct * ct);
-	} else
-		result = 0.0;
-	return (result);
-}
+
 template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 		matrix<T, m, m>& U, matrix<T, m, n>& D, matrix<T, n, n>& Vt) {
 	double v[n][n];
