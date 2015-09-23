@@ -1179,6 +1179,9 @@ void Mesh::convertQuadsToTriangles() {
 		}
 	}
 	quadIndexes.clear();
+	if (vertexNormals.size() > 0) {
+		updateVertexNormals();
+	}
 }
 void CreateFaceNeighborTable(const Mesh& mesh,
 		std::vector<std::list<uint32_t>>& faceNbrs) {
