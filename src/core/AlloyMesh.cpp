@@ -1119,6 +1119,7 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		}
 	}
 }
+
 void Mesh::convertQuadsToTriangles() {
 	if (textureMap.size() > 0) {
 		Vector2f newTextureMap;

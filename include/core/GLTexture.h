@@ -281,7 +281,7 @@ public:
 		return textureImage.height;
 	}
 	inline int2 dimensions() const {
-		return int2(textureImage.width,textureImage.height);
+		return int2(textureImage.width, textureImage.height);
 	}
 	inline void setEnableMipmap(bool enable) {
 		mipmap = enable;
@@ -305,6 +305,18 @@ public:
 		textureImage.resize(imageWidth, imageHeight);
 		bounds = box2i( { x, y }, { width, height });
 		update();
+	}
+
+	inline GLTexture clone(std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext()) :
+			GLComponent(context) {
+		GLTexture<T, C, I> texture(context);
+		texture.textureImage = textureImage;
+		texture.multisample = multisample;
+		texture.mipmap = mipmap;
+		texture.bounds = bounds;
+		texture.update();
+		return texture;
 	}
 	GLTexture(const Image<T, C, I>& image,
 			std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :

@@ -81,6 +81,24 @@ public:
 	GLMesh gl;
 	float4x4 pose;
 
+	inline Mesh clone(std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext()) {
+		Mesh mesh(context);
+		mesh.boundingBox = boundingBox;
+		mesh.vertexLocations = vertexLocations;
+		mesh.vertexNormals = vertexNormals;
+		mesh.vertexColors = vertexColors;
+
+		mesh.quadIndexes = quadIndexes;
+		mesh.triIndexes = triIndexes;
+
+		mesh.textureMap = textureMap;
+		mesh.textureImage = textureImage;
+		mesh.pose = pose;
+		mesh.dirty = true;
+		return mesh;
+	}
+
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(pose), CEREAL_NVP(vertexLocations),
 				CEREAL_NVP(vertexNormals), CEREAL_NVP(vertexColors),
