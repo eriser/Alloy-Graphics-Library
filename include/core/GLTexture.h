@@ -308,8 +308,7 @@ public:
 	}
 
 	inline GLTexture clone(std::shared_ptr<AlloyContext>& context =
-			AlloyDefaultContext()) :
-			GLComponent(context) {
+			AlloyDefaultContext()) {
 		GLTexture<T, C, I> texture(context);
 		texture.textureImage = textureImage;
 		texture.multisample = multisample;
