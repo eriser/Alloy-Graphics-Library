@@ -482,6 +482,8 @@ struct FileField: public TextField {
 protected:
 	std::vector<std::string> segmentedPath;
 	std::shared_ptr<SelectionBox> selectionBox;
+	std::shared_ptr<Timer> showTimer;
+	void updateSuggestionBox(AlloyContext* context,bool forceValue);
 public:
 
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);

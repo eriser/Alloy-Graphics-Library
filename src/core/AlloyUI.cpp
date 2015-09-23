@@ -1503,68 +1503,87 @@ void FileField::setValue(const std::string& text) {
 		moveCursorTo((int) value.size());
 	}
 }
+void FileField::updateSuggestionBox(AlloyContext* context, bool forceValue) {
+	showCursor = true;
+	std::string root = GetParentDirectory(value);
+	std::vector<std::string> listing = GetDirectoryListing(root);
+	std::vector<std::string> suggestions = AutoComplete(value, listing);
+	if (suggestions.size() == 1 && forceValue) {
+		if (IsDirectory(suggestions[0])) {
+			this->setValue(
+					RemoveTrailingSlash(suggestions[0]) + ALY_PATH_SEPARATOR);
+		} else {
+			this->setValue(suggestions[0]);
+		}
+		context->removeOnTopRegion(selectionBox.get());
+		selectionBox->setVisible(false);
+	} else {
+		std::vector<std::string>& labels = selectionBox->options;
+		labels.clear();
+		for (std::string f : suggestions) {
+			if (IsDirectory(f)) {
+				labels.push_back(
+						GetFileName(f) + ALY_PATH_SEPARATOR);
+			} else {
+				labels.push_back(GetFileName(f));
+			}
+		}
+		if (labels.size() > 0) {
+			context->setOnTopRegion(selectionBox.get());
+			lastValue = this->getValue();
+			box2px bounds = getBounds(false);
+			selectionBox->pack(bounds.position,
+					bounds.dimensions, context->dpmm,
+					context->pixelRatio);
+			selectionBox->setVisible(true);
+			selectionBox->setSelectionOffset(0);
+			selectionBox->setSelectedIndex(0);
+		} else {
+			context->removeOnTopRegion(selectionBox.get());
+			selectionBox->setVisible(false);
+		}
+	}
+}
 bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 	if (isVisible()) {
 		if (!context->isFocused(this) || fontSize <= 0)
 			return false;
 		switch (e.type) {
 		case InputType::MouseButton:
-
 			handleMouseInput(context, e);
-
 			break;
 		case InputType::Character:
 			handleCharacterInput(context, e);
+			showTimer.reset();
+			if (showTimer.get() == nullptr) {
+				showTimer = std::shared_ptr<Timer>(new Timer([this,context] {
+					updateSuggestionBox(context,false);
+				}, nullptr, 500, 30));
+			}
+			showTimer->execute();
 			break;
 		case InputType::Key:
 			if (e.isDown()) {
 				if (e.key == GLFW_KEY_TAB) {
-					showCursor = true;
-					std::string root = GetParentDirectory(value);
-					std::vector<std::string> listing = GetDirectoryListing(
-							root);
-					std::vector<std::string> suggestions = AutoComplete(value,
-							listing);
-					if (suggestions.size() == 1) {
-						if (IsDirectory(suggestions[0])) {
-							this->setValue(
-									RemoveTrailingSlash(
-											suggestions[0])+ALY_PATH_SEPARATOR);
-						} else {
-							this->setValue(suggestions[0]);
-						}
-						context->removeOnTopRegion(selectionBox.get());
-						selectionBox->setVisible(false);
-					} else {
-						std::vector<std::string>& labels = selectionBox->options;
-						labels.clear();
-						for (std::string f : suggestions) {
-							if (IsDirectory(f)) {
-								labels.push_back(
-										GetFileName(f) + ALY_PATH_SEPARATOR);
-							} else {
-								labels.push_back(GetFileName(f));
-							}
-						}
-						if (labels.size() > 0) {
-							context->setOnTopRegion(selectionBox.get());
-							lastValue = this->getValue();
-							box2px bounds = getBounds(false);
-							selectionBox->pack(bounds.position,
-									bounds.dimensions, context->dpmm,
-									context->pixelRatio);
-							selectionBox->setVisible(true);
-							selectionBox->setSelectionOffset(0);
-							selectionBox->setSelectedIndex(0);
-						} else {
-							context->removeOnTopRegion(selectionBox.get());
-							selectionBox->setVisible(false);
-						}
-					}
+
+					updateSuggestionBox(context, true);
 					break;
 				}
 			}
 			handleKeyInput(context, e);
+
+			if (e.isDown()) {
+				if (e.key == GLFW_KEY_BACKSPACE) {
+					showTimer.reset();
+					if (showTimer.get() == nullptr) {
+						showTimer = std::shared_ptr<Timer>(
+								new Timer([this,context] {
+									updateSuggestionBox(context,false);
+								}, nullptr, 500, 30));
+					}
+					showTimer->execute();
+				}
+			}
 			break;
 		case InputType::Cursor:
 			handleCursorInput(context, e);
