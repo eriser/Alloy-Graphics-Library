@@ -1040,7 +1040,7 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		vertNbrs[face.w].push_back(face.z);
 		vertNbrs[face.w].push_back(face.x);
 	}
-	int N = (int)vertNbrs.size();
+	int N = (int) vertNbrs.size();
 #pragma omp parallel for
 	for (int n = 0; n < N; n++) {
 		std::vector<uint32_t>& nbrs = vertNbrs[n];
@@ -1120,17 +1120,62 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 	}
 }
 void Mesh::convertQuadsToTriangles() {
-	for (const uint4& face : quadIndexes.data) {
-		float3 pt1 = vertexLocations[face.x];
-		float3 pt2 = vertexLocations[face.y];
-		float3 pt3 = vertexLocations[face.z];
-		float3 pt4 = vertexLocations[face.w];
-		if (distanceSqr(pt1, pt3) < distanceSqr(pt2, pt4)) {
-			triIndexes.push_back(uint3(face.x, face.y, face.z));
-			triIndexes.push_back(uint3(face.z, face.w, face.x));
-		} else {
-			triIndexes.push_back(uint3(face.x, face.y, face.w));
-			triIndexes.push_back(uint3(face.w, face.y, face.z));
+	if (textureMap.size() > 0) {
+		Vector2f newTextureMap;
+		uint32_t index = 0;
+		for (const uint4& face : quadIndexes.data) {
+			float3 pt1 = vertexLocations[face.x];
+			float3 pt2 = vertexLocations[face.y];
+			float3 pt3 = vertexLocations[face.z];
+			float3 pt4 = vertexLocations[face.w];
+
+			float2 tx = textureMap[index++];
+			float2 ty = textureMap[index++];
+			float2 tz = textureMap[index++];
+			float2 tw = textureMap[index++];
+
+			if (distanceSqr(pt1, pt3) < distanceSqr(pt2, pt4)) {
+				triIndexes.push_back(uint3(face.x, face.y, face.z));
+				newTextureMap.push_back(tx);
+				newTextureMap.push_back(ty);
+				newTextureMap.push_back(tz);
+				triIndexes.push_back(uint3(face.z, face.w, face.x));
+				newTextureMap.push_back(tz);
+				newTextureMap.push_back(tw);
+				newTextureMap.push_back(tx);
+			} else {
+				triIndexes.push_back(uint3(face.x, face.y, face.w));
+				newTextureMap.push_back(tx);
+				newTextureMap.push_back(ty);
+				newTextureMap.push_back(tw);
+				triIndexes.push_back(uint3(face.w, face.y, face.z));
+				newTextureMap.push_back(tw);
+				newTextureMap.push_back(ty);
+				newTextureMap.push_back(tz);
+			}
+		}
+		for (const uint3& face : triIndexes.data) {
+			float2 tx = textureMap[index++];
+			float2 ty = textureMap[index++];
+			float2 tz = textureMap[index++];
+			newTextureMap.push_back(tx);
+			newTextureMap.push_back(ty);
+			newTextureMap.push_back(tz);
+		}
+		textureMap = newTextureMap;
+	} else {
+		for (const uint4& face : quadIndexes.data) {
+			float3 pt1 = vertexLocations[face.x];
+			float3 pt2 = vertexLocations[face.y];
+			float3 pt3 = vertexLocations[face.z];
+			float3 pt4 = vertexLocations[face.w];
+			if (distanceSqr(pt1, pt3) < distanceSqr(pt2, pt4)) {
+				triIndexes.push_back(uint3(face.x, face.y, face.z));
+				triIndexes.push_back(uint3(face.z, face.w, face.x));
+			} else {
+				triIndexes.push_back(uint3(face.x, face.y, face.w));
+				triIndexes.push_back(uint3(face.w, face.y, face.z));
+			}
 		}
 	}
 	quadIndexes.clear();
