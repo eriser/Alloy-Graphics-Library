@@ -289,7 +289,7 @@ bool ExampleUI::init(Composite& rootNode) {
 			new VerticalSlider("Slider", CoordPerPX(0.85f, 0.1f, 0, 0),
 					CoordPX(100.0f, 200.0f), Integer(0), Integer(20),
 					Integer(70)));
-	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.8f),
+	TextFieldPtr field1 = MakeTextField("Field 1", CoordPercent(0.6f, 0.85f),
 			CoordPX(200.0f, 50.0f), Theme::Default.DARK,
 			Theme::Default.LIGHT_TEXT);
 	FileButton* fbutton;
