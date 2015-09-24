@@ -114,6 +114,9 @@
     <ClCompile Include="..\..\src\core\ImageProcessing.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyDenseMatrix.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h">
@@ -243,6 +246,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\ImageProcessing.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyDenseMatrix.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
