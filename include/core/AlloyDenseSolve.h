@@ -401,14 +401,14 @@ linear equations.  This will fail if isNonsingular() returns false.
 */
 
 template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
-	DenseMatrix<T, C>& L, DenseMatrix<T, C>& U) {
+	DenseMatrix<T, C>& L, DenseMatrix<T, C>& U,const double zeroTolerance=0.0) {
 	const int m = A.rows;
 	const int n = A.cols;
 	std::vector<std::vector<double>> LU(m,std::vector<double>(n));
 	std::vector<int> piv(m);
 	std::vector<double> LUcolj(m);
 	int pivsign;
-	double* LUrowi;
+	std::vector<double> LUrowi;
 	L.resize(m, n);
 	U.resize(n, n);
 	bool nonSingular = true;
@@ -427,7 +427,7 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 				LUcolj[i] = LU[i][j];
 			}
 			for (int i = 0; i < m; i++) {
-				LUrowi = &LU[i][0];
+				LUrowi = LU[i];
 				int kmax = aly::min(i, j);
 				double s = 0.0;
 				for (int k = 0; k < kmax; k++) {
@@ -452,14 +452,14 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 				piv[j] = k;
 				pivsign = -pivsign;
 			}
-			if (j < m && LU[j][j] != 0.0) {
+			if (j < m && std::abs(LU[j][j]) >zeroTolerance) {
 				for (int i = j + 1; i < m; i++) {
 					LU[i][j] /= LU[j][j];
 				}
 			}
 		}
 		for (int j = 0; j < n; j++) {
-			if (LU[j][j] == 0) {
+			if (std::abs(LU[j][j])<=zeroTolerance) {
 				nonSingular = false;
 				break;
 			}
@@ -552,6 +552,7 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 			}
 			y[i] /= L[i][i];
 		}
+		std::cout << "Ly-b=" << L*y - b << std::endl;
 		// Backward solve Ux = y
 		for (int i = n - 1; i >= 0; i--) {
 			x[i] = y[i];
@@ -560,6 +561,9 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 			}
 			x[i] /= U[i][i];
 		}
+		std::cout << "Ux-y=" << U*x - y << std::endl;
+
+		std::cout << "LU-A" << L*U-A << std::endl;
 		return x;
 	}
 }

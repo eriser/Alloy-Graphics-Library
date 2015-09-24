@@ -208,6 +208,32 @@ template<class T, int C> DenseMatrix<T, C> operator-(
 	}
 	return out;
 }
+template<class T, int C> DenseMatrix<T, C> operator-(
+	const DenseMatrix<T, C>& A, const DenseMatrix<T, C>& B) {
+	if (A.rows != B.rows || A.cols != B.cols) {
+		throw std::runtime_error("Cannot subtract matricies. Matrix dimensions must match.");
+	}
+	DenseMatrix<T, C> out(A.rows, A.cols);
+	for (int i = 0; i < (int)out.rows; i++) {
+		for (int j = 0; j < out.cols; j++) {
+			out[i][j] = A[i][j]- B[i][j];
+		}
+	}
+	return out;
+}
+template<class T, int C> DenseMatrix<T, C> operator+(
+	const DenseMatrix<T, C>& A, const DenseMatrix<T, C>& B) {
+	if (A.rows != B.rows || A.cols != B.cols) {
+		throw std::runtime_error("Cannot add matricies. Matrix dimensions must match.");
+	}
+	DenseMatrix<T, C> out(A.rows, A.cols);
+	for (int i = 0; i < (int)out.rows; i++) {
+		for (int j = 0; j < out.cols; j++) {
+			out[i][j] = A[i][j] + B[i][j];
+		}
+	}
+	return out;
+}
 template<class T, int C> Vector<T, C> operator*(const DenseMatrix<T, C>& A,
 		const vec<T, C>& v) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
