@@ -157,9 +157,11 @@ public:
 		data.assign(data.size(), vec<T, C>((T) 0));
 	}
 	const vec<T, C>& operator[](const size_t i) const {
+		if(i>=data.size())throw std::runtime_error(MakeString()<<"Vector index out of bounds "<<i<<"/"<<data.size());
 		return data[i];
 	}
 	vec<T, C>& operator[](const size_t i) {
+		if(i>=data.size())throw std::runtime_error(MakeString()<<"Vector index out of bounds "<<i<<"/"<<data.size());
 		return data[i];
 	}
 	inline void clear() {
