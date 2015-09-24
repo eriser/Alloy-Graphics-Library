@@ -1121,9 +1121,17 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 }
 
 void Mesh::convertQuadsToTriangles() {
-	if (textureMap.size() > 0) {
+	if (textureMap.size() > 0&&quadIndexes.size()>0) {
 		Vector2f newTextureMap;
 		uint32_t index = 0;
+                for (const uint3& face : triIndexes.data) {
+                        float2 tx = textureMap[index++];
+                        float2 ty = textureMap[index++];
+                        float2 tz = textureMap[index++];
+                        newTextureMap.push_back(tx);
+                        newTextureMap.push_back(ty);
+                        newTextureMap.push_back(tz);
+                }
 		for (const uint4& face : quadIndexes.data) {
 			float3 pt1 = vertexLocations[face.x];
 			float3 pt2 = vertexLocations[face.y];
@@ -1134,7 +1142,6 @@ void Mesh::convertQuadsToTriangles() {
 			float2 ty = textureMap[index++];
 			float2 tz = textureMap[index++];
 			float2 tw = textureMap[index++];
-
 			if (distanceSqr(pt1, pt3) < distanceSqr(pt2, pt4)) {
 				triIndexes.push_back(uint3(face.x, face.y, face.z));
 				newTextureMap.push_back(tx);
@@ -1155,14 +1162,7 @@ void Mesh::convertQuadsToTriangles() {
 				newTextureMap.push_back(tz);
 			}
 		}
-		for (const uint3& face : triIndexes.data) {
-			float2 tx = textureMap[index++];
-			float2 ty = textureMap[index++];
-			float2 tz = textureMap[index++];
-			newTextureMap.push_back(tx);
-			newTextureMap.push_back(ty);
-			newTextureMap.push_back(tz);
-		}
+
 		textureMap = newTextureMap;
 	} else {
 		for (const uint4& face : quadIndexes.data) {
@@ -1179,6 +1179,8 @@ void Mesh::convertQuadsToTriangles() {
 			}
 		}
 	}
+	if(quadIndexes.size()>0)
+	        setDirty(true);
 	quadIndexes.clear();
 	if (vertexNormals.size() > 0) {
 		updateVertexNormals();
