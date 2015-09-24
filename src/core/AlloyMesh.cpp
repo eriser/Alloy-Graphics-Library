@@ -411,7 +411,6 @@ void GLMesh::update() {
 				for (int n = 0; n < 3; n++) {
 					tris[n][offset] = mesh.textureMap[idx++];
 				}
-				offset++;
 			}
 			for (int n = 0; n < 3; n++) {
 				if (glIsBuffer(triTextureBuffer[n]) == GL_TRUE)
