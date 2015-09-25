@@ -47,7 +47,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		Vector1f x1, x2, x3;
 
 		std::vector<int> piv;
-		LU(A, L, U,piv);
+		LU(A, L, U, piv);
 		std::cout << "L=" << L << std::endl;
 		std::cout << "U=" << U << std::endl;
 		QR(A, Q, R);
@@ -343,10 +343,10 @@ bool SANITY_CHECK_PYRAMID() {
 	ImageRGBAf imgUp = imgDown.upSample();
 	WriteImageToFile("image_upsample.png", imgUp);
 
-	ImageRGBAf compose,crop;
+	ImageRGBAf compose, crop;
 
-	Crop(img,crop,int2(120,89),int2(640,480));
-	WriteImageToFile("crop.png",crop);
+	Crop(img, crop, int2(120, 170), int2(640, 480));
+	WriteImageToFile("crop.png", crop);
 	ImageRGBAf imgUpDown = imgUp.downSample();
 	ImageRGBAf diff(imgUpDown.width, imgUpDown.height);
 
@@ -359,12 +359,13 @@ bool SANITY_CHECK_PYRAMID() {
 		}
 	}
 
-	Compose({ imgDown, imgUp, img ,imgDown.downSample(),imgDown.downSample(),imgDown.downSample().downSample()}, compose, 3, 2);
-	WriteImageToFile("compose1.png",compose);
-
-	std::vector<ImageRGBAf> ilist={ imgDown, imgUp, img };
-	Compose(ilist, compose, 2, 2);
-	WriteImageToFile("compose2.png",compose);
+	Tile( { imgDown, imgUp, img, imgDown.downSample(), imgDown.downSample(),
+			imgDown.downSample().downSample(), crop }, compose, 3, 3);
+	WriteImageToFile("compose1.png", compose);
+	std::vector<ImageRGBAf> ilist = { imgDown, imgUp, img, imgDown.downSample(), imgDown.downSample(),
+			imgDown.downSample().downSample(), crop };
+	Tile(ilist, compose, 4, 2);
+	WriteImageToFile("compose2.png", compose);
 	diff.writeToXML("image_diff.xml");
 	return true;
 }

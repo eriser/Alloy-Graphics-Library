@@ -1017,24 +1017,27 @@ template<class T, int C, ImageType I> void Set(const Image<T, C, I>& in,
 		Image<T, C, I>& out, int2 pos) {
 	for (int i = 0; i < in.width; i++) {
 		for (int j = 0; j < in.height; j++) {
-			if (pos.x + i >= 0 && pos.x + i < out.width && pos.y + j >= 0
-					&& pos.y + j < out.height) {
+			if (    pos.x + i >= 0 &&
+					pos.x + i < out.width &&
+					pos.y + j >= 0&&
+					pos.y + j < out.height) {
 				out(pos.x + i, pos.y + j) = in(i, j);
 			}
 		}
 	}
 }
-template<class T, int C, ImageType I> void Compose(
+template<class T, int C, ImageType I> void Tile(
 		const std::vector<Image<T, C, I>>& in, Image<T, C, I>& out, int rows,
 		int cols) {
 	int index = 0;
 	int maxX = 0;
 	int maxY = 0;
-	std::vector<int> lines(rows);
+	std::vector<int> lines(rows,0);
 	for (int r = 0; r < rows; r++) {
 		int runX = 0;
 		int runY = 0;
 		for (int c = 0; c < cols; c++) {
+			if(index>=in.size())break;
 			const Image<T, C, I>& img = in[index++];
 			runX += img.width;
 			runY = std::max(runY, img.height);
@@ -1042,26 +1045,30 @@ template<class T, int C, ImageType I> void Compose(
 		maxX = std::max(runX, maxX);
 		lines[r] = maxY;
 		maxY += runY;
+		if(index>=in.size())break;
 	}
 	out.resize(maxX, maxY);
+	out.set(vec<T,C>(T(0)));
 	index = 0;
 	for (int r = 0; r < rows; r++) {
 		int runX = 0;
 		int runY = lines[r];
 		for (int c = 0; c < cols; c++) {
+			if(index>=in.size())break;
 			const Image<T, C, I>& img = in[index++];
 			Set(img, out, int2(runX, runY));
 			runX += img.width;
 		}
+		if(index>=in.size())break;
 	}
 }
-template<class T, int C, ImageType I> void Compose(
+template<class T, int C, ImageType I> void Tile(
 		const std::initializer_list<Image<T, C, I>>& in, Image<T, C, I>& out,
 		int rows, int cols) {
 	int index = 0;
 	int maxX = 0;
 	int maxY = 0;
-	std::vector<int> lines(rows);
+	std::vector<int> lines(rows,0);
 	{
 		auto iter = in.begin();
 		for (int r = 0; r < rows; r++) {
@@ -1081,6 +1088,7 @@ template<class T, int C, ImageType I> void Compose(
 		}
 	}
 	out.resize(maxX, maxY);
+	out.set(vec<T,C>(T(0)));
 	index = 0;
 	{
 		auto iter = in.begin();
