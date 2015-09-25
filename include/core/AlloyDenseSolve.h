@@ -26,79 +26,91 @@
 namespace aly {
 bool SANITY_CHECK_DENSE_SOLVE();
 
-void PoissonBlend(const Image4f& in, Image4f& out, int iterations, int levels,float lambda = 0.99f);
-void PoissonBlend(const Image4f& in, Image4f& out, int iterations,float lambda = 0.99f);
-void PoissonBlend(const Image2f& in, Image2f& out, int iterations, int levels,float lambda = 0.99f);
-void PoissonBlend(const Image2f& in, Image2f& out, int iterations,float lambda = 0.99f);
-void PoissonInpaint(const Image4f& source,const Image4f& target,  Image4f& out, int iterations, int levels,float lambda = 0.99f);
-void PoissonInpaint(const Image4f& source,const Image4f& target,  Image4f& out, int iterations,float lambda = 0.99f);
-void PoissonInpaint(const Image2f& source,const Image2f& target,  Image2f& out, int iterations, int levels,float lambda = 0.99f);
-void PoissonInpaint(const Image2f& source,const Image2f& target,  Image2f& out, int iterations,float lambda = 0.99f);
-void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,int levels, float lambda = 0.99f);
-void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,float lambda = 0.99f);
-void LaplaceFill(const Image2f& sourceImg,Image2f& targetImg,int iterations, float lambda=0.99f);
-void LaplaceFill(const Image2f& sourceImg,Image2f& targetImg,int iterations,int levels, float lambda=0.99f);
+void PoissonBlend(const Image4f& in, Image4f& out, int iterations, int levels,
+		float lambda = 0.99f);
+void PoissonBlend(const Image4f& in, Image4f& out, int iterations,
+		float lambda = 0.99f);
+void PoissonBlend(const Image2f& in, Image2f& out, int iterations, int levels,
+		float lambda = 0.99f);
+void PoissonBlend(const Image2f& in, Image2f& out, int iterations,
+		float lambda = 0.99f);
+void PoissonInpaint(const Image4f& source, const Image4f& target, Image4f& out,
+		int iterations, int levels, float lambda = 0.99f);
+void PoissonInpaint(const Image4f& source, const Image4f& target, Image4f& out,
+		int iterations, float lambda = 0.99f);
+void PoissonInpaint(const Image2f& source, const Image2f& target, Image2f& out,
+		int iterations, int levels, float lambda = 0.99f);
+void PoissonInpaint(const Image2f& source, const Image2f& target, Image2f& out,
+		int iterations, float lambda = 0.99f);
+void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		int levels, float lambda = 0.99f);
+void LaplaceFill(const Image4f& sourceImg, Image4f& targetImg, int iterations,
+		float lambda = 0.99f);
+void LaplaceFill(const Image2f& sourceImg, Image2f& targetImg, int iterations,
+		float lambda = 0.99f);
+void LaplaceFill(const Image2f& sourceImg, Image2f& targetImg, int iterations,
+		int levels, float lambda = 0.99f);
 
 /******************************************************************************
-* XLISP-STAT 2.1 Copyright (c) 1990, by Luke Tierney
-* XLISP version 2.1, Copyright (c) 1989, by David Betz.
-*
-* Permission to use, copy, modify, distribute, and sell this software and its
-* documentation for any purpose is hereby granted without fee, provided that
-* the above copyright notice appear in all copies and that both that
-* copyright notice and this permission notice appear in supporting
-* documentation, and that the name of Luke Tierney and David Betz not be
-* used in advertising or publicity pertaining to distribution of the software
-* without specific, written prior permission.  Luke Tierney and David Betz
-* make no representations about the suitability of this software for any
-* purpose. It is provided "as is" without express or implied warranty.
-*
-* LUKE TIERNEY AND DAVID BETZ DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
-* SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
-* IN NO EVENT SHALL LUKE TIERNEY NOR DAVID BETZ BE LIABLE FOR ANY SPECIAL,
-* INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-* LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-* OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-* PERFORMANCE OF THIS SOFTWARE.
-*
-* XLISP-STAT AUTHOR:
-*               Luke Tierney
-*               School of Statistics
-*               University of Minnesota
-*               Minneapolis, MN 55455
-*               (612) 625-7843
-*
-*       Email Address:
-*               internet: luke@umnstat.stat.umn.edu
-*
-* XLISP AUTHOR:
-*              David Betz
-*              P.O. Box 144
-*              Peterborough, NH 03458
-*              (603) 924-4145
-******************************************************************************
-* XLISP-STAT 2.1 was ported to the Amiga by
-*              J.K. Lindsey
-*              Faculty of Economic, Business and Social Sciences,
-*              University of Liege,
-*              Sart Tilman B31,
-*              4000 Liege,
-*              Belgium
-*              32-41-56.29.64
-*
-* The above permission and disclaimer also applies to all of the specifically
-* Amiga portions of this software, with the restriction that the Amiga
-* version not be used for any military-related applications.
-******************************************************************************
+ * XLISP-STAT 2.1 Copyright (c) 1990, by Luke Tierney
+ * XLISP version 2.1, Copyright (c) 1989, by David Betz.
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation, and that the name of Luke Tierney and David Betz not be
+ * used in advertising or publicity pertaining to distribution of the software
+ * without specific, written prior permission.  Luke Tierney and David Betz
+ * make no representations about the suitability of this software for any
+ * purpose. It is provided "as is" without express or implied warranty.
+ *
+ * LUKE TIERNEY AND DAVID BETZ DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
+ * IN NO EVENT SHALL LUKE TIERNEY NOR DAVID BETZ BE LIABLE FOR ANY SPECIAL,
+ * INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+ * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF THIS SOFTWARE.
+ *
+ * XLISP-STAT AUTHOR:
+ *               Luke Tierney
+ *               School of Statistics
+ *               University of Minnesota
+ *               Minneapolis, MN 55455
+ *               (612) 625-7843
+ *
+ *       Email Address:
+ *               internet: luke@umnstat.stat.umn.edu
+ *
+ * XLISP AUTHOR:
+ *              David Betz
+ *              P.O. Box 144
+ *              Peterborough, NH 03458
+ *              (603) 924-4145
+ ******************************************************************************
+ * XLISP-STAT 2.1 was ported to the Amiga by
+ *              J.K. Lindsey
+ *              Faculty of Economic, Business and Social Sciences,
+ *              University of Liege,
+ *              Sart Tilman B31,
+ *              4000 Liege,
+ *              Belgium
+ *              32-41-56.29.64
+ *
+ * The above permission and disclaimer also applies to all of the specifically
+ * Amiga portions of this software, with the restriction that the Amiga
+ * version not be used for any military-related applications.
+ ******************************************************************************
 
-*/
+ */
 
 template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
-	DenseMatrix<T, C>& U, DenseMatrix<T, C>& D, DenseMatrix<T, C>& Vt,
-	double zeroTolerance = 0) {
+		DenseMatrix<T, C>& U, DenseMatrix<T, C>& D, DenseMatrix<T, C>& Vt,
+		double zeroTolerance = 0) {
 	const int m = M.rows;
 	const int n = M.cols;
-	std::vector<std::vector<double>> v(n,std::vector<double>(n));
+	std::vector<std::vector<double>> v(n, std::vector<double>(n));
 	std::vector<std::vector<double>> u(m, std::vector<double>(m));
 	std::vector<double> w(n);
 	std::vector<double> rv1(n);
@@ -113,11 +125,11 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		anorm = 0.0, g = 0.0, scale = 0.0;
 		if (m < n) {
 			throw std::runtime_error(
-				"SVD error, rows must be greater than or equal to cols.");
+					"SVD error, rows must be greater than or equal to cols.");
 		}
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				u[i][j] = (double)M[i][j][cc];
+				u[i][j] = (double) M[i][j][cc];
 			}
 		}
 		for (i = 0; i < n; i++) {
@@ -126,70 +138,70 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 			g = s = scale = 0.0;
 			if (i < m) {
 				for (k = i; k < m; k++)
-					scale += std::abs((double)u[k][i]);
+					scale += std::abs((double) u[k][i]);
 				if (scale > zeroTolerance) {
 					for (k = i; k < m; k++) {
-						u[k][i] = ((double)u[k][i] / scale);
-						s += ((double)u[k][i] * (double)u[k][i]);
+						u[k][i] = ((double) u[k][i] / scale);
+						s += ((double) u[k][i] * (double) u[k][i]);
 					}
-					f = (double)u[i][i];
+					f = (double) u[i][i];
 					g = -sign(std::sqrt(s), f);
 					h = f * g - s;
 					u[i][i] = (f - g);
 					if (i != n - 1) {
 						for (j = l; j < n; j++) {
 							for (s = 0.0, k = i; k < m; k++)
-								s += ((double)u[k][i] * (double)u[k][j]);
+								s += ((double) u[k][i] * (double) u[k][j]);
 							f = s / h;
 							for (k = i; k < m; k++)
-								u[k][j] += (f * (double)u[k][i]);
+								u[k][j] += (f * (double) u[k][i]);
 						}
 					}
 					for (k = i; k < m; k++)
-						u[k][i] = ((double)u[k][i] * scale);
+						u[k][i] = ((double) u[k][i] * scale);
 				}
 			}
 			w[i] = (scale * g);
 			g = s = scale = 0.0;
 			if (i < m && i != n - 1) {
 				for (k = l; k < n; k++)
-					scale += std::abs((double)u[i][k]);
+					scale += std::abs((double) u[i][k]);
 				if (scale > zeroTolerance) {
 					for (k = l; k < n; k++) {
-						u[i][k] = ((double)u[i][k] / scale);
-						s += ((double)u[i][k] * (double)u[i][k]);
+						u[i][k] = ((double) u[i][k] / scale);
+						s += ((double) u[i][k] * (double) u[i][k]);
 					}
-					f = (double)u[i][l];
+					f = (double) u[i][l];
 					g = -sign(std::sqrt(s), f);
 					h = f * g - s;
 					u[i][l] = (f - g);
 					for (k = l; k < n; k++)
-						rv1[k] = (double)u[i][k] / h;
+						rv1[k] = (double) u[i][k] / h;
 					if (i != m - 1) {
 						for (j = l; j < m; j++) {
 							for (s = 0.0, k = l; k < n; k++)
-								s += ((double)u[j][k] * (double)u[i][k]);
+								s += ((double) u[j][k] * (double) u[i][k]);
 							for (k = l; k < n; k++)
 								u[j][k] += (s * rv1[k]);
 						}
 					}
 					for (k = l; k < n; k++)
-						u[i][k] = ((double)u[i][k] * scale);
+						u[i][k] = ((double) u[i][k] * scale);
 				}
 			}
 			anorm = aly::max(anorm,
-				(std::abs((double)w[i]) + std::abs(rv1[i])));
+					(std::abs((double) w[i]) + std::abs(rv1[i])));
 		}
 		for (i = n - 1; i >= 0; i--) {
 			if (i < n - 1) {
 				if (std::abs(g) > zeroTolerance) {
 					for (j = l; j < n; j++)
-						v[j][i] = (((double)u[i][j] / (double)u[i][l]) / g);
+						v[j][i] = (((double) u[i][j] / (double) u[i][l]) / g);
 					for (j = l; j < n; j++) {
 						for (s = 0.0, k = l; k < n; k++)
-							s += ((double)u[i][k] * (double)v[k][j]);
+							s += ((double) u[i][k] * (double) v[k][j]);
 						for (k = l; k < n; k++)
-							v[k][j] += (s * (double)v[k][i]);
+							v[k][j] += (s * (double) v[k][i]);
 					}
 				}
 				for (j = l; j < n; j++)
@@ -201,7 +213,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		}
 		for (i = n - 1; i >= 0; i--) {
 			l = i + 1;
-			g = (double)w[i];
+			g = (double) w[i];
 			if (i < n - 1)
 				for (j = l; j < n; j++)
 					u[i][j] = 0.0;
@@ -210,16 +222,15 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 				if (i != n - 1) {
 					for (j = l; j < n; j++) {
 						for (s = 0.0, k = l; k < m; k++)
-							s += ((double)u[k][i] * (double)u[k][j]);
-						f = (s / (double)u[i][i]) * g;
+							s += ((double) u[k][i] * (double) u[k][j]);
+						f = (s / (double) u[i][i]) * g;
 						for (k = i; k < m; k++)
-							u[k][j] += (f * (double)u[k][i]);
+							u[k][j] += (f * (double) u[k][i]);
 					}
 				}
 				for (j = i; j < m; j++)
-					u[j][i] = ((double)u[j][i] * g);
-			}
-			else {
+					u[j][i] = ((double) u[j][i] * g);
+			} else {
 				for (j = i; j < m; j++)
 					u[j][i] = 0.0;
 			}
@@ -234,7 +245,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 						flag = 0;
 						break;
 					}
-					if (std::abs((double)w[nm]) + anorm == anorm)
+					if (std::abs((double) w[nm]) + anorm == anorm)
 						break;
 				}
 				if (flag) {
@@ -243,22 +254,22 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 					for (i = l; i <= k; i++) {
 						f = s * rv1[i];
 						if (std::abs(f) + anorm != anorm) {
-							g = (double)w[i];
+							g = (double) w[i];
 							h = pythag(f, g);
 							w[i] = h;
 							h = 1.0 / h;
 							c = g * h;
 							s = (-f * h);
 							for (j = 0; j < m; j++) {
-								y = (double)u[j][nm];
-								z = (double)u[j][i];
+								y = (double) u[j][nm];
+								z = (double) u[j][i];
 								u[j][nm] = (y * c + z * s);
 								u[j][i] = (z * c - y * s);
 							}
 						}
 					}
 				}
-				z = (double)w[k];
+				z = (double) w[k];
 				if (l == k) {
 					if (z < 0.0) {
 						w[k] = (-z);
@@ -267,7 +278,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 					}
 					int iii, jjj;
 					for (iii = k; (iii < n - 1) && (w[iii] < w[iii + 1]);
-					iii++) {
+							iii++) {
 						std::swap(w[iii], w[iii + 1]);
 						for (jjj = 0; jjj < m; jjj++)
 							std::swap(u[jjj][iii], u[jjj][iii + 1]);
@@ -279,9 +290,9 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 				if (its >= 30) {
 					throw std::runtime_error("SVD did not converge.");
 				}
-				x = (double)w[l];
+				x = (double) w[l];
 				nm = k - 1;
-				y = (double)w[nm];
+				y = (double) w[nm];
 				g = rv1[nm];
 				h = rv1[k];
 				f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2.0 * h * y);
@@ -291,7 +302,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 				for (j = l; j <= nm; j++) {
 					i = j + 1;
 					g = rv1[i];
-					y = (double)w[i];
+					y = (double) w[i];
 					h = s * g;
 					g = c * g;
 					z = pythag(f, h);
@@ -303,8 +314,8 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 					h = y * s;
 					y = y * c;
 					for (jj = 0; jj < n; jj++) {
-						x = (double)v[jj][j];
-						z = (double)v[jj][i];
+						x = (double) v[jj][j];
+						z = (double) v[jj][i];
 						v[jj][j] = (x * c + z * s);
 						v[jj][i] = (z * c - x * s);
 					}
@@ -318,8 +329,8 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 					f = (c * g) + (s * y);
 					x = (c * y) - (s * g);
 					for (jj = 0; jj < m; jj++) {
-						y = (double)u[jj][j];
-						z = (double)u[jj][i];
+						y = (double) u[jj][j];
+						z = (double) u[jj][i];
 						u[jj][j] = (y * c + z * s);
 						u[jj][i] = (z * c - y * s);
 					}
@@ -332,27 +343,26 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i == j) {
-					D[i][j][cc] = (T)w[j];
-				}
-				else {
+					D[i][j][cc] = (T) w[j];
+				} else {
 					D[i][j][cc] = T(0);
 				}
 			}
 		}
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < m; j++) {
-				U[i][j][cc] = (T)u[i][j];
+				U[i][j][cc] = (T) u[i][j];
 			}
 		}
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
-				Vt[i][j][cc] = (T)v[j][i];
+				Vt[i][j][cc] = (T) v[j][i];
 			}
 		}
 	}
 }
 template<class T, int C> DenseMatrix<T, C> inverse(const DenseMatrix<T, C>& M,
-	double zeroTolerance = 0.0) {
+		double zeroTolerance = 0.0) {
 	DenseMatrix<T, C> U, D, Vt;
 	SVD(M, U, D, Vt);
 	int K = aly::min(D.rows, D.cols);
@@ -368,119 +378,114 @@ template<class T, int C> DenseMatrix<T, C> inverse(const DenseMatrix<T, C>& M,
 	return (U * D * Vt).transpose();
 }
 template<class T, int C> Vector<T, C> SolveSVD(const DenseMatrix<T, C>& A,
-	const Vector<T, C>& b) {
+		const Vector<T, C>& b) {
 	if (A.rows != b.size()) {
 		throw std::runtime_error(
-			MakeString()
-			<< "Matrix row dimensions and vector length must agree. A=["
-			<< A.rows << "," << A.cols << "] b=[" << b.size()
-			<< "]");
+				MakeString()
+						<< "Matrix row dimensions and vector length must agree. A=["
+						<< A.rows << "," << A.cols << "] b=[" << b.size()
+						<< "]");
 	}
 	if (A.rows != A.cols) {
 		DenseMatrix<T, C> At = A.transpose();
 		DenseMatrix<T, C> AtA = At * A;
 		Vector<T, C> Atb = At * b;
 		return inverse(AtA) * Atb;
-	}
-	else {
+	} else {
 		return inverse(A) * b;
 	}
 }
 //Back port of NIST's Java Implementation of LINPACK called JAMA. Code is licensed for free use in the public domain. http://math.nist.gov/javanumerics/jama/
 /** LU Decomposition.
-<P>
-For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n
-unit lower triangular matrix L, an n-by-n upper triangular matrix U,
-and a permutation vector piv of length m so that A(piv,:) = L*U.
-If m < n, then L is m-by-m and U is m-by-n.
-<P>
-The LU decompostion with pivoting always exists, even if the matrix is
-singular, so the constructor will never fail.  The primary use of the
-LU decomposition is in the solution of square systems of simultaneous
-linear equations.  This will fail if isNonsingular() returns false.
-*/
+ <P>
+ For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n
+ unit lower triangular matrix L, an n-by-n upper triangular matrix U,
+ and a permutation vector piv of length m so that A(piv,:) = L*U.
+ If m < n, then L is m-by-m and U is m-by-n.
+ <P>
+ The LU decompostion with pivoting always exists, even if the matrix is
+ singular, so the constructor will never fail.  The primary use of the
+ LU decomposition is in the solution of square systems of simultaneous
+ linear equations.  This will fail if isNonsingular() returns false.
+ */
 
 template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
-	DenseMatrix<T, C>& L, DenseMatrix<T, C>& U, std::vector<int>& piv,const double zeroTolerance=0.0) {
+		DenseMatrix<T, 1>& L, DenseMatrix<T, 1>& U, std::vector<int>& piv,
+		int cc=0, const double zeroTolerance = 0.0) {
 	const int m = A.rows;
 	const int n = A.cols;
-	std::vector<std::vector<double>> LU(m,std::vector<double>(n,0.0));
+	std::vector<std::vector<double>> LU(m, std::vector<double>(n, 0.0));
 	piv.resize(m);
-	std::vector<double> LUcolj(m,0.0);
+	std::vector<double> LUcolj(m, 0.0);
 	int pivsign;
 	double* LUrowi;
 	L.resize(m, n);
 	U.resize(n, n);
 	bool nonSingular = true;
-	for (int cc = 0; cc < C; cc++) {
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				LU[i][j] = (double)A[i][j][cc];
-			}
-		}
-		for (int i = 0; i < m; i++) {
-			piv[i] = i;
-		}
-		pivsign = 1;
+	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
-			for (int i = 0; i < m; i++) {
-				LUcolj[i] = LU[i][j];
+			LU[i][j] = (double) A[i][j][cc];
+		}
+	}
+	for (int i = 0; i < m; i++) {
+		piv[i] = i;
+	}
+	pivsign = 1;
+	for (int j = 0; j < n; j++) {
+		for (int i = 0; i < m; i++) {
+			LUcolj[i] = LU[i][j];
+		}
+		for (int i = 0; i < m; i++) {
+			LUrowi = &LU[i][0];
+			int kmax = aly::min(i, j);
+			double s = 0.0;
+			for (int k = 0; k < kmax; k++) {
+				s += LUrowi[k] * LUcolj[k];
 			}
-			for (int i = 0; i < m; i++) {
-				LUrowi = &LU[i][0];
-				int kmax = aly::min(i, j);
-				double s = 0.0;
-				for (int k = 0; k < kmax; k++) {
-					s += LUrowi[k] * LUcolj[k];
-				}
-				LUrowi[j] = LUcolj[i] -= s;
+			LUrowi[j] = LUcolj[i] -= s;
+		}
+		int p = j;
+		for (int i = j + 1; i < m; i++) {
+			if (std::abs(LUcolj[i]) > std::abs(LUcolj[p])) {
+				p = i;
 			}
-			int p = j;
+		}
+		if (p != j) {
+			for (int k = 0; k < n; k++) {
+				std::swap(LU[p][k], LU[j][k]);
+			}
+			std::swap(piv[p], piv[j]);
+			pivsign = -pivsign;
+		}
+		if (j < m && std::abs(LU[j][j]) > zeroTolerance) {
 			for (int i = j + 1; i < m; i++) {
-				if (std::abs(LUcolj[i]) > std::abs(LUcolj[p])) {
-					p = i;
-				}
-			}
-			if (p != j) {
-				for (int k = 0; k < n; k++) {
-					std::swap(LU[p][k],LU[j][k]);
-				}
-				std::swap(piv[p],piv[j]);
-				pivsign = -pivsign;
-			}
-			if (j < m && std::abs(LU[j][j]) >zeroTolerance) {
-				for (int i = j + 1; i < m; i++) {
-					LU[i][j] /= LU[j][j];
-				}
+				LU[i][j] /= LU[j][j];
 			}
 		}
+	}
+	for (int j = 0; j < n; j++) {
+		if (std::abs(LU[j][j]) <= zeroTolerance) {
+			nonSingular = false;
+			break;
+		}
+	}
+	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
-			if (std::abs(LU[j][j])<=zeroTolerance) {
-				nonSingular = false;
-				break;
+			if (i > j) {
+				L[i][j].x = (T) LU[i][j];
+			} else if (i == j) {
+				L[i][j].x = T(1.0);
+			} else {
+				L[i][j].x = T(0.0);
 			}
 		}
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				if (i > j) {
-					L[i][j][cc] = (T)LU[i][j];
-				}
-				else if (i == j) {
-					L[i][j][cc] = T(1.0);
-				}
-				else {
-					L[i][j][cc] = T(0.0);
-				}
-			}
-		}
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if (i <= j) {
-					U[i][j][cc] = T(LU[i][j]);
-				}
-				else {
-					U[i][j][cc] = T(0.0);
-				}
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (i <= j) {
+				U[i][j].x= T(LU[i][j]);
+			} else {
+				U[i][j].x= T(0.0);
 			}
 		}
 	}
@@ -488,14 +493,14 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 }
 
 template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
-	const Vector<T, C>& b) {
+		const Vector<T, C>& b) {
 
 	if (A.rows != b.size()) {
 		throw std::runtime_error(
-			MakeString()
-			<< "Matrix row dimensions and vector length must agree. A=["
-			<< A.rows << "," << A.cols << "] b=[" << b.size()
-			<< "]");
+				MakeString()
+						<< "Matrix row dimensions and vector length must agree. A=["
+						<< A.rows << "," << A.cols << "] b=[" << b.size()
+						<< "]");
 	}
 	if (A.rows != A.cols) {
 		DenseMatrix<T, C> At = A.transpose();
@@ -505,76 +510,79 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 		int n = AtA.cols;
 		Vector<T, C> x(A.cols);
 		Vector<T, C> y(A.cols);
-		DenseMatrix<T, C> L, U;
+		DenseMatrix<T, 1> L, U;
 		std::vector<int> piv;
-		bool nonSingular = LU(AtA, L, U,piv);
-		if (!nonSingular) {
-			throw std::runtime_error("Matrix is singular.");
-		}
-		// Forward solve Ly = b
-		for (int i = 0; i < n; i++) {
-			y[i] = Atb[piv[i]];
-			for (int j = 0; j < i; j++) {
-				y[i] -= L[i][j] * y[j];
+		for (int cc = 0; cc < C; cc++) {
+			bool nonSingular = LU(AtA, L, U, piv, cc);
+			if (!nonSingular) {
+				throw std::runtime_error("Matrix is singular.");
 			}
-			y[i] /= L[i][i];
-		}
-		// Backward solve Ux = y
-		for (int i = n - 1; i >= 0; i--) {
-			x[i] = y[i];
-			for (int j = i + 1; j < n; j++) {
-				x[i] -= U[i][j] * x[j];
+			// Forward solve Ly = b
+			for (int i = 0; i < n; i++) {
+				y[i][cc] =Atb[piv[i]][cc];
+				for (int j = 0; j < i; j++) {
+					y[i][cc] -= L[i][j].x * y[j][cc];
+				}
+				y[i][cc] /= L[i][i].x;
 			}
-			x[i] /= U[i][i];
+			// Backward solve Ux = y
+			for (int i = n - 1; i >= 0; i--) {
+				x[i][cc] = y[i][cc];
+				for (int j = i + 1; j < n; j++) {
+					x[i][cc] -= U[i][j].x * x[j][cc];
+				}
+				x[i][cc] /= U[i][i].x;
+			}
 		}
 		return x;
-	}
-	else {
+	} else {
 		int m = A.rows;
 		int n = A.cols;
 
 		Vector<T, C> x(A.cols);
 		Vector<T, C> y(A.cols);
-		DenseMatrix<T, C> L, U;
+		DenseMatrix<T, 1> L, U;
 		std::vector<int> piv;
-		bool nonSingular = LU(A, L, U,piv);
-		if (!nonSingular) {
-			throw std::runtime_error("Matrix is singular.");
-		}
-		// Forward solve Ly = b
-		for (int i = 0; i < n; i++) {
-			y[i] = b[piv[i]];
-			for (int j = 0; j < i; j++) {
-				y[i] -= L[i][j] * y[j];
+		for (int cc = 0; cc < C; cc++) {
+			bool nonSingular = LU(A, L, U, piv, cc);
+			if (!nonSingular) {
+				throw std::runtime_error("Matrix is singular.");
 			}
-			y[i] /= L[i][i];
-		}
-		// Backward solve Ux = y
-		for (int i = n - 1; i >= 0; i--) {
-			x[i] = y[i];
-			for (int j = i + 1; j < n; j++) {
-				x[i] -= U[i][j] * x[j];
+			// Forward solve Ly = b
+			for (int i = 0; i < n; i++) {
+				y[i][cc] =b[piv[i]][cc];
+				for (int j = 0; j < i; j++) {
+					y[i][cc] -= L[i][j].x * y[j][cc];
+				}
+				y[i][cc] /= L[i][i].x;
 			}
-			x[i] /= U[i][i];
+			// Backward solve Ux = y
+			for (int i = n - 1; i >= 0; i--) {
+				x[i][cc] = y[i][cc];
+				for (int j = i + 1; j < n; j++) {
+					x[i][cc] -= U[i][j].x * x[j][cc];
+				}
+				x[i][cc] /= U[i][i].x;
+			}
 		}
 		return x;
 	}
 }
 
 /** QR Decomposition.
-<P>
-For an m-by-n matrix A with m >= n, the QR decomposition is an m-by-n
-orthogonal matrix Q and an n-by-n upper triangular matrix R so that
-A = Q*R.
-<P>
-The QR decompostion always exists, even if the matrix does not have
-full rank, so the constructor will never fail.  The primary use of the
-QR decomposition is in the least squares solution of nonsquare systems
-of simultaneous linear equations.  This will fail if isFullRank()
-returns false.
-*/
+ <P>
+ For an m-by-n matrix A with m >= n, the QR decomposition is an m-by-n
+ orthogonal matrix Q and an n-by-n upper triangular matrix R so that
+ A = Q*R.
+ <P>
+ The QR decompostion always exists, even if the matrix does not have
+ full rank, so the constructor will never fail.  The primary use of the
+ QR decomposition is in the least squares solution of nonsquare systems
+ of simultaneous linear equations.  This will fail if isFullRank()
+ returns false.
+ */
 template<class T, int C> bool QR(const DenseMatrix<T, C>& A,
-	DenseMatrix<T, C>& Q, DenseMatrix<T, C>& R) {
+		DenseMatrix<T, C>& Q, DenseMatrix<T, C>& R) {
 	const int m = A.rows;
 	const int n = A.cols;
 	std::vector<std::vector<double>> QR(m, std::vector<double>(n));
@@ -585,7 +593,7 @@ template<class T, int C> bool QR(const DenseMatrix<T, C>& A,
 	for (int cc = 0; cc < C; cc++) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				QR[i][j] = (double)A[i][j][cc];
+				QR[i][j] = (double) A[i][j][cc];
 			}
 		}
 		for (int k = 0; k < n; k++) {
@@ -619,11 +627,9 @@ template<class T, int C> bool QR(const DenseMatrix<T, C>& A,
 			for (int j = 0; j < n; j++) {
 				if (i < j) {
 					R[i][j][cc] = T(QR[i][j]);
-				}
-				else if (i == j) {
+				} else if (i == j) {
 					R[i][j][cc] = T(Rdiag[i]);
-				}
-				else {
+				} else {
 					R[i][j][cc] = T(0.0);
 				}
 			}
@@ -657,14 +663,14 @@ template<class T, int C> bool QR(const DenseMatrix<T, C>& A,
 }
 
 template<class T, int C> Vector<T, C> SolveQR(const DenseMatrix<T, C>& A,
-	const Vector<T, C>& b) {
+		const Vector<T, C>& b) {
 
 	if (A.rows != b.size()) {
 		throw std::runtime_error(
-			MakeString()
-			<< "Matrix row dimensions and vector length must agree. A=["
-			<< A.rows << "," << A.cols << "] b=[" << b.size()
-			<< "]");
+				MakeString()
+						<< "Matrix row dimensions and vector length must agree. A=["
+						<< A.rows << "," << A.cols << "] b=[" << b.size()
+						<< "]");
 	}
 	if (A.rows != A.cols) {
 		DenseMatrix<T, C> At = A.transpose();
@@ -688,8 +694,7 @@ template<class T, int C> Vector<T, C> SolveQR(const DenseMatrix<T, C>& A,
 			}
 		}
 		return x;
-	}
-	else {
+	} else {
 		int m = A.rows;
 		int n = A.cols;
 
@@ -715,7 +720,7 @@ enum class MatrixFactorization {
 	SVD, QR, LU
 };
 template<class C, class R> std::basic_ostream<C, R> & operator <<(
-	std::basic_ostream<C, R> & ss, const MatrixFactorization& type) {
+		std::basic_ostream<C, R> & ss, const MatrixFactorization& type) {
 	switch (type) {
 	case MatrixFactorization::SVD:
 		return ss << "SVD";
@@ -727,8 +732,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	return ss;
 }
 template<class T, int C> Vector<T, C> Solve(const DenseMatrix<T, C>& A,
-	const Vector<T, C>& b, MatrixFactorization factor =
-	MatrixFactorization::SVD) {
+		const Vector<T, C>& b, MatrixFactorization factor =
+				MatrixFactorization::SVD) {
 	switch (factor) {
 	case MatrixFactorization::SVD:
 		return SolveSVD(A, b);

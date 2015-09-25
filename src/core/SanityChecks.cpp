@@ -47,7 +47,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		Vector1f x1, x2, x3;
 
 		std::vector<int> piv;
-		LU(A, L, U, piv);
+		LU(A, L, U, piv, 0);
 		std::cout << "L=" << L << std::endl;
 		std::cout << "U=" << U << std::endl;
 		QR(A, Q, R);
@@ -85,32 +85,58 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "r3=\n" << A * x3 - b2 << std::endl;
 
 	}
-	/*
-	 {
-	 DenseMatrix3f A(8, 6);
-	 for (int i = 0; i < A.rows; i++) {
-	 for (int j = 0; j < A.cols; j++) {
-	 for (int cc = 0; cc < 3; cc++) {
-	 A[i][j][cc] = float1((rand() % 1000) / 1000.0f);
-	 }
-	 }
-	 }
-	 std::cout << "A=" << A << std::endl;
-	 DenseMatrix3f L, U, Q, R, S, D, Vt;
-	 LU(A, L, U);
-	 std::cout << "L=" << L << std::endl;
-	 std::cout << "U=" << U << std::endl;
-	 QR(A, Q, R);
-	 std::cout << "Q=" << Q << std::endl;
-	 std::cout << "R=" << R << std::endl;
 
-	 A = A.transpose() * A;
-	 SVD(A, S, D, Vt);
-	 std::cout << "U=" << S << std::endl;
-	 std::cout << "D=" << D << std::endl;
-	 std::cout << "Vt=" << Vt << std::endl;
-	 }
-	 */
+	{
+		DenseMatrix3f A(8, 6);
+		Vector3f b2(A.cols);
+		Vector3f b1(A.rows);
+		srand(1123437);
+		for (int i = 0; i < A.rows; i++) {
+			for (int j = 0; j < A.cols; j++) {
+				for (int cc = 0; cc < 3; cc++) {
+					A[i][j][cc] = float1((rand() % 1000) / 1000.0f);
+					b2[j] = float3((rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f);
+					b1[i] = float3((rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f);
+				}
+			}
+		}
+		std::cout << "A=" << A << std::endl;
+		DenseMatrix3f Q, R, S, D, Vt;
+		DenseMatrix1f L, U;
+		Vector3f x1, x2, x3;
+		std::vector<int> piv;
+		LU(A, L, U, piv, 0);
+		std::cout << "L=" << L << std::endl;
+		std::cout << "U=" << U << std::endl;
+		QR(A, Q, R);
+		std::cout << "Q=" << Q << std::endl;
+		std::cout << "R=" << R << std::endl;
+
+		A = A.transpose() * A;
+		SVD(A, S, D, Vt);
+		std::cout << "U=" << S << std::endl;
+		std::cout << "D=" << D << std::endl;
+		std::cout << "Vt=" << Vt << std::endl;
+
+		A = A.transpose() * A;
+		SVD(A, S, D, Vt);
+		std::cout << "U=" << S << std::endl;
+		std::cout << "D=" << D << std::endl;
+		std::cout << "Vt=" << Vt << std::endl;
+
+		x1 = Solve(A, b2);
+		std::cout << "X1=\n" << x1 << std::endl;
+		std::cout << "r1=\n" << A * x1 - b2 << std::endl;
+
+		x2 = SolveLU(A, b2);
+		std::cout << "X2=\n" << x2 << std::endl;
+		std::cout << "r2=\n" << A * x2 - b2 << std::endl;
+
+		x3 = SolveQR(A, b2);
+		std::cout << "X3=\n" << x3 << std::endl;
+		std::cout << "r3=\n" << A * x3 - b2 << std::endl;
+	}
+
 	return true;
 }
 bool SANITY_CHECK_ALGO() {
@@ -362,8 +388,8 @@ bool SANITY_CHECK_PYRAMID() {
 	Tile( { imgDown, imgUp, img, imgDown.downSample(), imgDown.downSample(),
 			imgDown.downSample().downSample(), crop }, compose, 3, 3);
 	WriteImageToFile("compose1.png", compose);
-	std::vector<ImageRGBAf> ilist = { imgDown, imgUp, img, imgDown.downSample(), imgDown.downSample(),
-			imgDown.downSample().downSample(), crop };
+	std::vector<ImageRGBAf> ilist = { imgDown, imgUp, img, imgDown.downSample(),
+			imgDown.downSample(), imgDown.downSample().downSample(), crop };
 	Tile(ilist, compose, 4, 2);
 	WriteImageToFile("compose2.png", compose);
 	diff.writeToXML("image_diff.xml");
