@@ -203,6 +203,8 @@ void MeshViewer::draw(AlloyContext* context) {
 				float2(0.0f, 0.0f), float2((float)w, (float)h),
 				occlusionFrameBuffer.getViewport(), camera);
 		occlusionFrameBuffer.end();
+
+		//colorVertexShader.draw({ &mesh },camera,occlusionFrameBuffer,true);
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(), float2((float)w, (float)0.0f),
 			float2((float)w, (float)h));

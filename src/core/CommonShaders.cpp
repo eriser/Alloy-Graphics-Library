@@ -118,7 +118,9 @@ void ParticleDepthShader::draw(const std::initializer_list<const Mesh*>& meshes,
 		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set(camera,
@@ -133,7 +135,9 @@ void ParticleDepthShader::draw(
 		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set(camera,
@@ -151,7 +155,9 @@ void ParticleDepthShader::draw(const std::list<const Mesh*>& meshes,
 		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set("PoseMat",
@@ -165,7 +171,9 @@ void ParticleDepthShader::draw(
 		CameraParameters& camera, GLFrameBuffer& framebuffer, float radius) {
 	framebuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set(camera,
@@ -298,8 +306,9 @@ void main(void) {
 }
 
 void ParticleMatcapShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
-		const box2px& bounds, const box2px& viewport, float radius) {
+		const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, const box2px& bounds, const box2px& viewport,
+		float radius) {
 	glEnable(GL_SCISSOR_TEST);
 	glScissor((int) bounds.position.x,
 			(int) (viewport.dimensions.y - bounds.position.y
@@ -1567,11 +1576,14 @@ if(IS_QUAD!=0){
 
 }
 void DepthAndNormalShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
-		GLFrameBuffer& frameBuffer, bool flatShading) {
+		const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1586,10 +1598,13 @@ void DepthAndNormalShader::draw(
 }
 void DepthAndNormalShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1610,10 +1625,13 @@ void DepthAndNormalShader::draw(
 	frameBuffer.end();
 }
 void DepthAndNormalShader::draw(const std::list<const Mesh*>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1628,10 +1646,13 @@ void DepthAndNormalShader::draw(const std::list<const Mesh*>& meshes,
 }
 void DepthAndNormalShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1651,7 +1672,6 @@ void DepthAndNormalShader::draw(
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
-
 
 ColorVertexShader::ColorVertexShader(
 		const std::shared_ptr<AlloyContext>& context) :
@@ -1769,12 +1789,13 @@ if(IS_QUAD!=0){
 })");
 
 }
-void ColorVertexShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
-		GLFrameBuffer& frameBuffer, bool flatShading) {
+void ColorVertexShader::draw(const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	glClearColor(0, 0, 0, 1);
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1789,10 +1810,12 @@ void ColorVertexShader::draw(
 }
 void ColorVertexShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	glClearColor(0, 0, 0, 1);
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1813,10 +1836,12 @@ void ColorVertexShader::draw(
 	frameBuffer.end();
 }
 void ColorVertexShader::draw(const std::list<const Mesh*>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	glClearColor(0, 0, 0, 1);
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1831,10 +1856,12 @@ void ColorVertexShader::draw(const std::list<const Mesh*>& meshes,
 }
 void ColorVertexShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
-	glClearColor(0, 0, 0, 1);
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1962,11 +1989,14 @@ DepthAndTextureShader::DepthAndTextureShader(
 
 }
 void DepthAndTextureShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
-		GLFrameBuffer& frameBuffer, bool flatShading) {
+		const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -1981,10 +2011,13 @@ void DepthAndTextureShader::draw(
 }
 void DepthAndTextureShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -2005,10 +2038,13 @@ void DepthAndTextureShader::draw(
 	frameBuffer.end();
 }
 void DepthAndTextureShader::draw(const std::list<const Mesh*>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -2023,10 +2059,13 @@ void DepthAndTextureShader::draw(const std::list<const Mesh*>& meshes,
 }
 void DepthAndTextureShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
-		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+		CameraParameters& camera, GLFrameBuffer& frameBuffer,
+		bool flatShading) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
@@ -2205,11 +2244,13 @@ if(IS_QUAD!=0){
 					 })");
 }
 void EdgeDepthAndNormalShader::draw(
-		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
-		GLFrameBuffer& frameBuffer) {
+		const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer) {
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0, 0, 1);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(camera,
 			frameBuffer.getViewport()).draw(meshes,
