@@ -134,6 +134,20 @@ public:
 	bool save(const std::string& file);
 	virtual ~Mesh();
 };
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+		std::basic_ostream<C, R> & ss, const Mesh & m) {
+	ss << "Mesh: " << std::endl;
+	ss << "\tBounds: " << m.getBoundingBox() << std::endl;
+	ss << "\tVertex Location: " << m.vertexLocations.size() << std::endl;
+	ss << "\tVertex Normals: " << m.vertexNormals.size() << std::endl;
+	ss << "\tVertex Colors: " << m.vertexColors.size() << std::endl;
+	ss << "\tQuad Faces: " << m.quadIndexes.size() << std::endl;
+	ss << "\tTriangle Faces: " << m.triIndexes.size() << std::endl;
+	ss << "\tUVs: " << m.textureMap.size() << std::endl;
+	ss << "\tTexture: " << m.textureImage << std::endl;
+	ss << "\tPose: " << m.pose << std::endl;
+	return ss;
+}
 void ReadMeshFromFile(const std::string& file, Mesh& mesh);
 void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
 		true);

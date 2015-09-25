@@ -619,7 +619,7 @@ template<class T, class L, class R, int C, ImageType I> std::basic_ostream<L, R>
 		std::basic_ostream<L, R> & ss, const Image<T, C, I> & A) {
 	ss << "Image (" << A.getTypeName() << "): " << A.id << " Position: (" << A.x
 			<< "," << A.y << ") Dimensions: [" << A.width << "," << A.height
-			<< "]\n";
+			<< "]";
 	return ss;
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator+(
