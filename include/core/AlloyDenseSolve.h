@@ -513,7 +513,7 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 		}
 		// Forward solve Ly = b
 		for (int i = 0; i < n; i++) {
-			y[i] = Atb[i];
+			y[i] = Atb[piv[i]];
 			for (int j = 0; j < i; j++) {
 				y[i] -= L[i][j] * y[j];
 			}
