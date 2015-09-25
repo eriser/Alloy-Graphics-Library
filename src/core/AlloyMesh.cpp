@@ -545,6 +545,7 @@ void Mesh::draw(const GLMesh::PrimitiveType& type) const {
 void Mesh::clear() {
 	vertexLocations.clear();
 	vertexNormals.clear();
+	vertexColors.clear();
 	quadIndexes.clear();
 	triIndexes.clear();
 	textureMap.clear();
