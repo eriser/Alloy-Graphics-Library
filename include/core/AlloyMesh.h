@@ -83,9 +83,7 @@ public:
 	GLMesh gl;
 	float4x4 pose;
 
-	inline Mesh clone(std::shared_ptr<AlloyContext>& context =
-			AlloyDefaultContext()) {
-		Mesh mesh(context);
+	inline void clone(Mesh& mesh) {
 		mesh.boundingBox = boundingBox;
 		mesh.vertexLocations = vertexLocations;
 		mesh.vertexNormals = vertexNormals;
@@ -98,7 +96,6 @@ public:
 		mesh.textureImage = textureImage;
 		mesh.pose = pose;
 		mesh.dirty = true;
-		return mesh;
 	}
 
 	template<class Archive> void serialize(Archive & archive) {
