@@ -340,8 +340,14 @@ bool SANITY_CHECK_PYRAMID() {
 	std::cout << "Up sample" << std::endl;
 	ImageRGBAf imgUp = imgDown.upSample();
 	WriteImageToFile("image_upsample.png", imgUp);
+
+	ImageRGBAf compose,crop;
+
+	Crop(img,crop,int2(120,89),int2(640,480));
+	WriteImageToFile("crop.png",crop);
 	ImageRGBAf imgUpDown = imgUp.downSample();
 	ImageRGBAf diff(imgUpDown.width, imgUpDown.height);
+
 	float1 val;
 	val = 3.0f;
 	for (int i = 0; i < imgUpDown.width; i++) {
@@ -350,6 +356,13 @@ bool SANITY_CHECK_PYRAMID() {
 			diff(i, j) = float4(c.xyz(), 1.0f);
 		}
 	}
+
+	Compose({ imgDown, imgUp, img ,imgDown.downSample(),imgDown.downSample(),imgDown.downSample().downSample()}, compose, 3, 2);
+	WriteImageToFile("compose1.png",compose);
+
+	std::vector<ImageRGBAf> ilist={ imgDown, imgUp, img };
+	Compose(ilist, compose, 2, 2);
+	WriteImageToFile("compose2.png",compose);
 	diff.writeToXML("image_diff.xml");
 	return true;
 }

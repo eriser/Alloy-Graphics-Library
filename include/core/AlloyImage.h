@@ -253,7 +253,7 @@ public:
 	vec<T, C>& operator[](const size_t i) {
 		return data[i];
 	}
-	vec<T, C>& operator()(int i,int j) {
+	vec<T, C>& operator()(int i, int j) {
 		return data[clamp(i, 0, width - 1) + clamp(j, 0, height - 1) * width];
 	}
 	vec<T, C>& operator()(const int2 ij) {
@@ -267,75 +267,67 @@ public:
 		return data[clamp(ij.x, 0, width - 1)
 				+ clamp(ij.y, 0, height - 1) * width];
 	}
- 
-        vec<float, C> operator()(float x, float y)
-        {
-            int i = static_cast<int>(std::floor(x));
-            int j = static_cast<int>(std::floor(y));
-            vec<float, C> rgb00 = vec<float, C>(operator()(i, j));
-            vec<float, C> rgb10 = vec<float, C>(operator()(i + 1, j));
-            vec<float, C> rgb11 = vec<float, C>(operator()(i + 1, j + 1));
-            vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
-            float dx = x - i;
-            float dy = y - j;
-            return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
-                    + (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
-        }
-        vec<float, C> operator()(float x, float y) const
-        {
-            int i = static_cast<int>(std::floor(x));
-            int j = static_cast<int>(std::floor(y));
-            vec<float, C> rgb00 = vec<float, C>(operator()(i, j));
-            vec<float, C> rgb10 = vec<float, C>(operator()(i + 1, j));
-            vec<float, C> rgb11 = vec<float, C>(operator()(i + 1, j + 1));
-            vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
-            float dx = x - i;
-            float dy = y - j;
-            return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
-                    + (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
-        }
-        vec<double, C> operator()(double x, double y)
-        {
-            int i = static_cast<int>(std::floor(x));
-            int j = static_cast<int>(std::floor(y));
-            vec<double, C> rgb00 = vec<double, C>(operator()(i, j));
-            vec<double, C> rgb10 = vec<double, C>(operator()(i + 1, j));
-            vec<double, C> rgb11 = vec<double, C>(operator()(i + 1, j + 1));
-            vec<double, C> rgb01 = vec<double, C>(operator()(i, j + 1));
-            double dx = x - i;
-            double dy = y - j;
-            return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
-                    + (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
-        }
-        vec<double, C> operator()(double x, double y) const
-        {
-            int i = static_cast<int>(std::floor(x));
-            int j = static_cast<int>(std::floor(y));
-            vec<double, C> rgb00 = vec<double, C>(operator()(i, j));
-            vec<double, C> rgb10 = vec<double, C>(operator()(i + 1, j));
-            vec<double, C> rgb11 = vec<double, C>(operator()(i + 1, j + 1));
-            vec<double, C> rgb01 = vec<double, C>(operator()(i, j + 1));
-            double dx = x - i;
-            double dy = y - j;
-            return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
-                    + (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
-        }
-        inline vec<float, C> operator()(const vec<float, 2>& pt)
-        {
-            return operator()(pt.x, pt.y);
-        }
-        inline vec<double, C> operator()(const vec<double, 2>& pt)
-        {
-            return operator()(pt.x, pt.y);
-        }
-        inline vec<float, C> operator()(const vec<float, 2>& pt) const 
-        {
-            return operator()(pt.x, pt.y);
-        }
-        inline vec<double, C> operator()(const vec<double, 2>& pt) const 
-        {
-            return operator()(pt.x, pt.y);
-        }
+
+	vec<float, C> operator()(float x, float y) {
+		int i = static_cast<int>(std::floor(x));
+		int j = static_cast<int>(std::floor(y));
+		vec<float, C> rgb00 = vec<float, C>(operator()(i, j));
+		vec<float, C> rgb10 = vec<float, C>(operator()(i + 1, j));
+		vec<float, C> rgb11 = vec<float, C>(operator()(i + 1, j + 1));
+		vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
+		float dx = x - i;
+		float dy = y - j;
+		return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
+				+ (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
+	}
+	vec<float, C> operator()(float x, float y) const {
+		int i = static_cast<int>(std::floor(x));
+		int j = static_cast<int>(std::floor(y));
+		vec<float, C> rgb00 = vec<float, C>(operator()(i, j));
+		vec<float, C> rgb10 = vec<float, C>(operator()(i + 1, j));
+		vec<float, C> rgb11 = vec<float, C>(operator()(i + 1, j + 1));
+		vec<float, C> rgb01 = vec<float, C>(operator()(i, j + 1));
+		float dx = x - i;
+		float dy = y - j;
+		return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
+				+ (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
+	}
+	vec<double, C> operator()(double x, double y) {
+		int i = static_cast<int>(std::floor(x));
+		int j = static_cast<int>(std::floor(y));
+		vec<double, C> rgb00 = vec<double, C>(operator()(i, j));
+		vec<double, C> rgb10 = vec<double, C>(operator()(i + 1, j));
+		vec<double, C> rgb11 = vec<double, C>(operator()(i + 1, j + 1));
+		vec<double, C> rgb01 = vec<double, C>(operator()(i, j + 1));
+		double dx = x - i;
+		double dy = y - j;
+		return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
+				+ (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
+	}
+	vec<double, C> operator()(double x, double y) const {
+		int i = static_cast<int>(std::floor(x));
+		int j = static_cast<int>(std::floor(y));
+		vec<double, C> rgb00 = vec<double, C>(operator()(i, j));
+		vec<double, C> rgb10 = vec<double, C>(operator()(i + 1, j));
+		vec<double, C> rgb11 = vec<double, C>(operator()(i + 1, j + 1));
+		vec<double, C> rgb01 = vec<double, C>(operator()(i, j + 1));
+		double dx = x - i;
+		double dy = y - j;
+		return ((rgb00 * (1.0 - dx) + rgb10 * dx) * (1.0 - dy)
+				+ (rgb01 * (1.0 - dx) + rgb11 * dx) * dy);
+	}
+	inline vec<float, C> operator()(const vec<float, 2>& pt) {
+		return operator()(pt.x, pt.y);
+	}
+	inline vec<double, C> operator()(const vec<double, 2>& pt) {
+		return operator()(pt.x, pt.y);
+	}
+	inline vec<float, C> operator()(const vec<float, 2>& pt) const {
+		return operator()(pt.x, pt.y);
+	}
+	inline vec<double, C> operator()(const vec<double, 2>& pt) const {
+		return operator()(pt.x, pt.y);
+	}
 	template<class F> void apply(F f) {
 		size_t sz = size();
 #pragma omp parallel for
@@ -952,7 +944,7 @@ template<class T, ImageType I> void ConvertImage(const Image<T, 4, I>& in,
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N =(int) out.size();
+	int N = (int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -994,7 +986,7 @@ template<class T, ImageType I> void ConvertImage(const Image<T, 3, I>& in,
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -1010,7 +1002,102 @@ template<class T, ImageType I> void ConvertImage(const Image<T, 3, I>& in,
 		}
 	}
 }
-
+template<class T, int C, ImageType I> void Crop(const Image<T, C, I>& in,
+		Image<T, C, I>& out, int2 pos, int2 dims) {
+	out.x = pos.x;
+	out.y = pos.y;
+	out.resize(dims.x, dims.y);
+	for (int i = 0; i < dims.x; i++) {
+		for (int j = 0; j < dims.y; j++) {
+			out(i, j) = in(pos.x + i, pos.y + j);
+		}
+	}
+}
+template<class T, int C, ImageType I> void Set(const Image<T, C, I>& in,
+		Image<T, C, I>& out, int2 pos) {
+	for (int i = 0; i < in.width; i++) {
+		for (int j = 0; j < in.height; j++) {
+			if (pos.x + i >= 0 && pos.x + i < out.width && pos.y + j >= 0
+					&& pos.y + j < out.height) {
+				out(pos.x + i, pos.y + j) = in(i, j);
+			}
+		}
+	}
+}
+template<class T, int C, ImageType I> void Compose(
+		const std::vector<Image<T, C, I>>& in, Image<T, C, I>& out, int rows,
+		int cols) {
+	int index = 0;
+	int maxX = 0;
+	int maxY = 0;
+	std::vector<int> lines(rows);
+	for (int r = 0; r < rows; r++) {
+		int runX = 0;
+		int runY = 0;
+		for (int c = 0; c < cols; c++) {
+			const Image<T, C, I>& img = in[index++];
+			runX += img.width;
+			runY = std::max(runY, img.height);
+		}
+		maxX = std::max(runX, maxX);
+		lines[r] = maxY;
+		maxY += runY;
+	}
+	out.resize(maxX, maxY);
+	index = 0;
+	for (int r = 0; r < rows; r++) {
+		int runX = 0;
+		int runY = lines[r];
+		for (int c = 0; c < cols; c++) {
+			const Image<T, C, I>& img = in[index++];
+			Set(img, out, int2(runX, runY));
+			runX += img.width;
+		}
+	}
+}
+template<class T, int C, ImageType I> void Compose(
+		const std::initializer_list<Image<T, C, I>>& in, Image<T, C, I>& out,
+		int rows, int cols) {
+	int index = 0;
+	int maxX = 0;
+	int maxY = 0;
+	std::vector<int> lines(rows);
+	{
+		auto iter = in.begin();
+		for (int r = 0; r < rows; r++) {
+			int runX = 0;
+			int runY = 0;
+			for (int c = 0; c < cols; c++) {
+				if(iter==in.end())break;
+				const Image<T, C, I>& img = *iter;
+				iter++;
+				runX += img.width;
+				runY = std::max(runY, img.height);
+			}
+			maxX = std::max(runX, maxX);
+			lines[r] = maxY;
+			maxY += runY;
+			if(iter==in.end())break;
+		}
+	}
+	out.resize(maxX, maxY);
+	index = 0;
+	{
+		auto iter = in.begin();
+		for (int r = 0; r < rows; r++) {
+			int runX = 0;
+			int runY = lines[r];
+			for (int c = 0; c < cols; c++) {
+				if(iter==in.end())break;
+				const Image<T, C, I>& img = *iter;
+				iter++;
+				Set(img, out, int2(runX, runY));
+				runX += img.width;
+			}
+			if(iter==in.end())break;
+		}
+	}
+}
 void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB = true);
 void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB = true);
 void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB = true);
