@@ -53,6 +53,29 @@ public:
 	}
 
 };
+class ColorVertexShader: public GLShader {
+public:
+	ColorVertexShader(const std::shared_ptr<AlloyContext>& context =
+			AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+			CameraParameters& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
+	void draw(
+			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+			CameraParameters& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
+	void draw(const std::list<const Mesh*>& meshes, CameraParameters& camera,
+			GLFrameBuffer& framebuffer, bool flatShading = false);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+			CameraParameters& camera, GLFrameBuffer& framebuffer,
+			bool flatShading = false);
+
+	void draw(const Mesh& mesh, CameraParameters& camera,
+			GLFrameBuffer& framebuffer, bool flatShading = false) {
+		draw( { &mesh }, camera, framebuffer, flatShading);
+	}
+
+};
 class ParticleIdShader: public GLShader {
 private:
 	GLFrameBuffer framebuffer;

@@ -84,6 +84,15 @@ void GLMesh::draw(const PrimitiveType& type) const {
 				glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			}
 		}
+
+		for (int n = 0; n < 4; n++) {
+			if (quadColorBuffer[n] > 0) {
+				glEnableVertexAttribArray(11 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, quadColorBuffer[n]);
+				glVertexAttribPointer(11 + n, 4, GL_FLOAT, GL_FALSE, 0, 0);
+			}
+		}
+
 		for (int n = 0; n < 4; n++) {
 			if (quadTextureBuffer[n] > 0) {
 				glEnableVertexAttribArray(11 + n);
@@ -110,6 +119,15 @@ void GLMesh::draw(const PrimitiveType& type) const {
 				glVertexAttribPointer(7 + n, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			}
 		}
+
+		for (int n = 0; n < 3; n++) {
+			if (triColorBuffer[n] > 0) {
+				glEnableVertexAttribArray(11 + n);
+				glBindBuffer(GL_ARRAY_BUFFER, triColorBuffer[n]);
+				glVertexAttribPointer(11 + n, 4, GL_FLOAT, GL_FALSE, 0, 0);
+			}
+		}
+
 		for (int n = 0; n < 3; n++) {
 			if (triTextureBuffer[n] > 0) {
 				glEnableVertexAttribArray(11 + n);
@@ -119,7 +137,7 @@ void GLMesh::draw(const PrimitiveType& type) const {
 		}
 		glDrawArrays(GL_POINTS, 0, triIndexCount);
 	}
-	for (int i = 0; i < 14; i++) {
+	for (int i = 0; i <= 14; i++) {
 		glDisableVertexAttribArray(i);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -135,6 +153,8 @@ GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 				0) {
 
 	for (int n = 0; n < 4; n++)
+		quadColorBuffer[n] = 0;
+	for (int n = 0; n < 4; n++)
 		quadVertexBuffer[n] = 0;
 	for (int n = 0; n < 3; n++)
 		triVertexBuffer[n] = 0;
@@ -146,6 +166,8 @@ GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 		quadTextureBuffer[n] = 0;
 	for (int n = 0; n < 3; n++)
 		triTextureBuffer[n] = 0;
+	for (int n = 0; n < 3; n++)
+		triColorBuffer[n] = 0;
 }
 GLMesh::~GLMesh() {
 	if (context.get() == nullptr)
@@ -168,7 +190,12 @@ GLMesh::~GLMesh() {
 	for (int n = 0; n < 3; n++)
 		if (glIsBuffer(triVertexBuffer[n]) == GL_TRUE)
 			glDeleteBuffers(1, &triVertexBuffer[n]);
-
+	for (int n = 0; n < 4; n++)
+		if (glIsBuffer(quadColorBuffer[n]) == GL_TRUE)
+			glDeleteBuffers(1, &quadColorBuffer[n]);
+	for (int n = 0; n < 3; n++)
+		if (glIsBuffer(triColorBuffer[n]) == GL_TRUE)
+			glDeleteBuffers(1, &triColorBuffer[n]);
 	for (int n = 0; n < 4; n++)
 		if (glIsBuffer(quadNormalBuffer[n]) == GL_TRUE)
 			glDeleteBuffers(1, &quadNormalBuffer[n]);
@@ -263,7 +290,6 @@ void GLMesh::update() {
 					tris[n].data(), GL_STATIC_DRAW);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
-
 		CHECK_GL_ERROR();
 
 		triIndexCount = (GLuint) mesh.triIndexes.size();
@@ -425,6 +451,80 @@ void GLMesh::update() {
 			CHECK_GL_ERROR();
 		}
 	}
+
+	if (mesh.vertexColors.size() > 0) {
+
+		if (glIsBuffer(colorBuffer) == GL_TRUE)
+			glDeleteBuffers(1, &colorBuffer);
+
+		glGenBuffers(1, &colorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+		if (glIsBuffer(colorBuffer) == GL_FALSE)
+			throw std::runtime_error("Error: Unable to create color buffer");
+
+		glBufferData(GL_ARRAY_BUFFER,
+				sizeof(GLfloat) * 3 * mesh.vertexColors.size(),
+				mesh.vertexColors.ptr(),
+				GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		if (mesh.quadIndexes.size() > 0) {
+			int offset = 0;
+			std::vector<float4> quads[4];
+			for (int n = 0; n < 4; n++) {
+				quads[n].resize(mesh.quadIndexes.size());
+				if (glIsBuffer(quadColorBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &quadColorBuffer[n]);
+				glGenBuffers(1, &quadColorBuffer[n]);
+			}
+			for (uint4 face : mesh.quadIndexes.data) {
+				for (int n = 0; n < 4; n++) {
+					quads[n][offset] = mesh.vertexColors[face[n]];
+				}
+				offset++;
+			}
+			for (int n = 0; n < 4; n++) {
+				if (glIsBuffer(quadColorBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &quadColorBuffer[n]);
+				glGenBuffers(1, &quadColorBuffer[n]);
+				glBindBuffer(GL_ARRAY_BUFFER, quadColorBuffer[n]);
+				glBufferData(GL_ARRAY_BUFFER,
+						sizeof(GLfloat) * 4 * quads[n].size(), quads[n].data(),
+						GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+			CHECK_GL_ERROR();
+		}
+		if (mesh.triIndexes.size() > 0) {
+			int offset = 0;
+			std::vector<float4> tris[3];
+			for (int n = 0; n < 3; n++) {
+				tris[n].resize(mesh.triIndexes.size());
+				if (glIsBuffer(triColorBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &triColorBuffer[n]);
+				glGenBuffers(1, &triColorBuffer[n]);
+			}
+			for (uint3 face : mesh.triIndexes.data) {
+				for (int n = 0; n < 3; n++) {
+					tris[n][offset] = mesh.vertexColors[face[n]];
+				}
+				offset++;
+			}
+			for (int n = 0; n < 3; n++) {
+				if (glIsBuffer(triColorBuffer[n]) == GL_TRUE)
+					glDeleteBuffers(1, &triColorBuffer[n]);
+				glGenBuffers(1, &triColorBuffer[n]);
+				glBindBuffer(GL_ARRAY_BUFFER, triColorBuffer[n]);
+				glBufferData(GL_ARRAY_BUFFER,
+						sizeof(GLfloat) * 4 * tris[n].size(), tris[n].data(),
+						GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+			CHECK_GL_ERROR();
+		}
+	}
+
 	context->end();
 }
 Mesh::Mesh(std::shared_ptr<AlloyContext>& context) :
@@ -1120,17 +1220,17 @@ void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 }
 
 void Mesh::convertQuadsToTriangles() {
-	if (textureMap.size() > 0&&quadIndexes.size()>0) {
+	if (textureMap.size() > 0 && quadIndexes.size() > 0) {
 		Vector2f newTextureMap;
 		uint32_t index = 0;
-                for (const uint3& face : triIndexes.data) {
-                        float2 tx = textureMap[index++];
-                        float2 ty = textureMap[index++];
-                        float2 tz = textureMap[index++];
-                        newTextureMap.push_back(tx);
-                        newTextureMap.push_back(ty);
-                        newTextureMap.push_back(tz);
-                }
+		for (const uint3& face : triIndexes.data) {
+			float2 tx = textureMap[index++];
+			float2 ty = textureMap[index++];
+			float2 tz = textureMap[index++];
+			newTextureMap.push_back(tx);
+			newTextureMap.push_back(ty);
+			newTextureMap.push_back(tz);
+		}
 		for (const uint4& face : quadIndexes.data) {
 			float3 pt1 = vertexLocations[face.x];
 			float3 pt2 = vertexLocations[face.y];
@@ -1178,8 +1278,8 @@ void Mesh::convertQuadsToTriangles() {
 			}
 		}
 	}
-	if(quadIndexes.size()>0)
-	        setDirty(true);
+	if (quadIndexes.size() > 0)
+		setDirty(true);
 	quadIndexes.clear();
 	if (vertexNormals.size() > 0) {
 		updateVertexNormals();

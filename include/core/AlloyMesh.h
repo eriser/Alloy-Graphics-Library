@@ -42,9 +42,11 @@ public:
 	GLuint colorBuffer;
 	GLuint triIndexBuffer;
 	GLuint quadIndexBuffer;
+	GLuint triColorBuffer[3];
 	GLuint triVertexBuffer[3];
 	GLuint quadVertexBuffer[4];
 	GLuint triNormalBuffer[3];
+	GLuint quadColorBuffer[4];
 	GLuint quadNormalBuffer[4];
 	GLuint triTextureBuffer[3];
 	GLuint quadTextureBuffer[4];

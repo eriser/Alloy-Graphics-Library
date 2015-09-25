@@ -1652,6 +1652,209 @@ void DepthAndNormalShader::draw(
 	frameBuffer.end();
 }
 
+
+ColorVertexShader::ColorVertexShader(
+		const std::shared_ptr<AlloyContext>& context) :
+		GLShader(context) {
+	initialize( { },
+			R"(	#version 330
+				layout(location = 3) in vec3 vp0;
+				layout(location = 4) in vec3 vp1;
+				layout(location = 5) in vec3 vp2;
+				layout(location = 6) in vec3 vp3;
+	
+				layout(location = 11) in vec4 vc0;
+				layout(location = 12) in vec4 vc1;
+				layout(location = 13) in vec4 vc2;
+				layout(location = 14) in vec4 vc3;
+				out VS_OUT {
+					vec3 p0;
+					vec3 p1;
+					vec3 p2;
+					vec3 p3;
+					vec4 c0;
+					vec4 c1;
+					vec4 c2;
+					vec4 c3;
+				} vs_out;
+				void main(void) {
+					vs_out.p0=vp0;
+					vs_out.p1=vp1;
+					vs_out.p2=vp2;
+					vs_out.p3=vp3;
+					vs_out.c0=vc0;
+					vs_out.c1=vc1;
+					vs_out.c2=vc2;
+					vs_out.c3=vc3;
+				})",
+			R"(	#version 330
+                    in vec4 color;
+					void main() {
+						gl_FragColor = color;
+					}
+					)",
+			R"(	#version 330
+					layout (points) in;
+					layout (triangle_strip, max_vertices=4) out;
+					in VS_OUT {
+						vec3 p0;
+						vec3 p1;
+						vec3 p2;
+						vec3 p3;
+						vec4 c0;
+						vec4 c1;
+						vec4 c2;
+						vec4 c3;
+					} quad[];
+					vec3 v0, v1, v2, v3;
+                    vec4 c0, c1, c2, c3;
+                    out vec4 color;
+					uniform int IS_QUAD;
+                    uniform int IS_FLAT;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+					void main() {
+					  mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+					  mat4 VM=ViewModelMat*PoseMat;
+					  
+					  vec3 p0=quad[0].p0;
+					  vec3 p1=quad[0].p1;
+					  vec3 p2=quad[0].p2;
+                      vec3 p3=quad[0].p3;
+					
+                      c0 = quad[0].c0;
+					  c1 = quad[0].c1;
+					  c2 = quad[0].c2;
+					  c3 = quad[0].c3;
+
+					  v0 = (VM*vec4(p0,1)).xyz;
+					  v1 = (VM*vec4(p1,1)).xyz;
+					  v2 = (VM*vec4(p2,1)).xyz;
+                      v3 = (VM*vec4(p3,1)).xyz;
+			vec4 avg;		  
+if(IS_FLAT!=0){
+	if(IS_QUAD!=0){
+		avg=0.25*(c0+c1+c2+c3);
+	} else {
+		avg=0.333333*(c0+c1+c2);
+	}
+    c0=c1=c2=c3=avg;	
+}
+					  
+if(IS_QUAD!=0){
+	gl_Position=PVM*vec4(p0,1);  
+    color=c0;
+	EmitVertex();
+} else {
+	gl_Position=PVM*vec4(p0,1);  
+    color=c0;
+	EmitVertex();
+}
+	gl_Position=PVM*vec4(p1,1);  
+    color=c1;
+	EmitVertex();
+	if(IS_QUAD!=0){
+		gl_Position=PVM*vec4(p3,1);  
+        color=c3;
+		EmitVertex();
+		gl_Position=PVM*vec4(p2,1);  
+        color=c2;
+		EmitVertex();
+		EndPrimitive();
+	} else {
+		gl_Position=PVM*vec4(p2,1);  
+		color=c2;
+		EmitVertex();
+		EndPrimitive();
+	}
+})");
+
+}
+void ColorVertexShader::draw(
+		const std::initializer_list<const Mesh*>& meshes, CameraParameters& camera,
+		GLFrameBuffer& frameBuffer, bool flatShading) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
+			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
+			camera, frameBuffer.getViewport()).set("PoseMat",
+			float4x4::identity());
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
+}
+void ColorVertexShader::draw(
+		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
+			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
+			camera, frameBuffer.getViewport());
+	for (std::pair<const Mesh*, float4x4> pr : meshes) {
+		if (pr.first->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
+					GLMesh::PrimitiveType::QUADS);
+		}
+		if (pr.first->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
+					GLMesh::PrimitiveType::TRIANGLES);
+		}
+	}
+	end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
+}
+void ColorVertexShader::draw(const std::list<const Mesh*>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
+			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
+			camera, frameBuffer.getViewport()).set("PoseMat",
+			float4x4::identity());
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
+}
+void ColorVertexShader::draw(
+		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer, bool flatShading) {
+	frameBuffer.begin();
+	glDisable(GL_BLEND);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	begin().set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
+			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
+			camera, frameBuffer.getViewport());
+	for (std::pair<const Mesh*, float4x4> pr : meshes) {
+		if (pr.first->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
+					GLMesh::PrimitiveType::QUADS);
+		}
+		if (pr.first->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
+					GLMesh::PrimitiveType::TRIANGLES);
+		}
+	}
+	end();
+
+	glEnable(GL_BLEND);
+	frameBuffer.end();
+}
+
 DepthAndTextureShader::DepthAndTextureShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
@@ -1662,7 +1865,7 @@ DepthAndTextureShader::DepthAndTextureShader(
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
 
-							layout(location = 11) in vec2 vt0;
+				layout(location = 11) in vec2 vt0;
 				layout(location = 12) in vec2 vt1;
 				layout(location = 13) in vec2 vt2;
 				layout(location = 14) in vec2 vt3;
