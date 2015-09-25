@@ -57,7 +57,7 @@ public:
 	GLuint quadIndexCount;
 
 	virtual void draw() const override;
-	virtual void draw(const PrimitiveType& type) const;
+	virtual void draw(const PrimitiveType& type,bool forceVertexColor=false) const;
 	virtual void update() override;
 	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
@@ -112,7 +112,7 @@ public:
 	inline box3f getBoundingBox() const {
 		return boundingBox;
 	}
-	virtual void draw(const GLMesh::PrimitiveType& type) const;
+	virtual void draw(const GLMesh::PrimitiveType& type, bool froceVertexColor = false) const;
 	box3f updateBoundingBox();
 	void scale(float sc);
 	void transform(const float4x4& M);

@@ -1801,8 +1801,8 @@ void ColorVertexShader::draw(const std::initializer_list<const Mesh*>& meshes,
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS,true);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, true);
 	end();
 
 	glEnable(GL_BLEND);
@@ -1823,11 +1823,11 @@ void ColorVertexShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, true);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, true);
 		}
 	}
 	end();
@@ -1847,8 +1847,8 @@ void ColorVertexShader::draw(const std::list<const Mesh*>& meshes,
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, true);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, true);
 	end();
 
 	glEnable(GL_BLEND);
@@ -1869,11 +1869,11 @@ void ColorVertexShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, true);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, true);
 		}
 	}
 	end();

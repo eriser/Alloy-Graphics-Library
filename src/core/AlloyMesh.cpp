@@ -39,7 +39,7 @@ using namespace ply;
 void GLMesh::draw() const {
 	draw(PrimitiveType::ALL);
 }
-void GLMesh::draw(const PrimitiveType& type) const {
+void GLMesh::draw(const PrimitiveType& type,bool forceVertexColor) const {
 	if (mesh.isDirty()) {
 		mesh.update();
 		mesh.setDirty(false);
@@ -93,11 +93,13 @@ void GLMesh::draw(const PrimitiveType& type) const {
 			}
 		}
 
-		for (int n = 0; n < 4; n++) {
-			if (quadTextureBuffer[n] > 0) {
-				glEnableVertexAttribArray(11 + n);
-				glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
-				glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		if (!forceVertexColor) {
+			for (int n = 0; n < 4; n++) {
+				if (quadTextureBuffer[n] > 0) {
+					glEnableVertexAttribArray(11 + n);
+					glBindBuffer(GL_ARRAY_BUFFER, quadTextureBuffer[n]);
+					glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
+				}
 			}
 		}
 		glDrawArrays(GL_POINTS, 0, quadIndexCount);
@@ -128,11 +130,13 @@ void GLMesh::draw(const PrimitiveType& type) const {
 			}
 		}
 
-		for (int n = 0; n < 3; n++) {
-			if (triTextureBuffer[n] > 0) {
-				glEnableVertexAttribArray(11 + n);
-				glBindBuffer(GL_ARRAY_BUFFER, triTextureBuffer[n]);
-				glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		if (!forceVertexColor) {
+			for (int n = 0; n < 3; n++) {
+				if (triTextureBuffer[n] > 0) {
+					glEnableVertexAttribArray(11 + n);
+					glBindBuffer(GL_ARRAY_BUFFER, triTextureBuffer[n]);
+					glVertexAttribPointer(11 + n, 2, GL_FLOAT, GL_FALSE, 0, 0);
+				}
 			}
 		}
 		glDrawArrays(GL_POINTS, 0, triIndexCount);
@@ -539,8 +543,8 @@ bool Mesh::load(const std::string& file) {
 		return false;
 	}
 }
-void Mesh::draw(const GLMesh::PrimitiveType& type) const {
-	gl.draw(type);
+void Mesh::draw(const GLMesh::PrimitiveType& type,bool forceVertexColor) const {
+	gl.draw(type,forceVertexColor);
 }
 void Mesh::clear() {
 	vertexLocations.clear();
