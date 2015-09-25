@@ -40,8 +40,11 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 				b1[i] = float1((rand() % 1000) / 1000.0f);
 			}
 		}
+
 		std::cout << "A=" << A << std::endl;
 		DenseMatrix1f L, U, Q, R, S, D, Vt;
+		Vector1f x1, x2, x3;
+
 		LU(A, L, U);
 		std::cout << "L=" << L << std::endl;
 		std::cout << "U=" << U << std::endl;
@@ -49,15 +52,15 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "Q=" << Q << std::endl;
 		std::cout << "R=" << R << std::endl;
 
-		Vector1f x1 = Solve(A, b1);
+		x1 = Solve(A, b1);
 		std::cout << "X1=\n" << x1 << std::endl;
 		std::cout << "r1=\n" << A * x1 - b1 << std::endl;
 
-		Vector1f x2 = SolveLU(A, b1);
+		x2 = SolveLU(A, b1);
 		std::cout << "X2=\n" << x2 << std::endl;
 		std::cout << "r2=\n" << A * x2 - b1 << std::endl;
 
-		Vector1f x3 = SolveQR(A, b1);
+		x3 = SolveQR(A, b1);
 		std::cout << "X3=\n" << x3 << std::endl;
 		std::cout << "r3=\n" << A * x3 - b1 << std::endl;
 
@@ -80,31 +83,32 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "r3=\n" << A * x3 - b2 << std::endl;
 
 	}
+	/*
+	 {
+	 DenseMatrix3f A(8, 6);
+	 for (int i = 0; i < A.rows; i++) {
+	 for (int j = 0; j < A.cols; j++) {
+	 for (int cc = 0; cc < 3; cc++) {
+	 A[i][j][cc] = float1((rand() % 1000) / 1000.0f);
+	 }
+	 }
+	 }
+	 std::cout << "A=" << A << std::endl;
+	 DenseMatrix3f L, U, Q, R, S, D, Vt;
+	 LU(A, L, U);
+	 std::cout << "L=" << L << std::endl;
+	 std::cout << "U=" << U << std::endl;
+	 QR(A, Q, R);
+	 std::cout << "Q=" << Q << std::endl;
+	 std::cout << "R=" << R << std::endl;
 
-	{
-		DenseMatrix3f A(8, 6);
-		for (int i = 0; i < A.rows; i++) {
-			for (int j = 0; j < A.cols; j++) {
-				for (int cc = 0; cc < 3; cc++) {
-					A[i][j][cc] = float1((rand() % 1000) / 1000.0f);
-				}
-			}
-		}
-		std::cout << "A=" << A << std::endl;
-		DenseMatrix3f L, U, Q, R, S, D, Vt;
-		LU(A, L, U);
-		std::cout << "L=" << L << std::endl;
-		std::cout << "U=" << U << std::endl;
-		QR(A, Q, R);
-		std::cout << "Q=" << Q << std::endl;
-		std::cout << "R=" << R << std::endl;
-
-		A = A.transpose() * A;
-		SVD(A, S, D, Vt);
-		std::cout << "U=" << S << std::endl;
-		std::cout << "D=" << D << std::endl;
-		std::cout << "Vt=" << Vt << std::endl;
-	}
+	 A = A.transpose() * A;
+	 SVD(A, S, D, Vt);
+	 std::cout << "U=" << S << std::endl;
+	 std::cout << "D=" << D << std::endl;
+	 std::cout << "Vt=" << Vt << std::endl;
+	 }
+	 */
 	return true;
 }
 bool SANITY_CHECK_ALGO() {

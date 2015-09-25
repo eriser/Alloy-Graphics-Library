@@ -404,11 +404,11 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 	DenseMatrix<T, C>& L, DenseMatrix<T, C>& U,const double zeroTolerance=0.0) {
 	const int m = A.rows;
 	const int n = A.cols;
-	std::vector<std::vector<double>> LU(m,std::vector<double>(n));
+	std::vector<std::vector<double>> LU(m,std::vector<double>(n,0.0));
 	std::vector<int> piv(m);
-	std::vector<double> LUcolj(m);
+	std::vector<double> LUcolj(m,0.0);
 	int pivsign;
-	std::vector<double> LUrowi;
+	double* LUrowi;
 	L.resize(m, n);
 	U.resize(n, n);
 	bool nonSingular = true;
@@ -427,7 +427,7 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 				LUcolj[i] = LU[i][j];
 			}
 			for (int i = 0; i < m; i++) {
-				LUrowi = LU[i];
+				LUrowi = &LU[i][0];
 				int kmax = aly::min(i, j);
 				double s = 0.0;
 				for (int k = 0; k < kmax; k++) {
@@ -443,13 +443,9 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 			}
 			if (p != j) {
 				for (int k = 0; k < n; k++) {
-					double t = LU[p][k];
-					LU[p][k] = LU[j][k];
-					LU[j][k] = t;
+					std::swap(LU[p][k],LU[j][k]);
 				}
-				int k = piv[p];
-				piv[p] = piv[j];
-				piv[j] = k;
+				std::swap(piv[p],piv[j]);
 				pivsign = -pivsign;
 			}
 			if (j < m && std::abs(LU[j][j]) >zeroTolerance) {
@@ -487,7 +483,6 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 				}
 			}
 		}
-
 	}
 	return nonSingular;
 }
@@ -552,7 +547,6 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 			}
 			y[i] /= L[i][i];
 		}
-		std::cout << "Ly-b=" << L*y - b << std::endl;
 		// Backward solve Ux = y
 		for (int i = n - 1; i >= 0; i--) {
 			x[i] = y[i];
@@ -561,9 +555,6 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 			}
 			x[i] /= U[i][i];
 		}
-		std::cout << "Ux-y=" << U*x - y << std::endl;
-
-		std::cout << "LU-A" << L*U-A << std::endl;
 		return x;
 	}
 }
