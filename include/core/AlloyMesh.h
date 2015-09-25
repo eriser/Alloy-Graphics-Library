@@ -83,7 +83,7 @@ public:
 	GLMesh gl;
 	float4x4 pose;
 
-	inline void clone(Mesh& mesh) {
+	inline void clone(Mesh& mesh) const {
 		mesh.boundingBox = boundingBox;
 		mesh.vertexLocations = vertexLocations;
 		mesh.vertexNormals = vertexNormals;
