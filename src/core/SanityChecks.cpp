@@ -33,6 +33,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		DenseMatrix1f A(17, 9);
 		Vector1f b2(A.cols);
 		Vector1f b1(A.rows);
+		srand(1123437);
 		for (int i = 0; i < A.rows; i++) {
 			for (int j = 0; j < A.cols; j++) {
 				A[i][j] = float1((rand() % 1000) / 1000.0f);
@@ -45,7 +46,8 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		DenseMatrix1f L, U, Q, R, S, D, Vt;
 		Vector1f x1, x2, x3;
 
-		LU(A, L, U);
+		std::vector<int> piv;
+		LU(A, L, U,piv);
 		std::cout << "L=" << L << std::endl;
 		std::cout << "U=" << U << std::endl;
 		QR(A, Q, R);

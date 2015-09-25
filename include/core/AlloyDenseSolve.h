@@ -401,11 +401,11 @@ linear equations.  This will fail if isNonsingular() returns false.
 */
 
 template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
-	DenseMatrix<T, C>& L, DenseMatrix<T, C>& U,const double zeroTolerance=0.0) {
+	DenseMatrix<T, C>& L, DenseMatrix<T, C>& U, std::vector<int>& piv,const double zeroTolerance=0.0) {
 	const int m = A.rows;
 	const int n = A.cols;
 	std::vector<std::vector<double>> LU(m,std::vector<double>(n,0.0));
-	std::vector<int> piv(m);
+	piv.resize(m);
 	std::vector<double> LUcolj(m,0.0);
 	int pivsign;
 	double* LUrowi;
@@ -506,7 +506,8 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 		Vector<T, C> x(A.cols);
 		Vector<T, C> y(A.cols);
 		DenseMatrix<T, C> L, U;
-		bool nonSingular = LU(AtA, L, U);
+		std::vector<int> piv;
+		bool nonSingular = LU(AtA, L, U,piv);
 		if (!nonSingular) {
 			throw std::runtime_error("Matrix is singular.");
 		}
@@ -535,13 +536,14 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 		Vector<T, C> x(A.cols);
 		Vector<T, C> y(A.cols);
 		DenseMatrix<T, C> L, U;
-		bool nonSingular = LU(A, L, U);
+		std::vector<int> piv;
+		bool nonSingular = LU(A, L, U,piv);
 		if (!nonSingular) {
 			throw std::runtime_error("Matrix is singular.");
 		}
 		// Forward solve Ly = b
 		for (int i = 0; i < n; i++) {
-			y[i] = b[i];
+			y[i] = b[piv[i]];
 			for (int j = 0; j < i; j++) {
 				y[i] -= L[i][j] * y[j];
 			}
