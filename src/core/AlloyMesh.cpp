@@ -921,7 +921,7 @@ void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 	using namespace tinyobj;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str());
+	std::string err = tinyobj::LoadObj(shapes, materials,  file.c_str(),GetParentDirectory(file).c_str());
 	if (err.size() > 0)
 		throw std::runtime_error(err);
 	meshList.resize(shapes.size());
@@ -948,13 +948,15 @@ void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 			mesh.quadIndexes.resize(shape.mesh.quadIndices.size() / 4);
 			mesh.quadIndexes.set(shape.mesh.quadIndices.data());
 		}
+		mesh.updateBoundingBox();
 	}
+
 }
 void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	using namespace tinyobj;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str());
+	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str(),GetParentDirectory(file).c_str());
 	if (err.size() > 0)
 		throw std::runtime_error(err);
 
@@ -1012,6 +1014,7 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 					shape.mesh.texcoords[i + 1]);
 		}
 	}
+	mesh.updateBoundingBox();
 }
 void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
 	std::string ext = GetFileExtension(file);

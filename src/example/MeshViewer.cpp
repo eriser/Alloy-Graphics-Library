@@ -32,11 +32,11 @@ MeshViewer::MeshViewer() :
 }
 bool MeshViewer::init(Composite& rootNode) {
 	
-	mesh.load(getFullPath("models/monkey.ply"));
+	mesh.load(getFullPath("models/monkey.obj"));
+	std::cout<<mesh<<std::endl;
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
 	mesh.updateVertexNormals();
-	std::cout<<mesh<<std::endl;
 	for (int i = 0; i < (int)mesh.vertexLocations.size(); i++) {
 		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
 			((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
