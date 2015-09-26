@@ -32,8 +32,7 @@ MeshViewer::MeshViewer() :
 }
 bool MeshViewer::init(Composite& rootNode) {
 	
-	mesh.load(getFullPath("models/monkey.obj"));
-	std::cout<<mesh<<std::endl;
+	mesh.load(getFullPath("models/tanya.obj"));
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
 	mesh.updateVertexNormals();
@@ -41,6 +40,8 @@ bool MeshViewer::init(Composite& rootNode) {
 		mesh.vertexColors[i] = RGBAf(((rand() % 1024) / 1024.0f),
 			((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
+	std::cout << mesh << std::endl;
+	particles.vertexColors = mesh.vertexColors;
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();
 
@@ -121,8 +122,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
-		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2,
-				false);
+		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2,false);
 		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
 
 		/*

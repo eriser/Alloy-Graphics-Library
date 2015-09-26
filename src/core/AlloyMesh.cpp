@@ -468,7 +468,7 @@ void GLMesh::update() {
 			throw std::runtime_error("Error: Unable to create color buffer");
 
 		glBufferData(GL_ARRAY_BUFFER,
-				sizeof(GLfloat) * 3 * mesh.vertexColors.size(),
+				sizeof(GLfloat) * 4 * mesh.vertexColors.size(),
 				mesh.vertexColors.ptr(),
 				GL_STATIC_DRAW);
 
@@ -1069,10 +1069,6 @@ void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 			mesh.vertexNormals.resize(shape.mesh.normals.size() / 3);
 			mesh.vertexNormals.set(shape.mesh.normals.data());
 		}
-		if (shape.mesh.texcoords.size() > 0) {
-			mesh.textureMap.resize(shape.mesh.texcoords.size() / 2);
-			mesh.textureMap.set(shape.mesh.texcoords.data());
-		}
 		if (shape.mesh.triIndices.size() > 0) {
 			mesh.triIndexes.resize(shape.mesh.triIndices.size() / 3);
 			mesh.triIndexes.set(shape.mesh.triIndices.data());
@@ -1080,6 +1076,28 @@ void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 		if (shape.mesh.quadIndices.size() > 0) {
 			mesh.quadIndexes.resize(shape.mesh.quadIndices.size() / 4);
 			mesh.quadIndexes.set(shape.mesh.quadIndices.data());
+		}
+		for (size_t i = 0; i < shape.mesh.triIndices.size(); i += 3) {
+			uint32_t vid1 = shape.mesh.triIndices[i];
+			uint32_t vid2 = shape.mesh.triIndices[i + 1];
+			uint32_t vid3 = shape.mesh.triIndices[i + 2];
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+		}
+		for (size_t i = 0; i < shape.mesh.quadIndices.size(); i += 4) {
+			uint32_t vid1 = shape.mesh.quadIndices[i];
+			uint32_t vid2 = shape.mesh.quadIndices[i + 1];
+			uint32_t vid3 = shape.mesh.quadIndices[i + 2];
+			uint32_t vid4 = shape.mesh.quadIndices[i + 3];
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid4], shape.mesh.texcoords[2 * vid4 + 1]));
+		}
+		std::string texName = materials[n].diffuse_texname;
+		if (texName.size()>0) {
+			aly::ReadImageFromFile(GetParentDirectory(file) + ALY_PATH_SEPARATOR + texName,mesh.textureImage);
 		}
 		mesh.updateBoundingBox();
 	}
@@ -1110,15 +1128,14 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 
 	mesh.vertexLocations.resize(positionCount / 3);
 	mesh.vertexNormals.resize(normalCount / 3);
-	mesh.textureMap.resize(texCount / 2);
 	mesh.triIndexes.resize(triIndexCount / 3);
 	mesh.quadIndexes.resize(quadIndexCount / 4);
-
 	positionCount = 0;
 	normalCount = 0;
 	texCount = 0;
 	triIndexCount = 0;
 	quadIndexCount = 0;
+	mesh.textureMap.clear();
 	for (int n = 0; n < (int) shapes.size(); n++) {
 		shape_t& shape = shapes[n];
 		for (size_t i = 0; i < shape.mesh.triIndices.size(); i += 3) {
@@ -1143,9 +1160,27 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 			mesh.vertexNormals[normalCount++] = float3(shape.mesh.normals[i],
 					shape.mesh.normals[i + 1], shape.mesh.normals[i + 2]);
 		}
-		for (size_t i = 0; i < shape.mesh.texcoords.size(); i += 2) {
-			mesh.textureMap[texCount++] = float2(shape.mesh.texcoords[i],
-					shape.mesh.texcoords[i + 1]);
+		for (size_t i = 0; i < shape.mesh.triIndices.size(); i += 3) {
+			uint32_t vid1 = shape.mesh.triIndices[i];
+			uint32_t vid2 = shape.mesh.triIndices[i + 1];
+			uint32_t vid3 = shape.mesh.triIndices[i + 2];
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+		}
+		for (size_t i = 0; i < shape.mesh.quadIndices.size(); i += 4) {
+			uint32_t vid1 = shape.mesh.quadIndices[i];
+			uint32_t vid2 = shape.mesh.quadIndices[i + 1];
+			uint32_t vid3 = shape.mesh.quadIndices[i + 2];
+			uint32_t vid4 = shape.mesh.quadIndices[i + 3];
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid4], shape.mesh.texcoords[2 * vid4 + 1]));
+		}
+		std::string texName = materials[n].diffuse_texname;
+		if (texName.size()>0) {
+			aly::ReadImageFromFile(GetParentDirectory(file) + ALY_PATH_SEPARATOR + texName, mesh.textureImage);
 		}
 	}
 	mesh.updateBoundingBox();
