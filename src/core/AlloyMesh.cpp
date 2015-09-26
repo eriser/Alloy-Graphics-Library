@@ -458,22 +458,6 @@ void GLMesh::update() {
 	}
 
 	if (mesh.vertexColors.size() > 0) {
-
-		if (glIsBuffer(colorBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &colorBuffer);
-
-		glGenBuffers(1, &colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		if (glIsBuffer(colorBuffer) == GL_FALSE)
-			throw std::runtime_error("Error: Unable to create color buffer");
-
-		glBufferData(GL_ARRAY_BUFFER,
-				sizeof(GLfloat) * 4 * mesh.vertexColors.size(),
-				mesh.vertexColors.ptr(),
-				GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 		if (mesh.quadIndexes.size() > 0) {
 			int offset = 0;
 			std::vector<float4> quads[4];
