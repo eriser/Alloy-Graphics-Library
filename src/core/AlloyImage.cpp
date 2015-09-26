@@ -26,6 +26,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image.h"
 #include "stb_image_write.h"
+#include "tinyexr.h"
 
 #include <fstream>
 
@@ -287,7 +288,23 @@ void ReadImageFromFile(const std::string& file, ImageRGB& image) {
 }
 void ReadImageFromFile(const std::string& file, ImageRGBAf& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "hdr") {
+	if (ext == "exr") {
+		float* data=nullptr;
+		int width;
+		int height;
+		const char *message = nullptr;
+		int err=LoadEXR(&data,&width,&height,file.c_str(),&message);
+		if (err != 0)throw std::runtime_error(message);
+		img.resize(width, height);
+		std::vector<float> imageData(img.size()*img.channels);
+		unsigned char* ptr = (unsigned char*)imageData.data();
+		size_t index = 0;
+		for (int c = 0;c < img.channels;c++) {
+			for (float4& val : img.data) {
+				val[c] = data[index++];
+			}
+		}
+	} else if (ext == "hdr") {
 		int w, h, n;
 		float *data = stbi_loadf(file.c_str(), &w, &h, &n, 4);
 		if (data == NULL) {
@@ -367,7 +384,36 @@ void ReadImageFromFile(const std::string& file, Image1f& img) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "hdr") {
+	if (ext == "exr") {
+		const char* err;
+		EXRImage exrImage;
+		InitEXRImage(&exrImage);
+		
+		exrImage.num_channels = img.channels;
+		exrImage.width = img.width;
+		exrImage.height = img.height;
+		exrImage.pixel_types = (int *)malloc(sizeof(int *) * img.channels);
+		exrImage.channel_names = (const char **)malloc(sizeof(const char *) * img.channels);
+		std::vector<float> imageData(img.size()*img.channels);
+		unsigned char* ptr = (unsigned char*)imageData.data();
+		size_t index = 0;
+		for (int c = 0;c < img.channels;c++) {	
+			for (float4& val : img.data) {
+				imageData[index++] = val[c];
+			}
+		}
+		exrImage.images = &ptr;
+		for (int c = 0; c < img.channels; c++) {
+			exrImage.pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
+		}
+		exrImage.channel_names[0] = "R";
+		exrImage.channel_names[1] = "G";
+		exrImage.channel_names[2] = "B";
+		exrImage.channel_names[3] = "A";
+		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
+		FreeEXRImage(&exrImage);
+		if (ret != 0) throw std::runtime_error(err);
+	} else if (ext == "hdr") {
 		if (!stbi_write_hdr(file.c_str(), img.width, img.height, 4,
 				img.ptr())) {
 			throw std::runtime_error(
@@ -412,6 +458,9 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 	std::string ext = GetFileExtension(file);
+	if (ext == "exr") {
+
+	} else 
 	if (ext == "hdr") {
 		if (!stbi_write_hdr(file.c_str(), img.width, img.height, 3,
 				img.ptr())) {

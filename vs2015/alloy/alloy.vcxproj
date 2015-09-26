@@ -52,6 +52,7 @@
     <ClCompile Include="..\..\src\core\SanityChecks.cpp" />
     <ClCompile Include="..\..\src\core\sha1.cpp" />
     <ClCompile Include="..\..\src\core\sha2.cpp" />
+    <ClCompile Include="..\..\src\core\tinyexr.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
@@ -100,6 +101,7 @@
     <ClInclude Include="..\..\include\core\stb_image.h" />
     <ClInclude Include="..\..\include\core\stb_image_write.h" />
     <ClInclude Include="..\..\include\core\stb_truetype.h" />
+    <ClInclude Include="..\..\include\core\tinyexr.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E990BB2D-D073-48A2-841A-8231A304F580}</ProjectGuid>
