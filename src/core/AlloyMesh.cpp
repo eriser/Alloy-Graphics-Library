@@ -251,7 +251,7 @@ void GLMesh::update() {
 		glGenBuffers(1, &normalBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
 		if (glIsBuffer(normalBuffer) == GL_FALSE)
-			throw std::runtime_error("Error: Unable to create vertex buffer");
+			throw std::runtime_error("Error: Unable to create normal buffer");
 		glBufferData(GL_ARRAY_BUFFER,
 				sizeof(GLfloat) * 3 * mesh.vertexNormals.size(),
 				mesh.vertexNormals.ptr(), GL_STATIC_DRAW);
@@ -272,7 +272,6 @@ void GLMesh::update() {
 	}
 	if (mesh.triIndexes.size() > 0) {
 		int offset = 0;
-
 		std::vector<float3> tris[3];
 		for (int n = 0; n < 3; n++) {
 			tris[n].resize(mesh.triIndexes.size());
@@ -329,22 +328,6 @@ void GLMesh::update() {
 		quadIndexCount = (GLuint) mesh.quadIndexes.size();
 	}
 	if (mesh.vertexNormals.size() > 0) {
-
-		if (glIsBuffer(normalBuffer) == GL_TRUE)
-			glDeleteBuffers(1, &normalBuffer);
-
-		glGenBuffers(1, &normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-		if (glIsBuffer(normalBuffer) == GL_FALSE)
-			throw std::runtime_error("Error: Unable to create normal buffer");
-
-		glBufferData(GL_ARRAY_BUFFER,
-				sizeof(GLfloat) * 3 * mesh.vertexNormals.size(),
-				mesh.vertexNormals.ptr(),
-				GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 		if (mesh.quadIndexes.size() > 0) {
 			int offset = 0;
 			std::vector<float3> quads[4];
