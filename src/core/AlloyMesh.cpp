@@ -1094,18 +1094,18 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	if (err.size() > 0)
 		throw std::runtime_error(err);
 
-	size_t positionCount = 0;
-	size_t normalCount = 0;
-	size_t texCount = 0;
-	size_t triIndexCount = 0;
-	size_t quadIndexCount = 0;
+	uint32_t positionCount = 0;
+	uint32_t normalCount = 0;
+	uint32_t texCount = 0;
+	uint32_t triIndexCount = 0;
+	uint32_t quadIndexCount = 0;
 	for (int n = 0; n < (int) shapes.size(); n++) {
 		shape_t& shape = shapes[n];
-		positionCount += shape.mesh.positions.size();
-		normalCount += shape.mesh.normals.size();
-		texCount += shape.mesh.texcoords.size();
-		triIndexCount += shape.mesh.triIndices.size();
-		quadIndexCount += shape.mesh.quadIndices.size();
+		positionCount += (uint32_t)shape.mesh.positions.size();
+		normalCount += (uint32_t)shape.mesh.normals.size();
+		texCount += (uint32_t)shape.mesh.texcoords.size();
+		triIndexCount += (uint32_t)shape.mesh.triIndices.size();
+		quadIndexCount += (uint32_t)shape.mesh.quadIndices.size();
 	}
 
 	mesh.vertexLocations.resize(positionCount / 3);

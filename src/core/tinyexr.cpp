@@ -7305,7 +7305,7 @@ for (int i = 58; i > 0; --i) {
 //
 
 for (int i = 0; i < HUF_ENCSIZE; ++i) {
-	int l = hcode[i];
+	int l =(int) hcode[i];
 
 	if (l > 0)
 		hcode[i] = l | (n[l]++ << 6);
@@ -7584,7 +7584,7 @@ for (; im <= iM; im++) {
 			return false;
 		}
 
-		int zerun = getBits(8, c, lc, p) + SHORTEST_LONG_RUN;
+		int zerun = (int)(getBits(8, c, lc, p) + SHORTEST_LONG_RUN);
 
 		if (im + zerun > iM + 1) {
 			return false;
@@ -7595,7 +7595,7 @@ for (; im <= iM; im++) {
 
 		im--;
 	} else if (l >= (long long) SHORT_ZEROCODE_RUN) {
-		int zerun = l - SHORT_ZEROCODE_RUN + 2;
+		int zerun = (int)(l - SHORT_ZEROCODE_RUN + 2);
 
 		if (im + zerun > iM + 1) {
 			return false;
@@ -7655,7 +7655,7 @@ bool hufBuildDecTable(const long long *hcode, // i : encoding table
 
 for (; im <= iM; im++) {
 	long long c = hufCode(hcode[im]);
-	int l = hufLength(hcode[im]);
+	int l = (int)hufLength(hcode[im]);
 
 	if (c >> l) {
 		//
@@ -7910,7 +7910,7 @@ while (in < ie) {
 			int j;
 
 			for (j = 0; j < pl.lit; j++) {
-				int l = hufLength(hcode[pl.p[j]]);
+				int l = (int)hufLength(hcode[pl.p[j]]);
 
 				while (lc < l && in < ie) // get more bits
 					getChar(c, lc, in);
