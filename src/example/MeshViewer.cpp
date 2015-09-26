@@ -42,6 +42,8 @@ bool MeshViewer::init(Composite& rootNode) {
 			((rand() % 1024) / 1024.0f), ((rand() % 1024) / 1024.0f), 1.0f);
 	}
 	std::cout << mesh << std::endl;
+	//WriteMeshToFile("tanya_obj.obj",mesh);
+	//WriteMeshToFile("tanya_ply.ply",mesh);
 	particles.vertexColors = mesh.vertexColors;
 	particles.vertexLocations = mesh.vertexLocations;
 	particles.update();
