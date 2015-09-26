@@ -151,9 +151,10 @@ void ReadMeshFromFile(const std::string& file, Mesh& mesh);
 void ReadPlyMeshFromFile(const std::string& file, Mesh& mesh);
 void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& mesh);
 void ReadObjMeshFromFile(const std::string& file, Mesh& mesh);
-void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
+void WritePlyMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
 		true);
-
+void WriteMeshToFile(const std::string& file, const Mesh& mesh);
+void WriteObjMeshToFile(const std::string& file,const Mesh& mesh);
 typedef std::vector<std::list<uint32_t>> MeshNeighborTable;
 void CreateVertexNeighborTable(const Mesh& mesh, MeshNeighborTable& vertNbrs,
 		bool addDuplicates = false);

@@ -566,16 +566,148 @@ bool Mesh::save(const std::string& file) {
 		return false;
 	}
 }
-void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
+void WriteMeshToFile(const std::string& file, const Mesh& mesh) {
+	std::string ext = GetFileExtension(file);
+	if (ext == "ply") {
+		WritePlyMeshToFile(file, mesh, true);
+	} else if (ext == "obj") {
+		WriteObjMeshToFile(file, mesh);
+	} else
+		throw std::runtime_error(
+				MakeString() << "Could not write file " << file);
+}
+void WriteObjMeshToFile(const std::string& file, const Mesh& mesh) {
+	uint32_t i;
+	std::ofstream out(file.c_str());
+	out << setprecision(8);
+	out << "####							 \n";
+	out << "#								 \n";
+	out << "# OBJ File Created by Alloy\n";
+	out << "#								 \n";
+	out << "# Vertices: " << mesh.vertexLocations.size() << "			 \n";
+	out << "# Faces : " << mesh.triIndexes.size() + mesh.quadIndexes.size()
+			<< "				 \n";
+	out << "#								 \n";
+	out << "####							 \n";
+	string mtlFile = GetFileNameWithoutExtension(file) + ".mtl";
+	if (mesh.textureMap.size() > 0 && mesh.textureImage.size() > 0) {
+		out << "mtllib " << mtlFile << "\n";
+		std::ofstream mtl(GetFileWithoutExtension(file) + ".mtl");
+		mtl << "#								   \n";
+		mtl << "# Wavefront material file		   \n";
+		mtl << "#								   \n";
+		mtl << "newmtl material_0				   \n";
+		mtl << "Ka 0.200000 0.200000 0.200000  \n";
+		mtl << "Kd 0.500000 0.500000 0.500000  \n";
+		mtl << "Ks 0.000000 0.000000 0.000000  \n";
+		mtl << "Ni 1.000000					   \n";
+		mtl << "d 1.000000					   \n";
+		mtl << "illum 2						   \n";
+		mtl << "Ns 0.000000					   \n";
+		std::string fileName = GetFileNameWithoutExtension(file);
+		fileName += string(".png");
+		std::string filePath = GetFileWithoutExtension(file);
+		filePath += string(".png");
+		std::string comment = "TextureFile " + fileName;
+		WriteImageToFile(filePath, mesh.textureImage);
+		mtl << "map_Kd " << fileName << "\n";
+		mtl.close();
+	}
+	if (mesh.vertexNormals.size() > 0) {
+		for (i = 0; i < mesh.vertexNormals.size(); i++) {
+			float3 n = mesh.vertexNormals[i];
+			out << "vn " << n.x << " " << n.y << " " << n.z << "\n";
+			float3 p = mesh.vertexLocations[i];
+			if (mesh.vertexColors.size() > 0) {
+				RGBAf c = mesh.vertexColors[i];
+				out << "v " << p.x << " " << p.y << " " << p.z << " " << c.x
+						<< " " << c.y << " " << c.z << "\n";
+			} else {
+				out << "v " << p.x << " " << p.y << " " << p.z << "\n";
+			}
+		}
+	} else {
+		for (i = 0; i < mesh.vertexLocations.size(); i++) {
+			float3 p = mesh.vertexLocations[i];
+			if (mesh.vertexColors.size() > 0) {
+				RGBAf c = mesh.vertexColors[i];
+				out << "v " << p.x << " " << p.y << " " << p.z << " " << c.x
+						<< " " << c.y << " " << c.z << "\n";
+			} else {
+				out << "v " << p.x << " " << p.y << " " << p.z << "\n";
+			}
+		}
+	}
+
+	for (i = 0; i < mesh.textureMap.size(); i++) {
+		float2 vt = mesh.textureMap[i];
+		out << "vt " << vt.x << " " << vt.y << "\n";
+	}
+	if (mesh.textureMap.size() > 0 && mesh.textureImage.size() > 0)
+		out << "usemtl material_0\n";
+	i = 0;
+	for (uint3 tri : mesh.triIndexes.data) {
+		out << "f ";
+		if (mesh.vertexNormals.size() > 0 && mesh.textureMap.size() == 0) {
+			out << (tri.x + 1) << "/" << (tri.x + 1) << " ";
+			out << (tri.y + 1) << "/" << (tri.y + 1) << " ";
+			out << (tri.z + 1) << "/" << (tri.z + 1) << "\n";
+		} else if (mesh.vertexNormals.size() == 0
+				&& mesh.textureMap.size() > 0) {
+			out << (tri.x + 1) << "/" << (i + 1) << " ";
+			out << (tri.y + 1) << "/" << (i + 2) << " ";
+			out << (tri.z + 1) << "/" << (i + 3) << "\n";
+		} else if (mesh.vertexNormals.size() > 0&& mesh.textureMap.size() > 0) {
+			out << (tri.x + 1) << "/" << (i + 1) << "/" << (tri.x + 1) << " ";
+			out << (tri.y + 1) << "/" << (i + 2) << "/" << (tri.y + 1) << " ";
+			out << (tri.z + 1) << "/" << (i + 3) << "/" << (tri.z + 1) << "\n";
+		} else {
+			out << (tri.x + 1) << " ";
+			out << (tri.y + 1) << " ";
+			out << (tri.z + 1) << "\n";
+		}
+		i += 3;
+	}
+	i = 0;
+	for (uint4 quad : mesh.quadIndexes.data) {
+		out << "f ";
+		if (mesh.vertexNormals.size() > 0 && mesh.textureMap.size() == 0) {
+			out << (quad.x + 1) << "/" << (quad.x + 1) << " ";
+			out << (quad.y + 1) << "/" << (quad.y + 1) << " ";
+			out << (quad.z + 1) << "/" << (quad.z + 1) << " ";
+			out << (quad.w + 1) << "/" << (quad.w + 1) << "\n";
+		} else if (mesh.vertexNormals.size() == 0
+				&& mesh.textureMap.size() > 0) {
+			out << (quad.x + 1) << "/" << (i + 1) << " ";
+			out << (quad.y + 1) << "/" << (i + 2) << " ";
+			out << (quad.z + 1) << "/" << (i + 3) << " ";
+			out << (quad.w + 1) << "/" << (i + 4) << "\n";
+		} else if (mesh.vertexNormals.size() > 0&& mesh.textureMap.size() > 0) {
+			out << (quad.x + 1) << "/" << (i + 1) << "/" << (quad.x + 1) << " ";
+			out << (quad.y + 1) << "/" << (i + 2) << "/" << (quad.y + 1) << " ";
+			out << (quad.z + 1) << "/" << (i + 3) << "/" << (quad.z + 1) << " ";
+			out << (quad.w + 1) << "/" << (i + 4) << "/" << (quad.w + 1)
+					<< "\n";
+		} else {
+			out << (quad.x + 1) << " ";
+			out << (quad.y + 1) << " ";
+			out << (quad.z + 1) << " ";
+			out << (quad.w + 1) << "\n";
+		}
+		i += 4;
+	}
+	out.close();
+}
+void WritePlyMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
 	std::vector<std::string> elemNames = { "vertex", "face" };
 	int i, j, idx;
 	bool hasTexture = (mesh.textureMap.size() > 0);
-	// Get input and check data
+// Get input and check data
 	PLYReaderWriter ply;
 	ply.openForWriting(file, elemNames,
 			(binary) ? FileFormat::BINARY_LE : FileFormat::ASCII); //
 
-	// compute colors, if any
+// compute colors, if any
 	int numPts = (int) (mesh.vertexLocations.size());
 
 	int numPolys = (int) (mesh.quadIndexes.size() + mesh.triIndexes.size());
@@ -595,7 +727,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
 					255.0f);
 		}
 	}
-	// describe what properties go into the vertex and face elements
+// describe what properties go into the vertex and face elements
 	ply.elementCount("vertex", numPts);
 	ply.describeProperty("vertex", &MeshVertProps[0]);
 	ply.describeProperty("vertex", &MeshVertProps[1]);
@@ -620,7 +752,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
 		ply.describeProperty("face", &MeshFaceProps[0]);
 	}
 
-	// write a comment and an object information field
+// write a comment and an object information field
 	ply.appendComment("PLY File");
 	if (mesh.textureImage.size() > 0) {
 		std::string textureFile = GetFileNameWithoutExtension(file) + ".png";
@@ -635,10 +767,10 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
 		}
 	}
 	ply.appendObjInfo("ImageSci");
-	// complete the header
+// complete the header
 	ply.headerComplete();
 
-	// set up and write the vertex elements
+// set up and write the vertex elements
 	plyVertex vert;
 	ply.putElementSetup("vertex");
 
@@ -661,7 +793,7 @@ void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary) {
 		}
 		ply.putElement(&vert);
 	}
-	// set up and write the face elements
+// set up and write the face elements
 	plyFace face;
 	plyFaceTexture faceT;
 	int verts[256];
@@ -788,7 +920,7 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 }
 float Mesh::estimateVoxelSize(int stride) {
 	int count = 0;
-	//float maxLength = 0.0f;
+//float maxLength = 0.0f;
 	int sz = (int) triIndexes.size();
 	float mEstimatedVoxelSize = 0.0f;
 	for (int i = 0; i < sz; i += stride) {
@@ -915,17 +1047,18 @@ void Mesh::update() {
 	gl.update();
 }
 Mesh::~Mesh() {
-	// TODO Auto-generated destructor stub
+// TODO Auto-generated destructor stub
 }
 void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 	using namespace tinyobj;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-	std::string err = tinyobj::LoadObj(shapes, materials,  file.c_str(),GetParentDirectory(file).c_str());
+	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str(),
+			GetParentDirectory(file).c_str());
 	if (err.size() > 0)
 		throw std::runtime_error(err);
 	meshList.resize(shapes.size());
-	for (int n = 0; n < (int)shapes.size(); n++) {
+	for (int n = 0; n < (int) shapes.size(); n++) {
 		Mesh& mesh = meshList[n];
 		tinyobj::shape_t& shape = shapes[n];
 		if (shape.mesh.positions.size() > 0) {
@@ -956,7 +1089,8 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	using namespace tinyobj;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str(),GetParentDirectory(file).c_str());
+	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str(),
+			GetParentDirectory(file).c_str());
 	if (err.size() > 0)
 		throw std::runtime_error(err);
 
@@ -965,7 +1099,7 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	size_t texCount = 0;
 	size_t triIndexCount = 0;
 	size_t quadIndexCount = 0;
-	for (int n = 0; n < (int)shapes.size(); n++) {
+	for (int n = 0; n < (int) shapes.size(); n++) {
 		shape_t& shape = shapes[n];
 		positionCount += shape.mesh.positions.size();
 		normalCount += shape.mesh.normals.size();
@@ -985,7 +1119,7 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	texCount = 0;
 	triIndexCount = 0;
 	quadIndexCount = 0;
-	for (int n = 0; n < (int)shapes.size(); n++) {
+	for (int n = 0; n < (int) shapes.size(); n++) {
 		shape_t& shape = shapes[n];
 		for (size_t i = 0; i < shape.mesh.triIndices.size(); i += 3) {
 			mesh.triIndexes[triIndexCount++] = uint3(
@@ -1031,7 +1165,7 @@ void ReadPlyMeshFromFile(const std::string& file, Mesh &mesh) {
 	int numPts = 0, numPolys = 0;
 	PLYReaderWriter ply;
 	ply.openForReading(file);
-	// Check to make sure that we can read geometry
+// Check to make sure that we can read geometry
 	PlyElement *elem;
 	int index;
 	if ((elem = ply.findElement("vertex")) == nullptr
@@ -1044,8 +1178,8 @@ void ReadPlyMeshFromFile(const std::string& file, Mesh &mesh) {
 				MakeString() << "Could not read geometry [" << file << "]");
 	}
 
-	// Check for optional attribute data. We can handle intensity; and the
-	// triplet red, green, blue.
+// Check for optional attribute data. We can handle intensity; and the
+// triplet red, green, blue.
 	bool RGBPointsAvailable = false;
 	bool hasNormals = false;
 
@@ -1108,7 +1242,7 @@ void ReadPlyMeshFromFile(const std::string& file, Mesh &mesh) {
 	std::vector<std::string> elist = ply.getElementNames();
 	std::string elemName;
 	int numElems, nprops;
-	// Okay, now we can grab the data
+// Okay, now we can grab the data
 	for (i = 0; i < ply.getNumberOfElements(); i++) {
 		//get the description of the first element */
 		elemName = elist[i];
@@ -1227,8 +1361,8 @@ inline uint64_t faceHashCode(const uint2& val) {
 }
 void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		std::vector<std::list<uint32_t>>& vertNbrsOut, bool leaveTail) {
-	//Leave tail means to not remove the duplicate vertex neighbor at the end of the neighbor list.
-	//Non-manifold vertexes will not have a tail, so the tail can be used to detect them in simple (common) cases.
+//Leave tail means to not remove the duplicate vertex neighbor at the end of the neighbor list.
+//Non-manifold vertexes will not have a tail, so the tail can be used to detect them in simple (common) cases.
 	vertNbrsOut.resize(mesh.vertexLocations.size());
 	std::vector<std::vector<uint32_t>> vertNbrs(mesh.vertexLocations.size());
 	for (const uint3& face : mesh.triIndexes.data) {
@@ -1338,7 +1472,7 @@ void Mesh::convertQuadsToTriangles() {
 	if (textureMap.size() > 0 && quadIndexes.size() > 0) {
 		Vector2f newTextureMap;
 		uint32_t index = 0;
-		for (int n=0;n<(int)triIndexes.size();n++) {
+		for (int n = 0; n < (int) triIndexes.size(); n++) {
 			float2 tx = textureMap[index++];
 			float2 ty = textureMap[index++];
 			float2 tz = textureMap[index++];
