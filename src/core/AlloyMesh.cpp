@@ -27,8 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "AlloyPLY.h"
 #include <stddef.h>
+#include "AlloyPLY.h"
+#include "tiny_obj_loader.h"
 #ifndef ALY_WINDOWS
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #endif
@@ -39,7 +40,7 @@ using namespace ply;
 void GLMesh::draw() const {
 	draw(PrimitiveType::ALL);
 }
-void GLMesh::draw(const PrimitiveType& type,bool forceVertexColor) const {
+void GLMesh::draw(const PrimitiveType& type, bool forceVertexColor) const {
 	if (mesh.isDirty()) {
 		mesh.update();
 		mesh.setDirty(false);
@@ -543,8 +544,9 @@ bool Mesh::load(const std::string& file) {
 		return false;
 	}
 }
-void Mesh::draw(const GLMesh::PrimitiveType& type,bool forceVertexColor) const {
-	gl.draw(type,forceVertexColor);
+void Mesh::draw(const GLMesh::PrimitiveType& type,
+		bool forceVertexColor) const {
+	gl.draw(type, forceVertexColor);
 }
 void Mesh::clear() {
 	vertexLocations.clear();
@@ -915,8 +917,113 @@ void Mesh::update() {
 Mesh::~Mesh() {
 	// TODO Auto-generated destructor stub
 }
+void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
+	using namespace tinyobj;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str());
+	if (err.size() > 0)
+		throw std::runtime_error(err);
+	meshList.resize(shapes.size());
+	for (int n = 0; n < shapes.size(); n++) {
+		Mesh& mesh = meshList[n];
+		tinyobj::shape_t& shape = shapes[n];
+		if (shape.mesh.positions.size() > 0) {
+			mesh.vertexLocations.resize(shape.mesh.positions.size() / 3);
+			mesh.vertexLocations.set(shape.mesh.positions.data());
+		}
+		if (shape.mesh.normals.size() > 0) {
+			mesh.vertexNormals.resize(shape.mesh.normals.size() / 3);
+			mesh.vertexNormals.set(shape.mesh.normals.data());
+		}
+		if (shape.mesh.texcoords.size() > 0) {
+			mesh.textureMap.resize(shape.mesh.texcoords.size() / 2);
+			mesh.textureMap.set(shape.mesh.texcoords.data());
+		}
+		if (shape.mesh.triIndices.size() > 0) {
+			mesh.triIndexes.resize(shape.mesh.triIndices.size() / 3);
+			mesh.triIndexes.set(shape.mesh.triIndices.data());
+		}
+		if (shape.mesh.quadIndices.size() > 0) {
+			mesh.quadIndexes.resize(shape.mesh.quadIndices.size() / 4);
+			mesh.quadIndexes.set(shape.mesh.quadIndices.data());
+		}
+	}
+}
+void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
+	using namespace tinyobj;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string err = tinyobj::LoadObj(shapes, materials, file.c_str());
+	if (err.size() > 0)
+		throw std::runtime_error(err);
 
+	size_t positionCount = 0;
+	size_t normalCount = 0;
+	size_t texCount = 0;
+	size_t triIndexCount = 0;
+	size_t quadIndexCount = 0;
+	for (int n = 0; n < shapes.size(); n++) {
+		shape_t& shape = shapes[n];
+		positionCount += shape.mesh.positions.size();
+		normalCount += shape.mesh.normals.size();
+		texCount += shape.mesh.texcoords.size();
+		triIndexCount += shape.mesh.triIndices.size();
+		quadIndexCount += shape.mesh.quadIndices.size();
+	}
+
+	mesh.vertexLocations.resize(positionCount / 3);
+	mesh.vertexNormals.resize(normalCount / 3);
+	mesh.textureMap.resize(texCount / 2);
+	mesh.triIndexes.resize(triIndexCount / 3);
+	mesh.quadIndexes.resize(quadIndexCount / 4);
+
+	positionCount = 0;
+	normalCount = 0;
+	texCount = 0;
+	triIndexCount = 0;
+	quadIndexCount = 0;
+	for (int n = 0; n < shapes.size(); n++) {
+		shape_t& shape = shapes[n];
+		for (size_t i = 0; i < shape.mesh.triIndices.size(); i += 3) {
+			mesh.triIndexes[triIndexCount++] = uint3(
+					positionCount + shape.mesh.triIndices[i],
+					positionCount + shape.mesh.triIndices[i + 1],
+					positionCount + shape.mesh.triIndices[i + 2]);
+		}
+		for (size_t i = 0; i < shape.mesh.quadIndices.size(); i += 4) {
+			mesh.quadIndexes[quadIndexCount++] = uint4(
+					positionCount + shape.mesh.quadIndices[i],
+					positionCount + shape.mesh.quadIndices[i + 1],
+					positionCount + shape.mesh.quadIndices[i + 2],
+					positionCount + shape.mesh.quadIndices[i + 3]);
+		}
+		for (size_t i = 0; i < shape.mesh.positions.size(); i += 3) {
+			mesh.vertexLocations[positionCount++] = float3(
+					shape.mesh.positions[i], shape.mesh.positions[i + 1],
+					shape.mesh.positions[i + 2]);
+		}
+		for (size_t i = 0; i < shape.mesh.normals.size(); i += 3) {
+			mesh.vertexNormals[normalCount++] = float3(shape.mesh.normals[i],
+					shape.mesh.normals[i + 1], shape.mesh.normals[i + 2]);
+		}
+		for (size_t i = 0; i < shape.mesh.texcoords.size(); i += 2) {
+			mesh.textureMap[texCount++] = float2(shape.mesh.texcoords[i],
+					shape.mesh.texcoords[i + 1]);
+		}
+	}
+}
 void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
+	std::string ext = GetFileExtension(file);
+	if (ext == "ply") {
+		ReadPlyMeshFromFile(file, mesh);
+	} else if (ext == "obj") {
+		ReadObjMeshFromFile(file, mesh);
+	} else
+		throw std::runtime_error(
+				MakeString() << "Could not read file " << file);
+}
+void ReadPlyMeshFromFile(const std::string& file, Mesh &mesh) {
 	int i, j;
 	int numPts = 0, numPolys = 0;
 	PLYReaderWriter ply;

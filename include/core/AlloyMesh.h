@@ -57,7 +57,8 @@ public:
 	GLuint quadIndexCount;
 
 	virtual void draw() const override;
-	virtual void draw(const PrimitiveType& type,bool forceVertexColor=false) const;
+	virtual void draw(const PrimitiveType& type,
+			bool forceVertexColor = false) const;
 	virtual void update() override;
 	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
@@ -109,7 +110,8 @@ public:
 	inline box3f getBoundingBox() const {
 		return boundingBox;
 	}
-	virtual void draw(const GLMesh::PrimitiveType& type, bool froceVertexColor = false) const;
+	virtual void draw(const GLMesh::PrimitiveType& type, bool froceVertexColor =
+			false) const;
 	box3f updateBoundingBox();
 	void scale(float sc);
 	void transform(const float4x4& M);
@@ -146,6 +148,9 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	return ss;
 }
 void ReadMeshFromFile(const std::string& file, Mesh& mesh);
+void ReadPlyMeshFromFile(const std::string& file, Mesh& mesh);
+void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& mesh);
+void ReadObjMeshFromFile(const std::string& file, Mesh& mesh);
 void WriteMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
 		true);
 
