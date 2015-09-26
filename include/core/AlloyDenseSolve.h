@@ -245,7 +245,7 @@ template<class T, int C> void SVD(const DenseMatrix<T, C>& M,
 						flag = 0;
 						break;
 					}
-					if (std::abs((double) w[nm]) + anorm == anorm)
+					if (nm >= 0 && std::abs((double) w[nm]) + anorm == anorm)
 						break;
 				}
 				if (flag) {
@@ -411,7 +411,7 @@ template<class T, int C> Vector<T, C> SolveSVD(const DenseMatrix<T, C>& A,
 
 template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, 1>& L, DenseMatrix<T, 1>& U, std::vector<int>& piv,
-		int cc=0, const double zeroTolerance = 0.0) {
+		int cc = 0, const double zeroTolerance = 0.0) {
 	const int m = A.rows;
 	const int n = A.cols;
 	std::vector<std::vector<double>> LU(m, std::vector<double>(n, 0.0));
@@ -483,9 +483,9 @@ template<class T, int C> bool LU(const DenseMatrix<T, C>& A,
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			if (i <= j) {
-				U[i][j].x= T(LU[i][j]);
+				U[i][j].x = T(LU[i][j]);
 			} else {
-				U[i][j].x= T(0.0);
+				U[i][j].x = T(0.0);
 			}
 		}
 	}
@@ -518,7 +518,7 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 			}
 			// Forward solve Ly = b
 			for (int i = 0; i < n; i++) {
-				y[i][cc] =Atb[piv[i]][cc];
+				y[i][cc] = Atb[piv[i]][cc];
 				for (int j = 0; j < i; j++) {
 					y[i][cc] -= L[i][j].x * y[j][cc];
 				}
@@ -548,7 +548,7 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 			}
 			// Forward solve Ly = b
 			for (int i = 0; i < n; i++) {
-				y[i][cc] =b[piv[i]][cc];
+				y[i][cc] = b[piv[i]][cc];
 				for (int j = 0; j < i; j++) {
 					y[i][cc] -= L[i][j].x * y[j][cc];
 				}
@@ -674,7 +674,6 @@ template<class T, int C> Vector<T, C> SolveQR(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, C> At = A.transpose();
 		DenseMatrix<T, C> AtA = At * A;
 		Vector<T, C> Atb = At * b;
-		int m = AtA.rows;
 		int n = AtA.cols;
 		Vector<T, C> x(A.cols);
 		DenseMatrix<T, C> Q, R;
@@ -693,7 +692,6 @@ template<class T, int C> Vector<T, C> SolveQR(const DenseMatrix<T, C>& A,
 		}
 		return x;
 	} else {
-		int m = A.rows;
 		int n = A.cols;
 
 		Vector<T, C> x(A.cols);

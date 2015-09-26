@@ -925,7 +925,7 @@ void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 	if (err.size() > 0)
 		throw std::runtime_error(err);
 	meshList.resize(shapes.size());
-	for (int n = 0; n < shapes.size(); n++) {
+	for (int n = 0; n < (int)shapes.size(); n++) {
 		Mesh& mesh = meshList[n];
 		tinyobj::shape_t& shape = shapes[n];
 		if (shape.mesh.positions.size() > 0) {
@@ -963,7 +963,7 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	size_t texCount = 0;
 	size_t triIndexCount = 0;
 	size_t quadIndexCount = 0;
-	for (int n = 0; n < shapes.size(); n++) {
+	for (int n = 0; n < (int)shapes.size(); n++) {
 		shape_t& shape = shapes[n];
 		positionCount += shape.mesh.positions.size();
 		normalCount += shape.mesh.normals.size();
@@ -983,7 +983,7 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 	texCount = 0;
 	triIndexCount = 0;
 	quadIndexCount = 0;
-	for (int n = 0; n < shapes.size(); n++) {
+	for (int n = 0; n < (int)shapes.size(); n++) {
 		shape_t& shape = shapes[n];
 		for (size_t i = 0; i < shape.mesh.triIndices.size(); i += 3) {
 			mesh.triIndexes[triIndexCount++] = uint3(
@@ -1335,7 +1335,7 @@ void Mesh::convertQuadsToTriangles() {
 	if (textureMap.size() > 0 && quadIndexes.size() > 0) {
 		Vector2f newTextureMap;
 		uint32_t index = 0;
-		for (const uint3& face : triIndexes.data) {
+		for (int n=0;n<(int)triIndexes.size();n++) {
 			float2 tx = textureMap[index++];
 			float2 ty = textureMap[index++];
 			float2 tz = textureMap[index++];

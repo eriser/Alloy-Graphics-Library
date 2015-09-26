@@ -1066,7 +1066,6 @@ template<class T, int C, ImageType I> void Tile(
 template<class T, int C, ImageType I> void Tile(
 		const std::initializer_list<Image<T, C, I>>& in, Image<T, C, I>& out,
 		int rows, int cols) {
-	int index = 0;
 	int maxX = 0;
 	int maxY = 0;
 	std::vector<int> lines(rows,0);
@@ -1090,7 +1089,6 @@ template<class T, int C, ImageType I> void Tile(
 	}
 	out.resize(maxX, maxY);
 	out.set(vec<T,C>(T(0)));
-	index = 0;
 	{
 		auto iter = in.begin();
 		for (int r = 0; r < rows; r++) {

@@ -61,7 +61,7 @@ public:
 	DenseMatrix(): rows(0),cols(0) {
 	}
 	DenseMatrix(int rows, int cols) :
-	rows(rows), cols(cols),storage(rows,std::vector<vec<T,C>>(cols)) {
+	storage(rows,std::vector<vec<T,C>>(cols)),rows(rows), cols(cols) {
 	}
 	void resize(int rows,int cols) {
 		if(this->rows!=rows||this->cols!=cols) {

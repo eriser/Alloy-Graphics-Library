@@ -588,7 +588,11 @@ namespace aly {
 		memset(result, 0, sizeof(result));
 		//Only works on Linux! No mac support!
 		ssize_t sz=readlink("/proc/self/exe", result, 4096);
-		return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
+		if(sz<=4096){
+			return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
+		} else {
+			return RemoveTrailingSlash(GetParentDirectory(std::string(result)));
+		}
 	}
 #else 
 	std::wstring ToWString(const std::string& str) {

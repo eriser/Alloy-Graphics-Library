@@ -207,7 +207,7 @@ template<class T, int m, int n> void SVD_INTERNAL(const matrix<T, m, n>& M,
 					flag = 0;
 					break;
 				}
-				if (std::abs((double) w[nm]) + anorm == anorm)
+				if (nm>=0&&std::abs(w[nm]) + anorm == anorm)
 					break;
 			}
 			if (flag) {
