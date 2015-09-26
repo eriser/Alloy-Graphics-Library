@@ -31,6 +31,7 @@
 #include <random>
 namespace aly {
 bool SANITY_CHECK_IMAGE();
+bool SANITY_CHECK_IMAGE_IO();
 bool SANITY_CHECK_PYRAMID();
 enum class ImageType {
 	BYTE = 0,

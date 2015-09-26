@@ -26,10 +26,10 @@ int main() {
 	try {
 
 		//UI Test case
-		//ExampleUI app;
+		ExampleUI app;
 
 		//Mesh Render Test case
-		MeshViewer app;
+		//MeshViewer app;
 
 		//SANITY_CHECK_ANY();
 		//SANITY_CHECK_SVD();
@@ -41,8 +41,9 @@ int main() {
 		//SANITY_CHECK_PYRAMID();
 		//SANITY_CHECK_SPARSE_SOLVE();
 		//SANITY_CHECK_DENSE_SOLVE();
-		SANITY_CHECK_DENSE_MATRIX();
+		//SANITY_CHECK_DENSE_MATRIX();
 		//SANITY_CHECK_IMAGE_PROCESSING();
+		//SANITY_CHECK_IMAGE_IO();
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {

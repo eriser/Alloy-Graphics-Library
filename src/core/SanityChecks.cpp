@@ -95,8 +95,12 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 			for (int j = 0; j < A.cols; j++) {
 				for (int cc = 0; cc < 3; cc++) {
 					A[i][j][cc] = float1((rand() % 1000) / 1000.0f);
-					b2[j] = float3((rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f);
-					b1[i] = float3((rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f,(rand() % 1000) / 1000.0f);
+					b2[j] = float3((rand() % 1000) / 1000.0f,
+							(rand() % 1000) / 1000.0f,
+							(rand() % 1000) / 1000.0f);
+					b1[i] = float3((rand() % 1000) / 1000.0f,
+							(rand() % 1000) / 1000.0f,
+							(rand() % 1000) / 1000.0f);
 				}
 			}
 		}
@@ -664,6 +668,44 @@ bool SANITY_CHECK_CEREAL() {
 	//std::cout << "Hit any key ..." << std::endl;
 	//std::cout << "Data Size " << im1.data.size() << std::endl;
 	//getchar();
+	return true;
+}
+bool SANITY_CHECK_IMAGE_IO() {
+	ImageRGBAf srcRGBAf;
+	ImageRGBf srcRGBf;
+	ImageAf srcAf;
+	ImageRGB srcRGB;
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			srcRGBAf);
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			srcRGB);
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			srcRGBf);
+	ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/sfmarket.png"),
+			srcAf);
+	aly::WriteImageToFile("sfmarket_rgba.exr", srcRGBAf);
+	aly::WriteImageToFile("sfmarket_rgb.exr", srcRGBf);
+	aly::WriteImageToFile("sfmarket_r.exr", srcAf);
+
+	aly::WriteImageToFile("sfmarket_rgba.hdr", srcRGBAf);
+	aly::WriteImageToFile("sfmarket_rgb.hdr", srcRGBf);
+	aly::WriteImageToFile("sfmarket_r.hdr", srcAf);
+
+	ReadImageFromFile("sfmarket_rgba.exr", srcRGBAf);
+	ReadImageFromFile("sfmarket_rgb.exr", srcRGBf);
+	ReadImageFromFile("sfmarket_r.exr", srcAf);
+
+	aly::WriteImageToFile("sfmarket_rgba_exr.png", srcRGBAf);
+	aly::WriteImageToFile("sfmarket_rgb_exr.png", srcRGBf);
+	aly::WriteImageToFile("sfmarket_r_exr.png", srcAf);
+
+	aly::ReadImageFromFile("sfmarket_rgba.hdr", srcRGBAf);
+	aly::ReadImageFromFile("sfmarket_rgb.hdr", srcRGBf);
+	aly::ReadImageFromFile("sfmarket_r.hdr", srcAf);
+
+	aly::WriteImageToFile("sfmarket_rgba_hdr.png", srcRGBAf);
+	aly::WriteImageToFile("sfmarket_rgb2_hdr.png", srcRGBf);
+	aly::WriteImageToFile("sfmarket_r_hdr.png", srcAf);
 	return true;
 }
 bool SANITY_CHECK_IMAGE() {

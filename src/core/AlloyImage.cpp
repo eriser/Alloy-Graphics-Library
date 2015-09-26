@@ -26,6 +26,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image.h"
 #include "stb_image_write.h"
+
 #include "tinyexr.h"
 
 #include <fstream>
@@ -39,7 +40,7 @@ void ConvertImage(const Image1f& in, ImageRGBAf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x;
@@ -50,7 +51,7 @@ void ConvertImage(const Image1f& in, ImageRGBf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x;
@@ -61,7 +62,7 @@ void ConvertImage(const Image1b& in, ImageRGBAf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x / 255.0f;
@@ -72,7 +73,7 @@ void ConvertImage(const Image1b& in, ImageRGBf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float lum = in[i].x / 255.0f;
@@ -83,7 +84,7 @@ void ConvertImage(const Image1b& in, ImageRGBA& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = in[i].x;
@@ -94,7 +95,7 @@ void ConvertImage(const Image1b& in, ImageRGB& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = in[i].x;
@@ -106,7 +107,7 @@ void ConvertImage(const Image1f& in, ImageRGBA& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = (ubyte) clamp(255.0 * in[i].x, 0.0, 255.0);
@@ -117,7 +118,7 @@ void ConvertImage(const Image1f& in, ImageRGB& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		ubyte lum = (ubyte) clamp(255.0 * in[i].x, 0.0, 255.0);
@@ -128,7 +129,7 @@ void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -150,7 +151,7 @@ void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -172,7 +173,7 @@ void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -198,7 +199,7 @@ void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 
 	if (sRGB) {
 #pragma omp parallel for
@@ -222,25 +223,38 @@ void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	std::string ext = GetFileExtension(file);
-	std::string outFile = ReplaceFileExtension(file, "png");
-	if (!stbi_write_png(outFile.c_str(), image.width, image.height, 3,
-			image.ptr(), 3 * image.width)) {
-		throw std::runtime_error(MakeString() << "Could not write " << outFile);
+	if (ext == "png") {
+		if (!stbi_write_png(file.c_str(), image.width, image.height, 3,
+				image.ptr(), 3 * image.width)) {
+			throw std::runtime_error(
+					MakeString() << "Could not write " << file);
+		}
+	} else {
+		throw std::runtime_error(MakeString() << "Could not write " << file);
 	}
 }
 void WriteImageToFile(const std::string& file, const Image1b& image) {
 	std::string ext = GetFileExtension(file);
-	std::string outFile = ReplaceFileExtension(file, "png");
-	if (!stbi_write_png(outFile.c_str(), image.width, image.height, 1,
-			image.ptr(), image.width)) {
-		throw std::runtime_error(MakeString() << "Could not write " << outFile);
+	if (ext == "png") {
+		if (!stbi_write_png(file.c_str(), image.width, image.height, 1,
+				image.ptr(), image.width)) {
+			throw std::runtime_error(
+					MakeString() << "Could not write " << file);
+		}
+	} else {
+		throw std::runtime_error(MakeString() << "Could not write " << file);
 	}
 }
 void WriteImageToFile(const std::string& file, const ImageRGBA& image) {
-	std::string outFile = ReplaceFileExtension(file, "png");
-	if (!stbi_write_png(outFile.c_str(), image.width, image.height, 4,
-			image.ptr(), 4 * image.width)) {
-		throw std::runtime_error(MakeString() << "Could not write " << outFile);
+	std::string ext = GetFileExtension(file);
+	if (ext == "png") {
+		if (!stbi_write_png(file.c_str(), image.width, image.height, 4,
+				image.ptr(), 4 * image.width)) {
+			throw std::runtime_error(
+					MakeString() << "Could not write " << file);
+		}
+	} else {
+		throw std::runtime_error(MakeString() << "Could not write " << file);
 	}
 }
 void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
@@ -289,21 +303,37 @@ void ReadImageFromFile(const std::string& file, ImageRGB& image) {
 void ReadImageFromFile(const std::string& file, ImageRGBAf& img) {
 	std::string ext = GetFileExtension(file);
 	if (ext == "exr") {
-		float* data=nullptr;
-		int width;
-		int height;
 		const char *message = nullptr;
-		int err=LoadEXR(&data,&width,&height,file.c_str(),&message);
-		if (err != 0)throw std::runtime_error(message);
-		img.resize(width, height);
-		std::vector<float> imageData(img.size()*img.channels);
-		unsigned char* ptr = (unsigned char*)imageData.data();
-		size_t index = 0;
-		for (int c = 0;c < img.channels;c++) {
-			for (float4& val : img.data) {
-				val[c] = data[index++];
+		EXRImage exrImage;
+		InitEXRImage(&exrImage);
+		int ret = ParseMultiChannelEXRHeaderFromFile(&exrImage, file.c_str(),
+				&message);
+		if (ret != 0) {
+			throw std::runtime_error(message);
+		}
+		for (int i = 0; i < exrImage.num_channels; i++) {
+			if (exrImage.pixel_types[i] == TINYEXR_PIXELTYPE_HALF) {
+				exrImage.requested_pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT;
 			}
 		}
+		ret = LoadMultiChannelEXRFromFile(&exrImage, file.c_str(), &message);
+		if (ret != 0) {
+			throw std::runtime_error(message);
+		}
+		if (exrImage.num_channels > img.channels) {
+			throw std::runtime_error(
+					"Cannot read image because it contains more channels than the output data type.");
+		}
+		img.resize(exrImage.width, exrImage.height);
+		std::vector<float> imageData(img.size() * img.channels);
+		float** ptr=reinterpret_cast<float **>(exrImage.images);
+		for (int c = 0; c < img.channels; c++) {
+			size_t index = 0;
+			for (float4& val : img.data) {
+				val[c] = ptr[c][index++];
+			}
+		}
+		FreeEXRImage(&exrImage);
 	} else if (ext == "hdr") {
 		int w, h, n;
 		float *data = stbi_loadf(file.c_str(), &w, &h, &n, 4);
@@ -332,7 +362,39 @@ void ReadImageFromFile(const std::string& file, ImageRGBAf& img) {
 }
 void ReadImageFromFile(const std::string& file, ImageRGBf& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "hdr") {
+	if (ext == "exr") {
+		const char *message = nullptr;
+		EXRImage exrImage;
+		InitEXRImage(&exrImage);
+		int ret = ParseMultiChannelEXRHeaderFromFile(&exrImage, file.c_str(),
+				&message);
+		if (ret != 0) {
+			throw std::runtime_error(message);
+		}
+		for (int i = 0; i < exrImage.num_channels; i++) {
+			if (exrImage.pixel_types[i] == TINYEXR_PIXELTYPE_HALF) {
+				exrImage.requested_pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT;
+			}
+		}
+		ret = LoadMultiChannelEXRFromFile(&exrImage, file.c_str(), &message);
+		if (ret != 0) {
+			throw std::runtime_error(message);
+		}
+		if (exrImage.num_channels > img.channels) {
+			throw std::runtime_error(
+					"Cannot read image because it contains more channels than the output data type.");
+		}
+		img.resize(exrImage.width, exrImage.height);
+		std::vector<float> imageData(img.size() * img.channels);
+		float** ptr=reinterpret_cast<float **>(exrImage.images);
+		for (int c = 0; c < img.channels; c++) {
+			size_t index = 0;
+			for (float3& val : img.data) {
+				val[c] = ptr[c][index++];
+			}
+		}
+		FreeEXRImage(&exrImage);
+	} else if (ext == "hdr") {
 		int w, h, n;
 		float *data = stbi_loadf(file.c_str(), &w, &h, &n, 3);
 		if (data == NULL) {
@@ -358,7 +420,39 @@ void ReadImageFromFile(const std::string& file, ImageRGBf& img) {
 }
 void ReadImageFromFile(const std::string& file, Image1f& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "hdr") {
+	if (ext == "exr") {
+		const char *message = nullptr;
+		EXRImage exrImage;
+		InitEXRImage(&exrImage);
+		int ret = ParseMultiChannelEXRHeaderFromFile(&exrImage, file.c_str(),
+				&message);
+		if (ret != 0) {
+			throw std::runtime_error(message);
+		}
+		for (int i = 0; i < exrImage.num_channels; i++) {
+			if (exrImage.pixel_types[i] == TINYEXR_PIXELTYPE_HALF) {
+				exrImage.requested_pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT;
+			}
+		}
+		ret = LoadMultiChannelEXRFromFile(&exrImage, file.c_str(), &message);
+		if (ret != 0) {
+			throw std::runtime_error(message);
+		}
+		if (exrImage.num_channels > img.channels) {
+			throw std::runtime_error(
+					"Cannot read image because it contains more channels than the output data type.");
+		}
+		img.resize(exrImage.width, exrImage.height);
+		std::vector<float> imageData(img.size() * img.channels);
+		float** ptr=reinterpret_cast<float **>(exrImage.images);
+		for (int c = 0; c < img.channels; c++) {
+			size_t index = 0;
+			for (float1& val : img.data) {
+				val[c] = ptr[c][index++];
+			}
+		}
+		FreeEXRImage(&exrImage);
+	} else if (ext == "hdr") {
 		int w, h, n;
 		float *data = stbi_loadf(file.c_str(), &w, &h, &n, 1);
 		if (data == NULL) {
@@ -388,31 +482,44 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 		const char* err;
 		EXRImage exrImage;
 		InitEXRImage(&exrImage);
-		
 		exrImage.num_channels = img.channels;
 		exrImage.width = img.width;
 		exrImage.height = img.height;
-		exrImage.pixel_types = (int *)malloc(sizeof(int *) * img.channels);
-		exrImage.channel_names = (const char **)malloc(sizeof(const char *) * img.channels);
-		std::vector<float> imageData(img.size()*img.channels);
-		unsigned char* ptr = (unsigned char*)imageData.data();
-		size_t index = 0;
-		for (int c = 0;c < img.channels;c++) {	
+		exrImage.pixel_types = (int *) malloc(sizeof(int *) * img.channels);
+		exrImage.requested_pixel_types = (int *) malloc(
+				sizeof(int *) * img.channels);
+		exrImage.channel_names = (const char **) malloc(
+				sizeof(const char *) * img.channels);
+		float** array = (float**) malloc(sizeof(float*) * img.channels);
+		for (int c = 0; c < img.channels; c++) {
+			array[c] = (float*) malloc(sizeof(float) * img.size());
+		}
+		exrImage.images = (unsigned char**) array;
+		for (int c = 0; c < img.channels; c++) {
+			size_t index = 0;
 			for (float4& val : img.data) {
-				imageData[index++] = val[c];
+				array[c][index++] = val[c];
 			}
 		}
-		exrImage.images = &ptr;
 		for (int c = 0; c < img.channels; c++) {
 			exrImage.pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
+			exrImage.requested_pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
 		}
-		exrImage.channel_names[0] = "R";
-		exrImage.channel_names[1] = "G";
-		exrImage.channel_names[2] = "B";
-		exrImage.channel_names[3] = "A";
+#ifdef _WIN32
+		exrImage.channel_names[0] = _strdup("R");
+		exrImage.channel_names[1] = _strdup("G");
+		exrImage.channel_names[2] = _strdup("B");
+		exrImage.channel_names[3] = _strdup("A");
+#else
+		exrImage.channel_names[0] = strdup("R");
+		exrImage.channel_names[1] = strdup("G");
+		exrImage.channel_names[2] = strdup("B");
+		exrImage.channel_names[3] = strdup("A");
+#endif
 		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
 		FreeEXRImage(&exrImage);
-		if (ret != 0) throw std::runtime_error(err);
+		if (ret != 0)
+			throw std::runtime_error(err);
 	} else if (ext == "hdr") {
 		if (!stbi_write_hdr(file.c_str(), img.width, img.height, 4,
 				img.ptr())) {
@@ -437,7 +544,43 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 }
 void WriteImageToFile(const std::string& file, const Image1f& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "hdr") {
+	if (ext == "exr") {
+		const char* err;
+		EXRImage exrImage;
+		InitEXRImage(&exrImage);
+		exrImage.num_channels = img.channels;
+		exrImage.width = img.width;
+		exrImage.height = img.height;
+		exrImage.pixel_types = (int *) malloc(sizeof(int *) * img.channels);
+		exrImage.requested_pixel_types = (int *) malloc(
+				sizeof(int *) * img.channels);
+		exrImage.channel_names = (const char **) malloc(
+				sizeof(const char *) * img.channels);
+		float** array = (float**) malloc(sizeof(float*) * img.channels);
+		for (int c = 0; c < img.channels; c++) {
+			array[c] = (float*) malloc(sizeof(float) * img.size());
+		}
+		exrImage.images = (unsigned char**) array;
+		for (int c = 0; c < img.channels; c++) {
+			size_t index = 0;
+			for (float1& val : img.data) {
+				array[c][index++] = val[c];
+			}
+		}
+		for (int c = 0; c < img.channels; c++) {
+			exrImage.pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
+			exrImage.requested_pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
+		}
+#ifdef _WIN32
+		exrImage.channel_names[0] = _strdup("R");
+#else
+		exrImage.channel_names[0] = strdup("R");
+#endif
+		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
+		FreeEXRImage(&exrImage);
+		if (ret != 0)
+			throw std::runtime_error(err);
+	} else if (ext == "hdr") {
 		if (!stbi_write_hdr(file.c_str(), img.width, img.height, 1,
 				img.ptr())) {
 			throw std::runtime_error(
@@ -459,9 +602,46 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 	std::string ext = GetFileExtension(file);
 	if (ext == "exr") {
-
-	} else 
-	if (ext == "hdr") {
+		const char* err;
+		EXRImage exrImage;
+		InitEXRImage(&exrImage);
+		exrImage.num_channels = img.channels;
+		exrImage.width = img.width;
+		exrImage.height = img.height;
+		exrImage.pixel_types = (int *) malloc(sizeof(int *) * img.channels);
+		exrImage.requested_pixel_types = (int *) malloc(
+				sizeof(int *) * img.channels);
+		exrImage.channel_names = (const char **) malloc(
+				sizeof(const char *) * img.channels);
+		float** array = (float**) malloc(sizeof(float*) * img.channels);
+		for (int c = 0; c < img.channels; c++) {
+			array[c] = (float*) malloc(sizeof(float) * img.size());
+		}
+		exrImage.images = (unsigned char**) array;
+		for (int c = 0; c < img.channels; c++) {
+			size_t index = 0;
+			for (float3& val : img.data) {
+				array[c][index++] = val[c];
+			}
+		}
+		for (int c = 0; c < img.channels; c++) {
+			exrImage.pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
+			exrImage.requested_pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
+		}
+#ifdef _WIN32
+		exrImage.channel_names[0] = _strdup("R");
+		exrImage.channel_names[1] = _strdup("G");
+		exrImage.channel_names[2] = _strdup("B");
+#else
+		exrImage.channel_names[0] = strdup("R");
+		exrImage.channel_names[1] = strdup("G");
+		exrImage.channel_names[2] = strdup("B");
+#endif
+		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
+		FreeEXRImage(&exrImage);
+		if (ret != 0)
+			throw std::runtime_error(err);
+	} else if (ext == "hdr") {
 		if (!stbi_write_hdr(file.c_str(), img.width, img.height, 3,
 				img.ptr())) {
 			throw std::runtime_error(

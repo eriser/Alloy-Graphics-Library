@@ -506,7 +506,6 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 		DenseMatrix<T, C> At = A.transpose();
 		DenseMatrix<T, C> AtA = At * A;
 		Vector<T, C> Atb = At * b;
-		int m = AtA.rows;
 		int n = AtA.cols;
 		Vector<T, C> x(A.cols);
 		Vector<T, C> y(A.cols);
@@ -536,7 +535,6 @@ template<class T, int C> Vector<T, C> SolveLU(const DenseMatrix<T, C>& A,
 		}
 		return x;
 	} else {
-		int m = A.rows;
 		int n = A.cols;
 
 		Vector<T, C> x(A.cols);
