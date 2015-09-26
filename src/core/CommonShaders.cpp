@@ -694,8 +694,8 @@ gl_FragColor=rgba;
 TextureMeshShader::TextureMeshShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(context) {
-	initialize( { },
-			R"(
+	initialize({},
+		R"(
 	#version 330
 	layout(location = 0) in vec3 vp; 
 	layout(location = 1) in vec2 vt; 
@@ -707,7 +707,7 @@ TextureMeshShader::TextureMeshShader(
 	vec2 pos=vp.xy*bounds.zw+bounds.xy;
 	gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 	})",
-			R"(
+		R"(
 	#version 330
 	in vec2 uv;
 	uniform ivec2 depthBufferSize;
@@ -719,6 +719,7 @@ TextureMeshShader::TextureMeshShader(
 	vec4 rgba=texelFetch(depthBuffer, pos,0);//Do not interpolate depth buffer!
     vec2 pix=(rgba.xy-texBounds.xy)/(texBounds.zw);
     if(rgba.w<1.0&&pix.x>=0&&pix.y>=0&&pix.x<=1.0&&pix.y<=1){
+		  pix.y=1.0-pix.y;
     	  vec4 c=texture(textureImage,pix);
           if(c.w>0){
               gl_FragColor=c;

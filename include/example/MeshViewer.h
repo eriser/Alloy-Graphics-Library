@@ -57,6 +57,9 @@ private:
 	aly::GLFrameBuffer smoothDepthFrameBuffer1;
 	aly::GLFrameBuffer colorBuffer2;
 	aly::GLFrameBuffer colorBuffer1;
+	aly::GLTextureRGBAf texImage;
+
+	aly::GLFrameBuffer textureFrameBuffer;
 	aly::GLFrameBuffer particleFrameBuffer;
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;

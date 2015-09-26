@@ -33,6 +33,7 @@ MeshViewer::MeshViewer() :
 bool MeshViewer::init(Composite& rootNode) {
 	
 	mesh.load(getFullPath("models/tanya.obj"));
+	texImage.load(mesh.textureImage);
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
 	mesh.updateVertexNormals();
@@ -87,7 +88,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	particleFrameBuffer.initialize(w, h);
 	faceShader.initialize(w, h);
 	particleFaceIdShader.initialize(w, h);
-
+	textureFrameBuffer.initialize(w, h);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 	setOnResize([=](const int2& dims) {
@@ -123,6 +124,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2,false);
+		depthAndTextureShader.draw(mesh, camera, textureFrameBuffer, true);
 		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
 
 		/*
@@ -206,6 +208,13 @@ void MeshViewer::draw(AlloyContext* context) {
 		occlusionFrameBuffer.end();
 
 		//colorVertexShader.draw({ &mesh },camera,occlusionFrameBuffer,true);
+
+
+		occlusionFrameBuffer.begin();
+		texMeshShader.draw(textureFrameBuffer.getTexture(),texImage,camera,
+			box2px(float2(0.0f, 0.0f), float2((float)w, (float)h)),
+			occlusionFrameBuffer.getViewport());
+		occlusionFrameBuffer.end();
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(), float2((float)w, (float)0.0f),
 			float2((float)w, (float)h));
