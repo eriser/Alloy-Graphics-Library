@@ -258,6 +258,12 @@ void WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	}
 }
 void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
+	std::string ext = GetFileExtension(file);
+	if (ext != "png" && ext != "tga" && ext != "bmp" && ext != "psd"
+			&& ext != "gif" && ext != "jpg") {
+		throw std::runtime_error(
+				MakeString() << "Could not read file " << file);
+	}
 	unsigned char* img;
 	stbi_set_unpremultiply_on_load(1);
 	stbi_convert_iphone_png_to_rgb(1);
@@ -272,6 +278,12 @@ void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 	stbi_image_free(img);
 }
 void ReadImageFromFile(const std::string& file, Image1b& image) {
+	std::string ext = GetFileExtension(file);
+	if (ext != "png" && ext != "tga" && ext != "bmp" && ext != "psd"
+			&& ext != "gif" && ext != "jpg") {
+		throw std::runtime_error(
+				MakeString() << "Could not read file " << file);
+	}
 	unsigned char* img;
 	stbi_set_unpremultiply_on_load(1);
 	stbi_convert_iphone_png_to_rgb(1);
@@ -286,6 +298,12 @@ void ReadImageFromFile(const std::string& file, Image1b& image) {
 	stbi_image_free(img);
 }
 void ReadImageFromFile(const std::string& file, ImageRGB& image) {
+	std::string ext = GetFileExtension(file);
+	if (ext != "png" && ext != "tga" && ext != "bmp" && ext != "psd"
+			&& ext != "gif" && ext != "jpg") {
+		throw std::runtime_error(
+				MakeString() << "Could not read file " << file);
+	}
 	unsigned char* img;
 	stbi_set_unpremultiply_on_load(1);
 	stbi_convert_iphone_png_to_rgb(1);
@@ -326,7 +344,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBAf& img) {
 		}
 		img.resize(exrImage.width, exrImage.height);
 		std::vector<float> imageData(img.size() * img.channels);
-		float** ptr=reinterpret_cast<float **>(exrImage.images);
+		float** ptr = reinterpret_cast<float **>(exrImage.images);
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float4& val : img.data) {
@@ -386,7 +404,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBf& img) {
 		}
 		img.resize(exrImage.width, exrImage.height);
 		std::vector<float> imageData(img.size() * img.channels);
-		float** ptr=reinterpret_cast<float **>(exrImage.images);
+		float** ptr = reinterpret_cast<float **>(exrImage.images);
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float3& val : img.data) {
@@ -444,7 +462,7 @@ void ReadImageFromFile(const std::string& file, Image1f& img) {
 		}
 		img.resize(exrImage.width, exrImage.height);
 		std::vector<float> imageData(img.size() * img.channels);
-		float** ptr=reinterpret_cast<float **>(exrImage.images);
+		float** ptr = reinterpret_cast<float **>(exrImage.images);
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float1& val : img.data) {
