@@ -2567,6 +2567,7 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 		Composite(name, pos, dims) {
 	setOrientation(Orientation::Vertical);
 	setScrollEnabled(true);
+	setAlwaysShowVerticalScrollBar(true);
 	cellPadding.y = 2;
 
 }

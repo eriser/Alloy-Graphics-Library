@@ -216,6 +216,9 @@ struct Composite: public Region {
 protected:
 	Orientation orientation = Orientation::Unspecified;
 	bool scrollEnabled = false;
+	bool alwaysShowVerticalScrollBar = false;
+	bool alwaysShowHorizontalScrollBar = false;
+
 	pixel2 scrollExtent = pixel2(0, 0);
 	float horizontalScrollExtent = 0;
 	pixel2 scrollPosition = pixel2(0, 0);
@@ -237,6 +240,14 @@ public:
 			return false;
 		}
 		return horizontalScrollTrack->isVisible();
+	}
+	void setAlwaysShowVerticalScrollBar(bool show) {
+		alwaysShowVerticalScrollBar = show;
+		scrollEnabled |= show;
+	}
+	void setAlwaysShowHorizontalScrollBar(bool show) {
+		alwaysShowHorizontalScrollBar = show;
+		scrollEnabled |= show;
 	}
 	static const float scrollBarSize;
 	typedef std::vector<ValueType>::iterator iterator;

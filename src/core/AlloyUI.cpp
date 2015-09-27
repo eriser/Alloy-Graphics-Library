@@ -364,7 +364,8 @@ void Composite::draw(AlloyContext* context) {
 			verticalScrollTrack->draw(context);
 			verticalScrollHandle->draw(context);
 		} else {
-			verticalScrollTrack->setVisible(false);
+			verticalScrollTrack->setVisible(alwaysShowVerticalScrollBar);
+			if(alwaysShowVerticalScrollBar)verticalScrollTrack->draw(context);
 			verticalScrollHandle->setVisible(false);
 		}
 		if (scrollExtent.x > w) {
@@ -373,7 +374,9 @@ void Composite::draw(AlloyContext* context) {
 			horizontalScrollTrack->draw(context);
 			horizontalScrollHandle->draw(context);
 		} else {
-			horizontalScrollTrack->setVisible(false);
+			horizontalScrollTrack->setVisible(alwaysShowHorizontalScrollBar);
+			if (alwaysShowHorizontalScrollBar)horizontalScrollTrack->draw(context);
+
 			horizontalScrollHandle->setVisible(false);
 		}
 	}
@@ -574,9 +577,10 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 					offset.y - cellSpacing.y + cellPadding.y);
 	}
 	if (verticalScrollTrack.get() != nullptr) {
+		bool  showY = scrollExtent.y > bounds.dimensions.y || alwaysShowVerticalScrollBar;
+		bool  showX = scrollExtent.x > bounds.dimensions.x || alwaysShowHorizontalScrollBar;
 		float nudge =
-				(scrollExtent.y > bounds.dimensions.y
-						&& scrollExtent.x > bounds.dimensions.x) ?
+				(showX&&showY) ?
 						-scrollBarSize : 0;
 
 		verticalScrollTrack->setDimensions(
