@@ -316,6 +316,7 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 	window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+
 	if (!window) {
 		glfwTerminate();
 
@@ -331,6 +332,25 @@ AlloyContext::AlloyContext(int width, int height, const std::string& title,
 	glEnable(GL_DEPTH_TEST);
 	glEnable( GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	offscreenWindow =glfwCreateWindow(512,512, "offscreen", NULL, window);
+	if (!offscreenWindow) {
+		glfwTerminate();
+		throw std::runtime_error("Could not create window.");
+	}
+	glfwMakeContextCurrent(offscreenWindow);
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK) {
+		throw std::runtime_error("Could not initialize GLEW.");
+	}
+	glGetError();
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glfwHideWindow(offscreenWindow);
+	glfwMakeContextCurrent(window);
+
 	glfwGetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 	viewSize = int2(width, height);
@@ -434,11 +454,16 @@ Region* AlloyContext::locate(const pixel2& cursor) const {
 	}
 	return cursorLocator.locate(cursor);
 }
-bool AlloyContext::begin() {
+bool AlloyContext::begin(bool onScreen) {
 	if (current == nullptr) {
 		contextLock.lock();
 		current = glfwGetCurrentContext();
-		glfwMakeContextCurrent(window);
+		if (onScreen) {
+			glfwMakeContextCurrent(window);
+		}
+		else {
+			glfwMakeContextCurrent(offscreenWindow);
+		}
 		return true;
 	}
 	return false;

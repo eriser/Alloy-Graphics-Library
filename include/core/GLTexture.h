@@ -51,7 +51,7 @@ public:
 		}
 	}
 	virtual void draw() const override {
-		context->begin();
+		context->begin(onScreen);
 		GLuint& vao = context->vaoImage.vao;
 		GLuint& positionBuffer = context->vaoImage.positionBuffer;
 		GLuint& uvBuffer = context->vaoImage.uvBuffer;
@@ -70,7 +70,7 @@ public:
 	}
 
 	virtual void update() override {
-		context->begin();
+		context->begin(onScreen);
 		if (textureId == 0) {
 			glGenTextures(1, &textureId);
 		}
@@ -255,7 +255,7 @@ public:
 	Image<T, C, I>& read() {
 
 		if (textureId) {
-			context->begin();
+			context->begin(onScreen);
 			if (multisample && !mipmap) {
 				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
 			} else {
@@ -292,16 +292,16 @@ public:
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
-	GLTexture(const std::shared_ptr<AlloyContext>& context =
+	GLTexture(bool onScreen=true,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
-			GLComponent(context), textureId(0), multisample(false), mipmap(
+			GLComponent(onScreen, context), textureId(0), multisample(false), mipmap(
 					false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,
-			int imageHeight, std::shared_ptr<AlloyContext>& context =
+			int imageHeight, bool onScreen = true, std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext()) :
-			GLComponent(context) {
+			GLComponent(onScreen,context) {
 		textureImage.resize(imageWidth, imageHeight);
 		bounds = box2i( { x, y }, { width, height });
 		update();
@@ -318,8 +318,8 @@ public:
 		return texture;
 	}
 	GLTexture(const Image<T, C, I>& image,
-			std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
-			GLComponent(context) {
+			bool onScreen = true,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
+			GLComponent(onScreen,context) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
 		update();
@@ -352,7 +352,7 @@ public:
 		update();
 	}
 	virtual ~GLTexture() {
-		context->begin();
+		context->begin(onScreen);
 		if (textureId) {
 			glDeleteTextures(1, &textureId);
 			textureId = 0;

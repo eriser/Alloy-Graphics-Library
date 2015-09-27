@@ -47,24 +47,24 @@ private:
 	aly::PhongShader phongShader2;
 	aly::ColorVertexShader colorVertexShader;
 	aly::CompositeShader compositeShader;
-	aly::GLFrameBuffer edgeFrameBuffer;
 	aly::TextureMeshShader texMeshShader;
 
 	aly::ParticleMatcapShader particleMatcapShader;
+	
 	aly::GLFrameBuffer occlusionFrameBuffer;
 	aly::GLFrameBuffer flatDepthFrameBuffer;
 	aly::GLFrameBuffer smoothDepthFrameBuffer2;
 	aly::GLFrameBuffer smoothDepthFrameBuffer1;
 	aly::GLFrameBuffer colorBuffer2;
 	aly::GLFrameBuffer colorBuffer1;
-	aly::GLTextureRGBAf texImage;
-
 	aly::GLFrameBuffer textureFrameBuffer;
 	aly::GLFrameBuffer particleFrameBuffer;
 	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer wireframeFrameBuffer;
-
+	aly::GLFrameBuffer edgeFrameBuffer;
+	aly::GLTextureRGBAf texImage;
 	aly::GLTextureRGBA exampleImage;
+
 	aly::Image2i faceIdMap;
 	float voxelSize;
 

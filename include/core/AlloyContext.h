@@ -209,6 +209,7 @@ public:
 	friend class Application;
 	NVGcontext* nvgContext;
 	GLFWwindow* window;
+	GLFWwindow* offscreenWindow;
 	const Theme theme;
 	ImageVAO vaoImage;
 	pixel2 cursorPosition = pixel2(-1, -1);
@@ -366,7 +367,7 @@ public:
 	}
 	AlloyContext(int width, int height, const std::string& title,
 			const Theme& theme = Theme::Default);
-	bool begin();
+	bool begin(bool onScreen);
 	bool end();
 	void repaintUI() {
 		dirtyUI = true;

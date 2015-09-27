@@ -38,14 +38,14 @@ using namespace std;
 using namespace ply;
 
 void GLMesh::draw() const {
-	draw(PrimitiveType::ALL);
+	draw(PrimitiveType::ALL,false);
 }
-void GLMesh::draw(const PrimitiveType& type, bool forceVertexColor) const {
-	if (mesh.isDirty()) {
-		mesh.update();
-		mesh.setDirty(false);
+void GLMesh::draw(const PrimitiveType& type,bool forceVertexColor) const {
+	if (mesh.isDirty(onScreen)) {
+		mesh.update(onScreen);
+		mesh.setDirty(onScreen,false);
 	}
-	context->begin();
+	context->begin(onScreen);
 	if (vao > 0)
 		glBindVertexArray(vao);
 
@@ -151,8 +151,8 @@ void GLMesh::draw(const PrimitiveType& type, bool forceVertexColor) const {
 
 	context->end();
 }
-GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
-		GLComponent(context), mesh(mesh), vao(0), vertexBuffer(0), normalBuffer(
+GLMesh::GLMesh(Mesh& mesh,bool onScreen, std::shared_ptr<AlloyContext>& context) :
+		GLComponent(onScreen,context), mesh(mesh), vao(0), vertexBuffer(0), normalBuffer(
 				0), colorBuffer(0), triIndexBuffer(0), quadIndexBuffer(0), triCount(
 				0), quadCount(0), vertexCount(0), triIndexCount(0), quadIndexCount(
 				0) {
@@ -177,7 +177,7 @@ GLMesh::GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context) :
 GLMesh::~GLMesh() {
 	if (context.get() == nullptr)
 		return;
-	context->begin();
+	context->begin(onScreen);
 	if (glIsBuffer(vertexBuffer) == GL_TRUE)
 		glDeleteBuffers(1, &vertexBuffer);
 	if (glIsBuffer(normalBuffer) == GL_TRUE)
@@ -222,7 +222,7 @@ GLMesh::~GLMesh() {
 void GLMesh::update() {
 	if (context.get() == nullptr)
 		return;
-	context->begin();
+	context->begin(onScreen);
 	quadCount = 0;
 	triCount = 0;
 	triIndexCount = 0;
@@ -500,7 +500,7 @@ void GLMesh::update() {
 	context->end();
 }
 Mesh::Mesh(std::shared_ptr<AlloyContext>& context) :
-		gl(*this, context), pose(float4x4::identity()) {
+		glOnScreen(*this, true,context), glOffScreen(*this,false, context), pose(float4x4::identity()) {
 }
 bool Mesh::load(const std::string& file) {
 	try {
@@ -511,9 +511,14 @@ bool Mesh::load(const std::string& file) {
 		return false;
 	}
 }
-void Mesh::draw(const GLMesh::PrimitiveType& type,
+void Mesh::draw(const GLMesh::PrimitiveType& type,bool onScreen,
 		bool forceVertexColor) const {
-	gl.draw(type, forceVertexColor);
+	if (onScreen) {
+		glOnScreen.draw(type, forceVertexColor);
+	}
+	else {
+		glOffScreen.draw(type, forceVertexColor);
+	}
 }
 void Mesh::clear() {
 	vertexLocations.clear();
@@ -523,7 +528,7 @@ void Mesh::clear() {
 	triIndexes.clear();
 	textureMap.clear();
 	textureImage.clear();
-	dirty = true;
+	setDirty(true);
 }
 bool Mesh::save(const std::string& file) {
 	try {
@@ -883,7 +888,7 @@ void Mesh::updateVertexNormals(int SMOOTH_ITERATIONS, float DOT_TOLERANCE) {
 			vertexNormals = tmp;
 		}
 	}
-	dirty = true;
+	setDirty(true);
 }
 float Mesh::estimateVoxelSize(int stride) {
 	int count = 0;
@@ -972,7 +977,7 @@ void Mesh::scale(float sc) {
 	}
 	boundingBox.dimensions = sc * boundingBox.dimensions;
 	boundingBox.position = sc * boundingBox.position;
-	dirty = true;
+	setDirty(true);
 }
 void Mesh::transform(const float4x4& M) {
 #pragma omp parallel for
@@ -989,7 +994,7 @@ void Mesh::transform(const float4x4& M) {
 		}
 	}
 	updateBoundingBox();
-	dirty = true;
+	setDirty(true);
 }
 void Mesh::mapIntoBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
@@ -998,7 +1003,7 @@ void Mesh::mapIntoBoundingBox(float voxelSize) {
 		float3& pt = vertexLocations[i];
 		pt = (pt - minPt) / voxelSize;
 	}
-	dirty = true;
+	setDirty(true);
 }
 void Mesh::mapOutOfBoundingBox(float voxelSize) {
 	float3 minPt = boundingBox.min();
@@ -1007,11 +1012,16 @@ void Mesh::mapOutOfBoundingBox(float voxelSize) {
 		float3& pt = vertexLocations[i];
 		pt = pt * voxelSize + minPt;
 	}
-	dirty = true;
+	setDirty(true);
 }
 
-void Mesh::update() {
-	gl.update();
+void Mesh::update(bool onScreen) {
+	if (onScreen) {
+		glOnScreen.update();
+	}
+	else {
+		glOffScreen.update();
+	}
 }
 Mesh::~Mesh() {
 // TODO Auto-generated destructor stub

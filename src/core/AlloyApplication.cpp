@@ -67,21 +67,21 @@ void Application::initInternal() {
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 
 	imageShader = std::shared_ptr<ImageShader>(
-			new ImageShader(context, ImageShader::Filter::NONE));
-	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(context));
+			new ImageShader(true,context, ImageShader::Filter::NONE));
+	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(true,context));
 	uiFrameBuffer->initialize(context->screenSize.x, context->screenSize.y);
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
 		const std::string& partialFile) {
 	ImageRGBA image;
 	ReadImageFromFile(context->getFullPath(partialFile), image);
-	return std::shared_ptr<GLTextureRGBA>(new GLTextureRGBA(image, context));
+	return std::shared_ptr<GLTextureRGBA>(new GLTextureRGBA(image,true, context));
 }
 std::shared_ptr<GLTextureRGB> Application::loadTextureRGB(
 		const std::string& partialFile) {
 	ImageRGB image;
 	ReadImageFromFile(context->getFullPath(partialFile), image);
-	return std::shared_ptr<GLTextureRGB>(new GLTextureRGB(image, context));
+	return std::shared_ptr<GLTextureRGB>(new GLTextureRGB(image, true, context));
 }
 std::shared_ptr<Font> Application::loadFont(const std::string& name,
 		const std::string& file) {

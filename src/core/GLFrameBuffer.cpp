@@ -23,14 +23,14 @@
 #include "AlloyContext.h"
 namespace aly {
 
-GLFrameBuffer::GLFrameBuffer(std::shared_ptr<AlloyContext> context) :
-		GLComponent(context), mFrameBufferId(0), mDepthBufferId(0), texture(
+GLFrameBuffer::GLFrameBuffer(bool onScreen, std::shared_ptr<AlloyContext> context) :
+		GLComponent(onScreen, context), mFrameBufferId(0), mDepthBufferId(0), texture(onScreen,
 				context) {
 
 }
 void GLFrameBuffer::initialize(int w, int h) {
 	if (context.get() == nullptr)throw std::runtime_error("Framebuffer has not been assigend a context.");
-	context->begin();
+	context->begin(onScreen);
 	if (mFrameBufferId != 0)
 		glDeleteFramebuffers(1, &mFrameBufferId);
 	if (mDepthBufferId != 0)
@@ -42,7 +42,7 @@ void GLFrameBuffer::initialize(int w, int h) {
 	update();
 }
 GLFrameBuffer::~GLFrameBuffer() {
-	context->begin();
+	context->begin(onScreen);
 	if (mFrameBufferId != 0)
 		glDeleteFramebuffers(1, &mFrameBufferId);
 	if (mDepthBufferId != 0)
@@ -53,7 +53,7 @@ void GLFrameBuffer::begin(const float4& clearColor, bool clearColorBit,
 		bool clearDepthBit) {
 	if (texture.width() * texture.height() == 0)
 		throw std::runtime_error("Framebuffer has not been initialized.");
-	context->begin();
+	context->begin(onScreen);
 	glViewport(0, 0, texture.width(), texture.height());
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
@@ -79,7 +79,7 @@ void GLFrameBuffer::draw() const {
 }
 void GLFrameBuffer::update() {
 	texture.update();
-	context->begin();
+	context->begin(onScreen);
 	if (mDepthBufferId != 0) {
 		glDeleteRenderbuffers(1, &mDepthBufferId);
 	}

@@ -57,17 +57,17 @@ public:
 	GLuint quadIndexCount;
 
 	virtual void draw() const override;
-	virtual void draw(const PrimitiveType& type,
-			bool forceVertexColor = false) const;
+	virtual void draw(const PrimitiveType& type,bool forceVertexColor) const;
 	virtual void update() override;
-	GLMesh(Mesh& mesh, std::shared_ptr<AlloyContext>& context =
+	GLMesh(Mesh& mesh,bool onScreen, std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	virtual ~GLMesh();
 };
 struct Mesh {
 private:
 	box3f boundingBox;
-	bool dirty = false;
+	bool dirtyOnScreen = false;
+	bool dirtyOffScreen = false;
 public:
 	friend struct GLMesh;
 
@@ -81,7 +81,8 @@ public:
 	Vector2f textureMap;
 	Image4f textureImage;
 
-	GLMesh gl;
+	GLMesh glOnScreen;
+	GLMesh glOffScreen;
 	float4x4 pose;
 
 	inline void clone(Mesh& mesh) const {
@@ -96,7 +97,9 @@ public:
 		mesh.textureMap = textureMap;
 		mesh.textureImage = textureImage;
 		mesh.pose = pose;
-		mesh.dirty = true;
+		mesh.dirtyOnScreen = true;
+		mesh.dirtyOffScreen = true;
+
 	}
 
 	template<class Archive> void serialize(Archive & archive) {
@@ -110,19 +113,27 @@ public:
 	inline box3f getBoundingBox() const {
 		return boundingBox;
 	}
-	virtual void draw(const GLMesh::PrimitiveType& type, bool froceVertexColor =
-			false) const;
+	virtual void draw(const GLMesh::PrimitiveType& type, bool onScreen, bool froceVertexColor) const;
 	box3f updateBoundingBox();
 	void scale(float sc);
 	void transform(const float4x4& M);
 	float estimateVoxelSize(int stride = 1);
-	void update();
+	void update(bool onScreen=true);
 	void clear();
 	void setDirty(bool d) {
-		this->dirty = d;
+		this->dirtyOnScreen = d;
+		this->dirtyOffScreen = d;
 	}
-	inline bool isDirty() const {
-		return dirty;
+	void setDirty(bool onScreen,bool d) {
+		if (onScreen) {
+			this->dirtyOnScreen = d;
+		}
+		else {
+			this->dirtyOffScreen = d;
+		}
+	}
+	inline bool isDirty(bool onScreen) const {
+		return (onScreen)?dirtyOnScreen:dirtyOffScreen;
 	}
 	bool load(const std::string& file);
 	void updateVertexNormals(int SMOOTH_ITERATIONS = 0, float DOT_TOLERANCE =

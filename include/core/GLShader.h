@@ -35,6 +35,7 @@ protected:
 	GLuint mProgramHandle;
 	bool shaderEnabled = false;
 	std::shared_ptr<AlloyContext> context;
+	bool onScreen;
 	void enableCheck() {
 		if (!shaderEnabled)
 			throw std::runtime_error(
@@ -45,7 +46,7 @@ public:
 		return context;
 	}
 	// Default constructor.
-	GLShader(const std::shared_ptr<AlloyContext>& context =
+	GLShader(bool onScreen,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	virtual ~GLShader();
 	// Initialization function to compile the shader.
@@ -62,12 +63,12 @@ public:
 			const std::string& pFragmentShaderString) {
 		initialize( { }, pVertexShaderString, pFragmentShaderString, "");
 	}
-	GLShader(std::shared_ptr<AlloyContext>& context,
+	GLShader(bool  onScreen, std::shared_ptr<AlloyContext>& context,
 			const std::initializer_list<std::string>& attributes,
 			const std::string& pVertexShaderString,
 			const std::string& pFragmentShaderString,
 			const std::string& pGeomShaderString) :
-			GLShader(context) {
+			GLShader(onScreen, context) {
 		initialize(attributes, pVertexShaderString, pFragmentShaderString,
 				pGeomShaderString);
 	}
@@ -330,13 +331,13 @@ public:
 	GLShader& begin();
 	GLShader& draw(const std::initializer_list<const GLComponent*>& comps);
 	GLShader& draw(const std::initializer_list<const Mesh*>& meshes,
-			const GLMesh::PrimitiveType& type,bool froceVertexColor=false);
+			const GLMesh::PrimitiveType& type,bool onScreen,bool froceVertexColor = false);
 	GLShader& draw(const std::list<const GLComponent*>& comps);
 	GLShader& draw(const std::list<const Mesh*>& meshes,
-			const GLMesh::PrimitiveType& type, bool froceVertexColor = false);
+			const GLMesh::PrimitiveType& type, bool onScreen, bool froceVertexColor=false );
 
 	GLShader& draw(const GLComponent& comps);
-	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type, bool froceVertexColor = false);
+	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type, bool onScreen, bool froceVertexColor = false);
 
 	void end();
 	inline GLuint GetProgramHandle() const {

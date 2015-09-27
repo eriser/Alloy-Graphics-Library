@@ -24,14 +24,26 @@
 #include <set>
 using namespace aly;
 MeshViewer::MeshViewer() :
-		Application(1920, 960, "Mesh Viewer"), matcapShader(
-				getFullPath("images/JG_Silver.png")), imageShader(getContext(),
-				ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
+	Application(1920, 960, "Mesh Viewer"), matcapShader(
+		getFullPath("images/JG_Silver.png")), imageShader(true, getContext(),
+			ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
 				1), particleMatcapShader(getFullPath("images/JG_Silver.png")), voxelSize(
-				0.0f) {
+					0.0f), occlusionFrameBuffer(true),
+	edgeFrameBuffer(true),
+	flatDepthFrameBuffer(true),
+	smoothDepthFrameBuffer2(true),
+	smoothDepthFrameBuffer1(true),
+	colorBuffer2(true),
+	colorBuffer1(true),
+	textureFrameBuffer(true),
+	particleFrameBuffer(true),
+	outlineFrameBuffer(true),
+	wireframeFrameBuffer(true),
+	texImage(true),
+	exampleImage(true) {
 }
 bool MeshViewer::init(Composite& rootNode) {
-	
+
 	mesh.load(getFullPath("models/tanya.obj"));
 	texImage.load(mesh.textureImage);
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
@@ -55,7 +67,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	float4x4 M = MakeTransform(mesh2.getBoundingBox(), mesh.getBoundingBox());
 	mesh2.transform(M);
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
-			float3(1.0f, 1.0f, 1.0f));
+		float3(1.0f, 1.0f, 1.0f));
 
 	camera.setNearFarPlanes(-2.0f, 2.0f);
 	camera.setZoom(0.5f);
@@ -63,15 +75,15 @@ bool MeshViewer::init(Composite& rootNode) {
 
 	voxelSize = mesh.estimateVoxelSize(2);
 	phongShader[0] = SimpleLight(Color(0.5f, 0.5f, 0.5f, 0.25f),
-			Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.8f, 0.0f, 0.0f, 0.5f),
-			Color(0.8f, 0.0f, 0.0f, 0.5f), 16.0f, float3(0, 0.0, 2.0),
-			float3(0, 1, 0));
+		Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.8f, 0.0f, 0.0f, 0.5f),
+		Color(0.8f, 0.0f, 0.0f, 0.5f), 16.0f, float3(0, 0.0, 2.0),
+		float3(0, 1, 0));
 	phongShader[0].moveWithCamera = false;
 
 	phongShader2[0] = SimpleLight(Color(0.5f, 0.5f, 0.5f, 0.25f),
-			Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.0f, 0.0f, 0.8f, 1.0f),
-			Color(0.0f, 0.0f, 0.8f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
-			float3(0, 1, 0));
+		Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.0f, 0.0f, 0.8f, 1.0f),
+		Color(0.0f, 0.0f, 0.8f, 1.0f), 16.0f, float3(0, 0.0, 2.0),
+		float3(0, 1, 0));
 	phongShader2[0].moveWithCamera = false;
 
 	exampleImage.load(getFullPath("images/sfsunset.png"), true);
@@ -94,24 +106,24 @@ bool MeshViewer::init(Composite& rootNode) {
 	mesh.updateVertexNormals();
 	addListener(&camera);
 	setOnResize([=](const int2& dims) {
-		if(!AlloyApplicationContext()->hasDeferredTasks()) {
+		if (!AlloyApplicationContext()->hasDeferredTasks()) {
 			AlloyApplicationContext()->addDeferredTask([=] {
-						int w=getContext()->width()/4;
-						int h=getContext()->height()/2;
-						edgeFrameBuffer.initialize(w, h);
-						smoothDepthFrameBuffer1.initialize(w, h);
-						smoothDepthFrameBuffer2.initialize(w, h);
-						flatDepthFrameBuffer.initialize(w, h);
-						outlineFrameBuffer.initialize(w, h);
-						wireframeFrameBuffer.initialize(w, h);
-						occlusionFrameBuffer.initialize(w, h);
-						colorBuffer1.initialize(w, h);
-						colorBuffer2.initialize(w, h);
-						particleFrameBuffer.initialize(w, h);
-						faceShader.initialize(w, h);
-						particleFaceIdShader.initialize(w, h);
-						camera.setDirty(true);
-					});
+				int w = getContext()->width() / 4;
+				int h = getContext()->height() / 2;
+				edgeFrameBuffer.initialize(w, h);
+				smoothDepthFrameBuffer1.initialize(w, h);
+				smoothDepthFrameBuffer2.initialize(w, h);
+				flatDepthFrameBuffer.initialize(w, h);
+				outlineFrameBuffer.initialize(w, h);
+				wireframeFrameBuffer.initialize(w, h);
+				occlusionFrameBuffer.initialize(w, h);
+				colorBuffer1.initialize(w, h);
+				colorBuffer2.initialize(w, h);
+				particleFrameBuffer.initialize(w, h);
+				faceShader.initialize(w, h);
+				particleFaceIdShader.initialize(w, h);
+				camera.setDirty(true);
+			});
 		}
 	});
 	camera.setDirty(true);
@@ -125,7 +137,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
-		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2,false);
+		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);
 		depthAndTextureShader.draw(mesh, camera, textureFrameBuffer, true);
 		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
 
@@ -143,7 +155,7 @@ void MeshViewer::draw(AlloyContext* context) {
 			//faceIdMap.writeToXML("particle_face_id.xml");
 			once = false;
 		}
-		
+
 		*/
 	}
 	glDisable(GL_DEPTH_TEST);
@@ -151,29 +163,29 @@ void MeshViewer::draw(AlloyContext* context) {
 	int w = smoothDepthFrameBuffer1.width();
 	int h = smoothDepthFrameBuffer1.height();
 	depthColorShader.draw(edgeFrameBuffer.getTexture(),
-			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f), float2((float)w, (float)h));
+		float2(0.0f, camera.getScale()), float2(0.0f, 0.0f), float2((float)w, (float)h));
 	normalColorShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, (float)h),
-			float2((float)w, (float)h));
+		float2((float)w, (float)h));
 	depthColorShader.draw(smoothDepthFrameBuffer1.getTexture(), dRange,
-			float2((float)w * 2, 0.0f), float2((float)w, (float)h));
+		float2((float)w * 2, 0.0f), float2((float)w, (float)h));
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
-			float2((float)w * 3, (float)h), float2((float)w, (float)h));
+		float2((float)w * 3, (float)h), float2((float)w, (float)h));
 	glEnable(GL_DEPTH_TEST);
 	wireframeShader.draw(edgeFrameBuffer.getTexture(),
-			smoothDepthFrameBuffer1.getTexture(),
-			float2(0.0f, camera.getScale()), float2((float)2 * w, (float)h), float2((float)w, (float)h),
-			getContext()->getViewport());
+		smoothDepthFrameBuffer1.getTexture(),
+		float2(0.0f, camera.getScale()), float2((float)2 * w, (float)h), float2((float)w, (float)h),
+		getContext()->getViewport());
 
 	phongShader.draw(smoothDepthFrameBuffer2.getTexture(), camera,
-			float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport());
+		float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport());
 
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
-			float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport(),
-			RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
+		float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport(),
+		RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
 
-	particleMatcapShader.draw( { &mesh }, camera,
-			box2px(float2((float)2 * w, (float)h), float2((float)w, (float)h)),
-			getContext()->getViewport());
+	particleMatcapShader.draw({ &mesh }, camera,
+		box2px(float2((float)2 * w, (float)h), float2((float)w, (float)h)),
+		getContext()->getViewport());
 
 	/*
 	 matcapShader.draw(particleFrameBuffer.getTexture(), camera,
@@ -192,38 +204,38 @@ void MeshViewer::draw(AlloyContext* context) {
 	if (camera.isDirty()) {
 		outlineFrameBuffer.begin();
 		DistanceFieldShader.draw(flatDepthFrameBuffer.getTexture(),
-				float2(0.0f, 0.0f), float2((float)w, (float)h),
-				outlineFrameBuffer.getViewport());
+			float2(0.0f, 0.0f), float2((float)w, (float)h),
+			outlineFrameBuffer.getViewport());
 		outlineFrameBuffer.end();
 
 		wireframeFrameBuffer.begin();
 		wireframeShader.draw(edgeFrameBuffer.getTexture(),
-				smoothDepthFrameBuffer1.getTexture(),
-				float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
-				float2((float)w, (float)h), wireframeFrameBuffer.getViewport());
+			smoothDepthFrameBuffer1.getTexture(),
+			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
+			float2((float)w, (float)h), wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
 
 		occlusionFrameBuffer.begin();
 		ambientOcclusionShader.draw(smoothDepthFrameBuffer1.getTexture(),
-				float2(0.0f, 0.0f), float2((float)w, (float)h),
-				occlusionFrameBuffer.getViewport(), camera);
+			float2(0.0f, 0.0f), float2((float)w, (float)h),
+			occlusionFrameBuffer.getViewport(), camera);
 		occlusionFrameBuffer.end();
 
 		//colorVertexShader.draw({ &mesh },camera,occlusionFrameBuffer,true);
 
 
 		occlusionFrameBuffer.begin();
-		texMeshShader.draw(textureFrameBuffer.getTexture(),texImage,camera,
+		texMeshShader.draw(textureFrameBuffer.getTexture(), texImage, camera,
 			box2px(float2(0.0f, 0.0f), float2((float)w, (float)h)),
 			occlusionFrameBuffer.getViewport());
 		occlusionFrameBuffer.end();
 	}
 	imageShader.draw(outlineFrameBuffer.getTexture(), float2((float)w, (float)0.0f),
-			float2((float)w, (float)h));
+		float2((float)w, (float)h));
 	imageShader.draw(wireframeFrameBuffer.getTexture(), float2((float)w, (float)h),
-			float2((float)w, (float)h));
+		float2((float)w, (float)h));
 	imageShader.draw(occlusionFrameBuffer.getTexture(), float2((float)3 * w, 0.0f),
-			float2((float)w, (float)h));
+		float2((float)w, (float)h));
 
 	/*
 	 static bool once = true;
@@ -236,6 +248,6 @@ void MeshViewer::draw(AlloyContext* context) {
 	 once=false;
 	 }
 	 */
-	//imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
+	 //imageShader.draw(exampleImage, float2(1280-310.0f, 10.0f),float2(300.0f, 200.0f),true);
 	camera.setDirty(false);
 }

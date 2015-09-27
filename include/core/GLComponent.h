@@ -31,7 +31,7 @@ class GLComponentGroup;
 class GLComponent {
 protected:
 	std::shared_ptr<AlloyContext> context;
-
+	bool onScreen;
 public:
 	friend class GLComponentGroup;
 	box2i bounds;
@@ -43,13 +43,13 @@ public:
 	virtual inline ~GLComponent() {
 	}
 
-	GLComponent(const std::shared_ptr<AlloyContext>& context =
+	GLComponent(bool onScreen, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
-			context(context), bounds() {
+			context(context), onScreen(onScreen), bounds() {
 	}
-	GLComponent(const box2i& b, std::shared_ptr<AlloyContext>& context =
+	GLComponent(const box2i& b, bool onScreen, std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
-			context(context), bounds(b) {
+			context(context), onScreen(onScreen),bounds(b) {
 	}
 
 	inline void setBounds(int x, int y, int w, int h) {
@@ -74,9 +74,9 @@ protected:
 		}
 	}
 public:
-	GLComponentGroup(const std::shared_ptr<AlloyContext>& context =
+	GLComponentGroup(bool onScreen,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
-			GLComponent(context) {
+			GLComponent(onScreen,context) {
 
 	}
 	virtual ~GLComponentGroup()=0;

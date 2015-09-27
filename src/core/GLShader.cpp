@@ -25,13 +25,13 @@
 
 namespace aly {
 
-GLShader::GLShader(const std::shared_ptr<AlloyContext>& context) :
+GLShader::GLShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
 		mVertexShaderHandle(0), mFragmentShaderHandle(0), mGeometryShaderHandle(
-				0), mProgramHandle(0), context(context) {
+				0), mProgramHandle(0), context(context),onScreen(onScreen) {
 
 }
 GLShader& GLShader::begin() {
-	context->begin();
+	context->begin(onScreen);
 	glUseProgram(GetProgramHandle());
 	shaderEnabled = true;
 	return *this;
@@ -45,8 +45,8 @@ GLShader& GLShader::draw(const GLComponent& comp) {
 	comp.draw();
 	return *this;
 }
-GLShader& GLShader::draw(const Mesh& mesh, const GLMesh::PrimitiveType& type, bool forceVertexColor) {
-	mesh.draw(type,forceVertexColor);
+GLShader& GLShader::draw(const Mesh& mesh, const GLMesh::PrimitiveType& type, bool onScreen, bool forceVertexColor) {
+	mesh.draw(type,onScreen,forceVertexColor);
 	return *this;
 }
 GLShader& GLShader::draw(const std::list<const GLComponent*>& comps) {
@@ -56,9 +56,9 @@ GLShader& GLShader::draw(const std::list<const GLComponent*>& comps) {
 	return *this;
 }
 GLShader& GLShader::draw(const std::list<const Mesh*>& meshes,
-		const GLMesh::PrimitiveType& type, bool forceVertexColor) {
+		const GLMesh::PrimitiveType& type, bool onScreen, bool forceVertexColor) {
 	for (const Mesh* mesh : meshes) {
-		mesh->draw(type,forceVertexColor);
+		mesh->draw(type,onScreen,forceVertexColor);
 	}
 	return *this;
 }
@@ -70,9 +70,9 @@ GLShader& GLShader::draw(
 	return *this;
 }
 GLShader& GLShader::draw(const std::initializer_list<const Mesh*>& meshes,
-		const GLMesh::PrimitiveType& type, bool forceVertexColor) {
+		const GLMesh::PrimitiveType& type, bool onScreen, bool forceVertexColor) {
 	for (const Mesh* mesh : meshes) {
-		mesh->draw(type,forceVertexColor);
+		mesh->draw(type,onScreen,forceVertexColor);
 	}
 	return *this;
 }
@@ -81,7 +81,7 @@ void GLShader::initialize(
 		const std::string& pVertexShaderString,
 		const std::string& pFragmentShaderString,
 		const std::string& pGeometryShaderString) {
-	context->begin();
+	context->begin(onScreen);
 	if (pVertexShaderString.size() == 0 || pFragmentShaderString.size() == 0)
 		return throw std::runtime_error("No shader program specified.");
 	GLint lStatus;
@@ -147,7 +147,7 @@ void GLShader::initialize(
 }
 
 GLShader::~GLShader() {
-	context->begin();
+	context->begin(onScreen);
 	glDetachShader(mProgramHandle, mFragmentShaderHandle);
 	glDeleteShader(mFragmentShaderHandle);
 	glDetachShader(mProgramHandle, mVertexShaderHandle);

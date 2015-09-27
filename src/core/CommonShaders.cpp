@@ -24,9 +24,9 @@
 #include "AlloyMesh.h"
 #include <set>
 namespace aly {
-ParticleDepthShader::ParticleDepthShader(
+ParticleDepthShader::ParticleDepthShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(
 			#version 330 core
@@ -125,7 +125,7 @@ void ParticleDepthShader::draw(const std::initializer_list<const Mesh*>& meshes,
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set(camera,
 			framebuffer.getViewport()).set("PoseMat", float4x4::identity()).draw(
-			meshes, GLMesh::PrimitiveType::POINTS);
+			meshes, GLMesh::PrimitiveType::POINTS,onScreen);
 	end();
 	glEnable(GL_BLEND);
 	framebuffer.end();
@@ -144,7 +144,7 @@ void ParticleDepthShader::draw(
 			framebuffer.getViewport());
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		set("PoseMat", pr.second).draw( { pr.first },
-				GLMesh::PrimitiveType::POINTS);
+				GLMesh::PrimitiveType::POINTS, onScreen);
 	}
 	end();
 	glEnable(GL_BLEND);
@@ -162,7 +162,7 @@ void ParticleDepthShader::draw(const std::list<const Mesh*>& meshes,
 	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("RADIUS", radius).set("PoseMat",
 			float4x4::identity()).set(camera, framebuffer.getViewport()).draw(
-			meshes, GLMesh::PrimitiveType::POINTS).end();
+			meshes, GLMesh::PrimitiveType::POINTS, onScreen).end();
 	glEnable(GL_BLEND);
 	framebuffer.end();
 }
@@ -180,15 +180,15 @@ void ParticleDepthShader::draw(
 			framebuffer.getViewport());
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		set("PoseMat", pr.second).draw( { pr.first },
-				GLMesh::PrimitiveType::POINTS);
+				GLMesh::PrimitiveType::POINTS, onScreen);
 	}
 	end();
 	glEnable(GL_BLEND);
 	framebuffer.end();
 }
-ParticleMatcapShader::ParticleMatcapShader(const std::string& textureImage,
+ParticleMatcapShader::ParticleMatcapShader(const std::string& textureImage, bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) ,matcapTexture(onScreen,context){
 	matcapTexture.load(textureImage, false);
 	initialize( { },
 			R"(
@@ -318,7 +318,7 @@ void ParticleMatcapShader::draw(
 			matcapTexture, 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			"RADIUS", radius).set("bounds", bounds).set("viewport", viewport).set(
 			camera, viewport).set("PoseMat", float4x4::identity()).draw(meshes,
-			GLMesh::PrimitiveType::POINTS);
+			GLMesh::PrimitiveType::POINTS, onScreen);
 	end();
 	glScissor((int) viewport.position.x, (int) viewport.position.x,
 			(int) viewport.dimensions.x, (int) viewport.dimensions.y);
@@ -339,7 +339,7 @@ void ParticleMatcapShader::draw(
 			camera, viewport);
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		set("PoseMat", pr.second).draw( { pr.first },
-				GLMesh::PrimitiveType::POINTS);
+				GLMesh::PrimitiveType::POINTS, onScreen);
 	}
 	end();
 	glScissor((int) viewport.position.x, (int) viewport.position.x,
@@ -360,7 +360,7 @@ void ParticleMatcapShader::draw(const std::list<const Mesh*>& meshes,
 			matcapTexture, 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			"RADIUS", radius).set("bounds", bounds).set("viewport", viewport).set(
 			"PoseMat", float4x4::identity()).set(camera, viewport).draw(meshes,
-			GLMesh::PrimitiveType::POINTS).end();
+			GLMesh::PrimitiveType::POINTS, onScreen).end();
 	glScissor((int) viewport.position.x, (int) viewport.position.x,
 			(int) viewport.dimensions.x, (int) viewport.dimensions.y);
 	glDisable(GL_SCISSOR_TEST);
@@ -381,15 +381,15 @@ void ParticleMatcapShader::draw(
 			camera, viewport);
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		set("PoseMat", pr.second).draw( { pr.first },
-				GLMesh::PrimitiveType::POINTS);
+				GLMesh::PrimitiveType::POINTS, onScreen);
 	}
 	end();
 	glScissor((int) viewport.position.x, (int) viewport.position.x,
 			(int) viewport.dimensions.x, (int) viewport.dimensions.y);
 	glDisable(GL_SCISSOR_TEST);
 }
-ParticleIdShader::ParticleIdShader(const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+ParticleIdShader::ParticleIdShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+		GLShader(onScreen,context) ,framebuffer(onScreen,context){
 	GLShader::initialize( { },
 			R"(
 			#version 330 core
@@ -518,7 +518,7 @@ void ParticleIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 			framebuffer.getViewport());
 	for (const Mesh* mesh : meshes) {
 		set("objectId", objectIdOffset).draw(*mesh,
-				GLMesh::PrimitiveType::POINTS);
+				GLMesh::PrimitiveType::POINTS, onScreen);
 		objectIdOffset++;
 	}
 	end();
@@ -539,7 +539,7 @@ void ParticleIdShader::draw(
 			faceIdOffset).set(camera, framebuffer.getViewport());
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		set("PoseMat", pr.second).set("objectId", objectIdOffset).draw(
-				{ pr.first }, GLMesh::PrimitiveType::POINTS);
+				{ pr.first }, GLMesh::PrimitiveType::POINTS, onScreen);
 		objectIdOffset++;
 	}
 	end();
@@ -561,7 +561,7 @@ void ParticleIdShader::draw(const std::list<const Mesh*>& meshes,
 			framebuffer.getViewport());
 	for (const Mesh* mesh : meshes) {
 		set("objectId", objectIdOffset).draw(*mesh,
-				GLMesh::PrimitiveType::POINTS);
+				GLMesh::PrimitiveType::POINTS, onScreen);
 		objectIdOffset++;
 	}
 	end();
@@ -596,7 +596,7 @@ void ParticleIdShader::draw(
 			faceIdOffset).set(camera, framebuffer.getViewport());
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		set("PoseMat", pr.second).set("objectId", objectIdOffset).draw(
-				{ pr.first }, GLMesh::PrimitiveType::POINTS);
+				{ pr.first }, GLMesh::PrimitiveType::POINTS, onScreen);
 		objectIdOffset++;
 	}
 	end();
@@ -604,8 +604,8 @@ void ParticleIdShader::draw(
 	framebuffer.end();
 }
 
-CompositeShader::CompositeShader(const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+CompositeShader::CompositeShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(
 		 #version 330
@@ -651,9 +651,9 @@ layout(location = 1) in vec2 vt;
 			}
 		 })");
 }
-MatcapShader::MatcapShader(const std::string& textureImage,
+MatcapShader::MatcapShader(const std::string& textureImage, bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context), matcapTexture(context) {
+		GLShader(onScreen,context), matcapTexture(onScreen,context) {
 	matcapTexture.load(textureImage, false);
 	initialize( { },
 			R"(
@@ -691,9 +691,9 @@ gl_FragColor=rgba;
 })");
 
 }
-TextureMeshShader::TextureMeshShader(
+TextureMeshShader::TextureMeshShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize({},
 		R"(
 	#version 330
@@ -734,9 +734,9 @@ TextureMeshShader::TextureMeshShader(
 	})");
 
 }
-ImageShader::ImageShader(const std::shared_ptr<AlloyContext>& context,
+ImageShader::ImageShader(bool onScreen, const std::shared_ptr<AlloyContext>& context,
 		const Filter& filter) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	if (filter == Filter::NONE) {
 		initialize( { },
 				R"(
@@ -1046,17 +1046,17 @@ int FaceIdShader::draw(
 					camera, framebuffer.getViewport()).set("vertIdOffset",
 					offset).set("PoseMat", pr.second).set("objectId",
 					objectIdOffset).draw( { pr.first },
-					GLMesh::PrimitiveType::POINTS).end();
+					GLMesh::PrimitiveType::POINTS, onScreen).end();
 			begin();
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 		offset += (int) pr.first->triIndexes.size();
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("vertIdOffset", offset).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		objectIdOffset++;
 	}
@@ -1084,17 +1084,17 @@ int FaceIdShader::draw(const std::initializer_list<const Mesh*>& meshes,
 					camera, framebuffer.getViewport()).set("vertIdOffset",
 					offset).set("PoseMat", float4x4::identity()).set("objectId",
 					objectIdOffset).draw( { mesh },
-					GLMesh::PrimitiveType::POINTS).end();
+					GLMesh::PrimitiveType::POINTS,onScreen).end();
 			begin();
 		}
 		if (mesh->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { mesh },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 		offset += (int) mesh->triIndexes.size();
 		if (mesh->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("vertIdOffset", offset).draw( { mesh },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		objectIdOffset++;
 	}
@@ -1125,17 +1125,17 @@ int FaceIdShader::draw(
 					camera, framebuffer.getViewport()).set("vertIdOffset",
 					offset).set("PoseMat", pr.second).set("objectId",
 					objectIdOffset).draw( { pr.first },
-					GLMesh::PrimitiveType::POINTS).end();
+					GLMesh::PrimitiveType::POINTS, onScreen).end();
 			begin();
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 		offset += (int) pr.first->triIndexes.size();
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("vertIdOffset", offset).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		objectIdOffset++;
 	}
@@ -1183,17 +1183,17 @@ int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
 					camera, framebuffer.getViewport()).set("vertIdOffset",
 					offset).set("PoseMat", float4x4::identity()).set("objectId",
 					objectIdOffset).draw( { mesh },
-					GLMesh::PrimitiveType::POINTS).end();
+					GLMesh::PrimitiveType::POINTS, onScreen).end();
 			begin();
 		}
 		if (mesh->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("vertIdOffset", offset).draw( { mesh },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 		offset += (int) mesh->triIndexes.size();
 		if (mesh->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("vertIdOffset", offset).draw( { mesh },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		objectIdOffset++;
 	}
@@ -1203,8 +1203,8 @@ int FaceIdShader::draw(const std::list<const Mesh*>& meshes,
 	return faceIdOffset;
 }
 
-FaceIdShader::FaceIdShader(const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context), framebuffer(context) {
+FaceIdShader::FaceIdShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+		GLShader(onScreen,context), particleIdShader(onScreen,context),framebuffer(onScreen,context) {
 	GLShader::initialize( { },
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;
@@ -1437,8 +1437,8 @@ void main(void) {
 									})");
 }
 DepthAndNormalShader::DepthAndNormalShader(
-		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+	bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;
@@ -1590,8 +1590,8 @@ void DepthAndNormalShader::draw(
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, onScreen);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, onScreen);
 	end();
 
 	glEnable(GL_BLEND);
@@ -1613,11 +1613,11 @@ void DepthAndNormalShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 	}
 	end();
@@ -1638,8 +1638,8 @@ void DepthAndNormalShader::draw(const std::list<const Mesh*>& meshes,
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, onScreen);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, onScreen);
 	end();
 
 	glEnable(GL_BLEND);
@@ -1661,11 +1661,11 @@ void DepthAndNormalShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 	}
 	end();
@@ -1674,9 +1674,9 @@ void DepthAndNormalShader::draw(
 	frameBuffer.end();
 }
 
-ColorVertexShader::ColorVertexShader(
+ColorVertexShader::ColorVertexShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;
@@ -1802,8 +1802,8 @@ void ColorVertexShader::draw(const std::initializer_list<const Mesh*>& meshes,
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS,true);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, true);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, onScreen,true);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, onScreen, true);
 	end();
 
 	glEnable(GL_BLEND);
@@ -1824,11 +1824,11 @@ void ColorVertexShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS, true);
+					GLMesh::PrimitiveType::QUADS, onScreen, true);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES, true);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen, true);
 		}
 	}
 	end();
@@ -1848,8 +1848,8 @@ void ColorVertexShader::draw(const std::list<const Mesh*>& meshes,
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, true);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, true);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, onScreen, true);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, onScreen, true);
 	end();
 
 	glEnable(GL_BLEND);
@@ -1870,11 +1870,11 @@ void ColorVertexShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS, true);
+					GLMesh::PrimitiveType::QUADS, onScreen, true);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES, true);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen, true);
 		}
 	}
 	end();
@@ -1883,9 +1883,9 @@ void ColorVertexShader::draw(
 	frameBuffer.end();
 }
 
-DepthAndTextureShader::DepthAndTextureShader(
+DepthAndTextureShader::DepthAndTextureShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;
@@ -2003,8 +2003,8 @@ void DepthAndTextureShader::draw(
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, onScreen);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, onScreen);
 	end();
 
 	glEnable(GL_BLEND);
@@ -2026,11 +2026,11 @@ void DepthAndTextureShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 	}
 	end();
@@ -2051,8 +2051,8 @@ void DepthAndTextureShader::draw(const std::list<const Mesh*>& meshes,
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 			camera, frameBuffer.getViewport()).set("PoseMat",
 			float4x4::identity());
-	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS);
-	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES);
+	set("IS_QUAD", 1).draw(meshes, GLMesh::PrimitiveType::QUADS, onScreen);
+	set("IS_QUAD", 0).draw(meshes, GLMesh::PrimitiveType::TRIANGLES, onScreen);
 	end();
 
 	glEnable(GL_BLEND);
@@ -2074,11 +2074,11 @@ void DepthAndTextureShader::draw(
 	for (std::pair<const Mesh*, float4x4> pr : meshes) {
 		if (pr.first->quadIndexes.size() > 0) {
 			set("IS_QUAD", 1).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::QUADS);
+					GLMesh::PrimitiveType::QUADS, onScreen);
 		}
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
-					GLMesh::PrimitiveType::TRIANGLES);
+					GLMesh::PrimitiveType::TRIANGLES, onScreen);
 		}
 	}
 	end();
@@ -2087,9 +2087,9 @@ void DepthAndTextureShader::draw(
 	frameBuffer.end();
 }
 
-EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(
+EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;
@@ -2255,16 +2255,16 @@ void EdgeDepthAndNormalShader::draw(
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(camera,
 			frameBuffer.getViewport()).draw(meshes,
-			GLMesh::PrimitiveType::QUADS).end();
+			GLMesh::PrimitiveType::QUADS,onScreen).end();
 	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0).set(camera,
 			frameBuffer.getViewport()).draw(meshes,
-			GLMesh::PrimitiveType::TRIANGLES).end();
+			GLMesh::PrimitiveType::TRIANGLES, onScreen).end();
 	glEnable(GL_BLEND);
 	frameBuffer.end();
 }
-EdgeEffectsShader::EdgeEffectsShader(
+EdgeEffectsShader::EdgeEffectsShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(
 #version 330
@@ -2323,7 +2323,7 @@ gl_FragColor=rgba;
 
 DistanceFieldShader::DistanceFieldShader(
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context), kernelSize(8), innerGlowColor(1.0f, 0.3f, 0.1f,
+		GLShader(onScreen,context), kernelSize(8), innerGlowColor(1.0f, 0.3f, 0.1f,
 				1.0f), outerGlowColor(0.3f, 1.0f, 0.1f, 1.0f), edgeColor(1.0f,
 				1.0f, 1.0f, 1.0f) {
 	initialize( { },
@@ -2387,9 +2387,9 @@ gl_FragColor=rgba;
 })");
 }
 
-NormalColorShader::NormalColorShader(
+NormalColorShader::NormalColorShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(
 #version 330
@@ -2424,8 +2424,8 @@ gl_FragColor=rgba;
 })");
 }
 
-DepthColorShader::DepthColorShader(const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+DepthColorShader::DepthColorShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+		GLShader(onScreen,context) {
 	initialize( { },
 			R"(
 #version 330
@@ -2464,9 +2464,9 @@ gl_FragColor=rgba;
 })");
 }
 
-AmbientOcclusionShader::AmbientOcclusionShader(
+AmbientOcclusionShader::AmbientOcclusionShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context), sampleRadius(0.005f) {
+		GLShader(onScreen,context), sampleRadius(0.005f) {
 	int thetaInc = 32;
 	int phiInc = 8;
 	for (int j = 1; j < phiInc; j++) {
@@ -2567,7 +2567,7 @@ void main(void)
 }
 
 PhongShader::PhongShader(int N, const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context) {
+		GLShader(onScreen,context) {
 	lights.resize(N);
 	initialize( { },
 			R"(
@@ -2654,8 +2654,8 @@ void main() {
 
 }
 
-WireframeShader::WireframeShader(const std::shared_ptr<AlloyContext>& context) :
-		GLShader(context), lineWidth(0.02f), scaleInvariant(true), edgeColor(
+WireframeShader::WireframeShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+		GLShader(onScreen,context), lineWidth(0.02f), scaleInvariant(true), edgeColor(
 				1.0f, 1.0f, 1.0f, 1.0f), faceColor(1.0f, 0.3f, 0.1f, 1.0f) {
 	initialize( { },
 			R"(

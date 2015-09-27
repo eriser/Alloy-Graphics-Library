@@ -32,7 +32,7 @@ namespace aly {
 struct CameraParameters;
 class DepthAndNormalShader: public GLShader {
 public:
-	DepthAndNormalShader(const std::shared_ptr<AlloyContext>& context =
+	DepthAndNormalShader(bool onScreen=true,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer,
@@ -55,7 +55,7 @@ public:
 };
 class ColorVertexShader: public GLShader {
 public:
-	ColorVertexShader(const std::shared_ptr<AlloyContext>& context =
+	ColorVertexShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer,
@@ -84,7 +84,7 @@ public:
 		return framebuffer;
 	}
 	void read(Image2i& faceIdMap);
-	ParticleIdShader(const std::shared_ptr<AlloyContext>& context =
+	ParticleIdShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void initialize(int w, int h);
 	void draw(const std::initializer_list<const Mesh*>& meshes,
@@ -107,7 +107,7 @@ public:
 };
 class ParticleDepthShader: public GLShader {
 public:
-	ParticleDepthShader(const std::shared_ptr<AlloyContext>& context =
+	ParticleDepthShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer, float radius =
@@ -130,7 +130,7 @@ class ParticleMatcapShader: public GLShader {
 private:
 	GLTextureRGBA matcapTexture;
 public:
-	ParticleMatcapShader(const std::string& textureImage,
+	ParticleMatcapShader(const std::string& textureImage, bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
@@ -152,7 +152,7 @@ public:
 };
 class DepthAndTextureShader: public GLShader {
 public:
-	DepthAndTextureShader(const std::shared_ptr<AlloyContext>& context =
+	DepthAndTextureShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer,
@@ -183,7 +183,7 @@ public:
 		return framebuffer;
 	}
 
-	FaceIdShader(const std::shared_ptr<AlloyContext>& context =
+	FaceIdShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	void initialize(int w, int h);
 	void read(Image2i& faceIdMap);
@@ -210,7 +210,7 @@ class MatcapShader: public GLShader {
 private:
 	GLTextureRGBA matcapTexture;
 public:
-	MatcapShader(const std::string& textureImage,
+	MatcapShader( const std::string& textureImage, bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
@@ -236,7 +236,7 @@ public:
 };
 class TextureMeshShader: public GLShader {
 public:
-	TextureMeshShader(const std::shared_ptr<AlloyContext>& context =
+	TextureMeshShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& depthBuffer,
@@ -263,7 +263,7 @@ public:
 };
 class CompositeShader: public GLShader {
 public:
-	CompositeShader(const std::shared_ptr<AlloyContext>& context =
+	CompositeShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& sourceImageTexture,
@@ -299,7 +299,7 @@ public:
 	enum class Filter {
 		NONE, FXAA, SMALL_BLUR, MEDIUM_BLUR, LARGE_BLUR
 	};
-	ImageShader(const std::shared_ptr<AlloyContext>& context =
+	ImageShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext(), const Filter& filter = Filter::NONE);
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
@@ -319,7 +319,7 @@ public:
 };
 class EdgeEffectsShader: public GLShader {
 public:
-	EdgeEffectsShader(const std::shared_ptr<AlloyContext>& context =
+	EdgeEffectsShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
@@ -338,7 +338,7 @@ public:
 
 class NormalColorShader: public GLShader {
 public:
-	NormalColorShader(const std::shared_ptr<AlloyContext>& context =
+	NormalColorShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds) {
@@ -355,7 +355,7 @@ public:
 
 class DepthColorShader: public GLShader {
 public:
-	DepthColorShader(const std::shared_ptr<AlloyContext>& context =
+	DepthColorShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 
 	template<class T, int C, ImageType I> void draw(
@@ -375,7 +375,7 @@ public:
 
 class EdgeDepthAndNormalShader: public GLShader {
 public:
-	EdgeDepthAndNormalShader(const std::shared_ptr<AlloyContext>& contex =
+	EdgeDepthAndNormalShader(bool onScreen=true, const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	void draw(const std::initializer_list<const Mesh*>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer);
@@ -517,7 +517,7 @@ public:
 		this->lineWidth = w;
 		this->scaleInvariant = scaleInvariant;
 	}
-	WireframeShader(const std::shared_ptr<AlloyContext>& contex =
+	WireframeShader(bool onScreen=true,const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& edgeTexture,
@@ -545,7 +545,7 @@ private:
 	float sampleRadius;
 	std::vector<float3> sampleNormals;
 public:
-	AmbientOcclusionShader(const std::shared_ptr<AlloyContext>& contex =
+	AmbientOcclusionShader(bool onScreen=true,const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
