@@ -200,8 +200,9 @@ bool ExampleUI::init(Composite& rootNode) {
 	scrollRegion->add(
 			MakeRegion("Region 2", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(0, 255, 0)));
-	expandBar->add(geomRegion, true);
-	std::string exampleFile = getContext()->getFullPath("models"+ALY_PATH_SEPARATOR+"monkey.ply");
+	expandBar->add(geomRegion, 400, true);
+	std::string exampleFile = getContext()->getFullPath(
+			"models" + ALY_PATH_SEPARATOR+"monkey.ply");
 	FileSelector* selector;
 	geomRegion->add(
 			selector = new FileSelector("Mesh", CoordPX(2, 5),
@@ -212,14 +213,12 @@ bool ExampleUI::init(Composite& rootNode) {
 	selector->addFileExtensionRule("Text", "txt");
 	selector->setValue(exampleFile);
 
-
-
 	geomRegion->setOrientation(Orientation::Vertical);
 	geomRegion->add(scrollRegion);
 	RegionPtr apprRegion = RegionPtr(
 			new aly::Region("Appearance", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(apprRegion, true);
+	expandBar->add(apprRegion, 400, true);
 	CompositePtr lightRegion = CompositePtr(
 			new aly::Composite("Lighting", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
@@ -229,15 +228,15 @@ bool ExampleUI::init(Composite& rootNode) {
 					std::vector<std::string> { "Mission", "Bernal Heights",
 							"Noe Valley", "Telegraph Hill", "North Beach" }));
 	lightRegion->add(dropdown2);
-	expandBar->add(lightRegion, true);
+	expandBar->add(lightRegion, 300, true);
 	RegionPtr renderingRegion = RegionPtr(
 			new aly::Region("Rendering", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(renderingRegion, false);
+	expandBar->add(renderingRegion, 200, false);
 	RegionPtr filterRegion = RegionPtr(
 			new aly::Region("Filtering", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(filterRegion, false);
+	expandBar->add(filterRegion, 300, false);
 
 	BorderCompositePtr bcomp = std::shared_ptr<BorderComposite>(
 			new BorderComposite("Border Layout", CoordPX(0, 0),
@@ -294,8 +293,8 @@ bool ExampleUI::init(Composite& rootNode) {
 			Theme::Default.LIGHT_TEXT);
 	FileButton* fbutton;
 	center->add(
-		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 0.0f, 0.0f), CoordPX(40, 40),
-			FileDialogType::SaveFile));
+			fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 0.0f, 0.0f),
+					CoordPX(40, 40), FileDialogType::SaveFile));
 
 	fbutton->addFileExtensionRule("Portable Network Graphics", "png");
 	fbutton->addFileExtensionRule("XML", { "raw", "xml" });
@@ -303,12 +302,13 @@ bool ExampleUI::init(Composite& rootNode) {
 	fbutton->setValue(exampleFile);
 
 	center->add(
-		fbutton = new FileButton("Mesh", CoordPerPX(0.2f, 0.0f, 45.0f,0.0f), CoordPX(40, 40),
-			FileDialogType::OpenMultiFile));
+			fbutton = new FileButton("Mesh",
+					CoordPerPX(0.2f, 0.0f, 45.0f, 0.0f), CoordPX(40, 40),
+					FileDialogType::OpenMultiFile));
 
 	ColorSelectorPtr colorselect = ColorSelectorPtr(
-		new ColorSelector("Color", CoordPercent(0.5f, 0.0f),
-			CoordPX(200, 50)));
+			new ColorSelector("Color", CoordPercent(0.5f, 0.0f),
+					CoordPX(200, 50)));
 	colorselect->setColor(Color(200, 128, 32));
 	center->add(colorselect);
 	fbutton->addFileExtensionRule("Portable Network Graphics", "png");

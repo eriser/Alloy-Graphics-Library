@@ -323,19 +323,21 @@ class ExpandRegion: public Composite {
 private:
 	std::shared_ptr<TextLabel> selectionLabel;
 	std::shared_ptr<TextLabel> arrowIcon;
-	std::shared_ptr<Region> contentRegion;
+	std::shared_ptr<Composite> contentRegion;
 	bool expanded;
 public:
+	pixel expandHeight;
 	void setExpanded(bool expanded);
-	ExpandRegion(const std::string& name, const std::shared_ptr<Region>& region,
-			const AUnit2D& pos, const AUnit2D& dims);
+	ExpandRegion(const std::string& name, const std::shared_ptr<Composite>& region,
+			const AUnit2D& pos, const AUnit2D& dims,pixel expandHeight,bool expanded);
 };
 class ExpandBar: public Composite {
 private:
-	std::list<std::shared_ptr<ExpandRegion>> regions;
+	std::list<std::shared_ptr<ExpandRegion>> expandRegions;
+	std::list<std::shared_ptr<Region>> contentRegions;
 public:
-	CompositePtr add(Region* region, bool expanded);
-	CompositePtr add(const std::shared_ptr<Region>&, bool expanded);
+	CompositePtr add(Region* region,pixel expandHeight, bool expanded);
+	CompositePtr add(const std::shared_ptr<Region>&,pixel expandHeight, bool expanded);
 
 	ExpandBar(const std::string& name, const AUnit2D& pos, const AUnit2D& dims);
 };

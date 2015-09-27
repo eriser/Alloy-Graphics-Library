@@ -216,7 +216,6 @@ struct Composite: public Region {
 protected:
 	Orientation orientation = Orientation::Unspecified;
 	bool scrollEnabled = false;
-	static const float scrollBarSize;
 	pixel2 scrollExtent = pixel2(0, 0);
 	float horizontalScrollExtent = 0;
 	pixel2 scrollPosition = pixel2(0, 0);
@@ -227,6 +226,19 @@ protected:
 	pixel2 cellPadding;
 	pixel2 cellSpacing;
 public:
+	bool isVerticalScrollVisible() const {
+		if (verticalScrollTrack.get() == nullptr) {
+			return false;
+		}
+		return verticalScrollTrack->isVisible();
+	}
+	bool isHorizontalScrollVisible() const {
+		if (horizontalScrollTrack.get() == nullptr) {
+			return false;
+		}
+		return horizontalScrollTrack->isVisible();
+	}
+	static const float scrollBarSize;
 	typedef std::vector<ValueType>::iterator iterator;
 	typedef std::vector<ValueType>::const_iterator const_iterator;
 
@@ -483,7 +495,7 @@ protected:
 	std::vector<std::string> segmentedPath;
 	std::shared_ptr<SelectionBox> selectionBox;
 	std::shared_ptr<Timer> showTimer;
-	void updateSuggestionBox(AlloyContext* context,bool forceValue);
+	void updateSuggestionBox(AlloyContext* context, bool forceValue);
 public:
 
 	AColor textColor = MakeColor(Theme::Default.LIGHT_TEXT);

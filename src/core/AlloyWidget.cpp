@@ -1631,15 +1631,49 @@ void ColorSelector::draw(AlloyContext* context) {
 }
 
 void ExpandRegion::setExpanded(bool expanded) {
+	if (this->expanded != expanded) {
+		if (expanded) {
+			for (std::shared_ptr<Region>& child : contentRegion->getChildren()) {
+				child->setVisible(false);
+			}
+			AlloyApplicationContext()->addTween(contentRegion->getDimensions(),
+					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f),
+					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
+							(float) expandHeight), 0.3, SineOut())->onComplete =
+					[this](Tweenable*) {
+						for(std::shared_ptr<Region>& child:contentRegion->getChildren()) {
+							child->setVisible(true);
+						}
+						contentRegion->pack();
+					};
+		} else {
+			for (std::shared_ptr<Region>& child : contentRegion->getChildren()) {
+				child->setVisible(false);
+			}
+			AlloyApplicationContext()->addTween(contentRegion->getDimensions(),
+					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
+							(float) expandHeight),
+					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f),
+					0.3, SineOut())->onComplete =
+					[this](Tweenable*) {
+						for(std::shared_ptr<Region>& child:contentRegion->getChildren()) {
+							child->setVisible(true);
+						}
+
+						contentRegion->pack();
+					};
+		}
+	}
 	this->expanded = expanded;
-	contentRegion->setVisible(expanded);
 	arrowIcon->label =
 			(expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
+
 }
 ExpandRegion::ExpandRegion(const std::string& name,
-		const std::shared_ptr<Region>& region, const AUnit2D& pos,
-		const AUnit2D& dims) :
-		Composite(name + "_eregion", pos, dims) {
+		const std::shared_ptr<Composite>& region, const AUnit2D& pos,
+		const AUnit2D& dims, pixel expandHeight, bool expanded) :
+		Composite(name + "_eregion", pos, dims), expanded(expanded), expandHeight(
+				expandHeight) {
 	this->contentRegion = region;
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	setRoundCorners(true);
@@ -1663,18 +1697,17 @@ ExpandRegion::ExpandRegion(const std::string& name,
 	valueContainer->add(selectionLabel);
 	valueContainer->add(arrowIcon);
 	add(valueContainer);
-	//add(region);
 	selectionLabel->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					setExpanded(!expanded);
+					setExpanded(!this->expanded);
 					return true;
 				}
 				return false;
 			};
 	this->onMouseDown = [this](AlloyContext* context, const InputEvent& event) {
 		if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-			setExpanded(!expanded);
+			setExpanded(!this->expanded);
 			return true;
 		}
 		return false;
@@ -1682,12 +1715,21 @@ ExpandRegion::ExpandRegion(const std::string& name,
 	arrowIcon->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
 				if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					setExpanded(!expanded);
+					setExpanded(!this->expanded);
 					return true;
 				}
 				return false;
 			};
-	setExpanded(false);
+	arrowIcon->label =
+			(expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
+	if (expanded) {
+		contentRegion->setDimensions(
+				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
+						(float) expandHeight));
+	} else {
+		contentRegion->setDimensions(
+				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f));
+	}
 }
 FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
@@ -1695,7 +1737,7 @@ FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 
 	setRoundCorners(true);
-	std::shared_ptr<Composite>& glassPanel =
+	std::shared_ptr<Composite> &glassPanel =
 			AlloyApplicationContext()->getGlassPanel();
 
 	fileDialog = std::shared_ptr<FileDialog>(
@@ -1762,7 +1804,7 @@ FileButton::FileButton(const std::string& name, const AUnit2D& pos,
 				dims) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 	setRoundCorners(true);
-	std::shared_ptr<Composite>& glassPanel =
+	std::shared_ptr<Composite> &glassPanel =
 			AlloyApplicationContext()->getGlassPanel();
 	fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
@@ -2068,8 +2110,7 @@ void FileDialog::setSelectedFile(const std::string& file) {
 void ListBox::update() {
 	clear();
 	lastSelected.clear();
-	AlloyApplicationContext()->addDeferredTask(
-		[this]() {
+	AlloyApplicationContext()->addDeferredTask([this]() {
 		lastSelected.clear();
 		for (std::shared_ptr<ListEntry> entry :listEntries) {
 			if (entry->parent == nullptr)add(entry);
@@ -2527,30 +2568,32 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 	setOrientation(Orientation::Vertical);
 	setScrollEnabled(true);
 	cellPadding.y = 2;
+
 }
+
 CompositePtr ExpandBar::add(const std::shared_ptr<Region>& region,
-bool expanded) {
+		pixel expandHeight,
+		bool expanded) {
 	CompositePtr container = MakeComposite("Content Container",
 			CoordPX(0.0f, 0.0f),
-			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f));
-	container->setOrientation(Orientation::Vertical);
+			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, expandHeight));
+	container->setScrollEnabled(true);
 	region->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	region->borderColor = MakeColor(AlloyApplicationContext()->theme.NEUTRAL);
 	region->borderWidth = UnitPX(2.0f);
-//region->setRoundCorners(true);
 	container->add(region);
 	std::shared_ptr<ExpandRegion> eregion = std::shared_ptr<ExpandRegion>(
 			new ExpandRegion(region->name, container, CoordPX(0.0f, 0.0f),
-					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 30.0f)));
-
-	eregion->setExpanded(expanded);
-	regions.push_back(eregion);
+					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 30.0f),
+					expandHeight, expanded));
+	expandRegions.push_back(eregion);
+	contentRegions.push_back(container);
 	Composite::add(eregion);
 	Composite::add(container);
 	return container;
 }
-CompositePtr ExpandBar::add(Region* region, bool expanded) {
-	return add(std::shared_ptr<Region>(region), expanded);
+CompositePtr ExpandBar::add(Region* region, pixel expandHeight, bool expanded) {
+	return add(std::shared_ptr<Region>(region), expandHeight, expanded);
 }
 
 }
