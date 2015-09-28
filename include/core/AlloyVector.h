@@ -105,8 +105,12 @@ public:
 	Vector<T, C>& operator=(const Vector<T, C>& rhs) {
 		if (this == &rhs)
 			return *this;
-		this->resize(rhs.size());
-		this->set(rhs.data.data());
+		if(rhs.size()>0){
+                    this->resize(rhs.size());
+                    this->set(rhs.data.data());
+		} else {
+		    this->clear();
+		}
 		return *this;
 	}
 	Vector() :
