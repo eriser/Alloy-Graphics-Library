@@ -49,7 +49,7 @@ public:
 		return context;
 	}
 	// Default constructor.
-	GLShader(bool onScreen,const std::shared_ptr<AlloyContext>& context =
+	GLShader(bool onScreen = true,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext());
 	virtual ~GLShader();
 	// Initialization function to compile the shader.

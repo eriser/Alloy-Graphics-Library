@@ -311,14 +311,14 @@ public:
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
-	GLTexture(bool onScreen,const std::shared_ptr<AlloyContext>& context =
+	GLTexture(bool onScreen = true,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
 			GLComponent(onScreen, context), textureId(0), multisample(false), mipmap(
 					false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,
-			int imageHeight, bool onScreen, std::shared_ptr<AlloyContext>& context =
+			int imageHeight, bool onScreen = true, std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext()) :
 			GLComponent(onScreen,context) {
 		textureImage.resize(imageWidth, imageHeight);
@@ -337,7 +337,7 @@ public:
 		return texture;
 	}
 	GLTexture(const Image<T, C, I>& image,
-			bool onScreen,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
+			bool onScreen = true,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
 			GLComponent(onScreen,context) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
