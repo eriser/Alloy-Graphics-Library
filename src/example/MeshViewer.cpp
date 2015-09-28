@@ -142,7 +142,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);	
-		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.75f);
+		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.1f);
 		depthAndTextureShader.draw(mesh, camera, textureFrameBuffer, true);
 		/*
 		if (once) {
@@ -189,7 +189,7 @@ void MeshViewer::draw(AlloyContext* context) {
 
 	particleMatcapShader.draw({ &mesh }, camera,
 		box2px(float2((float)2 * w, (float)h), float2((float)w, (float)h)),
-		getContext()->getViewport());
+		getContext()->getViewport(),0.25);
 
 	/*
 	 matcapShader.draw(particleFrameBuffer.getTexture(), camera,
