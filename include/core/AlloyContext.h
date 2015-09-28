@@ -172,9 +172,9 @@ struct Composite;
 struct Region;
 class AlloyContext {
 private:
+	std::mutex taskLock;
 	std::list<std::string> assetDirectories;
 	std::shared_ptr<Font> fonts[8];
-	static std::mutex contextLock;
 	std::list<GLFWwindow*> windowHistory;
 	bool dirtyLayout = false;
 	bool dirtyUI = true;

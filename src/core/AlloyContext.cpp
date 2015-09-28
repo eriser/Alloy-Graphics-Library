@@ -47,7 +47,6 @@ int printOglError(const char *file, int line) {
 	return retCode;
 }
 namespace aly {
-	std::mutex AlloyContext::contextLock, taskLock;
 	std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
 	Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
@@ -312,7 +311,7 @@ namespace aly {
 	AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		const Theme& theme) :
 		nvgContext(nullptr), window(nullptr), theme(theme) {
-		std::lock_guard<std::mutex> lock(contextLock);
+
 		if (glfwInit() != GL_TRUE) {
 			throw std::runtime_error("Could not initialize GLFW.");
 		}
@@ -497,8 +496,6 @@ namespace aly {
 		return (windowHistory.back() == offscreenWindow);
 	}
 	bool AlloyContext::begin(bool onScreen) {
-
-		if (windowHistory.size() == 0)contextLock.lock();
 		windowHistory.push_back(glfwGetCurrentContext());
 		if (onScreen) {
 			glfwMakeContextCurrent(window);
@@ -523,7 +520,6 @@ namespace aly {
 		if (windowHistory.size() > 0) {
 			glfwMakeContextCurrent(windowHistory.back());
 			windowHistory.pop_back();
-			contextLock.unlock();
 			return true;
 		}
 		else
@@ -592,12 +588,10 @@ namespace aly {
 
 	}
 	void AlloyContext::makeCurrent() {
-		std::lock_guard<std::mutex> lock(contextLock);
 		glfwMakeContextCurrent(window);
 	}
 
 	AlloyContext::~AlloyContext() {
-		std::lock_guard<std::mutex> lock(contextLock);
 		glfwMakeContextCurrent(window);
 		if (vaoImageOnScreen.vao) {
 			glDeleteVertexArrays(1, &vaoImageOnScreen.vao);
