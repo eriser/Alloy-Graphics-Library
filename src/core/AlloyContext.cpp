@@ -39,525 +39,573 @@ int printOglError(const char *file, int line) {
 	glErr = glGetError();
 	if (glErr != GL_NO_ERROR) {
 		throw std::runtime_error(
-				aly::MakeString() << "GL error occurred in \"" << file
-						<< "\" on line " << line << ": "
-						<< gluErrorString(glErr));
+			aly::MakeString() << "GL error occurred in \"" << file
+			<< "\" on line " << line << ": "
+			<< gluErrorString(glErr) << "\nOn Screen Render: " << (aly::AlloyDefaultContext()->isOnScreenRender() ? "true" : "false") << "\nOff Screen Render: " << (aly::AlloyDefaultContext()->isOffScreenRender() ? "true" : "false"));
 		return 1;
 	}
 	return retCode;
 }
 namespace aly {
-std::mutex AlloyContext::contextLock, taskLock;
-std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
-Font::Font(const std::string& name, const std::string& file,
+	std::mutex AlloyContext::contextLock, taskLock;
+	std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
+	Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
 		nvg(context->nvgContext), handle(0), name(name), file(file) {
-	handle = nvgCreateFont(nvg, name.c_str(), file.c_str());
-}
-int Font::getCursorPosition(const std::string & text, float fontSize,
-		int xCoord) const {
-	std::vector<NVGglyphPosition> positions(text.size());
-	nvgFontSize(nvg, fontSize);
-	nvgFontFaceId(nvg, handle);
-	nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-	positions.resize(
-			nvgTextGlyphPositions(nvg, 0, 0, text.data(),
-					text.data() + text.size(), positions.data(),
-					(int) positions.size()));
-	for (size_t i = 0; i < positions.size(); ++i) {
-		if (xCoord < positions[i].maxx) {
-			return static_cast<int>(i);
-		}
+		handle = nvgCreateFont(nvg, name.c_str(), file.c_str());
 	}
-	return static_cast<int>(positions.size());
-}
-AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context,
+	int Font::getCursorPosition(const std::string & text, float fontSize,
+		int xCoord) const {
+		std::vector<NVGglyphPosition> positions(text.size());
+		nvgFontSize(nvg, fontSize);
+		nvgFontFaceId(nvg, handle);
+		nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+		positions.resize(
+			nvgTextGlyphPositions(nvg, 0, 0, text.data(),
+				text.data() + text.size(), positions.data(),
+				(int)positions.size()));
+		for (size_t i = 0; i < positions.size(); ++i) {
+			if (xCoord < positions[i].maxx) {
+				return static_cast<int>(i);
+			}
+		}
+		return static_cast<int>(positions.size());
+	}
+	AwesomeGlyph::AwesomeGlyph(int codePoint, AlloyContext* context,
 		const FontStyle& style, pixel height) :
 		Glyph(CodePointToUTF8(codePoint), GlyphType::Awesome, 0, height), codePoint(
-				codePoint), style(style) {
-	NVGcontext* nvg = context->nvgContext;
-	nvgFontSize(nvg, height);
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-	width = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
+			codePoint), style(style) {
+		NVGcontext* nvg = context->nvgContext;
+		nvgFontSize(nvg, height);
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+		width = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
 
-}
-void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
+	}
+	void AwesomeGlyph::draw(const box2px& bounds, const Color& fgColor,
 		const Color& bgColor, AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
-	nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-	nvgFontSize(nvg, height);
-	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
-	drawText(nvg, bounds.position + HALF_PIX(bounds.dimensions), name, style,
+		NVGcontext* nvg = context->nvgContext;
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+		nvgFontSize(nvg, height);
+		nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+		drawText(nvg, bounds.position + HALF_PIX(bounds.dimensions), name, style,
 			fgColor, bgColor, nullptr);
-}
+	}
 
-ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
+	ImageGlyph::ImageGlyph(const std::string& file, AlloyContext* context,
 		bool mipmap) :
 		Glyph(GetFileNameWithoutExtension(file), GlyphType::Image, 0, 0), file(
-				file) {
-	handle = nvgCreateImage(context->nvgContext, file.c_str(),
+			file) {
+		handle = nvgCreateImage(context->nvgContext, file.c_str(),
 			(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0);
-	int w, h;
-	nvgImageSize(context->nvgContext, handle, &w, &h);
-	width = (pixel) w;
-	height = (pixel) h;
-}
-void ImageGlyph::set(const ImageRGBA& rgba, AlloyContext* context) {
-	nvgUpdateImage(context->nvgContext, handle, rgba.ptr());
-}
-ImageGlyph::~ImageGlyph() {
-	AlloyContext* context = AlloyApplicationContext().get();
-	if (context)
-		nvgDeleteImage(context->nvgContext, handle);
-}
-ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
+		int w, h;
+		nvgImageSize(context->nvgContext, handle, &w, &h);
+		width = (pixel)w;
+		height = (pixel)h;
+	}
+	void ImageGlyph::set(const ImageRGBA& rgba, AlloyContext* context) {
+		nvgUpdateImage(context->nvgContext, handle, rgba.ptr());
+	}
+	ImageGlyph::~ImageGlyph() {
+		AlloyContext* context = AlloyApplicationContext().get();
+		if (context)
+			nvgDeleteImage(context->nvgContext, handle);
+	}
+	ImageGlyph::ImageGlyph(const ImageRGBA& rgba, AlloyContext* context,
 		bool mipmap) :
 		Glyph("image_rgba", GlyphType::Image, 0, 0) {
-	handle = nvgCreateImageRGBA(context->nvgContext, rgba.width, rgba.height,
+		handle = nvgCreateImageRGBA(context->nvgContext, rgba.width, rgba.height,
 			(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0, rgba.ptr());
-	width = (pixel) rgba.width;
-	height = (pixel) rgba.height;
-}
-void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,
+		width = (pixel)rgba.width;
+		height = (pixel)rgba.height;
+	}
+	void ImageGlyph::draw(const box2px& bounds, const Color& fgColor,
 		const Color& bgColor, AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
-	NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
+		NVGcontext* nvg = context->nvgContext;
+		NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
 			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y, 0.f,
 			handle, 1.0f);
-	nvgBeginPath(nvg);
-	nvgFillColor(nvg, Color(COLOR_WHITE));
-	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-			bounds.dimensions.y);
-	nvgFillPaint(nvg, imgPaint);
-	nvgFill(nvg);
-	if (fgColor.a > 0) {
 		nvgBeginPath(nvg);
+		nvgFillColor(nvg, Color(COLOR_WHITE));
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
-		nvgFillColor(nvg, Color(fgColor));
+			bounds.dimensions.y);
+		nvgFillPaint(nvg, imgPaint);
 		nvgFill(nvg);
-	}
+		if (fgColor.a > 0) {
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y);
+			nvgFillColor(nvg, Color(fgColor));
+			nvgFill(nvg);
+		}
 
-}
-CheckerboardGlyph::CheckerboardGlyph(int width, int height, int horizTiles,
+	}
+	CheckerboardGlyph::CheckerboardGlyph(int width, int height, int horizTiles,
 		int vertTiles, AlloyContext* context, bool mipmap) :
-		Glyph("image_rgba", GlyphType::Image, (pixel) width, (pixel) height) {
-	ImageRGBA img(width, height);
-	int cellWidth = width / horizTiles;
-	int cellHeight = height / vertTiles;
-	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < height; j++) {
-			bool vt = (i / cellWidth) % 2 == 0;
-			bool ht = (j / cellHeight) % 2 == 0;
-			img(i, j) =
+		Glyph("image_rgba", GlyphType::Image, (pixel)width, (pixel)height) {
+		ImageRGBA img(width, height);
+		int cellWidth = width / horizTiles;
+		int cellHeight = height / vertTiles;
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				bool vt = (i / cellWidth) % 2 == 0;
+				bool ht = (j / cellHeight) % 2 == 0;
+				img(i, j) =
 					((vt && !ht) || (!vt && ht)) ?
-							RGBA(0, 0, 0, 0) : RGBA(255, 255, 255, 255);
+					RGBA(0, 0, 0, 0) : RGBA(255, 255, 255, 255);
+			}
 		}
-	}
-	handle = nvgCreateImageRGBA(context->nvgContext, width, height,
+		handle = nvgCreateImageRGBA(context->nvgContext, width, height,
 			(mipmap) ? NVG_IMAGE_GENERATE_MIPMAPS : 0, img.ptr());
-}
-void CheckerboardGlyph::draw(const box2px& bounds, const Color& fgColor,
+	}
+	void CheckerboardGlyph::draw(const box2px& bounds, const Color& fgColor,
 		const Color& bgColor, AlloyContext* context) {
-	NVGcontext* nvg = context->nvgContext;
-	NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
+		NVGcontext* nvg = context->nvgContext;
+		NVGpaint imgPaint = nvgImagePattern(nvg, bounds.position.x,
 			bounds.position.y, bounds.dimensions.x, bounds.dimensions.y, 0.f,
 			handle, 1.0f);
-	if (bgColor.a > 0) {
+		if (bgColor.a > 0) {
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y);
+			nvgFillColor(nvg, Color(bgColor));
+			nvgFill(nvg);
+		}
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
-		nvgFillColor(nvg, Color(bgColor));
-		nvgFill(nvg);
-	}
-	nvgBeginPath(nvg);
-	nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
 			bounds.dimensions.y);
-	nvgFillPaint(nvg, imgPaint);
-	nvgFill(nvg);
-	if (fgColor.a > 0) {
-		nvgBeginPath(nvg);
-		nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
-				bounds.dimensions.y);
-		nvgFillColor(nvg, Color(fgColor));
+		nvgFillPaint(nvg, imgPaint);
 		nvgFill(nvg);
-	}
+		if (fgColor.a > 0) {
+			nvgBeginPath(nvg);
+			nvgRect(nvg, bounds.position.x, bounds.position.y, bounds.dimensions.x,
+				bounds.dimensions.y);
+			nvgFillColor(nvg, Color(fgColor));
+			nvgFill(nvg);
+		}
 
-}
-void AlloyContext::addAssetDirectory(const std::string& dir) {
-	std::string dirCopy=dir;
-	if (ALY_PATH_SEPARATOR[0] != '/') {
-		for (char& c : dirCopy) {
-			if (c == '/') {
-				c = ALY_PATH_SEPARATOR[0];
-			}
-		}
-	} else if (ALY_PATH_SEPARATOR[0] != '\\') {
-		for (char& c : dirCopy) {
-			if (c == '\\') {
-				c = ALY_PATH_SEPARATOR[0];
-			}
-		}
 	}
-	assetDirectories.push_back(dirCopy);
-}
-std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,
+	void AlloyContext::addAssetDirectory(const std::string& dir) {
+		std::string dirCopy = dir;
+		if (ALY_PATH_SEPARATOR[0] != '/') {
+			for (char& c : dirCopy) {
+				if (c == '/') {
+					c = ALY_PATH_SEPARATOR[0];
+				}
+			}
+		}
+		else if (ALY_PATH_SEPARATOR[0] != '\\') {
+			for (char& c : dirCopy) {
+				if (c == '\\') {
+					c = ALY_PATH_SEPARATOR[0];
+				}
+			}
+		}
+		assetDirectories.push_back(dirCopy);
+	}
+	std::shared_ptr<Font>& AlloyContext::loadFont(FontType type,
 		const std::string& name, const std::string& file) {
-	fonts[static_cast<int>(type)] = std::shared_ptr<Font>(
+		fonts[static_cast<int>(type)] = std::shared_ptr<Font>(
 			new Font(name, getFullPath(file), this));
-	return fonts[static_cast<int>(type)];
-}
-std::string AlloyContext::getFullPath(const std::string& partialFile) {
-	std::string fileName = partialFile;
-	if (ALY_PATH_SEPARATOR[0] != '/') {
-		for (char& c : fileName) {
-			if (c == '/') {
-				c = ALY_PATH_SEPARATOR[0];
+		return fonts[static_cast<int>(type)];
+	}
+	std::string AlloyContext::getFullPath(const std::string& partialFile) {
+		std::string fileName = partialFile;
+		if (ALY_PATH_SEPARATOR[0] != '/') {
+			for (char& c : fileName) {
+				if (c == '/') {
+					c = ALY_PATH_SEPARATOR[0];
+				}
 			}
 		}
-	}
-	else if (ALY_PATH_SEPARATOR[0] != '\\') {
-		for (char& c : fileName) {
-			if (c == '\\') {
-				c = ALY_PATH_SEPARATOR[0];
+		else if (ALY_PATH_SEPARATOR[0] != '\\') {
+			for (char& c : fileName) {
+				if (c == '\\') {
+					c = ALY_PATH_SEPARATOR[0];
+				}
 			}
 		}
-	}
-	for (std::string& dir : assetDirectories) {
-		std::string fullPath = RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR+ fileName;
-		if (FileExists(fullPath)) {
-			return fullPath;
+		for (std::string& dir : assetDirectories) {
+			std::string fullPath = RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
+			if (FileExists(fullPath)) {
+				return fullPath;
+			}
 		}
-	}
-	std::string executableDir = GetExecutableDirectory();
-	for (std::string& dir : assetDirectories) {
-		std::string fullPath = RemoveTrailingSlash(executableDir) + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
-		if (FileExists(fullPath)) {
-			return fullPath;
+		std::string executableDir = GetExecutableDirectory();
+		for (std::string& dir : assetDirectories) {
+			std::string fullPath = RemoveTrailingSlash(executableDir) + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
+			if (FileExists(fullPath)) {
+				return fullPath;
+			}
 		}
+		std::cout << "Could not find \"" << fileName << "\"\nThis is where I looked:" << std::endl;
+		for (std::string& dir : assetDirectories) {
+			std::string fullPath = RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
+			std::cout << "\"" << fullPath << "\"" << std::endl;
+			fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
+			std::cout << "\"" << fullPath << "\"" << std::endl;
+		}
+		throw std::runtime_error(MakeString() << "Could not find \"" << fileName << "\"");
+		return std::string("");
 	}
-	std::cout<<"Could not find \""<< fileName <<"\"\nThis is where I looked:"<<std::endl;
-	for (std::string& dir : assetDirectories) {
-		std::string fullPath=RemoveTrailingSlash(dir) +ALY_PATH_SEPARATOR + fileName;
-		std::cout<<"\""<<fullPath<<"\""<<std::endl;
-		fullPath = executableDir + ALY_PATH_SEPARATOR + RemoveTrailingSlash(dir) + ALY_PATH_SEPARATOR + fileName;
-		std::cout << "\"" << fullPath << "\"" << std::endl;
+	void AlloyContext::setDragObject(Region* region) {
+		mouseDownRegion = region;
+		cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
 	}
-	throw std::runtime_error(MakeString()<<"Could not find \""<< fileName <<"\"");
-	return std::string("");
-}
-void AlloyContext::setDragObject(Region* region) {
-	mouseDownRegion = region;
-	cursorDownPosition = cursorPosition - mouseDownRegion->getBoundsPosition();
-}
-bool AlloyContext::isOnTop(Region* region) const {
-	return (onTopRegion != nullptr
+	bool AlloyContext::isOnTop(Region* region) const {
+		return (onTopRegion != nullptr
 			&& (onTopRegion == region || region->hasParent(onTopRegion)));
-}
-pixel2 AlloyContext::getCursorDownPosition() const {
-	return cursorDownPosition + ((mouseDownRegion != nullptr) ? mouseDownRegion->getBoundsPosition() : pixel2(0.0f));
-}
-bool AlloyContext::fireListeners(const InputEvent& event) {
-	for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
-		EventHandler* handler = *iter;
-		if(handler->onEventHandler(this, event))
-			return true;
 	}
-	return false;
-}
-void AlloyContext::addListener(EventHandler* region) {
-	listeners.push_back(region);
-}
-void AlloyContext::removeListener(EventHandler* region) {
-	for (auto iter = listeners.begin(); iter != listeners.end(); iter++) {
-		if (region == *iter) {
-			listeners.erase(iter);
-			break;
+	pixel2 AlloyContext::getCursorDownPosition() const {
+		return cursorDownPosition + ((mouseDownRegion != nullptr) ? mouseDownRegion->getBoundsPosition() : pixel2(0.0f));
+	}
+	bool AlloyContext::fireListeners(const InputEvent& event) {
+		for (auto iter = listeners.rbegin(); iter != listeners.rend(); iter++) {
+			EventHandler* handler = *iter;
+			if (handler->onEventHandler(this, event))
+				return true;
+		}
+		return false;
+	}
+	void AlloyContext::addListener(EventHandler* region) {
+		listeners.push_back(region);
+	}
+	void AlloyContext::removeListener(EventHandler* region) {
+		for (auto iter = listeners.begin(); iter != listeners.end(); iter++) {
+			if (region == *iter) {
+				listeners.erase(iter);
+				break;
+			}
 		}
 	}
-}
-EventHandler::~EventHandler() {
-	Application::removeListener(this);
-}
-void AlloyContext::setOnTopRegion(Region* region) {
-	if (region == nullptr)
-		throw std::runtime_error(
+	EventHandler::~EventHandler() {
+		Application::removeListener(this);
+	}
+	void AlloyContext::setOnTopRegion(Region* region) {
+		if (region == nullptr)
+			throw std::runtime_error(
 				"On top region cannot be null. use removeOnTopRegion() instead.");
-	if (onTopRegion != nullptr) {
-		if (onTopRegion->onRemoveFromOnTop)
-			onTopRegion->onRemoveFromOnTop();
+		if (onTopRegion != nullptr) {
+			if (onTopRegion->onRemoveFromOnTop)
+				onTopRegion->onRemoveFromOnTop();
+		}
+		onTopRegion = region;
+		region->setVisible(true);
 	}
-	onTopRegion = region;
-	region->setVisible(true);
-}
-void AlloyContext::removeOnTopRegion(Region* region) {
-	if (region == nullptr)
-		throw std::runtime_error("Remove on top region cannot be null.");
-	if (region == onTopRegion) {
-		if (onTopRegion->onRemoveFromOnTop)
-			onTopRegion->onRemoveFromOnTop();
-		onTopRegion = nullptr;
+	void AlloyContext::removeOnTopRegion(Region* region) {
+		if (region == nullptr)
+			throw std::runtime_error("Remove on top region cannot be null.");
+		if (region == onTopRegion) {
+			if (onTopRegion->onRemoveFromOnTop)
+				onTopRegion->onRemoveFromOnTop();
+			onTopRegion = nullptr;
+		}
+
 	}
-
-}
-
-AlloyContext::AlloyContext(int width, int height, const std::string& title,
+	void AlloyContext::setOffscreenVisible(bool vis) {
+		if (vis) {
+			glfwShowWindow(offscreenWindow);
+		}
+		else {
+			glfwHideWindow(offscreenWindow);
+		}
+	}
+	AlloyContext::AlloyContext(int width, int height, const std::string& title,
 		const Theme& theme) :
-		current(nullptr), nvgContext(nullptr), window(nullptr), theme(theme) {
-	std::lock_guard<std::mutex> lock(contextLock);
-	if (glfwInit() != GL_TRUE) {
-		throw std::runtime_error("Could not initialize GLFW.");
-	}
-	glfwSetErrorCallback(
-			[](int error, const char* desc) {std::cout<<"GLFW Error ["<<error<<"] "<<desc<<std::endl;});
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-	window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+		nvgContext(nullptr), window(nullptr), theme(theme) {
+		std::lock_guard<std::mutex> lock(contextLock);
+		if (glfwInit() != GL_TRUE) {
+			throw std::runtime_error("Could not initialize GLFW.");
+		}
+		glfwSetErrorCallback(
+			[](int error, const char* desc) {std::cout << "GLFW Error [" << error << "] " << desc << std::endl;});
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+		window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 
-	if (!window) {
-		glfwTerminate();
+		if (!window) {
+			glfwTerminate();
 
-		throw std::runtime_error("Could not create window.");
-	}
-	glfwMakeContextCurrent(window);
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		throw std::runtime_error("Could not initialize GLEW.");
-	}
-	glGetError();
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
-	glEnable( GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	offscreenWindow =glfwCreateWindow(512,512, "offscreen", NULL, window);
-	if (!offscreenWindow) {
-		glfwTerminate();
-		throw std::runtime_error("Could not create window.");
-	}
-	glfwMakeContextCurrent(offscreenWindow);
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		throw std::runtime_error("Could not initialize GLEW.");
-	}
-	glGetError();
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glfwHideWindow(offscreenWindow);
-	glfwMakeContextCurrent(window);
+			throw std::runtime_error("Could not create window.");
+		}
+		glfwMakeContextCurrent(window);
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK) {
+			throw std::runtime_error("Could not initialize GLEW.");
+		}
+		glGetError();
+		glDepthFunc(GL_LESS);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glfwGetWindowSize(window, &width, &height);
-	glViewport(0, 0, width, height);
-	viewSize = int2(width, height);
-	nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-	const float2 TextureCoords[6] = { float2(1.0f, 0.0f), float2(0.0f, 0.0f),
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+		offscreenWindow = glfwCreateWindow(width,height, "Offscreen", NULL, NULL);
+		if (!offscreenWindow) {
+			glfwTerminate();
+			throw std::runtime_error("Could not create window.");
+		}
+		glfwMakeContextCurrent(offscreenWindow);
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK) {
+			throw std::runtime_error("Could not initialize GLEW.");
+		}
+		glGetError();
+		glDepthFunc(GL_LESS);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glfwMakeContextCurrent(window);
+		glfwGetWindowSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+		viewSize = int2(width, height);
+		nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+		const float2 TextureCoords[6] = { float2(1.0f, 0.0f), float2(0.0f, 0.0f),
 			float2(0.0f, 1.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f), float2(
-					1.0f, 0.0f) };
-	const float3 PositionCoords[6] = { float3(1.0f, 1.0f, 0.0f), float3(0.0f,
+				1.0f, 0.0f) };
+		const float3 PositionCoords[6] = { float3(1.0f, 1.0f, 0.0f), float3(0.0f,
 			1.0f, 0.0f), float3(0.0f, 0.0f, 0.0f), float3(0.0f, 0.0f, 0.0f),
 			float3(1.0f, 0.0f, 0.0f), float3(1.0f, 1.0f, 0.0f) };
-	glGenVertexArrays(1, &vaoImage.vao);
-	glBindVertexArray(vaoImage.vao);
-	glGenBuffers(1, &vaoImage.positionBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vaoImage.positionBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 6, PositionCoords,
-	GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glGenBuffers(1, &vaoImage.uvBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vaoImage.uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2 * 6, TextureCoords,
-	GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+		glGenVertexArrays(1, &vaoImageOnScreen.vao);
+		glBindVertexArray(vaoImageOnScreen.vao);
+		glGenBuffers(1, &vaoImageOnScreen.positionBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoImageOnScreen.positionBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 6, PositionCoords,
+			GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	int widthMM, heightMM;
+		glGenBuffers(1, &vaoImageOnScreen.uvBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoImageOnScreen.uvBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2 * 6, TextureCoords,
+			GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	if (monitor == nullptr)
-		throw std::runtime_error("Could not find monitor.");
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	if (mode == nullptr)
-		throw std::runtime_error("Could not find video monitor.");
-	glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
-	dpmm = double2(mode->width / (double) widthMM,
-			mode->height / (double) heightMM);
-	screenSize = int2(mode->width, mode->height);
-	int winWidth, winHeight, fbWidth, fbHeight;
-	glfwGetWindowSize(window, &winWidth, &winHeight);
-	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-	// Calculate pixel ration for hi-dpi devices.
-	pixelRatio = (float) fbWidth / (float) winWidth;
-	lastAnimateTime = std::chrono::steady_clock::now();
-	lastCursorTime = std::chrono::steady_clock::now();
-	lastUpdateTime = std::chrono::steady_clock::now();
-}
-void AlloyContext::addDeferredTask(const std::function<void()>& func) {
-	std::lock_guard<std::mutex> guard(taskLock);
-	deferredTasks.push_back(func);
-}
-bool AlloyContext::executeDeferredTasks() {
-	std::lock_guard<std::mutex> guard(taskLock);
-	if (deferredTasks.size() > 0) {
-		for (std::function<void()>& func : deferredTasks) {
-			func();
-		}
-		deferredTasks.clear();
-		return true;
+		glfwHideWindow(offscreenWindow);
+		glfwMakeContextCurrent(offscreenWindow);
+		glGenVertexArrays(1, &vaoImageOffScreen.vao);
+		glBindVertexArray(vaoImageOffScreen.vao);
+		glGenBuffers(1, &vaoImageOffScreen.positionBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoImageOffScreen.positionBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 6, PositionCoords,
+			GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glGenBuffers(1, &vaoImageOffScreen.uvBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoImageOffScreen.uvBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2 * 6, TextureCoords,
+			GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		glfwMakeContextCurrent(window);
+
+		int widthMM, heightMM;
+
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		if (monitor == nullptr)
+			throw std::runtime_error("Could not find monitor.");
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		if (mode == nullptr)
+			throw std::runtime_error("Could not find video monitor.");
+		glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
+		dpmm = double2(mode->width / (double)widthMM,
+			mode->height / (double)heightMM);
+		screenSize = int2(mode->width, mode->height);
+		int winWidth, winHeight, fbWidth, fbHeight;
+		glfwGetWindowSize(window, &winWidth, &winHeight);
+		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+		// Calculate pixel ration for hi-dpi devices.
+		pixelRatio = (float)fbWidth / (float)winWidth;
+		lastAnimateTime = std::chrono::steady_clock::now();
+		lastCursorTime = std::chrono::steady_clock::now();
+		lastUpdateTime = std::chrono::steady_clock::now();
 	}
-	return false;
-}
-bool AlloyContext::isMouseContainedIn(Region* region) const {
-	return (region->getBounds().contains(cursorPosition));
-}
-bool AlloyContext::isMouseContainedIn(const box2px& box) const {
-	return (box.contains(cursorPosition));
-}
-bool AlloyContext::isMouseContainedIn(const pixel2& pos,
+	void AlloyContext::addDeferredTask(const std::function<void()>& func) {
+		std::lock_guard<std::mutex> guard(taskLock);
+		deferredTasks.push_back(func);
+	}
+	bool AlloyContext::executeDeferredTasks() {
+		std::lock_guard<std::mutex> guard(taskLock);
+		if (deferredTasks.size() > 0) {
+			for (std::function<void()>& func : deferredTasks) {
+				func();
+			}
+			deferredTasks.clear();
+			return true;
+		}
+		return false;
+	}
+	bool AlloyContext::isMouseContainedIn(Region* region) const {
+		return (region->getBounds().contains(cursorPosition));
+	}
+	bool AlloyContext::isMouseContainedIn(const box2px& box) const {
+		return (box.contains(cursorPosition));
+	}
+	bool AlloyContext::isMouseContainedIn(const pixel2& pos,
 		const pixel2& dims) const {
-	return ((box2px(pos, dims)).contains(cursorPosition));
-}
-std::shared_ptr<Composite>& AlloyContext::getGlassPanel() {
-	if (glassPanel.get() == nullptr) {
-		glassPanel = std::shared_ptr<Composite>(
+		return ((box2px(pos, dims)).contains(cursorPosition));
+	}
+	std::shared_ptr<Composite>& AlloyContext::getGlassPanel() {
+		if (glassPanel.get() == nullptr) {
+			glassPanel = std::shared_ptr<Composite>(
 				new Composite("Glass Pane", CoordPX(0, 0),
-						CoordPercent(1.0f, 1.0f)));
-		//glassPanel->setIgnoreCursorEvents(true);
-		glassPanel->setVisible(false);
-		glassPanel->backgroundColor = MakeColor(
+					CoordPercent(1.0f, 1.0f)));
+			//glassPanel->setIgnoreCursorEvents(true);
+			glassPanel->setVisible(false);
+			glassPanel->backgroundColor = MakeColor(
 				theme.SHADOW.toSemiTransparent(0.5f));
-	}
-	return glassPanel;
-}
-void AlloyContext::clearEvents(Region* region) {
-	if (mouseOverRegion == region)
-		mouseOverRegion = nullptr;
-	if (mouseDownRegion == region)
-		mouseDownRegion = nullptr;
-	if (mouseFocusRegion == region)
-		mouseFocusRegion = nullptr;
-	if (onTopRegion == region)
-		region = nullptr;
-}
-Region* AlloyContext::locate(const pixel2& cursor) const {
-	if (onTopRegion != nullptr) {
-		if (onTopRegion->isVisible()) {
-			Region* r = onTopRegion->locate(cursor);
-			if (r != nullptr)
-				return r;
 		}
+		return glassPanel;
 	}
-	return cursorLocator.locate(cursor);
-}
-bool AlloyContext::begin(bool onScreen) {
-	if (current == nullptr) {
-		contextLock.lock();
-		current = glfwGetCurrentContext();
+	void AlloyContext::clearEvents(Region* region) {
+		if (mouseOverRegion == region)
+			mouseOverRegion = nullptr;
+		if (mouseDownRegion == region)
+			mouseDownRegion = nullptr;
+		if (mouseFocusRegion == region)
+			mouseFocusRegion = nullptr;
+		if (onTopRegion == region)
+			region = nullptr;
+	}
+	Region* AlloyContext::locate(const pixel2& cursor) const {
+		if (onTopRegion != nullptr) {
+			if (onTopRegion->isVisible()) {
+				Region* r = onTopRegion->locate(cursor);
+				if (r != nullptr)
+					return r;
+			}
+		}
+		return cursorLocator.locate(cursor);
+	}
+
+	bool AlloyContext::isOnScreenRender() const {
+		return (windowHistory.back() == window);
+	}
+	bool AlloyContext::isOffScreenRender() const {
+		return (windowHistory.back() == offscreenWindow);
+	}
+	bool AlloyContext::begin(bool onScreen) {
+
+		if (windowHistory.size() == 0)contextLock.lock();
+		windowHistory.push_back(glfwGetCurrentContext());
 		if (onScreen) {
 			glfwMakeContextCurrent(window);
 		}
 		else {
 			glfwMakeContextCurrent(offscreenWindow);
 		}
-		return true;
+		return (windowHistory.size() == 1);
+
 	}
-	return false;
-}
-bool AlloyContext::end() {
-	if (current != nullptr) {
-		glfwMakeContextCurrent(current);
-		current = nullptr;
-		contextLock.unlock();
-		return true;
-	} else
-		return false;
-}
-bool AlloyContext::isFocused(Region* region) {
-	if (mouseFocusRegion != nullptr) {
-		if (mouseFocusRegion->isVisible()) {
-			return (region == mouseFocusRegion);
-		} else {
-			mouseFocusRegion = nullptr;
-			return false;
+	bool AlloyContext::end() {
+		if (windowHistory.size() > 0) {
+			glfwMakeContextCurrent(windowHistory.back());
+			windowHistory.pop_back();
+			contextLock.unlock();
+			return true;
 		}
+		else
+			return false;
 	}
-	return false;
-}
-void AlloyContext::update(Composite& rootNode) {
-	endTime = std::chrono::steady_clock::now();
-	double updateElapsed = std::chrono::duration<double>(
+	bool AlloyContext::isFocused(Region* region) {
+		if (mouseFocusRegion != nullptr) {
+			if (mouseFocusRegion->isVisible()) {
+				return (region == mouseFocusRegion);
+			}
+			else {
+				mouseFocusRegion = nullptr;
+				return false;
+			}
+		}
+		return false;
+	}
+	void AlloyContext::update(Composite& rootNode) {
+		endTime = std::chrono::steady_clock::now();
+		double updateElapsed = std::chrono::duration<double>(
 			endTime - lastUpdateTime).count();
-	double animateElapsed = std::chrono::duration<double>(
+		double animateElapsed = std::chrono::duration<double>(
 			endTime - lastAnimateTime).count();
-	double cursorElapsed = std::chrono::duration<double>(
+		double cursorElapsed = std::chrono::duration<double>(
 			endTime - lastCursorTime).count();
-	if (deferredTasks.size() > 0) {
-		executeDeferredTasks();
-		cursorLocator.reset(viewSize);
-		rootNode.update(&cursorLocator);
-		dirtyCursorLocator = false;
-		mouseOverRegion = locate(cursorPosition);
-		dirtyCursor = false;
-		dirtyLayout = true;
-	}
-	if (updateElapsed > UPDATE_LOCATOR_INTERVAL_SEC) {
-		if (dirtyCursorLocator) {
+		if (deferredTasks.size() > 0) {
+			executeDeferredTasks();
 			cursorLocator.reset(viewSize);
 			rootNode.update(&cursorLocator);
 			dirtyCursorLocator = false;
 			mouseOverRegion = locate(cursorPosition);
 			dirtyCursor = false;
-		}
-		lastUpdateTime = endTime;
-	}
-	if (cursorElapsed >= UPDATE_CURSOR_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
-		if (dirtyCursor && !dirtyCursorLocator) {
-			mouseOverRegion = locate(cursorPosition);
-			dirtyCursor = false;
-		}
-		dirtyUI = true;
-		lastCursorTime = endTime;
-	}
-	if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
-		lastAnimateTime = endTime;
-		if (animator.step(animateElapsed)) {
 			dirtyLayout = true;
-			dirtyUI = true;
 		}
+		if (updateElapsed > UPDATE_LOCATOR_INTERVAL_SEC) {
+			if (dirtyCursorLocator) {
+				cursorLocator.reset(viewSize);
+				rootNode.update(&cursorLocator);
+				dirtyCursorLocator = false;
+				mouseOverRegion = locate(cursorPosition);
+				dirtyCursor = false;
+			}
+			lastUpdateTime = endTime;
+		}
+		if (cursorElapsed >= UPDATE_CURSOR_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
+			if (dirtyCursor && !dirtyCursorLocator) {
+				mouseOverRegion = locate(cursorPosition);
+				dirtyCursor = false;
+			}
+			dirtyUI = true;
+			lastCursorTime = endTime;
+		}
+		if (animateElapsed >= ANIMATE_INTERVAL_SEC) { //Dont try to animate faster than 60 fps.
+			lastAnimateTime = endTime;
+			if (animator.step(animateElapsed)) {
+				dirtyLayout = true;
+				dirtyUI = true;
+			}
+		}
+		if (dirtyLayout) {
+			rootNode.pack(this);
+			animator.firePostEvents();
+			dirtyCursorLocator = true;
+			dirtyLayout = false;
+		}
+
 	}
-	if (dirtyLayout) {
-		rootNode.pack(this);
-		animator.firePostEvents();
-		dirtyCursorLocator = true;
-		dirtyLayout = false;
+	void AlloyContext::makeCurrent() {
+		std::lock_guard<std::mutex> lock(contextLock);
+		glfwMakeContextCurrent(window);
 	}
 
-}
-void AlloyContext::makeCurrent() {
-	std::lock_guard<std::mutex> lock(contextLock);
-	glfwMakeContextCurrent(window);
-}
-
-AlloyContext::~AlloyContext() {
-	std::lock_guard<std::mutex> lock(contextLock);
-	glfwMakeContextCurrent(window);
-	if (vaoImage.vao) {
-		glDeleteVertexArrays(1, &vaoImage.vao);
+	AlloyContext::~AlloyContext() {
+		std::lock_guard<std::mutex> lock(contextLock);
+		glfwMakeContextCurrent(window);
+		if (vaoImageOnScreen.vao) {
+			glDeleteVertexArrays(1, &vaoImageOnScreen.vao);
+		}
+		if (vaoImageOnScreen.uvBuffer) {
+			glDeleteBuffers(1, &vaoImageOnScreen.uvBuffer);
+		}
+		if (vaoImageOnScreen.positionBuffer) {
+			glDeleteBuffers(1, &vaoImageOnScreen.positionBuffer);
+		}
+		glfwMakeContextCurrent(offscreenWindow);
+		if (vaoImageOffScreen.vao) {
+			glDeleteVertexArrays(1, &vaoImageOffScreen.vao);
+		}
+		if (vaoImageOffScreen.uvBuffer) {
+			glDeleteBuffers(1, &vaoImageOffScreen.uvBuffer);
+		}
+		if (vaoImageOffScreen.positionBuffer) {
+			glDeleteBuffers(1, &vaoImageOffScreen.positionBuffer);
+		}
+		nvgDeleteGL3(nvgContext);
+		glfwDestroyWindow(window);
+		glfwTerminate();
 	}
-	if (vaoImage.uvBuffer) {
-		glDeleteBuffers(1, &vaoImage.uvBuffer);
-	}
-	if (vaoImage.positionBuffer) {
-		glDeleteBuffers(1, &vaoImage.positionBuffer);
-	}
-	nvgDeleteGL3(nvgContext);
-	glfwDestroyWindow(window);
-	glfwTerminate();
-}
 }
 

@@ -24,8 +24,8 @@
 namespace aly {
 
 GLFrameBuffer::GLFrameBuffer(bool onScreen, std::shared_ptr<AlloyContext> context) :
-		GLComponent(onScreen, context), mFrameBufferId(0), mDepthBufferId(0), texture(onScreen,
-				context) {
+		GLComponent(onScreen, context),texture(onScreen,
+				context),mFrameBufferId(0), mDepthBufferId(0){
 
 }
 void GLFrameBuffer::initialize(int w, int h) {
@@ -38,7 +38,9 @@ void GLFrameBuffer::initialize(int w, int h) {
 	mFrameBufferId = 0;
 	mDepthBufferId = 0;
 	context->end();
+	CHECK_GL_ERROR();
 	texture.load(Image4f(w, h), false);
+	CHECK_GL_ERROR();
 	update();
 }
 GLFrameBuffer::~GLFrameBuffer() {
@@ -87,13 +89,11 @@ void GLFrameBuffer::update() {
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8,
 			texture.width(), texture.height());
-
 	if (mFrameBufferId != 0) {
 		glDeleteRenderbuffers(1, &mFrameBufferId);
 	}
 	glGenFramebuffers(1, &mFrameBufferId);
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
-	CHECK_GL_ERROR();
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
 	GL_RENDERBUFFER, mFrameBufferId);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,

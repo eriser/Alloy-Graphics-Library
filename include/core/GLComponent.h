@@ -31,8 +31,11 @@ class GLComponentGroup;
 class GLComponent {
 protected:
 	std::shared_ptr<AlloyContext> context;
-	bool onScreen;
+	bool onScreen=false;
 public:
+	bool isOnScreenRender() const {
+		return onScreen;
+	}
 	friend class GLComponentGroup;
 	box2i bounds;
 	std::shared_ptr<AlloyContext>& getContext() {

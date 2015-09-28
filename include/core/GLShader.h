@@ -42,6 +42,9 @@ protected:
 					"Could not set shader parameter because shader is not enabled. Call shader.begin() first.");
 	}
 public:
+	bool isOnScreenRender() const {
+		return onScreen;
+	}
 	std::shared_ptr<AlloyContext>& getContext() {
 		return context;
 	}
@@ -331,13 +334,13 @@ public:
 	GLShader& begin();
 	GLShader& draw(const std::initializer_list<const GLComponent*>& comps);
 	GLShader& draw(const std::initializer_list<const Mesh*>& meshes,
-			const GLMesh::PrimitiveType& type,bool onScreen,bool froceVertexColor = false);
+			const GLMesh::PrimitiveType& type,bool froceVertexColor = false);
 	GLShader& draw(const std::list<const GLComponent*>& comps);
 	GLShader& draw(const std::list<const Mesh*>& meshes,
-			const GLMesh::PrimitiveType& type, bool onScreen, bool froceVertexColor=false );
+			const GLMesh::PrimitiveType& type, bool froceVertexColor=false );
 
 	GLShader& draw(const GLComponent& comps);
-	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type, bool onScreen, bool froceVertexColor = false);
+	GLShader& draw(const Mesh& meshes, const GLMesh::PrimitiveType& type,bool froceVertexColor = false);
 
 	void end();
 	inline GLuint GetProgramHandle() const {

@@ -175,7 +175,7 @@ private:
 	std::list<std::string> assetDirectories;
 	std::shared_ptr<Font> fonts[8];
 	static std::mutex contextLock;
-	GLFWwindow* current;
+	std::list<GLFWwindow*> windowHistory;
 	bool dirtyLayout = false;
 	bool dirtyUI = true;
 	bool dirtyCursorLocator = false;
@@ -211,11 +211,15 @@ public:
 	GLFWwindow* window;
 	GLFWwindow* offscreenWindow;
 	const Theme theme;
-	ImageVAO vaoImage;
+	ImageVAO vaoImageOnScreen;
+	ImageVAO vaoImageOffScreen;
 	pixel2 cursorPosition = pixel2(-1, -1);
 	double2 dpmm;
 	bool hasFocus = false;
+	bool isOnScreenRender() const;
+	bool isOffScreenRender() const;
 	void clearEvents(Region* region);
+	void setOffscreenVisible(bool vis);
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;
 	}

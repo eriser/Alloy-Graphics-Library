@@ -65,7 +65,6 @@ void Application::initInternal() {
 			[](GLFWwindow * window, int enter) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onCursorEnter(enter);} catch(...) {app->throwException(std::current_exception());}});
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
-
 	imageShader = std::shared_ptr<ImageShader>(
 			new ImageShader(true,context, ImageShader::Filter::NONE));
 	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(true,context));
@@ -502,6 +501,9 @@ void Application::run(int swapInterval) {
 		glfwPollEvents();
 		for (std::exception_ptr e : caughtExceptions) {
 			std::rethrow_exception(e);
+		}
+		if (glfwWindowShouldClose(context->offscreenWindow)) {
+			context->setOffscreenVisible(false);
 		}
 	} while (!glfwWindowShouldClose(context->window));
 }

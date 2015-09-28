@@ -51,7 +51,7 @@ int main() {
 		std::flush(std::cout);
 		std::cout << "Exiting ..." << std::endl;
 		//std::cout<<"Hit any key ..."<<std::endl;
-		getchar();
+		//getchar();
 		return 1;
 	}
 }

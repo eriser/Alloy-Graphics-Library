@@ -38,7 +38,7 @@ using namespace std;
 using namespace ply;
 
 void GLMesh::draw() const {
-	draw(PrimitiveType::ALL,false);
+	draw(PrimitiveType::ALL,onScreen);
 }
 void GLMesh::draw(const PrimitiveType& type,bool forceVertexColor) const {
 	if (mesh.isDirty(onScreen)) {
@@ -48,7 +48,6 @@ void GLMesh::draw(const PrimitiveType& type,bool forceVertexColor) const {
 	context->begin(onScreen);
 	if (vao > 0)
 		glBindVertexArray(vao);
-
 	if ((type == GLMesh::PrimitiveType::ALL
 			|| type == GLMesh::PrimitiveType::POINTS) && vertexCount > 0) {
 		if (vertexBuffer > 0) {

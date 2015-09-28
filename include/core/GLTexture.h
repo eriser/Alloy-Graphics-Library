@@ -52,20 +52,38 @@ public:
 	}
 	virtual void draw() const override {
 		context->begin(onScreen);
-		GLuint& vao = context->vaoImage.vao;
-		GLuint& positionBuffer = context->vaoImage.positionBuffer;
-		GLuint& uvBuffer = context->vaoImage.uvBuffer;
-		glBindVertexArray(vao);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		if (onScreen) {
+			GLuint& vao = context->vaoImageOnScreen.vao;
+			GLuint& positionBuffer = context->vaoImageOnScreen.positionBuffer;
+			GLuint& uvBuffer = context->vaoImageOnScreen.uvBuffer;
+			glBindVertexArray(vao);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
+		else {
+			GLuint& vao = context->vaoImageOffScreen.vao;
+			GLuint& positionBuffer = context->vaoImageOffScreen.positionBuffer;
+			GLuint& uvBuffer = context->vaoImageOffScreen.uvBuffer;
+			glBindVertexArray(vao);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
 		context->end();
 	}
 
@@ -271,6 +289,7 @@ public:
 			throw std::runtime_error(
 					"Count not read image, texture buffer not allocated.");
 		}
+		CHECK_GL_ERROR();
 		return textureImage;
 	}
 public:
@@ -292,14 +311,14 @@ public:
 	vec<T, C>& operator()(const int i, const int j) {
 		return textureImage(i, j);
 	}
-	GLTexture(bool onScreen=true,const std::shared_ptr<AlloyContext>& context =
+	GLTexture(bool onScreen,const std::shared_ptr<AlloyContext>& context =
 			AlloyDefaultContext()) :
 			GLComponent(onScreen, context), textureId(0), multisample(false), mipmap(
 					false) {
 	}
 
 	GLTexture(int x, int y, int width, int height, int imageWidth,
-			int imageHeight, bool onScreen = true, std::shared_ptr<AlloyContext>& context =
+			int imageHeight, bool onScreen, std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext()) :
 			GLComponent(onScreen,context) {
 		textureImage.resize(imageWidth, imageHeight);
@@ -318,7 +337,7 @@ public:
 		return texture;
 	}
 	GLTexture(const Image<T, C, I>& image,
-			bool onScreen = true,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
+			bool onScreen,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext()) :
 			GLComponent(onScreen,context) {
 		textureImage.set(image);
 		bounds = box2i( { 0, 0 }, { textureImage.width, textureImage.height });
