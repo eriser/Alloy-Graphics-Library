@@ -32,6 +32,7 @@ private:
 	aly::FaceIdShader faceShader;
 	aly::MatcapShader matcapShader;
 	aly::ImageShader imageShader;
+	aly::ImageShader imageOffscreenShader;
 	aly::EdgeEffectsShader effectsShader;
 	aly::ParticleDepthShader particleDepthShader;
 	aly::EdgeDepthAndNormalShader edgeDepthAndNormalShader;

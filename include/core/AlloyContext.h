@@ -219,7 +219,7 @@ public:
 	bool isOnScreenRender() const;
 	bool isOffScreenRender() const;
 	void clearEvents(Region* region);
-	void setOffscreenVisible(bool vis);
+	void setOffScreenVisible(bool vis);
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;
 	}
@@ -372,6 +372,13 @@ public:
 	AlloyContext(int width, int height, const std::string& title,
 			const Theme& theme = Theme::Default);
 	bool begin(bool onScreen);
+	void initOffScreenDraw();
+	bool beginOffScreen() {
+		return begin(false);
+	}
+	bool beginOnScreen() {
+		return begin(true);
+	}
 	bool end();
 	void repaintUI() {
 		dirtyUI = true;

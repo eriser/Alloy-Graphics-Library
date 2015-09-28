@@ -26,7 +26,8 @@ using namespace aly;
 MeshViewer::MeshViewer() :
 	Application(1920, 960, "Mesh Viewer"), matcapShader(
 		getFullPath("images/JG_Silver.png")), imageShader(true, getContext(),
-			ImageShader::Filter::MEDIUM_BLUR), phongShader(1), phongShader2(
+			ImageShader::Filter::MEDIUM_BLUR), imageOffscreenShader(false, getContext(),
+				ImageShader::Filter::NONE),phongShader(1), phongShader2(
 				1), particleMatcapShader(getFullPath("images/JG_Silver.png"),true), voxelSize(
 					0.0f), occlusionFrameBuffer(true),
 	depthAndTextureShader(false),
@@ -105,6 +106,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	faceShader.initialize(w, h);
 	particleFaceIdShader.initialize(w, h);
 	textureFrameBuffer.initialize(w, h);
+	//getContext()->setOffScreenVisible(true);
 	mesh.updateVertexNormals();
 	addListener(&camera);
 	setOnResize([=](const int2& dims) {
@@ -225,13 +227,18 @@ void MeshViewer::draw(AlloyContext* context) {
 
 		//colorVertexShader.draw({ &mesh },camera,occlusionFrameBuffer,true);
 
-
-		//colorBuffer1.begin();
+		colorBuffer1.begin();
 		texMeshShader.draw(textureFrameBuffer.getTexture(), texImage, camera,
 			box2px(float2(0.0f, 0.0f), float2((float)w, (float)h)),
 			colorBuffer1.getViewport());
-		//colorBuffer1.end();
+		colorBuffer1.end();
+
+		context->initOffScreenDraw();
+		imageOffscreenShader.draw(colorBuffer1.getTexture(), float2((float)0.0f, (float)0.0f),
+			float2((float)w, (float)h));
 	}
+
+
 	imageShader.draw(outlineFrameBuffer.getTexture(), float2((float)w, (float)0.0f),
 		float2((float)w, (float)h));
 	imageShader.draw(wireframeFrameBuffer.getTexture(), float2((float)w, (float)h),

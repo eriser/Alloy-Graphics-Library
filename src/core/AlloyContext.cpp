@@ -301,7 +301,7 @@ namespace aly {
 		}
 
 	}
-	void AlloyContext::setOffscreenVisible(bool vis) {
+	void AlloyContext::setOffScreenVisible(bool vis) {
 		if (vis) {
 			glfwShowWindow(offscreenWindow);
 		}
@@ -341,11 +341,17 @@ namespace aly {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		glfwGetWindowSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+		viewSize = int2(width, height);
+
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+		glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
+		glfwWindowHint(GLFW_VISIBLE, 0);
 		offscreenWindow = glfwCreateWindow(width,height, "Offscreen", NULL, NULL);
 		if (!offscreenWindow) {
 			glfwTerminate();
@@ -361,10 +367,9 @@ namespace aly {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glfwMakeContextCurrent(window);
-		glfwGetWindowSize(window, &width, &height);
 		glViewport(0, 0, width, height);
-		viewSize = int2(width, height);
+		glfwMakeContextCurrent(window);
+
 		nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 		const float2 TextureCoords[6] = { float2(1.0f, 0.0f), float2(0.0f, 0.0f),
 			float2(0.0f, 1.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f), float2(
@@ -503,6 +508,17 @@ namespace aly {
 		}
 		return (windowHistory.size() == 1);
 
+	}
+	void AlloyContext::initOffScreenDraw() {
+		begin(false);
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+		glClearColor(0.0, 0.0, 0.0, 0.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_SCISSOR_TEST);
+		end();
 	}
 	bool AlloyContext::end() {
 		if (windowHistory.size() > 0) {

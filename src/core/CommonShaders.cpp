@@ -2008,11 +2008,11 @@ if(IS_QUAD!=0){
 		CameraParameters& camera, GLFrameBuffer& frameBuffer,
 		bool flatShading) {
 		frameBuffer.begin();
-		begin();
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		begin();
 		set("MIN_DEPTH", camera.getNearPlane()).set("IS_FLAT",
 			flatShading ? 1 : 0).set("MAX_DEPTH", camera.getFarPlane()).set(
 				camera, frameBuffer.getViewport()).set("PoseMat",

@@ -478,7 +478,6 @@ void Application::run(int swapInterval) {
 
 	//First pack triggers computation of aspect ratios  for components.
 	rootRegion.pack(context.get());
-
 	context->requestPack();
 	glfwSwapInterval(swapInterval);
 	glfwSetTime(0);
@@ -503,7 +502,7 @@ void Application::run(int swapInterval) {
 			std::rethrow_exception(e);
 		}
 		if (glfwWindowShouldClose(context->offscreenWindow)) {
-			context->setOffscreenVisible(false);
+			context->setOffScreenVisible(false);
 		}
 	} while (!glfwWindowShouldClose(context->window));
 }
