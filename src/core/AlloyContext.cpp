@@ -511,12 +511,11 @@ namespace aly {
 	}
 	void AlloyContext::initOffScreenDraw() {
 		begin(false);
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		glViewport(0, 0, width, height);
+		glViewport(0,0,viewSize.x,viewSize.y);
+		glScissor(0, 0, viewSize.x, viewSize.y);
 		glClearColor(0.0, 0.0, 0.0, 0.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDisable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_SCISSOR_TEST);
 		end();
 	}

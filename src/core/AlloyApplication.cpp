@@ -102,7 +102,7 @@ Application::Application(int w, int h, const std::string& title,
 void Application::draw() {
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	draw(context.get());
 	glDisable(GL_DEPTH_TEST);
