@@ -26,10 +26,10 @@ int main() {
 	try {
 
 		//UI Test case
-		//ExampleUI app;
+		ExampleUI app;
 
 		//Mesh Render Test case
-		MeshViewer app;
+		//MeshViewer app;
 
 		//SANITY_CHECK_ANY();
 		//SANITY_CHECK_SVD();

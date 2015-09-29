@@ -356,9 +356,7 @@ void Composite::draw(AlloyContext* context) {
 	}
 
 	if (isScrollEnabled() && verticalScrollTrack.get() != nullptr) {
-
 		if (scrollExtent.y > h) {
-
 			verticalScrollTrack->setVisible(true);
 			verticalScrollHandle->setVisible(true);
 			verticalScrollTrack->draw(context);
@@ -376,7 +374,6 @@ void Composite::draw(AlloyContext* context) {
 		} else {
 			horizontalScrollTrack->setVisible(alwaysShowHorizontalScrollBar);
 			if (alwaysShowHorizontalScrollBar)horizontalScrollTrack->draw(context);
-
 			horizontalScrollHandle->setVisible(false);
 		}
 	}
@@ -555,15 +552,16 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			region->setPosition(CoordPX(offset.x, pix.y));
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
+		box2px cbounds = region->getBounds();
 		if (orientation == Orientation::Horizontal) {
-			offset.x += cellSpacing.x + region->getBoundsDimensionsX();
+			offset.x += cellSpacing.x + cbounds.dimensions.x;
 
 		}
 		if (orientation == Orientation::Vertical) {
-			offset.y += cellSpacing.y + region->getBoundsDimensionsY();
+			offset.y += cellSpacing.y + cbounds.dimensions.y;
 		}
 		scrollExtent = max(
-				region->getBoundsDimensions() + region->getBoundsPosition()
+			cbounds.dimensions + cbounds.position
 						- bounds.position - region->drawOffset(), scrollExtent);
 	}
 	if (!isScrollEnabled()) {
