@@ -27,8 +27,8 @@ MeshViewer::MeshViewer() :
 	Application(1920, 960, "Mesh Viewer"), matcapShader(
 		getFullPath("images/JG_Silver.png")), imageShader(true, getContext(),
 			ImageShader::Filter::MEDIUM_BLUR), imageOffscreenShader(false, getContext(),
-				ImageShader::Filter::NONE),phongShader(1), phongShader2(
-				1), particleMatcapShader(getFullPath("images/JG_Silver.png"),true), voxelSize(
+				ImageShader::Filter::NONE),phongShader(1,true), phongShader2(
+				1,true), particleMatcapShader(getFullPath("images/JG_Silver.png"),true), voxelSize(
 					0.0f), occlusionFrameBuffer(true),
 	depthAndTextureShader(false),
 	edgeFrameBuffer(true),

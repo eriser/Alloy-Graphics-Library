@@ -441,12 +441,12 @@ public:
 	inline int size() const {
 		return (int) lights.size();
 	}
-	PhongShader(int numLights, const std::shared_ptr<AlloyContext>& contex =
+	PhongShader(int numLights, bool onScreen, const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-	PhongShader(const SimpleLight& light,
+	PhongShader(const SimpleLight& light, bool onScreen,
 			const std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext()) :
-			PhongShader(1, context) {
+			PhongShader(1, onScreen,context) {
 		lights[0] = light;
 	}
 	template<class T, int C, ImageType I> void draw(

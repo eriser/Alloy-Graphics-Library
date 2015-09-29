@@ -35,7 +35,7 @@ protected:
 	GLuint mProgramHandle;
 	bool shaderEnabled = false;
 	std::shared_ptr<AlloyContext> context;
-	bool onScreen;
+	bool onScreen=true;
 	void enableCheck() {
 		if (!shaderEnabled)
 			throw std::runtime_error(

@@ -2579,7 +2579,7 @@ void main(void)
 
 	}
 
-	PhongShader::PhongShader(int N, const std::shared_ptr<AlloyContext>& context) :
+	PhongShader::PhongShader(int N,bool onScreen, const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
 		lights.resize(N);
 		initialize({},
