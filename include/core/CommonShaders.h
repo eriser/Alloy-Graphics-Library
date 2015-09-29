@@ -458,7 +458,7 @@ public:
 		set("textureImage", imageTexture, 0).set("MIN_DEPTH",
 				camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
 				"focalLength", camera.getFocalLength()).set("bounds", bounds).set(
-				"viewport", context->getViewport());
+				"viewport", viewport);
 
 		std::vector<Color> ambientColors;
 		std::vector<Color> diffuseColors;
