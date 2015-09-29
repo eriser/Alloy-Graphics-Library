@@ -138,7 +138,7 @@ void MeshViewer::draw(AlloyContext* context) {
 	//static bool once = true;
 	glEnable(GL_DEPTH_TEST);
 	if (camera.isDirty()) {
-		edgeDepthAndNormalShader.draw(mesh, camera, edgeFrameBuffer);
+		edgeDepthAndNormalShader.draw({ {&mesh,MakeScale(float3(1.5f,1.5f,1.5f))} }, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);	

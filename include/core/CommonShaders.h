@@ -383,8 +383,10 @@ public:
 			GLFrameBuffer& framebuffer) {
 		draw( { &mesh }, camera, framebuffer);
 	}
-	;
-
+	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& framebuffer);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& framebuffer);
 };
 struct SimpleLight {
 	Color ambientColor;
@@ -531,6 +533,7 @@ public:
 				zRange.y).set("bounds", bounds).set("viewport", viewport).draw(
 				edgeTexture).end();
 	}
+
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& edgeTexture,
 			const GLTexture<T, C, I>& depthTexture, float2 zRange,

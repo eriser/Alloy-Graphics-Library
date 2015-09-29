@@ -2126,7 +2126,7 @@ if(IS_QUAD!=0){
 				in vec3 v0, v1, v2, v3;
 				in vec3 normal, vert;
 				uniform float DISTANCE_TOL;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				//uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
 				uniform int IS_QUAD;
 				
 				vec3 slerp(vec3 p0, vec3 p1, float t){
@@ -2207,10 +2207,10 @@ if(IS_QUAD!=0){
 					out vec3 v0, v1, v2, v3;
 					out vec3 normal, vert;
 					uniform int IS_QUAD;
-				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
 					void main() {
-					  mat4 PVM=ProjMat*ViewModelMat;
-					  mat4 VM=ViewModelMat;
+					  mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+					  mat4 VM=ViewModelMat*PoseMat;
 					  
 					  vec3 p0=quad[0].p0;
 					  vec3 p1=quad[0].p1;
@@ -2264,17 +2264,71 @@ if(IS_QUAD!=0){
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0, 0, 0, 1);
-
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(camera,
-			frameBuffer.getViewport()).draw(meshes,
+			frameBuffer.getViewport()).set("PoseMat", float4x4::identity()).draw(meshes,
 				GLMesh::PrimitiveType::QUADS).end();
 		begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 0).set(camera,
-			frameBuffer.getViewport()).draw(meshes,
+			frameBuffer.getViewport()).set("PoseMat", float4x4::identity()).draw(meshes,
 				GLMesh::PrimitiveType::TRIANGLES).end();
 		glEnable(GL_BLEND);
 		frameBuffer.end();
 	}
+	void EdgeDepthAndNormalShader::draw(
+		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer) {
+		frameBuffer.begin();
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glClearColor(0, 0, 0, 1);
+
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		begin().set("DISTANCE_TOL", camera.getScale()).set(
+				camera, frameBuffer.getViewport());
+		for (std::pair<const Mesh*, float4x4> pr : meshes) {
+			if (pr.first->quadIndexes.size() > 0) {
+				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::QUADS);
+			}
+			if (pr.first->triIndexes.size() > 0) {
+				set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::TRIANGLES);
+			}
+		}
+		end();
+
+		glEnable(GL_BLEND);
+		frameBuffer.end();
+	}
+
+	void EdgeDepthAndNormalShader::draw(
+		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& frameBuffer) {
+		frameBuffer.begin();
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glClearColor(0, 0, 0, 1);
+
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		begin().set("DISTANCE_TOL", camera.getScale()).set(
+				camera, frameBuffer.getViewport());
+		for (std::pair<const Mesh*, float4x4> pr : meshes) {
+			if (pr.first->quadIndexes.size() > 0) {
+				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::QUADS);
+			}
+			if (pr.first->triIndexes.size() > 0) {
+				set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::TRIANGLES);
+			}
+		}
+		end();
+
+		glEnable(GL_BLEND);
+		frameBuffer.end();
+	}
+
+
 	EdgeEffectsShader::EdgeEffectsShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
