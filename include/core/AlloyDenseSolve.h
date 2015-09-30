@@ -740,5 +740,36 @@ template<class T, int C> Vector<T, C> Solve(const DenseMatrix<T, C>& A,
 	}
 	return Vector<T, C>();
 }
+
+template<class T, int C> Vector<T, C> SolveRobust(const DenseMatrix<T, C>& A,const Vector<T, C>& b,
+	int p=1, int iterations=100,double errorTolerance=1E-6f, 
+	double zeroTolerance=1E-16,MatrixFactorization factor = MatrixFactorization::SVD) {
+	int N = (int)b.size();
+	Vector<T, C> W(N);
+	W.set(vec<T, C>(T(1)));
+	Vector<T, C> X;
+	double lastError = std::numeric_limits<double>::max();
+	for (int iter = 0;iter < iterations;iter++) {
+		X = Solve(W*A, W*b);
+		Vector<T, C> R = b - A*X;
+		vec<double, C> err = lengthVecSqr(R);
+		double e = lengthL1(err) / N;
+		if (std::abs(e - lastError) < errorTolerance) {
+			break;
+		}
+		lastError = e;
+#pragma omp parallel for
+		for (int n = 0;n < N;n++) {
+			vec<T, C> w;
+			vec<T, C> r = R[n];
+			for (int c = 0;c < C;c++) {
+				w[c] = std::pow(std::max(std::abs(r[c]), T(zeroTolerance)), -p);
+			}
+			W[n] = w;
+		}
+	}
+	return X;
+}
+
 }
 #endif

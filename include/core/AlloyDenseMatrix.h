@@ -197,7 +197,33 @@ template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-
+template<class T, int C> DenseMatrix<T, C> operator*(const Vector<T,C>& W,const DenseMatrix<T, C>& A) {
+	if (A.rows != W.size())
+		throw std::runtime_error(
+			MakeString()
+			<< "Cannot scale matrix by vector. Rows must match. "
+			<< "["<<W.size()<<"] * [" << A.rows << "," << A.cols << "]");
+	DenseMatrix<T, C> out(A.rows,A.cols);
+	for (int i = 0; i < out.rows; i++) {
+		for (int j = 0; j < out.cols; j++) {
+			out[i][j] =W[i]* A[i][j];
+		}
+	}
+	return out;
+}
+template<class T, int C> DenseMatrix<T, C>& operator*=(DenseMatrix<T, C>& A,const Vector<T, C>& W) {
+	if (A.rows != W.size())
+		throw std::runtime_error(
+			MakeString()
+			<< "Cannot scale matrix by vector. Rows must match. "
+			<< "[" << W.size() << "] * [" << A.rows << "," << A.cols << "]");
+	for (int i = 0; i < A.rows; i++) {
+		for (int j = 0; j < A.cols; j++) {
+			A[i][j] *= W[i];
+		}
+	}
+	return out;
+}
 template<class T, int C> DenseMatrix<T, C> operator-(
 		const DenseMatrix<T, C>& A) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
@@ -333,7 +359,7 @@ template<class T, int C> DenseMatrix<T, C>& operator/=(
 	return A;
 }
 template<class T, int C> DenseMatrix<T, C>& operator+=(
-		const DenseMatrix<T, C>& A, const vec<T, C>& v) {
+		DenseMatrix<T, C>& A, const vec<T, C>& v) {
 	for (int i = 0; i < A.rows; i++) {
 		for (int j = 0; j < A.cols; j++) {
 			A[i][j] = A[i][j] + v;
@@ -342,7 +368,7 @@ template<class T, int C> DenseMatrix<T, C>& operator+=(
 	return A;
 }
 template<class T, int C> DenseMatrix<T, C>& operator-=(
-		const DenseMatrix<T, C>& A, const vec<T, C>& v) {
+		DenseMatrix<T, C>& A, const vec<T, C>& v) {
 	for (int i = 0; i < A.rows; i++) {
 		for (int j = 0; j < A.cols; j++) {
 			A[i][j] = A[i][j] - v;
@@ -351,7 +377,7 @@ template<class T, int C> DenseMatrix<T, C>& operator-=(
 	return A;
 }
 template<class T, int C> DenseMatrix<T, C>& operator*=(
-		const DenseMatrix<T, C>& A, const T& v) {
+		DenseMatrix<T, C>& A, const T& v) {
 	for (int i = 0; i < A.rows; i++) {
 		for (int j = 0; j < A.cols; j++) {
 			A[i][j] = A[i][j] * v;
@@ -360,7 +386,7 @@ template<class T, int C> DenseMatrix<T, C>& operator*=(
 	return A;
 }
 template<class T, int C> DenseMatrix<T, C>& operator/=(
-		const DenseMatrix<T, C>& A, const T& v) {
+		DenseMatrix<T, C>& A, const T& v) {
 	for (int i = 0; i < A.rows; i++) {
 		for (int j = 0; j < A.cols; j++) {
 			A[i][j] = A[i][j] / v;
@@ -369,7 +395,7 @@ template<class T, int C> DenseMatrix<T, C>& operator/=(
 	return A;
 }
 template<class T, int C> DenseMatrix<T, C>& operator+=(
-		const DenseMatrix<T, C>& A, const T& v) {
+		DenseMatrix<T, C>& A, const T& v) {
 	for (int i = 0; i < A.rows; i++) {
 		for (int j = 0; j < A.cols; j++) {
 			A[i][j] = A[i][j] + v;
@@ -378,7 +404,7 @@ template<class T, int C> DenseMatrix<T, C>& operator+=(
 	return A;
 }
 template<class T, int C> DenseMatrix<T, C>& operator-=(
-		const DenseMatrix<T, C>& A, const T& v) {
+		DenseMatrix<T, C>& A, const T& v) {
 	for (int i = 0; i < A.rows; i++) {
 		for (int j = 0; j < A.cols; j++) {
 			A[i][j] = A[i][j] - v;

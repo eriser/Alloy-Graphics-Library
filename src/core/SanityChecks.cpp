@@ -58,7 +58,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 
 		std::cout << "A=" << A << std::endl;
 		DenseMatrix1f L, U, Q, R, S, D, Vt;
-		Vector1f x1, x2, x3;
+		Vector1f x1, x2,x3, x4;
 
 		std::vector<int> piv;
 		LU(A, L, U, piv, 0);
@@ -80,7 +80,10 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "X3=\n" << x3 << std::endl;
 		std::cout << "r3=\n" << A * x3 - b1 << std::endl;
 
+		x4= SolveRobust(A, b1);
 		A = A.transpose() * A;
+		std::cout << "X4=\n" << x4 << std::endl;
+		std::cout << "r4=\n" << A * x4 - b1 << std::endl;
 		SVD(A, S, D, Vt);
 		std::cout << "U=" << S << std::endl;
 		std::cout << "D=" << D << std::endl;
@@ -100,6 +103,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 
 	}
 
+	
 	{
 		DenseMatrix3f A(8, 6);
 		Vector3f b2(A.cols);
@@ -154,6 +158,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "X3=\n" << x3 << std::endl;
 		std::cout << "r3=\n" << A * x3 - b2 << std::endl;
 	}
+	
 
 	return true;
 }

@@ -149,7 +149,7 @@ template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, 1>& A,
 	return out;
 }
 template<class T, int C> SparseMatrix<T, C>& operator*=(
-		const SparseMatrix<T, C>& A, const vec<T, C>& v) {
+		SparseMatrix<T, C>& A, const vec<T, C>& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -169,7 +169,7 @@ template<class T, int C> SparseMatrix<T, C>& operator/=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator+=(
-		const SparseMatrix<T, C>& A, const vec<T, C>& v) {
+		SparseMatrix<T, C>& A, const vec<T, C>& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -179,7 +179,7 @@ template<class T, int C> SparseMatrix<T, C>& operator+=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator-=(
-		const SparseMatrix<T, C>& A, const vec<T, C>& v) {
+		SparseMatrix<T, C>& A, const vec<T, C>& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -189,7 +189,7 @@ template<class T, int C> SparseMatrix<T, C>& operator-=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator*=(
-		const SparseMatrix<T, C>& A, const T& v) {
+		SparseMatrix<T, C>& A, const T& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -199,7 +199,7 @@ template<class T, int C> SparseMatrix<T, C>& operator*=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator/=(
-		const SparseMatrix<T, C>& A, const T& v) {
+		SparseMatrix<T, C>& A, const T& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -209,7 +209,7 @@ template<class T, int C> SparseMatrix<T, C>& operator/=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator+=(
-		const SparseMatrix<T, C>& A, const T& v) {
+		SparseMatrix<T, C>& A, const T& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -219,7 +219,7 @@ template<class T, int C> SparseMatrix<T, C>& operator+=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator-=(
-		const SparseMatrix<T, C>& A, const T& v) {
+		SparseMatrix<T, C>& A, const T& v) {
 #pragma omp parallel for
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (std::pair<size_t, vec<T, C>>& pr : A[i]) {
@@ -475,7 +475,7 @@ template<class T, int C> SparseMatrix<T, C> operator-(
 	return out;
 }
 template<class T, int C> SparseMatrix<T, C>& operator+=(
-		const SparseMatrix<T, C>& A, const SparseMatrix<T, C>& B) {
+		SparseMatrix<T, C>& A, const SparseMatrix<T, C>& B) {
 	if (A.rows != B.rows || A.cols != B.cols)
 		throw std::runtime_error(
 				MakeString() << "Cannot add matrices. Dimensions do not match. "
@@ -490,7 +490,7 @@ template<class T, int C> SparseMatrix<T, C>& operator+=(
 	return A;
 }
 template<class T, int C> SparseMatrix<T, C>& operator-=(
-		const SparseMatrix<T, C>& A, const SparseMatrix<T, C>& B) {
+		SparseMatrix<T, C>& A, const SparseMatrix<T, C>& B) {
 	if (A.rows != B.rows || A.cols != B.cols)
 		throw std::runtime_error(
 				MakeString()
