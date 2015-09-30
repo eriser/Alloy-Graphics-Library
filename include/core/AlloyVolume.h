@@ -33,10 +33,9 @@
 namespace aly {
 template<class T, int C, ImageType I> struct Volume {
 private:
-	std::vector<vec<T, C>> storage;
 	std::string hashCode;
 public:
-	std::vector<vec<T, C>>& data;
+	std::vector<vec<T, C>> data;
 	typedef vec<T, C> ValueType;
 	typedef typename std::vector<ValueType>::iterator iterator;
 	typedef typename std::vector<ValueType>::const_iterator const_iterator;
@@ -85,7 +84,9 @@ public:
 	void set(const vec<T, C>& val) {
 		data.assign(data.size(), val);
 	}
-
+	void set(const std::vector<vec<T, C>>& val) {
+		data=val;
+	}
 	void set(T* val) {
 		if (val == nullptr)
 			return;
@@ -118,9 +119,7 @@ public:
 
 	Volume(int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
-			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(storage) {
-		data.resize(r * c * s);
-		data.shrink_to_fit();
+			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(r * c * s) {
 	}
 	Volume(T* ptr, int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
@@ -137,11 +136,11 @@ public:
 			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(ref) {
 	}
 	Volume() :
-			rows(0), cols(0), slices(0), x(0), y(0), z(0), id(0), data(storage) {
+			rows(0), cols(0), slices(0), x(0), y(0), z(0), id(0){
 	}
 	Volume(const Volume<T, C, I>& img) :
 			Volume(img.rows, img.cols, img.slices, img.x, img.y, img.z, img.id) {
-		set(img.data.data());
+		set(img.data);
 	}
 	Volume<T, C, I>& operator=(const Volume<T, C, I>& rhs) {
 		if (this == &rhs)
@@ -151,7 +150,7 @@ public:
 		this->y = y;
 		this->z = z;
 		this->id = id;
-		this->set(rhs.data.data());
+		this->set(rhs.data);
 		return *this;
 	}
 	int3 dimensions() const {

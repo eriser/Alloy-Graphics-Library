@@ -70,11 +70,9 @@ template<class T, int C, ImageType I> void WriteImageToRawFile(
 		const std::string& fileName, const Image<T, C, I>& img);
 template<class T, int C, ImageType I> struct Image {
 private:
-	std::vector<vec<T, C>> storage;
 	std::string hashCode;
 public:
-
-	std::vector<vec<T, C>>& data;
+	std::vector<vec<T, C>> data;
 	typedef vec<T, C> ValueType;
 	typedef typename std::vector<ValueType>::iterator iterator;
 	typedef typename std::vector<ValueType>::const_iterator const_iterator;
@@ -132,6 +130,9 @@ public:
 			}
 		}
 	}
+	void set(const std::vector<vec<T, C>>& val) {
+		data = val;
+	}
 	void set(vec<T, C>* val) {
 		if (val == nullptr)
 			return;
@@ -145,17 +146,15 @@ public:
 		id = other.id;
 		x = other.x;
 		y = other.y;
-		set(&other.data[0]);
+		set(other.data);
 	}
 	std::string getTypeName() const {
 		return MakeString() << type << channels;
 	}
 
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			data(storage), width(w), height(h), x(x), y(y), id(id), channels(C), type(
+			data(w * h), width(w), height(h), x(x), y(y), id(id), channels(C), type(
 					I) {
-		data.resize(w * h);
-		data.shrink_to_fit();
 	}
 	Image(T* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			Image(w, h, x, y, id) {
@@ -174,13 +173,12 @@ public:
 			data(ref), width(w), height(h), x(x), y(y), id(id), channels(C), type(
 					I) {
 	}
-	Image() :
-			data(storage), width(0), height(0), x(0), y(0), id(0), channels(C), type(
+	Image() : width(0), height(0), x(0), y(0), id(0), channels(C), type(
 					I) {
 	}
 	Image(const Image<T, C, I>& img) :
 			Image(img.width, img.height, img.x, img.y, img.id) {
-		set(img.data.data());
+		set(img.data);
 	}
 
 	Image<T, C, I>& operator=(const Image<T, C, I>& rhs) {
@@ -190,7 +188,7 @@ public:
 		this->x = x;
 		this->y = y;
 		this->id = id;
-		this->set(rhs.data.data());
+		this->set(rhs.data);
 		return *this;
 	}
 	int2 dimensions() const {
@@ -394,14 +392,14 @@ public:
 	}
 	vec<T, C> min() const {
 		vec<T, C> minVal(std::numeric_limits<T>::max());
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			minVal = aly::minVec(val, minVal);
 		}
 		return minVal;
 	}
 	vec<T, C> max() const {
 		vec<T, C> maxVal(std::numeric_limits<T>::min());
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			maxVal = aly::maxVec(val, maxVal);
 		}
 		return maxVal;
@@ -409,7 +407,7 @@ public:
 	std::pair<vec<T, C>, vec<T, C>> range() const {
 		vec<T, C> maxVal(std::numeric_limits<T>::min());
 		vec<T, C> minVal(std::numeric_limits<T>::max());
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			maxVal = aly::maxVec(val, maxVal);
 			minVal = aly::minVec(val, minVal);
 		}
@@ -417,7 +415,7 @@ public:
 	}
 	vec<T, C> mean() const {
 		vec<double, C> mean(0.0);
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			mean += vec<double, C>(val);
 		}
 		mean = mean / (double) data.size();
@@ -429,7 +427,7 @@ public:
 			bands[c].resize(data.size());
 		}
 		size_t index = 0;
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			for (int c = 0; c < C; c++) {
 				bands[c][index] = val[c];
 			}
@@ -463,7 +461,7 @@ public:
 			bands[c].resize(data.size());
 		}
 		size_t index = 0;
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			vec<T, C> e = aly::abs(val - med);
 			for (int c = 0; c < C; c++) {
 				bands[c][index] = e[c];
@@ -498,7 +496,7 @@ public:
 		}
 		vec<T, C> avg = mean();
 		vec<double, C> var(0.0);
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			vec<double, C> e = vec<double, C>(val - avg);
 			var += e * e;
 		}

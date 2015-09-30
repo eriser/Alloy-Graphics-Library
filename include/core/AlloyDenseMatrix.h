@@ -106,7 +106,7 @@ public:
 	const vec<T, C>& operator()(size_t i, size_t j) const {
 		return storage[i][j];
 	}
-	DenseMatrix<T, C> transpose() const {
+	inline DenseMatrix<T, C> transpose() const {
 		DenseMatrix<T, C> M(cols, rows);
 		for (int i = 0; i < rows; i++) {
 			for (int j=0;j < cols;j++) {
@@ -115,7 +115,7 @@ public:
 		}
 		return M;
 	}
-	static DenseMatrix<T, C> identity(size_t M, size_t N) {
+	inline static DenseMatrix<T, C> identity(size_t M, size_t N) {
 		DenseMatrix<T, C> A(M, N);
 		for (int i = 0; i < M; i++) {
 			for (int j=0;j < N;j++) {
@@ -124,7 +124,7 @@ public:
 		}
 		return A;
 	}
-	static DenseMatrix<T, C> zero(size_t M, size_t N) {
+	inline static DenseMatrix<T, C> zero(size_t M, size_t N) {
 		DenseMatrix<T, C> A(M, N);
 		for (int i = 0; i < M; i++) {
 			for (int j=0;j < N;j++) {
@@ -133,7 +133,7 @@ public:
 		}
 		return A;
 	}
-	static DenseMatrix<T, C> diagonal(const Vector<T, C>& v) {
+	inline static DenseMatrix<T, C> diagonal(const Vector<T, C>& v) {
 		DenseMatrix<T, C> A((int)v.size(), (int)v.size());
 		for (int i = 0; i < A.rows; i++) {
 			for (int j=0;j < A.cols;j++) {
@@ -141,6 +141,29 @@ public:
 			}
 		}
 		return A;
+	}
+	inline static DenseMatrix<T, C> columnVector(const Vector<T, C>& v) {
+		DenseMatrix<T, C> A((int)v.size(),1);
+		for (int i = 0; i < A.rows; i++) {
+			A[i][0] = v[i];
+		}
+		return A;
+	}
+	inline static DenseMatrix<T, C> rowVector(const Vector<T, C>& v) {
+		DenseMatrix<T, C> A(1, (int)v.size());
+		A.storage[0] = v.data;
+		return A;
+	}
+	Vector<T, C> getRow(int i) const {
+		Vector<T, C> v(A.storage[i].data);
+		return v;
+	}
+	Vector<T, C> getColumn(int j) const {
+		Vector<T, C> v(A.cols);
+		for (int i = 0; i < A.rows; i++) {
+			v[i]=A[i][j];
+		}
+		return v;
 	}
 };
 template<class A, class B, class T, int C> std::basic_ostream<A, B> & operator <<(
@@ -197,6 +220,9 @@ template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
+//Slight abuse of mathematics here, vectors are always interpreted as column vectors as a convention,
+//so this multiplcation is equivalent to multiplying A with a diagonal matrix constructed from W.
+//To multiply a matrix with a column vector to get a row vector, convert W to a dense matrix.
 template<class T, int C> DenseMatrix<T, C> operator*(const Vector<T,C>& W,const DenseMatrix<T, C>& A) {
 	if (A.rows != W.size())
 		throw std::runtime_error(

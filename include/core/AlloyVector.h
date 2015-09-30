@@ -33,10 +33,8 @@
 namespace aly {
 bool SANITY_CHECK_LINALG();
 template<class T, int C> struct Vector {
-private:
-	std::vector<vec<T, C>> storage;
 public:
-	std::vector<vec<T, C>>& data;
+	std::vector<vec<T, C>> data;
 	const int channels = C;
 	typedef vec<T, C> ValueType;
 	typedef typename std::vector<ValueType>::iterator iterator;
@@ -60,7 +58,7 @@ public:
 
 	template<class Archive>
 	void load(Archive & archive) {
-		archive(cereal::make_nvp(MakeString() << "vector" << C,storage));
+		archive(cereal::make_nvp(MakeString() << "vector" << C,data));
 	}
 
 	void set(const T& val) {
@@ -68,6 +66,9 @@ public:
 	}
 	void set(const vec<T, C>& val) {
 		data.assign(data.size(), val);
+	}
+	void set(const std::vector<vec<T, C>>& val) {
+		data = val;
 	}
 	void set(T* val) {
 		if (val == nullptr)
@@ -94,27 +95,23 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	Vector(size_t sz) :
-			data(storage) {
-		data.resize(sz);
+	Vector(size_t sz) :data(sz) {
 	}
 	Vector(const Vector<T, C>& img) :
 			Vector(img.size()) {
-		set(img.data.data());
+		set(img.data);
 	}
 	Vector<T, C>& operator=(const Vector<T, C>& rhs) {
 		if (this == &rhs)
 			return *this;
 		if(rhs.size()>0){
-                    this->resize(rhs.size());
-                    this->set(rhs.data.data());
+                    this->set(rhs.data);
 		} else {
 		    this->clear();
 		}
 		return *this;
 	}
-	Vector() :
-			data(storage) {
+	Vector() {
 	}
 	Vector(T* ptr, size_t sz) :
 			Vector(sz) {
@@ -124,7 +121,7 @@ public:
 			Vector(sz) {
 		set(ptr);
 	}
-	Vector(std::vector<vec<T, C>>& ref) :
+	Vector(const std::vector<vec<T, C>>& ref) :
 			data(ref) {
 	}
 	size_t size() const {
@@ -366,7 +363,7 @@ template<class T, int C> void Transform(Vector<T, C>& im1, Vector<T, C>& im2,
 template<class T, class L, class R, int C> std::basic_ostream<L, R> & operator <<(
 		std::basic_ostream<L, R> & ss, const Vector<T, C> & A) {
 	size_t index = 0;
-	for (vec<T, C>& val : A.data) {
+	for (const vec<T, C>& val : A.data) {
 		ss << std::setw(5) << index++ << ": " << val << std::endl;
 	}
 	return ss;

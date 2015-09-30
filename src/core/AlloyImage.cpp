@@ -515,7 +515,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 		exrImage.images = (unsigned char**) array;
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
-			for (float4& val : img.data) {
+			for (const float4& val : img.data) {
 				array[c][index++] = val[c];
 			}
 		}
@@ -551,7 +551,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 		rgb.x = img.x;
 		rgb.y = img.y;
 		size_t index = 0;
-		for (RGBAf& ct : img.data) {
+		for (const RGBAf& ct : img.data) {
 			rgb[index++] = RGBA(clamp((int) (ct.x * 255.0f), 0, 255),
 					clamp((int) (ct.y * 255.0f), 0, 255),
 					clamp((int) (ct.z * 255.0f), 0, 255),
@@ -581,7 +581,7 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 		exrImage.images = (unsigned char**) array;
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
-			for (float1& val : img.data) {
+			for (const float1& val : img.data) {
 				array[c][index++] = val[c];
 			}
 		}
@@ -611,7 +611,7 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 		rgb.x = img.x;
 		rgb.y = img.y;
 		size_t index = 0;
-		for (float1& ct : img.data) {
+		for (const float1& ct : img.data) {
 			rgb[index++].x = clamp((int) (ct.x * 255.0f), 0, 255);
 		}
 		WriteImageToFile(file, rgb);
@@ -638,7 +638,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 		exrImage.images = (unsigned char**) array;
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
-			for (float3& val : img.data) {
+			for (const float3& val : img.data) {
 				array[c][index++] = val[c];
 			}
 		}
@@ -672,7 +672,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 		rgb.x = img.x;
 		rgb.y = img.y;
 		size_t index = 0;
-		for (RGBf& ct : img.data) {
+		for (const RGBf& ct : img.data) {
 			rgb[index++] = RGB(clamp((int) (ct.x * 255.0f), 0, 255),
 					clamp((int) (ct.y * 255.0f), 0, 255),
 					clamp((int) (ct.z * 255.0f), 0, 255));
@@ -687,7 +687,7 @@ void ConvertImage(const ImageRGBf& in, ImageRGB& out) {
 	out.x = in.x;
 	out.y = in.y;
 	size_t index = 0;
-	for (RGBf& ct : in.data) {
+	for (const RGBf& ct : in.data) {
 		out[index++] = RGB(clamp((int) (ct.x * 255.0f), 0, 255),
 				clamp((int) (ct.y * 255.0f), 0, 255),
 				clamp((int) (ct.z * 255.0f), 0, 255));
@@ -699,7 +699,7 @@ void ConvertImage(const ImageRGBAf& in, ImageRGBA& out) {
 	out.x = in.x;
 	out.y = in.y;
 	size_t index = 0;
-	for (RGBAf& ct : in.data) {
+	for (const RGBAf& ct : in.data) {
 		out[index++] = RGBA(clamp((int) (ct.x * 255.0f), 0, 255),
 				clamp((int) (ct.y * 255.0f), 0, 255),
 				clamp((int) (ct.z * 255.0f), 0, 255),
