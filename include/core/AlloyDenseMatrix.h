@@ -189,13 +189,13 @@ public:
 		return A;
 	}
 	inline Vector<T, C> getRow(int i) const {
-		Vector<T, C> v(A.data[i].data);
+		Vector<T, C> v(data[i].data);
 		return v;
 	}
 	inline Vector<T, C> getColumn(int j) const {
-		Vector<T, C> v(A.rows);
-		for (int i = 0; i < A.rows; i++) {
-			v[i]=A[i][j];
+		Vector<T, C> v(rows);
+		for (int i = 0; i < rows; i++) {
+			v[i]=data[i][j];
 		}
 		return v;
 	}
@@ -282,7 +282,7 @@ template<class T, int C> DenseMatrix<T, C>& operator*=(DenseMatrix<T, C>& A,cons
 			A[i][j] *= W[i];
 		}
 	}
-	return out;
+	return A;
 }
 template<class T, int C> DenseMatrix<T, C> operator-(
 		const DenseMatrix<T, C>& A) {
