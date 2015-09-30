@@ -154,12 +154,12 @@ public:
 		A.storage[0] = v.data;
 		return A;
 	}
-	Vector<T, C> getRow(int i) const {
+	inline Vector<T, C> getRow(int i) const {
 		Vector<T, C> v(A.storage[i].data);
 		return v;
 	}
-	Vector<T, C> getColumn(int j) const {
-		Vector<T, C> v(A.cols);
+	inline Vector<T, C> getColumn(int j) const {
+		Vector<T, C> v(A.rows);
 		for (int i = 0; i < A.rows; i++) {
 			v[i]=A[i][j];
 		}
@@ -220,9 +220,9 @@ template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-//Slight abuse of mathematics here, vectors are always interpreted as column vectors as a convention,
-//so this multiplcation is equivalent to multiplying A with a diagonal matrix constructed from W.
-//To multiply a matrix with a column vector to get a row vector, convert W to a dense matrix.
+//Slight abuse of mathematics here. Vectors are always interpreted as column vectors as a convention,
+//so this multiplcation is equivalent to multiplying "A" with a diagonal matrix constructed from "W".
+//To multiply a matrix with a column vector to get a row vector, convert "W" to a dense matrix.
 template<class T, int C> DenseMatrix<T, C> operator*(const Vector<T,C>& W,const DenseMatrix<T, C>& A) {
 	if (A.rows != W.size())
 		throw std::runtime_error(
