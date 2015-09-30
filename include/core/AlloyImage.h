@@ -76,7 +76,14 @@ public:
 	typedef vec<T, C> ValueType;
 	typedef typename std::vector<ValueType>::iterator iterator;
 	typedef typename std::vector<ValueType>::const_iterator const_iterator;
+	typedef typename std::vector<ValueType>::reverse_iterator reverse_iterator;
 	iterator begin() const {
+		return data.begin();
+	}
+	iterator end() const {
+		return data.end();
+	}
+	iterator begin() {
 		return data.begin();
 	}
 	iterator end() {
@@ -87,6 +94,18 @@ public:
 	}
 	const_iterator cend() const {
 		return data.cend();
+	}
+	reverse_iterator rbegin() {
+		return data.rbegin();
+	}
+	reverse_iterator rend() {
+		return data.rend();
+	}
+	reverse_iterator rbegin() const {
+		return data.rbegin();
+	}
+	reverse_iterator rend() const {
+		return data.rend();
 	}
 
 	int width;
@@ -100,10 +119,6 @@ public:
 	std::string getHashCode() {
 		return hashCode;
 	}
-	iterator begin() {
-		return data.begin();
-	}
-
 	template<class Archive> void serialize(Archive & archive) {
 		archive(cereal::make_nvp(MakeString() << type << channels, id),
 				CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(x),
