@@ -33,14 +33,48 @@ namespace aly {
 bool SANITY_CHECK_DENSE_MATRIX();
 template<class T, int C> struct DenseMatrix {
 private:
-	std::vector<std::vector<vec<T, C>>>storage;
+	std::vector<std::vector<vec<T, C>>>data;
 public:
 	int rows, cols;
+	typedef vec<T, C> ValueType;
+	typedef typename std::vector<ValueType>::iterator iterator;
+	typedef typename std::vector<ValueType>::const_iterator const_iterator;
+	typedef typename std::vector<ValueType>::reverse_iterator reverse_iterator;
+	iterator begin(int i) const {
+		return data[i].begin();
+	}
+	iterator end(int i) const {
+		return data[i].end();
+	}
+	iterator begin(int i) {
+		return data[i].begin();
+	}
+	iterator end(int i) {
+		return data[i].end();
+	}
+	const_iterator cbegin(int i) const {
+		return data[i].cbegin();
+	}
+	const_iterator cend(int i) const {
+		return data[i].cend();
+	}
+	reverse_iterator rbegin(int i) {
+		return data[i].rbegin();
+	}
+	reverse_iterator rend(int i) {
+		return data[i].rend();
+	}
+	reverse_iterator rbegin(int i) const {
+		return data[i].rbegin();
+	}
+	reverse_iterator rend(int i) const {
+		return data[i].rend();
+	}
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(rows), CEREAL_NVP(cols),
 				cereal::make_nvp(
 						MakeString() << "matrix"<<C,
-						storage));
+						data));
 	}
 	std::vector<vec<T, C>>& operator[](size_t i) {
 		if (i >= rows || i < 0)
@@ -48,7 +82,7 @@ public:
 				MakeString() << "Index (" << i
 				<< ",*) exceeds matrix bounds [" << rows << ","
 				<< cols << "]");
-		return storage[i];
+		return data[i];
 	}
 	const std::vector<vec<T, C>>& operator[](size_t i) const {
 		if (i >= rows || i < 0)
@@ -56,16 +90,16 @@ public:
 				MakeString() << "Index (" << i
 				<< ",*) exceeds matrix bounds [" << rows << ","
 				<< cols << "]");
-		return storage[i];
+		return data[i];
 	}
 	DenseMatrix(): rows(0),cols(0) {
 	}
 	DenseMatrix(int rows, int cols) :
-	storage(rows,std::vector<vec<T,C>>(cols)),rows(rows), cols(cols) {
+	data(rows,std::vector<vec<T,C>>(cols)),rows(rows), cols(cols) {
 	}
 	void resize(int rows,int cols) {
 		if(this->rows!=rows||this->cols!=cols) {
-			storage=std::vector<std::vector<vec<T,C>>>(rows,std::vector<vec<T,C>>(cols));
+			data=std::vector<std::vector<vec<T,C>>>(rows,std::vector<vec<T,C>>(cols));
 			this->rows=rows;
 			this->cols=cols;
 		}
@@ -76,7 +110,7 @@ public:
 				MakeString() << "Index (" << i << "," << j
 				<< ") exceeds matrix bounds [" << rows << ","
 				<< cols << "]");
-		storage[i][j] = value;
+		data[i][j] = value;
 	}
 	void set(size_t i, size_t j, const T& value) {
 		if (i >= rows || j >= cols || i < 0 || j < 0)
@@ -84,7 +118,7 @@ public:
 				MakeString() << "Index (" << i << "," << j
 				<< ") exceeds matrix bounds [" << rows << ","
 				<< cols << "]");
-		storage[i][j] = vec<T, C>(value);
+		data[i][j] = vec<T, C>(value);
 	}
 	vec<T, C>& operator()(size_t i, size_t j) {
 		if (i >= rows || j >= cols || i < 0 || j < 0)
@@ -92,7 +126,7 @@ public:
 				MakeString() << "Index (" << i << "," << j
 				<< ") exceeds matrix bounds [" << rows << ","
 				<< cols << "]");
-		return storage[i][j];
+		return data[i][j];
 	}
 
 	vec<T, C> get(size_t i, size_t j) const {
@@ -101,16 +135,16 @@ public:
 				MakeString() << "Index (" << i << "," << j
 				<< ") exceeds matrix bounds [" << rows << ","
 				<< cols << "]");
-		return storage[i][j];
+		return data[i][j];
 	}
 	const vec<T, C>& operator()(size_t i, size_t j) const {
-		return storage[i][j];
+		return data[i][j];
 	}
 	inline DenseMatrix<T, C> transpose() const {
 		DenseMatrix<T, C> M(cols, rows);
 		for (int i = 0; i < rows; i++) {
 			for (int j=0;j < cols;j++) {
-				M[j][i]=storage[i][j];
+				M[j][i]=data[i][j];
 			}
 		}
 		return M;
@@ -151,11 +185,11 @@ public:
 	}
 	inline static DenseMatrix<T, C> rowVector(const Vector<T, C>& v) {
 		DenseMatrix<T, C> A(1, (int)v.size());
-		A.storage[0] = v.data;
+		A.data[0] = v.data;
 		return A;
 	}
 	inline Vector<T, C> getRow(int i) const {
-		Vector<T, C> v(A.storage[i].data);
+		Vector<T, C> v(A.data[i].data);
 		return v;
 	}
 	inline Vector<T, C> getColumn(int j) const {
