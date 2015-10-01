@@ -823,7 +823,7 @@ namespace aly {
 				BestX = X;
 				bestInliner = count;
 			}
-			if (count > max(N / 2, sampleSize))break;//Good enough set of inliers, break
+			if (count > std::max(N / 2, sampleSize))break;//Good enough set of inliers, break
 			offset += sampleSize;
 			if (offset >= N) {
 				std::shuffle(order.begin(), order.end(), g);
@@ -838,6 +838,9 @@ namespace aly {
 			if (lengthL1(R[n]) < inlierTolerance) {
 				order.push_back(n);
 			}
+		}
+		if (order.size() < sampleSize) {
+			return BestX;
 		}
 		As.resize((int)order.size(), A.cols);
 		bs.resize((int)order.size());
