@@ -44,6 +44,7 @@ int main() {
 		//SANITY_CHECK_DENSE_MATRIX();
 		//SANITY_CHECK_IMAGE_PROCESSING();
 		//SANITY_CHECK_IMAGE_IO();
+		//SANITY_CHECK_ROBUST_SOLVE();
 		app.run(1);
 		return 0;
 	} catch (std::exception& e) {

@@ -80,10 +80,7 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 		std::cout << "X3=\n" << x3 << std::endl;
 		std::cout << "r3=\n" << A * x3 - b1 << std::endl;
 
-		x4= SolveRobust(A, b1);
-		A = A.transpose() * A;
-		std::cout << "X4=\n" << x4 << std::endl;
-		std::cout << "r4=\n" << A * x4 - b1 << std::endl;
+		
 		SVD(A, S, D, Vt);
 		std::cout << "U=" << S << std::endl;
 		std::cout << "D=" << D << std::endl;
@@ -315,6 +312,49 @@ bool SANITY_CHECK_IMAGE_PROCESSING() {
 	gX.writeToXML("gradient_x.xml");
 	gY.writeToXML("gradient_y.xml");
 
+	return true;
+}
+bool SANITY_CHECK_ROBUST_SOLVE() {
+	int N = 1000;
+	DenseMatrix1f A(N, 5);
+	Vector1f b(N);
+	Vector1f Y(5);
+	for (int i = 0; i < 5; i++) {
+		Y[i] = float1(10*(rand() % 1000) / 1000.0f);
+	}
+	for (int i = 0;i < N;i++) {
+		std::vector<float1> row(5);
+		float1 sum(0.0f);
+		for (int j = 0; j < 5; j++) {
+			row[j] = float1(10 * ((rand() % 1000) / 1000.0f-0.5f));
+			sum += row[j] * Y[j];
+			row[j]+= float1(0.1f*((rand() % 1000) / 1000.0f-0.5f));
+		}
+		A[i] = row;
+		b[i] = sum;
+	}
+	std::vector<int> order(N);
+	std::random_device rd;
+	std::mt19937 g(rd());
+	for (int n = 0;n < N;n++) {
+		order[n] = n;
+	}
+	std::shuffle(order.begin(), order.end(), g);
+
+	
+
+	Vector1f X0 = Solve(A, b);
+	Vector1f X1 = SolveRobust(A, b);
+	
+	for (int i = 0;i < 10;i++) {
+		A[order[i]][rand() % 5] += (i % 2) ? -1000.0f : 1000.0f;
+	}
+
+	Vector1f X2 = SolveRansac(A, b, 100, 0.01f);
+	std::cout << "Truth\n" << Y << std::endl;
+	std::cout << "Linear Solve\n" << X0 << std::endl;
+	std::cout << "Robust Solve\n" << X1 << std::endl;
+	std::cout << "RANSAC Solve\n" << X2 << std::endl;
 	return true;
 }
 bool SANITY_CHECK_DENSE_SOLVE() {
