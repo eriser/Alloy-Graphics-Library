@@ -2723,7 +2723,7 @@ void main() {
 
 	WireframeShader::WireframeShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context), lineWidth(0.02f), scaleInvariant(true), edgeColor(
-			1.0f, 1.0f, 1.0f, 1.0f), faceColor(1.0f, 0.3f, 0.1f, 1.0f) {
+			1.0f, 1.0f, 1.0f, 1.0f), faceColor(1.0f, 0.3f, 0.1f, 0.0f) {
 		initialize({},
 			R"(
 #version 330
@@ -2763,8 +2763,8 @@ if(rgba.w<1.0){
     }else {
 	  lum=rgba.w*10.0;
     }
-	int inside=(lum>LINE_WIDTH?1:0);
-	rgba=mix(edgeColor,faceColor,float(inside));
+	float inside=clamp((lum-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);
+	rgba=mix(edgeColor,faceColor,inside);
 	if(inside!=0){
 		gl_FragDepth=1.0;
 	}

@@ -525,6 +525,7 @@ public:
 			const GLTexture<T, C, I>& edgeTexture,
 			const GLTexture<T, C, I>& depthTexture, float2 zRange,
 			const box2px& bounds, const box2px& viewport) {
+		glEnable(GL_BLEND);
 		begin().set("depthBufferSize", depthTexture.dimensions()).set(
 				"textureImage", edgeTexture, 0).set("depthImage", depthTexture,
 				1).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
