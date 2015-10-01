@@ -190,14 +190,14 @@ public:
 	}
 	vec<T, C> min() const {
 		vec<T, C> minVal(std::numeric_limits<T>::max());
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			minVal = aly::minVec(val, minVal);
 		}
 		return minVal;
 	}
 	vec<T, C> max() const {
 		vec<T, C> maxVal(std::numeric_limits<T>::min());
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			maxVal = aly::maxVec(val, maxVal);
 		}
 		return maxVal;
@@ -205,7 +205,7 @@ public:
 	std::pair<vec<T, C>, vec<T, C>> range() const {
 		vec<T, C> maxVal(std::numeric_limits<T>::min());
 		vec<T, C> minVal(std::numeric_limits<T>::max());
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			maxVal = aly::maxVec(val, maxVal);
 			minVal = aly::minVec(val, minVal);
 		}
@@ -213,7 +213,7 @@ public:
 	}
 	vec<T, C> mean() const {
 		vec<double, C> mean(0.0);
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			mean += vec<double, C>(val);
 		}
 		mean = mean / (double) data.size();
@@ -225,7 +225,7 @@ public:
 			bands[c].resize(data.size());
 		}
 		size_t index = 0;
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			for (int c = 0; c < C; c++) {
 				bands[c][index] = val[c];
 			}
@@ -259,7 +259,7 @@ public:
 			bands[c].resize(data.size());
 		}
 		size_t index = 0;
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			vec<T, C> e = aly::abs(val - med);
 			for (int c = 0; c < C; c++) {
 				bands[c][index] = e[c];
@@ -294,7 +294,7 @@ public:
 		}
 		vec<T, C> avg = mean();
 		vec<double, C> var(0.0);
-		for (vec<T, C>& val : data) {
+		for (const vec<T, C>& val : data) {
 			vec<double, C> e = vec<double, C>(val - avg);
 			var += e * e;
 		}
