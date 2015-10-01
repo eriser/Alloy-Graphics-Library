@@ -169,7 +169,7 @@ bool SANITY_CHECK_ALGO() {
 		}
 		b[i] = float4((rand() % 1000) / 1000.0f);
 	}
-	SolveCG(b, A, x);
+	SolveVecCG(b, A, x);
 	std::ofstream os("matrix.json");
 	cereal::JSONOutputArchive archiver(os);
 	archiver(A);
@@ -570,7 +570,7 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 	}
 	//WriteMeshToFile("smoothed_before.ply", mesh);
 	/*
-	 SolveCG(b, L, mesh.vertexLocations, 100, 1E-6f,
+	 SolveVecCG(b, L, mesh.vertexLocations, 100, 1E-6f,
 	 [this](int iter,double err) {
 	 std::cout<<"Iteration "<<iter<<":: "<<err<<std::endl;
 	 });
