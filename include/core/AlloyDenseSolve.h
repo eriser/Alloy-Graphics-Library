@@ -830,6 +830,9 @@ namespace aly {
 				offset = 0;
 			}
 		}
+		if (bestInliner<A.cols) {
+			return SolveQR(A, b);
+		}
 		float error = 0;
 		int count = 0;
 		order.clear();
