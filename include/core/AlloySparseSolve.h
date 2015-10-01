@@ -26,7 +26,7 @@
 namespace aly {
 bool SANITY_CHECK_ALGO();
 bool SANITY_CHECK_SPARSE_SOLVE();
-template<class T, int C> void SolveCG(const Vector<T, C>& b,
+template<class T, int C> void SolveVecCG(const Vector<T, C>& b,
 		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
@@ -120,7 +120,7 @@ template<class T, int C> void SolveCG(const Vector<T, C>& b,
 		std::swap(rcurrent, rnext);
 	}
 }
-template<class T, int C> void SolveBICGStab(const Vector<T, C>& b,
+template<class T, int C> void SolveVecBICGStab(const Vector<T, C>& b,
 		const SparseMatrix<T, C>& A, Vector<T, C>& x, int iters = 100,
 		T tolerance = 1E-6f,
 		const std::function<void(int, double)>& iterationMonitor = nullptr) {
