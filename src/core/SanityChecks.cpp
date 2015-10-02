@@ -160,16 +160,25 @@ bool SANITY_CHECK_DENSE_MATRIX() {
 	return true;
 }
 bool SANITY_CHECK_ALGO() {
-	SparseMatrix<float, 4> A(128, 128);
+	SparseMatrix4f A(128, 128);
+	SparseMatrix1f A1(128, 128);
 	Vector4f b(A.rows);
+	Vector1f b1(A.rows);
 	Vector4f x(A.cols);
+	Vector1f x1(A.cols);
+
 	for (int i = 0; i < (int) A.rows; i++) {
 		for (int jj = -2; jj <= 2; jj++) {
 			A.set(i, i + jj, float4(0.2f));
+			A1.set(i, i + jj, float1(0.2f));
 		}
 		b[i] = float4((rand() % 1000) / 1000.0f);
+		b1[i] = float1((rand() % 1000) / 1000.0f);
 	}
 	SolveVecCG(b, A, x);
+	SolveCG(b1, A1, x1);
+	SolveVecBICGStab(b, A, x);
+	SolveBICGStab(b1, A1, x1);
 	std::ofstream os("matrix.json");
 	cereal::JSONOutputArchive archiver(os);
 	archiver(A);

@@ -556,7 +556,7 @@ template<class T, int C> Vector<T, C> operator*(const SparseMatrix<T, C>& A,
 	}
 	return out;
 }
-template<class T, int C> void Multiply(Vector<T, C>& out,
+template<class T, int C> void MultiplyVec(Vector<T, C>& out,
 		const SparseMatrix<T, C>& A, const Vector<T, C>& v) {
 	out.resize(A.rows);
 #pragma omp parallel for
@@ -569,7 +569,7 @@ template<class T, int C> void Multiply(Vector<T, C>& out,
 	}
 }
 
-template<class T, int C> void AddMultiply(Vector<T, C>& out,
+template<class T, int C> void AddMultiplyVec(Vector<T, C>& out,
 		const Vector<T, C>& b, const SparseMatrix<T, C>& A,
 		const Vector<T, C>& v) {
 	out.resize(A.rows);
@@ -582,7 +582,7 @@ template<class T, int C> void AddMultiply(Vector<T, C>& out,
 		out[i] = b[i] + vec<T, C>(sum);
 	}
 }
-template<class T, int C> void SubtractMultiply(Vector<T, C>& out,
+template<class T, int C> void SubtractMultiplyVec(Vector<T, C>& out,
 		const Vector<T, C>& b, const SparseMatrix<T, C>& A,
 		const Vector<T, C>& v) {
 	out.resize(A.rows);

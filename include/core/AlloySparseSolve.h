@@ -35,7 +35,7 @@ template<class T, int C> void SolveVecCG(const Vector<T, C>& b,
 	size_t N = b.size();
 	Vector<T, C> p(N);
 	Vector<T, C> Ap(N);
-	Multiply(Ap, A, x);
+	MultiplyVec(Ap, A, x);
 	Vector<T, C> tmp1(N), tmp2(N);
 	Vector<T, C>* rcurrent = &tmp1;
 	Vector<T, C>* rnext = &tmp2;
@@ -46,7 +46,7 @@ template<class T, int C> void SolveVecCG(const Vector<T, C>& b,
 	if (iterationMonitor)
 		iterationMonitor(0, e);
 	for (int iter = 0; iter < iters; iter++) {
-		Multiply(Ap, A, p);
+		MultiplyVec(Ap, A, p);
 		vec<double, C> denom = dotVec(p, Ap);
 		for (int c = 0; c < C; c++) {
 			if (std::abs(denom[c]) < ZERO_TOLERANCE) {
@@ -145,7 +145,7 @@ template<class T, int C> void SolveVecBICGStab(const Vector<T, C>& b,
 	vec<T, C> alpha(1), beta;
 	vec<T, C> omega(1);
 
-	Multiply(Ap, A, x);
+	MultiplyVec(Ap, A, x);
 	Subtract(r, b, Ap);
 	rinit = r;
 	err = lengthVecSqr(r);
@@ -157,21 +157,21 @@ template<class T, int C> void SolveVecBICGStab(const Vector<T, C>& b,
 		rhoNext = dotVec(rinit, r);
 		beta = vec<T, C>((rhoNext / rho)) * (alpha / omega);
 		ScaleAdd(p, r, beta, p, -beta * omega, v);
-		Multiply(v, A, p);
+		MultiplyVec(v, A, p);
 		alpha = vec<T, C>(rhoNext / dotVec(rinit, v));
 		ScaleSubtract(s, r, alpha, v);
 		if (lengthL1(s) < N * ZERO_TOLERANCE) {
 			ScaleAdd(x, x, alpha, p);
 			break;
 		}
-		Multiply(t, A, s);
+		MultiplyVec(t, A, s);
 		omega = vec<T, C>(dotVec(t, s) / dotVec(t, t));
 		ScaleAdd(x, x, alpha, p, omega, s);
 
 		ScaleSubtract(r, s, omega, t);
 		rho = rhoNext;
 
-		SubtractMultiply(delta, b, A, x);
+		SubtractMultiplyVec(delta, b, A, x);
 		vec<double, C> err = lengthVecSqr(delta);
 		double e = lengthL1(err) / N;
 		if (iterationMonitor)
