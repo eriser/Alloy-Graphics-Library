@@ -2723,7 +2723,7 @@ void main() {
 
 	WireframeShader::WireframeShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context), lineWidth(0.02f), scaleInvariant(true), edgeColor(
-			1.0f, 1.0f, 1.0f, 1.0f), faceColor(1.0f, 0.3f, 0.1f, 0.0f) {
+			1.0f, 1.0f, 1.0f, 1.0f), faceColor(0.0f, 0.1f, 0.0f, 0.0f) {
 		initialize({},
 			R"(
 #version 330
@@ -2752,26 +2752,24 @@ uniform float LINE_WIDTH;
 uniform ivec2 depthBufferSize;
 uniform int scaleInvariant;
 void main() {
-ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
-vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
-vec4 nd=texelFetch(depthImage, pos,0);
-gl_FragDepth=nd.w;
-if(rgba.w<1.0){
-	float lum;
-	if(scaleInvariant==0){
-	  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
-    }else {
-	  lum=rgba.w*10.0;
-    }
-	float inside=clamp((lum-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);
-	rgba=mix(edgeColor,faceColor,inside);
-	if(inside!=0){
-		gl_FragDepth=1.0;
+	ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+	vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
+	vec4 nd=texelFetch(depthImage, pos,0);
+	if(nd.w<1.0){
+		float lum;
+		if(scaleInvariant==0){
+		  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
+		}else {
+		  lum=rgba.w*10.0;
+		}
+		float inside=clamp((lum-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);
+		rgba=mix(edgeColor,faceColor,inside);
+		//if(inside!=0)gl_FragDepth=1.0;
+	} else {
+		rgba=vec4(0,0,0,0);
 	}
-} else {
-	rgba=vec4(0,0,0,0);
-}
-gl_FragColor=rgba;
+	gl_FragDepth=nd.w;
+	gl_FragColor=rgba;
 })");
 	}
 

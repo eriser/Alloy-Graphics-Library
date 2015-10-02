@@ -1057,19 +1057,23 @@ void ReadObjMeshFromFile(const std::string& file, std::vector<Mesh>& meshList) {
 			uint32_t vid1 = shape.mesh.triIndices[i];
 			uint32_t vid2 = shape.mesh.triIndices[i + 1];
 			uint32_t vid3 = shape.mesh.triIndices[i + 2];
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+			if (shape.mesh.texcoords.size()>0) {
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+			}
 		}
 		for (size_t i = 0; i < shape.mesh.quadIndices.size(); i += 4) {
 			uint32_t vid1 = shape.mesh.quadIndices[i];
 			uint32_t vid2 = shape.mesh.quadIndices[i + 1];
 			uint32_t vid3 = shape.mesh.quadIndices[i + 2];
 			uint32_t vid4 = shape.mesh.quadIndices[i + 3];
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid4], shape.mesh.texcoords[2 * vid4 + 1]));
+			if (shape.mesh.texcoords.size()>0) {
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid4], shape.mesh.texcoords[2 * vid4 + 1]));
+			}
 		}
 		std::string texName = materials[n].diffuse_texname;
 		if (texName.size()>0) {
@@ -1140,19 +1144,23 @@ void ReadObjMeshFromFile(const std::string& file, Mesh& mesh) {
 			uint32_t vid1 = shape.mesh.triIndices[i];
 			uint32_t vid2 = shape.mesh.triIndices[i + 1];
 			uint32_t vid3 = shape.mesh.triIndices[i + 2];
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+			if (shape.mesh.texcoords.size()>0) {
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+			}
 		}
 		for (size_t i = 0; i < shape.mesh.quadIndices.size(); i += 4) {
 			uint32_t vid1 = shape.mesh.quadIndices[i];
 			uint32_t vid2 = shape.mesh.quadIndices[i + 1];
 			uint32_t vid3 = shape.mesh.quadIndices[i + 2];
 			uint32_t vid4 = shape.mesh.quadIndices[i + 3];
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
-			mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid4], shape.mesh.texcoords[2 * vid4 + 1]));
+			if (shape.mesh.texcoords.size()>0) {
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid1], shape.mesh.texcoords[2 * vid1 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid2], shape.mesh.texcoords[2 * vid2 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid3], shape.mesh.texcoords[2 * vid3 + 1]));
+				mesh.textureMap.push_back(float2(shape.mesh.texcoords[2 * vid4], shape.mesh.texcoords[2 * vid4 + 1]));
+			}
 		}
 		std::string texName = materials[n].diffuse_texname;
 		if (texName.size()>0) {

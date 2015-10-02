@@ -47,8 +47,8 @@ MeshViewer::MeshViewer() :
 }
 bool MeshViewer::init(Composite& rootNode) {
 
-	mesh.load(getFullPath("models/tanya.obj"));
-	texImage.load(mesh.textureImage);
+	mesh.load(getFullPath("models/monkey.obj"));
+	//texImage.load(mesh.textureImage);
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);
 	mesh.updateVertexNormals();
@@ -136,14 +136,30 @@ bool MeshViewer::init(Composite& rootNode) {
 }
 void MeshViewer::draw(AlloyContext* context) {
 	//static bool once = true;
-	glEnable(GL_DEPTH_TEST);
+	int w = smoothDepthFrameBuffer1.width();
+	int h = smoothDepthFrameBuffer1.height();
+
 	if (camera.isDirty()) {
+
+		glEnable(GL_DEPTH_TEST);
 		edgeDepthAndNormalShader.draw({ {&mesh,mesh.pose} }, camera, edgeFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, flatDepthFrameBuffer, true);
 		depthAndNormalShader.draw(mesh, camera, smoothDepthFrameBuffer1, false);
 		depthAndNormalShader.draw(mesh2, camera, smoothDepthFrameBuffer2, false);	
 		particleDepthShader.draw(particles, camera, particleFrameBuffer, 0.1f);
 		depthAndTextureShader.draw(mesh, camera, textureFrameBuffer, true);
+
+		wireframeFrameBuffer.begin();
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		wireframeShader.draw(edgeFrameBuffer.getTexture(),
+			smoothDepthFrameBuffer1.getTexture(),
+			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
+			float2((float)w, (float)h), wireframeFrameBuffer.getViewport());
+		wireframeFrameBuffer.end();
+
 		/*
 		if (once) {
 			faceShader.draw(mesh, camera);
@@ -163,8 +179,7 @@ void MeshViewer::draw(AlloyContext* context) {
 	}
 	glDisable(GL_DEPTH_TEST);
 	float2 dRange = camera.computeNormalizedDepthRange(mesh);
-	int w = smoothDepthFrameBuffer1.width();
-	int h = smoothDepthFrameBuffer1.height();
+
 	depthColorShader.draw(edgeFrameBuffer.getTexture(),
 		float2(0.0f, camera.getScale()), float2(0.0f, 0.0f), float2((float)w, (float)h));
 	normalColorShader.draw(edgeFrameBuffer.getTexture(), float2(0.0f, (float)h),
@@ -174,22 +189,25 @@ void MeshViewer::draw(AlloyContext* context) {
 	normalColorShader.draw(smoothDepthFrameBuffer1.getTexture(),
 		float2((float)w * 3, (float)h), float2((float)w, (float)h));
 	glEnable(GL_DEPTH_TEST);
-	wireframeShader.draw(edgeFrameBuffer.getTexture(),
-		smoothDepthFrameBuffer1.getTexture(),
-		float2(0.0f, camera.getScale()), float2((float)2 * w, (float)h), float2((float)w, (float)h),
-		getContext()->getViewport());
-
-	phongShader.draw(smoothDepthFrameBuffer2.getTexture(), camera,
-		float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport());
+	glEnable(GL_BLEND);
 
 	matcapShader.draw(smoothDepthFrameBuffer1.getTexture(), camera,
 		float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport(),
-		RGBAf(1.0f, 0.8f, 0.2f, 1.0f));
+		RGBAf(1.0f, 1.0f, 1.0f, 1.0f));
+	
+	glDisable(GL_DEPTH_TEST);
+	imageShader.draw(wireframeFrameBuffer.getTexture(), float2((float)2 * w, (float)h),
+		float2((float)w, (float)h));
+	glEnable(GL_DEPTH_TEST);
 
-
+	phongShader.draw(smoothDepthFrameBuffer2.getTexture(), camera,
+		float2((float)2 * w, (float)h), float2((float)w, (float)h), getContext()->getViewport());
 	particleMatcapShader.draw({ &mesh }, camera,
 		box2px(float2((float)2 * w, (float)h), float2((float)w, (float)h)),
-		getContext()->getViewport(),0.25);
+		getContext()->getViewport(), 2.0);
+
+	glEnable(GL_BLEND);
+
 
 	/*
 	 matcapShader.draw(particleFrameBuffer.getTexture(), camera,
@@ -212,12 +230,6 @@ void MeshViewer::draw(AlloyContext* context) {
 			outlineFrameBuffer.getViewport());
 		outlineFrameBuffer.end();
 
-		wireframeFrameBuffer.begin();
-		wireframeShader.draw(edgeFrameBuffer.getTexture(),
-			smoothDepthFrameBuffer1.getTexture(),
-			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
-			float2((float)w, (float)h), wireframeFrameBuffer.getViewport());
-		wireframeFrameBuffer.end();
 
 		occlusionFrameBuffer.begin();
 		ambientOcclusionShader.draw(smoothDepthFrameBuffer1.getTexture(),
@@ -227,12 +239,13 @@ void MeshViewer::draw(AlloyContext* context) {
 
 		//colorVertexShader.draw({ &mesh },camera,occlusionFrameBuffer,true);
 
+		/*
 		colorBuffer1.begin();
 		texMeshShader.draw(textureFrameBuffer.getTexture(), texImage, camera,
 			box2px(float2(0.0f, 0.0f), float2((float)w, (float)h)),
 			colorBuffer1.getViewport());
 		colorBuffer1.end();
-
+		*/
 		context->initOffScreenDraw();
 		imageOffscreenShader.draw(colorBuffer1.getTexture(), float2((float)0.0f, (float)0.0f),
 			float2((float)w, (float)h));
