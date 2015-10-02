@@ -349,7 +349,6 @@ namespace aly {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-		glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
 		glfwWindowHint(GLFW_VISIBLE, 0);
 		offscreenWindow = glfwCreateWindow(width,height, "Offscreen", NULL, NULL);
 		if (!offscreenWindow) {
