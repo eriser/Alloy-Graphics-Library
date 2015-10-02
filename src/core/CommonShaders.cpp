@@ -2762,9 +2762,12 @@ void main() {
 		}else {
 		  lum=rgba.w*10.0;
 		}
-		float inside=clamp((lum-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);
+		const float thresh=0.1;
+		float inside=clamp((lum-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);	
+		if(-nd.z<thresh){
+			inside=1.0;
+		}
 		rgba=mix(edgeColor,faceColor,inside);
-		//if(inside!=0)gl_FragDepth=1.0;
 	} else {
 		rgba=vec4(0,0,0,0);
 	}
