@@ -2722,7 +2722,7 @@ void main() {
 	}
 
 	WireframeShader::WireframeShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
-		GLShader(onScreen, context), lineWidth(0.004f),  edgeColor(
+		GLShader(onScreen, context), lineWidth(2.0f),  edgeColor(
 			1.0f, 1.0f, 1.0f, 1.0f), faceColor(0.0f, 0.1f, 0.0f, 0.0f) {
 		initialize({},
 			R"(	#version 330
@@ -2745,6 +2745,7 @@ void main() {
 			R"(	#version 330
 				in vec3 v0, v1, v2, v3;
 				in vec3 normal, vert;
+				uniform vec4 viewport;
 				uniform float MIN_DEPTH;
 				uniform float MAX_DEPTH;
 				uniform vec4 edgeColor;
@@ -2757,25 +2758,25 @@ void main() {
 				  vec = vert - v0;
 				  line = normalize(v1 - v0);
 				  proj = dot(vec, line) * line;
-				  dists[0] = length ((vec - proj).xy);
+				  dists[0] = length ((vec - proj).xy*viewport.zw);
 				  vec = vert - v1;
                   line = normalize(v2 - v1);
 				  proj = dot(vec, line) * line;
-				  dists[1] = length ((vec - proj).xy);
+				  dists[1] = length ((vec - proj).xy*viewport.zw);
 				if(IS_QUAD!=0){
                   vec = vert - v2;
 				  line = normalize(v3 - v2); 
 				  proj = dot(vec, line) * line;
-				  dists[2] = length ((vec - proj).xy);
+				  dists[2] = length ((vec - proj).xy*viewport.zw);
 				  line = normalize(v0 - v3); 
                   vec = vert - v3;
 				  proj = dot(vec, line) * line;
-				  dists[3] = length ((vec - proj).xy);
+				  dists[3] = length ((vec - proj).xy*viewport.zw);
 				} else {
                   vec = vert - v2;
 				  line = normalize(v0 - v2); 
 				  proj = dot(vec, line) * line;
-				  dists[2] = length ((vec - proj).xy);
+				  dists[2] = length ((vec - proj).xy*viewport.zw);
 				}
                   float minDist=1E30;
                   for(int n=0;n<3+IS_QUAD;n++){
@@ -2855,12 +2856,12 @@ void main() {
 		CameraParameters& camera, const box2px& bounds) {
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("IS_QUAD", 1).set(camera,
-				bounds).set("PoseMat", float4x4::identity()).draw(meshes,
+				bounds).set("viewport", bounds).set("PoseMat", float4x4::identity()).draw(meshes,
 					GLMesh::PrimitiveType::QUADS).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
 						"faceColor", faceColor).end();
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("IS_QUAD", 0).set(camera,
-				bounds).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
+				bounds).set("viewport",bounds).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
 					"faceColor", faceColor).set("PoseMat", float4x4::identity()).draw(meshes,
 								GLMesh::PrimitiveType::TRIANGLES).end();
 	}
@@ -2870,7 +2871,7 @@ void main() {
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
 				"faceColor", faceColor).set(
-							camera, bounds);
+							camera, bounds).set("viewport", bounds);
 		for (std::pair<const Mesh*, float4x4> pr : meshes) {
 			if (pr.first->quadIndexes.size() > 0) {
 				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
@@ -2889,7 +2890,7 @@ void main() {
 		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
 				"faceColor", faceColor).set(
-							camera, bounds);
+							camera, bounds).set("viewport", bounds);
 		for (std::pair<const Mesh*, float4x4> pr : meshes) {
 			if (pr.first->quadIndexes.size() > 0) {
 				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
