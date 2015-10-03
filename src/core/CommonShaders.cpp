@@ -91,7 +91,7 @@ R"(
 		r = length(VM*vec4(0, 0, r, 0));
 		center=vec4(v.xyz,r);
 
-								vp=v + vec4(-r, -r, 0, 0);
+											vp=v + vec4(-r, -r, 0, 0);
 		gl_Position  =ProjMat*(vp);
 		uv = vec2(-1.0, -1.0);
 		EmitVertex();
@@ -104,13 +104,13 @@ R"(
 				uv = vec2(-1.0, 1.0);
 		EmitVertex();
 
-								vp=v + vec4(+r, +r, 0, 0);
+											vp=v + vec4(+r, +r, 0, 0);
 		gl_Position  =ProjMat*(vp);
 				uv = vec2(1.0, 1.0);
 		EmitVertex();
 		EndPrimitive();
 
-									})");
+												})");
 
 	}
 
@@ -249,7 +249,7 @@ R"(
 	uniform vec4 bounds;
 	uniform vec4 viewport;
 
-														void main() {
+																	void main() {
 		mat4 PVM=ProjMat*ViewModelMat*PoseMat;
 		mat4 VM=ViewModelMat*PoseMat;
 		vec4 pt = vec4(pc[0].pos,1.0);
@@ -261,7 +261,7 @@ R"(
 		r = length(VM*vec4(0, 0, r, 0));
 		center=vec4(v.xyz,r);
 
-								vp=v + vec4(-r, -r, 0, 0);
+											vp=v + vec4(-r, -r, 0, 0);
 		vx=ProjMat*(vp);
 		vx=vx/vx.w;
 		vx.x=0.5*(vx.x+1);
@@ -269,7 +269,7 @@ R"(
 		pos=vx.xy*bounds.zw+bounds.xy;
 		gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 
-								uv = vec2(-1.0, -1.0);
+											uv = vec2(-1.0, -1.0);
 		EmitVertex();
 		vp=v + vec4(+r, -r, 0, 0);
 		vx=ProjMat*(vp);
@@ -290,7 +290,7 @@ R"(
 		uv = vec2(-1.0, 1.0);
 		EmitVertex();
 
-								vp=v + vec4(+r, +r, 0, 0);
+											vp=v + vec4(+r, +r, 0, 0);
 		vx=ProjMat*(vp);
                 vx=vx/vx.w;
 		vx.x=0.5*(vx.x+1);
@@ -301,7 +301,7 @@ R"(
 		EmitVertex();
 		EndPrimitive();
 
-											})");
+														})");
 
 	}
 
@@ -316,11 +316,11 @@ R"(
 				- bounds.dimensions.y), (int)(bounds.dimensions.x),
 			(int)(bounds.dimensions.y));
 		CHECK_GL_ERROR();
-		set("matcapTexture",matcapTexture, 0);
+		set("matcapTexture", matcapTexture, 0);
 		CHECK_GL_ERROR();
 		set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH", camera.getFarPlane()).set(
-				"RADIUS", radius).set("bounds", bounds).set("viewport", viewport).set(
-					camera, viewport).set("PoseMat", float4x4::identity());
+			"RADIUS", radius).set("bounds", bounds).set("viewport", viewport).set(
+				camera, viewport).set("PoseMat", float4x4::identity());
 		GLShader::draw(meshes, GLMesh::PrimitiveType::POINTS);
 		glScissor((int)viewport.position.x, (int)viewport.position.x,
 			(int)viewport.dimensions.x, (int)viewport.dimensions.y);
@@ -455,7 +455,7 @@ R"(
 		int vertId;
 	} pc[];
 
-									flat out int vertId;
+												flat out int vertId;
 	uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
 	uniform vec4 bounds;
 	uniform vec4 viewport;
@@ -482,13 +482,13 @@ R"(
 				uv = vec2(-1.0, 1.0);
 		EmitVertex();
 
-												vp=v + vec4(+r, +r, 0, 0);
+															vp=v + vec4(+r, +r, 0, 0);
 		gl_Position  =ProjMat*(vp);
 				uv = vec2(1.0, 1.0);
 		EmitVertex();
 		EndPrimitive();
 
-													})");
+																})");
 
 	}
 	void ParticleIdShader::initialize(int w, int h) {
@@ -740,7 +740,7 @@ gl_FragColor=rgba;
 	  discard;
 	}
 
-				})");
+							})");
 
 	}
 	ImageShader::ImageShader(bool onScreen, const std::shared_ptr<AlloyContext>& context,
@@ -847,25 +847,25 @@ vec2 uvs;
 						rgba+=weights[3]*textureOffset(textureImage, uvs,  ivec2( 1,-2));
 						rgba+=weights[4]*textureOffset(textureImage, uvs,  ivec2( 2,-2));
 
-														rgba+=weights[5]*textureOffset(textureImage, uvs,  ivec2(-2,-1));
+																		rgba+=weights[5]*textureOffset(textureImage, uvs,  ivec2(-2,-1));
 						rgba+=weights[6]*textureOffset(textureImage, uvs,  ivec2(-1,-1));
 						rgba+=weights[7]*textureOffset(textureImage, uvs,  ivec2( 0,-1));
 						rgba+=weights[8]*textureOffset(textureImage, uvs,  ivec2( 1,-1));
 						rgba+=weights[9]*textureOffset(textureImage, uvs,  ivec2( 2,-1));
 
-														rgba+=weights[10]*textureOffset(textureImage,uvs, ivec2(-2, 0));
+																		rgba+=weights[10]*textureOffset(textureImage,uvs, ivec2(-2, 0));
 						rgba+=weights[11]*textureOffset(textureImage,uvs, ivec2(-1, 0));
 						rgba+=weights[12]*texture(textureImage,uvs);
 						rgba+=weights[13]*textureOffset(textureImage,uvs, ivec2( 1, 0));
 						rgba+=weights[14]*textureOffset(textureImage,uvs, ivec2( 2, 0));
 
-														rgba+=weights[15]*textureOffset(textureImage,uvs, ivec2(-2, 1));
+																		rgba+=weights[15]*textureOffset(textureImage,uvs, ivec2(-2, 1));
 						rgba+=weights[16]*textureOffset(textureImage,uvs, ivec2(-1, 1));
 						rgba+=weights[17]*textureOffset(textureImage,uvs, ivec2( 0, 1));
 						rgba+=weights[18]*textureOffset(textureImage,uvs, ivec2( 1, 1));
 						rgba+=weights[19]*textureOffset(textureImage,uvs, ivec2( 2, 1));
 
-														rgba+=weights[20]*textureOffset(textureImage,uvs, ivec2(-2, 2));
+																		rgba+=weights[20]*textureOffset(textureImage,uvs, ivec2(-2, 2));
 						rgba+=weights[21]*textureOffset(textureImage,uvs, ivec2(-1, 2));
 						rgba+=weights[22]*textureOffset(textureImage,uvs, ivec2( 0, 2));
 						rgba+=weights[23]*textureOffset(textureImage,uvs, ivec2( 1, 2));
@@ -874,7 +874,7 @@ sum+=256.0;
 					}
 				}
 
-												gl_FragColor=rgba/sum;
+																gl_FragColor=rgba/sum;
 			 })");
 		}
 		else if (filter == Filter::MEDIUM_BLUR) {
@@ -912,25 +912,25 @@ sum+=256.0;
 						rgba+=weights[3]*textureOffset(textureImage, uv,  ivec2( 1,-2));
 						rgba+=weights[4]*textureOffset(textureImage, uv,  ivec2( 2,-2));
 
-														rgba+=weights[5]*textureOffset(textureImage, uv,  ivec2(-2,-1));
+																		rgba+=weights[5]*textureOffset(textureImage, uv,  ivec2(-2,-1));
 						rgba+=weights[6]*textureOffset(textureImage, uv,  ivec2(-1,-1));
 						rgba+=weights[7]*textureOffset(textureImage, uv,  ivec2( 0,-1));
 						rgba+=weights[8]*textureOffset(textureImage, uv,  ivec2( 1,-1));
 						rgba+=weights[9]*textureOffset(textureImage, uv,  ivec2( 2,-1));
 
-														rgba+=weights[10]*textureOffset(textureImage,uv, ivec2(-2, 0));
+																		rgba+=weights[10]*textureOffset(textureImage,uv, ivec2(-2, 0));
 						rgba+=weights[11]*textureOffset(textureImage,uv, ivec2(-1, 0));
 						rgba+=weights[12]*texture(textureImage,uv);
 						rgba+=weights[13]*textureOffset(textureImage,uv, ivec2( 1, 0));
 						rgba+=weights[14]*textureOffset(textureImage,uv, ivec2( 2, 0));
 
-														rgba+=weights[15]*textureOffset(textureImage,uv, ivec2(-2, 1));
+																		rgba+=weights[15]*textureOffset(textureImage,uv, ivec2(-2, 1));
 						rgba+=weights[16]*textureOffset(textureImage,uv, ivec2(-1, 1));
 						rgba+=weights[17]*textureOffset(textureImage,uv, ivec2( 0, 1));
 						rgba+=weights[18]*textureOffset(textureImage,uv, ivec2( 1, 1));
 						rgba+=weights[19]*textureOffset(textureImage,uv, ivec2( 2, 1));
 
-														rgba+=weights[20]*textureOffset(textureImage,uv, ivec2(-2, 2));
+																		rgba+=weights[20]*textureOffset(textureImage,uv, ivec2(-2, 2));
 						rgba+=weights[21]*textureOffset(textureImage,uv, ivec2(-1, 2));
 						rgba+=weights[22]*textureOffset(textureImage,uv, ivec2( 0, 2));
 						rgba+=weights[23]*textureOffset(textureImage,uv, ivec2( 1, 2));
@@ -1415,7 +1415,7 @@ R"(
 		int vertId;
 	} pc[];
 
-								flat out int vertId;
+											flat out int vertId;
 	uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
 	uniform vec4 bounds;
 	uniform vec4 viewport;
@@ -1442,13 +1442,13 @@ R"(
 				uv = vec2(-1.0, 1.0);
 		EmitVertex();
 
-											vp=v + vec4(+r, +r, 0, 0);
+														vp=v + vec4(+r, +r, 0, 0);
 		gl_Position  =ProjMat*(vp);
 				uv = vec2(1.0, 1.0);
 		EmitVertex();
 		EndPrimitive();
 
-												})");
+															})");
 	}
 	DepthAndNormalShader::DepthAndNormalShader(
 		bool onScreen, const std::shared_ptr<AlloyContext>& context) :
@@ -1460,7 +1460,7 @@ R"(
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
 
-										layout(location = 7) in vec3 vn0;
+													layout(location = 7) in vec3 vn0;
 				layout(location = 8) in vec3 vn1;
 				layout(location = 9) in vec3 vn2;
 				layout(location = 10) in vec3 vn3;
@@ -1761,7 +1761,7 @@ if(IS_QUAD!=0){
 					  c2 = quad[0].c2;
 					  c3 = quad[0].c3;
 
-								  v0 = (VM*vec4(p0,1)).xyz;
+											  v0 = (VM*vec4(p0,1)).xyz;
 					  v1 = (VM*vec4(p1,1)).xyz;
 					  v2 = (VM*vec4(p2,1)).xyz;
                       v3 = (VM*vec4(p3,1)).xyz;
@@ -1907,7 +1907,7 @@ if(IS_QUAD!=0){
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
 
-							layout(location = 11) in vec2 vt0;
+										layout(location = 11) in vec2 vt0;
 				layout(location = 12) in vec2 vt1;
 				layout(location = 13) in vec2 vt2;
 				layout(location = 14) in vec2 vt3;
@@ -1978,12 +1978,12 @@ if(IS_QUAD!=0){
 	tex = quad[0].t0;
 	EmitVertex();
 
-							gl_Position=PVM*vec4(p1,1);  
+										gl_Position=PVM*vec4(p1,1);  
 	vert = v1;
 	tex = quad[0].t1;
 	EmitVertex();
 
-							if(IS_QUAD!=0){
+										if(IS_QUAD!=0){
 		gl_Position=PVM*vec4(p3,1);  
 		vert = v3;
 		tex = quad[0].t3;
@@ -2110,7 +2110,7 @@ if(IS_QUAD!=0){
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
 
-										out VS_OUT {
+													out VS_OUT {
 					vec3 p0;
 					vec3 p1;
 					vec3 p2;
@@ -2141,7 +2141,7 @@ if(IS_QUAD!=0){
 				  return ((p0*sin((1-t)*theta) + p1*sin(t*theta)) / sin(theta));
 				}
 
-										void main(void) {
+													void main(void) {
 				  vec3 line, vec, proj;
 				  float dists[4];
 				  vec3 tan[4];
@@ -2160,14 +2160,14 @@ if(IS_QUAD!=0){
 				  dists[1] = length (vec - proj);
 				  tan[1]=cross(line,normal);
 
-										if(IS_QUAD!=0){
+													if(IS_QUAD!=0){
                   vec = vert - v2;
 				  line = normalize(v3 - v2); 
 				  proj = dot(vec, line) * line;
 				  dists[2] = length (vec - proj);
 				  tan[2]=cross(line,normal);
 
-										  line = normalize(v0 - v3); 
+													  line = normalize(v0 - v3); 
                   vec = vert - v3;
 				  proj = dot(vec, line) * line;
 				  dists[3] = length (vec - proj);
@@ -2180,7 +2180,7 @@ if(IS_QUAD!=0){
 				  tan[2]=cross(line,normal);
 				}
 
-										  vec3 outNorm=normalize(normal);
+													  vec3 outNorm=normalize(normal);
                   
                   float minDist=1E30;
                   for(int n=0;n<3+IS_QUAD;n++){
@@ -2227,9 +2227,9 @@ if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
 					  vec3 pt=0.25*(p0+p1+p2+p3);
-					  normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
-
-											  EmitVertex();
+        normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
+		normal = (VM*vec4(normalize(-normal),0.0)).xyz;
+														  EmitVertex();
 } else {	  
 					  gl_Position=PVM*vec4(p0,1);  
 					  vert = v0;
@@ -2240,7 +2240,7 @@ if(IS_QUAD!=0){
 					  vert = v1;
 					  EmitVertex();
 
-											if(IS_QUAD!=0){
+														if(IS_QUAD!=0){
 					  gl_Position=PVM*vec4(p3,1);  
 					  vert = v3;
 					  EmitVertex();
@@ -2248,7 +2248,7 @@ if(IS_QUAD!=0){
 					   vert = v2;
 					  EmitVertex();
 
-											} else {
+														} else {
 			          gl_Position=PVM*vec4(p2,1);  
 					  vert = v2;
 					  EmitVertex();
@@ -2284,7 +2284,7 @@ if(IS_QUAD!=0){
 
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		begin().set("DISTANCE_TOL", camera.getScale()).set(
-				camera, frameBuffer.getViewport());
+			camera, frameBuffer.getViewport());
 		for (std::pair<const Mesh*, float4x4> pr : meshes) {
 			if (pr.first->quadIndexes.size() > 0) {
 				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
@@ -2311,7 +2311,7 @@ if(IS_QUAD!=0){
 
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		begin().set("DISTANCE_TOL", camera.getScale()).set(
-				camera, frameBuffer.getViewport());
+			camera, frameBuffer.getViewport());
 		for (std::pair<const Mesh*, float4x4> pr : meshes) {
 			if (pr.first->quadIndexes.size() > 0) {
 				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
@@ -2629,11 +2629,11 @@ void main(void)
 	occlusion = 1.0 - occlusion / float(KERNEL_SIZE);
 	gl_FragColor = vec4(occlusion,occlusion,occlusion, 1.0);
 
-						})");
+									})");
 
 	}
 
-	PhongShader::PhongShader(int N,bool onScreen, const std::shared_ptr<AlloyContext>& context) :
+	PhongShader::PhongShader(int N, bool onScreen, const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
 		lights.resize(N);
 		initialize({},
@@ -2722,59 +2722,191 @@ void main() {
 	}
 
 	WireframeShader::WireframeShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
-		GLShader(onScreen, context), lineWidth(0.02f), scaleInvariant(true), edgeColor(
+		GLShader(onScreen, context), lineWidth(0.004f),  edgeColor(
 			1.0f, 1.0f, 1.0f, 1.0f), faceColor(0.0f, 0.1f, 0.0f, 0.0f) {
 		initialize({},
-			R"(
-#version 330
-layout(location = 0) in vec3 vp; 
-layout(location = 1) in vec2 vt; 
-uniform vec4 bounds;
-uniform vec4 viewport;
-out vec2 uv;
-void main() {
-uv=vt;
-vec2 pos=vp.xy*bounds.zw+bounds.xy;
-gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
-})",
-R"(
-#version 330
-in vec2 uv;
-const float PI=3.1415926535;
-uniform sampler2D textureImage;
-uniform sampler2D depthImage;
-uniform float zMin;
-uniform float zMax;
-uniform vec4 edgeColor;
-uniform vec4 faceColor;
-uniform float LINE_WIDTH;
-
-uniform ivec2 depthBufferSize;
-uniform int scaleInvariant;
-void main() {
-	ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
-	vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
-	vec4 nd=texelFetch(depthImage, pos,0);
-	if(nd.w<1.0){
-		float lum;
-		if(scaleInvariant==0){
-		  lum=clamp((rgba.w-zMin)/(zMax-zMin),0.0,1.0);
-		}else {
-		  lum=rgba.w*10.0;
-		}
-		const float thresh=0.1;
-		float inside=clamp((lum-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);	
-		if(-nd.z<thresh){
-			inside=1.0;
-		}
-		rgba=mix(edgeColor,faceColor,inside);
-	} else {
-		rgba=vec4(0,0,0,0);
+			R"(	#version 330
+				layout(location = 3) in vec3 vp0;
+				layout(location = 4) in vec3 vp1;
+				layout(location = 5) in vec3 vp2;
+				layout(location = 6) in vec3 vp3;
+				out VS_OUT {
+					vec3 p0;
+					vec3 p1;
+					vec3 p2;
+					vec3 p3;
+				} vs_out;
+				void main() {
+					vs_out.p0=vp0;
+					vs_out.p1=vp1;
+					vs_out.p2=vp2;
+					vs_out.p3=vp3;
+				})",
+			R"(	#version 330
+				in vec3 v0, v1, v2, v3;
+				in vec3 normal, vert;
+				uniform float MIN_DEPTH;
+				uniform float MAX_DEPTH;
+				uniform vec4 edgeColor;
+				uniform vec4 faceColor;
+				uniform float LINE_WIDTH;
+				uniform int IS_QUAD;
+				void main() {
+				  vec3 line, vec, proj;
+				  float dists[4];
+				  vec3 tan[4];
+				  vec = vert - v0;
+				  line = normalize(v1 - v0);
+				  proj = dot(vec, line) * line;
+				  dists[0] = length (vec - proj);
+				  tan[0]=cross(line,normal);
+				  vec = vert - v1;
+                  line = normalize(v2 - v1);
+				  proj = dot(vec, line) * line;
+				  dists[1] = length (vec - proj);
+				  tan[1]=cross(line,normal);
+				if(IS_QUAD!=0){
+                  vec = vert - v2;
+				  line = normalize(v3 - v2); 
+				  proj = dot(vec, line) * line;
+				  dists[2] = length (vec - proj);
+				  tan[2]=cross(line,normal);
+				  line = normalize(v0 - v3); 
+                  vec = vert - v3;
+				  proj = dot(vec, line) * line;
+				  dists[3] = length (vec - proj);
+				  tan[3]=cross(line,normal);
+				} else {
+                  vec = vert - v2;
+				  line = normalize(v0 - v2); 
+				  proj = dot(vec, line) * line;
+				  dists[2] = length (vec - proj);
+				  tan[2]=cross(line,normal);
+				}
+                  float minDist=1E30;
+                  for(int n=0;n<3+IS_QUAD;n++){
+                     if(dists[n]<minDist){
+                       minDist=dists[n];
+                     }
+				  }
+				float inside=clamp((minDist-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);	
+				gl_FragColor=mix(edgeColor,faceColor,inside);
+		    })",
+			R"(	#version 330
+					layout (points) in;
+					layout (triangle_strip, max_vertices=4) out;
+					in VS_OUT {
+						vec3 p0;
+						vec3 p1;
+						vec3 p2;
+						vec3 p3;
+					} quad[];
+					out vec3 v0, v1, v2, v3;
+					
+					out vec3 normal, vert;
+					uniform int IS_QUAD;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+					void main() {
+					  mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+					  mat4 VM=ViewModelMat*PoseMat;
+					  vec4 q0,q1,q2,q3;
+					  vec3 p0=quad[0].p0;
+					  vec3 p1=quad[0].p1;
+					  vec3 p2=quad[0].p2;
+                      vec3 p3=quad[0].p3;
+					
+					  q0=PVM*vec4(p0,1);					  
+                      v0 = vec3(q0.x/q0.w,q0.y/q0.w,0.0);				  
+					  q1=PVM*vec4(p1,1);					  
+                      v1 = vec3(q1.x/q1.w,q1.y/q1.w,0.0);	
+					  q2=PVM*vec4(p2,1);					  
+                      v2 = vec3(q2.x/q2.w,q2.y/q2.w,0.0);	
+					  q3=PVM*vec4(p3,1);					  
+                      v3 = vec3(q3.x/q3.w,q3.y/q3.w,0.0);	
+					  
+					if(IS_QUAD!=0){
+				      gl_Position=q0;					  
+                      vert =v0;
+					  vec3 pt=0.25*(p0+p1+p2+p3);
+					  normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
+					  normal = (VM*vec4(normalize(-normal),0.0)).xyz;
+					  EmitVertex();
+					} else {	  
+				      gl_Position=q0;					  
+                      vert =v0;				  
+					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+					  EmitVertex();
+					}
+				      gl_Position=q1;					  
+                      vert =v1;				  
+					  EmitVertex();
+					if(IS_QUAD!=0){
+				      gl_Position=q3;					  
+                      vert =v3;
+					  EmitVertex();
+				      gl_Position=q2;					  
+                      vert =v2;
+					  EmitVertex();
+					} else {
+				      gl_Position=q2;					  
+                      vert =v2;
+					  EmitVertex();
+					}
+					EndPrimitive();
+	
+					 })");
 	}
-	gl_FragDepth=nd.w;
-	gl_FragColor=rgba;
-})");
+	void WireframeShader::draw(
+		const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, const box2px& bounds) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+			camera.getFarPlane()).set("IS_QUAD", 1).set(camera,
+				bounds).set("PoseMat", float4x4::identity()).draw(meshes,
+					GLMesh::PrimitiveType::QUADS).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
+						"faceColor", faceColor).end();
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+			camera.getFarPlane()).set("IS_QUAD", 0).set(camera,
+				bounds).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
+					"faceColor", faceColor).set("PoseMat", float4x4::identity()).draw(meshes,
+								GLMesh::PrimitiveType::TRIANGLES).end();
 	}
-
+	void WireframeShader::draw(
+		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const box2px& bounds) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+			camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
+				"faceColor", faceColor).set(
+							camera, bounds);
+		for (std::pair<const Mesh*, float4x4> pr : meshes) {
+			if (pr.first->quadIndexes.size() > 0) {
+				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::QUADS);
+			}
+			if (pr.first->triIndexes.size() > 0) {
+				set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::TRIANGLES);
+			}
+		}
+		end();
+	}
+	void WireframeShader::draw(
+		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const box2px& bounds) {
+		begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+			camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
+				"faceColor", faceColor).set(
+							camera, bounds);
+		for (std::pair<const Mesh*, float4x4> pr : meshes) {
+			if (pr.first->quadIndexes.size() > 0) {
+				set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::QUADS);
+			}
+			if (pr.first->triIndexes.size() > 0) {
+				set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+					GLMesh::PrimitiveType::TRIANGLES);
+			}
+		}
+		end();
+	}
 }
 

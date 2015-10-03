@@ -26,7 +26,7 @@ using namespace aly;
 MeshViewer::MeshViewer() :
 	Application(1920, 960, "Mesh Viewer"), matcapShader(
 		getFullPath("images/JG_Silver.png")), imageShader(true, getContext(),
-			ImageShader::Filter::FXAA), imageOffscreenShader(false, getContext(),
+			ImageShader::Filter::SMALL_BLUR), imageOffscreenShader(false, getContext(),
 				ImageShader::Filter::NONE),phongShader(1,true), phongShader2(
 				1,true), particleMatcapShader(getFullPath("images/JG_Silver.png"),true), voxelSize(
 					0.0f), occlusionFrameBuffer(true),
@@ -150,14 +150,11 @@ void MeshViewer::draw(AlloyContext* context) {
 		depthAndTextureShader.draw(mesh, camera, textureFrameBuffer, true);
 
 		wireframeFrameBuffer.begin();
-		glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-		wireframeShader.draw(edgeFrameBuffer.getTexture(),
-			smoothDepthFrameBuffer1.getTexture(),
-			float2(0.0f, camera.getScale()), float2(0.0f, 0.0f),
-			float2((float)w, (float)h), wireframeFrameBuffer.getViewport());
+		wireframeShader.draw({ { &mesh,mesh.pose } }, camera,wireframeFrameBuffer.getViewport());
 		wireframeFrameBuffer.end();
 
 		/*
@@ -232,7 +229,7 @@ void MeshViewer::draw(AlloyContext* context) {
 
 
 		occlusionFrameBuffer.begin();
-		ambientOcclusionShader.draw(smoothDepthFrameBuffer1.getTexture(),
+		ambientOcclusionShader.draw(flatDepthFrameBuffer.getTexture(),
 			float2(0.0f, 0.0f), float2((float)w, (float)h),
 			occlusionFrameBuffer.getViewport(), camera);
 		occlusionFrameBuffer.end();

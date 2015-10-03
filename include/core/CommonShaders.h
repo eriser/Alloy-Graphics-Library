@@ -505,7 +505,6 @@ public:
 class WireframeShader: public GLShader {
 private:
 	float lineWidth;
-	bool scaleInvariant;
 	Color edgeColor;
 	Color faceColor;
 public:
@@ -515,34 +514,20 @@ public:
 	inline void setFaceColor(const Color& c) {
 		faceColor = c;
 	}
-	void setLineWidth(float w, bool scaleInvariant) {
+	void setLineWidth(float w) {
 		this->lineWidth = w;
-		this->scaleInvariant = scaleInvariant;
 	}
 	WireframeShader(bool onScreen=true,const std::shared_ptr<AlloyContext>& contex =
 			AlloyDefaultContext());
-	template<class T, int C, ImageType I> void draw(
-			const GLTexture<T, C, I>& edgeTexture,
-			const GLTexture<T, C, I>& depthTexture, float2 zRange,
-			const box2px& bounds, const box2px& viewport) {
-		
-		begin().set("depthBufferSize", depthTexture.dimensions()).set(
-				"textureImage", edgeTexture, 0).set("depthImage", depthTexture,
-				1).set("LINE_WIDTH", lineWidth).set("edgeColor", edgeColor).set(
-				"faceColor", faceColor).set("scaleInvariant",
-				(scaleInvariant) ? 1 : 0).set("zMin", zRange.x), set("zMax",
-				zRange.y).set("bounds", bounds).set("viewport", viewport).draw(
-				edgeTexture).end();
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera,const box2px& bounds);
+	void draw(const Mesh& mesh, CameraParameters& camera, const box2px& bounds) {
+		draw({ &mesh }, camera,bounds);
 	}
-
-	template<class T, int C, ImageType I> void draw(
-			const GLTexture<T, C, I>& edgeTexture,
-			const GLTexture<T, C, I>& depthTexture, float2 zRange,
-			const float2& location, const float2& dimensions,
-			const box2px& viewport) {
-		draw(edgeTexture, depthTexture, zRange, box2px(location, dimensions),
-				viewport);
-	}
+	void draw(const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const box2px& bounds);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const box2px& bounds);
 };
 class AmbientOcclusionShader: public GLShader {
 private:
