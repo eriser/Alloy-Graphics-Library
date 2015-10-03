@@ -2754,34 +2754,28 @@ void main() {
 				void main() {
 				  vec3 line, vec, proj;
 				  float dists[4];
-				  vec3 tan[4];
 				  vec = vert - v0;
 				  line = normalize(v1 - v0);
 				  proj = dot(vec, line) * line;
-				  dists[0] = length (vec - proj);
-				  tan[0]=cross(line,normal);
+				  dists[0] = length ((vec - proj).xy);
 				  vec = vert - v1;
                   line = normalize(v2 - v1);
 				  proj = dot(vec, line) * line;
-				  dists[1] = length (vec - proj);
-				  tan[1]=cross(line,normal);
+				  dists[1] = length ((vec - proj).xy);
 				if(IS_QUAD!=0){
                   vec = vert - v2;
 				  line = normalize(v3 - v2); 
 				  proj = dot(vec, line) * line;
-				  dists[2] = length (vec - proj);
-				  tan[2]=cross(line,normal);
+				  dists[2] = length ((vec - proj).xy);
 				  line = normalize(v0 - v3); 
                   vec = vert - v3;
 				  proj = dot(vec, line) * line;
-				  dists[3] = length (vec - proj);
-				  tan[3]=cross(line,normal);
+				  dists[3] = length ((vec - proj).xy);
 				} else {
                   vec = vert - v2;
 				  line = normalize(v0 - v2); 
 				  proj = dot(vec, line) * line;
-				  dists[2] = length (vec - proj);
-				  tan[2]=cross(line,normal);
+				  dists[2] = length ((vec - proj).xy);
 				}
                   float minDist=1E30;
                   for(int n=0;n<3+IS_QUAD;n++){
@@ -2816,13 +2810,13 @@ void main() {
                       vec3 p3=quad[0].p3;
 					
 					  q0=PVM*vec4(p0,1);					  
-                      v0 = vec3(q0.x/q0.w,q0.y/q0.w,0.0);				  
+                      v0 = q0.xyz/q0.w;				  
 					  q1=PVM*vec4(p1,1);					  
-                      v1 = vec3(q1.x/q1.w,q1.y/q1.w,0.0);	
+                      v1 = q1.xyz/q1.w;	
 					  q2=PVM*vec4(p2,1);					  
-                      v2 = vec3(q2.x/q2.w,q2.y/q2.w,0.0);	
+                      v2 =q2.xyz/q2.w;		
 					  q3=PVM*vec4(p3,1);					  
-                      v3 = vec3(q3.x/q3.w,q3.y/q3.w,0.0);	
+                      v3 = q3.xyz/q3.w;	
 					  
 					if(IS_QUAD!=0){
 				      gl_Position=q0;					  
