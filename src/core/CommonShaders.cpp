@@ -2784,7 +2784,7 @@ void main() {
                        minDist=dists[n];
                      }
 				  }
-				float inside=clamp((minDist-LINE_WIDTH)/LINE_WIDTH,0.0,1.0);	
+				float inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,minDist);	
 				gl_FragColor=mix(edgeColor,faceColor,inside);
 		    })",
 			R"(	#version 330
