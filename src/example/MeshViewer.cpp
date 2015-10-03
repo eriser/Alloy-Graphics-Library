@@ -150,7 +150,7 @@ void MeshViewer::draw(AlloyContext* context) {
 		depthAndTextureShader.draw(mesh, camera, textureFrameBuffer, true);
 
 		wireframeFrameBuffer.begin();
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
