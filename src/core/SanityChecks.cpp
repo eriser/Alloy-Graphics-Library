@@ -70,6 +70,7 @@ namespace aly {
 		WriteMeshToFile("monkey_catmullclark_color.ply",mesh);
 
 		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
+		mesh.vertexColors.resize(mesh.vertexLocations.size());
 		for (int n = 0;n < mesh.vertexLocations.size();n++) {
 			float3 pt = mesh.vertexLocations[n];
 			pt = (pt - box.position) / box.dimensions;

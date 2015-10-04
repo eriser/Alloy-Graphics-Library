@@ -1122,7 +1122,7 @@ namespace aly {
 			triIndexCount += (uint32_t)shape.mesh.triIndices.size();
 			quadIndexCount += (uint32_t)shape.mesh.quadIndices.size();
 		}
-
+		mesh.vertexColors.clear();
 		mesh.vertexLocations.resize(positionCount / 3);
 		mesh.vertexNormals.resize(normalCount / 3);
 		mesh.triIndexes.resize(triIndexCount / 3);
