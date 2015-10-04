@@ -605,7 +605,7 @@ bool SANITY_CHECK_SPARSE_SOLVE() {
 	A = A.transpose();
 	std::cout << "At=\n" << A << std::endl;
 	return true;
-	MeshNeighborTable vertTable;
+	MeshListNeighborTable vertTable;
 	Mesh mesh;
 	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
 	CreateOrderedVertexNeighborTable(mesh, vertTable);

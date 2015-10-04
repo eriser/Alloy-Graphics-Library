@@ -1124,6 +1124,7 @@ void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB = true);
 void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB = true);
 
 void ConvertImage(const Image1f& in, ImageRGBAf& out);
+void ConvertImage(const Image2f& in, ImageRGBAf& out);
 void ConvertImage(const Image1f& in, ImageRGBf& out);
 void ConvertImage(const Image1b& in, ImageRGBAf& out);
 void ConvertImage(const Image1b& in, ImageRGBf& out);

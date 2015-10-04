@@ -172,6 +172,7 @@ struct Composite;
 struct Region;
 class AlloyContext {
 private:
+	std::thread::id threadId;
 	std::mutex taskLock;
 	std::list<std::string> assetDirectories;
 	std::shared_ptr<Font> fonts[8];
@@ -235,7 +236,7 @@ public:
 	int getScreenHeight() {
 		return screenSize.y;
 	}
-	void addDeferredTask(const std::function<void()>& func);
+	void addDeferredTask(const std::function<void()>& func,bool block=false);
 	bool hasDeferredTasks() const {
 		return (deferredTasks.size() > 0);
 	}

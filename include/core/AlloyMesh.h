@@ -172,11 +172,12 @@ void WritePlyMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
 		true);
 void WriteMeshToFile(const std::string& file, const Mesh& mesh);
 void WriteObjMeshToFile(const std::string& file,const Mesh& mesh);
-typedef std::vector<std::list<uint32_t>> MeshNeighborTable;
-void CreateVertexNeighborTable(const Mesh& mesh, std::vector<std::set<uint32_t>>& vertNbrs);
+typedef std::vector<std::set<uint32_t>> MeshSetNeighborTable;
+typedef std::vector<std::list<uint32_t>> MeshListNeighborTable;
+void CreateVertexNeighborTable(const Mesh& mesh, MeshSetNeighborTable& vertNbrs);
 void CreateOrderedVertexNeighborTable(const Mesh& mesh,
-		MeshNeighborTable& vertNbrs, bool leaveTail = false);
-void CreateFaceNeighborTable(const Mesh& mesh, MeshNeighborTable& faceNbrs);
+	MeshListNeighborTable& vertNbrs, bool leaveTail = false);
+void CreateFaceNeighborTable(const Mesh& mesh, MeshListNeighborTable& faceNbrs);
 void Subdivide(Mesh& mesh, SubDivisionScheme type= SubDivisionScheme::CatmullClark);
 }
 #endif /* MESH_H_ */

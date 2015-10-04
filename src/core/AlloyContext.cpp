@@ -312,6 +312,7 @@ namespace aly {
 		const Theme& theme) :
 		nvgContext(nullptr), window(nullptr), theme(theme) {
 
+		threadId=std::this_thread::get_id();
 		if (glfwInit() != GL_TRUE) {
 			throw std::runtime_error("Could not initialize GLFW.");
 		}
@@ -430,9 +431,22 @@ namespace aly {
 		lastCursorTime = std::chrono::steady_clock::now();
 		lastUpdateTime = std::chrono::steady_clock::now();
 	}
-	void AlloyContext::addDeferredTask(const std::function<void()>& func) {
+	void AlloyContext::addDeferredTask(const std::function<void()>& func,bool block) {
 		std::lock_guard<std::mutex> guard(taskLock);
 		deferredTasks.push_back(func);
+		if (block) {
+			std::thread::id currentThread=std::this_thread::get_id();
+			if (currentThread != threadId) {
+				std::this_thread::yield();
+				while (deferredTasks.size() > 0) {
+					std::this_thread::yield();
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				}
+			}
+			else {
+				throw std::runtime_error("Cannot block and wait for deferred task on same thread as Alloy context.");
+			}
+		}
 	}
 	bool AlloyContext::executeDeferredTasks() {
 		std::lock_guard<std::mutex> guard(taskLock);

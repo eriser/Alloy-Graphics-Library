@@ -47,6 +47,18 @@ void ConvertImage(const Image1f& in, ImageRGBAf& out) {
 		out[i] = float4(lum, lum, lum, 1.0f);
 	}
 }
+void ConvertImage(const Image2f& in, ImageRGBAf& out) {
+	out.resize(in.width, in.height);
+	out.id = in.id;
+	out.setPosition(in.position());
+	int N = (int)out.size();
+#pragma omp parallel for
+	for (int i = 0; i < N; i++) {
+		float2 val = in[i];
+		float lum = val.x;
+		out[i] = float4(lum, lum, lum, val.y);
+	}
+}
 void ConvertImage(const Image1f& in, ImageRGBf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
@@ -147,6 +159,7 @@ void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB) {
 		}
 	}
 }
+
 void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
