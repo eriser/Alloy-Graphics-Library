@@ -1761,20 +1761,25 @@ namespace aly {
 				float2 uv1 = mesh.textureMap[fid];
 				float2 uv2 = mesh.textureMap[fid + 1];
 				float2 uv3 = mesh.textureMap[fid + 2];
+				float2 uva= 0.33333333f*(uv1 + uv2 + uv3);
+				float2  upt1 = 0.5f*(uv1 + uv2);
+				float2  upt2 = 0.5f*(uv2 + uv3);
+				float2  upt3 = 0.5f*(uv3 + uv1);
+
 				uvs[uvIndex++] = uv1;
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
-				uvs[uvIndex++] = 0.33333333f*(uv1 + uv2 + uv3);
-				uvs[uvIndex++] = 0.5f*(uv3 + uv1);
+				uvs[uvIndex++] = upt1;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt3;
 
 				uvs[uvIndex++] = uv2;
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
-				uvs[uvIndex++] = 0.33333333f*(uv1 + uv2 + uv3);
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
+				uvs[uvIndex++] = upt2;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt1;
 
 				uvs[uvIndex++] = uv3;
-				uvs[uvIndex++] = 0.5f*(uv3 + uv1);
-				uvs[uvIndex++] = 0.33333333f*(uv1 + uv2 + uv3);
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
+				uvs[uvIndex++] = upt3;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt2;
 				fid += 3;
 			}
 			newQuads[faceIndex++] = uint4(face.x, (uint32_t)ept1, (uint32_t)endIndex, (uint32_t)ept3);
@@ -1796,25 +1801,31 @@ namespace aly {
 				float2 uv2 = mesh.textureMap[fid + 1];
 				float2 uv3 = mesh.textureMap[fid + 2];
 				float2 uv4 = mesh.textureMap[fid + 3];
+				float2 uva = 0.25f*(uv1 + uv2 + uv3 + uv4);
+				float2  upt1 = 0.5f*(uv1 + uv2);
+				float2  upt2 = 0.5f*(uv2 + uv3);
+				float2  upt3 = 0.5f*(uv3 + uv4);
+				float2  upt4 = 0.5f*(uv4 + uv1);
+
 				uvs[uvIndex++] = uv1;
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
-				uvs[uvIndex++] = 0.25f*(uv1 + uv2 + uv3 + uv4);
-				uvs[uvIndex++] = 0.5f*(uv4 + uv1);
+				uvs[uvIndex++] = upt1;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt4;
 
 				uvs[uvIndex++] = uv2;
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
-				uvs[uvIndex++] = 0.25f*(uv1 + uv2 + uv3 + uv4);
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
+				uvs[uvIndex++] = upt2;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt1;
 
 				uvs[uvIndex++] = uv3;
-				uvs[uvIndex++] = 0.5f*(uv3 + uv4);
-				uvs[uvIndex++] = 0.25f*(uv1 + uv2 + uv3 + uv4);
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
+				uvs[uvIndex++] = upt3;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt2;
 
 				uvs[uvIndex++] = uv4;
-				uvs[uvIndex++] = 0.5f*(uv4 + uv1);
-				uvs[uvIndex++] = 0.25f*(uv1 + uv2 + uv3 + uv4);
-				uvs[uvIndex++] = 0.5f*(uv3 + uv4);
+				uvs[uvIndex++] = upt4;
+				uvs[uvIndex++] = uva;
+				uvs[uvIndex++] = upt3;
 				fid+=4;
 			}
 			newQuads[faceIndex++] = uint4(face.x, (uint32_t)ept1, (uint32_t)endIndex, (uint32_t)ept4);
@@ -1930,21 +1941,24 @@ namespace aly {
 				float2 uv1 = mesh.textureMap[fid];
 				float2 uv2 = mesh.textureMap[fid + 1];
 				float2 uv3 = mesh.textureMap[fid + 2];
+				float2  upt1 = 0.5f*(uv1 + uv2);
+				float2  upt2 = 0.5f*(uv2 + uv3);
+				float2  upt3 = 0.5f*(uv3 + uv1);
 				uvs[uvIndex++] = uv1;
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
-				uvs[uvIndex++] = 0.5f*(uv3 + uv1);
+				uvs[uvIndex++] = upt1;
+				uvs[uvIndex++] = upt3;
 
 				uvs[uvIndex++] = uv2;
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
+				uvs[uvIndex++] = upt2;
+				uvs[uvIndex++] = upt1;
 
 				uvs[uvIndex++] = uv3;
-				uvs[uvIndex++] = 0.5f*(uv3 + uv1);
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
+				uvs[uvIndex++] = upt3;
+				uvs[uvIndex++] = upt2;
 
-				uvs[uvIndex++] = 0.5f*(uv1 + uv2);
-				uvs[uvIndex++] = 0.5f*(uv2 + uv3);
-				uvs[uvIndex++] = 0.5f*(uv3 + uv1);
+				uvs[uvIndex++] = upt1;
+				uvs[uvIndex++] = upt2;
+				uvs[uvIndex++] = upt3;
 
 				fid += 3;
 			}
