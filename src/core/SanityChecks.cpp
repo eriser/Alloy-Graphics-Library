@@ -81,12 +81,12 @@ namespace aly {
 		Subdivide(mesh, SubDivisionScheme::Loop);
 		WriteMeshToFile("monkey_loop_color.ply", mesh);
 		
-		mesh.load(AlloyDefaultContext()->getFullPath("models/tanya.obj"));
+		mesh.load(AlloyDefaultContext()->getFullPath("models/tanya.ply"));
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
 		mesh.convertQuadsToTriangles();
 		WriteMeshToFile("tanya_catmullclark.ply", mesh);
 
-		mesh.load(AlloyDefaultContext()->getFullPath("models/tanya.obj"));
+		mesh.load(AlloyDefaultContext()->getFullPath("models/tanya.ply"));
 		Subdivide(mesh, SubDivisionScheme::Loop);
 		WriteMeshToFile("tanya_loop.ply", mesh);
 		
