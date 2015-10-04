@@ -200,7 +200,7 @@ bool ExampleUI::init(Composite& rootNode) {
 	scrollRegion->add(
 			MakeRegion("Region 2", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 300.0f), Color(0, 255, 0)));
-	expandBar->add(geomRegion, 400, true);
+	expandBar->add(geomRegion, 400, false);
 	std::string exampleFile = getContext()->getFullPath(
 			"models" + ALY_PATH_SEPARATOR+"monkey.ply");
 	FileSelector* selector;
@@ -217,12 +217,13 @@ bool ExampleUI::init(Composite& rootNode) {
 	geomRegion->add(scrollRegion);
 	RegionPtr apprRegion = RegionPtr(
 			new aly::Region("Appearance", CoordPX(0, 0),
-					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	expandBar->add(apprRegion, 400, true);
+					CoordPerPX(1.0f, 0.0f, 0.0f, 3000.0f)));
+	expandBar->add(apprRegion, 400, false);
+	apprRegion->backgroundColor = MakeColor(128, 64, 255);
+
 	CompositePtr lightRegion = CompositePtr(
 			new aly::Composite("Lighting", CoordPX(0, 0),
 					CoordPerPX(1.0f, 0.0f, 0.0f, 400.0f)));
-	lightRegion->setOrientation(Orientation::Vertical);
 	SelectionPtr dropdown2 = SelectionPtr(
 			new Selection("Selection", CoordPX(0, 0), CoordPX(200, 30),
 					std::vector<std::string> { "Mission", "Bernal Heights",

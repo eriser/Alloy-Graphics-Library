@@ -2575,7 +2575,7 @@ ExpandBar::ExpandBar(const std::string& name, const AUnit2D& pos,
 CompositePtr ExpandBar::add(const std::shared_ptr<Region>& region,
 		pixel expandHeight,
 		bool expanded) {
-	CompositePtr container = MakeComposite("Content Container",
+	CompositePtr container = MakeComposite(MakeString()<<region->name<<" content",
 			CoordPX(0.0f, 0.0f),
 			CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, expandHeight));
 	container->setScrollEnabled(true);

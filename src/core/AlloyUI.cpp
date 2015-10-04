@@ -561,8 +561,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 			offset.y += cellSpacing.y + cbounds.dimensions.y;
 		}
 		scrollExtent = max(
-			cbounds.dimensions + cbounds.position
-						- bounds.position - region->drawOffset(), scrollExtent);
+			cbounds.dimensions + cbounds.position - bounds.position , scrollExtent);// -region->drawOffset() //Why did I think I needed this? 
 	}
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
