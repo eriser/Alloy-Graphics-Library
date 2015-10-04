@@ -107,7 +107,7 @@ bool MeshViewer::init(Composite& rootNode) {
 	faceShader.initialize(w, h);
 	particleFaceIdShader.initialize(w, h);
 	textureFrameBuffer.initialize(w, h);
-	wireframeShader.setLineWidth(4.0f);
+	wireframeShader.setLineWidth(3.0f);
 	//getContext()->setOffScreenVisible(true);
 	mesh.updateVertexNormals();
 	addListener(&camera);

@@ -1602,8 +1602,7 @@ struct FaceEdge {
 	std::list<uint> faces;
 	size_t edgePointIndex;
 };
-void Subdivide(Mesh& mesh, SubDivisionScheme type) {
-
+void SubdivideCatmullClark(Mesh& mesh) {
 	std::vector<std::list<uint32_t>> faceFaceNbrs;
 	faceFaceNbrs.resize(mesh.triIndexes.size() + mesh.quadIndexes.size());
 	std::map<uint64_t, FaceEdge> edgeTable;
@@ -1696,13 +1695,9 @@ void Subdivide(Mesh& mesh, SubDivisionScheme type) {
 		FaceEdge& fe = edgeTable[faceHashCode(edge)];
 		fe.edgePointIndex = endIndex;
 		float3 avg;
-		if (fe.faces.size() == 0) {
-			avg = 0.25f*(pt1 + pt2);
-		}
-		else if (fe.faces.size() == 1) {
-			avg = 0.33333333f*(pt1 + pt2 + mesh.vertexLocations[fe.faces.front() + backIndex]);
-		}
-		else {
+		if (fe.faces.size() < 2) {
+			avg = 0.5f*(pt1 + pt2);
+		} else {
 			avg = 0.25f*(pt1 + pt2 + mesh.vertexLocations[fe.faces.front() + backIndex] + mesh.vertexLocations[fe.faces.back() + backIndex]);
 		}
 		for (int k = 0;k < 2;k++) {
@@ -1757,5 +1752,134 @@ void Subdivide(Mesh& mesh, SubDivisionScheme type) {
 	mesh.triIndexes.clear();
 	mesh.updateVertexNormals();
 	mesh.setDirty(true);
+}
+void SubdivideLoop(Mesh& mesh) {
+	mesh.convertQuadsToTriangles();
+	std::map<uint64_t, FaceEdge> edgeTable;
+	std::set<uint2> edges;
+	uint2 edge;
+	uint fid = 0;
+	for (const uint3& face : mesh.triIndexes.data) {
+		edge = (face.x < face.y) ?
+			uint2(face.x, face.y) : uint2(face.y, face.x);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.y < face.z) ?
+			uint2(face.y, face.z) : uint2(face.z, face.y);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.z < face.x) ?
+			uint2(face.z, face.x) : uint2(face.x, face.z);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+		fid++;
+	}
+
+	size_t backIndex = mesh.vertexLocations.size();
+	size_t endIndex = backIndex;
+	mesh.vertexLocations.resize(endIndex + 3 * mesh.triIndexes.size());
+	for (uint2 edge : edges) {
+		float3 pt1 = mesh.vertexLocations[edge.x];
+		float3 pt2 = mesh.vertexLocations[edge.y];
+		FaceEdge& fe = edgeTable[faceHashCode(edge)];
+		fe.edgePointIndex = endIndex;
+		float3 avg;
+		if (fe.faces.size() < 2) {
+			avg = 0.5f*(pt1 + pt2);
+		} else {
+			uint3 face = mesh.triIndexes[fe.faces.front()];
+			int other1=-1,other2=-1;
+			if ((face.x == edge.x && face.y == edge.y)|| (face.y == edge.x && face.x == edge.y)) {
+				other1 = face.z;
+			} else 	if ((face.y == edge.x && face.z == edge.y) || (face.z == edge.x && face.y == edge.y)) {
+				other1 = face.x;
+			}
+			else if ((face.x == edge.x && face.z == edge.y) || (face.z == edge.x && face.x == edge.y)) {
+				other1 = face.y;
+			}
+			face = mesh.triIndexes[fe.faces.back()];
+			if ((face.x == edge.x && face.y == edge.y) || (face.y == edge.x && face.x == edge.y)) {
+				other2 = face.z;
+			}
+			else 	if ((face.y == edge.x && face.z == edge.y) || (face.z == edge.x && face.y == edge.y)) {
+				other2 = face.x;
+			}
+			else if ((face.x == edge.x && face.z == edge.y) || (face.z == edge.x && face.x == edge.y)) {
+				other2 = face.y;
+			}
+			if (other1 >= 0 && other2 >= 0) {
+				avg = 0.125f*(3.0f*pt1 + 3.0f*pt2 + mesh.vertexLocations[other1] + mesh.vertexLocations[other2]);
+			} else {
+				avg = 0.5f*(pt1 + pt2);
+			}
+		}
+		mesh.vertexLocations[endIndex++] = avg;
+	}
+	std::vector<uint3> newTris(4 *mesh.triIndexes.size());
+	size_t faceIndex = 0;
+	endIndex = backIndex;
+	for (const uint3& face : mesh.triIndexes.data) {
+		edge = (face.x < face.y) ? uint2(face.x, face.y) : uint2(face.y, face.x);
+		size_t ept1 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
+		size_t ept2 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.z < face.x) ? uint2(face.z, face.x) : uint2(face.x, face.z);
+		size_t ept3 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		newTris[faceIndex++] = uint3(face.x, (uint32_t)ept1, (uint32_t)ept3);
+		newTris[faceIndex++] = uint3(face.y, (uint32_t)ept2, (uint32_t)ept1);
+		newTris[faceIndex++] = uint3(face.z, (uint32_t)ept3, (uint32_t)ept2);
+		newTris[faceIndex++] = uint3((uint32_t)ept1,   (uint32_t)ept2, (uint32_t)ept3);
+	}
+	std::vector<std::set<uint32_t>> vertNbrs(mesh.vertexLocations.size());
+	for (const uint3& face : mesh.triIndexes.data) {
+		vertNbrs[face.x].insert(face.y);
+		vertNbrs[face.y].insert(face.z);
+		vertNbrs[face.z].insert(face.x);
+		vertNbrs[face.z].insert(face.y);
+		vertNbrs[face.y].insert(face.x);
+		vertNbrs[face.x].insert(face.z);
+	}
+
+	mesh.triIndexes = newTris;
+	const int MAX_VALENCE = 32;
+	static std::vector<float> WEIGHTS;
+	if (WEIGHTS.size() == 0) {
+		WEIGHTS.resize(MAX_VALENCE);
+		for (int i = 1; i < MAX_VALENCE; i++)
+		{
+			float x = 3 / 8.0f + 0.25f * std::cos(2.0f * ALY_PI / i);
+			float beta = (5 / 8.0f - x * x) / i;
+			WEIGHTS[i] = beta;
+		}
+	}
+	
+	
+	for (int n = 0;n <backIndex;n++) {
+		int N = (int)vertNbrs[n].size();
+		if (N > 0 && N < MAX_VALENCE)
+		{
+			float beta =  WEIGHTS[N];
+			float alpha = (1 - N * beta);
+			float3 pt = alpha * mesh.vertexLocations[n];
+			for (uint32_t nbr : vertNbrs[n])
+			{
+				pt += beta * mesh.vertexLocations[nbr];
+			}
+			mesh.vertexLocations[n] = pt;
+		}
+	}
+	
+
+	mesh.updateVertexNormals();
+	mesh.setDirty(true);
+}
+void Subdivide(Mesh& mesh, SubDivisionScheme type) {
+	if (type == SubDivisionScheme::CatmullClark) {
+		SubdivideCatmullClark(mesh);
+	} else if (type == SubDivisionScheme::Loop) {
+		SubdivideLoop(mesh);
+	}
 }
 } /* namespace imagesci */

@@ -48,7 +48,13 @@ namespace aly {
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
-		WriteMeshToFile("monkey_catmullclark.obj",mesh);
+		WriteMeshToFile("monkey_catmullclark.ply",mesh);
+
+		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		WriteMeshToFile("monkey_loop.ply", mesh);
 		return true;
 	}
 bool SANITY_CHECK_DENSE_MATRIX() {
