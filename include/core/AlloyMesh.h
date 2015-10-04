@@ -28,6 +28,8 @@
 #include "AlloyImage.h"
 #include "AlloyContext.h"
 #include <vector>
+#include <set>
+#include <list>
 namespace aly {
 	bool SANITY_CHECK_SUBDIVIDE();
 struct Mesh;
@@ -171,8 +173,7 @@ void WritePlyMeshToFile(const std::string& file, const Mesh& mesh, bool binary =
 void WriteMeshToFile(const std::string& file, const Mesh& mesh);
 void WriteObjMeshToFile(const std::string& file,const Mesh& mesh);
 typedef std::vector<std::list<uint32_t>> MeshNeighborTable;
-void CreateVertexNeighborTable(const Mesh& mesh, MeshNeighborTable& vertNbrs,
-		bool addDuplicates = false);
+void CreateVertexNeighborTable(const Mesh& mesh, std::vector<std::set<uint32_t>>& vertNbrs);
 void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		MeshNeighborTable& vertNbrs, bool leaveTail = false);
 void CreateFaceNeighborTable(const Mesh& mesh, MeshNeighborTable& faceNbrs);

@@ -48,13 +48,47 @@ namespace aly {
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
 		Subdivide(mesh, SubDivisionScheme::CatmullClark);
-		WriteMeshToFile("monkey_catmullclark.ply",mesh);
+		WriteMeshToFile("monkey_catmullclark.ply", mesh);
 
 		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
 		Subdivide(mesh, SubDivisionScheme::Loop);
 		Subdivide(mesh, SubDivisionScheme::Loop);
 		Subdivide(mesh, SubDivisionScheme::Loop);
 		WriteMeshToFile("monkey_loop.ply", mesh);
+
+		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
+		box3f box = mesh.getBoundingBox();
+		mesh.vertexColors.resize(mesh.vertexLocations.size());
+		for (int n = 0;n < mesh.vertexLocations.size();n++) {
+			float3 pt = mesh.vertexLocations[n];
+			pt = (pt - box.position) / box.dimensions;
+			mesh.vertexColors[n] = float4(pt, 1.0f);
+		}
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		WriteMeshToFile("monkey_catmullclark_color.ply",mesh);
+
+		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
+		for (int n = 0;n < mesh.vertexLocations.size();n++) {
+			float3 pt = mesh.vertexLocations[n];
+			pt = (pt - box.position) / box.dimensions;
+			mesh.vertexColors[n] = float4(pt, 1.0f);
+		}
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		WriteMeshToFile("monkey_loop_color.ply", mesh);
+		
+		mesh.load(AlloyDefaultContext()->getFullPath("models/tanya.obj"));
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		mesh.convertQuadsToTriangles();
+		WriteMeshToFile("tanya_catmullclark.ply", mesh);
+
+		mesh.load(AlloyDefaultContext()->getFullPath("models/tanya.obj"));
+		Subdivide(mesh, SubDivisionScheme::Loop);
+		WriteMeshToFile("tanya_loop.ply", mesh);
+		
 		return true;
 	}
 bool SANITY_CHECK_DENSE_MATRIX() {
