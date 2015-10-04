@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <set>
 #include "AlloyPLY.h"
 #include "tiny_obj_loader.h"
 #ifndef ALY_WINDOWS
@@ -1597,5 +1598,164 @@ void CreateFaceNeighborTable(const Mesh& mesh,
 		}
 	}
 }
+struct FaceEdge {
+	std::list<uint> faces;
+	size_t edgePointIndex;
+};
+void Subdivide(Mesh& mesh, SubDivisionScheme type) {
 
+	std::vector<std::list<uint32_t>> faceFaceNbrs;
+	faceFaceNbrs.resize(mesh.triIndexes.size() + mesh.quadIndexes.size());
+	std::map<uint64_t, FaceEdge> edgeTable;
+	std::set<uint2> edges;
+	std::vector<std::pair<int, float3>> faceVerts(mesh.vertexLocations.size(),std::pair<int,float3>(0,float3(0.0f)));
+	std::vector<std::pair<int, float3>> edgeVerts(mesh.vertexLocations.size(), std::pair<int, float3>(0, float3(0.0f)));
+	uint2 edge;
+	uint fid = 0;
+	for (const uint3& face : mesh.triIndexes.data) {
+		edge = (face.x < face.y) ?
+			uint2(face.x, face.y) : uint2(face.y, face.x);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.y < face.z) ?
+			uint2(face.y, face.z) : uint2(face.z, face.y);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.z < face.x) ?
+			uint2(face.z, face.x) : uint2(face.x, face.z);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+		fid++;
+	}
+	for (const uint4& face : mesh.quadIndexes.data) {
+		edge = (face.x < face.y) ?
+			uint2(face.x, face.y) : uint2(face.y, face.x);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.y < face.z) ?
+			uint2(face.y, face.z) : uint2(face.z, face.y);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.z < face.w) ?
+			uint2(face.z, face.w) : uint2(face.w, face.z);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+
+		edge = (face.w < face.x) ?
+			uint2(face.w, face.x) : uint2(face.x, face.w);
+		edges.insert(edge);
+		edgeTable[faceHashCode(edge)].faces.push_back(fid);
+		fid++;
+	}
+	for (std::pair<const uint64_t, FaceEdge>& edgeList : edgeTable) {
+		if (edgeList.second.faces.size() == 2) {
+			uint fid1 = edgeList.second.faces.front();
+			uint fid2 = edgeList.second.faces.back();
+			if (fid1 != fid2) {
+				faceFaceNbrs[fid1].push_back(fid2);
+				faceFaceNbrs[fid2].push_back(fid1);
+			}
+		}
+	}
+	size_t backIndex = mesh.vertexLocations.size();
+	size_t endIndex = backIndex;
+	mesh.vertexLocations.resize(endIndex + mesh.quadIndexes.size() + mesh.triIndexes.size()+edges.size());
+	for (const uint3& face : mesh.triIndexes.data) {
+		float3 pt1 = mesh.vertexLocations[face.x];
+		float3 pt2 = mesh.vertexLocations[face.y];
+		float3 pt3 = mesh.vertexLocations[face.z];
+		float3 avg = 0.33333333f*(pt1 + pt2 + pt3);
+		for (int k = 0;k < 3;k++) {
+			std::pair<int, float3>& pr = faceVerts[face[k]];
+			pr.first++;
+			pr.second += avg;
+		}
+		mesh.vertexLocations[endIndex++] = avg;
+	}
+	for (const uint4& face : mesh.quadIndexes.data) {
+		float3 pt1 = mesh.vertexLocations[face.x];
+		float3 pt2 = mesh.vertexLocations[face.y];
+		float3 pt3 = mesh.vertexLocations[face.z];
+		float3 pt4 = mesh.vertexLocations[face.w];
+		float3 avg = 0.25f*(pt1 + pt2 + pt3 + pt4);
+		for (int k = 0;k < 4;k++) {
+			std::pair<int, float3>& pr = faceVerts[face[k]];
+			pr.first++;
+			pr.second += avg;
+		}
+		mesh.vertexLocations[endIndex++] = avg;
+	}
+	size_t edgeIndexOffset = endIndex;
+	for (uint2 edge : edges) {
+		float3 pt1 = mesh.vertexLocations[edge.x];
+		float3 pt2 = mesh.vertexLocations[edge.y];
+		FaceEdge& fe = edgeTable[faceHashCode(edge)];
+		fe.edgePointIndex = endIndex;
+		float3 avg;
+		if (fe.faces.size() == 0) {
+			avg = 0.25f*(pt1 + pt2);
+		}
+		else if (fe.faces.size() == 1) {
+			avg = 0.33333333f*(pt1 + pt2 + mesh.vertexLocations[fe.faces.front() + backIndex]);
+		}
+		else {
+			avg = 0.25f*(pt1 + pt2 + mesh.vertexLocations[fe.faces.front() + backIndex] + mesh.vertexLocations[fe.faces.back() + backIndex]);
+		}
+		for (int k = 0;k < 2;k++) {
+			std::pair<int, float3>& pr = edgeVerts[edge[k]];
+			pr.first++;
+			pr.second += avg;
+		}
+		mesh.vertexLocations[endIndex++]=avg;
+
+	}
+	std::vector<uint4> newQuads(4*mesh.quadIndexes.size() + 3*mesh.triIndexes.size());
+	size_t faceIndex = 0;
+	endIndex = backIndex;
+	for (const uint3& face : mesh.triIndexes.data) {
+		edge = (face.x < face.y) ?uint2(face.x, face.y) : uint2(face.y, face.x);
+		size_t ept1 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
+		size_t ept2 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.z < face.x) ? uint2(face.z, face.x) : uint2(face.x, face.z);
+		size_t ept3 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		newQuads[faceIndex++] = uint4(face.x, (uint32_t)ept1, (uint32_t)endIndex, (uint32_t)ept3);
+		newQuads[faceIndex++] = uint4(face.y, (uint32_t)ept2, (uint32_t)endIndex, (uint32_t)ept1);
+		newQuads[faceIndex++] = uint4(face.z, (uint32_t)ept3, (uint32_t)endIndex, (uint32_t)ept2);
+		endIndex++;
+	}
+	for (const uint4& face : mesh.quadIndexes.data) {
+		edge = (face.x < face.y) ? uint2(face.x, face.y) : uint2(face.y, face.x);
+		size_t ept1 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.y < face.z) ? uint2(face.y, face.z) : uint2(face.z, face.y);
+		size_t ept2 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.z < face.w) ? uint2(face.z, face.w) : uint2(face.w, face.z);
+		size_t ept3 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		edge = (face.w < face.x) ? uint2(face.w, face.x) : uint2(face.x, face.w);
+		size_t ept4 = edgeTable[faceHashCode(edge)].edgePointIndex;
+		newQuads[faceIndex++] = uint4(face.x, (uint32_t)ept1, (uint32_t)endIndex, (uint32_t)ept4);
+		newQuads[faceIndex++] = uint4(face.y, (uint32_t)ept2, (uint32_t)endIndex, (uint32_t)ept1);
+		newQuads[faceIndex++] = uint4(face.z, (uint32_t)ept3, (uint32_t)endIndex, (uint32_t)ept2);
+		newQuads[faceIndex++] = uint4(face.w, (uint32_t)ept4, (uint32_t)endIndex, (uint32_t)ept3);
+		endIndex++;
+	}
+	for (int n = 0;n < faceVerts.size();n++) {
+		float3 P = mesh.vertexLocations[n];
+		int fcount = faceVerts[n].first;
+		int ecount = edgeVerts[n].first;
+
+		float3 F = faceVerts[n].second/(float)fcount;
+		float3 R = edgeVerts[n].second/(float)ecount;
+		
+		mesh.vertexLocations[n] = (F+2.0f*R+(ecount-3.0f)*P)/(float)ecount;
+	}
+	mesh.quadIndexes = newQuads;
+	mesh.triIndexes.clear();
+	mesh.updateVertexNormals();
+	mesh.setDirty(true);
+}
 } /* namespace imagesci */

@@ -29,7 +29,11 @@
 #include "AlloyContext.h"
 #include <vector>
 namespace aly {
+	bool SANITY_CHECK_SUBDIVIDE();
 struct Mesh;
+enum class SubDivisionScheme {
+	CatmullClark,Loop
+};
 struct GLMesh: public GLComponent {
 public:
 	enum class PrimitiveType {
@@ -172,5 +176,6 @@ void CreateVertexNeighborTable(const Mesh& mesh, MeshNeighborTable& vertNbrs,
 void CreateOrderedVertexNeighborTable(const Mesh& mesh,
 		MeshNeighborTable& vertNbrs, bool leaveTail = false);
 void CreateFaceNeighborTable(const Mesh& mesh, MeshNeighborTable& faceNbrs);
+void Subdivide(Mesh& mesh, SubDivisionScheme type= SubDivisionScheme::CatmullClark);
 }
 #endif /* MESH_H_ */

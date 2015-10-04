@@ -48,6 +48,7 @@ MeshViewer::MeshViewer() :
 bool MeshViewer::init(Composite& rootNode) {
 
 	mesh.load(getFullPath("models/monkey.obj"));
+	Subdivide(mesh, SubDivisionScheme::CatmullClark);
 	//texImage.load(mesh.textureImage);
 	mesh.vertexColors.resize(mesh.vertexLocations.size());
 	mesh.scale(100.0f);

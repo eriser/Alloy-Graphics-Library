@@ -42,6 +42,15 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 namespace aly {
+	bool SANITY_CHECK_SUBDIVIDE() {
+		Mesh mesh;
+		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		Subdivide(mesh, SubDivisionScheme::CatmullClark);
+		WriteMeshToFile("monkey_catmullclark.obj",mesh);
+		return true;
+	}
 bool SANITY_CHECK_DENSE_MATRIX() {
 	{
 		DenseMatrix1f A(17, 9);
