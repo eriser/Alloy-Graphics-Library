@@ -30,22 +30,34 @@ bool CompositeEx::init(Composite& rootNode) {
 		new BorderComposite("Border Layout", CoordPX(0, 0),
 			CoordPercent(0.7f, 1.0f)));
 	TextLabelPtr label;
-	CompositePtr sidebar = MakeComposite("Side", CoordPercent(0.7f, 0.0f), CoordPercent(0.3f, 1.0f), Color(64, 128, 255), COLOR_NONE, UnitPX(0));
+	CompositePtr sidebar = MakeComposite("Side", CoordPercent(0.7f, 0.5f), CoordPercent(0.3f, 0.5f), Color(16, 128, 255), COLOR_NONE, UnitPX(0));
 	sidebar->add(label = MakeTextLabel("Side", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr north = MakeComposite("North", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 64, 32), COLOR_NONE, UnitPX(0));
+
+	CompositePtr scroll = MakeComposite("Scroll", CoordPercent(0.7f, 0.0f), CoordPercent(0.3f, 0.5f), Color(255, 128, 16), COLOR_NONE, UnitPX(0));
+	CompositePtr content= MakeComposite("Panel", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 0.0f));
+	scroll->add(content);
+	
+	for (int i = 1;i <= 100;i++) {
+		content->add(label = MakeTextLabel(MakeString()<<"Scroll "<<i, CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
+		label->setOrigin(Origin::TopCenter);
+		content->setOrientation(Orientation::Vertical);
+	}
+	scroll->setScrollEnabled(true);
+
+	CompositePtr north = MakeComposite("North", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 16, 32), COLOR_NONE, UnitPX(0));
 	north->add(label=MakeTextLabel("North", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f),COLOR_WHITE,HorizontalAlignment::Center,VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr south = MakeComposite("South", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(64, 128, 32));
+	CompositePtr south = MakeComposite("South", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(16, 128, 32));
 	south->add(label = MakeTextLabel("South", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr east = MakeComposite("East", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 128, 64), COLOR_NONE, UnitPX(0));
+	CompositePtr east = MakeComposite("East", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 128, 16), COLOR_NONE, UnitPX(0));
 	east->add(label = MakeTextLabel("East", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr west = MakeComposite("West", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 64, 128), COLOR_NONE, UnitPX(0));
+	CompositePtr west = MakeComposite("West", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 16, 128), COLOR_NONE, UnitPX(0));
 	west->add(label = MakeTextLabel("West", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr center = MakeComposite("Center", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(64, 128, 128));
+	CompositePtr center = MakeComposite("Center", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(16, 128, 128));
 	center->add(label = MakeTextLabel("Center", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
 
@@ -55,7 +67,7 @@ bool CompositeEx::init(Composite& rootNode) {
 	bcomp->setSouth(south,0.1f);
 	bcomp->setCenter(center);
 	rootNode.add(sidebar);
-
+	rootNode.add(scroll);
 	rootNode.add(bcomp);
 	return true;
 }
