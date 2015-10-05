@@ -49,7 +49,7 @@ bool CompositeEx::init(Composite& rootNode) {
 	north->add(label=MakeTextLabel("North", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f),COLOR_WHITE,HorizontalAlignment::Center,VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
 	CompositePtr south = MakeComposite("South Composite", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(16, 128, 32));
-	south->add(label = MakeTextLabel("South Composite", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
+	south->add(label = MakeTextLabel("South", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
 	CompositePtr east = MakeComposite("East Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 128, 16), COLOR_NONE, UnitPX(0));
 	east->add(label = MakeTextLabel("East", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
