@@ -24,10 +24,9 @@
 
 #include "AlloyApplication.h"
 class UnitsEx: public aly::Application {
-private:
 public:
 	UnitsEx();
 	bool init(aly::Composite& rootNode);
 };
 
-#endif /* ALLOYEXAMPLEUI_H_ */
+#endif 
