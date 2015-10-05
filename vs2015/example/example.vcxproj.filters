@@ -1,12 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp" />
-    <ClCompile Include="..\..\src\example\main.cpp" />
-    <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
+    <ClCompile Include="..\..\src\example\UnitsEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\MeshViewer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\example\AlloyExampleUI.h" />
-    <ClInclude Include="..\..\include\example\MeshViewer.h" />
+    <ClInclude Include="..\..\include\example\UnitsEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\MeshViewer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\AlloyExampleUI.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{3ca71dd6-0d12-45f7-bfc0-3db31deae343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{73dd09be-2785-4fdf-8f1e-c221975d890e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

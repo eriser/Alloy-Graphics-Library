@@ -18,44 +18,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../../include/example/AlloyExampleUI.h"
-#include "../../include/example/MeshViewer.h"
+
+#include "Alloy.h"
 #include "../../include/example/UnitsEx.h"
-#include "AlloyFileUtil.h"
 using namespace aly;
-int main() {
-	try {
-
-		//UI Test case
-		//ExampleUI app;
-		UnitsEx app;
-		//Mesh Render Test case
-		//MeshViewer app;
-
-		//SANITY_CHECK_ANY();
-		//SANITY_CHECK_SVD();
-		//SANITY_CHECK_ALGO();
-		//SANITY_CHECK_IMAGE();
-		//SANITY_CHECK_UI();
-		//SANITY_CHECK_CEREAL();
-		//SANITY_CHECK_KDTREE();
-		//SANITY_CHECK_PYRAMID();
-		//SANITY_CHECK_SPARSE_SOLVE();
-		//SANITY_CHECK_DENSE_SOLVE();
-		//SANITY_CHECK_DENSE_MATRIX();
-		//SANITY_CHECK_IMAGE_PROCESSING();
-		//SANITY_CHECK_IMAGE_IO();
-		//SANITY_CHECK_ROBUST_SOLVE();
-		//SANITY_CHECK_SUBDIVIDE();
-		app.run(1);
-		return 0;
-	} catch (std::exception& e) {
-		std::cout << "Error: " << e.what() << std::endl;
-		std::flush(std::cout);
-		std::cout << "Exiting ..." << std::endl;
-		//std::cout<<"Hit any key ..."<<std::endl;
-		//getchar();
-		return 1;
-	}
+UnitsEx::UnitsEx() :
+		Application(800, 600, "Units Example") {
+}
+bool UnitsEx::init(Composite& rootNode) {
+	rootNode.add(MakeTextLabel("{10% from left edge and 10% from top edge}", CoordPercent(0.1f, 0.1f), CoordPX(400, 30), FontType::Normal, UnitPT(16.0f)));
+	rootNode.add(MakeTextLabel("{5 pixels from left edge and 200 pixels from top edge}", CoordPX(5,200), CoordPX(400, 30), FontType::Normal, UnitPT(16.0f)));
+	rootNode.add(MakeTextLabel("{100% from left edge minus 550 pixels and 250 from top edge}", CoordPerPX(1.0f, 0.0f, -550, 250), CoordPX(550, 30), FontType::Normal, UnitPT(16.0f)));
+	TextLabelPtr label1 =MakeTextLabel("{Centered and 300 pixel from top}", CoordPerPX(0.5,0,0,300), CoordPX(250, 30), FontType::Normal, UnitPT(16.0f));
+	label1->setOrigin(Origin::TopCenter);
+	rootNode.add(label1);
+	TextLabelPtr label2 = MakeTextLabel("{Centered and text aligned bottom}", CoordPercent(0.5, 1.0), CoordPX(260, 30), FontType::Normal, UnitPT(16.0f));
+	label2->setOrigin(Origin::BottomCenter);
+	rootNode.add(label2);
+	//getContext()->setDebug(true);
+	return true;
 }
 
