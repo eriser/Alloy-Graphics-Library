@@ -29,8 +29,8 @@ int main() {
 
 		//UI Test case
 		//ExampleUI app;
-		//UnitsEx app;
-		CompositeEx app;
+		UnitsEx app;
+		//CompositeEx app;
 		//Mesh Render Test case
 		//MeshViewer app;
 
