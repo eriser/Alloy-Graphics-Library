@@ -22,6 +22,7 @@
 #include "../../include/example/MeshViewer.h"
 #include "../../include/example/UnitsEx.h"
 #include "../../include/example/CompositeEx.h"
+#include "../../include/example/EventsEx.h"
 #include "AlloyFileUtil.h"
 using namespace aly;
 int main() {
@@ -29,7 +30,8 @@ int main() {
 
 		//UI Test case
 		//ExampleUI app;
-		UnitsEx app;
+		//UnitsEx app;
+		EventsEx app;
 		//CompositeEx app;
 		//Mesh Render Test case
 		//MeshViewer app;

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp" />
     <ClCompile Include="..\..\src\example\CompositeEx.cpp" />
+    <ClCompile Include="..\..\src\example\EventsEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
     <ClCompile Include="..\..\src\example\UnitsEx.cpp" />
@@ -28,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\example\AlloyExampleUI.h" />
     <ClInclude Include="..\..\include\example\CompositeEx.h" />
+    <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\MeshViewer.h" />
     <ClInclude Include="..\..\include\example\UnitsEx.h" />
   </ItemGroup>
