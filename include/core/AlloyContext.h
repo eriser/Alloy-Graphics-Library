@@ -40,6 +40,7 @@
 #include <memory>
 #include <list>
 #include <map>
+#include <thread>
 #include <string>
 #include "nanovg.h"
 #include "AlloyMath.h"
