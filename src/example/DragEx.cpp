@@ -28,6 +28,7 @@ DragEx::DragEx() :
 bool DragEx::init(Composite& rootNode) {
 	int N = 25;
 	srand(817213);
+	std::list<TextLabelPtr> labels;
 	for (int i = 0;i <N;i++) {
 		TextLabelPtr label = MakeTextLabel(MakeString() << "Drag (" << i<<")", CoordPX(rand()%700, rand()%500), CoordPX(100, 100), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle);
 		label->backgroundColor = MakeColor(HSVAtoColor(HSVA(i/(float)N,0.7f,0.5f,1.0f)));
@@ -45,9 +46,26 @@ bool DragEx::init(Composite& rootNode) {
 			label->borderColor = MakeColor(64,64,64);
 			return false;
 		};
+
+		labels.push_back(label);
 		label->setDragEnabled(true);
 		rootNode.add(label);
+
 	}
+	//Force drag elements inside draw bounds.
+	setOnResize([=](const int2& dims) {
+		box2px bounds(pixel2(0, 0), pixel2(dims.x,dims.y));
+		for (TextLabelPtr label : labels) {
+			//Get current location, including drag offset.
+			box2px box = label->getBounds();
+			box.position = aly::clamp(box.position, bounds.position,bounds.position + bounds.dimensions - box.dimensions);
+			label->setPosition(CoordPX(box.position));
+			//Reset drag offset now that we changed position.
+			label->setDragOffset(pixel2(0, 0));
+			//Repack component.
+			label->pack();
+		}
+	});
 	//getContext()->setDebug(true);
 	return true;
 }

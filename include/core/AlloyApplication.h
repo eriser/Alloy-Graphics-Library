@@ -129,9 +129,10 @@ public:
 	std::shared_ptr<Font> loadFont(const std::string& name,
 			const std::string& partialFile);
 
-	virtual void draw(AlloyContext* context) {
+	virtual void draw(AlloyContext* context) {}
+	Composite& getRoot() {
+		return rootRegion;
 	}
-	;
 	virtual bool init(Composite& rootNode)=0;
 	void run(int swapInterval = 0); //no vsync by default
 	virtual inline ~Application() {
