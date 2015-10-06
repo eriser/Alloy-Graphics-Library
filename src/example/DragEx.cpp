@@ -35,14 +35,12 @@ bool DragEx::init(Composite& rootNode) {
 		label->borderWidth = UnitPX(1.0f);
 		label->onMouseDown = [=](AlloyContext* context, const InputEvent& e) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				label->backgroundColor = MakeColor(label->backgroundColor->toSemiTransparent(0.5f));
 				//Bring component to top by setting it to be drawn last.
 				dynamic_cast<Composite*>(label->parent)->putLast(label);
 			}
 			return false;
 		};
 		label->onMouseUp = [=](AlloyContext* context, const InputEvent& e) {
-			label->backgroundColor = MakeColor(label->backgroundColor->toSemiTransparent(1.0f));
 			return false;
 		};
 		label->setDragEnabled(true);
