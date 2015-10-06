@@ -25,6 +25,7 @@
     <ClCompile Include="..\..\src\example\EventsEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
+    <ClCompile Include="..\..\src\example\TweenEx.cpp" />
     <ClCompile Include="..\..\src\example\UnitsEx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +34,7 @@
     <ClInclude Include="..\..\include\example\DragEx.h" />
     <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\MeshViewer.h" />
+    <ClInclude Include="..\..\include\example\TweenEx.h" />
     <ClInclude Include="..\..\include\example\UnitsEx.h" />
   </ItemGroup>
   <ItemGroup>
