@@ -37,10 +37,11 @@ bool TweenEx::init(Composite& rootNode) {
 	addTween(iconr->backgroundColor, Color(255, 64, 32, 255),Color(32, 64, 255, 255), 3.0, SineIn());
 	addTween(iconr->foregroundColor, Color(0, 0, 0, 255),Color(255, 255, 255, 255), 3.0, SineIn());
 	addTween(iconr->getPosition(), CoordPX(100, 10), CoordPerPX(0.5f,0.0f,-25.0f, 10.0f), 3.0, ExponentialOut());
-	addTween(label->getPosition(), CoordPercent(0.5f, 0.7f), CoordPercent(0.5f, 0.9f),2.0f, ExponentialOut());
-	addTween(label->fontSize, UnitPT(16.0f), UnitPT(36.0f), 2.5f, ExponentialIn())->addCompleteEvent(
-		[=](Tweenable* object) {
-		label->label = "Did you like that tween?";
+	addTween(label->getPosition(), CoordPercent(0.5f, 0.7f), CoordPercent(0.5f, 0.9f), 1.0f, ExponentialOut())->addCompleteEvent([=](Tweenable* tween) {
+		addTween(label->fontSize, UnitPT(16.0f), UnitPT(36.0f), 1.0f, ExponentialIn())->addCompleteEvent(
+			[=](Tweenable* object) {
+			label->label = "Did you like that tween?";
+		});
 	});
 	
 	rootNode.add(label);
