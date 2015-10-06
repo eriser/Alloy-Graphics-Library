@@ -31,16 +31,18 @@ bool DragEx::init(Composite& rootNode) {
 	for (int i = 0;i <N;i++) {
 		TextLabelPtr label = MakeTextLabel(MakeString() << "Drag (" << i<<")", CoordPX(rand()%700, rand()%500), CoordPX(100, 100), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle);
 		label->backgroundColor = MakeColor(HSVAtoColor(HSVA(i/(float)N,0.7f,0.5f,1.0f)));
-		label->borderColor = MakeColor(200, 200, 200);
+		label->borderColor = MakeColor(64,64,64);
 		label->borderWidth = UnitPX(1.0f);
 		label->onMouseDown = [=](AlloyContext* context, const InputEvent& e) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 				//Bring component to top by setting it to be drawn last.
 				dynamic_cast<Composite*>(label->parent)->putLast(label);
+				label->borderColor = MakeColor(200, 200, 200);
 			}
 			return false;
 		};
 		label->onMouseUp = [=](AlloyContext* context, const InputEvent& e) {
+			label->borderColor = MakeColor(64,64,64);
 			return false;
 		};
 		label->setDragEnabled(true);
