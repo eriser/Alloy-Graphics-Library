@@ -23,7 +23,7 @@
 #include "../../include/example/EventsEx.h"
 using namespace aly;
 EventsEx::EventsEx() :
-		Application(800, 600, "Units Example") {
+		Application(800, 600, "Events Example") {
 }
 bool EventsEx::init(Composite& rootNode) {
 

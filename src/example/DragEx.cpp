@@ -18,50 +18,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../../include/example/AlloyExampleUI.h"
-#include "../../include/example/MeshViewer.h"
-#include "../../include/example/UnitsEx.h"
-#include "../../include/example/CompositeEx.h"
-#include "../../include/example/EventsEx.h"
+
+#include "Alloy.h"
 #include "../../include/example/DragEx.h"
-#include "AlloyFileUtil.h"
 using namespace aly;
-int main() {
-	try {
-
-		//UI Test case
-		//ExampleUI app;
-		//UnitsEx app;
-		//EventsEx app;
-		//CompositeEx app;
-		DragEx app;
-		//Mesh Render Test case
-		//MeshViewer app;
-
-		//SANITY_CHECK_ANY();
-		//SANITY_CHECK_SVD();
-		//SANITY_CHECK_ALGO();
-		//SANITY_CHECK_IMAGE();
-		//SANITY_CHECK_UI();
-		//SANITY_CHECK_CEREAL();
-		//SANITY_CHECK_KDTREE();
-		//SANITY_CHECK_PYRAMID();
-		//SANITY_CHECK_SPARSE_SOLVE();
-		//SANITY_CHECK_DENSE_SOLVE();
-		//SANITY_CHECK_DENSE_MATRIX();
-		//SANITY_CHECK_IMAGE_PROCESSING();
-		//SANITY_CHECK_IMAGE_IO();
-		//SANITY_CHECK_ROBUST_SOLVE();
-		//SANITY_CHECK_SUBDIVIDE();
-		app.run(1);
-		return 0;
-	} catch (std::exception& e) {
-		std::cout << "Error: " << e.what() << std::endl;
-		std::flush(std::cout);
-		std::cout << "Exiting ..." << std::endl;
-		//std::cout<<"Hit any key ..."<<std::endl;
-		//getchar();
-		return 1;
+DragEx::DragEx() :
+		Application(800, 600, "Drag Example") {
+}
+bool DragEx::init(Composite& rootNode) {
+	int N = 25;
+	srand(817213);
+	for (int i = 0;i <N;i++) {
+		TextLabelPtr label = MakeTextLabel(MakeString() << "Drag (" << i<<")", CoordPX(rand()%700, rand()%500), CoordPX(100, 100), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle);
+		label->backgroundColor = MakeColor(HSVAtoColor(HSVA(i/(float)N,0.7f,0.5f,1.0f)));
+		label->borderColor = MakeColor(200, 200, 200);
+		label->borderWidth = UnitPX(1.0f);
+		label->onMouseDown = [=](AlloyContext* context, const InputEvent& e) {
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				label->backgroundColor = MakeColor(label->backgroundColor->toSemiTransparent(0.5f));
+				//Bring component to top by setting it to be drawn last.
+				dynamic_cast<Composite*>(label->parent)->putLast(label);
+			}
+			return false;
+		};
+		label->onMouseUp = [=](AlloyContext* context, const InputEvent& e) {
+			label->backgroundColor = MakeColor(label->backgroundColor->toSemiTransparent(1.0f));
+			return false;
+		};
+		label->setDragEnabled(true);
+		rootNode.add(label);
 	}
+	//getContext()->setDebug(true);
+	return true;
 }
 

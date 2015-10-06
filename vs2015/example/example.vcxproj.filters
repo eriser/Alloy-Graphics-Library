@@ -19,6 +19,9 @@
     <ClCompile Include="..\..\src\example\EventsEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\example\DragEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\UnitsEx.h">
@@ -34,6 +37,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\example\EventsEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\DragEx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
