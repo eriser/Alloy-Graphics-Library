@@ -28,8 +28,11 @@ ImageEx::ImageEx() :
 bool ImageEx::init(Composite& rootNode) {
 
 	rootNode.add(MakeTextLabel("Drag Images", CoordPerPX(1.0f, 0.0f,-120.0f,0.0f), CoordPX(120, 30), FontType::Normal, UnitPT(20.0f), RGBA(255, 255, 255, 255), HorizontalAlignment::Left, VerticalAlignment::Top));
-	//Use OpenGL directly to draw, position image underneath region.
-	//This is not recommended for moving components because there will be a one frame delay between the opengl and nanovg draw pass.
+	//Use OpenGL directly to draw and position image underneath region.
+	//This is not recommended for moving regions because there 
+	//will be a one frame delay between the opengl and nanovg draw pass.
+	//The texture image will also be drawn beneath everything else, 
+	//so region z-ordering has no effect.
 	ImageRGBAf img;
 	ReadImageFromFile(getFullPath("images/sfsunset.png"),img);
 	texImage.load(img);
@@ -46,6 +49,7 @@ bool ImageEx::init(Composite& rootNode) {
 	return true;
 }
 void ImageEx::draw(aly::AlloyContext* context) {
+	//Use glsl shader to draw image
 	imageShader.draw(texImage, drawRegion->getBounds(),1.0f,true);
 }
 
