@@ -33,7 +33,7 @@ bool TweenEx::init(Composite& rootNode) {
 	GlyphRegionPtr iconr = MakeGlyphRegion(createAwesomeGlyph(0xf1b3),CoordPX(20, 20), CoordPX(50, 50), Color(32, 64, 128, 255),Color(255, 255, 255, 255));
 	imgr->setOrigin(Origin::MiddleCenter);
 	addTween(imgr->foregroundColor, Color(128, 128, 128, 255),Color(128, 128, 128, 0), 3.0, SineOut());
-	addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0, SineOut());//->addCompleteEvent([](Tweenable* object) {std::cout<<"Finished Dimension Change! "<<std::endl;});
+	addTween(imgr->getDimensions(), CoordPX(50, 50), CoordPX(300, 300), 1.0, SineOut());
 	addTween(iconr->backgroundColor, Color(255, 64, 32, 255),Color(32, 64, 255, 255), 3.0, SineIn());
 	addTween(iconr->foregroundColor, Color(0, 0, 0, 255),Color(255, 255, 255, 255), 3.0, SineIn());
 	addTween(iconr->getPosition(), CoordPX(100, 10), CoordPerPX(0.5f,0.0f,-25.0f, 10.0f), 3.0, ExponentialOut());

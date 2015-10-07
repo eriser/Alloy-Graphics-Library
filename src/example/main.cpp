@@ -25,6 +25,7 @@
 #include "../../include/example/EventsEx.h"
 #include "../../include/example/DragEx.h"
 #include "../../include/example/TweenEx.h"
+#include "../../include/example/ImageEx.h"
 #include "AlloyFileUtil.h"
 using namespace aly;
 int main() {
@@ -36,7 +37,8 @@ int main() {
 		//EventsEx app;
 		//CompositeEx app;
 		//DragEx app;
-		TweenEx app;
+		//TweenEx app;
+		ImageEx app;
 		//Mesh Render Test case
 		//MeshViewer app;
 
