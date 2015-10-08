@@ -833,8 +833,6 @@ namespace aly {
 		if (bestInliner<A.cols) {
 			return SolveQR(A, b);
 		}
-		float error = 0;
-		int count = 0;
 		order.clear();
 		Vector<T, C> R = b - A*BestX;
 		for (int n = 0;n < N;n++) {

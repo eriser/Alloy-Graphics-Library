@@ -59,7 +59,7 @@ namespace aly {
 		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
 		box3f box = mesh.getBoundingBox();
 		mesh.vertexColors.resize(mesh.vertexLocations.size());
-		for (int n = 0;n < mesh.vertexLocations.size();n++) {
+		for (int n = 0;n < (int)mesh.vertexLocations.size();n++) {
 			float3 pt = mesh.vertexLocations[n];
 			pt = (pt - box.position) / box.dimensions;
 			mesh.vertexColors[n] = float4(pt, 1.0f);
@@ -71,7 +71,7 @@ namespace aly {
 
 		mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.obj"));
 		mesh.vertexColors.resize(mesh.vertexLocations.size());
-		for (int n = 0;n < mesh.vertexLocations.size();n++) {
+		for (int n = 0;n < (int)mesh.vertexLocations.size();n++) {
 			float3 pt = mesh.vertexLocations[n];
 			pt = (pt - box.position) / box.dimensions;
 			mesh.vertexColors[n] = float4(pt, 1.0f);
