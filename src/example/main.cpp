@@ -27,10 +27,15 @@
 #include "../../include/example/TweenEx.h"
 #include "../../include/example/ImageEx.h"
 #include "AlloyFileUtil.h"
+
 using namespace aly;
 int main() {
 	try {
-
+#ifdef EXAMPLE_NAME
+		EXAMPLE_NAME app;
+#else
+		ExampleUI app;
+#endif
 		//UI Test case
 		//ExampleUI app;
 		//UnitsEx app;
@@ -38,7 +43,7 @@ int main() {
 		//CompositeEx app;
 		//DragEx app;
 		//TweenEx app;
-		ImageEx app;
+		//ImageEx app;
 		//Mesh Render Test case
 		//MeshViewer app;
 
@@ -57,7 +62,8 @@ int main() {
 		//SANITY_CHECK_IMAGE_IO();
 		//SANITY_CHECK_ROBUST_SOLVE();
 		//SANITY_CHECK_SUBDIVIDE();
-		app.run(1);
+		app
+		.run(1);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
