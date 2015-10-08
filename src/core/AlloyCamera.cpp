@@ -1,6 +1,7 @@
 #include <AlloyCamera.h>
 #include "GLShader.h"
 #include "AlloyMesh.h"
+#include "AlloyUI.h"
 #include <string>
 #include <list>
 #include <fstream>
@@ -189,6 +190,7 @@ void Camera::handleButtonEvent(int button, int action) {
 
 bool Camera::onEventHandler(AlloyContext* context,
 		const InputEvent& event) {
+	if(context->getGlassPanel()->isVisible())return false;
 	if (!event.isAltDown() && !event.isShiftDown() && !event.isControlDown()) {
 		switch (event.type) {
 		case InputType::Cursor:
