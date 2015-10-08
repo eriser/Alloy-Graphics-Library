@@ -25,9 +25,10 @@ namespace aly {
 
 class GLFrameBuffer: public GLComponent {
 protected:
+
+	GLTexture<float, 4, ImageType::FLOAT> texture;
 	unsigned int mFrameBufferId;
 	unsigned int mDepthBufferId;
-	GLTexture<float, 4, ImageType::FLOAT> texture;
 public:
 	GLFrameBuffer(bool onScreen=true,std::shared_ptr<AlloyContext> context =
 			AlloyDefaultContext());

@@ -25,6 +25,7 @@
 #include "Alloy.h"
 class MeshViewer: public aly::Application {
 private:
+	float voxelSize;
 	aly::Mesh mesh;
 	aly::Mesh particles;
 	aly::Mesh mesh2;
@@ -65,9 +66,7 @@ private:
 	aly::GLFrameBuffer edgeFrameBuffer;
 	aly::GLTextureRGBAf texImage;
 	aly::GLTextureRGBA exampleImage;
-
 	aly::Image2i faceIdMap;
-	float voxelSize;
 
 public:
 	MeshViewer();
