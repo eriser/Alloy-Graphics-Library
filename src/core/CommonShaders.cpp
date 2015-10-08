@@ -1218,7 +1218,7 @@ void main()
 	}
 
 	FaceIdShader::FaceIdShader(bool onScreen, const std::shared_ptr<AlloyContext>& context) :
-		GLShader(onScreen, context), particleIdShader(onScreen, context), framebuffer(onScreen, context) {
+		GLShader(onScreen, context), framebuffer(onScreen, context), particleIdShader(onScreen, context) {
 		GLShader::initialize({},
 			R"(	#version 330
 				layout(location = 3) in vec3 vp0;

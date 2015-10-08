@@ -1719,7 +1719,6 @@ namespace aly {
 			}
 			mesh.vertexLocations[endIndex++] = avg;
 		}
-		size_t edgeIndexOffset = endIndex;
 		for (uint2 edge : edges) {
 			float3 pt1 = mesh.vertexLocations[edge.x];
 			float3 pt2 = mesh.vertexLocations[edge.y];
@@ -1835,7 +1834,7 @@ namespace aly {
 			
 			endIndex++;
 		}
-		for (int n = 0;n < faceVerts.size();n++) {
+		for (int n = 0;n < (int)faceVerts.size();n++) {
 			float3 P = mesh.vertexLocations[n];
 			int fcount = faceVerts[n].first;
 			int ecount = edgeVerts[n].first;
@@ -1989,7 +1988,7 @@ namespace aly {
 			}
 		}
 
-		for (int n = 0;n < backIndex;n++) {
+		for (int n = 0;n < (int)backIndex;n++) {
 			int N = (int)vertNbrs[n].size();
 			if (N > 0 && N < MAX_VALENCE)
 			{
