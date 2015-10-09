@@ -26,26 +26,20 @@
 #include "../../include/example/DragEx.h"
 #include "../../include/example/TweenEx.h"
 #include "../../include/example/ImageEx.h"
+#include "../../include/example/ControlsEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
 int main() {
 	try {
+		//Example name is specified in a makefile at compile time so 
+		//all example applications are compiled to seperate exe targets.
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		ExampleUI app;
-#endif
-		//UI Test case
+		ControlsEx app;
 		//ExampleUI app;
-		//UnitsEx app;
-		//EventsEx app;
-		//CompositeEx app;
-		//DragEx app;
-		//TweenEx app;
-		//ImageEx app;
-		//Mesh Render Test case
-		//MeshViewer app;
+#endif
 
 		//SANITY_CHECK_ANY();
 		//SANITY_CHECK_SVD();
