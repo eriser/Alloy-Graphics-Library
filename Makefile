@@ -12,6 +12,8 @@ LDLIBS =-L./ -L/usr/lib/ -L/usr/local/lib/ -L/usr/lib/x86_64-linux-gnu/
 LIBS =-lglfw -lgomp -lGL -lXext -lGLU -lGLEW -lXi -lXrandr -lX11 -lXxf86vm -lXinerama -lXcursor -lXdamage -ldrm -lpthread -lfreetype -lm -lrt -ldl -lstdc++
 RM=rm -f
 
+EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx
+
 alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)
 	ranlib liballoy.a
@@ -21,21 +23,13 @@ clean :
 	clear
 	$(RM) $(OBJS) $(EXOBJS) $(DS)
 	$(RM) liballoy.a
-	$(RM) UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx
+	$(RM) $(EXAMPLES)
 	
 all : 
 	clear
 	make -j8 alloy
-	$(RM) src/example/main.o
-	make -j8 EXAMPLE=UnitsEx example
-	$(RM) src/example/main.o
-	make -j8 EXAMPLE=EventsEx example
-	$(RM) src/example/main.o 
-	make -j8 EXAMPLE=CompositeEx example 	
-	$(RM) src/example/main.o 
-	make -j8 EXAMPLE=TweenEx example 	
-	$(RM) src/example/main.o 
-	make -j8 EXAMPLE=ImageEx example 	
-	$(RM) src/example/main.o 
-	make -j8 EXAMPLE=DragEx example 	
+	for ex in $(EXAMPLES); do \
+	$(RM) src/example/main.o; \
+	make -j8 EXAMPLE=$$ex example; \
+	done
 default : all
