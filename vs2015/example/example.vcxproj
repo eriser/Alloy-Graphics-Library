@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp" />
     <ClCompile Include="..\..\src\example\CompositeEx.cpp" />
     <ClCompile Include="..\..\src\example\ControlsEx.cpp" />
+    <ClCompile Include="..\..\src\example\DialogsEx.cpp" />
     <ClCompile Include="..\..\src\example\DragEx.cpp" />
     <ClCompile Include="..\..\src\example\EventsEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageEx.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="..\..\include\example\AlloyExampleUI.h" />
     <ClInclude Include="..\..\include\example\CompositeEx.h" />
     <ClInclude Include="..\..\include\example\ControlsEx.h" />
+    <ClInclude Include="..\..\include\example\DialogsEx.h" />
     <ClInclude Include="..\..\include\example\DragEx.h" />
     <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\ImageEx.h" />

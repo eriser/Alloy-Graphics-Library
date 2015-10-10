@@ -27,6 +27,7 @@
 #include "../../include/example/TweenEx.h"
 #include "../../include/example/ImageEx.h"
 #include "../../include/example/ControlsEx.h"
+#include "../../include/example/DialogsEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -37,7 +38,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		ControlsEx app;
+		DialogsEx app;
 		//ExampleUI app;
 #endif
 

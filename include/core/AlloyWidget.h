@@ -549,8 +549,11 @@ typedef std::shared_ptr<ExpandBar> ExpandBarPtr;
 typedef std::shared_ptr<ExpandRegion> ExpandRegionPtr;
 typedef std::shared_ptr<FileSelector> FileSelectorPtr;
 typedef std::shared_ptr<FileDialog> FileDialogPtr;
+typedef std::shared_ptr<FileButton> FileButtonPtr;
 typedef std::shared_ptr<TextIconButton> TextIconButtonPtr;
 typedef std::shared_ptr<IconButton> IconButtonPtr;
+typedef std::shared_ptr<ListBox> ListBoxPtr;
+typedef std::shared_ptr<ListEntry> ListEntryPtr;
 
 }
 

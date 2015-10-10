@@ -58,7 +58,7 @@ protected:
 	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 	bool roundCorners = false;
 	bool detached = false;
-	bool clampToParentBounds = true;
+	bool clampToParentBounds = false;
 public:
 	friend struct Composite;
 	friend struct BorderComposite;
@@ -138,6 +138,7 @@ public:
 
 	inline void setDragEnabled(bool enabled) {
 		dragEnabled = enabled;
+		if(dragEnabled)clampToParentBounds = true;
 	}
 	inline void setOrigin(const Origin& org) {
 		origin = org;

@@ -1133,46 +1133,35 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 	colorLabel->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
 				if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
-					if(!context->isOnTop(colorSelectionPanel.get())) {
+					if (!colorSelectionPanel->isVisible()) {
 						colorWheel->reset();
-						context->setOnTopRegion(colorSelectionPanel.get());
-						context->setDragObject(colorSelectionPanel.get());
-
-					} else {
-						context->removeOnTopRegion(colorSelectionPanel.get());
-						colorSelectionPanel->setVisible(false);
 					}
+					colorSelectionPanel->setVisible(true);
+					context->getGlassPanel()->setVisible(true);
 					return true;
 				}
 				return false;
 			};
 	textLabel->onMouseDown = [this](AlloyContext* context,const InputEvent& e) {
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT) {
-			if(!context->isOnTop(colorSelectionPanel.get())) {
+			if (!colorSelectionPanel->isVisible()) {
 				colorWheel->reset();
-				context->setOnTopRegion(colorSelectionPanel.get());
-				context->setDragObject(colorSelectionPanel.get());
-
-			} else {
-				context->removeOnTopRegion(colorSelectionPanel.get());
-				colorSelectionPanel->setVisible(false);
 			}
+			colorSelectionPanel->setVisible(true);
+			context->getGlassPanel()->setVisible(true);
 			return true;
 		}
 		return false;
 	};
 
 	colorSelectionPanel = MakeComposite("Color Selection Panel",
-			CoordPerPX(0.5f, 1.0, 0.0f, 2.0f),
-			CoordPX(
-					300.0f
-							+ (60 + AlloyApplicationContext()->theme.SPACING.x)
-									* 5, 300.0f),
-			AlloyApplicationContext()->theme.LIGHT);
-	colorSelectionPanel->setOrigin(Origin::TopCenter);
+			CoordPerPX(0.5f, 0.5, 0.0f, 0.0f),
+			CoordPX(18+300.0f+ (60 + AlloyApplicationContext()->theme.SPACING.x)
+									* 5,18+ 300.0f),COLOR_NONE);
 	colorSelectionPanel->setVisible(false);
-	colorSelectionPanel->setDetached(true);
-	colorSelectionPanel->setRoundCorners(true);
+	colorSelectionPanel->setOrigin(Origin::MiddleCenter);
+
+
 	redSlider = std::shared_ptr<VerticalSlider>(
 			new VerticalSlider("R", CoordPX(0.0f, 0.0f),
 					CoordPerPX(0.0f, 1.0f, 60.0f, 0.0f), Float(0.0), Float(1.0),
@@ -1267,33 +1256,44 @@ ColorSelector::ColorSelector(const std::string& name, const AUnit2D& pos,
 		lumSlider->setValue(hsv.z);
 		updateColorSliders(c);
 	});
-	colorSelectionPanel->setOrientation(Orientation::Horizontal);
+	IconButtonPtr cancelButton = std::shared_ptr<IconButton>(
+		new IconButton(0xf00d, CoordPerPX(1.0, 0.0, -30, 30),
+			CoordPX(30, 30), IconType::CIRCLE));
+	cancelButton->setOrigin(Origin::BottomLeft);
 
-	colorSelectionPanel->add(colorWheel);
-	colorSelectionPanel->add(redSlider);
-	colorSelectionPanel->add(greenSlider);
-	colorSelectionPanel->add(blueSlider);
-	colorSelectionPanel->add(lumSlider);
-	colorSelectionPanel->add(alphaSlider);
+	cancelButton->onMouseDown =
+		[this](AlloyContext* context, const InputEvent& event) {
+		colorSelectionPanel->setVisible(false);
+		context->getGlassPanel()->setVisible(false);
+		return true;
+	};
+	CompositePtr hContainer = MakeComposite("Horizontal Layout", CoordPX(0.0f, 18.0f), CoordPerPX(1.0f, 1.0f,-30.0f,-22.0f), AlloyApplicationContext()->theme.LIGHT);
+	
+	hContainer->setRoundCorners(true);
+	hContainer->setOrientation(Orientation::Horizontal);
+	hContainer->add(colorWheel);
+	hContainer->add(redSlider);
+	hContainer->add(greenSlider);
+	hContainer->add(blueSlider);
+	hContainer->add(lumSlider);
+	hContainer->add(alphaSlider);
+	colorSelectionPanel->add(hContainer);
 	colorSelectionPanel->onEvent =
-			[this](AlloyContext* context,const InputEvent& e) {
-				if(context->isOnTop(colorSelectionPanel.get())) {
-					if(e.type==InputType::MouseButton&&e.isDown()&&!context->isMouseContainedIn(getBounds())) {
-						context->removeOnTopRegion(colorSelectionPanel.get());
+			[=](AlloyContext* context,const InputEvent& e) {
+				if(colorSelectionPanel->isVisible()) {
+					if(e.type==InputType::MouseButton&&e.isDown()&&!context->isMouseContainedIn(hContainer->getBounds())) {
 						colorSelectionPanel->setVisible(false);
+						context->getGlassPanel()->setVisible(false);
 						return true;
 					}
 				}
 				return false;
 			};
-	colorSelectionPanel->onRemoveFromOnTop = [this]() {
-		colorSelectionPanel->setVisible(false);
-	};
+	colorSelectionPanel->add(cancelButton);
 	Application::addListener(colorSelectionPanel.get());
 	add(textLabel);
 	add(colorLabel);
-	add(colorSelectionPanel);
-
+	AlloyApplicationContext()->getGlassPanel()->add(colorSelectionPanel);
 	setColor(*colorLabel->foregroundColor);
 }
 void ColorSelector::updateColorSliders(const Color& c) {
@@ -1336,7 +1336,7 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 	};
 	this->onMouseDown =
 			[this](AlloyContext* context,const InputEvent& e) {
-				if(context->isOnTop(this)&&e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
+				if(e.button==GLFW_MOUSE_BUTTON_LEFT&&e.isDown()) {
 					float r2=distanceSqr(e.cursor,center);
 					if(r2<rInner*rInner) {
 						triangleSelected=true;
@@ -1353,24 +1353,22 @@ ColorWheel::ColorWheel(const std::string& name, const AUnit2D& pos,
 				}
 				return false;
 			};
-	this->onEvent =
-			[this](AlloyContext* context,const InputEvent& e) {
-				if(context->isOnTop(this)) {
-					if(e.type==InputType::Cursor&&context->isLeftMouseButtonDown()) {
-						this->setColor(e.cursor);
-						return true;
-					} else if(e.type==InputType::Scroll&&context->isMouseContainedIn(getBounds())) {
-						hsvColor.x+=e.scroll.y*0.01f;
-						if(hsvColor.x<0.0f)hsvColor.x+=1.0f;
-						if(hsvColor.x>1.0f)hsvColor.x-=1.0f;
-						setColor(HSVAtoColor(hsvColor));
-						updateWheel();
-						if(onChangeEvent)onChangeEvent(selectedColor);
-						return true;
-					}
-				}
-				return false;
-			};
+	this->onScroll= [this](AlloyContext* context, const InputEvent& e) {
+			hsvColor.x += e.scroll.y*0.01f;
+			if (hsvColor.x<0.0f)hsvColor.x += 1.0f;
+			if (hsvColor.x>1.0f)hsvColor.x -= 1.0f;
+			setColor(HSVAtoColor(hsvColor));
+			updateWheel();
+			if (onChangeEvent)onChangeEvent(selectedColor);
+			return true;
+	};
+	this->onMouseOver =[this](AlloyContext* context,const InputEvent& e) {
+		if(context->isLeftMouseButtonDown()) {
+			this->setColor(e.cursor);
+			return true;
+		} 
+		return false;
+	};
 	Application::addListener(this);
 }
 
@@ -1862,6 +1860,7 @@ ListEntry::ListEntry(ListBox* listBox, const std::string& name,
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	this->borderColor = MakeColor(COLOR_NONE);
 	this->selected = false;
+	this->label = name;
 	this->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
 		return dialog->onMouseDown(this, context, e);
 	};
@@ -2134,6 +2133,7 @@ ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 	dragBox = box2px(float2(0, 0), float2(0, 0));
 	onEvent =
 			[this](AlloyContext* context, const InputEvent& e) {
+				if (context->getGlassPanel()->isVisible())return false;
 				if (e.type == InputType::Cursor || e.type == InputType::MouseButton) {
 					if (context->isMouseDrag()) {
 						if(enableMultiSelection) {
@@ -2467,9 +2467,6 @@ FileDialog::FileDialog(const std::string& name, const AUnit2D& pos,
 	containerRegion->setCenter(directoryList);
 	add(containerRegion);
 	add(cancelButton);
-	this->onEvent = [this](AlloyContext* context, const InputEvent& e) {
-		return false;
-	};
 }
 std::string FileFilterRule::toString() {
 	std::stringstream ss;
