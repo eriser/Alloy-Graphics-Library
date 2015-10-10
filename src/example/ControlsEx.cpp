@@ -55,6 +55,20 @@ bool ControlsEx::init(Composite& rootNode) {
 			CoordPercent(0.4f, 0.07f), false));
 	rootNode.add(togglebox);
 
+	TextButtonPtr textButton = TextButtonPtr(
+		new TextButton("Button", CoordPX(10.0f, 300.0f),
+			CoordPX(100,30)));
+	rootNode.add(textButton);
+	TextLabelPtr textLabel = TextLabelPtr(
+		new TextLabel("Label", CoordPX(120.0f, 300.0f),
+			CoordPX(100,30)));
+	textLabel->backgroundColor = MakeColor(128, 0, 0);
+	textLabel->borderColor = MakeColor(200, 200, 200);
+	textLabel->borderWidth = UnitPX(1.0f);
+	textLabel->setRoundCorners(true);
+	textLabel->horizontalAlignment = HorizontalAlignment::Center;
+	rootNode.add(textLabel);
+
 	ColorSelectorPtr colorselect = ColorSelectorPtr(
 		new ColorSelector("Color", CoordPercent(0.5f, 0.4f),
 			CoordPX(200, 50)));

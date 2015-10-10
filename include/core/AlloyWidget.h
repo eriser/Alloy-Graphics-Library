@@ -534,7 +534,7 @@ public:
 	void openFileDialog(AlloyContext* context,
 			const std::string& workingDirectory = GetCurrentWorkingDirectory());
 };
-typedef std::shared_ptr<TextButton> ButtonPtr;
+typedef std::shared_ptr<TextButton> TextButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
 typedef std::shared_ptr<HorizontalSlider> HorizontalSliderPtr;

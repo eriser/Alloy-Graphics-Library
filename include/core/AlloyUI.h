@@ -410,6 +410,11 @@ public:
 					<< std::setfill('0') << (REGION_COUNTER++)) :
 			Region(name), label(name) {
 	}
+	TextLabel(
+		const std::string& name , const AUnit2D& pos,
+		const AUnit2D& dims) :
+		Region(name,pos,dims), label(name) {
+	}
 	virtual void draw(AlloyContext* context) override;
 };
 struct TextField: public Composite {

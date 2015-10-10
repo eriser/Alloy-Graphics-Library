@@ -38,7 +38,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		DialogsEx app;
+		ControlsEx app;
 		//ExampleUI app;
 #endif
 
