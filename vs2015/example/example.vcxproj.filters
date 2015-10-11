@@ -43,6 +43,12 @@
     <ClCompile Include="..\..\src\example\MeshWireframeEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\example\MeshTextureEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\MeshVertexColorEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\UnitsEx.h">
@@ -82,6 +88,12 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\example\MeshWireframeEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\MeshTextureEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\MeshVertexColorEx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
