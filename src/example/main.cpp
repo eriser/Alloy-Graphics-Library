@@ -31,6 +31,7 @@
 #include "../../include/example/ExpandEx.h"
 #include "../../include/example/MeshMatcapEx.h"
 #include "../../include/example/MeshWireframeEx.h"
+#include "../../include/example/MeshTextureEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -41,7 +42,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		MeshWireframeEx app;
+		MeshTextureEx app;
 		//MeshViewer app;
 #endif
 
