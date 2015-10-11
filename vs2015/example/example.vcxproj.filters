@@ -34,6 +34,15 @@
     <ClCompile Include="..\..\src\example\DialogsEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\example\ExpandEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\MeshMatcapEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\MeshWireframeEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\UnitsEx.h">
@@ -64,6 +73,15 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\example\DialogsEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\ExpandEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\MeshMatcapEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\MeshWireframeEx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
