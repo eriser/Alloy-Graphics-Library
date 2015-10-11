@@ -28,6 +28,7 @@
 #include "../../include/example/ImageEx.h"
 #include "../../include/example/ControlsEx.h"
 #include "../../include/example/DialogsEx.h"
+#include "../../include/example/ExpandEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -38,7 +39,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		ControlsEx app;
+		ExpandEx app;
 		//ExampleUI app;
 #endif
 
@@ -57,8 +58,7 @@ int main() {
 		//SANITY_CHECK_IMAGE_IO();
 		//SANITY_CHECK_ROBUST_SOLVE();
 		//SANITY_CHECK_SUBDIVIDE();
-		app
-		.run(1);
+		app.run(1);
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
