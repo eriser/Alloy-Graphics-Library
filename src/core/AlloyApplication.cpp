@@ -66,7 +66,7 @@ void Application::initInternal() {
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 	imageShader = std::shared_ptr<ImageShader>(
-			new ImageShader(true,context, ImageShader::Filter::NONE));
+			new ImageShader( ImageShader::Filter::NONE,true,context));
 	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(true,context));
 	uiFrameBuffer->initialize(context->screenSize.x, context->screenSize.y);
 }

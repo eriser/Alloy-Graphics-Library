@@ -25,9 +25,7 @@
 using namespace aly;
 MeshViewer::MeshViewer() :
 	Application(1920, 960, "Mesh Viewer"), matcapShader(
-		getFullPath("images/JG_Silver.png")), imageShader(true, getContext(),
-			ImageShader::Filter::NONE), imageOffscreenShader(false, getContext(),
-				ImageShader::Filter::NONE),phongShader(1,true), phongShader2(
+		getFullPath("images/JG_Silver.png")), imageShader(ImageShader::Filter::NONE,true, getContext()), imageOffscreenShader(ImageShader::Filter::NONE,false, getContext()),phongShader(1,true), phongShader2(
 				1,true), particleMatcapShader(getFullPath("images/JG_Silver.png"),true), voxelSize(
 					0.0f), occlusionFrameBuffer(true),
 	depthAndTextureShader(false),

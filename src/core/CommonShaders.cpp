@@ -742,8 +742,8 @@ TextureMeshShader::TextureMeshShader(bool onScreen,
 							})");
 
 }
-ImageShader::ImageShader(bool onScreen,
-		const std::shared_ptr<AlloyContext>& context, const Filter& filter) :
+ImageShader::ImageShader( const Filter& filter,bool onScreen,
+		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
 	if (filter == Filter::NONE) {
 		initialize( { },

@@ -307,9 +307,9 @@ public:
 	enum class Filter {
 		NONE, FXAA, SMALL_BLUR, MEDIUM_BLUR, LARGE_BLUR
 	};
-	ImageShader(bool onScreen = true,
+	ImageShader( const Filter& filter = Filter::NONE,bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& context =
-					AlloyDefaultContext(), const Filter& filter = Filter::NONE);
+					AlloyDefaultContext());
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
 			float alpha = 1.0f, bool flip = false) {
