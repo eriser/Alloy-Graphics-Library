@@ -28,6 +28,7 @@
     <ClCompile Include="..\..\src\example\ExpandEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
+    <ClCompile Include="..\..\src\example\MeshDepthEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshMatcapEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshParticleEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshTextureEx.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\ExpandEx.h" />
     <ClInclude Include="..\..\include\example\ImageEx.h" />
+    <ClInclude Include="..\..\include\example\MeshDepthEx.h" />
     <ClInclude Include="..\..\include\example\MeshMatcapEx.h" />
     <ClInclude Include="..\..\include\example\MeshParticleEx.h" />
     <ClInclude Include="..\..\include\example\MeshTextureEx.h" />

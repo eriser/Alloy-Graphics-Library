@@ -562,6 +562,42 @@ public:
 	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 			CameraParameters& camera, const GLFrameBuffer& frameBuffer);
 };
+class LineDistanceShader : public GLShader {
+private:
+	float lineWidth;
+	bool solid;
+public:
+	void setLineWidth(float w) {
+		this->lineWidth = w;
+	}
+	void setSolid(bool s) {
+		solid = s;
+	}
+	LineDistanceShader(bool onScreen = true,
+		const std::shared_ptr<AlloyContext>& contex =
+		AlloyDefaultContext());
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, const box2px& bounds);
+	void draw(const Mesh& mesh, CameraParameters& camera,
+		const box2px& bounds) {
+		draw({ &mesh }, camera, bounds);
+	}
+	void draw(
+		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const box2px& bounds);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const box2px& bounds);
+
+	void draw(const std::initializer_list<const Mesh*>& meshes,
+		CameraParameters& camera, const GLFrameBuffer& frameBuffer);
+	void draw(const Mesh& mesh, CameraParameters& camera,
+		const GLFrameBuffer& frameBuffer);
+	void draw(
+		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const GLFrameBuffer& frameBuffer);
+	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, const GLFrameBuffer& frameBuffer);
+};
 class AmbientOcclusionShader: public GLShader {
 private:
 	float sampleRadius;
@@ -586,6 +622,17 @@ public:
 			const float2& dimensions, const box2px viewport,
 			CameraParameters& camera) {
 		draw(imageTexture, box2px(location, dimensions), viewport, camera);
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, CameraParameters& camera,const aly::GLFrameBuffer& frameBuffer) {
+		frameBuffer.begin();
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		draw(imageTexture, frameBuffer.getViewport(), frameBuffer.getViewport(), camera);
+		glEnable(GL_BLEND);
+		frameBuffer.end();
 	}
 };
 class DistanceFieldShader: public GLShader {
@@ -618,6 +665,18 @@ public:
 				"textureImage", imageTexture, 0).set("bounds", bounds).set(
 				"imageSize", imageTexture.bounds.dimensions).set("viewport",
 				viewport).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, const GLFrameBuffer& frameBuffer) {
+		frameBuffer.begin();
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		draw(imageTexture, frameBuffer.getViewport(),frameBuffer.getViewport());
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		frameBuffer.end();
 	}
 	template<class T, int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const float2& location,

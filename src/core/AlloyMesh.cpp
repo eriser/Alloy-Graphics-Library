@@ -1878,7 +1878,7 @@ namespace aly {
 
 		size_t backIndex = mesh.vertexLocations.size();
 		size_t endIndex = backIndex;
-		mesh.vertexLocations.resize(endIndex + 3 * mesh.triIndexes.size());
+		mesh.vertexLocations.resize(endIndex + edges.size());
 		if(hasColor)mesh.vertexColors.resize(mesh.vertexLocations.size());
 		for (uint2 edge : edges) {
 			float3 pt1 = mesh.vertexLocations[edge.x];

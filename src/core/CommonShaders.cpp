@@ -2258,7 +2258,7 @@ void EdgeDepthAndNormalShader::draw(
 	frameBuffer.begin();
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0, 0, 0, 1);
+	glClearColor(0, 0, 0,1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	begin().set("DISTANCE_TOL", camera.getScale()).set("IS_QUAD", 1).set(camera,
 			frameBuffer.getViewport()).set("PoseMat", float4x4::identity()).draw(
@@ -2384,8 +2384,8 @@ gl_FragColor=rgba;
 
 DistanceFieldShader::DistanceFieldShader(
 		const std::shared_ptr<AlloyContext>& context) :
-		GLShader(onScreen, context), kernelSize(8), innerGlowColor(1.0f, 0.3f,
-				0.1f, 1.0f), outerGlowColor(0.3f, 1.0f, 0.1f, 1.0f), edgeColor(
+		GLShader(onScreen, context), kernelSize(8), innerGlowColor(0.5f, 0.1f,
+				0.05f, 1.0f), outerGlowColor(0.1f, 0.05f, 0.5f,  1.0f), edgeColor(
 				1.0f, 1.0f, 1.0f, 1.0f) {
 	initialize( { },
 			R"(
@@ -2742,6 +2742,7 @@ WireframeShader::WireframeShader(bool onScreen,
 		R"(	#version 330
 				in vec3 v0, v1, v2, v3;
 				in vec3 normal, vert;
+                in vec4 pos;
 				uniform vec4 viewport;
 				uniform float MIN_DEPTH;
 				uniform float MAX_DEPTH;
@@ -2783,13 +2784,13 @@ WireframeShader::WireframeShader(bool onScreen,
                      }
 				  }
 				float inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,minDist);	
-				gl_FragDepth=(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 				gl_FragColor=mix(edgeColor,faceColor,inside);
+				gl_FragDepth=(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 				if(IS_SOLID==0&&inside>0.5f){
 					discard;
 				}
 		    })",
-			R"(	#version 330
+		R"(	#version 330
 					layout (points) in;
 					layout (triangle_strip, max_vertices=4) out;
 					in VS_OUT {
@@ -2799,7 +2800,7 @@ WireframeShader::WireframeShader(bool onScreen,
 						vec3 p3;
 					} quad[];
 					out vec3 v0, v1, v2, v3;
-					
+					out vec4 pos;
 					out vec3 normal, vert;
 					uniform int IS_QUAD;
 				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
@@ -2807,11 +2808,17 @@ WireframeShader::WireframeShader(bool onScreen,
 					  mat4 PVM=ProjMat*ViewModelMat*PoseMat;
 					  mat4 VM=ViewModelMat*PoseMat;
 					  vec4 q0,q1,q2,q3;
+					  vec4 r0,r1,r2,r3;
 					  vec3 p0=quad[0].p0;
 					  vec3 p1=quad[0].p1;
 					  vec3 p2=quad[0].p2;
                       vec3 p3=quad[0].p3;
 					
+					  r0=VM*vec4(p0,1);					  
+                      r1=VM*vec4(p1,1);					  
+                      r2=VM*vec4(p2,1);					  
+                      r3=VM*vec4(p3,1);
+
 					  q0=PVM*vec4(p0,1);					  
                       v0 = q0.xyz/q0.w;				  
 					  q1=PVM*vec4(p1,1);					  
@@ -2823,30 +2830,30 @@ WireframeShader::WireframeShader(bool onScreen,
 					  
 					if(IS_QUAD!=0){
 				      gl_Position=q0;					  
-                      vert =v0;
+                      vert =v0;pos=r0;
 					  vec3 pt=0.25*(p0+p1+p2+p3);
 					  normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
 					  normal = (VM*vec4(normalize(-normal),0.0)).xyz;
 					  EmitVertex();
 					} else {	  
 				      gl_Position=q0;					  
-                      vert =v0;				  
+                      vert =v0;pos=r0;		  
 					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
 					  EmitVertex();
 					}
 				      gl_Position=q1;					  
-                      vert =v1;				  
+                      vert =v1;pos=r1;		  
 					  EmitVertex();
 					if(IS_QUAD!=0){
 				      gl_Position=q3;					  
-                      vert =v3;
+                      vert =v3;pos=r3;
 					  EmitVertex();
 				      gl_Position=q2;					  
-                      vert =v2;
+                      vert =v2;pos=r2;
 					  EmitVertex();
 					} else {
 				      gl_Position=q2;					  
-                      vert =v2;
+                      vert =v2;pos=r2;
 					  EmitVertex();
 					}
 					EndPrimitive();
@@ -2928,6 +2935,232 @@ void WireframeShader::draw(
 		if (pr.first->triIndexes.size() > 0) {
 			set("IS_QUAD", 0).set("PoseMat", pr.second).draw( { pr.first },
 					GLMesh::PrimitiveType::TRIANGLES);
+		}
+	}
+	end();
+}
+
+
+LineDistanceShader::LineDistanceShader(bool onScreen,
+	const std::shared_ptr<AlloyContext>& context) :
+	GLShader(onScreen, context), lineWidth(2.0f), solid(false) {
+	initialize({},
+		R"(	#version 330
+				layout(location = 3) in vec3 vp0;
+				layout(location = 4) in vec3 vp1;
+				layout(location = 5) in vec3 vp2;
+				layout(location = 6) in vec3 vp3;
+				out VS_OUT {
+					vec3 p0;
+					vec3 p1;
+					vec3 p2;
+					vec3 p3;
+				} vs_out;
+				void main() {
+					vs_out.p0=vp0;
+					vs_out.p1=vp1;
+					vs_out.p2=vp2;
+					vs_out.p3=vp3;
+				})",
+		R"(	#version 330
+				in vec3 v0, v1, v2, v3;
+				in vec3 normal,vert;
+				in vec4 pos;
+				uniform vec4 viewport;
+				uniform float MIN_DEPTH;
+				uniform float MAX_DEPTH;
+				uniform float LINE_WIDTH;
+				uniform int IS_QUAD;
+				uniform int IS_SOLID;
+				void main() {
+				  vec3 line, vec, proj;
+				  float dists[4];
+				  vec = vert - v0;
+				  line = normalize(v1 - v0);
+				  proj = dot(vec, line) * line;
+				  dists[0] = length ((vec - proj).xy*viewport.zw);
+				  vec = vert - v1;
+                  line = normalize(v2 - v1);
+				  proj = dot(vec, line) * line;
+				  dists[1] = length ((vec - proj).xy*viewport.zw);
+				if(IS_QUAD!=0){
+                  vec = vert - v2;
+				  line = normalize(v3 - v2); 
+				  proj = dot(vec, line) * line;
+				  dists[2] = length ((vec - proj).xy*viewport.zw);
+				  line = normalize(v0 - v3); 
+                  vec = vert - v3;
+				  proj = dot(vec, line) * line;
+				  dists[3] = length ((vec - proj).xy*viewport.zw);
+				} else {
+                  vec = vert - v2;
+				  line = normalize(v0 - v2); 
+				  proj = dot(vec, line) * line;
+				  dists[2] = length ((vec - proj).xy*viewport.zw);
+				}
+                  float minDist=1E30;
+                  for(int n=0;n<3+IS_QUAD;n++){
+                     if(dists[n]<minDist){
+                       minDist=dists[n];
+                     }
+				  }
+				float inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,minDist);	
+				float d=(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
+				gl_FragColor=vec4(normalize(normal),d);
+				gl_FragDepth=d;
+				if(IS_SOLID==0&&inside>0.5f){
+					discard;
+				}
+		    })",
+		R"(	#version 330
+					layout (points) in;
+					layout (triangle_strip, max_vertices=4) out;
+					in VS_OUT {
+						vec3 p0;
+						vec3 p1;
+						vec3 p2;
+						vec3 p3;
+					} quad[];
+					out vec3 v0, v1, v2, v3;
+					
+					out vec3 normal, vert;
+					out vec4 pos;
+					uniform int IS_QUAD;
+				uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat,PoseMat; 
+					void main() {
+					  mat4 PVM=ProjMat*ViewModelMat*PoseMat;
+					  mat4 VM=ViewModelMat*PoseMat;
+					  vec4 q0,q1,q2,q3;
+					  vec4 r0,r1,r2,r3;
+					  vec3 p0=quad[0].p0;
+					  vec3 p1=quad[0].p1;
+					  vec3 p2=quad[0].p2;
+                      vec3 p3=quad[0].p3;
+
+					  r0=VM*vec4(p0,1);					  
+                      r1=VM*vec4(p1,1);					  
+                      r2=VM*vec4(p2,1);					  
+                      r3=VM*vec4(p3,1);
+
+					  q0=PVM*vec4(p0,1);					  
+                      v0 = q0.xyz/q0.w;				  
+					  q1=PVM*vec4(p1,1);					  
+                      v1 = q1.xyz/q1.w;	
+					  q2=PVM*vec4(p2,1);					  
+                      v2 =q2.xyz/q2.w;		
+					  q3=PVM*vec4(p3,1);					  
+                      v3 = q3.xyz/q3.w;	
+					  
+					if(IS_QUAD!=0){
+				      gl_Position=q0;					  
+                      vert =v0;
+					  pos = r0;
+					  vec3 pt=0.25*(p0+p1+p2+p3);
+					  normal = cross(p0-pt, p1-pt)+cross(p1-pt, p2-pt)+cross(p2-pt, p3-pt)+cross(p3-pt, p0-pt);
+					  normal = (VM*vec4(normalize(-normal),0.0)).xyz;
+					  EmitVertex();
+					} else {	  
+				      gl_Position=q0;					  
+                      vert =v0;		
+					  pos = r0;		  
+					  normal = (VM*vec4(normalize(cross( p2-p0, p1-p0)),0.0)).xyz;
+					  EmitVertex();
+					}
+				      gl_Position=q1;					  
+                      vert =v1;		
+					  pos = r1;		  
+					  EmitVertex();
+					if(IS_QUAD!=0){
+				      gl_Position=q3;					  
+                      vert= v3;
+					  pos = r3;
+					  EmitVertex();
+				      gl_Position=q2;					  
+                      vert= v2;
+					  pos = r2;
+					  EmitVertex();
+					} else {
+				      gl_Position=q2;					  
+                      vert= v2;
+					  pos = r2;
+					  EmitVertex();
+					}
+					EndPrimitive();
+	
+					 })");
+}
+void LineDistanceShader::draw(const Mesh& mesh, CameraParameters& camera,
+	const GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	draw({ &mesh }, camera, frameBuffer.getViewport());
+	frameBuffer.end();
+}
+void LineDistanceShader::draw(
+	const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+	CameraParameters& camera, const GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	draw(meshes, camera, frameBuffer.getViewport());
+	frameBuffer.end();
+}
+void LineDistanceShader::draw(
+	const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+	CameraParameters& camera, const GLFrameBuffer& frameBuffer) {
+	frameBuffer.begin();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	draw(meshes, camera, frameBuffer.getViewport());
+	frameBuffer.end();
+}
+void LineDistanceShader::draw(const std::initializer_list<const Mesh*>& meshes,
+	CameraParameters& camera, const box2px& bounds) {
+	begin().set("IS_SOLID", (solid ? 1 : 0)).set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+		camera.getFarPlane()).set(camera, bounds).set("viewport", bounds).set(
+			"PoseMat", float4x4::identity()).set("LINE_WIDTH", lineWidth).set("IS_QUAD",
+					1).draw(meshes, GLMesh::PrimitiveType::QUADS).set("IS_QUAD", 0).draw(
+						meshes, GLMesh::PrimitiveType::TRIANGLES).end();
+}
+void LineDistanceShader::draw(
+	const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
+	CameraParameters& camera, const box2px& bounds) {
+	begin().set("IS_SOLID", (solid ? 1 : 0)).set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+		camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set(camera, bounds).set(
+				"viewport", bounds);
+	for (std::pair<const Mesh*, float4x4> pr : meshes) {
+		if (pr.first->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+				GLMesh::PrimitiveType::QUADS);
+		}
+		if (pr.first->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+				GLMesh::PrimitiveType::TRIANGLES);
+		}
+	}
+	end();
+}
+void LineDistanceShader::draw(
+	const std::list<std::pair<const Mesh*, float4x4>>& meshes,
+	CameraParameters& camera, const box2px& bounds) {
+	begin().set("IS_SOLID", (solid ? 1 : 0)).set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+		camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set(camera, bounds).set(
+				"viewport", bounds);
+	for (std::pair<const Mesh*, float4x4> pr : meshes) {
+		if (pr.first->quadIndexes.size() > 0) {
+			set("IS_QUAD", 1).set("PoseMat", pr.second).draw({ pr.first },
+				GLMesh::PrimitiveType::QUADS);
+		}
+		if (pr.first->triIndexes.size() > 0) {
+			set("IS_QUAD", 0).set("PoseMat", pr.second).draw({ pr.first },
+				GLMesh::PrimitiveType::TRIANGLES);
 		}
 	}
 	end();

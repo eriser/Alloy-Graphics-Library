@@ -34,6 +34,7 @@
 #include "../../include/example/MeshTextureEx.h"
 #include "../../include/example/MeshVertexColorEx.h"
 #include "../../include/example/MeshParticleEx.h"
+#include "../../include/example/MeshDepthEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -44,7 +45,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		MeshParticleEx app;
+		MeshDepthEx app;
 		//MeshViewer app;
 #endif
 
