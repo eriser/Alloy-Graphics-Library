@@ -29,6 +29,7 @@
 #include "../../include/example/ControlsEx.h"
 #include "../../include/example/DialogsEx.h"
 #include "../../include/example/ExpandEx.h"
+#include "../../include/example/MeshMatcapEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -39,7 +40,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		ExpandEx app;
+		MeshMatcapEx app;
 		//ExampleUI app;
 #endif
 
