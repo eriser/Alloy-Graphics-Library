@@ -20,20 +20,32 @@
  */
 
 #include "Alloy.h"
-#include "../../include/example/MeshTextureEx.h"
+#include "../../include/example/MeshVertexColorEx.h"
 using namespace aly;
-MeshTextureEx::MeshTextureEx() :
-		Application(800, 600, "Mesh with Texture Example") {
+MeshVertexColorEx::MeshVertexColorEx() :
+		Application(800, 600, "Mesh with Vertex Color Example"), matcapShader(
+				getFullPath("images/JG_Silver.png")) {
 }
-bool MeshTextureEx::init(Composite& rootNode) {
-	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
-	mesh.load(getFullPath("models/tanya.ply"));
+bool MeshVertexColorEx::init(Composite& rootNode) {
+	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
+			float3(1.0f, 1.0f, 1.0f));
+
+	mesh.load(getFullPath("models/armadillo.ply"));
 	mesh.updateVertexNormals();
-	texImage.load(mesh.textureImage);
+	int N = (int) mesh.vertexLocations.size();
+	mesh.vertexColors.resize(N);
+	box3f box = mesh.getBoundingBox();
+	for (int n = 0; n < N; n++) {
+		float3 pt = mesh.vertexLocations[n];
+		pt=(pt - box.position) / box.dimensions;
+		mesh.vertexColors[n] =HSVAtoRGBAf(HSVA(pt.x,0.7f,0.5f,1.0f));
+	}
 	//Make region on screen to render 3d view
-	renderRegion=MakeRegion("Render View",CoordPerPX(0.5f,0.5f,-256,-256),CoordPX(512,512),COLOR_NONE,COLOR_WHITE,UnitPX(1.0f));
+	renderRegion = MakeRegion("Render View", CoordPerPX(0.5f, 0.5f, -256, -256),
+			CoordPX(512, 512), COLOR_NONE, COLOR_WHITE, UnitPX(1.0f));
 	//Initialize depth buffer to store the render
-	depthFrameBuffer.initialize(512,512);
+	depthFrameBuffer.initialize(512, 512);
+	colorFrameBuffer.initialize(512, 512);
 	//Set up camera
 	camera.setNearFarPlanes(-2.0f, 2.0f);
 	camera.setZoom(0.75f);
@@ -47,12 +59,17 @@ bool MeshTextureEx::init(Composite& rootNode) {
 	rootNode.add(renderRegion);
 	return true;
 }
-void MeshTextureEx::draw(AlloyContext* context){
+void MeshVertexColorEx::draw(AlloyContext* context) {
 	if (camera.isDirty()) {
-		//Compute depth and texture uvs only when camera view changes.
-		depthAndTextureShader.draw(mesh, camera, depthFrameBuffer);
+		//Compute depth and normals only when camera view changes.
+		depthAndNormalShader.draw(mesh, camera, depthFrameBuffer);
+		colorVertexShader.draw(mesh,camera,colorFrameBuffer);
 	}
-	textureMeshShader.draw(depthFrameBuffer.getTexture(),texImage,camera,renderRegion->getBounds(),context->getViewport());
+	//Recompute lighting at every draw pass.
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	matcapShader.draw(depthFrameBuffer.getTexture(), camera,renderRegion->getBounds(), context->getViewport(), RGBAf(1.0f));
+	imageShader.draw(colorFrameBuffer.getTexture(),renderRegion->getBounds(), 0.3f, false);
 	camera.setDirty(false);
 }
 
