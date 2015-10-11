@@ -30,6 +30,7 @@
 #include "../../include/example/DialogsEx.h"
 #include "../../include/example/ExpandEx.h"
 #include "../../include/example/MeshMatcapEx.h"
+#include "../../include/example/MeshWireframeEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -40,8 +41,8 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		MeshMatcapEx app;
-		//ExampleUI app;
+		MeshWireframeEx app;
+		//MeshViewer app;
 #endif
 
 		//SANITY_CHECK_ANY();

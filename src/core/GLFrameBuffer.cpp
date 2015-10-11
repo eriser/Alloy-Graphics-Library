@@ -52,7 +52,7 @@ GLFrameBuffer::~GLFrameBuffer() {
 	context->end();
 }
 void GLFrameBuffer::begin(const float4& clearColor, bool clearColorBit,
-		bool clearDepthBit) {
+		bool clearDepthBit) const {
 	if (texture.width() * texture.height() == 0)
 		throw std::runtime_error("Framebuffer has not been initialized.");
 	context->begin(onScreen);
@@ -69,7 +69,7 @@ void GLFrameBuffer::begin(const float4& clearColor, bool clearColorBit,
 	glClear(flags);
 	CHECK_GL_ERROR();
 }
-void GLFrameBuffer::end() {
+void GLFrameBuffer::end() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glViewport(0, 0, context->width(), context->height());
