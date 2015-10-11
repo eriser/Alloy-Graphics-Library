@@ -2720,9 +2720,9 @@ void main() {
 WireframeShader::WireframeShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context), lineWidth(2.0f), edgeColor(1.0f, 1.0f,
-				1.0f, 1.0f), faceColor(0.0f, 0.1f, 0.0f, 0.0f) {
-	initialize( { },
-			R"(	#version 330
+				1.0f, 1.0f), faceColor(0.0f, 0.1f, 0.0f, 0.0f),solid(true) {
+	initialize({},
+		R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
 				layout(location = 5) in vec3 vp2;
@@ -2739,7 +2739,7 @@ WireframeShader::WireframeShader(bool onScreen,
 					vs_out.p2=vp2;
 					vs_out.p3=vp3;
 				})",
-			R"(	#version 330
+		R"(	#version 330
 				in vec3 v0, v1, v2, v3;
 				in vec3 normal, vert;
 				uniform vec4 viewport;
@@ -2749,6 +2749,7 @@ WireframeShader::WireframeShader(bool onScreen,
 				uniform vec4 faceColor;
 				uniform float LINE_WIDTH;
 				uniform int IS_QUAD;
+				uniform int IS_SOLID;
 				void main() {
 				  vec3 line, vec, proj;
 				  float dists[4];
@@ -2782,7 +2783,11 @@ WireframeShader::WireframeShader(bool onScreen,
                      }
 				  }
 				float inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,minDist);	
+				gl_FragDepth=(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 				gl_FragColor=mix(edgeColor,faceColor,inside);
+				if(IS_SOLID==0&&inside>0.5f){
+					discard;
+				}
 		    })",
 			R"(	#version 330
 					layout (points) in;
@@ -2882,7 +2887,7 @@ void WireframeShader::draw(
 }
 void WireframeShader::draw(const std::initializer_list<const Mesh*>& meshes,
 		CameraParameters& camera, const box2px& bounds) {
-	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+	begin().set("IS_SOLID",(solid?1:0)).set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set(camera, bounds).set("viewport", bounds).set(
 			"PoseMat", float4x4::identity()).set("LINE_WIDTH", lineWidth).set(
 			"edgeColor", edgeColor).set("faceColor", faceColor).set("IS_QUAD",
@@ -2892,7 +2897,7 @@ void WireframeShader::draw(const std::initializer_list<const Mesh*>& meshes,
 void WireframeShader::draw(
 		const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 		CameraParameters& camera, const box2px& bounds) {
-	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+	begin().set("IS_SOLID", (solid ? 1 : 0)).set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set("edgeColor",
 			edgeColor).set("faceColor", faceColor).set(camera, bounds).set(
 			"viewport", bounds);
@@ -2911,7 +2916,7 @@ void WireframeShader::draw(
 void WireframeShader::draw(
 		const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 		CameraParameters& camera, const box2px& bounds) {
-	begin().set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
+	begin().set("IS_SOLID", (solid ? 1 : 0)).set("MIN_DEPTH", camera.getNearPlane()).set("MAX_DEPTH",
 			camera.getFarPlane()).set("LINE_WIDTH", lineWidth).set("edgeColor",
 			edgeColor).set("faceColor", faceColor).set(camera, bounds).set(
 			"viewport", bounds);

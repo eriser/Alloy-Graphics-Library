@@ -120,6 +120,7 @@ public:
 			const std::initializer_list<std::pair<const Mesh*, float4x4>>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer, float radius =
 					1.0f);
+
 	void draw(const std::list<const Mesh*>& meshes, CameraParameters& camera,
 			GLFrameBuffer& framebuffer, float radius = 1.0f);
 	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
@@ -522,6 +523,7 @@ private:
 	float lineWidth;
 	Color edgeColor;
 	Color faceColor;
+	bool solid;
 public:
 	inline void setEdgeColor(const Color& c) {
 		edgeColor = c;
@@ -531,6 +533,9 @@ public:
 	}
 	void setLineWidth(float w) {
 		this->lineWidth = w;
+	}
+	void setSolid(bool s) {
+		solid = s;
 	}
 	WireframeShader(bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& contex =
