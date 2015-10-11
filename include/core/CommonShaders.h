@@ -603,6 +603,9 @@ private:
 	float sampleRadius;
 	std::vector<float3> sampleNormals;
 public:
+	void setSampleRadius(float r){
+		sampleRadius=r;
+	}
 	AmbientOcclusionShader(bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& contex =
 					AlloyDefaultContext());

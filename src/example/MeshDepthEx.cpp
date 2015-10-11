@@ -51,6 +51,7 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	addListener(&camera);
 	distanceFieldShader.setExtent(16);
 	lineDistanceShader.setLineWidth(3.0f);
+	ambientOcclusionShader.setSampleRadius(0.01f);
 	return true;
 }
 void MeshDepthEx::draw(AlloyContext* context){
