@@ -54,8 +54,6 @@
     <ClCompile Include="..\..\src\core\sha2.cpp" />
     <ClCompile Include="..\..\src\core\tinyexr.cpp" />
     <ClCompile Include="..\..\src\core\tiny_obj_loader.cpp" />
-    <ClCompile Include="..\..\src\example\main.cpp" />
-    <ClCompile Include="..\..\src\example\MeshViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h" />

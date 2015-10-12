@@ -63,9 +63,6 @@
     <ClCompile Include="..\..\src\core\AlloyWorker.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\example\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\core\AlloyImage.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -85,9 +82,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\core\AlloyVolume.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\example\MeshViewer.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp">

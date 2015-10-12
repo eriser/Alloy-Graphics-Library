@@ -458,10 +458,10 @@ public:
 	inline int size() const {
 		return (int) lights.size();
 	}
-	PhongShader(int numLights, bool onScreen,
+	PhongShader(int numLights, bool onScreen=true,
 			const std::shared_ptr<AlloyContext>& contex =
 					AlloyDefaultContext());
-	PhongShader(const SimpleLight& light, bool onScreen,
+	PhongShader(const SimpleLight& light, bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext()) :
 			PhongShader(1, onScreen, context) {

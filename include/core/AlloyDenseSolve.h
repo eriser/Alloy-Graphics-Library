@@ -367,7 +367,7 @@ namespace aly {
 	template<class T, int C> DenseMatrix<T, C> inverse(const DenseMatrix<T, C>& M,
 		double zeroTolerance = 0.0) {
 		if (M.rows != M.cols) {
-			throw std::runtime_error(MakeString()<<"Could not invert matrix.  Rows and columns must agree: [" << M.rows << "," << M.cols<<"]");
+			throw std::runtime_error(MakeString()<<"Could not invert matrix.  Rows and columns must agree: [" << M.rows << ", " << M.cols<<"]");
 		}
 		DenseMatrix<T, C> U, D, Vt;
 		SVD(M, U, D, Vt);
