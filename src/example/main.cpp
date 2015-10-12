@@ -18,8 +18,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../../include/example/AlloyExampleUI.h"
-#include "../../include/example/MeshViewer.h"
+
 #include "../../include/example/UnitsEx.h"
 #include "../../include/example/CompositeEx.h"
 #include "../../include/example/EventsEx.h"
