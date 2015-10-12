@@ -4,13 +4,7 @@
     <ClCompile Include="..\..\src\example\UnitsEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\example\AlloyExampleUI.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\example\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\example\MeshViewer.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\example\CompositeEx.cpp">
@@ -61,12 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\UnitsEx.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\example\MeshViewer.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\example\AlloyExampleUI.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\example\CompositeEx.h">
