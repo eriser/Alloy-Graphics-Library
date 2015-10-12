@@ -44,6 +44,7 @@ bool MeshPhongEx::init(Composite& rootNode) {
 	//Add listener to respond to mouse manipulations
 	addListener(&camera);
 
+	//Setup light. "w" channel used to configure contributions of different lighting terms.
 	phongShader[0] = SimpleLight(Color(0.5f, 0.5f, 0.5f, 0.25f),
 		Color(1.0f, 1.0f, 1.0f, 0.25f), Color(0.8f, 0.0f, 0.0f, 0.5f),
 		Color(0.8f, 0.0f, 0.0f, 0.5f), 16.0f, float3(0, 0.0, 2.0),
