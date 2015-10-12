@@ -26,14 +26,18 @@
     <ClCompile Include="..\..\src\example\EventsEx.cpp" />
     <ClCompile Include="..\..\src\example\ExpandEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageEx.cpp" />
+    <ClCompile Include="..\..\src\example\LaplaceFillEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshDepthEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshMatcapEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshParticleEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshPhongEx.cpp" />
+    <ClCompile Include="..\..\src\example\MeshSubdivideEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshTextureEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshVertexColorEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshWireframeEx.cpp" />
+    <ClCompile Include="..\..\src\example\PoissonBlendEx.cpp" />
+    <ClCompile Include="..\..\src\example\PoissonInpaintEx.cpp" />
     <ClCompile Include="..\..\src\example\TweenEx.cpp" />
     <ClCompile Include="..\..\src\example\UnitsEx.cpp" />
   </ItemGroup>
@@ -45,13 +49,18 @@
     <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\ExpandEx.h" />
     <ClInclude Include="..\..\include\example\ImageEx.h" />
+    <ClInclude Include="..\..\include\example\LaplaceFillEx.h" />
     <ClInclude Include="..\..\include\example\MeshDepthEx.h" />
     <ClInclude Include="..\..\include\example\MeshMatcapEx.h" />
     <ClInclude Include="..\..\include\example\MeshParticleEx.h" />
     <ClInclude Include="..\..\include\example\MeshPhongEx.h" />
+    <ClInclude Include="..\..\include\example\MeshSubdivideEx.h" />
     <ClInclude Include="..\..\include\example\MeshTextureEx.h" />
     <ClInclude Include="..\..\include\example\MeshVertexColorEx.h" />
     <ClInclude Include="..\..\include\example\MeshWireframeEx.h" />
+    <ClInclude Include="..\..\include\example\PoissonBlendEx.h" />
+    <ClInclude Include="..\..\include\example\PoissonInpaintEx.h" />
+    <ClInclude Include="..\..\include\example\stb_image_write.h" />
     <ClInclude Include="..\..\include\example\TweenEx.h" />
     <ClInclude Include="..\..\include\example\UnitsEx.h" />
   </ItemGroup>
