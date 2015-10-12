@@ -29,9 +29,10 @@ protected:
 	aly::RegionPtr renderRegion;
 	aly::GLFrameBuffer depthFrameBuffer;
 	aly::GLFrameBuffer wireframeBuffer;
-	aly::MatcapShader matcapShader;
-	aly::ParticleDepthShader particleDepthShader;
 	aly::ParticleMatcapShader particleMatcapShader;
+	aly::ParticleDepthShader particleDepthShader;
+	aly::MatcapShader matcapShader;
+
 	aly::WireframeShader wireframeShader;
 	aly::ImageShader imageShader;
 	aly::Mesh mesh;
