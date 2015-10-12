@@ -36,6 +36,8 @@
 #include "../../include/example/MeshDepthEx.h"
 #include "../../include/example/MeshPhongEx.h"
 #include "../../include/example/LaplaceFillEx.h"
+#include "../../include/example/PoissonBlendEx.h"
+#include "../../include/example/PoissonInpaintEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -46,7 +48,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		LaplaceFillEx app;
+		PoissonBlendEx app;
 		//MeshViewer app;
 #endif
 
