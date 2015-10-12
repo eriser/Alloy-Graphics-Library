@@ -51,8 +51,8 @@ bool MeshWireframeEx::init(Composite& rootNode) {
 	setOnResize([=](const int2& dims) {
 		camera.setDirty(true);
 	});
-	wireframeShader.setFaceColor(Color(0.0f,0.1f,0.0f,0.7f));
-	wireframeShader.setEdgeColor(Color(1.0f,0.5f,0.1f,1.0f));
+	wireframeShader.setFaceColor(Color(0.1f,0.1f,1.0f,0.5f));
+	wireframeShader.setEdgeColor(Color(1.0f,0.8f,0.1f,1.0f));
 	wireframeShader.setLineWidth(1.5f);
 	return true;
 }

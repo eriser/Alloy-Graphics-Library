@@ -30,6 +30,7 @@
 #include "../../include/example/ExpandEx.h"
 #include "../../include/example/MeshMatcapEx.h"
 #include "../../include/example/MeshWireframeEx.h"
+#include "../../include/example/MeshSubdivideEx.h"
 #include "../../include/example/MeshTextureEx.h"
 #include "../../include/example/MeshVertexColorEx.h"
 #include "../../include/example/MeshParticleEx.h"
@@ -48,7 +49,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		PoissonBlendEx app;
+		MeshWireframeEx app;
 		//MeshViewer app;
 #endif
 
