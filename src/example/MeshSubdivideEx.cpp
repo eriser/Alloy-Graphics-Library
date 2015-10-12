@@ -23,7 +23,7 @@
 #include "../../include/example/MeshSubdivideEx.h"
 using namespace aly;
 MeshSubdivideEx::MeshSubdivideEx() :
-		Application(800, 600, "Mesh with Wireframe Example"), matcapShader(
+		Application(800, 600, "Mesh Sub-Division Example"), matcapShader(
 				getFullPath("images/JG_Silver.png")), imageShader(
 				ImageShader::Filter::SMALL_BLUR) {
 }
