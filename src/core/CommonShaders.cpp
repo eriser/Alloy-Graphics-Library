@@ -2381,7 +2381,73 @@ rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
 gl_FragColor=rgba;
 })");
 }
+OutlineShader::OutlineShader(
+	const std::shared_ptr<AlloyContext>& context) :
+	GLShader(onScreen, context), innerGlowColor(0.5f, 0.1f,
+		0.05f, 1.0f), outerGlowColor(0.1f, 0.05f, 0.5f, 1.0f), edgeColor(
+			1.0f, 1.0f, 1.0f, 1.0f) {
+	setLineWidth(2.0f);
+	initialize({},
+		R"(
+#version 330
+layout(location = 0) in vec3 vp; 
+layout(location = 1) in vec2 vt; 
+uniform vec4 bounds;
+uniform vec4 viewport;
 
+out vec2 uv;
+void main() {
+uv=vt;
+vec2 pos=vp.xy*bounds.zw+bounds.xy;
+gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
+})",
+R"(
+#version 330
+in vec2 uv;
+uniform ivec2 imageSize;
+uniform int KERNEL_SIZE;
+uniform float LINE_WIDTH;
+uniform sampler2D textureImage;
+uniform vec4 innerColor,outerColor,edgeColor;
+float inside;
+void main() {
+ivec2 pos=ivec2(uv.x*imageSize.x,uv.y*imageSize.y);
+vec4 rgba=texelFetch(textureImage,pos,0);
+vec4 nrgba;
+float minDistance=KERNEL_SIZE*KERNEL_SIZE;
+gl_FragDepth=rgba.w;
+if(rgba.w<1.0){
+for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
+	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+if(pos.x+i>=0&&pos.y+j>=0&&pos.x+i<imageSize.x&&pos.y+j<imageSize.y){
+      nrgba=texelFetch(textureImage,pos+ivec2(i,j),0);
+if(nrgba.w>=1.0){
+      minDistance=min(minDistance,i*i+j*j);
+}
+}
+	}
+}
+inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,sqrt(minDist));	
+rgba=mix(edgeColor,innerColor,inside);
+
+} else {
+minDistance=KERNEL_SIZE*KERNEL_SIZE;
+for(int i=-KERNEL_SIZE;i<=KERNEL_SIZE;i++){
+	for(int j=-KERNEL_SIZE;j<=KERNEL_SIZE;j++){
+      if(pos.x+i>=0&&pos.y+j>=0&&pos.x+i<imageSize.x&&pos.y+j<imageSize.y){
+      nrgba=texelFetch(textureImage,pos+ivec2(i,j),0);
+if(nrgba.w<1.0){
+      minDistance=min(minDistance,i*i+j*j);
+}
+}
+	}
+}
+inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,sqrt(minDist));	
+rgba=mix(edgeColor,outerColor,inside);
+}
+gl_FragColor=rgba;
+})");
+}
 DistanceFieldShader::DistanceFieldShader(
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context), kernelSize(8), innerGlowColor(0.5f, 0.1f,

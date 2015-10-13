@@ -687,6 +687,58 @@ public:
 		draw(imageTexture, box2px(location, dimensions), viewport);
 	}
 };
+
+class OutlineShader : public GLShader {
+private:
+	int kernelSize;
+	aly::Color innerGlowColor;
+	aly::Color outerGlowColor;
+	aly::Color edgeColor;
+	float lineWidth;
+public:
+	inline void setInnerGlowColor(const Color& c) {
+		innerGlowColor = c;
+	}
+	inline void setOuterGlowColor(const Color& c) {
+		outerGlowColor = c;
+	}
+	inline void setEdgeColor(const Color& c) {
+		edgeColor = c;
+	}
+	inline void setLineWidth(float w) {
+		lineWidth = w;
+		kernelSize =(int)(2*w);
+	}
+	OutlineShader(const std::shared_ptr<AlloyContext>& contex =
+		AlloyDefaultContext());
+
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
+		const box2px& viewport) {
+		begin().set("LINE_WIDTH",lineWidth).set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
+			"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
+				"textureImage", imageTexture, 0).set("bounds", bounds).set(
+					"imageSize", imageTexture.bounds.dimensions).set("viewport",
+						viewport).draw(imageTexture).end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, const GLFrameBuffer& frameBuffer) {
+		frameBuffer.begin();
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		draw(imageTexture, frameBuffer.getViewport(), frameBuffer.getViewport());
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		frameBuffer.end();
+	}
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& imageTexture, const float2& location,
+		const float2& dimensions, const box2px& viewport) {
+		draw(imageTexture, box2px(location, dimensions), viewport);
+	}
+};
 }
 
 #endif /* COMMONSHADERS_H_ */
