@@ -12,7 +12,7 @@ LDLIBS =-L./ -L/usr/lib/ -L/usr/local/lib/ -L/usr/lib/x86_64-linux-gnu/
 LIBS =-lalloy -lglfw -lgomp -lGL -lXext -lGLU -lGLEW -lXi -lXrandr -lX11 -lXxf86vm -lXinerama -lXcursor -lXdamage -ldrm -lpthread -lfreetype -lm -lrt -ldl -lstdc++
 RM=rm -f
 
-EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx ControlsEx DialogsEx ExpandEx MeshMatcapEx MeshWireframeEx MeshTextureEx MeshVertexColorEx MeshParticleEx MeshDepthEx MeshPhongEx LaplaceFillEx PoissonBlendEx PoissonInpaintEx MeshSubdivideEx ImageProcessingEx
+EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx ControlsEx DialogsEx ExpandEx MeshMatcapEx MeshWireframeEx MeshTextureEx MeshVertexColorEx MeshParticleEx MeshDepthEx MeshPhongEx LaplaceFillEx PoissonBlendEx PoissonInpaintEx MeshSubdivideEx ImageProcessingEx MeshPickerEx
 
 alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)
