@@ -19,18 +19,15 @@
  * THE SOFTWARE.
  */
 
-#ifndef LAPLACEFILL_EX_H_
-#define LAPLACEFILL_EX_H_
+#ifndef IMAGEPROC_EX_H_
+#define IMAGEPROC_EX_H_
 
 #include "AlloyApplication.h"
 #include "CommonShaders.h"
-class LaplaceFillEx: public aly::Application {
-protected:
-	aly::ImageRGBAf src, tar,mask;
-	aly::WorkerTaskPtr workerTask;
-	aly::RegionPtr drawRegion;
+class ImageProcessingEx: public aly::Application {
+
 public:
-	LaplaceFillEx();
+	ImageProcessingEx();
 	bool init(aly::Composite& rootNode);
 };
 

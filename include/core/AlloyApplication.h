@@ -92,9 +92,29 @@ public:
 			const std::string& fileName, bool mipmap = false) {
 		return context->createImageGlyph(fileName);
 	}
+
 	inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBA& img,
 			bool mipmap = false) {
 		return context->createImageGlyph(img);
+	}
+
+	inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBAf& img,
+		bool mipmap = false) {
+		ImageRGBA tmp;
+		ConvertImage(img, tmp);
+		return context->createImageGlyph(tmp);
+	}
+	inline std::shared_ptr<ImageGlyph> createImageGlyph(const Image1f& img,
+		bool mipmap = false) {
+		ImageRGBA tmp;
+		ConvertImage(img, tmp);
+		return context->createImageGlyph(tmp);
+	}
+	inline std::shared_ptr<ImageGlyph> createImageGlyph(const Image1b& img,
+		bool mipmap = false) {
+		ImageRGBA tmp;
+		ConvertImage(img, tmp);
+		return context->createImageGlyph(tmp);
 	}
 	inline std::shared_ptr<AwesomeGlyph> createAwesomeGlyph(int codePoint,
 			const FontStyle& style = FontStyle::Normal, pixel height = 32) {

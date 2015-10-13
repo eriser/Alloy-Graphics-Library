@@ -39,6 +39,7 @@
 #include "../../include/example/LaplaceFillEx.h"
 #include "../../include/example/PoissonBlendEx.h"
 #include "../../include/example/PoissonInpaintEx.h"
+#include "../../include/example/ImageProcessingEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -49,7 +50,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		MeshWireframeEx app;
+		ImageProcessingEx app;
 		//MeshViewer app;
 #endif
 

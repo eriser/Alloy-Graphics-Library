@@ -28,9 +28,7 @@ class PoissonInpaintEx: public aly::Application {
 protected:
 	aly::ImageRGBAf src, tar,mask;
 	aly::WorkerTaskPtr workerTask;
-	aly::GLTextureRGBAf texImage;
 	aly::RegionPtr drawRegion;
-	aly::ImageShader imageShader;
 public:
 	PoissonInpaintEx();
 	bool init(aly::Composite& rootNode);

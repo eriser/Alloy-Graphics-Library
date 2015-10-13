@@ -28,9 +28,7 @@ class PoissonBlendEx: public aly::Application {
 protected:
 	aly::ImageRGBAf src, tar;
 	aly::WorkerTaskPtr workerTask;
-	aly::GLTextureRGBAf texImage;
 	aly::RegionPtr drawRegion;
-	aly::ImageShader imageShader;
 public:
 	PoissonBlendEx();
 	bool init(aly::Composite& rootNode);
