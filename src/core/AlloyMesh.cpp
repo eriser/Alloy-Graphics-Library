@@ -1184,6 +1184,9 @@ namespace aly {
 				aly::ReadImageFromFile(GetParentDirectory(file) + ALY_PATH_SEPARATOR + texName, mesh.textureImage);
 			}
 		}
+		if (mesh.vertexNormals.size() == 0) {
+			mesh.updateVertexNormals();
+		}
 		mesh.updateBoundingBox();
 	}
 	void ReadMeshFromFile(const std::string& file, Mesh &mesh) {
