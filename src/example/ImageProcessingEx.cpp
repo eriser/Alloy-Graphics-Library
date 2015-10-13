@@ -30,7 +30,7 @@ bool ImageProcessingEx::init(Composite& rootNode) {
 	ImageRGBAf tmp,initImg,gx,gy,laplace,smooth;
 	ReadImageFromFile(getFullPath("images/sfmarket.png"), initImg);
 	Crop(initImg, tmp, int2(0, initImg.height / 2), int2(initImg.height / 2, initImg.height / 2));
-	tmp.downSample(initImg);
+	DownSample(tmp,initImg);
 	Gradient5x5(initImg, gx, gy);
 	Laplacian5x5(initImg, laplace);
 	

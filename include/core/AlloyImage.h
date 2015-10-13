@@ -1027,6 +1027,52 @@ template<class T, int C, ImageType I> void Crop(const Image<T, C, I>& in,
 		}
 	}
 }
+template<class T, int C, ImageType I> void DownSample(const Image<T, C, I>& in,Image<T, C, I>& out) {
+	static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 },{ 4, 16, 24, 16,
+		4 },{ 6, 24, 36, 24, 6 },{ 4, 16, 24, 16, 4 },
+		{ 1, 4, 6, 4, 1 } };
+	out.resize(in.width / 2, in.height / 2);
+#pragma omp parallel for
+	for (int i = 0; i < out.width; i++) {
+		for (int j = 0; j < out.height; j++) {
+			vec<double, C> vsum(0.0);
+			for (int ii = 0; ii < 5; ii++) {
+				for (int jj = 0; jj < 5; jj++) {
+					vsum += Kernel[ii][jj]
+						* vec<double, C>(
+							in(2 * i + ii - 2,
+								2 * j + jj - 2));
+				}
+			}
+			out(i, j) = vec<T, C>(vsum / 256.0);
+		}
+	}
+}
+template<class T, int C, ImageType I> void UpSample(const Image<T, C, I>& in, Image<T, C, I>& out) {
+	static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 },{ 4, 16, 24, 16,
+		4 },{ 6, 24, 36, 24, 6 },{ 4, 16, 24, 16, 4 },
+		{ 1, 4, 6, 4, 1 } };
+	if (out.size() == 0)
+		out.resize(in.width * 2, in.height * 2);
+#pragma omp parallel for
+	for (int i = 0; i < out.width; i++) {
+		for (int j = 0; j < out.height; j++) {
+			vec<double, C> vsum(0.0);
+			for (int ii = 0; ii < 5; ii++) {
+				for (int jj = 0; jj < 5; jj++) {
+					int iii = i + ii - 2;
+					int jjj = j + jj - 2;
+					if (iii % 2 == 0 && jjj % 2 == 0) {
+						vsum += Kernel[ii][jj]
+							* vec<double, C>(
+								in(iii / 2, jjj / 2));
+					}
+				}
+			}
+			out(i, j) = vec<T, C>(vsum / 64.0);
+		}
+	}
+}
 template<class T, int C, ImageType I> void Set(const Image<T, C, I>& in,
 		Image<T, C, I>& out, int2 pos) {
 	for (int i = 0; i < in.width; i++) {

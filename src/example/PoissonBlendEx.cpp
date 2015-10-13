@@ -65,7 +65,7 @@ bool PoissonBlendEx::init(Composite& rootNode) {
 	rootNode.add(resultRegion);
 	rootNode.add(textLabel);
 	workerTask = WorkerTaskPtr(new Worker([=] {
-		PoissonBlend(src, tar, 64, 6);
+		PoissonBlend(src, tar, 32, 6);
 		ImageRGBA out;
 		ConvertImage(tar,out);
 		getContext()->addDeferredTask([=]() {
