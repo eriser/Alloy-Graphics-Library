@@ -62,6 +62,10 @@ bool MeshPickerEx::init(Composite& rootNode) {
 	cursorText->horizontalAlignment = HorizontalAlignment::Center;
 	rootNode.add(cursorText);
 	
+	rootNode.onMouseOver = [this](AlloyContext* context, const InputEvent& e) {
+		cursorText->label = "";
+		return false;
+	};
 	renderRegion->onMouseOver=[this](AlloyContext* context, const InputEvent& e) {
 		if (faceIds.size() > 0) {
 			box2px bounds = renderRegion->getBounds();
