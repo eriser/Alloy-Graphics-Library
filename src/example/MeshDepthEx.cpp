@@ -34,7 +34,7 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	Subdivide(mesh, SubDivisionScheme::Loop);
 	mesh.updateVertexNormals();
 	//Initialize depth buffer to store the render
-	depthFrameBuffer.initialize(RENDER_WIDTH,RENDER_HEIGHT);
+	depthFrameBuffer.initialize(2*RENDER_WIDTH,2*RENDER_HEIGHT);
 	edgeFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
 	distanceFieldFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
 	outlineFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
@@ -52,7 +52,8 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	addListener(&camera);
 	distanceFieldShader.setExtent(16);
 	lineDistanceShader.setLineWidth(3.0f);
-	outlineShader.setLineWidth(3.0f);
+	//Renders as line width 3 because depth frame buffer is twice the size. Yields nice anti-aliased lines.
+	outlineShader.setLineWidth(6.0f);
 	//ambientOcclusionShader.setSampleRadius(0.01f);
 	return true;
 }
