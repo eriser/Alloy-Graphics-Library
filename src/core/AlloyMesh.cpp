@@ -1371,6 +1371,9 @@ namespace aly {
 		if (mesh.vertexLocations.size() > 0) {
 			mesh.updateBoundingBox();
 		}
+		if (mesh.vertexNormals.size() == 0) {
+			mesh.updateVertexNormals();
+		}
 		mesh.setDirty(true);
 	}
 

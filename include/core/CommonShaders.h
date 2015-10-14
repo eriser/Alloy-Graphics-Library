@@ -192,7 +192,9 @@ public:
 	GLFrameBuffer& getFrameBuffer() {
 		return framebuffer;
 	}
-
+	const GLFrameBuffer& getFrameBuffer() const {
+		return framebuffer;
+	}
 	FaceIdShader(bool onScreen = true,
 			const std::shared_ptr<AlloyContext>& context =
 					AlloyDefaultContext());
@@ -308,6 +310,33 @@ public:
 				"targetAlpha", targetAlpha).set("viewport",
 				context->getViewport()).draw(targetImageTexture).end();
 	}
+};
+class SelectionShader : public GLShader {
+public:
+	SelectionShader(bool onScreen = true,
+		const std::shared_ptr<AlloyContext>& context =
+		AlloyDefaultContext());
+	template<class T, int C, ImageType I> void draw(
+		const GLTexture<T, C, I>& depthTexture,
+		const FaceIdShader& faceIdShader,
+		const GLFrameBuffer& targetDepthBuffer,int2 faceId) {
+		int vertId = faceId.x;
+		int objectId = faceId.y;
+		int4 mask;
+		if (vertId < 0) {
+			mask = int4(-1,-1,-1, (objectId>=0)?1 + objectId:-1);
+		}
+		else {
+			mask = int4((vertId)& (0x00000FFF), (((vertId)& (0x00FFF000)) >> (12)), (((vertId)& (0xFF000000)) >> (24)), (objectId >= 0) ? 1 + objectId : -1);
+		}
+		targetDepthBuffer.begin();
+		begin().set("faceId", mask).set("depthImage", depthTexture, 0).set("faceImage",
+			faceIdShader.getFrameBuffer().getTexture(), 1).set("depthBufferSize",
+				depthTexture.dimensions())
+			.draw(depthTexture).end();
+		targetDepthBuffer.end();
+	}
+
 };
 class ImageShader: public GLShader {
 public:

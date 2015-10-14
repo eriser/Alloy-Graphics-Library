@@ -54,6 +54,9 @@ public:
 	GLTexture<float, 4, ImageType::FLOAT>& getTexture() {
 		return texture;
 	}
+	const GLTexture<float, 4, ImageType::FLOAT>& getTexture() const {
+		return texture;
+	}
 	virtual ~GLFrameBuffer();
 
 };

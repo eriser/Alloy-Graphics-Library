@@ -32,6 +32,7 @@ protected:
 	aly::FaceIdShader faceIdShader;
 	aly::MatcapShader matcapShader;
 	aly::OutlineShader outlineShader;
+	aly::SelectionShader selectionShader;
 	aly::TextLabelPtr cursorText;
 	std::vector<aly::Mesh> meshArray;
 	std::vector<std::pair<const aly::Mesh*, aly::float4x4>> drawList;

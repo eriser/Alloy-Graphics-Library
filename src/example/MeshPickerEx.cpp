@@ -34,18 +34,19 @@ bool MeshPickerEx::init(Composite& rootNode) {
 	Subdivide(meshArray[2], SubDivisionScheme::Loop);
 	Subdivide(meshArray[2], SubDivisionScheme::Loop);
 
-	Subdivide(meshArray[1], SubDivisionScheme::Loop);
-	Subdivide(meshArray[1], SubDivisionScheme::Loop);
 	drawList.push_back( { &meshArray[0],float4x4::identity()} );
 	drawList.push_back( { &meshArray[1],MakeScale(1.2f)*MakeTranslation(float3(-1.0f,1.0f,-1.0f))} );
 	drawList.push_back( { &meshArray[2],MakeTranslation(float3(-1.0f,1.25f,0.0f))*MakeScale(0.2f)} );
 	drawList.push_back({ &meshArray[2],MakeTranslation(float3(1.0f,-1.25f,0.0f))*MakeScale(0.2f) });
-	//Make region on screen to render 3d view
-	renderRegion=MakeRegion("Render View",CoordPerPX(0.5f,0.5f,-256,-256),CoordPX(512,512),COLOR_NONE,COLOR_WHITE,UnitPX(1.0f));
 	//Initialize depth buffer to store the render
-	depthFrameBuffer.initialize(512,512);
-	selectedDepthBuffer.initialize(512, 512);
-	faceIdShader.initialize(512, 512);
+	int w = getContext()->width();
+	int h = getContext()->height();
+	depthFrameBuffer.initialize(w, h);
+	selectedDepthBuffer.initialize(w, h);
+	faceIdShader.initialize(w, h);
+	//Make region on screen to render 3d view
+	renderRegion=MakeRegion("Render View",CoordPerPX(0.5f,0.5f,-w/2,-h/2),CoordPX(w,h),COLOR_NONE,COLOR_WHITE,UnitPX(1.0f));
+
 	//Set up camera
 	camera.setNearFarPlanes(-2.0f, 2.0f);
 	camera.setZoom(0.75f);
@@ -86,8 +87,9 @@ bool MeshPickerEx::init(Composite& rootNode) {
 		}
 		return false;
 	};
+	outlineShader.setLineWidth(2.0f);
 	outlineShader.setInnerGlowColor(RGBAf(0.5f, 0.0f, 0.0f, 0.2f));
-	outlineShader.setEdgeColor(RGBAf(0.5f, 0.0f, 0.0f, 0.2f));
+	outlineShader.setEdgeColor(RGBAf(1.0f, 1.0f, 1.0f, 0.2f));
 	outlineShader.setOuterGlowColor(RGBAf(0.0f, 0.0f, 0.0f, 0.0f));
 	return true;
 }
@@ -103,9 +105,22 @@ void MeshPickerEx::draw(AlloyContext* context){
 	//Recompute lighting at every draw pass.
 	matcapShader.draw(depthFrameBuffer.getTexture(), camera, renderRegion->getBounds(), context->getViewport(), RGBAf(1.0f));
 	if (oid >=0) {
-		depthAndNormalShader.draw({ drawList[oid] }, camera, selectedDepthBuffer);
+		selectionShader.draw(depthFrameBuffer.getTexture(),faceIdShader,selectedDepthBuffer,int2(-1,selectedFaceId.y));
 		glEnable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		outlineShader.setInnerGlowColor(RGBAf(0.5f, 0.0f, 0.0f, 0.2f));
+		outlineShader.setEdgeColor(RGBAf(0.5f, 0.5f, 0.5f, 0.2f));
 		outlineShader.draw(selectedDepthBuffer.getTexture(),renderRegion->getBounds(),context->getViewport());
+		
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		selectionShader.draw(depthFrameBuffer.getTexture(), faceIdShader, selectedDepthBuffer, selectedFaceId);
+		
+		glEnable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		outlineShader.setInnerGlowColor(RGBAf(0.0f, 0.0f, 1.0f, 0.2f));
+		outlineShader.setEdgeColor(RGBAf(1.0f, 1.0f, 1.0f, 0.2f));
+		outlineShader.draw(selectedDepthBuffer.getTexture(), renderRegion->getBounds(), context->getViewport());
 	}
 
 	camera.setDirty(false);

@@ -610,7 +610,40 @@ void ParticleIdShader::draw(
 	glEnable(GL_BLEND);
 	framebuffer.end();
 }
-
+SelectionShader::SelectionShader(bool onScreen,const std::shared_ptr<AlloyContext>& context) :
+	GLShader(onScreen, context) {
+	initialize({},
+		R"(#version 330
+		layout(location = 0) in vec3 vp;
+		layout(location = 1) in vec2 vt;
+		out vec2 uv;
+		void main() {
+			uv = vt;
+			gl_Position = vec4(2*vp.x-1.0,1.0-2*vp.y, 0, 1);
+		})",
+		R"(
+		#version 330
+		in vec2 uv;
+		uniform ivec4 faceId;
+		uniform ivec2 depthBufferSize;
+		uniform sampler2D depthImage;
+		uniform sampler2D faceImage;
+		void main() {
+			ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
+			vec4 rgba=texelFetch(depthImage, pos, 0);
+			vec4 faceIdIn=texelFetch(faceImage, pos, 0);
+			int objectId=int(faceIdIn.w);
+			if(faceId.w>=0&&objectId!=faceId.w){
+				rgba=vec4(0.0,0.0,0.0,1.0);
+			}
+			if(faceId.x>=0&&(faceId.x!=faceIdIn.x||faceId.y!=faceIdIn.y||faceId.z!=faceIdIn.z)){
+				rgba=vec4(0.0,0.0,0.0,1.0);
+			}
+			gl_FragDepth=rgba.w;
+			gl_FragColor=rgba;
+		}
+)");
+}
 CompositeShader::CompositeShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
