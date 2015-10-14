@@ -664,10 +664,8 @@ public:
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture, CameraParameters& camera,const aly::GLFrameBuffer& frameBuffer) {
 		frameBuffer.begin();
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		draw(imageTexture, frameBuffer.getViewport(), frameBuffer.getViewport(), camera);
 		glEnable(GL_BLEND);
 		frameBuffer.end();
@@ -706,10 +704,8 @@ public:
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture, const GLFrameBuffer& frameBuffer) {
 		frameBuffer.begin();
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		draw(imageTexture, frameBuffer.getViewport(),frameBuffer.getViewport());
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -745,7 +741,7 @@ public:
 	}
 	inline void setLineWidth(float w) {
 		lineWidth = w;
-		kernelSize =(int)std::ceil(2*w);
+		kernelSize =(int)std::ceil(w)+1;
 	}
 	OutlineShader(bool onScreen = true, const std::shared_ptr<AlloyContext>& contex =
 		AlloyDefaultContext());
@@ -762,10 +758,8 @@ public:
 		const GLTexture<T, C, I>& imageTexture, const GLFrameBuffer& frameBuffer) {
 
 		frameBuffer.begin();
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		draw(imageTexture, frameBuffer.getViewport(), frameBuffer.getViewport());
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
