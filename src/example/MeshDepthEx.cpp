@@ -25,7 +25,7 @@ using namespace aly;
 const int RENDER_WIDTH = 256;
 const int RENDER_HEIGHT = 256;
 MeshDepthEx::MeshDepthEx() :
-		Application(RENDER_WIDTH*5, RENDER_HEIGHT*2, "Deferred Depth Render Example"){
+		Application(RENDER_WIDTH*5, RENDER_HEIGHT*2, "Deferred Depth Render Example"),imageShader(ImageShader::Filter::MEDIUM_BLUR){
 }
 bool MeshDepthEx::init(Composite& rootNode) {
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f), float3(1.0f, 1.0f, 1.0f));
