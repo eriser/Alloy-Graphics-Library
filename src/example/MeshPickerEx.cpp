@@ -105,21 +105,27 @@ void MeshPickerEx::draw(AlloyContext* context){
 	//Recompute lighting at every draw pass.
 	matcapShader.draw(depthFrameBuffer.getTexture(), camera, renderRegion->getBounds(), context->getViewport(), RGBAf(1.0f));
 	if (oid >=0) {
+		//Mask out selected object from depth buffer. Set faceId to -1 to un-specify face.
 		selectionShader.draw(depthFrameBuffer.getTexture(),faceIdShader,selectedDepthBuffer,int2(-1,selectedFaceId.y));
 		glEnable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
 		outlineShader.setInnerGlowColor(RGBAf(0.5f, 0.0f, 0.0f, 0.2f));
 		outlineShader.setEdgeColor(RGBAf(0.5f, 0.5f, 0.5f, 0.2f));
+
+		//Draw outline around masked region.
 		outlineShader.draw(selectedDepthBuffer.getTexture(),renderRegion->getBounds(),context->getViewport());
 		
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
+		//Mask out selected face from depth buffer
 		selectionShader.draw(depthFrameBuffer.getTexture(), faceIdShader, selectedDepthBuffer, selectedFaceId);
 		
 		glEnable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
 		outlineShader.setInnerGlowColor(RGBAf(0.0f, 0.0f, 1.0f, 0.2f));
 		outlineShader.setEdgeColor(RGBAf(1.0f, 1.0f, 1.0f, 0.2f));
+
+		//Draw outline around masked region.
 		outlineShader.draw(selectedDepthBuffer.getTexture(), renderRegion->getBounds(), context->getViewport());
 	}
 
