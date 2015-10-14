@@ -50,7 +50,7 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 	//Add listener to respond to mouse manipulations
 	addListener(&camera);
-	distanceFieldShader.setExtent(16);
+	distanceFieldShader.setExtent(32);
 	lineDistanceShader.setLineWidth(3.0f);
 	//Renders as line width 3 because depth frame buffer is twice the size. Yields nice anti-aliased lines.
 	outlineShader.setLineWidth(6.0f);
