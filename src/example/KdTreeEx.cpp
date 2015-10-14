@@ -23,7 +23,7 @@
 #include "../../include/example/KdTreeEx.h"
 using namespace aly;
 KdTreeEx::KdTreeEx() :
-		Application(768, 512, "Mesh with Matcap Shading Example"),matcapShader(getFullPath("images/JG_Gold.png")) {
+		Application(768, 512, "Kd-Tree Example"),matcapShader(getFullPath("images/JG_Gold.png")) {
 }
 bool KdTreeEx::init(Composite& rootNode) {
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
