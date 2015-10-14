@@ -51,7 +51,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		MeshPickerEx app;
+		MeshDepthEx app;
 		//MeshViewer app;
 #endif
 

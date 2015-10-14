@@ -25,7 +25,7 @@ using namespace aly;
 const int RENDER_WIDTH = 256;
 const int RENDER_HEIGHT = 256;
 MeshDepthEx::MeshDepthEx() :
-		Application(RENDER_WIDTH*5, RENDER_HEIGHT*2, "Deferred Depth Render Example"),imageShader(ImageShader::Filter::MEDIUM_BLUR){
+		Application(RENDER_WIDTH*5, RENDER_HEIGHT*2, "Deferred Depth Render Example"),imageShader(ImageShader::Filter::SMALL_BLUR){
 }
 bool MeshDepthEx::init(Composite& rootNode) {
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f), float3(1.0f, 1.0f, 1.0f));
@@ -50,7 +50,7 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
 	//Add listener to respond to mouse manipulations
 	addListener(&camera);
-	distanceFieldShader.setExtent(32);
+	distanceFieldShader.setExtent(16);
 	lineDistanceShader.setLineWidth(3.0f);
 	//Renders as line width 3 because depth frame buffer is twice the size. Yields nice anti-aliased lines.
 	outlineShader.setLineWidth(6.0f);
