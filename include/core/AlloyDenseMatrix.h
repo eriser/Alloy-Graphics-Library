@@ -320,7 +320,7 @@ template<class T, int C> DenseMatrix<T, C> operator+(
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator*(const DenseMatrix<T, C>& A,
+template<class T, int C> DenseMatrix<T, C> operator*(const DenseMatrix<T, C>& A,
 		const vec<T, C>& v) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -330,7 +330,7 @@ template<class T, int C> Vector<T, C> operator*(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator/(const DenseMatrix<T, C>& A,
+template<class T, int C> DenseMatrix<T, C> operator/(const DenseMatrix<T, C>& A,
 		const vec<T, C>& v) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -340,7 +340,7 @@ template<class T, int C> Vector<T, C> operator/(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator+(const DenseMatrix<T, C>& A,
+template<class T, int C> DenseMatrix<T, C> operator+(const DenseMatrix<T, C>& A,
 		const vec<T, C>& v) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -350,7 +350,7 @@ template<class T, int C> Vector<T, C> operator+(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator-(const DenseMatrix<T, C>& A,
+template<class T, int C> DenseMatrix<T, C> operator-(const DenseMatrix<T, C>& A,
 		const vec<T, C>& v) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -360,7 +360,7 @@ template<class T, int C> Vector<T, C> operator-(const DenseMatrix<T, C>& A,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator*(const vec<T, C>& v,
+template<class T, int C> DenseMatrix<T, C> operator*(const vec<T, C>& v,
 		const DenseMatrix<T, C>& A) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -370,7 +370,7 @@ template<class T, int C> Vector<T, C> operator*(const vec<T, C>& v,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator/(const vec<T, C>& v,
+template<class T, int C> DenseMatrix<T, C> operator/(const vec<T, C>& v,
 		const DenseMatrix<T, C>& A) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -380,7 +380,7 @@ template<class T, int C> Vector<T, C> operator/(const vec<T, C>& v,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator+(const vec<T, C>& v,
+template<class T, int C> DenseMatrix<T, C> operator+(const vec<T, C>& v,
 		const DenseMatrix<T, C>& A) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
@@ -390,7 +390,7 @@ template<class T, int C> Vector<T, C> operator+(const vec<T, C>& v,
 	}
 	return out;
 }
-template<class T, int C> Vector<T, C> operator-(const vec<T, C>& v,
+template<class T, int C> DenseMatrix<T, C> operator-(const vec<T, C>& v,
 		const DenseMatrix<T, C>& A) {
 	DenseMatrix<T, C> out(A.rows, A.cols);
 	for (int i = 0; i < A.rows; i++) {
