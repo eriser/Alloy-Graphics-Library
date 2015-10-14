@@ -44,10 +44,14 @@ public:
 			bool flatShading = false);
 	void draw(const std::list<const Mesh*>& meshes, CameraParameters& camera,
 			GLFrameBuffer& framebuffer, bool flatShading = false);
+	void draw(const std::vector<const Mesh*>& meshes, CameraParameters& camera,
+		GLFrameBuffer& framebuffer, bool flatShading = false);
 	void draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 			CameraParameters& camera, GLFrameBuffer& framebuffer,
 			bool flatShading = false);
-
+	void draw(const std::vector<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, GLFrameBuffer& framebuffer,
+		bool flatShading = false);
 	void draw(const Mesh& mesh, CameraParameters& camera,
 			GLFrameBuffer& framebuffer, bool flatShading = false) {
 		draw( { &mesh }, camera, framebuffer, flatShading);
@@ -206,7 +210,9 @@ public:
 	int draw(const std::list<std::pair<const Mesh*, float4x4>>& meshes,
 			CameraParameters& camera, int faceIdOffset = 0, int objectIdOffset =
 					0, float radius = 1.0f);
-
+	int draw(const std::vector<std::pair<const Mesh*, float4x4>>& meshes,
+		CameraParameters& camera, int faceIdOffset = 0, int objectIdOffset =
+		0, float radius = 1.0f);
 	int draw(const Mesh& mesh, CameraParameters& camera, int faceIdOffset = 0,
 			int objectIdOffset = 0, float radius = 1.0f) {
 		return draw( { &mesh }, camera, faceIdOffset, objectIdOffset, radius);

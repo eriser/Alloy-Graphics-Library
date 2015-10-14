@@ -23,7 +23,7 @@
 #include "../../include/example/MeshPickerEx.h"
 using namespace aly;
 MeshPickerEx::MeshPickerEx() :
-		Application(800, 600, "Mesh Picker Example"),matcapShader(getFullPath("images/JG_Gold.png")) {
+		Application(800, 600, "Mesh Picker Example"),matcapShader(getFullPath("images/JG_Silver.png")) {
 }
 bool MeshPickerEx::init(Composite& rootNode) {
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
@@ -44,6 +44,7 @@ bool MeshPickerEx::init(Composite& rootNode) {
 	renderRegion=MakeRegion("Render View",CoordPerPX(0.5f,0.5f,-256,-256),CoordPX(512,512),COLOR_NONE,COLOR_WHITE,UnitPX(1.0f));
 	//Initialize depth buffer to store the render
 	depthFrameBuffer.initialize(512,512);
+	selectedDepthBuffer.initialize(512, 512);
 	faceIdShader.initialize(512, 512);
 	//Set up camera
 	camera.setNearFarPlanes(-2.0f, 2.0f);
@@ -61,9 +62,10 @@ bool MeshPickerEx::init(Composite& rootNode) {
 	cursorText->setOrigin(Origin::BottomCenter);
 	cursorText->horizontalAlignment = HorizontalAlignment::Center;
 	rootNode.add(cursorText);
-	
+	selectedFaceId = int2(-1, -1);
 	rootNode.onMouseOver = [this](AlloyContext* context, const InputEvent& e) {
 		cursorText->label = "";
+		selectedFaceId = int2(-1, -1);
 		return false;
 	};
 	renderRegion->onMouseOver=[this](AlloyContext* context, const InputEvent& e) {
@@ -71,30 +73,41 @@ bool MeshPickerEx::init(Composite& rootNode) {
 			box2px bounds = renderRegion->getBounds();
 			float2 pix = pixel2(faceIds.dimensions())*(e.cursor - bounds.position) / bounds.dimensions;
 			pix.y = faceIds.height - 1 - pix.y;
-			int2 faceId=faceIds((int)pix.x,(int)pix.y);
-			if (faceId.y >= 0) {
-				cursorText->label =MakeString()<< "Face Id: " << faceId.x<<" | Object Id: "<<faceId.y;
+			selectedFaceId=faceIds((int)pix.x,(int)pix.y);
+			if (selectedFaceId.y >= 0) {
+				cursorText->label =MakeString()<< "Face Id: " << selectedFaceId.x;
 				cursorText->setPosition(CoordPX(e.cursor));
 				cursorText->pack(context);
 			}
 			else {
+				selectedFaceId = int2(-1,-1);
 				cursorText->label = "";
 			}
 		}
 		return false;
 	};
-	
+	outlineShader.setInnerGlowColor(RGBAf(0.5f, 0.0f, 0.0f, 0.2f));
+	outlineShader.setEdgeColor(RGBAf(0.5f, 0.0f, 0.0f, 0.2f));
+	outlineShader.setOuterGlowColor(RGBAf(0.0f, 0.0f, 0.0f, 0.0f));
 	return true;
 }
 void MeshPickerEx::draw(AlloyContext* context){
+	
 	if (camera.isDirty()) {
 		//Compute depth and normals only when camera view changes.
 		depthAndNormalShader.draw(drawList, camera, depthFrameBuffer);
 		faceIdShader.draw(drawList, camera);
 		faceIdShader.read(faceIds);
 	}
+	int oid = selectedFaceId.y;
 	//Recompute lighting at every draw pass.
-	matcapShader.draw(depthFrameBuffer.getTexture(),camera,renderRegion->getBounds(),context->getViewport(),RGBAf(1.0f));
+	matcapShader.draw(depthFrameBuffer.getTexture(), camera, renderRegion->getBounds(), context->getViewport(), RGBAf(1.0f));
+	if (oid >=0) {
+		depthAndNormalShader.draw({ drawList[oid] }, camera, selectedDepthBuffer);
+		glEnable(GL_BLEND);
+		outlineShader.draw(selectedDepthBuffer.getTexture(),renderRegion->getBounds(),context->getViewport());
+	}
+
 	camera.setDirty(false);
 }
 

@@ -55,10 +55,23 @@ GLShader& GLShader::draw(const std::list<const GLComponent*>& comps) {
 	}
 	return *this;
 }
+GLShader& GLShader::draw(const std::vector<const GLComponent*>& comps) {
+	for (const GLComponent* comp : comps) {
+		comp->draw();
+	}
+	return *this;
+}
 GLShader& GLShader::draw(const std::list<const Mesh*>& meshes,
 		const GLMesh::PrimitiveType& type, bool forceVertexColor) {
 	for (const Mesh* mesh : meshes) {
 		mesh->draw(type,onScreen,forceVertexColor);
+	}
+	return *this;
+}
+GLShader& GLShader::draw(const std::vector<const Mesh*>& meshes,
+	const GLMesh::PrimitiveType& type, bool forceVertexColor) {
+	for (const Mesh* mesh : meshes) {
+		mesh->draw(type, onScreen, forceVertexColor);
 	}
 	return *this;
 }

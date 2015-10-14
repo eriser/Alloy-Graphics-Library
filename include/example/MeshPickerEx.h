@@ -27,15 +27,17 @@
 class MeshPickerEx: public aly::Application {
 protected:
 	aly::RegionPtr renderRegion;
-	aly::GLFrameBuffer depthFrameBuffer;
+	aly::GLFrameBuffer depthFrameBuffer,selectedDepthBuffer;
 	aly::DepthAndNormalShader depthAndNormalShader;
 	aly::FaceIdShader faceIdShader;
 	aly::MatcapShader matcapShader;
+	aly::OutlineShader outlineShader;
 	aly::TextLabelPtr cursorText;
 	std::vector<aly::Mesh> meshArray;
-	std::list<std::pair<const aly::Mesh*, aly::float4x4>> drawList;
+	std::vector<std::pair<const aly::Mesh*, aly::float4x4>> drawList;
 	aly::Camera camera;
 	aly::Image2i faceIds;
+	aly::int2 selectedFaceId;
 public:
 	MeshPickerEx();
 	bool init(aly::Composite& rootNode);
