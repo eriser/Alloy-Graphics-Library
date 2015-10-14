@@ -657,12 +657,11 @@ public:
 	inline void setExtent(int distance) {
 		kernelSize = distance;
 	}
-	DistanceFieldShader(const std::shared_ptr<AlloyContext>& contex =
-			AlloyDefaultContext());
-
-	template<class T, int C, ImageType I> void draw(
+		
+	template<class T,int C, ImageType I> void draw(
 			const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
 			const box2px& viewport) {
+
 		begin().set("KERNEL_SIZE", kernelSize).set("innerColor", innerGlowColor).set(
 				"outerColor", outerGlowColor).set("edgeColor", edgeColor).set(
 				"textureImage", imageTexture, 0).set("bounds", bounds).set(
@@ -686,6 +685,10 @@ public:
 			const float2& dimensions, const box2px& viewport) {
 		draw(imageTexture, box2px(location, dimensions), viewport);
 	}
+	DistanceFieldShader(bool onScreen=true,const std::shared_ptr<AlloyContext>& contex =
+			AlloyDefaultContext());
+
+	
 };
 
 class OutlineShader : public GLShader {
@@ -707,11 +710,10 @@ public:
 	}
 	inline void setLineWidth(float w) {
 		lineWidth = w;
-		kernelSize =(int)(2*w);
+		kernelSize =(int)std::ceil(2*w);
 	}
-	OutlineShader(const std::shared_ptr<AlloyContext>& contex =
+	OutlineShader(bool onScreen = true, const std::shared_ptr<AlloyContext>& contex =
 		AlloyDefaultContext());
-
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture, const box2px& bounds,
 		const box2px& viewport) {
@@ -723,6 +725,7 @@ public:
 	}
 	template<class T, int C, ImageType I> void draw(
 		const GLTexture<T, C, I>& imageTexture, const GLFrameBuffer& frameBuffer) {
+
 		frameBuffer.begin();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glDisable(GL_DEPTH_TEST);

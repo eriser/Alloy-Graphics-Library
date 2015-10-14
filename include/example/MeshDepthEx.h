@@ -31,12 +31,14 @@ protected:
 	aly::GLFrameBuffer particleDepthFrameBuffer;
 	aly::GLFrameBuffer edgeFrameBuffer;
 	aly::GLFrameBuffer distanceFieldFrameBuffer;
+	aly::GLFrameBuffer outlineFrameBuffer;
 	aly::GLFrameBuffer lineFrameBuffer;
 	aly::GLFrameBuffer occlusionFrameBuffer;
 	aly::ParticleDepthShader particleDepthShader;
 	aly::DepthAndNormalShader depthAndNormalShader;
 	aly::LineDistanceShader lineDistanceShader;
-	aly::AmbientOcclusionShader ambientOcclusionShader;
+	//aly::AmbientOcclusionShader ambientOcclusionShader;
+	aly::OutlineShader outlineShader;
 	aly::DistanceFieldShader distanceFieldShader;
 	aly::DepthColorShader depthColorShader;
 	aly::NormalColorShader normalColorShader;

@@ -37,9 +37,10 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	depthFrameBuffer.initialize(RENDER_WIDTH,RENDER_HEIGHT);
 	edgeFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
 	distanceFieldFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
+	outlineFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
 	particleDepthFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
 	lineFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
-	occlusionFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
+	//occlusionFrameBuffer.initialize(RENDER_WIDTH, RENDER_HEIGHT);
 	//Set up camera
 	camera.setNearFarPlanes(-2.0f, 2.0f);
 	camera.setZoom(1.0f);
@@ -51,7 +52,8 @@ bool MeshDepthEx::init(Composite& rootNode) {
 	addListener(&camera);
 	distanceFieldShader.setExtent(16);
 	lineDistanceShader.setLineWidth(3.0f);
-	ambientOcclusionShader.setSampleRadius(0.01f);
+	outlineShader.setLineWidth(3.0f);
+	//ambientOcclusionShader.setSampleRadius(0.01f);
 	return true;
 }
 void MeshDepthEx::draw(AlloyContext* context){
@@ -64,9 +66,10 @@ void MeshDepthEx::draw(AlloyContext* context){
 		dRange = camera.computeNormalizedDepthRange(mesh);
 		//Use flat normals for ambient occlusion
 		depthAndNormalShader.draw(mesh, camera, depthFrameBuffer, true);
-		ambientOcclusionShader.draw(depthFrameBuffer.getTexture(),camera, occlusionFrameBuffer);
+		//ambientOcclusionShader.draw(depthFrameBuffer.getTexture(),camera, occlusionFrameBuffer);
 		depthAndNormalShader.draw(mesh, camera, depthFrameBuffer, false);
 		distanceFieldShader.draw(depthFrameBuffer.getTexture(), distanceFieldFrameBuffer);
+		outlineShader.draw(depthFrameBuffer.getTexture(), outlineFrameBuffer);
 	}
 	//Recompute lighting at every draw pass.
 	depthColorShader.draw(depthFrameBuffer.getTexture(), dRange,float2(0.0f, 0.0f), float2((float)RENDER_WIDTH, (float)RENDER_HEIGHT));
@@ -82,7 +85,7 @@ void MeshDepthEx::draw(AlloyContext* context){
 	normalColorShader.draw(lineFrameBuffer.getTexture(), float2(3.0f*(float)RENDER_WIDTH,(float)RENDER_HEIGHT), float2((float)RENDER_WIDTH, (float)RENDER_HEIGHT));
 
 	imageShader.draw(distanceFieldFrameBuffer.getTexture(), float2(4 * (float)RENDER_WIDTH, 0.0f), float2((float)RENDER_WIDTH, (float)RENDER_HEIGHT), 1.0f, false);
-	imageShader.draw(occlusionFrameBuffer.getTexture(), float2(4 * (float)RENDER_WIDTH, (float)RENDER_HEIGHT), float2((float)RENDER_WIDTH, (float)RENDER_HEIGHT), 1.0f, false);
+	imageShader.draw(outlineFrameBuffer.getTexture(), float2(4 * (float)RENDER_WIDTH, (float)RENDER_HEIGHT), float2((float)RENDER_WIDTH, (float)RENDER_HEIGHT), 1.0f, false);
 
 	camera.setDirty(false);
 }
