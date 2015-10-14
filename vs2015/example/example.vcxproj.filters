@@ -70,6 +70,9 @@
     <ClCompile Include="..\..\src\example\MeshPickerEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\example\KdTreeEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\UnitsEx.h">
@@ -139,6 +142,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\example\MeshPickerEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\KdTreeEx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

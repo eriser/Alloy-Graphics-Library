@@ -41,6 +41,7 @@
 #include "../../include/example/PoissonInpaintEx.h"
 #include "../../include/example/ImageProcessingEx.h"
 #include "../../include/example/MeshPickerEx.h"
+#include "../../include/example/KdTreeEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -51,7 +52,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		MeshPickerEx app;
+		KdTreeEx app;
 		//MeshViewer app;
 #endif
 

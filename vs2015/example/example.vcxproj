@@ -27,6 +27,7 @@
     <ClCompile Include="..\..\src\example\ExpandEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageProcessingEx.cpp" />
+    <ClCompile Include="..\..\src\example\KdTreeEx.cpp" />
     <ClCompile Include="..\..\src\example\LaplaceFillEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
     <ClCompile Include="..\..\src\example\MeshDepthEx.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="..\..\include\example\ExpandEx.h" />
     <ClInclude Include="..\..\include\example\ImageEx.h" />
     <ClInclude Include="..\..\include\example\ImageProcessingEx.h" />
+    <ClInclude Include="..\..\include\example\KdTreeEx.h" />
     <ClInclude Include="..\..\include\example\LaplaceFillEx.h" />
     <ClInclude Include="..\..\include\example\MeshDepthEx.h" />
     <ClInclude Include="..\..\include\example\MeshMatcapEx.h" />
