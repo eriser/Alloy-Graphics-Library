@@ -104,7 +104,7 @@ bool KdTreeEx::init(Composite& rootNode) {
 			}
 		}
 		
-		for (int n = 0;n < depthImg.size();n++) {
+		for (int n = 0;n < (int)depthImg.size();n++) {
 			float d = depthImg[n].x;
 			if (d > 0) {
 				rgba[n] = HSVAtoColor(HSVA(0.9f*(d - minD) / (maxD - minD), 1.0f, 1.0f, 1.0f)).toRGBA();
@@ -145,7 +145,7 @@ bool KdTreeEx::init(Composite& rootNode) {
 				}
 			}
 		}
-		for (int n = 0;n < distImg.size();n++) {
+		for (int n = 0;n < (int)distImg.size();n++) {
 			float d = distImg[n].x;
 			if (d > 0) {
 				rgba[n] = HSVAtoColor(HSVA(0.9f*(d - minD) / (maxD - minD), 1.0f, 1.0f, 1.0f)).toRGBA();
