@@ -56,11 +56,11 @@ bool ControlsEx::init(Composite& rootNode) {
 	rootNode.add(togglebox);
 
 	TextButtonPtr textButton = TextButtonPtr(
-		new TextButton("Button", CoordPX(10.0f, 300.0f),
+		new TextButton("Text Button", CoordPX(10.0f, 300.0f),
 			CoordPX(100,30)));
 	rootNode.add(textButton);
 	TextLabelPtr textLabel = TextLabelPtr(
-		new TextLabel("Label", CoordPX(120.0f, 300.0f),
+		new TextLabel("Label", CoordPX(220.0f, 300.0f),
 			CoordPX(100,30)));
 	textLabel->backgroundColor = MakeColor(128, 0, 0);
 	textLabel->borderColor = MakeColor(200, 200, 200);

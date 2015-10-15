@@ -369,7 +369,7 @@ void TextButton::draw(AlloyContext* context) {
 	nvgFillColor(nvg, *textColor);
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
-	this->aspectRatio = tw / th;
+	this->aspectRatio = (tw+10.0f) / (th+10.0f);
 	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
 	pixel2 offset(0, 0);
 	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,

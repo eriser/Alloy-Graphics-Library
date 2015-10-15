@@ -35,6 +35,7 @@
     <ClCompile Include="..\..\src\example\MeshParticleEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshPhongEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshPickerEx.cpp" />
+    <ClCompile Include="..\..\src\example\MeshSmoothEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshSubdivideEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshTextureEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshVertexColorEx.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="..\..\include\example\MeshParticleEx.h" />
     <ClInclude Include="..\..\include\example\MeshPhongEx.h" />
     <ClInclude Include="..\..\include\example\MeshPickerEx.h" />
+    <ClInclude Include="..\..\include\example\MeshSmoothEx.h" />
     <ClInclude Include="..\..\include\example\MeshSubdivideEx.h" />
     <ClInclude Include="..\..\include\example\MeshTextureEx.h" />
     <ClInclude Include="..\..\include\example\MeshVertexColorEx.h" />
