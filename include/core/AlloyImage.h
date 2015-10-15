@@ -635,8 +635,7 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 }
 template<class T, class L, class R, int C, ImageType I> std::basic_ostream<L, R> & operator <<(
 		std::basic_ostream<L, R> & ss, const Image<T, C, I> & A) {
-	ss << "Image (" << A.getTypeName() << "): " << A.id << " Position: (" << A.x
-			<< "," << A.y << ") Dimensions: [" << A.width << "," << A.height
+	ss << "Image (" << A.getTypeName() << "): " << A.id << " Position: " << A.position()<<" Dimensions: [" << A.width << "," << A.height
 			<< "]";
 	return ss;
 }
