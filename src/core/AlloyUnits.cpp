@@ -156,11 +156,12 @@ float4 RGBAtoLABA(const float4& rgb) {
 }
 RGBAf ColorMapToRGBAf(float x, const ColorMap& type) {
 	static ImageRGBAf img;
+	const int NUM_COLOR_MAPS=12;
 	if (img.size() == 0) {
 		ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/colormaps.png"), img);
 	}
 	int index=static_cast<int>(type);
-	return img(clamp(x,0.0f,1.0f)*img.width, img.height * (index+0.5f) / 12.0f);
+	return img(clamp(x,0.0f,1.0f)*img.width, img.height * (index+0.5f) / NUM_COLOR_MAPS);
 }
 RGBA ColorMapToRGBA(float x, const ColorMap& type) {
 	return ToRGBA(ColorMapToRGBAf(x, type));
