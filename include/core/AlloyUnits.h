@@ -21,8 +21,8 @@
 
 #ifndef ALLOYUNITS_H_
 #define ALLOYUNITS_H_
-#include "AlloyMath.h"
 #include "nanovg.h"
+#include "AlloyMath.h"
 #include <algorithm>
 #include <string>
 #include <iostream>
@@ -47,7 +47,19 @@ typedef box<pixel, 2> box2px;
 #define HALF_PIX(x) ((x)/(pixel)2)
 #define THIRD_PIX(x) ((x)/(pixel)3)
 #define QUATER_PIX(x) ((x)/(pixel)4)
-
+enum ColorMap { 
+	GoldToBlue = 0, 
+	PurpleToGreen = 1,
+	MaroonToGreen=2,
+	BrowToNavy=3,
+	FirebrickToBlue=4,
+	FirebrickToBlack=5,
+	RedToBlue=6,
+	RedToGreen=7,
+	VioletToBlue=8,
+	BlueToRed=9,
+	BlueToFireBrick=10,
+	NavyToFirebrick=11};
 struct Tweenable {
 protected:
 	double t = 0;
@@ -252,10 +264,27 @@ Color HSVtoColor(const HSV& hsv);
 Color HSVAtoColor(const HSVA& hsv);
 RGBf HSVtoRGBf(const HSV& hsv);
 RGBAf HSVAtoRGBAf(const HSVA& hsv);
+inline HSVA RGBAtoHSVA(const RGBA& c) {
+	Color(c).toHSVA();
+}
+inline HSV RGBtoHSV(const RGB& c) {
+	Color(c).toHSV();
+}
+inline HSVA RGBAtoHSVA(const RGBAf& c) {
+	Color(c).toHSVA();
+}
+inline HSV RGBtoHSV(const RGBf& c) {
+	Color(c).toHSV();
+}
 float3 RGBtoXYZ(const RGBf& rgb);
 float3 RGBtoLAB(const float3& rgb);
 float4 RGBAtoXYZA(const RGBAf& rgb);
 float4 RGBAtoLABA(const float4& rgb);
+
+RGBAf ColorMapToRGBAf(float x, enum ColorMap& type);
+RGBA ColorMapToRGBA(float x, enum ColorMap& type);
+RGB ColorMapToRGB(float x, enum ColorMap& type);
+RGBf ColorMapToRGBf(float x, enum ColorMap& type);
 
 typedef std::shared_ptr<Color> AColor;
 class AUnit2D {

@@ -1718,6 +1718,57 @@ typedef box<uint32_t, 2> box2ui;
 typedef box<uint32_t, 3> box3ui;
 typedef box<uint32_t, 4> box4ui;
 
+inline RGBA ToRGBA(const RGBAf& r) {
+	return RGBA(
+		clamp((int)(r.x*255.0f), 0, 255),
+		clamp((int)(r.y*255.0f), 0, 255),
+		clamp((int)(r.z*255.0f), 0, 255),
+		clamp((int)(r.w*255.0f), 0, 255));
+}
+inline RGBA ToRGBA(const RGBf& r) {
+	return RGBA(
+		clamp((int)(r.x*255.0f), 0, 255),
+		clamp((int)(r.y*255.0f), 0, 255),
+		clamp((int)(r.z*255.0f), 0, 255),
+		255);
+}
+inline ubyte3 ToRGB(const RGBf& r) {
+	return ubyte3(
+		clamp((int)(r.x*255.0f), 0, 255),
+		clamp((int)(r.y*255.0f), 0, 255),
+		clamp((int)(r.z*255.0f), 0, 255));
+}
+inline ubyte3 ToRGB(const RGBAf& r) {
+	return ubyte3(
+		clamp((int)(r.x*255.0f), 0, 255),
+		clamp((int)(r.y*255.0f), 0, 255),
+		clamp((int)(r.z*255.0f), 0, 255));
+}
+
+inline RGBAf ToRGBAf(const RGBA& r) {
+	return RGBAf(r.x / 255.0f, r.y / 255.0f, r.z / 255.0f, r.w / 255.0f);
+}
+inline RGBAf ToRGBAf(const ubyte3& r) {
+	return RGBAf(r.x / 255.0f, r.y / 255.0f, r.z / 255.0f, 1.0f);
+}
+inline RGBf ToRGBf(const RGBA& r) {
+	return RGBf(r.x / 255.0f, r.y / 255.0f, r.z / 255.0f);
+}
+inline RGBf ToRGBf(const ubyte3& r) {
+	return RGBf(r.x / 255.0f, r.y / 255.0f, r.z / 255.0f);
+}
+inline RGBf ToRGBf(const RGBAf& r) {
+	return r.xyz();
+}
+inline RGBAf ToRGBAf(const RGBf& r) {
+	return RGBAf(r, 1.0f);
+}
+inline aly::ubyte3 ToRGB(const RGBA& r) {
+	return r.xyz();
+}
+inline aly::RGBA ToRGBA(const ubyte3& r) {
+	return aly::RGBA(r, 255);
+}
 }
 
 #endif

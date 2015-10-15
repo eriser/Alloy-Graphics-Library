@@ -69,7 +69,8 @@ template<class T, int C, ImageType I> struct Image;
 template<class T, int C, ImageType I> void WriteImageToRawFile(
 		const std::string& fileName, const Image<T, C, I>& img);
 template<class T, int C, ImageType I> struct Image {
-private:
+protected:
+	int x, y;
 	std::string hashCode;
 public:
 	std::vector<vec<T, C>> data;
@@ -110,7 +111,6 @@ public:
 
 	int width;
 	int height;
-	int x, y;
 	uint64_t id;
 	const int channels;
 	const ImageType type;
@@ -170,6 +170,10 @@ public:
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			data(w * h), width(w), height(h), x(x), y(y), id(id), channels(C), type(
 					I) {
+	}
+	Image(int w, int h, int2 pos, uint64_t id = 0) :
+		data(w * h), width(w), height(h), x(pos.x), y(pos.y), id(id), channels(C), type(
+			I) {
 	}
 	Image(T* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			Image(w, h, x, y, id) {
@@ -638,7 +642,7 @@ template<class T, class L, class R, int C, ImageType I> std::basic_ostream<L, R>
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator+(
 		const vec<T, C>& scalar, const Image<T, C, I>& img) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=scalar+val2;};
 	Transform(out, img, f);
@@ -647,7 +651,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator+(
 
 template<class T, int C, ImageType I> Image<T, C, I> operator-(
 		const vec<T, C>& scalar, const Image<T, C, I>& img) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=scalar-val2;};
 	Transform(out, img, f);
@@ -655,7 +659,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator-(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator*(
 		const vec<T, C>& scalar, const Image<T, C, I>& img) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=scalar*val2;};
 	Transform(out, img, f);
@@ -663,7 +667,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator*(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator/(
 		const vec<T, C>& scalar, const Image<T, C, I>& img) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=scalar/val2;};
 	Transform(out, img, f);
@@ -671,7 +675,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator/(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator+(
 		const Image<T, C, I>& img, const vec<T, C>& scalar) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=val2+scalar;};
 	Transform(out, img, f);
@@ -679,7 +683,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator+(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator-(
 		const Image<T, C, I>& img, const vec<T, C>& scalar) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=val2-scalar;};
 	Transform(out, img, f);
@@ -687,7 +691,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator-(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator*(
 		const Image<T, C, I>& img, const vec<T, C>& scalar) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=val2*scalar;};
 	Transform(out, img, f);
@@ -695,7 +699,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator*(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator/(
 		const Image<T, C, I>& img, const vec<T, C>& scalar) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=val2/scalar;};
 	Transform(out, img, f);
@@ -703,7 +707,7 @@ template<class T, int C, ImageType I> Image<T, C, I> operator/(
 }
 template<class T, int C, ImageType I> Image<T, C, I> operator-(
 		const Image<T, C, I>& img) {
-	Image<T, C, I> out(img.width, img.height, img.x, img.y);
+	Image<T, C, I> out(img.width, img.height, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T,C>& val1,const vec<T,C>& val2) {val1=-val2;};
 	Transform(out, img, f);
@@ -1018,8 +1022,7 @@ template<class T, ImageType I> void ConvertImage(const Image<T, 3, I>& in,
 }
 template<class T, int C, ImageType I> void Crop(const Image<T, C, I>& in,
 		Image<T, C, I>& out, int2 pos, int2 dims) {
-	out.x = pos.x;
-	out.y = pos.y;
+	out.setPosition(pos);
 	out.resize(dims.x, dims.y);
 	for (int i = 0; i < dims.x; i++) {
 		for (int j = 0; j < dims.y; j++) {
