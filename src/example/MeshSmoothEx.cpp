@@ -90,8 +90,11 @@ bool MeshSmoothEx::init(Composite& rootNode) {
 	return true;
 }
 void MeshSmoothEx::smooth() {
-	MeshListNeighborTable nbrTable;
-	CreateOrderedVertexNeighborTable(mesh, nbrTable, true);
+	static MeshListNeighborTable nbrTable;
+	if(nbrTable.size()==0){
+		//Only need to compute this once since topology doesn't change.
+		CreateOrderedVertexNeighborTable(mesh, nbrTable, true);
+	}
 	int index = 0;
 	std::vector<float> angles;
 	std::vector<float> weights;
