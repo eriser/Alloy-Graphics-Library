@@ -155,7 +155,7 @@ float4 RGBAtoLABA(const float4& rgb) {
 	return float4(RGBtoLAB(rgb.xyz()), rgb.w);
 }
 RGBAf ColorMapToRGBAf(float x, const ColorMap& type) {
-	static ImageRGBA img;
+	static ImageRGBAf img;
 	if (img.size() == 0) {
 		ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/colormaps.png"), img);
 	}
