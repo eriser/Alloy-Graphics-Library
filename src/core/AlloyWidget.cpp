@@ -2501,9 +2501,10 @@ bool FileFilterRule::accept(const std::string& file) {
 }
 void FileDialog::addFileExtensionRule(const std::string& name,
 		const std::string& extension) {
+	using extensions = std::initializer_list<std::string>;
 	filterRules.push_back(
 			std::shared_ptr<FileFilterRule>(
-					new FileFilterRule(name, { extension })));
+					new FileFilterRule(name, extensions{ extension })));
 	fileTypeSelect->addSelection(filterRules.back()->toString());
 }
 void FileDialog::addFileExtensionRule(const std::string& name,
