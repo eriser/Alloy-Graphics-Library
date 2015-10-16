@@ -524,10 +524,10 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 			array[c] = (float*) malloc(sizeof(float) * img.size());
 		}
 		exrImage.images = (unsigned char**) array;
-		for (int c = img.channels-1; c >=0; c--) {
+		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (const float4& val : img.data) {
-				array[c][index++] = val[c];
+				array[img.channels-1-c][index++] = val[c];
 			}
 		}
 		for (int c = 0; c < img.channels; c++) {
@@ -645,10 +645,10 @@ void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 			array[c] = (float*) malloc(sizeof(float) * img.size());
 		}
 		exrImage.images = (unsigned char**) array;
-		for (int c = img.channels-1; c >=0 ; c--) {
+		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (const float3& val : img.data) {
-				array[c][index++] = val[c];
+				array[img.channels-1-c][index++] = val[c];
 			}
 		}
 		for (int c = 0; c < img.channels; c++) {
