@@ -15,7 +15,8 @@ RM=rm -f
 EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx ControlsEx \
  DialogsEx ExpandEx MeshMatcapEx MeshWireframeEx MeshTextureEx MeshVertexColorEx \
  MeshParticleEx MeshDepthEx MeshPhongEx LaplaceFillEx PoissonBlendEx \
- PoissonInpaintEx MeshSubdivideEx ImageProcessingEx MeshPickerEx KdTreeEx MeshSmoothEx
+ PoissonInpaintEx MeshSubdivideEx ImageProcessingEx MeshPickerEx KdTreeEx MeshSmoothEx \
+ ColorSpaceEx
 
 alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)

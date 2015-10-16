@@ -49,7 +49,8 @@ bool ControlsEx::init(Composite& rootNode) {
 		new CheckBox("Check", CoordPX(10.0f, 100.0f), CoordPercent(0.4f, 0.07f),
 			false));
 	rootNode.add(checkbox);
-
+	SelectionPtr selection = SelectionPtr(new Selection("SF District", CoordPX(5, 350), CoordPX(200, 30), std::vector<std::string>{"Civic Center","Tenderloin", "Nob Hill", "Mission", "Potrero", "Hayes Valley", "Noe Valey", "Bernal Heights", "Presidio", "Financial District", "SoMa","Haight","Richmond","Sunset","Chinatown","Japantown","Nob Hill"}));
+	rootNode.add(selection);
 	ToggleBoxPtr togglebox = ToggleBoxPtr(
 		new ToggleBox("Toggle", CoordPX(200.0f, 40.0f),
 			CoordPercent(0.4f, 0.07f), false));

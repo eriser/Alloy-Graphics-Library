@@ -265,16 +265,16 @@ Color HSVAtoColor(const HSVA& hsv);
 RGBf HSVtoRGBf(const HSV& hsv);
 RGBAf HSVAtoRGBAf(const HSVA& hsv);
 inline HSVA RGBAtoHSVA(const RGBA& c) {
-	Color(c).toHSVA();
+	return Color(c).toHSVA();
 }
 inline HSV RGBtoHSV(const RGB& c) {
-	Color(c).toHSV();
+	return Color(c).toHSV();
 }
 inline HSVA RGBAtoHSVA(const RGBAf& c) {
-	Color(c).toHSVA();
+	return Color(c).toHSVA();
 }
 inline HSV RGBtoHSV(const RGBf& c) {
-	Color(c).toHSV();
+	return Color(c).toHSV();
 }
 float3 RGBtoXYZ(const RGBf& rgb);
 float3 RGBtoLAB(const float3& rgb);

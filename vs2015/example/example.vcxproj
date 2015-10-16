@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\example\ColorSpaceEx.cpp" />
     <ClCompile Include="..\..\src\example\CompositeEx.cpp" />
     <ClCompile Include="..\..\src\example\ControlsEx.cpp" />
     <ClCompile Include="..\..\src\example\DialogsEx.cpp" />
@@ -46,6 +47,7 @@
     <ClCompile Include="..\..\src\example\UnitsEx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\example\ColorSpaceEx.h" />
     <ClInclude Include="..\..\include\example\CompositeEx.h" />
     <ClInclude Include="..\..\include\example\ControlsEx.h" />
     <ClInclude Include="..\..\include\example\DialogsEx.h" />
