@@ -361,7 +361,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBAf& img) {
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float4& val : img.data) {
-				val[c] = ptr[c][index++];
+				val[img.channels-1-c] = ptr[c][index++];
 			}
 		}
 		FreeEXRImage(&exrImage);
@@ -421,7 +421,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBf& img) {
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float3& val : img.data) {
-				val[c] = ptr[c][index++];
+				val[img.channels-1-c] = ptr[c][index++];
 			}
 		}
 		FreeEXRImage(&exrImage);
