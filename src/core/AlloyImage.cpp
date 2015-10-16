@@ -524,7 +524,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 			array[c] = (float*) malloc(sizeof(float) * img.size());
 		}
 		exrImage.images = (unsigned char**) array;
-		for (int c = 0; c < img.channels; c++) {
+		for (int c = img.channels-1; c >=0; c--) {
 			size_t index = 0;
 			for (const float4& val : img.data) {
 				array[c][index++] = val[c];
@@ -535,16 +535,16 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 			exrImage.requested_pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
 		}
 #ifdef _WIN32
-		exrImage.channel_names[0] = _strdup("R");
+		exrImage.channel_names[0] = _strdup("A");
 		exrImage.channel_names[1] = _strdup("G");
 		exrImage.channel_names[2] = _strdup("B");
-		exrImage.channel_names[3] = _strdup("A");
+		exrImage.channel_names[3] = _strdup("R");
 #else
-		exrImage.channel_names[0] = strdup("R");
+		exrImage.channel_names[0] = strdup("A");
 		exrImage.channel_names[1] = strdup("G");
 		exrImage.channel_names[2] = strdup("B");
-		exrImage.channel_names[3] = strdup("A");
-#endif
+		exrImage.channel_names[3] = strdup("R");
+#endifc
 		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
 		FreeEXRImage(&exrImage);
 		if (ret != 0)
@@ -645,7 +645,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 			array[c] = (float*) malloc(sizeof(float) * img.size());
 		}
 		exrImage.images = (unsigned char**) array;
-		for (int c = 0; c < img.channels; c++) {
+		for (int c = img.channels-1; c >=0 ; c--) {
 			size_t index = 0;
 			for (const float3& val : img.data) {
 				array[c][index++] = val[c];
@@ -656,13 +656,13 @@ void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 			exrImage.requested_pixel_types[c] = TINYEXR_PIXELTYPE_FLOAT;
 		}
 #ifdef _WIN32
-		exrImage.channel_names[0] = _strdup("R");
+		exrImage.channel_names[0] = _strdup("B");
 		exrImage.channel_names[1] = _strdup("G");
-		exrImage.channel_names[2] = _strdup("B");
+		exrImage.channel_names[2] = _strdup("R");
 #else
-		exrImage.channel_names[0] = strdup("R");
+		exrImage.channel_names[0] = strdup("B");
 		exrImage.channel_names[1] = strdup("G");
-		exrImage.channel_names[2] = strdup("B");
+		exrImage.channel_names[2] = strdup("R");
 #endif
 		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
 		FreeEXRImage(&exrImage);
