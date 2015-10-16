@@ -281,10 +281,10 @@ float3 RGBtoLAB(const float3& rgb);
 float4 RGBAtoXYZA(const RGBAf& rgb);
 float4 RGBAtoLABA(const float4& rgb);
 
-RGBAf ColorMapToRGBAf(float x, enum ColorMap& type);
-RGBA ColorMapToRGBA(float x, enum ColorMap& type);
-RGB ColorMapToRGB(float x, enum ColorMap& type);
-RGBf ColorMapToRGBf(float x, enum ColorMap& type);
+RGBAf ColorMapToRGBAf(float x,const ColorMap& type);
+RGBA ColorMapToRGBA(float x,const ColorMap& type);
+ubyte3 ColorMapToRGB(float x,const ColorMap& type);
+RGBf ColorMapToRGBf(float x,const ColorMap& type);
 
 typedef std::shared_ptr<Color> AColor;
 class AUnit2D {

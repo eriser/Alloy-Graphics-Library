@@ -154,21 +154,22 @@ float4 RGBAtoXYZA(const RGBAf& rgb) {
 float4 RGBAtoLABA(const float4& rgb) {
 	return float4(RGBtoLAB(rgb.xyz()), rgb.w);
 }
-RGBAf ColorMapToRGBAf(float x, enum ColorMap& type) {
-	static ImageRGBA img;
+RGBAf ColorMapToRGBAf(float x, const ColorMap& type) {
+	static ImageRGBAf img;
+	const int NUM_COLOR_MAPS=12;
 	if (img.size() == 0) {
 		ReadImageFromFile(AlloyDefaultContext()->getFullPath("images/colormaps.png"), img);
 	}
 	int index=static_cast<int>(type);
-	return img(clamp(x,0.0f,1.0f)*img.width, img.height * (index+0.5f) / 12.0f);
+	return img(clamp(x,0.0f,1.0f)*img.width, img.height * (index+0.5f) / NUM_COLOR_MAPS);
 }
-RGBA ColorMapToRGBA(float x, enum ColorMap& type) {
+RGBA ColorMapToRGBA(float x, const ColorMap& type) {
 	return ToRGBA(ColorMapToRGBAf(x, type));
 }
-RGB ColorMapToRGB(float x, enum ColorMap& type) {
+RGB ColorMapToRGB(float x, const ColorMap& type) {
 	return ToRGB(ColorMapToRGBAf(x, type));
 }
-RGBf ColorMapToRGBf(float x, enum ColorMap& type) {
+RGBf ColorMapToRGBf(float x, const ColorMap& type) {
 	return ToRGBf(ColorMapToRGBAf(x, type));
 }
 RGBAf HSVAtoRGBAf(const HSVA& hsv) {
