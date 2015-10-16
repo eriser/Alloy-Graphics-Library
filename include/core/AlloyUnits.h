@@ -277,7 +277,9 @@ inline HSV RGBtoHSV(const RGBf& c) {
 	return Color(c).toHSV();
 }
 float3 RGBtoXYZ(const RGBf& rgb);
+float3 XYZtoRGB(const RGBf& rgb);
 float3 RGBtoLAB(const float3& rgb);
+float3 LABtoRGB(const float3& rgb);
 float4 RGBAtoXYZA(const RGBAf& rgb);
 float4 RGBAtoLABA(const float4& rgb);
 
