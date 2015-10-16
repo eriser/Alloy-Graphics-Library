@@ -193,6 +193,12 @@ namespace aly {
 	float4 RGBAtoLABA(const float4& rgb) {
 		return float4(RGBtoLAB(rgb.xyz()), rgb.w);
 	}
+	float4 XYZAtoRGBA(const RGBAf& rgb) {
+		return float4(XYZtoRGB(rgb.xyz()), rgb.w);
+	}
+	float4 LABAtoRGBA(const float4& rgb) {
+		return float4(LABtoRGB(rgb.xyz()), rgb.w);
+	}
 	RGBAf ColorMapToRGBAf(float x, const ColorMap& type) {
 		static ImageRGBAf img;
 		const int NUM_COLOR_MAPS = 12;

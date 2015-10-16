@@ -282,7 +282,8 @@ float3 RGBtoLAB(const float3& rgb);
 float3 LABtoRGB(const float3& rgb);
 float4 RGBAtoXYZA(const RGBAf& rgb);
 float4 RGBAtoLABA(const float4& rgb);
-
+float4 RGBtoLAB(const float4& rgb);
+float4 LABtoRGB(const float4& rgb);
 RGBAf ColorMapToRGBAf(float x,const ColorMap& type);
 RGBA ColorMapToRGBA(float x,const ColorMap& type);
 ubyte3 ColorMapToRGB(float x,const ColorMap& type);
