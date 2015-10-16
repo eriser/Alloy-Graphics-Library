@@ -39,7 +39,7 @@ bool ColorSpaceEx::init(Composite& rootNode) {
 	setOnResize([this](const int2& dims) {
 		camera.setDirty(true);
 	});
-	SelectionPtr selection = SelectionPtr(new Selection("SF District", CoordPX(5, 5), CoordPX(200, 30), std::vector<std::string>{"RGB", "HSV", "XYZ", "CIELAB"}));
+	SelectionPtr selection = SelectionPtr(new Selection("Color Space", CoordPX(5, 5), CoordPX(200, 30), std::vector<std::string>{"RGB", "HSV", "XYZ", "CIELAB"}));
 	selection->onSelect = [this](int index) {
 		this->setColorSpace(index);
 
