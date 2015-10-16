@@ -489,15 +489,7 @@ public:
 	inline void setSelectionOffset(bool offset) {
 		selectionOffset = offset;
 	}
-	void setSelectedIndex(int index) {
-		selectedIndex = index;
-		if (index < 0) {
-			label = name;
-			selectionOffset = 0;
-		} else {
-			label = options[selectedIndex];
-		}
-	}
+	void setSelectedIndex(int index);
 	void draw(AlloyContext* context) override;
 	void addSelection(const std::string& selection) {
 		options.push_back(selection);

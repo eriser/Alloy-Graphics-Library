@@ -127,6 +127,7 @@ float3 RGBtoXYZ(const RGBf& rgb) {
 }
 
 float3 RGBtoLAB(const float3& rgb) {
+
 	float3 xyz = RGBtoXYZ(rgb);
 	float epsilon = 0.008856f;
 	float kappa = 903.3f;

@@ -2056,6 +2056,17 @@ void SelectionBox::draw(AlloyContext* context) {
 	}
 
 }
+void SelectionBox::setSelectedIndex(int index) {
+	selectedIndex = index;
+	if (index < 0) {
+		label = name;
+		selectionOffset = 0;
+	}
+	else {
+		label = options[selectedIndex];
+
+	}
+}
 SelectionBox::SelectionBox(const std::string& name,
 		const std::vector<std::string>& labels) :
 		Region(name), label(name), options(labels) {

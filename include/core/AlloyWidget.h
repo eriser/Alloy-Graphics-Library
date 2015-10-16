@@ -257,6 +257,7 @@ public:
 		selectedIndex = selection;
 		selectionBox->setSelectedIndex(selection);
 		selectionLabel->label = this->getValue();
+		if (onSelect)onSelect(selectedIndex);
 	}
 	void addSelection(const std::string& selection) {
 		selectionBox->addSelection(selection);
@@ -265,6 +266,7 @@ public:
 		selectedIndex = selection;
 		selectionBox->setSelectedIndex(selection);
 		selectionLabel->label = this->getValue();
+		if (onSelect)onSelect(selectedIndex);
 	}
 	virtual void draw(AlloyContext* context) override;
 	Selection(const std::string& label, const AUnit2D& position,

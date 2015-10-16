@@ -45,7 +45,6 @@ bool ColorSpaceEx::init(Composite& rootNode) {
 
 	};
 	selection->setSelectionIndex(3);
-	selection->onSelect(3);
 	rootNode.add(selection);
 
 	return true;
@@ -83,7 +82,10 @@ void ColorSpaceEx::setColorSpace(int index) {
 void ColorSpaceEx::draw(AlloyContext* context) {
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	float scale = camera.getScale();
+	static float scale=1.0f;
+	if (camera.isDirty()) {
+		scale = camera.getScale();
+	}
 	particleMatcapShader.draw(mesh, camera, getContext()->getViewport(), getContext()->getViewport(), 1.0f / std::sqrt(scale));
 	camera.setDirty(false);
 }

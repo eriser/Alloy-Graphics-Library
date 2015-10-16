@@ -34,6 +34,7 @@ namespace aly {
 template<class T, int C, ImageType I> struct Volume {
 private:
 	std::string hashCode;
+	int x, y, z;
 public:
 	std::vector<vec<T, C>> data;
 	typedef vec<T, C> ValueType;
@@ -74,10 +75,17 @@ public:
 	int rows;
 	int cols;
 	int slices;
-	int x, y, z;
 	uint64_t id;
 	const int channels = C;
 	const ImageType type = I;
+	int3 position() const {
+		return int3(x, y, z);
+	}
+	void setPosition(const int3& pos) {
+		x = pos.x;
+		y = pos.y;
+		z = pos.z;
+	}
 	std::string updateHashCode(size_t MAX_SAMPLES = 0, HashMethod method =
 			HashMethod::SHA256);
 	std::string getHashCode() {
@@ -137,6 +145,10 @@ public:
 			uint64_t id = 0) :
 			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(r * c * s) {
 	}
+	Volume(int r, int c, int s, int3 pos,
+		uint64_t id = 0) :
+		rows(r), cols(c), slices(s), x(pos.x), y(pos.y), z(pos.z), id(id), data(r * c * s) {
+	}
 	Volume(T* ptr, int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
 			Volume(r, c, s, x, y, z, id) {
@@ -155,26 +167,22 @@ public:
 			rows(0), cols(0), slices(0), x(0), y(0), z(0), id(0){
 	}
 	Volume(const Volume<T, C, I>& img) :
-			Volume(img.rows, img.cols, img.slices, img.x, img.y, img.z, img.id) {
+			Volume(img.rows, img.cols, img.slices, img.position(), img.id) {
 		set(img.data);
 	}
 	Volume<T, C, I>& operator=(const Volume<T, C, I>& rhs) {
 		if (this == &rhs)
 			return *this;
 		this->resize(rhs.rows, rhs.cols, rhs.slices);
-		this->x = x;
-		this->y = y;
-		this->z = z;
-		this->id = id;
+		this->setPosition(rhs.position());
+		this->id = rhs.id;
 		this->set(rhs.data);
 		return *this;
 	}
 	int3 dimensions() const {
 		return int2(rows, cols, slices);
 	}
-	int3 position() const {
-		return int2(x, y, z);
-	}
+
 	size_t size() const {
 		return data.size();
 	}
@@ -582,7 +590,7 @@ template<class T, class L, class R, int C, ImageType I> std::basic_ostream<L, R>
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator+(
 		const vec<T, C>& scalar, const Volume<T, C, I>& img) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices,img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = scalar + val2;};
 	Transform(out, img, f);
@@ -591,7 +599,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator+(
 
 template<class T, int C, ImageType I> Volume<T, C, I> operator-(
 		const vec<T, C>& scalar, const Volume<T, C, I>& img) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = scalar - val2;};
 	Transform(out, img, f);
@@ -599,7 +607,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator-(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator*(
 		const vec<T, C>& scalar, const Volume<T, C, I>& img) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = scalar*val2;};
 	Transform(out, img, f);
@@ -607,7 +615,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator*(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator/(
 		const vec<T, C>& scalar, const Volume<T, C, I>& img) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = scalar / val2;};
 	Transform(out, img, f);
@@ -615,7 +623,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator/(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator+(
 		const Volume<T, C, I>& img, const vec<T, C>& scalar) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = val2 + scalar;};
 	Transform(out, img, f);
@@ -623,7 +631,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator+(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator-(
 		const Volume<T, C, I>& img, const vec<T, C>& scalar) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = val2 - scalar;};
 	Transform(out, img, f);
@@ -631,7 +639,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator-(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator*(
 		const Volume<T, C, I>& img, const vec<T, C>& scalar) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = val2*scalar;};
 	Transform(out, img, f);
@@ -639,7 +647,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator*(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator/(
 		const Volume<T, C, I>& img, const vec<T, C>& scalar) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = val2 / scalar;};
 	Transform(out, img, f);
@@ -647,7 +655,7 @@ template<class T, int C, ImageType I> Volume<T, C, I> operator/(
 }
 template<class T, int C, ImageType I> Volume<T, C, I> operator-(
 		const Volume<T, C, I>& img) {
-	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.x, img.y, img.z);
+	Volume<T, C, I> out(img.rows, img.cols, img.slices, img.position());
 	std::function<void(vec<T, C>&, const vec<T, C>&)> f =
 			[=](vec<T, C>& val1, const vec<T, C>& val2) {val1 = -val2;};
 	Transform(out, img, f);
