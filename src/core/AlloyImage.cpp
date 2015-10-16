@@ -544,7 +544,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 		exrImage.channel_names[1] = strdup("G");
 		exrImage.channel_names[2] = strdup("B");
 		exrImage.channel_names[3] = strdup("R");
-#endifc
+#endif
 		int ret = SaveMultiChannelEXRToFile(&exrImage, file.c_str(), &err);
 		FreeEXRImage(&exrImage);
 		if (ret != 0)
