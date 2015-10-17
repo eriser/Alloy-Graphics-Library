@@ -2832,7 +2832,6 @@ void main() {
     outColor=outColor/lsum;
     outColor.w=1.0;
 	gl_FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
-	
 	gl_FragDepth=rgba.w;
 })");
 

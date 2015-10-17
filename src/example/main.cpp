@@ -44,6 +44,7 @@
 #include "../../include/example/KdTreeEx.h"
 #include "../../include/example/MeshSmoothEx.h"
 #include "../../include/example/ColorSpaceEx.h"
+#include "../../include/example/MeshPrimitivesEx.h"
 #include "AlloyFileUtil.h"
 
 using namespace aly;
@@ -54,7 +55,7 @@ int main() {
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
 #else
-		ColorSpaceEx app;
+		MeshPrimitivesEx app;
 		//MeshViewer app;
 #endif
 
