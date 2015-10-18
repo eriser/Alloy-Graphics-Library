@@ -21,8 +21,10 @@ EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx ControlsEx \
 alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)
 	ranlib liballoy.a
+
 example : $(EXOBJS)
 	$(CXX) $(LDLIBS) -o $(EXAMPLE) $(EXOBJS) $(LIBS)
+	
 clean :
 	clear
 	$(RM) $(OBJS) $(EXOBJS) $(DS)
@@ -32,8 +34,10 @@ clean :
 all : 
 	clear
 	make -j8 alloy
+	$(RM) src/example/main.o;
+	make -j8 examples;
 	for ex in $(EXAMPLES); do \
-	$(RM) src/example/main.o; \
-	make -j8 EXAMPLE=$$ex example; \
+		$(RM) src/example/main.o; \
+		make -j8 EXAMPLE=$$ex example; \
 	done
 default : all

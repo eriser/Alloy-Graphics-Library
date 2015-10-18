@@ -46,7 +46,12 @@
 #include "../../include/example/ColorSpaceEx.h"
 #include "../../include/example/MeshPrimitivesEx.h"
 #include "AlloyFileUtil.h"
-
+#include <cstring>
+#ifndef EXAMPLE_NAME
+#define EXAMPLE_NAME ""
+#endif
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 using namespace aly;
 struct Example {
 	std::string name;
@@ -98,51 +103,57 @@ int main(int argc, char *argv[]) {
 	try {
 		//Example name is specified in a makefile at compile time so 
 		//all example applications are compiled to seperate exe targets.
-#ifdef EXAMPLE_NAME
-		EXAMPLE_NAME app;
-		app.run(1);
-#else
-		bool error = false;
-		if (argc >= 2) {
-			int index = atoi(argv[1]);
-			if (index < N) {
-				std::string dir =
-						(argc > 2) ?
-								RemoveTrailingSlash(argv[2]) :
-								GetDesktopDirectory();
-				if (index == -1) {
-					for (index = 0; index < N; index++) {
+		std::string exName = TOSTRING(EXAMPLE_NAME);
+		int exampleIndex = -1;
+		for (int n = 0; n < N; n++) {
+			if (apps[n]->getName() == exName) {
+				exampleIndex = n;
+				break;
+			}
+		}
+		if (exampleIndex >= 0) {
+			apps[exampleIndex]->getApplication()->run(1);
+		} else {
+			bool error = false;
+			if (argc >= 2) {
+				int index = atoi(argv[1]);
+				if (index < N) {
+					std::string dir =
+							(argc > 2) ?
+									RemoveTrailingSlash(argv[2]) :
+									GetDesktopDirectory();
+					if (index == -1) {
+						for (index = 0; index < N; index++) {
+							ExamplePtr& ex = apps[index];
+							std::string screenShot = MakeString() << dir
+									<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(2)<<std::setfill('0')<<index<<"_"<<ex->getName()<<".png";
+							std::cout << "Saving " << screenShot << std::endl;
+							ex->getApplication()->runOnce(screenShot);
+							ex.reset();
+						}
+					} else {
 						ExamplePtr& ex = apps[index];
-						std::string screenShot = MakeString() << dir
-								<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(2)<<std::setfill('0')<<index<<"_"<<ex->getName()<<".png";
-						std::cout << "Saving " << screenShot << std::endl;
-						ex->getApplication()->runOnce(screenShot);
-						ex.reset();
+						ex->getApplication()->run(1);
 					}
 				} else {
-					ExamplePtr& ex = apps[index];
-					ex->getApplication()->run(1);
+					error = true;
 				}
 			} else {
 				error = true;
 			}
-		} else {
-			error = true;
-		}
-		if (error) {
-			std::cout << "Usage: " << argv[0]
-					<< " [example index] [output directory]\nExample Indexes:"
-					<< std::endl;
-			std::cout << "[" << -1 << "] Generate screenshots for all examples"
-					<< std::endl;
-			for (int i = 0; i < N; i++) {
-				std::cout << "[ " << i << "] " << apps[i]->getName()
+			if (error) {
+				std::cout << "Usage: " << argv[0]
+						<< " [example index] [output directory]\nExample Indexes:"
 						<< std::endl;
+				std::cout << "[" << -1
+						<< "] Generate screenshots for all examples"
+						<< std::endl;
+				for (int i = 0; i < N; i++) {
+					std::cout << "[ " << i << "] " << apps[i]->getName()
+							<< std::endl;
+				}
 			}
 		}
-		//MeshViewer app;
-#endif
-
 		//SANITY_CHECK_ANY();
 		//SANITY_CHECK_SVD();
 		//SANITY_CHECK_ALGO();
