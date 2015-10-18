@@ -477,6 +477,7 @@ void Application::onChar(unsigned int codepoint) {
 void Application::runOnce(const std::string& fileName) {
 	close();
 	run(0);
+	glfwSwapBuffers(context->window);
 	ImageRGB img = getScreenShot();
 	FlipVertical(img);
 	WriteImageToFile(fileName, img);
