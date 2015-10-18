@@ -67,8 +67,10 @@ void MeshParticleEx::draw(AlloyContext* context){
 	//Create scaled version of object to fit inside original.
 	const float4x4 S = MakeTranslation(box.center())*MakeScale(0.5f)*MakeTranslation(-box.center());
 	if (camera.isDirty()) {
-		particleDepthShader.draw({ { &mesh,S} }, camera, depthFrameBuffer, 0.03f);
-		wireframeShader.draw({ { &mesh,S } }, camera, wireframeBuffer);
+		using pair = std::pair<const aly::Mesh *,aly::float4x4>;
+		using list = std::initializer_list<pair>;
+		particleDepthShader.draw(list{ pair{ &mesh,S} }, camera, depthFrameBuffer, 0.03f);
+		wireframeShader.draw(list{ pair{ &mesh,S } }, camera, wireframeBuffer);
 	}
 	//Occlusion is not handled because wireframe is drawn as image. w component corresponds to alpha, not depth.
 	imageShader.draw(wireframeBuffer.getTexture(), renderRegion->getBounds(), 1.0f, false);

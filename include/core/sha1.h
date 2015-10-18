@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdint.h>
 
 class SHA1 {
 public:

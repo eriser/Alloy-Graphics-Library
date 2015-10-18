@@ -507,7 +507,7 @@ bool SANITY_CHECK_PYRAMID() {
 		}
 	}
 
-	Tile( { imgDown, imgUp, img, imgDown.downSample(), imgDown.downSample(),
+	Tile( std::vector<ImageRGBAf> { imgDown, imgUp, img, imgDown.downSample(), imgDown.downSample(),
 			imgDown.downSample().downSample(), crop }, compose, 3, 3);
 	WriteImageToFile("compose1.png", compose);
 	std::vector<ImageRGBAf> ilist = { imgDown, imgUp, img, imgDown.downSample(),

@@ -43,19 +43,20 @@ bool DialogsEx::init(Composite& rootNode) {
 	rootNode.add(colorselect);
 	rootNode.add(listBox);
 
+	using extensions = std::initializer_list<std::string>;
 	std::string exampleFile = getContext()->getFullPath("images" + ALY_PATH_SEPARATOR + "sfsunset.png");
 	fileSelector->addFileExtensionRule("Portable Network Graphics", "png");
-	fileSelector->addFileExtensionRule("XML", { "raw", "xml" });
+	fileSelector->addFileExtensionRule("XML", extensions { "raw", "xml" });
 	fileSelector->addFileExtensionRule("Text", "txt");
 	fileSelector->setValue(exampleFile);
 
 	saveButton->addFileExtensionRule("Portable Network Graphics", "png");
-	saveButton->addFileExtensionRule("XML", { "raw", "xml" });
+	saveButton->addFileExtensionRule("XML", extensions { "raw", "xml" });
 	saveButton->addFileExtensionRule("Text", "txt");
 	saveButton->setValue(exampleFile);
 
 	openMultiButton->addFileExtensionRule("Portable Network Graphics", "png");
-	openMultiButton->addFileExtensionRule("XML", { "raw", "xml" });
+	openMultiButton->addFileExtensionRule("XML", extensions { "raw", "xml" });
 	openMultiButton->addFileExtensionRule("Text", "txt");
 	openMultiButton->setValue(exampleFile);
 	return true;
