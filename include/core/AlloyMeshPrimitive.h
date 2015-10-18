@@ -23,13 +23,16 @@
 #include "AlloyMesh.h"
 #include "AlloyMath.h"
 namespace aly {
-	struct Box: public Mesh {
+	class Box: public Mesh {
+	public:
 		Box(const box3f& box,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
-	struct Icosahedron : public Mesh {
-		Icosahedron(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	class Icosahedron : public Mesh {
+	public:
+		Icosahedron(float radius,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
-	struct Sphere : public Mesh {
+	class Sphere : public Mesh {
+	public:
 		Sphere(float r, int slices, int stacks, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
 }

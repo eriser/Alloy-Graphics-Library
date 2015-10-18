@@ -41,12 +41,13 @@ namespace aly {
 		quadIndexes.push_back(uint4(4, 0, 1, 5));
 
 		updateVertexNormals();
-		updateBoundingBox();
+		boundingBox = box;
 		setDirty(true);
 	}
 	Sphere::Sphere(float radius,int slices,int stacks,std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+		std::vector<std::vector<uint32_t>> rings(stacks - 1, std::vector<uint32_t>(slices));
 		vertexLocations.push_back(float3(0.0f, 0.0f, radius));
-		std::vector<std::vector<uint32_t>> rings(stacks-1, std::vector<uint32_t>(slices));
+		vertexNormals.push_back(float3(0.0f, 0.0f, 1.0f));
 		uint32_t idx = 1;
 		for (int i = 1; i<stacks; i++)
 		{
@@ -56,15 +57,17 @@ namespace aly {
 			{
 				float cosj = std::cos(2 * ALY_PI*j / (float)slices);
 				float sinj = std::sin(2 * ALY_PI*j / (float)slices);
-				float x = radius*cosj * sini;
-				float y = radius*sinj * sini;
-				float z = radius*cosi;
+				float x = cosj * sini;
+				float y = sinj * sini;
+				float z = cosi;
 				rings[i-1][j]=idx;
-				vertexLocations.push_back(float3(x, y, z));
+				vertexLocations.push_back(radius*float3(x, y, z));
+				vertexNormals.push_back(float3(x,y,z));
 				idx++;
 			}
 		}
 		vertexLocations.push_back(float3(0.0f, 0.0f, -radius));
+		vertexNormals.push_back(float3(0.0f, 0.0f, -1.0f));
 		uint32_t v0, v1, v2, v3;
 		for (int j = 0; j < slices; j++)
 		{
@@ -84,13 +87,11 @@ namespace aly {
 				v3 = rings[i+1][(j + 1) % slices];
 				quadIndexes.push_back(uint4(v0, v2, v3,v1));
 			}
-			
 		}
-		updateVertexNormals();
-		updateBoundingBox();
+		boundingBox = box3f(float3(-radius, -radius, -radius), float3(2 * radius, 2 * radius, 2*radius));
 		setDirty(true);
 	}
-	Icosahedron::Icosahedron(std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+	Icosahedron::Icosahedron(float radius,std::shared_ptr<AlloyContext>& context) :Mesh(context) {
 		vertexLocations.push_back(float3(0.0f, 0.0f, -1.0f));
 		vertexLocations.push_back(float3(0.7236f, -0.52572f, -0.447215f));
 		vertexLocations.push_back(float3(-0.276385f, -0.85064f, -0.447215f));
@@ -103,6 +104,7 @@ namespace aly {
 		vertexLocations.push_back(float3(-0.7236f, 0.52572f, 0.447215f));
 		vertexLocations.push_back(float3(0.276385f, 0.85064f, 0.447215f));
 		vertexLocations.push_back(float3(0.0f, 0.0f, 1.0f));
+		vertexLocations *= float3(radius);
 		triIndexes.push_back(uint3(0, 1, 2));
 		triIndexes.push_back(uint3(1, 0, 3));
 		triIndexes.push_back(uint3(0, 2, 4));
@@ -124,7 +126,8 @@ namespace aly {
 		triIndexes.push_back(uint3(10, 9, 11));
 		triIndexes.push_back(uint3(7, 10, 11));
 		updateVertexNormals();
-		updateBoundingBox();
+
+		boundingBox = box3f(float3(-radius, -radius, -radius), float3(2 * radius, 2 * radius, 2 * radius));
 		setDirty(true);
 	}
 }

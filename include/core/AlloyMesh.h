@@ -32,7 +32,7 @@
 #include <list>
 namespace aly {
 	bool SANITY_CHECK_SUBDIVIDE();
-struct Mesh;
+class Mesh;
 enum class SubDivisionScheme {
 	CatmullClark,Loop
 };
@@ -69,11 +69,12 @@ public:
 			AlloyDefaultContext());
 	virtual ~GLMesh();
 };
-struct Mesh {
+class Mesh {
 private:
-	box3f boundingBox;
 	bool dirtyOnScreen = false;
 	bool dirtyOffScreen = false;
+protected:
+	box3f boundingBox;
 public:
 	friend struct GLMesh;
 

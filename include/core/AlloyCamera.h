@@ -27,7 +27,7 @@
 #include "cereal/cereal.hpp"
 #include <fstream>
 namespace aly {
-struct Mesh;
+class Mesh;
 enum class CameraType {
 	Perspective, Orthographic
 };

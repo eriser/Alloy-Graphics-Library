@@ -25,7 +25,7 @@
 
 namespace aly {
 	bool SANITY_CHECK_KDTREE();
-	struct Mesh;
+	class Mesh;
 	static const float3 NO_HIT_POINT = float3(
 		std::numeric_limits<float>::infinity());
 	static const float NO_HIT_DISTANCE=std::numeric_limits<float>::infinity();

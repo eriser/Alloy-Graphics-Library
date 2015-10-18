@@ -35,7 +35,7 @@ bool MeshPrimitivesEx::init(Composite& rootNode) {
 	phongShader[0].moveWithCamera = false;
 	meshPrimitives.resize(11);
 	meshPrimitives[0] = std::shared_ptr<aly::Mesh>(new Box(box3f(float3(0, 0, 0), float3(10, 10, 10))));
-	meshPrimitives[1] = std::shared_ptr<aly::Mesh>(new Icosahedron());
+	meshPrimitives[1] = std::shared_ptr<aly::Mesh>(new Icosahedron(1.0f));
 	meshPrimitives[2]= std::shared_ptr<aly::Mesh>(new Sphere(2.0f,20,20));
 	//Initialize depth buffer to store the render
 	int w = getContext()->width();
