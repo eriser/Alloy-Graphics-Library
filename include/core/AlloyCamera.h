@@ -218,6 +218,38 @@ public:
 		cameraType = type;
 		changed = true;
 	}
+	inline void rotateModelX(float angle){
+		Rm=MakeRotationX(angle)*Rm;
+		changed=true;
+	}
+	inline void rotateModelY(float angle){
+		Rm=MakeRotationY(angle)*Rm;
+		changed=true;
+	}
+	inline void rotateModelZ(float angle){
+		Rm=MakeRotationZ(angle)*Rm;
+		changed=true;
+	}
+	inline void rotateWorldX(float angle){
+		Rw=MakeRotationX(angle)*Rw;
+		changed=true;
+	}
+	inline void rotateWorldY(float angle){
+		Rw=MakeRotationY(angle)*Rw;
+		changed=true;
+	}
+	inline void rotateWorldZ(float angle){
+		Rw=MakeRotationZ(angle)*Rw;
+		changed=true;
+	}
+	inline void setModelRotation(const float4x4& M){
+		Rm=M;
+		changed=true;
+	}
+	inline void setWorldRotation(const float4x4& M){
+		Rw=M;
+		changed=true;
+	}
 	virtual float getScale() const override {
 		return distanceToObject;
 	}

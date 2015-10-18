@@ -172,8 +172,8 @@ public:
 					I) {
 	}
 	Image(int w, int h, int2 pos, uint64_t id = 0) :
-		x(pos.x), y(pos.y), data(w * h), width(w), height(h), id(id), channels(C), type(
-			I) {
+			x(pos.x), y(pos.y), data(w * h), width(w), height(h), id(id), channels(
+					C), type(I) {
 	}
 	Image(T* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
 			Image(w, h, x, y, id) {
@@ -189,11 +189,11 @@ public:
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
 			uint64_t id = 0) :
-			 x(x), y(y),data(ref), width(w), height(h), id(id), channels(C), type(
+			x(x), y(y), data(ref), width(w), height(h), id(id), channels(C), type(
 					I) {
 	}
-	Image() :  x(0), y(0),width(0), height(0), id(0), channels(C), type(
-					I) {
+	Image() :
+			x(0), y(0), width(0), height(0), id(0), channels(C), type(I) {
 	}
 	Image(const Image<T, C, I>& img) :
 			Image(img.width, img.height, img.x, img.y, img.id) {
@@ -635,7 +635,8 @@ template<class T, int C, ImageType I> void Transform(Image<T, C, I>& im1,
 }
 template<class T, class L, class R, int C, ImageType I> std::basic_ostream<L, R> & operator <<(
 		std::basic_ostream<L, R> & ss, const Image<T, C, I> & A) {
-	ss << "Image (" << A.getTypeName() << "): " << A.id << " Position: " << A.position()<<" Dimensions: [" << A.width << "," << A.height
+	ss << "Image (" << A.getTypeName() << "): " << A.id << " Position: "
+			<< A.position() << " Dimensions: [" << A.width << "," << A.height
 			<< "]";
 	return ss;
 }
@@ -1029,10 +1030,27 @@ template<class T, int C, ImageType I> void Crop(const Image<T, C, I>& in,
 		}
 	}
 }
-template<class T, int C, ImageType I> void DownSample(const Image<T, C, I>& in,Image<T, C, I>& out) {
-	static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 },{ 4, 16, 24, 16,
-		4 },{ 6, 24, 36, 24, 6 },{ 4, 16, 24, 16, 4 },
-		{ 1, 4, 6, 4, 1 } };
+template<class T, int C, ImageType I> void FlipVertical(Image<T, C, I>& in) {
+#pragma omp parallel for
+	for (int i = 0; i < in.width; i++) {
+		for (int j = 0; j < in.height / 2; j++) {
+			std::swap(in(i, j), in(i, in.height - 1 - j));
+		}
+	}
+}
+template<class T, int C, ImageType I> void FlipHorizontal(Image<T, C, I>& in) {
+#pragma omp parallel for
+	for (int j = 0; j < in.height; j++) {
+		for (int i = 0; i < in.width / 2; i++) {
+			std::swap(in(i, j), in(in.width - 1 - i, j));
+		}
+	}
+}
+template<class T, int C, ImageType I> void DownSample(const Image<T, C, I>& in,
+		Image<T, C, I>& out) {
+	static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 },
+			{ 4, 16, 24, 16, 4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 }, {
+					1, 4, 6, 4, 1 } };
 	out.resize(in.width / 2, in.height / 2);
 #pragma omp parallel for
 	for (int i = 0; i < out.width; i++) {
@@ -1041,19 +1059,19 @@ template<class T, int C, ImageType I> void DownSample(const Image<T, C, I>& in,I
 			for (int ii = 0; ii < 5; ii++) {
 				for (int jj = 0; jj < 5; jj++) {
 					vsum += Kernel[ii][jj]
-						* vec<double, C>(
-							in(2 * i + ii - 2,
-								2 * j + jj - 2));
+							* vec<double, C>(
+									in(2 * i + ii - 2, 2 * j + jj - 2));
 				}
 			}
 			out(i, j) = vec<T, C>(vsum / 256.0);
 		}
 	}
 }
-template<class T, int C, ImageType I> void UpSample(const Image<T, C, I>& in, Image<T, C, I>& out) {
-	static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 },{ 4, 16, 24, 16,
-		4 },{ 6, 24, 36, 24, 6 },{ 4, 16, 24, 16, 4 },
-		{ 1, 4, 6, 4, 1 } };
+template<class T, int C, ImageType I> void UpSample(const Image<T, C, I>& in,
+		Image<T, C, I>& out) {
+	static const double Kernel[5][5] = { { 1, 4, 6, 4, 1 },
+			{ 4, 16, 24, 16, 4 }, { 6, 24, 36, 24, 6 }, { 4, 16, 24, 16, 4 }, {
+					1, 4, 6, 4, 1 } };
 	if (out.size() == 0)
 		out.resize(in.width * 2, in.height * 2);
 #pragma omp parallel for
@@ -1066,8 +1084,7 @@ template<class T, int C, ImageType I> void UpSample(const Image<T, C, I>& in, Im
 					int jjj = j + jj - 2;
 					if (iii % 2 == 0 && jjj % 2 == 0) {
 						vsum += Kernel[ii][jj]
-							* vec<double, C>(
-								in(iii / 2, jjj / 2));
+								* vec<double, C>(in(iii / 2, jjj / 2));
 					}
 				}
 			}
@@ -1079,10 +1096,8 @@ template<class T, int C, ImageType I> void Set(const Image<T, C, I>& in,
 		Image<T, C, I>& out, int2 pos) {
 	for (int i = 0; i < in.width; i++) {
 		for (int j = 0; j < in.height; j++) {
-			if (    pos.x + i >= 0 &&
-					pos.x + i < out.width &&
-					pos.y + j >= 0&&
-					pos.y + j < out.height) {
+			if (pos.x + i >= 0 && pos.x + i < out.width && pos.y + j >= 0
+					&& pos.y + j < out.height) {
 				out(pos.x + i, pos.y + j) = in(i, j);
 			}
 		}
@@ -1094,12 +1109,13 @@ template<class T, int C, ImageType I> void Tile(
 	int index = 0;
 	int maxX = 0;
 	int maxY = 0;
-	std::vector<int> lines(rows,0);
+	std::vector<int> lines(rows, 0);
 	for (int r = 0; r < rows; r++) {
 		int runX = 0;
 		int runY = 0;
 		for (int c = 0; c < cols; c++) {
-			if(index>=in.size())break;
+			if (index >= in.size())
+				break;
 			const Image<T, C, I>& img = in[index++];
 			runX += img.width;
 			runY = std::max(runY, img.height);
@@ -1107,21 +1123,24 @@ template<class T, int C, ImageType I> void Tile(
 		maxX = std::max(runX, maxX);
 		lines[r] = maxY;
 		maxY += runY;
-		if(index>=in.size())break;
+		if (index >= in.size())
+			break;
 	}
 	out.resize(maxX, maxY);
-	out.set(vec<T,C>(T(0)));
+	out.set(vec<T, C>(T(0)));
 	index = 0;
 	for (int r = 0; r < rows; r++) {
 		int runX = 0;
 		int runY = lines[r];
 		for (int c = 0; c < cols; c++) {
-			if(index>=in.size())break;
+			if (index >= in.size())
+				break;
 			const Image<T, C, I>& img = in[index++];
 			Set(img, out, int2(runX, runY));
 			runX += img.width;
 		}
-		if(index>=in.size())break;
+		if (index >= in.size())
+			break;
 	}
 }
 template<class T, int C, ImageType I> void Tile(
@@ -1129,14 +1148,15 @@ template<class T, int C, ImageType I> void Tile(
 		int rows, int cols) {
 	int maxX = 0;
 	int maxY = 0;
-	std::vector<int> lines(rows,0);
+	std::vector<int> lines(rows, 0);
 	{
 		auto iter = in.begin();
 		for (int r = 0; r < rows; r++) {
 			int runX = 0;
 			int runY = 0;
 			for (int c = 0; c < cols; c++) {
-				if(iter==in.end())break;
+				if (iter == in.end())
+					break;
 				const Image<T, C, I>& img = *iter;
 				iter++;
 				runX += img.width;
@@ -1145,24 +1165,27 @@ template<class T, int C, ImageType I> void Tile(
 			maxX = std::max(runX, maxX);
 			lines[r] = maxY;
 			maxY += runY;
-			if(iter==in.end())break;
+			if (iter == in.end())
+				break;
 		}
 	}
 	out.resize(maxX, maxY);
-	out.set(vec<T,C>(T(0)));
+	out.set(vec<T, C>(T(0)));
 	{
 		auto iter = in.begin();
 		for (int r = 0; r < rows; r++) {
 			int runX = 0;
 			int runY = lines[r];
 			for (int c = 0; c < cols; c++) {
-				if(iter==in.end())break;
+				if (iter == in.end())
+					break;
 				const Image<T, C, I>& img = *iter;
 				iter++;
 				Set(img, out, int2(runX, runY));
 				runX += img.width;
 			}
-			if(iter==in.end())break;
+			if (iter == in.end())
+				break;
 		}
 	}
 }

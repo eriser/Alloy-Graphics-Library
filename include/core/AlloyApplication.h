@@ -131,6 +131,7 @@ public:
 	void onScroll(double xoffset, double yoffset);
 	void onCursorEnter(int enter);
 	void fireEvent(const InputEvent& event);
+	ImageRGBA getScreenShot();
 	InputEvent getLastInputEvent() {
 		return inputEvent;
 	}

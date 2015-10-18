@@ -41,9 +41,9 @@ void Application::initInternal() {
 	context->loadFont(FontType::Code, "sans", "fonts/Hack-Regular.ttf");
 	context->loadFont(FontType::CodeBold, "sans-bold", "fonts/Hack-Bold.ttf");
 	context->loadFont(FontType::CodeItalic, "sans-bold-italic",
-		"fonts/Hack-Italic.ttf");
+			"fonts/Hack-Italic.ttf");
 	context->loadFont(FontType::CodeBoldItalic, "sans-bold-italic",
-		"fonts/Hack-BoldItalic.ttf");
+			"fonts/Hack-BoldItalic.ttf");
 
 	context->loadFont(FontType::Icon, "icons", "fonts/fontawesome.ttf");
 	glfwSetWindowUserPointer(context->window, this);
@@ -66,15 +66,17 @@ void Application::initInternal() {
 	glfwSetScrollCallback(context->window,
 			[](GLFWwindow * window, double xoffset, double yoffset ) {Application* app = (Application *)(glfwGetWindowUserPointer(window)); try {app->onScroll(xoffset, yoffset);} catch(...) {app->throwException(std::current_exception());}});
 	imageShader = std::shared_ptr<ImageShader>(
-			new ImageShader( ImageShader::Filter::NONE,true,context));
-	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(new GLFrameBuffer(true,context));
+			new ImageShader(ImageShader::Filter::NONE, true, context));
+	uiFrameBuffer = std::shared_ptr<GLFrameBuffer>(
+			new GLFrameBuffer(true, context));
 	uiFrameBuffer->initialize(context->screenSize.x, context->screenSize.y);
 }
 std::shared_ptr<GLTextureRGBA> Application::loadTextureRGBA(
 		const std::string& partialFile) {
 	ImageRGBA image;
 	ReadImageFromFile(context->getFullPath(partialFile), image);
-	return std::shared_ptr<GLTextureRGBA>(new GLTextureRGBA(image,true, context));
+	return std::shared_ptr<GLTextureRGBA>(
+			new GLTextureRGBA(image, true, context));
 }
 std::shared_ptr<GLTextureRGB> Application::loadTextureRGB(
 		const std::string& partialFile) {
@@ -89,7 +91,8 @@ std::shared_ptr<Font> Application::loadFont(const std::string& name,
 }
 Application::Application(int w, int h, const std::string& title,
 		bool showDebugIcon) :
-		frameRate(0.0f), rootRegion("Root"), showDebugIcon(showDebugIcon),onResize(nullptr) {
+		frameRate(0.0f), rootRegion("Root"), showDebugIcon(showDebugIcon), onResize(
+				nullptr) {
 
 	if (context.get() == nullptr) {
 		context.reset(new AlloyContext(w, h, title));
@@ -101,7 +104,7 @@ Application::Application(int w, int h, const std::string& title,
 }
 void Application::draw() {
 
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 10);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	draw(context.get());
@@ -206,8 +209,11 @@ void Application::drawDebugUI() {
 			yoffset += 16;
 		}
 		if (context->onTopRegion != nullptr) {
-			txt = MakeString() << "On Top [" << context->onTopRegion->name
-					<<": "<<(context->onTopRegion->isVisible()?"Visible":"Hidden")<<"]";
+			txt =
+					MakeString() << "On Top [" << context->onTopRegion->name
+							<< ": "
+							<< (context->onTopRegion->isVisible() ?
+									"Visible" : "Hidden") << "]";
 			drawText(nvg, 5, yoffset, txt.c_str(), FontStyle::Outline,
 					Color(255), Color(64, 64, 64));
 			yoffset += 16;
@@ -295,12 +301,13 @@ void Application::fireEvent(const InputEvent& event) {
 
 	//Fire events
 	if (context->mouseDownRegion != nullptr
-			&& event.type != InputType::MouseButton	&& context->mouseDownRegion->isDragEnabled()) {
+			&& event.type != InputType::MouseButton
+			&& context->mouseDownRegion->isDragEnabled()) {
 		if (context->mouseDownRegion->onMouseDrag) {
 			consumed |= context->mouseDownRegion->onMouseDrag(context.get(),
 					event);
 		} else {
-			if(context->leftMouseButton){
+			if (context->leftMouseButton) {
 				context->setOnTopRegion(context->mouseDownRegion);
 				context->mouseDownRegion->setDragOffset(context->cursorPosition,
 						context->cursorDownPosition);
@@ -346,7 +353,8 @@ void Application::onWindowSize(int width, int height) {
 		context->viewSize = int2(width, height);
 
 		context->requestPack();
-		if(onResize)onResize(context->viewSize);
+		if (onResize)
+			onResize(context->viewSize);
 	}
 }
 void Application::onCursorPos(double xpos, double ypos) {
@@ -372,6 +380,12 @@ void Application::onWindowFocus(int focused) {
 		context->cursorDownPosition = pixel2(-1, -1);
 		context->hasFocus = false;
 	}
+}
+ImageRGBA Application::getScreenShot() {
+	ImageRGBA img(context->width(), context->height());
+	glReadPixels(0, 0, img.width, img.height, GL_RGBA, GL_UNSIGNED_BYTE,
+			img.ptr());
+	return img;
 }
 void Application::onCursorEnter(int enter) {
 	if (!enter) {
@@ -424,6 +438,20 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 	e.scancode = scancode;
 	e.mods = mods;
 	e.cursor = context->cursorPosition;
+	if (key == GLFW_KEY_F12&&e.action== GLFW_PRESS) {
+		for (int i = 0; i < 1000; i++) {
+			std::string screenShot = MakeString() << GetDesktopDirectory()
+					<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(4)<<std::setfill('0')<<i<<".png";
+			if(!FileExists(screenShot)) {
+				std::cout<<"Saving "<<screenShot<<std::endl;
+				ImageRGBA img=getScreenShot();
+				FlipVertical(img);
+				WriteImageToFile(screenShot,img);
+				break;
+			}
+		}
+	}
+
 	fireEvent(e);
 }
 void Application::onChar(unsigned int codepoint) {
