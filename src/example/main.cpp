@@ -87,6 +87,7 @@ typedef std::unique_ptr<Example> ExamplePtr;
 
 int main(int argc, char *argv[]) {
 	const int N = 26;
+
 	ExamplePtr apps[N] = { MAKE_EXAMPLE(UnitsEx), MAKE_EXAMPLE(CompositeEx),
 			MAKE_EXAMPLE(EventsEx), MAKE_EXAMPLE(DragEx), MAKE_EXAMPLE(TweenEx),
 			MAKE_EXAMPLE(ImageEx), MAKE_EXAMPLE(ControlsEx), MAKE_EXAMPLE(
@@ -190,7 +191,6 @@ int main(int argc, char *argv[]) {
 		//SANITY_CHECK_IMAGE_IO();
 		//SANITY_CHECK_ROBUST_SOLVE();
 		//SANITY_CHECK_SUBDIVIDE();
-
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
