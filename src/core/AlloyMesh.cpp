@@ -1853,7 +1853,7 @@ namespace aly {
 		if(hasUVs)mesh.textureMap = uvs;
 		mesh.quadIndexes = newQuads;
 		mesh.triIndexes.clear();
-		mesh.updateVertexNormals();
+		if(mesh.vertexNormals.size()>0)mesh.updateVertexNormals();
 		mesh.setDirty(true);
 	}
 	void SubdivideLoop(Mesh& mesh) {
@@ -2009,7 +2009,7 @@ namespace aly {
 			}
 		}
 		if(hasUVs)mesh.textureMap = uvs;
-		mesh.updateVertexNormals();
+		if(mesh.vertexNormals.size()>0)mesh.updateVertexNormals();
 		mesh.setDirty(true);
 	}
 	void Subdivide(Mesh& mesh, SubDivisionScheme type) {

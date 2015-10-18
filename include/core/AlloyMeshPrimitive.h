@@ -21,7 +21,7 @@
 #ifndef ALLOYMESHPRIMITIVE_H_
 #define ALLOYMESHPRIMITIVE_H_
 #include "AlloyMesh.h"
-#include "AlloyMath.h"
+#include "AlloyCamera.h"
 namespace aly {
 	class Box: public Mesh {
 	public:
@@ -34,6 +34,34 @@ namespace aly {
 	class Sphere : public Mesh {
 	public:
 		Sphere(float r, int slices, int stacks, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Cylinder : public Mesh {
+	public:
+		Cylinder(float r, float h, int slices,  std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Cone : public Mesh {
+	public:
+		Cone(float r, float h, int slices, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Pyramid : public Mesh {
+	public:
+		Pyramid(float w, float h, float d, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Frustum : public Mesh {
+	public:
+		Frustum(const CameraParameters& cam, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Plane : public Mesh {
+	public:
+		Plane(float w,float h, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Capsule : public Mesh {
+	public:
+		Capsule(float r, float h,int slices, int stacks, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class TesselatedSphere : public Mesh {
+	public:
+		TesselatedSphere(float r,int subdivisions,const SubDivisionScheme& scheme, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
 }
 #endif /* MESH_H_ */

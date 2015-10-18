@@ -244,6 +244,9 @@ public:
 	inline int getSelectedIndex() const {
 		return selectedIndex;
 	}
+	void setMaxDisplayEntries(int mx) {
+		selectionBox->setMaxDisplayEntries(mx);
+	}
 	std::string getValue() {
 		return selectionBox->getSelection(selectedIndex);
 	}
