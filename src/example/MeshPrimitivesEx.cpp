@@ -77,7 +77,7 @@ bool MeshPrimitivesEx::init(Composite& rootNode) {
 		camera.setZoom(0.6f);
 		camera.setDirty(true);
 	};
-	selection->setSelectionIndex(0);
+	selection->setSelectionIndex(2);
 	setOnResize([=](const int2& dims) {
 		camera.setDirty(true);
 	});

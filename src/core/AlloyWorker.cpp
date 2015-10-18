@@ -48,8 +48,12 @@ void Worker::done() {
 	if (endTask)
 		endTask();
 }
-void Worker::execute() {
-	workerThread = std::thread(&Worker::task, this);
+void Worker::execute(bool block) {
+	if (block) {
+		task();
+	} else {
+		workerThread = std::thread(&Worker::task, this);
+	}
 }
 Worker::~Worker() {
 	cancel();

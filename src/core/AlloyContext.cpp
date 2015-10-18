@@ -323,6 +323,7 @@ namespace aly {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+		glfwWindowHint(GLFW_VISIBLE, 0);
 		window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 
 		if (!window) {

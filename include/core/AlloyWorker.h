@@ -51,7 +51,7 @@ public:
 
 	Worker(const std::function<void()>& func);
 	Worker(const std::function<void()>& func, const std::function<void()>& end);
-	void execute();
+	void execute(bool block=false);
 	void cancel(bool block=true);
 	virtual ~Worker();
 };

@@ -86,6 +86,6 @@ bool PoissonInpaintEx::init(Composite& rootNode) {
 					textLabel->label="Finished!";
 				});
 	}));
-	workerTask->execute();
+	workerTask->execute(isForcedClose());
 	return true;
 }

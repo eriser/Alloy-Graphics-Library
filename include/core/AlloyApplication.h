@@ -41,14 +41,22 @@ private:
 	void draw();
 	Composite rootRegion;
 	bool showDebugIcon;
+	bool forceClose = false;
 	std::shared_ptr<ImageShader> imageShader;
 	std::list<std::exception_ptr> caughtExceptions;
 	std::shared_ptr<GLFrameBuffer> uiFrameBuffer;
 	std::function<void(const int2& dimensions)> onResize;
 	void initInternal();
 public:
-	void setOnResize(const std::function<void(const int2& dimensions)>& onResizeEvent){
-		onResize=onResizeEvent;
+	void close() {
+		forceClose = true;
+	}
+	bool isForcedClose() const {
+		return forceClose;
+	}
+	void setOnResize(
+			const std::function<void(const int2& dimensions)>& onResizeEvent) {
+		onResize = onResizeEvent;
 	}
 	static inline std::shared_ptr<AlloyContext>& getContext() {
 		//if (context.get() == nullptr)throw std::runtime_error("Cannot get GLFW / NanoVG context.");
@@ -99,19 +107,19 @@ public:
 	}
 
 	inline std::shared_ptr<ImageGlyph> createImageGlyph(const ImageRGBAf& img,
-		bool mipmap = false) {
+			bool mipmap = false) {
 		ImageRGBA tmp;
 		ConvertImage(img, tmp);
 		return context->createImageGlyph(tmp);
 	}
 	inline std::shared_ptr<ImageGlyph> createImageGlyph(const Image1f& img,
-		bool mipmap = false) {
+			bool mipmap = false) {
 		ImageRGBA tmp;
 		ConvertImage(img, tmp);
 		return context->createImageGlyph(tmp);
 	}
 	inline std::shared_ptr<ImageGlyph> createImageGlyph(const Image1b& img,
-		bool mipmap = false) {
+			bool mipmap = false) {
 		ImageRGBA tmp;
 		ConvertImage(img, tmp);
 		return context->createImageGlyph(tmp);
@@ -131,7 +139,7 @@ public:
 	void onScroll(double xoffset, double yoffset);
 	void onCursorEnter(int enter);
 	void fireEvent(const InputEvent& event);
-	ImageRGBA getScreenShot();
+	ImageRGB getScreenShot();
 	InputEvent getLastInputEvent() {
 		return inputEvent;
 	}
@@ -150,12 +158,14 @@ public:
 	std::shared_ptr<Font> loadFont(const std::string& name,
 			const std::string& partialFile);
 
-	virtual void draw(AlloyContext* context) {}
+	virtual void draw(AlloyContext* context) {
+	}
 	Composite& getRoot() {
 		return rootRegion;
 	}
 	virtual bool init(Composite& rootNode)=0;
 	void run(int swapInterval = 0); //no vsync by default
+	void runOnce(const std::string& fileName);
 	virtual inline ~Application() {
 		context.reset();
 	}

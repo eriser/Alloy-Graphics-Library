@@ -72,23 +72,25 @@ bool KdTreeEx::init(Composite& rootNode) {
 	rootNode.add(textLabel);
 	
 	workerTask = WorkerTaskPtr(new Worker([=] {
-		ImageRGBA rgba(tarImg.width,tarImg.height);
+		ImageRGBA depthRGBA(tarImg.width,tarImg.height);
+		ImageRGBA distRGBA(tarImg.width,tarImg.height);
 		Image1f distImg(tarImg.width, tarImg.height);
 		Image1f depthImg(tarImg.width, tarImg.height);
+		camera.aim(depthFrameBuffer.getViewport());
 		textLabel->label = "Building Kd-Tree ...";
 		kdTree.build(mesh,6);
 		textLabel->label = "Computing Depth Field ...";
 		float minD = 1E30f;
 		float maxD = 0;
 #pragma omp parallel for
-		for (int i = 0; i < rgba.width; i++) {
-			for (int j = 0; j < rgba.height; j++) {
+		for (int i = 0; i < depthRGBA.width; i++) {
+			for (int j = 0; j < depthRGBA.height; j++) {
 				float3 pt1 = camera.transformImageToWorld(
-					float3((float)(i+0.5f), (float)(j+0.5f), 0.0f), rgba.width,
-					rgba.height);
+					float3((float)(i+0.5f), (float)(j+0.5f), 0.0f), depthRGBA.width,
+					depthRGBA.height);
 				float3 pt2 = camera.transformImageToWorld(
-					float3((float)(i+0.5f), (float)(j+0.5f), 1.0f), rgba.width,
-					rgba.height);
+					float3((float)(i+0.5f), (float)(j+0.5f), 1.0f), depthRGBA.width,
+					depthRGBA.height);
 				float3 v = normalize(pt2 - pt1);
 				float3 lastPoint(0.0f);
 				double d = kdTree.intersectRayDistance(pt1, v, lastPoint);
@@ -107,14 +109,15 @@ bool KdTreeEx::init(Composite& rootNode) {
 		for (int n = 0;n < (int)depthImg.size();n++) {
 			float d = depthImg[n].x;
 			if (d > 0) {
-				rgba[n] = HSVAtoColor(HSVA(0.9f*(d - minD) / (maxD - minD), 1.0f, 1.0f, 1.0f)).toRGBA();
+				depthRGBA[n] = HSVAtoColor(HSVA(0.9f*(d - minD) / (maxD - minD), 1.0f, 1.0f, 1.0f)).toRGBA();
 			}
 			else {
-				rgba[n] = RGBA(0,0,0,0);
+				depthRGBA[n] = RGBA(0,0,0,0);
 			}
 		}
+
 		getContext()->addDeferredTask([=]() {
-			depthGlyph->set(rgba, getContext().get());
+			depthGlyph->set(depthRGBA, getContext().get());
 		});
 		textLabel->label = "Computing Distance Field ...";
 		box3f bbox = mesh.getBoundingBox();
@@ -126,12 +129,12 @@ bool KdTreeEx::init(Composite& rootNode) {
 		float3 newDims(dim, bbox.dimensions.y, dim);
 		bbox = box3f(center - newDims*0.5f, newDims);
 #pragma omp parallel for
-		for (int i = 0; i < rgba.width; i++) {
-			for (int j = 0; j < rgba.height; j++) {
+		for (int i = 0; i < distRGBA.width; i++) {
+			for (int j = 0; j < distRGBA.height; j++) {
 				float3 pt1 = bbox.position
 					+ bbox.dimensions
-					* float3(i / (float)rgba.width, 0.5f,
-						j / (float)rgba.height);
+					* float3(i / (float)distRGBA.width, 0.5f,
+						j / (float)distRGBA.height);
 				float3 lastPoint(0.0f);
 				double d = kdTree.closestPoint(pt1, lastPoint);
 				if (d != NO_HIT_DISTANCE) {
@@ -148,18 +151,18 @@ bool KdTreeEx::init(Composite& rootNode) {
 		for (int n = 0;n < (int)distImg.size();n++) {
 			float d = distImg[n].x;
 			if (d > 0) {
-				rgba[n] = HSVAtoColor(HSVA(0.9f*(d - minD) / (maxD - minD), 1.0f, 1.0f, 1.0f)).toRGBA();
+				distRGBA[n] = HSVAtoColor(HSVA(0.9f*(d - minD) / (maxD - minD), 1.0f, 1.0f, 1.0f)).toRGBA();
 			}
 			else {
-				rgba[n] = RGBA(0, 0, 0, 0);
+				distRGBA[n] = RGBA(0, 0, 0, 0);
 			}
 		}
 		getContext()->addDeferredTask([=]() {
-			distGlyph->set(rgba, getContext().get());
+			distGlyph->set(distRGBA, getContext().get());
 		});
 		textLabel->label = "Finished!";
 	}));
-	workerTask->execute();
+	workerTask->execute(isForcedClose());
 	return true;
 }
 void KdTreeEx::draw(AlloyContext* context){

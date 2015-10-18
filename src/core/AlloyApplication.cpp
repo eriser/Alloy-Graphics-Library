@@ -93,7 +93,6 @@ Application::Application(int w, int h, const std::string& title,
 		bool showDebugIcon) :
 		frameRate(0.0f), rootRegion("Root"), showDebugIcon(showDebugIcon), onResize(
 				nullptr) {
-
 	if (context.get() == nullptr) {
 		context.reset(new AlloyContext(w, h, title));
 	} else {
@@ -381,9 +380,9 @@ void Application::onWindowFocus(int focused) {
 		context->hasFocus = false;
 	}
 }
-ImageRGBA Application::getScreenShot() {
-	ImageRGBA img(context->width(), context->height());
-	glReadPixels(0, 0, img.width, img.height, GL_RGBA, GL_UNSIGNED_BYTE,
+ImageRGB Application::getScreenShot() {
+	ImageRGB img(context->width(), context->height());
+	glReadPixels(0, 0, img.width, img.height, GL_RGB, GL_UNSIGNED_BYTE,
 			img.ptr());
 	return img;
 }
@@ -438,13 +437,13 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 	e.scancode = scancode;
 	e.mods = mods;
 	e.cursor = context->cursorPosition;
-	if (key == GLFW_KEY_F12&&e.action== GLFW_PRESS) {
+	if (key == GLFW_KEY_F12 && e.action == GLFW_PRESS) {
 		for (int i = 0; i < 1000; i++) {
 			std::string screenShot = MakeString() << GetDesktopDirectory()
 					<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(4)<<std::setfill('0')<<i<<".png";
 			if(!FileExists(screenShot)) {
 				std::cout<<"Saving "<<screenShot<<std::endl;
-				ImageRGBA img=getScreenShot();
+				ImageRGB img=getScreenShot();
 				FlipVertical(img);
 				WriteImageToFile(screenShot,img);
 				break;
@@ -475,7 +474,13 @@ void Application::onChar(unsigned int codepoint) {
 		e.mods |= GLFW_MOD_SUPER;
 	fireEvent(e);
 }
-
+void Application::runOnce(const std::string& fileName) {
+	close();
+	run(0);
+	ImageRGB img = getScreenShot();
+	FlipVertical(img);
+	WriteImageToFile(fileName, img);
+}
 void Application::run(int swapInterval) {
 	const double POLL_INTERVAL_SEC = 0.5f;
 
@@ -513,6 +518,13 @@ void Application::run(int swapInterval) {
 	std::chrono::steady_clock::time_point endTime;
 	std::chrono::steady_clock::time_point lastFpsTime =
 			std::chrono::steady_clock::now();
+	if (!forceClose) {
+		glfwShowWindow(context->window);
+	} else {
+		context->executeDeferredTasks();
+		context->dirtyUI = true;
+		context->dirtyLayout = true;
+	}
 	do {
 		draw();
 		context->update(rootRegion);
@@ -532,7 +544,7 @@ void Application::run(int swapInterval) {
 		if (glfwWindowShouldClose(context->offscreenWindow)) {
 			context->setOffScreenVisible(false);
 		}
-	} while (!glfwWindowShouldClose(context->window));
+	} while (!glfwWindowShouldClose(context->window) && !forceClose);
 }
 }
 

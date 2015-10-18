@@ -48,14 +48,98 @@
 #include "AlloyFileUtil.h"
 
 using namespace aly;
-int main() {
+struct Example {
+	std::string name;
+	Application* app;
+	virtual Application* getApplication()=0;
+	virtual std::string getName() const =0;
+	Example(const std::string& name) :
+			name(name), app(nullptr) {
+	}
+	virtual ~Example() {
+	}
+};
+template<class T> struct ExampleT: public Example {
+	std::string getName() const {
+		return name;
+	}
+	ExampleT(const std::string& name) :
+			Example(name) {
+	}
+	Application* getApplication() {
+		if (app == nullptr) {
+			app = new T();
+		}
+		return app;
+	}
+	virtual ~ExampleT() {
+		if (app)
+			delete app;
+	}
+};
+typedef std::unique_ptr<Example> ExamplePtr;
+#define MAKE_EXAMPLE(NAME) ExamplePtr(new ExampleT<NAME>(#NAME))
+
+int main(int argc, char *argv[]) {
+	const int N = 26;
+	ExamplePtr apps[N] = { MAKE_EXAMPLE(UnitsEx), MAKE_EXAMPLE(CompositeEx),
+			MAKE_EXAMPLE(EventsEx), MAKE_EXAMPLE(DragEx), MAKE_EXAMPLE(TweenEx),
+			MAKE_EXAMPLE(ImageEx), MAKE_EXAMPLE(ControlsEx), MAKE_EXAMPLE(
+					DialogsEx), MAKE_EXAMPLE(ExpandEx), MAKE_EXAMPLE(
+					MeshMatcapEx), MAKE_EXAMPLE(MeshWireframeEx), MAKE_EXAMPLE(
+					MeshSubdivideEx), MAKE_EXAMPLE(MeshTextureEx), MAKE_EXAMPLE(
+					MeshVertexColorEx), MAKE_EXAMPLE(MeshParticleEx),
+			MAKE_EXAMPLE(MeshDepthEx), MAKE_EXAMPLE(MeshPhongEx), MAKE_EXAMPLE(
+					LaplaceFillEx), MAKE_EXAMPLE(PoissonBlendEx), MAKE_EXAMPLE(
+					PoissonInpaintEx), MAKE_EXAMPLE(ImageProcessingEx),
+			MAKE_EXAMPLE(MeshPickerEx), MAKE_EXAMPLE(KdTreeEx), MAKE_EXAMPLE(
+					MeshSmoothEx), MAKE_EXAMPLE(ColorSpaceEx), MAKE_EXAMPLE(
+					MeshPrimitivesEx) };
 	try {
 		//Example name is specified in a makefile at compile time so 
 		//all example applications are compiled to seperate exe targets.
 #ifdef EXAMPLE_NAME
 		EXAMPLE_NAME app;
+		app.run(1);
 #else
-		MeshPrimitivesEx app;
+		bool error = false;
+		if (argc >= 2) {
+			int index = atoi(argv[1]);
+			if (index < N) {
+				std::string dir =
+						(argc > 2) ?
+								RemoveTrailingSlash(argv[2]) :
+								GetDesktopDirectory();
+				if (index == -1) {
+					for (index = 0; index < N; index++) {
+						ExamplePtr& ex = apps[index];
+						std::string screenShot = MakeString() << dir
+								<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(2)<<std::setfill('0')<<index<<"_"<<ex->getName()<<".png";
+						std::cout << "Saving " << screenShot << std::endl;
+						ex->getApplication()->runOnce(screenShot);
+						ex.reset();
+					}
+				} else {
+					ExamplePtr& ex = apps[index];
+					ex->getApplication()->run(1);
+				}
+			} else {
+				error = true;
+			}
+		} else {
+			error = true;
+		}
+		if (error) {
+			std::cout << "Usage: " << argv[0]
+					<< " [example index] [output directory]\nExample Indexes:"
+					<< std::endl;
+			std::cout << "[" << -1 << "] Generate screenshots for all examples"
+					<< std::endl;
+			for (int i = 0; i < N; i++) {
+				std::cout << "[ " << i << "] " << apps[i]->getName()
+						<< std::endl;
+			}
+		}
 		//MeshViewer app;
 #endif
 
@@ -74,7 +158,7 @@ int main() {
 		//SANITY_CHECK_IMAGE_IO();
 		//SANITY_CHECK_ROBUST_SOLVE();
 		//SANITY_CHECK_SUBDIVIDE();
-		app.run(1);
+
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
