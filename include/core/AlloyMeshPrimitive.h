@@ -59,9 +59,9 @@ namespace aly {
 	public:
 		Capsule(float r, float h,int slices, int stacks, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
-	class TesselatedSphere : public Mesh {
+	class TessellatedSphere : public Mesh {
 	public:
-		TesselatedSphere(float r,int subdivisions,const SubDivisionScheme& scheme, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+		TessellatedSphere(float r,int subdivisions,const SubDivisionScheme& scheme, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
 }
 #endif /* MESH_H_ */

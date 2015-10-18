@@ -331,7 +331,7 @@ namespace aly {
 		setDirty(true);
 	}
 
-	TesselatedSphere::TesselatedSphere(float radius, int subdivisions, const SubDivisionScheme& scheme, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+	TessellatedSphere::TessellatedSphere(float radius, int subdivisions, const SubDivisionScheme& scheme, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
 		if (scheme == SubDivisionScheme::Loop) {
 			vertexLocations.push_back(float3(0.0f, 0.0f, -1.0f));
 			vertexLocations.push_back(float3(0.7236f, -0.52572f, -0.447215f));

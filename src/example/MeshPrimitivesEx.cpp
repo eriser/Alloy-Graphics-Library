@@ -50,7 +50,7 @@ bool MeshPrimitivesEx::init(Composite& rootNode) {
 		"Cube", "Icosahedron", "Sphere",
 		"Cylinder", "Plane", "Cone", "Pyramid",
 		"Frustum", "Capsule",
-		"Tesselated Sphere (Quads)","Tesselated Sphere (Triangles)"}));
+		"Tessellated Sphere (Quads)","Tessellated Sphere (Triangles)"}));
 	selection->setMaxDisplayEntries(12);
 
 	camera.aim(getContext()->getViewport());
@@ -64,8 +64,8 @@ bool MeshPrimitivesEx::init(Composite& rootNode) {
 	meshPrimitives[6] = std::shared_ptr<aly::Mesh>(new Pyramid(5.0f, 7.0f, 10.0f));
 	meshPrimitives[7] = std::shared_ptr<aly::Mesh>(new Frustum(camera));
 	meshPrimitives[8] = std::shared_ptr<aly::Mesh>(new Capsule(2.0f, 10.0f,20, 20));
-	meshPrimitives[9] = std::shared_ptr<aly::Mesh>(new TesselatedSphere(3.0f,3,SubDivisionScheme::CatmullClark));
-	meshPrimitives[10] = std::shared_ptr<aly::Mesh>(new TesselatedSphere(3.0f,3, SubDivisionScheme::Loop));
+	meshPrimitives[9] = std::shared_ptr<aly::Mesh>(new TessellatedSphere(3.0f,3,SubDivisionScheme::CatmullClark));
+	meshPrimitives[10] = std::shared_ptr<aly::Mesh>(new TessellatedSphere(3.0f,3, SubDivisionScheme::Loop));
 	selection->onSelect = [this](int index) {
 		box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
 		mesh = meshPrimitives[index].get();
