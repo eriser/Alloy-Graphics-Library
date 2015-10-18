@@ -168,11 +168,11 @@ public:
 	}
 
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			data(w * h), width(w), height(h), x(x), y(y), id(id), channels(C), type(
+			x(x), y(y), data(w * h), width(w), height(h), id(id), channels(C), type(
 					I) {
 	}
 	Image(int w, int h, int2 pos, uint64_t id = 0) :
-		data(w * h), width(w), height(h), x(pos.x), y(pos.y), id(id), channels(C), type(
+		x(pos.x), y(pos.y), data(w * h), width(w), height(h), id(id), channels(C), type(
 			I) {
 	}
 	Image(T* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
@@ -189,10 +189,10 @@ public:
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
 			uint64_t id = 0) :
-			data(ref), width(w), height(h), x(x), y(y), id(id), channels(C), type(
+			 x(x), y(y),data(ref), width(w), height(h), id(id), channels(C), type(
 					I) {
 	}
-	Image() : width(0), height(0), x(0), y(0), id(0), channels(C), type(
+	Image() :  x(0), y(0),width(0), height(0), id(0), channels(C), type(
 					I) {
 	}
 	Image(const Image<T, C, I>& img) :

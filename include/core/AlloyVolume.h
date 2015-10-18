@@ -143,11 +143,11 @@ public:
 
 	Volume(int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
-			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(r * c * s) {
+				 x(x), y(y), z(z), rows(r), cols(c), slices(s),id(id), data(r * c * s) {
 	}
 	Volume(int r, int c, int s, int3 pos,
 		uint64_t id = 0) :
-		rows(r), cols(c), slices(s), x(pos.x), y(pos.y), z(pos.z), id(id), data(r * c * s) {
+			 x(pos.x), y(pos.y), z(pos.z),rows(r), cols(c), slices(s), id(id), data(r * c * s) {
 	}
 	Volume(T* ptr, int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
@@ -161,10 +161,10 @@ public:
 	}
 	Volume(std::vector<vec<T, C>>& ref, int r, int c, int s, int x = 0, int y =
 			0, int z = 0, uint64_t id = 0) :
-			rows(r), cols(c), slices(s), x(x), y(y), z(z), id(id), data(ref) {
+				 x(x), y(y), z(z),rows(r), cols(c), slices(s), id(id), data(ref) {
 	}
 	Volume() :
-			rows(0), cols(0), slices(0), x(0), y(0), z(0), id(0){
+		 x(0), y(0), z(0),rows(0), cols(0), slices(0), id(0){
 	}
 	Volume(const Volume<T, C, I>& img) :
 			Volume(img.rows, img.cols, img.slices, img.position(), img.id) {
