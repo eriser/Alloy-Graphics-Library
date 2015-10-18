@@ -20,6 +20,7 @@
  */
 
 #include "AlloyMath.h"
+#include <random>
 using namespace std;
 namespace aly {
 
@@ -345,4 +346,31 @@ void SVD(const matrix<double, 4, 4> &A, matrix<double, 4, 4>& U,
 		matrix<double, 4, 4>& D, matrix<double, 4, 4>& Vt) {
 	SVD_INTERNAL(A, U, D, Vt);
 }
+
+
+float RandomUniform(float min, float max) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> noise(min,max);
+	return noise(gen);
+}
+int RandomUniform(int min, int max) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> noise(min, max);
+	return noise(gen);
+}
+double RandomUniform(double min, double max) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_real_distribution<double> noise(min, max);
+	return noise(gen);
+}
+double RandomGaussian(double mean, double stddev) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::normal_distribution<double> noise(mean, stddev);
+	return noise(gen);
+}
+
 }

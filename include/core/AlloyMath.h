@@ -1769,6 +1769,10 @@ inline aly::ubyte3 ToRGB(const RGBA& r) {
 inline aly::RGBA ToRGBA(const ubyte3& r) {
 	return aly::RGBA(r, 255);
 }
+float RandomUniform(float min,float max);
+int RandomUniform(int min, int max);
+double RandomUniform(double min, double max);
+double RandomGaussian(double mean, double stddev);
 }
 
 #endif
