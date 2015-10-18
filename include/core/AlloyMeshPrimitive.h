@@ -20,8 +20,17 @@
  */
 #ifndef ALLOYMESHPRIMITIVE_H_
 #define ALLOYMESHPRIMITIVE_H_
-
 #include "AlloyMesh.h"
-namespace aly{
+#include "AlloyMath.h"
+namespace aly {
+	struct Box: public Mesh {
+		Box(const box3f& box,std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	struct Icosahedron : public Mesh {
+		Icosahedron(std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	struct Sphere : public Mesh {
+		Sphere(float r, int slices, int stacks, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
 }
 #endif /* MESH_H_ */

@@ -24,42 +24,51 @@
 using namespace aly;
 MeshPrimitivesEx::MeshPrimitivesEx() :
 		Application(800, 600, "Mesh Primitives Example"), phongShader(1), imageShader(
-				ImageShader::Filter::MEDIUM_BLUR) {
+				ImageShader::Filter::FXAA) {
 }
 bool MeshPrimitivesEx::init(Composite& rootNode) {
-	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),
-			float3(1.0f, 1.0f, 1.0f));
+
 	phongShader[0] = SimpleLight(Color(0.0f, 0.0f, 0.1f, 0.25f),
 		Color(0.0f, 0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.8f, 0.5f),
 		Color(0.0f, 0.0f, 0.0f, 0.0f), 16.0f, float3(0, 0.0, 2.0),
 		float3(0, 1, 0));
 	phongShader[0].moveWithCamera = false;
-	mesh.load(getFullPath("models/monkey.obj"));
-	mesh.updateVertexNormals();
+	meshPrimitives.resize(11);
+	meshPrimitives[0] = std::shared_ptr<aly::Mesh>(new Box(box3f(float3(0, 0, 0), float3(10, 10, 10))));
+	meshPrimitives[1] = std::shared_ptr<aly::Mesh>(new Icosahedron());
+	meshPrimitives[2]= std::shared_ptr<aly::Mesh>(new Sphere(2.0f,20,20));
 	//Initialize depth buffer to store the render
 	int w = getContext()->width();
 	int h = getContext()->height();
 	depthFrameBuffer.initialize(w, h);
 	wireframeFrameBuffer.initialize(w, h);
 	//Set up camera
-	camera.setNearFarPlanes(-5.0f, 5.0f);
-	camera.setZoom(1.0f);
-	camera.setCameraType(CameraType::Orthographic);
+	camera.setNearFarPlanes(0.01f, 2.0f);
+	camera.setZoom(0.6f);
+	camera.setCameraType(CameraType::Perspective);
 	//Map object geometry into unit bounding box for draw.
-	camera.setPose(MakeTransform(mesh.getBoundingBox(), renderBBox));
-	//Add listener to respond to mouse manipulations
 	addListener(&camera);
 	SelectionPtr selection = SelectionPtr(new Selection("Primitive", CoordPX(5, 5), CoordPX(200, 30),
-		std::vector<std::string>{"Cube", "Icosahedron", "Sphere","Plane","Capsule", "Cylinder","Pyramid","Cone","Frustum","Sphere (tri)","Sphere (quad)"}));
+		std::vector<std::string>{
+		"Cube", "Icosahedron", "Sphere",
+		"Plane","Capsule", "Cylinder",
+		"Pyramid","Cone","Frustum",
+		"Sphere (tri)","Sphere (quad)"}));
+
 	selection->onSelect = [this](int index) {
+		box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
+		mesh = meshPrimitives[index].get();
+		camera.setPose(MakeRotation(float3(1.0,1.0f,0.0),ALY_PI*0.333333f)*MakeTransform(mesh->getBoundingBox(), renderBBox));
+		camera.setDirty(true);
+
 	};
-	selection->setSelectionIndex(3);
+	selection->setSelectionIndex(2);
 	setOnResize([=](const int2& dims) {
 		camera.setDirty(true);
 	});
 	wireframeShader.setFaceColor(Color(1.0f, 1.0f, 1.0f, 0.0f));
 	wireframeShader.setEdgeColor(Color(1.0f, 0.8f, 0.1f, 1.0f));
-	wireframeShader.setLineWidth(1.5f);
+	wireframeShader.setLineWidth(3.0f);
 	wireframeShader.setSolid(false);
 	setOnResize([this](const int2& dims) {
 		if(!getContext()->hasDeferredTasks()) {
@@ -78,11 +87,13 @@ bool MeshPrimitivesEx::init(Composite& rootNode) {
 }
 void MeshPrimitivesEx::draw(AlloyContext* context) {
 	if (camera.isDirty()) {
-		depthAndNormalShader.draw(mesh, camera, depthFrameBuffer,true);
-		wireframeFrameBuffer.begin();
-		phongShader.draw(depthFrameBuffer.getTexture(), camera, context->getViewport(), context->getViewport());
-		wireframeShader.draw(mesh, camera, context->getViewport());
-		wireframeFrameBuffer.end();
+		if (mesh != nullptr) {
+			depthAndNormalShader.draw(*mesh, camera, depthFrameBuffer, true);
+			wireframeFrameBuffer.begin();
+			phongShader.draw(depthFrameBuffer.getTexture(), camera, context->getViewport(), context->getViewport());
+			wireframeShader.draw(*mesh, camera, context->getViewport());
+			wireframeFrameBuffer.end();
+		}
 	}
 	imageShader.draw(wireframeFrameBuffer.getTexture(), context->getViewport(),1.0f, false);
 	camera.setDirty(false);

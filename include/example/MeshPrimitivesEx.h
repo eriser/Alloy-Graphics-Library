@@ -32,7 +32,8 @@ protected:
 	aly::WireframeShader wireframeShader;
 	aly::PhongShader phongShader;
 	aly::ImageShader imageShader;
-	aly::Mesh mesh;
+	std::vector<std::shared_ptr<aly::Mesh>> meshPrimitives;
+	aly::Mesh* mesh;
 	aly::Camera camera;
 public:
 	MeshPrimitivesEx();

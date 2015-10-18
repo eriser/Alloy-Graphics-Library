@@ -685,7 +685,7 @@ bool SANITY_CHECK_MATH() {
 		float4x4 RX = MakeRotationX(0.3f);
 		float4x4 RY = MakeRotationY(0.7f);
 		float4x4 RZ = MakeRotationZ(0.5f);
-		float4x4 R = MakeRotationMatrix(normalize(float3(1, 1, 0)),
+		float4x4 R = MakeRotation(normalize(float3(1, 1, 0)),
 				0.3333f * ALY_PI_2);
 		float angle = Angle(float3(0.1f, 0.6f, 0.2f), float3(0, 0, 0),
 				SubMatrix(R) * float3(0.1f, 0.6f, 0.2f));
@@ -707,13 +707,13 @@ bool SANITY_CHECK_CEREAL() {
 	float2 v3(1, 2);
 	float1 v4(1);
 
-	float4x4 MR1 = MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
+	float4x4 MR1 = MakeRotation(normalize(float3(0.1f, 0.5f, 0.3f)),
 	ALY_PI * 0.333f) * MakeTranslation(float4(89, 43, 21, 1));
 	float3x3 MR2 = SubMatrix(
-			MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
+			MakeRotation(normalize(float3(0.1f, 0.5f, 0.3f)),
 			ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
 	float4x3 MR3 = SubColMatrix(
-			MakeRotationMatrix(normalize(float3(0.1f, 0.5f, 0.3f)),
+			MakeRotation(normalize(float3(0.1f, 0.5f, 0.3f)),
 			ALY_PI * 0.1f) * MakeTranslation(float4(89, 43, 21, 1)));
 
 	Image4f im1(32, 24);
@@ -859,7 +859,7 @@ bool SANITY_CHECK_SVD() {
 	std::mt19937 gen(rd());
 	float3x3 M = float3x3::identity();
 	float3x3 R = SubMatrix(
-			MakeRotationMatrix(normalize(float3(r(gen), r(gen), r(gen))),
+			MakeRotation(normalize(float3(r(gen), r(gen), r(gen))),
 					(float) (r(gen) * ALY_PI * 2)));
 	float3x3 S = SubMatrix(MakeScale(float3(r(gen), r(gen), r(gen))));
 	std::vector<float3> in(N);

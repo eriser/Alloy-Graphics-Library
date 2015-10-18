@@ -1191,7 +1191,7 @@ template<class C, class R, class T, int M, int N> std::basic_ostream<C, R> & ope
 	}
 	return ss;
 }
-template<class T> matrix<T, 4, 4> MakeRotationMatrix(const vec<T, 3>& axis,
+template<class T> matrix<T, 4, 4> MakeRotation(const vec<T, 3>& axis,
 		T angle) {
 	matrix<T, 4, 4> M = Identity<T, 4, 4>();
 	T mag = length(axis);
@@ -1228,13 +1228,13 @@ template<class T> vec<T, 2> Rotate(const vec<T, 2>& v, T angle) {
 	return vec<T, 2>(cs * v[0] + sn * v[1], -sn * v[0] + cs * v[1]);
 }
 template<class T> matrix<T, 4, 4> MakeRotationX(T angle) {
-	return MakeRotationMatrix(vec<T, 3>(1, 0, 0), angle);
+	return MakeRotation(vec<T, 3>(1, 0, 0), angle);
 }
 template<class T> matrix<T, 4, 4> MakeRotationY(T angle) {
-	return MakeRotationMatrix(vec<T, 3>(0, 1, 0), angle);
+	return MakeRotation(vec<T, 3>(0, 1, 0), angle);
 }
 template<class T> matrix<T, 4, 4> MakeRotationZ(T angle) {
-	return MakeRotationMatrix(vec<T, 3>(0, 0, 1), angle);
+	return MakeRotation(vec<T, 3>(0, 0, 1), angle);
 }
 template<class T> matrix<T, 4, 4> MakeTranslation(
 		const vec<T, 3>& translation) {
