@@ -131,9 +131,11 @@ int main(int argc, char *argv[]) {
 							ex->getApplication()->runOnce(screenShot);
 							ex.reset();
 						}
-					} else {
+					} else if (index >= 0) {
 						ExamplePtr& ex = apps[index];
 						ex->getApplication()->run(1);
+					} else {
+						error = true;
 					}
 				} else {
 					error = true;
