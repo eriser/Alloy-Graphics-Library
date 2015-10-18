@@ -145,14 +145,33 @@ int main(int argc, char *argv[]) {
 			}
 			if (error) {
 				std::cout << "Usage: " << argv[0]
-						<< " [example index] [output directory]\nExample Indexes:"
+						<< " [example index] [output directory]\nAlloy Graphics Library Examples:"
 						<< std::endl;
 				std::cout << "[" << -1
 						<< "] Generate screenshots for all examples"
 						<< std::endl;
 				for (int i = 0; i < N; i++) {
-					std::cout << "[ " << i << "] " << apps[i]->getName()
+					std::cout << "[" <<std::setw(2)<<std::setfill(' ')<< i << "] "<< apps[i]->getName()
 							<< std::endl;
+				}
+				std::cout << ">> Enter Example Number: ";
+				int index = -1;
+				std::cin >> index;
+				if (index == -1) {
+					std::string dir = GetDesktopDirectory();
+					for (index = 0; index < N; index++) {
+						ExamplePtr& ex = apps[index];
+						std::string screenShot = MakeString() << dir
+								<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(2)<<std::setfill('0')<<index<<"_"<<ex->getName()<<".png";
+						std::cout << "Saving " << screenShot << std::endl;
+						ex->getApplication()->runOnce(screenShot);
+						ex.reset();
+					}
+				} else if (index >= 0 && index < N) {
+					ExamplePtr& ex = apps[index];
+					ex->getApplication()->run(1);
+				} else {
+					throw std::runtime_error("Invalid example index.");
 				}
 			}
 		}
