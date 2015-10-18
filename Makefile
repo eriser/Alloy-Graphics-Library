@@ -24,12 +24,15 @@ alloy : $(OBJS)
 
 example : $(EXOBJS)
 	$(CXX) $(LDLIBS) -o $(EXAMPLE) $(EXOBJS) $(LIBS)
-	
+
+examples : $(EXOBJS)
+	$(CXX) $(LDLIBS) -o examples $(EXOBJS) $(LIBS)
+		
 clean :
 	clear
 	$(RM) $(OBJS) $(EXOBJS) $(DS)
 	$(RM) liballoy.a
-	$(RM) $(EXAMPLES)
+	$(RM) $(EXAMPLES) examples
 	
 all : 
 	clear
