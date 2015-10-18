@@ -100,6 +100,13 @@ void CameraParameters::aim(const box2px& bounds) {
 		NormalView = transpose(ViewInverse);
 	}
 }
+void Camera::reset() {
+	Rm = float4x4::identity();
+	Rw = float4x4::identity();
+	distanceToObject = 1.0;
+	lookAtPoint = float3(0, 0, 0);
+	cameraTrans = float3(0, 0, 0);
+}
 float2 Camera::computeNormalizedDepthRange(const Mesh& mesh) {
 	box3f bbox = mesh.getBoundingBox();
 	float4 center = bbox.center().xyzw();
@@ -125,11 +132,7 @@ void Camera::handleKeyEvent(GLFWwindow* win, int key, int action) {
 		Rm = MakeRotationX((float) (-2 * sDeg2rad)) * Rm;
 		changed = true;
 	} else if ((char) key == 'R') {
-		Rm = float4x4::identity();
-		Rw = float4x4::identity();
-		distanceToObject = 1.0;
-		lookAtPoint = float3(0, 0, 0);
-		cameraTrans = float3(0, 0, 0);
+		reset();
 		changed = true;
 	} else if (key == GLFW_KEY_UP) {
 		cameraTrans[1] += 0.025f;

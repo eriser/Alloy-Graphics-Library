@@ -18,7 +18,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlloyMeshPrimitive.h"
+#include "AlloyMeshPrimitives.h"
 namespace aly {
 	Plane::Plane(float w, float h, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
 		vertexLocations.push_back(float3(-0.5f*w, -0.5f*h, 0.0f));
@@ -33,7 +33,47 @@ namespace aly {
 		boundingBox = box3f(float3(-0.5f*w, -0.5f*h, 0.0f), float3(w, h, 0));
 		setDirty(true);
 	}
-	Pyramid::Pyramid(float w, float h,float d, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+	Grid::Grid(float w, float h, int rows, int cols, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+		float cellX = w / rows;
+		float cellY = h / cols;
+		float offX = -w*0.5f;
+		float offY = -h*0.5f;
+		for (int j = 0; j <= cols; j++) {
+			for (int i = 0; i <= rows; i++) {
+				vertexLocations.push_back(float3(offX + cellX*i, offY + cellY*j, 0.0f));
+				vertexNormals.push_back(float3(0, 0, 1));
+			}
+		}
+		for (int j = 0; j < cols; j++) {
+			for (int i = 0; i < rows; i++) {
+				uint32_t v0 = j*(rows+1) + i;
+				uint32_t v1 = j*(rows + 1) + i + 1;
+				uint32_t v2 = (j + 1)*(rows + 1) + i + 1;
+				uint32_t v3 = (j + 1)*(rows + 1) + i;
+				quadIndexes.push_back(uint4(v3, v2, v1, v0));
+			}
+		}
+		boundingBox = box3f(float3(-0.5f*w, -0.5f*h, 0.0f), float3(w, h, 0));
+		setDirty(true);
+	}
+	Asteroid::Asteroid(int subdivisions, std::shared_ptr<AlloyContext>& context) :Icosahedron(1.0f, context) {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<float> noise(0.0f, 1.0f);
+		for (int c = 0; c <= subdivisions; c++) {
+			Subdivide(*this, SubDivisionScheme::Loop);
+			updateVertexNormals();
+			int N = (int)vertexLocations.size();
+			for (int n = 0; n < N; n++) {
+				float3 norm = -vertexNormals[n];
+				vertexLocations[n] += 0.6f * norm* (noise(gen) - 0.3f) / (float)(1 << c);
+			}
+		}
+		updateVertexNormals();
+		updateBoundingBox();
+		setDirty(true);
+	}
+	Pyramid::Pyramid(float w, float h, float d, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
 		vertexLocations.push_back(float3(-0.5f*w, -0.5f*h, 0.0f));
 		vertexLocations.push_back(float3(-0.5f*w, +0.5f*h, 0.0f));
 		vertexLocations.push_back(float3(+0.5f*w, +0.5f*h, 0.0f));
@@ -44,7 +84,7 @@ namespace aly {
 		vertexNormals.push_back(float3(0, 0, -1));
 		vertexNormals.push_back(float3(0, 0, -1));
 		vertexNormals.push_back(float3(0, 0, 1));
-		quadIndexes.push_back(uint4(0,1,2,3));
+		quadIndexes.push_back(uint4(0, 1, 2, 3));
 		triIndexes.push_back(uint3(3, 2, 4));
 		triIndexes.push_back(uint3(2, 1, 4));
 		triIndexes.push_back(uint3(1, 0, 4));
@@ -200,6 +240,43 @@ namespace aly {
 
 		}
 		boundingBox = box3f(float3(-radius, -radius, -0.5f*height), float3(2 * radius, 2 * radius, height));
+
+		setDirty(true);
+	}
+	Torus::Torus(float innerRadius, float outerRadius, int stacks, int slices, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+		float r = 0.5f*(outerRadius - innerRadius);
+		float R = 0.5f*(outerRadius + innerRadius);
+		std::vector<std::vector<uint32_t>> rings(stacks, std::vector<uint32_t>(slices));
+		uint32_t idx = 0;
+		for (int i = 0; i < stacks; i++)
+		{
+			float cosi = std::cos(2 * ALY_PI*i / (float)(stacks));
+			float sini = std::sin(2 * ALY_PI*i / (float)(stacks));
+			for (int j = 0; j < slices; j++)
+			{
+				float cosj = std::cos(2 * ALY_PI*j / (float)slices);
+				float sinj = std::sin(2 * ALY_PI*j / (float)slices);
+				float x = cosi*(R + r*sinj);
+				float y = sini*(R + r*sinj);
+				float z = r*cosj;
+				rings[i][j] = idx;
+				vertexLocations.push_back(float3(x, y, z));
+				vertexNormals.push_back(float3(cosi*sinj, sini*sinj, cosj));
+				idx++;
+			}
+		}
+		uint32_t v0, v1, v2, v3;
+		for (int i = 0;i < stacks;i++) {
+			for (int j = 0; j < slices; j++)
+			{
+				v0 = rings[i][j];
+				v1 = rings[i][(j + 1) % slices];
+				v2 = rings[(i + 1) % stacks][j];
+				v3 = rings[(i + 1) % stacks][(j + 1) % slices];
+				quadIndexes.push_back(uint4(v0, v1, v3, v2));
+			}
+		}
+		boundingBox = box3f(float3(-outerRadius, -outerRadius, -r), float3(2 * outerRadius, 2 * outerRadius, 2 * r));
 		setDirty(true);
 	}
 	Cone::Cone(float radius, float height, int slices, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
@@ -277,19 +354,19 @@ namespace aly {
 
 		boundingBox = box3f(float3(-radius, -radius, -radius), float3(2 * radius, 2 * radius, 2 * radius));
 		setDirty(true);
-		
+
 	}
-	Capsule::Capsule(float radius, float height,int slices, int stacks, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
+	Capsule::Capsule(float radius, float height, int slices, int stacks, std::shared_ptr<AlloyContext>& context) :Mesh(context) {
 
 		if (stacks % 2 == 0)stacks++;//Make odd
 		std::vector<std::vector<uint32_t>> rings(stacks - 1, std::vector<uint32_t>(slices));
-		height -=  2*radius;
-		vertexLocations.push_back(float3(0.0f, 0.0f, radius+0.5f*height));
+		height -= 2 * radius;
+		vertexLocations.push_back(float3(0.0f, 0.0f, radius + 0.5f*height));
 		vertexNormals.push_back(float3(0.0f, 0.0f, 1.0f));
 		uint32_t idx = 1;
 		for (int i = 1; i < stacks; i++)
 		{
-			float cosi,sini;
+			float cosi, sini;
 			cosi = std::cos(ALY_PI*i / (float)(stacks));
 			sini = std::sin(ALY_PI*i / (float)(stacks));
 			for (int j = 0; j < slices; j++)
@@ -300,12 +377,12 @@ namespace aly {
 				float y = sinj * sini;
 				float z = cosi;
 				rings[i - 1][j] = idx;
-				vertexLocations.push_back(float3(radius*x, radius*y, radius*z + ((i<=stacks / 2) ? 0.5f*height : -0.5f*height)));
+				vertexLocations.push_back(float3(radius*x, radius*y, radius*z + ((i <= stacks / 2) ? 0.5f*height : -0.5f*height)));
 				vertexNormals.push_back(float3(x, y, z));
 				idx++;
 			}
 		}
-		vertexLocations.push_back(float3(0.0f, 0.0f, -radius- 0.5f*height));
+		vertexLocations.push_back(float3(0.0f, 0.0f, -radius - 0.5f*height));
 		vertexNormals.push_back(float3(0.0f, 0.0f, -1.0f));
 		uint32_t v0, v1, v2, v3;
 		for (int j = 0; j < slices; j++)
@@ -383,7 +460,7 @@ namespace aly {
 			quadIndexes.push_back(uint4(0, 4, 7, 3));
 			quadIndexes.push_back(uint4(6, 2, 3, 7));
 			quadIndexes.push_back(uint4(4, 0, 1, 5));
-			subdivisions ++;
+			subdivisions++;
 		}
 		for (int n = 0;n < subdivisions;n++) {
 			Subdivide(*this, scheme);

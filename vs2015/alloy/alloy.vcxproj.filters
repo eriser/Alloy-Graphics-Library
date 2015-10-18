@@ -117,7 +117,7 @@
     <ClCompile Include="..\..\src\core\tiny_obj_loader.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\AlloyMeshPrimitive.cpp">
+    <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -258,6 +258,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\tiny_obj_loader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyMeshPrimitives.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

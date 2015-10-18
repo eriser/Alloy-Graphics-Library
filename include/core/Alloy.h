@@ -46,5 +46,5 @@
 #include "AlloySparseSolve.h"
 #include "CommonShaders.h"
 #include "ImageProcessing.h"
-#include "AlloyMeshPrimitive.h"
+#include "AlloyMeshPrimitives.h"
 #endif /* ALLOY_H_ */

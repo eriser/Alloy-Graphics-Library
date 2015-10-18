@@ -209,6 +209,7 @@ protected:
 	void handleScrollEvent(int pos);
 public:
 	Camera();
+	void reset();
 	void aim(const aly::box2px& bounds) override;
 	void setPose(const float4x4& m) {
 		Model = m;

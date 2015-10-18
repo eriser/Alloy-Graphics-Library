@@ -18,8 +18,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef ALLOYMESHPRIMITIVE_H_
-#define ALLOYMESHPRIMITIVE_H_
+#ifndef ALLOYMESHPRIMITIVES_H_
+#define ALLOYMESHPRIMITIVES_H_
 #include "AlloyMesh.h"
 #include "AlloyCamera.h"
 namespace aly {
@@ -38,6 +38,10 @@ namespace aly {
 	class Cylinder : public Mesh {
 	public:
 		Cylinder(float r, float h, int slices,  std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Torus : public Mesh {
+	public:
+		Torus(float innerRadius,float outerRadius,int stacks, int slices, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
 	class Cone : public Mesh {
 	public:
@@ -62,6 +66,14 @@ namespace aly {
 	class TessellatedSphere : public Mesh {
 	public:
 		TessellatedSphere(float r,int subdivisions,const SubDivisionScheme& scheme, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Grid : public Mesh {
+	public:
+		Grid(float w, float h, int rows,int cols, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
+	};
+	class Asteroid : public Icosahedron {
+	public:
+		Asteroid(int subdivisions, std::shared_ptr<AlloyContext>& context = AlloyDefaultContext());
 	};
 }
 #endif /* MESH_H_ */

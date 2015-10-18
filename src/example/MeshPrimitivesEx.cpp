@@ -48,28 +48,32 @@ bool MeshPrimitivesEx::init(Composite& rootNode) {
 	SelectionPtr selection = SelectionPtr(new Selection("Primitive", CoordPX(5, 5), CoordPX(250, 30),
 		std::vector<std::string>{
 		"Cube", "Icosahedron", "Sphere",
-		"Cylinder", "Plane", "Cone", "Pyramid",
+		"Cylinder","Torus", "Plane", "Cone", "Pyramid",
 		"Frustum", "Capsule",
-		"Tessellated Sphere (Quads)","Tessellated Sphere (Triangles)"}));
-	selection->setMaxDisplayEntries(12);
-
+		"Tessellated Sphere (Quads)","Tessellated Sphere (Triangles)",
+		"Grid","Asteroid"}));
+	selection->setMaxDisplayEntries(14);
 	camera.aim(getContext()->getViewport());
-	meshPrimitives.resize(11);
+	meshPrimitives.resize(14);
 	meshPrimitives[0] = std::shared_ptr<aly::Mesh>(new Box(box3f(float3(0, 0, 0), float3(10, 10, 10))));
 	meshPrimitives[1] = std::shared_ptr<aly::Mesh>(new Icosahedron(10.0f));
 	meshPrimitives[2] = std::shared_ptr<aly::Mesh>(new Sphere(5.0f, 20, 20));
 	meshPrimitives[3] = std::shared_ptr<aly::Mesh>(new Cylinder(2.0f, 4.0f, 20));
-	meshPrimitives[4] = std::shared_ptr<aly::Mesh>(new Plane(5.0f, 7.0f));
-	meshPrimitives[5] = std::shared_ptr<aly::Mesh>(new Cone(2.0f, 4.0f, 20));
-	meshPrimitives[6] = std::shared_ptr<aly::Mesh>(new Pyramid(5.0f, 7.0f, 10.0f));
-	meshPrimitives[7] = std::shared_ptr<aly::Mesh>(new Frustum(camera));
-	meshPrimitives[8] = std::shared_ptr<aly::Mesh>(new Capsule(2.0f, 10.0f,20, 20));
-	meshPrimitives[9] = std::shared_ptr<aly::Mesh>(new TessellatedSphere(3.0f,3,SubDivisionScheme::CatmullClark));
-	meshPrimitives[10] = std::shared_ptr<aly::Mesh>(new TessellatedSphere(3.0f,3, SubDivisionScheme::Loop));
+	meshPrimitives[4] = std::shared_ptr<aly::Mesh>(new Torus(3.0f, 4.0f,60, 12));
+	meshPrimitives[5] = std::shared_ptr<aly::Mesh>(new Plane(5.0f, 7.0f));
+	meshPrimitives[6] = std::shared_ptr<aly::Mesh>(new Cone(2.0f, 4.0f, 20));
+	meshPrimitives[7] = std::shared_ptr<aly::Mesh>(new Pyramid(5.0f, 7.0f, 10.0f));
+	meshPrimitives[8] = std::shared_ptr<aly::Mesh>(new Frustum(camera));
+	meshPrimitives[9] = std::shared_ptr<aly::Mesh>(new Capsule(2.0f, 10.0f,20, 20));
+	meshPrimitives[10] = std::shared_ptr<aly::Mesh>(new TessellatedSphere(3.0f,3,SubDivisionScheme::CatmullClark));
+	meshPrimitives[11] = std::shared_ptr<aly::Mesh>(new TessellatedSphere(3.0f,3, SubDivisionScheme::Loop));
+	meshPrimitives[12] = std::shared_ptr<aly::Mesh>(new Grid(5.0f,7.0f,5,7));
+	meshPrimitives[13] = std::shared_ptr<aly::Mesh>(new Asteroid(3));
 	selection->onSelect = [this](int index) {
 		box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
 		mesh = meshPrimitives[index].get();
 		camera.setPose(MakeRotationX(ALY_PI*0.66666f)*MakeTransform(mesh->getBoundingBox(), renderBBox));
+		camera.reset();
 		camera.setZoom(0.6f);
 		camera.setDirty(true);
 	};
