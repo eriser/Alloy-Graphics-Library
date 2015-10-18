@@ -26,21 +26,21 @@ example : $(EXOBJS)
 	$(CXX) $(LDLIBS) -o $(EXAMPLE) $(EXOBJS) $(LIBS)
 
 examples : $(EXOBJS)
-	$(CXX) $(LDLIBS) -o examples $(EXOBJS) $(LIBS)
+	$(CXX) $(LDLIBS) -o AlloyExamples $(EXOBJS) $(LIBS)
 		
 clean :
 	clear
 	$(RM) $(OBJS) $(EXOBJS) $(DS)
 	$(RM) liballoy.a
-	$(RM) $(EXAMPLES) examples
+	$(RM) $(EXAMPLES) AlloyExamples
 	
 all : 
 	clear
 	make -j8 alloy
-	$(RM) src/example/main.o;
-	make -j8 examples;
-	for ex in $(EXAMPLES); do \
-		$(RM) src/example/main.o; \
-		make -j8 EXAMPLE=$$ex example; \
-	done
+	$(RM) src/example/main.o
+	make -j8 examples
+	#for ex in $(EXAMPLES); do \
+	#	$(RM) src/example/main.o; \
+	#	make -j8 EXAMPLE=$$ex example; \
+	#done
 default : all
