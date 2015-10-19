@@ -1814,7 +1814,6 @@ namespace aly {
 	}
 	void FileSelector::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
-		fileDialog->setValue(workingDirectory);
 		if (!fileDialog->isVisible()) {
 			fileDialog->setVisible(true);
 			context->getGlassPanel()->setVisible(true);
@@ -1823,6 +1822,7 @@ namespace aly {
 			fileDialog->setVisible(false);
 			context->getGlassPanel()->setVisible(false);
 		}
+		fileDialog->setValue(workingDirectory);
 	}
 
 	FileButton::FileButton(const std::string& name, const AUnit2D& pos,
@@ -1877,7 +1877,6 @@ namespace aly {
 	}
 	void FileButton::openFileDialog(AlloyContext* context,
 		const std::string& workingDirectory) {
-		fileDialog->setValue(workingDirectory);
 		if (!fileDialog->isVisible()) {
 			fileDialog->setVisible(true);
 			context->getGlassPanel()->setVisible(true);
@@ -1886,6 +1885,7 @@ namespace aly {
 			fileDialog->setVisible(false);
 			context->getGlassPanel()->setVisible(false);
 		}
+		fileDialog->setValue(workingDirectory);
 	}
 	ListEntry::ListEntry(ListBox* listBox, const std::string& name, float entryHeight) :
 		Region(name), dialog(listBox) ,entryHeight(entryHeight){
@@ -2168,6 +2168,7 @@ namespace aly {
 			filterRules[fileTypeSelect->getSelectedIndex()].get() :
 			nullptr;
 		directoryList->clearEntries();
+		AlloyApplicationContext()->getGlassPanel()->pack();
 		for (FileDescription& fd : descriptions) {
 			if (rule != nullptr && fd.fileType == FileType::File
 				&& !rule->accept(fd.fileLocation)) {
@@ -2183,21 +2184,20 @@ namespace aly {
 		}
 		updateValidity();
 		directoryList->update();
-
 	}
 	void ListBox::update() {
 		clear();
 		lastSelected.clear();
 		AlloyApplicationContext()->addDeferredTask([this]() {
 			lastSelected.clear();
-			AlloyContext* context=AlloyApplicationContext().get();
-			pixel2 maxDim=pixel2(this->getBoundsDimensionsX(),0.0f);
+			AlloyContext* context = AlloyApplicationContext().get();
+			pixel2 maxDim = pixel2(this->getBoundsDimensionsX(), 0.0f);
 			for (std::shared_ptr<ListEntry> entry : listEntries) {
-				maxDim = aly::max(entry->getDimensions().toPixels(context->getScreenSize(),context->dpmm,context->pixelRatio), maxDim);
+				maxDim = aly::max(entry->getDimensions().toPixels(context->getScreenSize(), context->dpmm, context->pixelRatio), maxDim);
 			}
 			for (std::shared_ptr<ListEntry> entry : listEntries) {
-				entry->setDimensions(CoordPX(maxDim));
 				if (entry->parent == nullptr) {
+					entry->setDimensions(CoordPX(maxDim));
 					add(entry);
 				}
 				if (entry->isSelected()) {
@@ -2550,7 +2550,6 @@ namespace aly {
 				updateValidity();
 			}
 		};
-		//directoryTree->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 		directoryTree->borderColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 		directoryTree->borderWidth = UnitPX(1.0f);
@@ -2563,7 +2562,6 @@ namespace aly {
 		containerRegion->setCenter(directoryList);
 		add(containerRegion);
 		add(cancelButton);
-		pack();
 	}
 	std::string FileFilterRule::toString() {
 		std::stringstream ss;

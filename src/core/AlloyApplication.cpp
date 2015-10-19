@@ -512,6 +512,7 @@ void Application::run(int swapInterval) {
 
 	//First pack triggers computation of aspect ratios  for components.
 	rootRegion.pack(context.get());
+	context->getGlassPanel()->setVisible(false);
 	context->requestPack();
 	glfwSwapInterval(swapInterval);
 	glfwSetTime(0);

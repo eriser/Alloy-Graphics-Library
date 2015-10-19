@@ -475,8 +475,6 @@ namespace aly {
 			glassPanel = std::shared_ptr<Composite>(
 				new Composite("Glass Pane", CoordPX(0, 0),
 					CoordPercent(1.0f, 1.0f)));
-			//glassPanel->setIgnoreCursorEvents(true);
-			glassPanel->setVisible(false);
 			glassPanel->backgroundColor = MakeColor(
 				theme.SHADOW.toSemiTransparent(0.5f));
 		}
