@@ -525,6 +525,10 @@ void Application::run(int swapInterval) {
 		context->executeDeferredTasks();
 		context->dirtyUI = true;
 		context->dirtyLayout = true;
+		draw();
+		context->update(rootRegion);
+		context->dirtyUI = true;
+		context->dirtyLayout = true;
 	}
 	do {
 		draw();
