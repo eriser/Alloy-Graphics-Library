@@ -470,6 +470,22 @@ namespace aly {
 		const pixel2& dims) const {
 		return ((box2px(pos, dims)).contains(cursorPosition));
 	}
+	bool AlloyContext::isMouseOver(Region* region, bool includeParent) {
+		if (includeParent) {
+			return (mouseOverRegion == region || (mouseOverRegion != nullptr&&mouseOverRegion->hasParent(region)));
+		}
+		else {
+			return (mouseOverRegion == region);
+		}
+	}
+	bool AlloyContext::isMouseDown(Region* region, bool includeParent) {
+		if (includeParent) {
+			return (mouseDownRegion == region || (mouseDownRegion != nullptr&&mouseDownRegion->hasParent(region)));
+		}
+		else {
+			return (mouseDownRegion == region);
+		}
+	}
 	std::shared_ptr<Composite>& AlloyContext::getGlassPanel() {
 		if (glassPanel.get() == nullptr) {
 			glassPanel = std::shared_ptr<Composite>(

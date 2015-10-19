@@ -2221,7 +2221,7 @@ namespace aly {
 		dragBox = box2px(float2(0, 0), float2(0, 0));
 		onEvent =
 			[this](AlloyContext* context, const InputEvent& e) {
-			if (context->getGlassPanel()->isVisible())return false;
+			if (!context->isMouseOver(this, true))return false;
 			if (e.type == InputType::Cursor || e.type == InputType::MouseButton) {
 				if (context->isMouseDrag()) {
 					if (enableMultiSelection) {
@@ -2257,7 +2257,7 @@ namespace aly {
 				lastBounds.position.y = bounds.position.y + bounds.dimensions.y - entryHeight;
 				lastBounds.dimensions.y = entryHeight;
 				firstBounds.dimensions.y = entryHeight;
-				if (lastBounds.contains(e.cursor) || (dragBox.dimensions.x*dragBox.dimensions.y > 0 && e.cursor.y > bounds.dimensions.y + bounds.position.y)) {
+				if ((!isHorizontalScrollVisible() && lastBounds.contains(e.cursor)) || (dragBox.dimensions.x*dragBox.dimensions.y > 0 && e.cursor.y > bounds.dimensions.y + bounds.position.y)) {
 					if (downTimer.get() == nullptr) {
 						downTimer = std::shared_ptr<Timer>(new Timer([this] {
 							double deltaT = 200;

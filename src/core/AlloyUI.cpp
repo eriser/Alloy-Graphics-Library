@@ -308,6 +308,7 @@ void Composite::putFirst(Region* region) {
 	AlloyApplicationContext()->requestUpdateCursorLocator();
 }
 void Composite::clear() {
+	setDragOffset(pixel2(0, 0));
 	AlloyApplicationContext()->addDeferredTask(
 			[this] {this->children.clear();});
 }
