@@ -354,12 +354,14 @@ protected:
 	std::string label;
 	bool selected;
 	ListBox* dialog;
-public:
+	float entryHeight;
 	AUnit1D fontSize;
+public:
 	void setSelected(bool selected);
 	bool isSelected();
-	ListEntry(ListBox* listBox, const std::string& name, const AUnit2D& pos,
-			const AUnit2D& dims);
+	void setLabel(const std::string& label);
+	void setIcon(int icon);
+	ListEntry(ListBox* listBox, const std::string& name,float entryHeight);
 	virtual void draw(AlloyContext* context) override;
 };
 class FileEntry: public ListEntry {
@@ -370,8 +372,7 @@ private:
 	std::string fileSize;
 public:
 	FileDescription fileDescription;
-	FileEntry(FileDialog* dialog, const std::string& name, const AUnit2D& pos,
-			const AUnit2D& dims);
+	FileEntry(FileDialog* dialog, const std::string& name, float fontHeight);
 	void setValue(const FileDescription& fileDescription);
 };
 struct FileFilterRule {

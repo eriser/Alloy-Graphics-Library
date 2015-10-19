@@ -1894,6 +1894,7 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 	composite->setOrientation(orientation);
 	return composite;
 }
+
 box2px SelectionBox::getBounds(bool includeBounds) const {
 	box2px bounds = Region::getBounds(includeBounds);
 	AlloyContext* context = AlloyApplicationContext().get();
@@ -1909,6 +1910,7 @@ box2px SelectionBox::getBounds(bool includeBounds) const {
 	float yOffset = std::min(bounds.position.y + boxHeight + parentHeight,
 			(float) context->height()) - boxHeight;
 	box2px bbox;
+
 	bbox.position = pixel2(bounds.position.x, yOffset);
 	bbox.dimensions = pixel2(bounds.dimensions.x, boxHeight);
 	return bbox;

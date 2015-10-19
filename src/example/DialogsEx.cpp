@@ -32,7 +32,7 @@ bool DialogsEx::init(Composite& rootNode) {
 	ColorSelectorPtr colorselect = ColorSelectorPtr(new ColorSelector("Color", CoordPerPX(0.2f, 0.0f, 90.0f, 0.0f), CoordPX(150, 40)));
 	ListBoxPtr listBox = ListBoxPtr(new ListBox("List Box", CoordPX( 5.0f, 90.0f),CoordPX(300,300)));
 	for (int i = 0;i < 30;i++) {
-		listBox->addEntry(ListEntryPtr(new ListEntry(listBox.get(),MakeString()<<"Multi-Selection Entry ("<<i<<")",CoordPX(2.0f,0.0f),CoordPerPX(1.0f,0.0f,-4.0f,30.0f))));
+		listBox->addEntry(ListEntryPtr(new ListEntry(listBox.get(),MakeString()<<"Multi-Selection Entry ("<<i<<")",30.0f)));
 	}
 	listBox->update();
 	listBox->setEnableMultiSelection(true);
