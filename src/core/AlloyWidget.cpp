@@ -2044,7 +2044,6 @@ namespace aly {
 			}
 			nvgFill(nvg);
 		}
-
 		float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 			context->pixelRatio);
 		nvgFontSize(nvg, th);
@@ -2192,11 +2191,14 @@ namespace aly {
 		AlloyApplicationContext()->addDeferredTask([this]() {
 			lastSelected.clear();
 			for (std::shared_ptr<ListEntry> entry : listEntries) {
-				if (entry->parent == nullptr)add(entry);
+				if (entry->parent == nullptr) {
+					add(entry);
+				}
 				if (entry->isSelected()) {
 					lastSelected.push_back(entry.get());
 				}
 			}
+			AlloyApplicationContext()->requestPack();
 		});
 	}
 	ListBox::ListBox(const std::string& name, const AUnit2D& pos,

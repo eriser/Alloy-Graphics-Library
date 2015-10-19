@@ -560,8 +560,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		if (orientation == Orientation::Vertical) {
 			offset.y += cellSpacing.y + cbounds.dimensions.y;
 		}
-		scrollExtent = max(
-			cbounds.dimensions + cbounds.position - bounds.position , scrollExtent);// -region->drawOffset() //Why did I think I needed this? 
+		scrollExtent = aly::max(cbounds.dimensions + cbounds.position - bounds.position-this->drawOffset() , scrollExtent);
 	}
 	if (!isScrollEnabled()) {
 		if (orientation == Orientation::Horizontal)
@@ -573,6 +572,7 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 					bounds.dimensions.y,
 					offset.y - cellSpacing.y + cellPadding.y);
 	}
+
 	if (verticalScrollTrack.get() != nullptr) {
 		bool  showY = scrollExtent.y > bounds.dimensions.y || alwaysShowVerticalScrollBar;
 		bool  showX = scrollExtent.x > bounds.dimensions.x || alwaysShowHorizontalScrollBar;
