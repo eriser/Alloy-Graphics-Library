@@ -26,10 +26,10 @@ DialogsEx::DialogsEx() :
 		Application(800, 600, "Dialog Example") {
 }
 bool DialogsEx::init(Composite& rootNode) {
-	FileButtonPtr saveButton=FileButtonPtr(new FileButton("Save File", CoordPerPX(0.2f, 0.0f, 0.0f, 0.0f),CoordPX(40, 40), FileDialogType::SaveFile));
-	FileButtonPtr openMultiButton = FileButtonPtr(new FileButton("Open Multi-File", CoordPerPX(0.2f, 0.0f, 45.0f, 0.0f), CoordPX(40, 40), FileDialogType::OpenMultiFile));
+	FileButtonPtr saveButton=FileButtonPtr(new FileButton("Save File", CoordPerPX(0.2f, 0.0f, 0.0f, 5.0f),CoordPX(40, 40), FileDialogType::SaveFile));
+	FileButtonPtr openMultiButton = FileButtonPtr(new FileButton("Open Multi-File", CoordPerPX(0.2f, 0.0f, 45.0f, 5.0f), CoordPX(40, 40), FileDialogType::OpenMultiFile));
 	FileSelectorPtr fileSelector=FileSelectorPtr(new FileSelector("Selector", CoordPerPX(0.5f, 0.0f,0.0f,90.0f),CoordPX(300.0f, 30.0f)));
-	ColorSelectorPtr colorselect = ColorSelectorPtr(new ColorSelector("Color", CoordPerPX(0.2f, 0.0f, 90.0f, 0.0f), CoordPX(150, 40)));
+	ColorSelectorPtr colorselect = ColorSelectorPtr(new ColorSelector("Color", CoordPerPX(0.2f, 0.0f, 90.0f, 5.0f), CoordPX(150, 40)));
 	ListBoxPtr listBox = ListBoxPtr(new ListBox("List Box", CoordPX( 5.0f, 90.0f),CoordPX(300,300)));
 	for (int i = 0;i < 30;i++) {
 		listBox->addEntry(ListEntryPtr(new ListEntry(listBox.get(),MakeString()<<"Multi-Selection Entry ("<<i<<")",30.0f)));

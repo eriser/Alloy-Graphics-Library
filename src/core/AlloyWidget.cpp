@@ -1767,8 +1767,8 @@ namespace aly {
 
 		fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("Open File",
-				CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
-				CoordPX(600, 400), FileDialogType::OpenFile));
+				CoordPerPX(0.5, 0.5, -350 + 7.5f, -250 - 7.5f),
+				CoordPX(700, 500), FileDialogType::OpenFile));
 		fileDialog->setVisible(false);
 		glassPanel->add(fileDialog);
 		fileLocation = std::shared_ptr<FileField>(
@@ -1829,14 +1829,14 @@ namespace aly {
 		const AUnit2D& dims, const FileDialogType& type) :
 		IconButton((type == FileDialogType::SaveFile) ? 0xF0C7 : 0xf115, pos,
 			dims) {
-		backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		setRoundCorners(true);
 		std::shared_ptr<Composite> &glassPanel =
 			AlloyApplicationContext()->getGlassPanel();
 		fileDialog = std::shared_ptr<FileDialog>(
 			new FileDialog("File Dialog",
-				CoordPerPX(0.5, 0.5, -300 + 7.5f, -200 - 7.5f),
-				CoordPX(600, 400), type));
+				CoordPerPX(0.5, 0.5, -350 + 7.5f, -250 - 7.5f),
+				CoordPX(700, 500), type));
+
 		fileDialog->setVisible(false);
 		glassPanel->add(fileDialog);
 		if (type == FileDialogType::SaveFile) {
@@ -1849,11 +1849,12 @@ namespace aly {
 				if (onOpen)onOpen(file);
 			};
 		}
-		foregroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
-		borderColor = MakeColor(COLOR_NONE);
+
+		foregroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+		iconColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
 		borderWidth = UnitPX(2.0f);
+		borderColor = MakeColor(COLOR_NONE);
 		backgroundColor = MakeColor(COLOR_NONE);
-		iconColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		setRoundCorners(true);
 		onMouseDown = [this](AlloyContext* context, const InputEvent& event) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -1993,12 +1994,11 @@ namespace aly {
 		iconCodeString =
 			(fileDescription.fileType == FileType::Directory) ?
 			CodePointToUTF8(0xf07b) : CodePointToUTF8(0xf15b);
-		setLabel(GetFileName(fileDescription.fileLocation));
 		fileSize = FormatSize(fileDescription.fileSize);
 		creationTime = FormatDateAndTime(fileDescription.creationTime);
 		lastAccessTime = FormatDateAndTime(fileDescription.lastModifiedTime);
 		lastModifiedTime = FormatDateAndTime(fileDescription.lastModifiedTime);
-
+		setLabel(GetFileName(fileDescription.fileLocation));
 	}
 	void ListEntry::setSelected(bool selected) {
 		this->selected = selected;
@@ -2190,7 +2190,13 @@ namespace aly {
 		lastSelected.clear();
 		AlloyApplicationContext()->addDeferredTask([this]() {
 			lastSelected.clear();
+			AlloyContext* context=AlloyApplicationContext().get();
+			pixel2 maxDim=pixel2(this->getBoundsDimensionsX(),0.0f);
 			for (std::shared_ptr<ListEntry> entry : listEntries) {
+				maxDim = aly::max(entry->getDimensions().toPixels(context->getScreenSize(),context->dpmm,context->pixelRatio), maxDim);
+			}
+			for (std::shared_ptr<ListEntry> entry : listEntries) {
+				entry->setDimensions(CoordPX(maxDim));
 				if (entry->parent == nullptr) {
 					add(entry);
 				}
@@ -2557,6 +2563,7 @@ namespace aly {
 		containerRegion->setCenter(directoryList);
 		add(containerRegion);
 		add(cancelButton);
+		pack();
 	}
 	std::string FileFilterRule::toString() {
 		std::stringstream ss;
