@@ -462,6 +462,7 @@ private:
 	void setSelectedFile(const std::string& file);
 	const FileDialogType type;
 	pixel fileEntryHeight;
+	bool valid = false;
 	void updateDirectoryList();
 	bool updateValidity();
 public:
@@ -470,9 +471,7 @@ public:
 			const std::string& extension);
 	void addFileExtensionRule(const std::string& name,
 			const std::initializer_list<std::string> & extension);
-
 	friend class FileEntry;
-	bool valid = false;
 	std::function<void(const std::vector<std::string>&)> onSelect;
 	virtual void draw(AlloyContext* context) override;
 	FileDialog(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,
