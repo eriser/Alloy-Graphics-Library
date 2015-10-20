@@ -2172,6 +2172,8 @@ namespace aly {
 
 		if (!AlloyApplicationContext()->hasDeferredTasks()) {
 			directoryList->clearEntries();
+			//Fixes bug in padding out entry width.
+			AlloyApplicationContext()->getGlassPanel()->pack();
 			for (FileDescription& fd : descriptions) {
 				if (rule != nullptr && fd.fileType == FileType::File
 					&& !rule->accept(fd.fileLocation)) {
