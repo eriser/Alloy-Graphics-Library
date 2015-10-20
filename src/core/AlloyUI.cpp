@@ -1277,6 +1277,11 @@ void TextField::handleKeyInput(AlloyContext* context, const InputEvent& e) {
 			if (onKeyInput)
 				onKeyInput(this);
 			break;
+		case GLFW_KEY_ENTER:
+			if (onTextEntered) {
+				onTextEntered(this);
+			}
+			break;
 		}
 	}
 }
@@ -1567,13 +1572,15 @@ bool FileField::onEventHandler(AlloyContext* context, const InputEvent& e) {
 		case InputType::Key:
 			if (e.isDown()) {
 				if (e.key == GLFW_KEY_TAB) {
-
 					updateSuggestionBox(context, true);
 					break;
 				}
+				else if (e.key == GLFW_KEY_ENTER) {
+					selectionBox->setVisible(false);
+					showTimer.reset();
+				}
 			}
 			handleKeyInput(context, e);
-
 			if (e.isDown()) {
 				if (e.key == GLFW_KEY_BACKSPACE) {
 					showTimer.reset();
@@ -2102,14 +2109,7 @@ SelectionBox::SelectionBox(const std::string& name,
 								selectionOffset=std::max(0,selectedIndex+1-maxDisplayEntries);
 							}
 							return true;
-						} else if(event.key==GLFW_KEY_ENTER) {
-							if(selectedIndex>=0) {
-								if(this->onSelect) {
-									return this->onSelect(this);
-								}
-								return true;
-							}
-						} else if(event.key==GLFW_KEY_PAGE_UP) {
+						}else if(event.key==GLFW_KEY_PAGE_UP) {
 							if(maxDisplayEntries>0) {
 								selectionOffset=0;
 								scrollingUp=false;
@@ -2125,6 +2125,13 @@ SelectionBox::SelectionBox(const std::string& name,
 							setSelectedIndex(-1);
 							AlloyApplicationContext()->removeOnTopRegion(this);
 							this->setVisible(false);
+						}
+						else if (event.key == GLFW_KEY_ENTER) {
+							if (selectedIndex >= 0) {
+								if (this->onSelect) {
+									return this->onSelect(this);
+								}
+							}
 						}
 					} else if(event.type==InputType::MouseButton&&event.isDown()&&event.button==GLFW_MOUSE_BUTTON_LEFT) {
 						if(AlloyApplicationContext()->isMouseOver(this)) {

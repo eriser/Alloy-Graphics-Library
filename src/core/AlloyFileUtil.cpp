@@ -301,7 +301,6 @@ namespace aly {
 		const std::vector<std::string>& list, int maxSuggestions) {
 		std::vector<std::string> suggestions = list;
 #ifdef ALY_WINDOWS
-
 		static const std::locale local;
 		//use case insenstive complete on windows.
 		std::sort(suggestions.begin(), suggestions.end(),
@@ -319,6 +318,10 @@ namespace aly {
 
 		for (size_t index = 0; index < suggestions.size(); index++) {
 			std::string entry = suggestions[index];
+			if (entry == str) {
+				suggestions.erase(suggestions.begin(), suggestions.begin() + index);
+				break;
+			}
 #ifdef ALY_WINDOWS
 			if (std::lexicographical_compare(str.begin(), str.end(), entry.begin(), entry.end(),
 				[](char c1, char c2) {return (std::tolower(c1, local) < std::tolower(c2, local));})) {
