@@ -31,6 +31,7 @@
     <ClCompile Include="..\..\src\example\KdTreeEx.cpp" />
     <ClCompile Include="..\..\src\example\LaplaceFillEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
+    <ClCompile Include="..\..\src\example\MenuEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshDepthEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshMatcapEx.cpp" />
     <ClCompile Include="..\..\src\example\MeshParticleEx.cpp" />
@@ -59,6 +60,7 @@
     <ClInclude Include="..\..\include\example\ImageProcessingEx.h" />
     <ClInclude Include="..\..\include\example\KdTreeEx.h" />
     <ClInclude Include="..\..\include\example\LaplaceFillEx.h" />
+    <ClInclude Include="..\..\include\example\MenuEx.h" />
     <ClInclude Include="..\..\include\example\MeshDepthEx.h" />
     <ClInclude Include="..\..\include\example\MeshMatcapEx.h" />
     <ClInclude Include="..\..\include\example\MeshParticleEx.h" />

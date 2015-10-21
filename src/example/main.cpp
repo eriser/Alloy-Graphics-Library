@@ -45,6 +45,7 @@
 #include "../../include/example/MeshSmoothEx.h"
 #include "../../include/example/ColorSpaceEx.h"
 #include "../../include/example/MeshPrimitivesEx.h"
+#include "../../include/example/MenuEx.h"
 #include "AlloyFileUtil.h"
 #include <cstring>
 #ifndef EXAMPLE_NAME
@@ -86,7 +87,7 @@ typedef std::unique_ptr<Example> ExamplePtr;
 #define MAKE_EXAMPLE(NAME) ExamplePtr(new ExampleT<NAME>(#NAME))
 
 int main(int argc, char *argv[]) {
-	const int N = 26;
+	const int N = 27;
 
 	ExamplePtr apps[N] = { MAKE_EXAMPLE(UnitsEx), MAKE_EXAMPLE(CompositeEx),
 			MAKE_EXAMPLE(EventsEx), MAKE_EXAMPLE(DragEx), MAKE_EXAMPLE(TweenEx),
@@ -100,7 +101,7 @@ int main(int argc, char *argv[]) {
 					PoissonInpaintEx), MAKE_EXAMPLE(ImageProcessingEx),
 			MAKE_EXAMPLE(MeshPickerEx), MAKE_EXAMPLE(KdTreeEx), MAKE_EXAMPLE(
 					MeshSmoothEx), MAKE_EXAMPLE(ColorSpaceEx), MAKE_EXAMPLE(
-					MeshPrimitivesEx) };
+					MeshPrimitivesEx),MAKE_EXAMPLE(MenuEx) };
 	try {
 		//Example name is specified in a makefile at compile time so 
 		//all example applications are compiled to seperate exe targets.
