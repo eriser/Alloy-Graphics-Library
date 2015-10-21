@@ -1659,7 +1659,7 @@ namespace aly {
 				for (std::shared_ptr<Region>& child : contentRegion->getChildren()) {
 					child->setVisible(false);
 				}
-				AlloyApplicationContext()->addTween(contentRegion->getDimensions(),
+				AlloyApplicationContext()->addTween(contentRegion->dimensions,
 					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f),
 					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
 						(float)expandHeight), 0.3, SineOut())->onComplete =
@@ -1674,7 +1674,7 @@ namespace aly {
 				for (std::shared_ptr<Region>& child : contentRegion->getChildren()) {
 					child->setVisible(false);
 				}
-				AlloyApplicationContext()->addTween(contentRegion->getDimensions(),
+				AlloyApplicationContext()->addTween(contentRegion->dimensions,
 					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
 						(float)expandHeight),
 					CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f),
@@ -2199,7 +2199,7 @@ namespace aly {
 				AlloyContext* context = AlloyApplicationContext().get();
 				pixel2 maxDim = pixel2(this->getBoundsDimensionsX(), 0.0f);
 				for (std::shared_ptr<ListEntry> entry : listEntries) {
-					maxDim = aly::max(entry->getDimensions().toPixels(context->getScreenSize(), context->dpmm, context->pixelRatio), maxDim);
+					maxDim = aly::max(entry->dimensions.toPixels(context->getScreenSize(), context->dpmm, context->pixelRatio), maxDim);
 				}
 				for (std::shared_ptr<ListEntry> entry : listEntries) {
 					if (entry->parent == nullptr) {

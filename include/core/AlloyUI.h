@@ -54,12 +54,13 @@ protected:
 	Origin origin = Origin::TopLeft;
 	AspectRule aspectRule = AspectRule::Unspecified;
 	double aspectRatio = -1.0; //Less than zero indicates undetermined. Will be computed at next pack() event.
-	AUnit2D position = CoordPercent(0.0f, 0.0f);
-	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
+
 	bool roundCorners = false;
 	bool detached = false;
 	bool clampToParentBounds = false;
 public:
+	AUnit2D position = CoordPercent(0.0f, 0.0f);
+	AUnit2D dimensions = CoordPercent(1.0f, 1.0f);
 	friend struct Composite;
 	friend struct BorderComposite;
 	const std::string name;
@@ -146,12 +147,6 @@ public:
 	bool isDragEnabled() const {
 		return dragEnabled;
 	}
-	AUnit2D& getPosition() {
-		return position;
-	}
-	AUnit2D& getDimensions() {
-		return dimensions;
-	}
 	virtual box2px getBounds(bool includeOffset = true) const;
 	virtual box2px getCursorBounds(bool includeOffset = true) const;
 	pixel2 getBoundsPosition(bool includeOffset = true) const {
@@ -174,12 +169,6 @@ public:
 	}
 	pixel getBoundsDimensionsY(bool includeOffset = true) const {
 		return getBounds(includeOffset).dimensions.y;
-	}
-	const AUnit2D& getPosition() const {
-		return position;
-	}
-	const AUnit2D& getDimensions() const {
-		return dimensions;
 	}
 	void setVisible(bool vis);
 	Region* parent = nullptr;
@@ -417,7 +406,7 @@ public:
 	}
 	virtual void draw(AlloyContext* context) override;
 };
-struct TextField: public Composite {
+class TextField: public Composite {
 protected:
 	bool showDefaultLabel = true;
 	std::string label;
@@ -457,7 +446,7 @@ public:
 	std::function<void(TextField*)> onTextEntered;
 	std::function<void(TextField*)> onKeyInput;
 };
-struct SelectionBox: public Region {
+class SelectionBox: public Region {
 protected:
 	int selectedIndex = -1;
 	std::string label;
@@ -498,7 +487,57 @@ public:
 			const std::vector<std::string>& options =
 					std::vector<std::string>());
 };
+class MenuItem : public Region {
+public:
+	FontStyle fontStyle = FontStyle::Normal;
+	FontType fontType = FontType::Normal;
+	AColor textColor = MakeColor(COLOR_WHITE);
+	AColor textAltColor = MakeColor(COLOR_BLACK);
+	std::function<bool(MenuItem*)> onSelect;
+	MenuItem(const std::string& name);
+};
+class Menu : public MenuItem {
+protected:
+	int selectedIndex = -1;
+	std::shared_ptr<MenuItem> label;
+	int maxDisplayEntries = 8;
+	int selectionOffset = 0;
+	bool scrollingDown = false, scrollingUp = false;
+	std::shared_ptr<Timer> downTimer, upTimer;
+	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
+public:
+	std::vector<std::shared_ptr<MenuItem>> options;
+	void setMaxDisplayEntries(int mx) {
+		maxDisplayEntries = mx;
+	}
 
+	virtual box2px getBounds(bool includeBounds = true) const override;
+	std::string getSelection(int index) {
+		return (selectedIndex >= 0) ? options[selectedIndex]->name : name;
+	}
+	int getSelectedIndex() const {
+		return selectedIndex;
+	}
+
+	inline void setSelectionOffset(bool offset) {
+		selectionOffset = offset;
+	}
+	void setSelectedIndex(int index);
+	void draw(AlloyContext* context) override;
+	void addSelection(const std::string& selection) {
+		options.push_back(std::shared_ptr<MenuItem>(new MenuItem(selection)));
+	}
+	Menu(const std::string& name,
+		const std::vector<std::shared_ptr<MenuItem>>& options =
+		std::vector<std::shared_ptr<MenuItem>>());
+};
+struct MenuBar : public Composite {
+	protected:
+	std::vector<std::shared_ptr<Menu>> menus;
+public:
+	void add(const std::shared_ptr<Menu>& menu);
+	MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions);
+};
 struct FileField: public TextField {
 protected:
 	std::vector<std::string> segmentedPath;
@@ -557,8 +596,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const Region & region) {
 	ss << "Region: " << region.name << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
-	ss << "\tRelative Position: " << region.getPosition() << std::endl;
-	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
+	ss << "\tRelative Position: " << region.position << std::endl;
+	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
 	ss << "\tBounds: " << region.bounds << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRule << std::endl;
 	ss << "\tBackground Color: " << region.backgroundColor << std::endl;
@@ -621,5 +660,8 @@ typedef std::shared_ptr<SelectionBox> SelectionBoxPtr;
 typedef std::shared_ptr<BorderComposite> BorderCompositePtr;
 typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
 typedef std::shared_ptr<Region> RegionPtr;
+typedef std::shared_ptr<MenuItem> MenuItemPtr;
+typedef std::shared_ptr<Menu> MenuPtr;
+typedef std::shared_ptr<MenuBar> MenuBarPtr;
 }
 #endif /* ALLOYUI_H_ */
