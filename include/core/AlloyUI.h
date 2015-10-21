@@ -505,8 +505,9 @@ protected:
 	bool scrollingDown = false, scrollingUp = false;
 	std::shared_ptr<Timer> downTimer, upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
-public:
+
 	std::vector<std::shared_ptr<MenuItem>> options;
+public:
 	void setMaxDisplayEntries(int mx) {
 		maxDisplayEntries = mx;
 	}
@@ -524,8 +525,11 @@ public:
 	}
 	void setSelectedIndex(int index);
 	void draw(AlloyContext* context) override;
-	void addSelection(const std::string& selection) {
+	void add(const std::string& selection) {
 		options.push_back(std::shared_ptr<MenuItem>(new MenuItem(selection)));
+	}
+	void addSelection(const std::shared_ptr<MenuItem>& selection) {
+		options.push_back(selection);
 	}
 	Menu(const std::string& name,
 		const std::vector<std::shared_ptr<MenuItem>>& options =
