@@ -115,9 +115,9 @@ namespace aly {
 	}
 	float3 XYZtoRGB(const RGBf& xyz) {
 		float x, y, z;
-		x = xyz.x*0.01f;
-		y = xyz.y*0.01f;
-		z = xyz.z*0.01f;
+		x = xyz.x;
+		y = xyz.y;
+		z = xyz.z;
 		float3 rgb;
 		rgb.x = x *  3.2406f + y * -1.5372f + z * -0.4986f;
 		rgb.y = x * -0.9689f + y *  1.8758f + z *  0.0415f;
