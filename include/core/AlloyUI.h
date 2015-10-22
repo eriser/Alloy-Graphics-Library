@@ -628,8 +628,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	if (region.glyph.get() != nullptr)
 		ss << "\t" << *region.glyph << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
-	ss << "\tRelative Position: " << region.getPosition() << std::endl;
-	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
+	ss << "\tRelative Position: " << region.position<< std::endl;
+	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;
 	ss << "\tAspect Ratio: " << region.aspectRule << " (" << region.aspectRatio
 			<< ")" << std::endl;
@@ -643,8 +643,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tHorizontal Alignment: " << region.horizontalAlignment << std::endl;
 	ss << "\tVertical Alignment: " << region.verticalAlignment << std::endl;
-	ss << "\tRelative Position: " << region.getPosition() << std::endl;
-	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
+	ss << "\tRelative Position: " << region.position << std::endl;
+	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;
 	ss << "\tFont Type: " << region.fontType << std::endl;
 	ss << "\tFont Size: " << region.fontSize << std::endl;
@@ -659,8 +659,8 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	ss << "Composite: " << region.name << std::endl;
 	ss << "\tOrigin: " << region.origin << std::endl;
 	ss << "\tOrientation: " << region.orientation << std::endl;
-	ss << "\tRelative Position: " << region.getPosition() << std::endl;
-	ss << "\tRelative Dimensions: " << region.getDimensions() << std::endl;
+	ss << "\tRelative Position: " << region.position << std::endl;
+	ss << "\tRelative Dimensions: " << region.dimensions << std::endl;
 	ss << "\tBackground Color: " << region.backgroundColor << std::endl;
 	ss << "\tBounds: " << region.getBounds() << std::endl;
 	int counter = 0;
