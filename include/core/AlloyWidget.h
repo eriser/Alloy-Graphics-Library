@@ -26,7 +26,7 @@
 
 namespace aly {
 
-class TextButton: public Composite {
+class TextButton: public Region {
 private:
 	AColor textColor;
 	AUnit1D fontSize;

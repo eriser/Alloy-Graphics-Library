@@ -313,7 +313,7 @@ namespace aly {
 	}
 	TextButton::TextButton(const std::string& label, const AUnit2D& position,
 		const AUnit2D& dimensions) :
-		Composite(label) {
+		Region(label) {
 		this->position = position;
 		this->dimensions = dimensions;
 		backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);

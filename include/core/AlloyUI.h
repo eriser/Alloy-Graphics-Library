@@ -495,7 +495,10 @@ public:
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::function<bool(MenuItem*)> onSelect;
 	MenuItem(const std::string& name);
+	MenuItem(const std::string& name, const AUnit2D& position,
+		const AUnit2D& dimensions);
 };
+
 class Menu : public MenuItem {
 protected:
 	int selectedIndex = -1;
@@ -535,9 +538,19 @@ public:
 		const std::vector<std::shared_ptr<MenuItem>>& options =
 		std::vector<std::shared_ptr<MenuItem>>());
 };
+class MenuHeader : public MenuItem {
+protected:
+	std::shared_ptr<Menu> menu;
+	AColor textColor;
+	AUnit1D fontSize;
+public:
+	MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,
+		const AUnit2D& dimensions);
+	virtual void draw(AlloyContext* context) override;
+	virtual inline ~MenuHeader() {}
+};
 struct MenuBar : public Composite {
-	protected:
-	std::vector<std::shared_ptr<Menu>> menus;
+
 public:
 	void add(const std::shared_ptr<Menu>& menu);
 	MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions);
@@ -666,6 +679,7 @@ typedef std::shared_ptr<GlyphRegion> GlyphRegionPtr;
 typedef std::shared_ptr<Region> RegionPtr;
 typedef std::shared_ptr<MenuItem> MenuItemPtr;
 typedef std::shared_ptr<Menu> MenuPtr;
+typedef std::shared_ptr<MenuHeader> MenuHeaderPtr;
 typedef std::shared_ptr<MenuBar> MenuBarPtr;
 }
 #endif /* ALLOYUI_H_ */

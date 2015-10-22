@@ -26,48 +26,25 @@ MenuEx::MenuEx() :
 		Application(800, 600, "Menu Example") {
 }
 bool MenuEx::init(Composite& rootNode) {
-	BorderCompositePtr bcomp = std::shared_ptr<BorderComposite>(
-		new BorderComposite("Border Layout", CoordPX(0, 0),
-			CoordPercent(0.7f, 1.0f)));
+	MenuBarPtr menuBar = MenuBarPtr(new MenuBar("Menu Bar",CoordPX(0,0),CoordPercent(1.0f,1.0f)));
+	MenuPtr fileMenu = MenuPtr(new Menu("File"));
+	MenuPtr editMenu = MenuPtr(new Menu("Edit"));
+	MenuPtr viewMenu = MenuPtr(new Menu("View"));
+	MenuPtr projectMenu = MenuPtr(new Menu("Project"));
+	menuBar->add(fileMenu);
+	menuBar->add(editMenu);
+	menuBar->add(viewMenu);
+	menuBar->add(projectMenu);
+
+	CompositePtr north = MakeComposite("North Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0), Color(128, 16, 32), COLOR_NONE, UnitPX(0));
+	north->add(menuBar);
 	TextLabelPtr label;
-	CompositePtr sidebar = MakeComposite("Side Composite", CoordPercent(0.7f, 0.5f), CoordPercent(0.3f, 0.5f), Color(16, 128, 255), COLOR_NONE, UnitPX(0));
-	sidebar->add(label = MakeTextLabel("Side", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
-	label->setOrigin(Origin::MiddleCenter);
-
-	CompositePtr scroll = MakeComposite("Scroll Composite", CoordPercent(0.7f, 0.0f), CoordPercent(0.3f, 0.5f), Color(255, 128, 16), COLOR_NONE, UnitPX(0));
-	CompositePtr content= MakeComposite("Content", CoordPX(0, 0), CoordPerPX(1.0f, 0.0f, 0.0f, 0.0f));
-	scroll->add(content);
-	
-	for (int i = 1;i <= 100;i++) {
-		content->add(label = MakeTextLabel(MakeString()<<"Scroll "<<i, CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
-		label->setOrigin(Origin::TopCenter);
-	}
-	content->setOrientation(Orientation::Vertical);
-	scroll->setScrollEnabled(true);
-
-	CompositePtr north = MakeComposite("North Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 16, 32), COLOR_NONE, UnitPX(0));
-	north->add(label=MakeTextLabel("North", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f),COLOR_WHITE,HorizontalAlignment::Center,VerticalAlignment::Middle));
-	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr south = MakeComposite("South Composite", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(16, 128, 32));
-	south->add(label = MakeTextLabel("South", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
-	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr east = MakeComposite("East Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 128, 16), COLOR_NONE, UnitPX(0));
-	east->add(label = MakeTextLabel("East", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
-	label->setOrigin(Origin::MiddleCenter);
-	CompositePtr west = MakeComposite("West Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0),Color(128, 16, 128), COLOR_NONE, UnitPX(0));
-	west->add(label = MakeTextLabel("West", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
-	label->setOrigin(Origin::MiddleCenter);
 	CompositePtr center = MakeComposite("Center Composite", CoordPX(0, 0),CoordPercent(1.0, 1.0), Color(16, 128, 128));
 	center->add(label = MakeTextLabel("Center", CoordPercent(0.5f, 0.5f), CoordPX(100, 30), FontType::Bold, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Middle));
 	label->setOrigin(Origin::MiddleCenter);
-
-	bcomp->setNorth(north,0.3f);
-	bcomp->setEast(east,0.25f);
-	bcomp->setWest(west,0.3f);
-	bcomp->setSouth(south,0.1f);
+	BorderCompositePtr bcomp = std::shared_ptr<BorderComposite>(new BorderComposite("Border Layout", CoordPX(0, 0),CoordPercent(1.0f, 1.0f)));
+	bcomp->setNorth(north,UnitPX(35.0f));
 	bcomp->setCenter(center);
-	rootNode.add(sidebar);
-	rootNode.add(scroll);
 	rootNode.add(bcomp);
 	return true;
 }

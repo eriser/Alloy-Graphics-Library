@@ -2553,14 +2553,92 @@ Menu::Menu(const std::string& name,
 	Application::addListener(this);
 }
 MenuBar::MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) :Composite(name,position,dimensions){
-
+	this->setOrientation(Orientation::Horizontal);
+	this->cellSpacing.x = 2;
+	this->cellPadding.x = 2;
+	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 }
 void MenuBar::add(const std::shared_ptr<Menu>& menu) {
-	Composite::add(menu);
+	MenuHeaderPtr header=MenuHeaderPtr(new MenuHeader(menu,CoordPerPX(0.0f,1.0f,0.0f,-30.0f),CoordPX(100,30)));
+
+	Composite::add(header);
+	
 }
 MenuItem::MenuItem(const std::string& name) :Region(name) {
 
 }
+MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) : Region(name,position,dimensions) {
+
 }
-;
+MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): MenuItem(menu->name,position,dimensions),menu(menu) {
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
+	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	fontSize = UnitPerPX(1.0f, -10);
+	this->aspectRule = AspectRule::FixedHeight;
+}
+
+void MenuHeader::draw(AlloyContext* context) {
+	bool hover = context->isMouseOver(this);
+	bool down = context->isMouseDown(this);
+	NVGcontext* nvg = context->nvgContext;
+	box2px bounds = getBounds();
+
+	int xoff = 0;
+	int yoff = 0;
+	int vshift = 5;
+	if (down) {
+		xoff = 2;
+		yoff = 2;
+	}
+	pushScissor(nvg, bounds);
+	if (hover) {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff+ vshift,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+
+	}
+	else {
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1 + vshift,
+			bounds.dimensions.x - 2, bounds.dimensions.y - 2,
+			context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, *backgroundColor);
+		nvgFill(nvg);
+	}
+
+	if (hover) {
+
+		nvgBeginPath(nvg);
+		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
+			bounds.position.y + yoff + vshift, bounds.dimensions.x,
+			bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
+			context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
+			context->theme.DARK);
+		nvgFillPaint(nvg, hightlightPaint);
+		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff + vshift,
+			bounds.dimensions.x, bounds.dimensions.y,
+			context->theme.CORNER_RADIUS);
+		nvgFill(nvg);
+	}
+
+	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
+		context->pixelRatio);
+	nvgFontSize(nvg, th);
+	nvgFillColor(nvg, *textColor);
+	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
+	this->aspectRatio = (tw + 10.0f) / (th + 10.0f);
+	nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	pixel2 offset(0, 0);
+	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,
+		bounds.position.y + bounds.dimensions.y / 2 + yoff+vshift, name.c_str(),
+		nullptr);
+
+	popScissor(nvg);
+}
+};
 
