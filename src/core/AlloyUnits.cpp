@@ -128,7 +128,7 @@ namespace aly {
 		else                     rgb.y = 12.92f * rgb.y;
 		if (rgb.z > 0.0031308) rgb.z = 1.055f * pow(rgb.z , (1.0f / 2.4f)) - 0.055f;
 		else                     rgb.z = 12.92f * rgb.z;
-		return rgb;
+		return aly::clamp(rgb,float3(0.0f),float3(1.0f));
 	}
 	float3 RGBtoXYZ(const RGBf& rgb) {
 		float r, g, b;

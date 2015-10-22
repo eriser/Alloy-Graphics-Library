@@ -59,14 +59,13 @@ void ColorSpaceEx::setColorSpace(int index) {
 				float3 pos;
 				switch (index) {
 				case 0:
-					pos = 255.0f*c;
-					break;
+					pos = 255.0f*c;break;
 				case 1:
-					pos = 255.0f*RGBtoHSV(c);
-					break;
+					pos = 255.0f*RGBtoHSV(c);break;
 				case 2:
 					pos = 255.0f*RGBtoXYZ(c);
 					break;
+
 				case 3:
 					pos = RGBtoLAB(c); 
 					break;
