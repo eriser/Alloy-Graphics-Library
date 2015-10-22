@@ -115,10 +115,10 @@ namespace aly {
 	}
 	float RGBtoGray(const float3& c, bool sRGB) {
 		if (sRGB) {
-			return (0.21 * c.x + 0.72 * c.y + 0.07 * c.z);
+			return (0.21f * c.x + 0.72f * c.y + 0.07f * c.z);
 		}
 		else {
-			return (0.30 * c.x + 0.59 * c.y + 0.11 * c.z);
+			return (0.30f * c.x + 0.59f * c.y + 0.11f * c.z);
 		}
 	}
 	float2 RGBAtoGray(const float4& c, bool sRGB) {
