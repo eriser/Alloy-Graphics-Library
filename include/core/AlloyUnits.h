@@ -276,6 +276,14 @@ inline HSVA RGBAtoHSVA(const RGBAf& c) {
 inline HSV RGBtoHSV(const RGBf& c) {
 	return Color(c).toHSV();
 }
+float RGBtoGray(const float3& rgb,bool sRGB=true);
+float2 RGBAtoGray(const float4& rgb, bool sRGB = true);
+uint8_t RGBtoGray(const ubyte3& rgb, bool sRGB = true);
+ubyte2 RGBAtoGray(const ubyte4& rgb, bool sRGB = true);
+float3 GrayToRGB(float val);
+float4 GrayToRGBA(const float2& val);
+ubyte3 GrayToRGB(const uint8_t& val);
+ubyte4 GrayToRGBA(const ubyte2& val);
 float3 XYZtoRGB(const RGBf& rgb);
 float4 XYZAtoRGBA(const RGBAf& rgb);
 float3 RGBtoXYZ(const RGBf& rgb);

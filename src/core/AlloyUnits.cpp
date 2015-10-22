@@ -113,6 +113,51 @@ namespace aly {
 			return RGBf(v, p, q);
 		}
 	}
+	float RGBtoGray(const float3& c, bool sRGB) {
+		if (sRGB) {
+			return (0.21 * c.x + 0.72 * c.y + 0.07 * c.z);
+		}
+		else {
+			return (0.30 * c.x + 0.59 * c.y + 0.11 * c.z);
+		}
+	}
+	float2 RGBAtoGray(const float4& c, bool sRGB) {
+		if (sRGB) {
+			return float2(0.21f * c.x + 0.72f * c.y + 0.07f * c.z,c.w);
+		}
+		else {
+			return float2(0.30f * c.x + 0.59f * c.y + 0.11f * c.z, c.w);
+		}
+	}
+	uint8_t RGBtoGray(const ubyte3& c, bool sRGB) {
+		if (sRGB) {
+			return (uint8_t)clamp(0.21f * c.x + 0.72f * c.y + 0.07f * c.z,0.0f,255.0f);
+		}
+		else {
+			return (uint8_t)clamp(0.30f * c.x + 0.59f * c.y + 0.11f * c.z,0.0f,255.0f);
+		}
+	}
+	ubyte2 RGBAtoGray(const ubyte4& c, bool sRGB) {
+		if (sRGB) {
+			return ubyte2((uint8_t)clamp(0.21f * c.x + 0.72f * c.y + 0.07f * c.z, 0.0f, 255.0f),c.w);
+		}
+		else {
+			return ubyte2((uint8_t)clamp(0.30f * c.x + 0.59f * c.y + 0.11f * c.z, 0.0f, 255.0f), c.w);
+		}
+	}
+	float3 GrayToRGB(float val) {
+		return float3(val);
+	}
+	float4 GrayToRGBA(const float2& val) {
+		return float4(val.x, val.x, val.x, val.y);
+	}
+	ubyte3 GrayToRGB(const uint8_t& val) {
+		return ubyte3(val);
+	}
+	ubyte4 GrayToRGBA(const ubyte2& val) {
+		return ubyte4(val.x, val.x, val.x, val.y);
+	}
+
 	float3 XYZtoRGB(const RGBf& xyz) {
 		float x, y, z;
 		x = xyz.x;
