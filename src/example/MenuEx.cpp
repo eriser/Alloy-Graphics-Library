@@ -31,6 +31,12 @@ bool MenuEx::init(Composite& rootNode) {
 	MenuPtr editMenu = MenuPtr(new Menu("Edit"));
 	MenuPtr viewMenu = MenuPtr(new Menu("View"));
 	MenuPtr projectMenu = MenuPtr(new Menu("Project"));
+	fileMenu->addItem("New")->onSelect = [=] {std::cout << "File:New" << std::endl;};
+	fileMenu->addItem("Open")->onSelect = [=] {std::cout << "File:Open" << std::endl;};
+	fileMenu->addItem("Save")->onSelect = [=] {std::cout << "File:Save" << std::endl;};
+	fileMenu->addItem("Close")->onSelect = [=] {std::cout << "File:Close" << std::endl;};
+	fileMenu->addItem("Exit")->onSelect = [=] {std::cout << "File:Exit" << std::endl;};
+
 	menuBar->add(fileMenu);
 	menuBar->add(editMenu);
 	menuBar->add(viewMenu);

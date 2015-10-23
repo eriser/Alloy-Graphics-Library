@@ -2396,9 +2396,20 @@ void Menu::setSelectedIndex(int index) {
 
 	}
 }
+void Menu::fireEvent(int selectedIndex) {
+	if (selectedIndex >= 0) {
+		if (options[selectedIndex]->onSelect) {
+			options[selectedIndex]->onSelect();
+		}
+	}
+}
 Menu::Menu(const std::string& name,
 	const std::vector<std::shared_ptr<MenuItem>>& labels) :
 	MenuItem(name), options(labels) {
+	setDetached(true);
+	setVisible(false);
+	setPosition(CoordPerPX(0.0f, 0.0f, 2.0f, 0.0f));
+	setDimensions(CoordPerPX(1.0f, 0.8f, -4.0f, 0.0f));
 
 	downArrow = AlloyApplicationContext()->createAwesomeGlyph(0xf0ab,
 		FontStyle::Normal, 14);
@@ -2452,20 +2463,12 @@ Menu::Menu(const std::string& name,
 					this->setVisible(false);
 				}
 				else if (event.key == GLFW_KEY_ENTER) {
-					if (selectedIndex >= 0) {
-						if (this->onSelect) {
-							return this->onSelect(this);
-						}
-					}
+					fireEvent(selectedIndex);
 				}
 			}
 			else if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_LEFT) {
 				if (AlloyApplicationContext()->isMouseOver(this)) {
-					if (selectedIndex >= 0) {
-						if (this->onSelect) {
-							return this->onSelect(this);
-						}
-					}
+					fireEvent(selectedIndex);
 					return true;
 				}
 				else {
@@ -2557,12 +2560,27 @@ MenuBar::MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D
 	this->cellSpacing.x = 2;
 	this->cellPadding.x = 2;
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+
+}
+void MenuHeader::setMenuVisible(bool vis) {
+	menu->setVisible(vis);
+	if (vis) {
+		AlloyApplicationContext()->setOnTopRegion(menu.get());
+	}
 }
 void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 	MenuHeaderPtr header=MenuHeaderPtr(new MenuHeader(menu,CoordPerPX(0.0f,1.0f,0.0f,-30.0f),CoordPX(100,30)));
-
+	headers.push_back(header);
 	Composite::add(header);
-	
+	header->onMouseDown = [=](AlloyContext* context, const InputEvent& e) {
+		for (MenuHeaderPtr header : headers) {
+			header->setMenuVisible(false);
+			
+		}
+		std::cout << "Set Visible " << header->name << std::endl;
+		header->setMenuVisible(true);
+		return true;
+	};
 }
 MenuItem::MenuItem(const std::string& name) :Region(name) {
 
@@ -2570,12 +2588,13 @@ MenuItem::MenuItem(const std::string& name) :Region(name) {
 MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) : Region(name,position,dimensions) {
 
 }
-MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): MenuItem(menu->name,position,dimensions),menu(menu) {
+MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): Composite(menu->name,position,dimensions),menu(menu) {
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
 	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
+
 }
 
 void MenuHeader::draw(AlloyContext* context) {
@@ -2591,7 +2610,6 @@ void MenuHeader::draw(AlloyContext* context) {
 		xoff = 2;
 		yoff = 2;
 	}
-	pushScissor(nvg, bounds);
 	if (hover) {
 		nvgBeginPath(nvg);
 		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff+ vshift,
@@ -2637,8 +2655,6 @@ void MenuHeader::draw(AlloyContext* context) {
 	nvgText(nvg, bounds.position.x + bounds.dimensions.x / 2 + xoff,
 		bounds.position.y + bounds.dimensions.y / 2 + yoff+vshift, name.c_str(),
 		nullptr);
-
-	popScissor(nvg);
 }
 };
 

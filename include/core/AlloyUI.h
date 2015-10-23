@@ -493,7 +493,7 @@ public:
 	FontType fontType = FontType::Normal;
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor = MakeColor(COLOR_BLACK);
-	std::function<bool(MenuItem*)> onSelect;
+	std::function<void()> onSelect;
 	MenuItem(const std::string& name);
 	MenuItem(const std::string& name, const AUnit2D& position,
 		const AUnit2D& dimensions);
@@ -508,49 +508,51 @@ protected:
 	bool scrollingDown = false, scrollingUp = false;
 	std::shared_ptr<Timer> downTimer, upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
-
 	std::vector<std::shared_ptr<MenuItem>> options;
+	void fireEvent(int selectedIndex);
 public:
 	void setMaxDisplayEntries(int mx) {
 		maxDisplayEntries = mx;
 	}
-
 	virtual box2px getBounds(bool includeBounds = true) const override;
-	std::string getSelection(int index) {
+	std::string getItem(int index) {
 		return (selectedIndex >= 0) ? options[selectedIndex]->name : name;
 	}
 	int getSelectedIndex() const {
 		return selectedIndex;
 	}
-
 	inline void setSelectionOffset(bool offset) {
 		selectionOffset = offset;
 	}
 	void setSelectedIndex(int index);
 	void draw(AlloyContext* context) override;
-	void add(const std::string& selection) {
-		options.push_back(std::shared_ptr<MenuItem>(new MenuItem(selection)));
+	std::shared_ptr<MenuItem> addItem(const std::string& selection) {
+		std::shared_ptr<MenuItem> item= std::shared_ptr<MenuItem>(new MenuItem(selection));
+		options.push_back(item);
+		return item;
 	}
-	void addSelection(const std::shared_ptr<MenuItem>& selection) {
+	void addItem(const std::shared_ptr<MenuItem>& selection) {
 		options.push_back(selection);
 	}
 	Menu(const std::string& name,
 		const std::vector<std::shared_ptr<MenuItem>>& options =
 		std::vector<std::shared_ptr<MenuItem>>());
 };
-class MenuHeader : public MenuItem {
+class MenuHeader : public Composite {
 protected:
 	std::shared_ptr<Menu> menu;
 	AColor textColor;
 	AUnit1D fontSize;
 public:
+	void setMenuVisible(bool vis);
 	MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,
 		const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~MenuHeader() {}
 };
 struct MenuBar : public Composite {
-
+protected:
+	std::list<std::shared_ptr<MenuHeader>> headers;
 public:
 	void add(const std::shared_ptr<Menu>& menu);
 	MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions);
