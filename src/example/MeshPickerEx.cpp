@@ -77,7 +77,7 @@ bool MeshPickerEx::init(Composite& rootNode) {
 			selectedFaceId=faceIds((int)pix.x,(int)pix.y);
 			if (selectedFaceId.y >= 0) {
 				cursorText->label =MakeString()<< "Face Id: " << selectedFaceId.x;
-				cursorText->setPosition(CoordPX(e.cursor));
+				cursorText->position=CoordPX(e.cursor);
 				cursorText->pack(context);
 			}
 			else {

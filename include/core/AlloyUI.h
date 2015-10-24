@@ -101,12 +101,6 @@ public:
 		}
 	}
 	virtual Region* locate(const pixel2& cursor);
-	inline void setPosition(const AUnit2D& pt) {
-		position = pt;
-	}
-	inline void setDimensions(const AUnit2D& dims) {
-		dimensions = dims;
-	}
 	inline void setAspectRule(const AspectRule& aspect) {
 		aspectRule = aspect;
 	}
@@ -114,8 +108,8 @@ public:
 		aspectRatio = val;
 	}
 	inline void setBounds(const AUnit2D& pt, const AUnit2D& dim) {
-		setPosition(pt);
-		setDimensions(dim);
+		position = pt;
+		dimensions = dim;
 	}
 	inline void setBounds(const pixel2& pt, const pixel2& dim) {
 		bounds.position = pt;

@@ -462,16 +462,16 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 	if (verticalScrollTrack.get() == nullptr && isScrollEnabled()) {
 		verticalScrollTrack = std::shared_ptr<ScrollTrack>(
 				new ScrollTrack("Vert Track", Orientation::Vertical));
-		verticalScrollTrack->setPosition(CoordPercent(1.0f, 0.0f));
-		verticalScrollTrack->setDimensions(
-				CoordPerPX(0.0, 1.0f, scrollBarSize, 0.0f));
+		verticalScrollTrack->position=CoordPercent(1.0f, 0.0f);
+		verticalScrollTrack->dimensions=
+				CoordPerPX(0.0, 1.0f, scrollBarSize, 0.0f);
 		verticalScrollTrack->setOrigin(Origin::TopRight);
 		verticalScrollTrack->parent = parent;
 		verticalScrollHandle = std::shared_ptr<ScrollHandle>(
 				new ScrollHandle("Vert Handle", Orientation::Vertical));
-		verticalScrollHandle->setPosition(CoordPX(0.0f, 0.0f));
-		verticalScrollHandle->setDimensions(
-				CoordPerPX(1.0f, 0.0f, 0.0f, scrollBarSize));
+		verticalScrollHandle->position=CoordPX(0.0f, 0.0f);
+		verticalScrollHandle->dimensions=
+				CoordPerPX(1.0f, 0.0f, 0.0f, scrollBarSize);
 		verticalScrollHandle->parent = verticalScrollTrack.get();
 		verticalScrollHandle->setDragEnabled(true);
 
@@ -499,16 +499,16 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				};
 		horizontalScrollTrack = std::shared_ptr<ScrollTrack>(
 				new ScrollTrack("Horiz Track", Orientation::Horizontal));
-		horizontalScrollTrack->setPosition(CoordPercent(0.0f, 1.0f));
-		horizontalScrollTrack->setDimensions(
-				CoordPerPX(1.0, 0.0f, 0.0f, scrollBarSize));
+		horizontalScrollTrack->position=CoordPercent(0.0f, 1.0f);
+		horizontalScrollTrack->dimensions=
+				CoordPerPX(1.0, 0.0f, 0.0f, scrollBarSize);
 		horizontalScrollTrack->setOrigin(Origin::BottomLeft);
 		verticalScrollTrack->parent = parent;
 		horizontalScrollHandle = std::shared_ptr<ScrollHandle>(
 				new ScrollHandle("Horiz Handle", Orientation::Horizontal));
-		horizontalScrollHandle->setPosition(CoordPX(0.0f, 0.0f));
-		horizontalScrollHandle->setDimensions(
-				CoordPerPX(0.0f, 1.0f, scrollBarSize, 0.0f));
+		horizontalScrollHandle->position=CoordPX(0.0f, 0.0f);
+		horizontalScrollHandle->dimensions=
+				CoordPerPX(0.0f, 1.0f, scrollBarSize, 0.0f);
 		horizontalScrollHandle->parent = horizontalScrollTrack.get();
 		horizontalScrollHandle->setDragEnabled(true);
 
@@ -545,12 +545,12 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		if (orientation == Orientation::Vertical) {
 			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm,
 					pixelRatio);
-			region->setPosition(CoordPX(pix.x, offset.y));
+			region->position=CoordPX(pix.x, offset.y);
 		}
 		if (orientation == Orientation::Horizontal) {
 			pixel2 pix = region->position.toPixels(bounds.dimensions, dpmm,
 					pixelRatio);
-			region->setPosition(CoordPX(offset.x, pix.y));
+			region->position=CoordPX(offset.x, pix.y);
 		}
 		region->pack(bounds.position, bounds.dimensions, dpmm, pixelRatio);
 		box2px cbounds = region->getBounds();
@@ -581,14 +581,14 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				(showX&&showY) ?
 						-scrollBarSize : 0;
 
-		verticalScrollTrack->setDimensions(
-				CoordPerPX(0.0f, 1.0f, scrollBarSize, nudge));
-		verticalScrollHandle->setDimensions(
+		verticalScrollTrack->dimensions=
+				CoordPerPX(0.0f, 1.0f, scrollBarSize, nudge);
+		verticalScrollHandle->dimensions=
 				CoordPerPX(1.0f, 0.0f, 0.0f,
 						std::max(scrollBarSize,
 								(verticalScrollTrack->getBoundsDimensionsY()
 										* bounds.dimensions.y)
-										/ scrollExtent.y)));
+										/ scrollExtent.y));
 
 		verticalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
 				pixelRatio);
@@ -596,14 +596,14 @@ void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 				verticalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
 				true);
 
-		horizontalScrollTrack->setDimensions(
-				CoordPerPX(1.0f, 0.0f, nudge, scrollBarSize));
-		horizontalScrollHandle->setDimensions(
+		horizontalScrollTrack->dimensions=
+				CoordPerPX(1.0f, 0.0f, nudge, scrollBarSize);
+		horizontalScrollHandle->dimensions=
 				CoordPerPX(0.0f, 1.0f,
 						std::max(scrollBarSize,
 								(horizontalScrollTrack->getBoundsDimensionsX()
 										* bounds.dimensions.x)
-										/ scrollExtent.x), 0.0f));
+										/ scrollExtent.x), 0.0f);
 
 		horizontalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
 				pixelRatio);
@@ -1468,8 +1468,8 @@ FileField::FileField(const std::string& name, const AUnit2D& position,
 	selectionBox = SelectionBoxPtr(new SelectionBox(label));
 	selectionBox->setDetached(true);
 	selectionBox->setVisible(false);
-	selectionBox->setPosition(CoordPerPX(0.0f, 0.0f, 2.0f, 0.0f));
-	selectionBox->setDimensions(CoordPerPX(1.0f, 0.8f, -4.0f, 0.0f));
+	selectionBox->position=CoordPerPX(0.0f, 0.0f, 2.0f, 0.0f);
+	selectionBox->dimensions=CoordPerPX(1.0f, 0.8f, -4.0f, 0.0f);
 	selectionBox->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 	selectionBox->borderColor = MakeColor(
@@ -1817,8 +1817,8 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 	std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
 			new GlyphRegion(glyph->name));
 	region->glyph = glyph;
-	region->setPosition(position);
-	region->setDimensions(dimensions);
+	region->position=position;
+	region->dimensions=dimensions;
 	region->backgroundColor = MakeColor(bgColor);
 	region->foregroundColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
@@ -1836,8 +1836,8 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 			(glyph->name.length() > 0) ?
 					new GlyphRegion(glyph->name) : new GlyphRegion());
 	region->glyph = glyph;
-	region->setPosition(position);
-	region->setDimensions(dimensions);
+	region->position = position;
+	region->dimensions = dimensions;
 	region->backgroundColor = MakeColor(bgColor);
 	region->foregroundColor = MakeColor(fgColor);
 	region->borderColor = MakeColor(borderColor);
@@ -1853,8 +1853,8 @@ std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const VerticalAlignment& valign) {
 	std::shared_ptr<TextLabel> region = std::shared_ptr<TextLabel>(
 			new TextLabel(name));
-	region->setPosition(position);
-	region->setDimensions(dimensions);
+	region->position = position;
+	region->dimensions = dimensions;
 	region->textColor = MakeColor(fontColor);
 	region->fontType = fontType;
 	region->fontSize = fontSize;
@@ -1868,8 +1868,8 @@ std::shared_ptr<TextField> MakeTextField(const std::string& name,
 		const std::string& value) {
 	std::shared_ptr<TextField> region = std::shared_ptr<TextField>(
 			new TextField(name));
-	region->setPosition(position);
-	region->setDimensions(dimensions);
+	region->position = position;
+	region->dimensions = dimensions;
 	region->backgroundColor = MakeColor(bgColor);
 	region->textColor = MakeColor(textColor);
 	region->borderColor = MakeColor(bgColor.toDarker(0.5f));
@@ -1881,8 +1881,8 @@ std::shared_ptr<Region> MakeRegion(const std::string& name,
 		const Color& bgColor, const Color& borderColor,
 		const AUnit1D& borderWidth) {
 	std::shared_ptr<Region> region = std::shared_ptr<Region>(new Region(name));
-	region->setPosition(position);
-	region->setDimensions(dimensions);
+	region->position = position;
+	region->dimensions = dimensions;
 	region->backgroundColor = MakeColor(bgColor);
 	region->borderColor = MakeColor(borderColor);
 	region->borderWidth = borderWidth;
@@ -1894,8 +1894,8 @@ std::shared_ptr<Composite> MakeComposite(const std::string& name,
 		const AUnit1D& borderWidth, const Orientation& orientation) {
 	std::shared_ptr<Composite> composite = std::shared_ptr<Composite>(
 			new Composite(name));
-	composite->setPosition(position);
-	composite->setDimensions(dimensions);
+	composite->position=position;
+	composite->dimensions=dimensions;
 	composite->backgroundColor = MakeColor(bgColor);
 	composite->borderColor = MakeColor(borderColor);
 	composite->borderWidth = borderWidth;
@@ -2309,10 +2309,14 @@ void Menu::draw(AlloyContext* context) {
 			nvgRect(nvg, bounds.position.x + offset.x,
 				bounds.position.y + offset.y, bounds.dimensions.x,
 				entryHeight);
-			nvgFillColor(nvg, context->theme.NEUTRAL);
+			nvgFillColor(nvg, context->theme.DARK);
 			nvgFill(nvg);
+
+			nvgFillColor(nvg, *textAltColor);
 		}
-		nvgFillColor(nvg, *textColor);
+		else {
+			nvgFillColor(nvg, *textColor);
+		}
 
 		pushScissor(nvg, sbounds);
 		nvgText(nvg,
@@ -2405,11 +2409,14 @@ void Menu::fireEvent(int selectedIndex) {
 }
 Menu::Menu(const std::string& name,
 	const std::vector<std::shared_ptr<MenuItem>>& labels) :
-	MenuItem(name), options(labels) {
+	MenuItem(name, CoordPerPX(0.0f, 0.0f, 1.0f, 0.0f), CoordPerPX(0.0f,0.8f,150.0f,0.0f)), options(labels) {
 	setDetached(true);
 	setVisible(false);
-	setPosition(CoordPerPX(0.0f, 0.0f, 2.0f, 0.0f));
-	setDimensions(CoordPerPX(1.0f, 0.8f, -4.0f, 0.0f));
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
+	borderColor=MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	borderWidth = UnitPX(1.0f);
+	textColor= MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	textAltColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 
 	downArrow = AlloyApplicationContext()->createAwesomeGlyph(0xf0ab,
 		FontStyle::Normal, 14);
@@ -2577,7 +2584,6 @@ void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 			header->setMenuVisible(false);
 			
 		}
-		std::cout << "Set Visible " << header->name << std::endl;
 		header->setMenuVisible(true);
 		return true;
 	};
@@ -2594,7 +2600,7 @@ MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& positio
 	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
-
+	Composite::add(menu);
 }
 
 void MenuHeader::draw(AlloyContext* context) {
@@ -2612,18 +2618,16 @@ void MenuHeader::draw(AlloyContext* context) {
 	}
 	if (hover) {
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff+ vshift,
-			bounds.dimensions.x, bounds.dimensions.y,
-			context->theme.CORNER_RADIUS);
+		nvgRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff+ vshift,
+			bounds.dimensions.x, bounds.dimensions.y);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 
 	}
 	else {
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, bounds.position.x + 1, bounds.position.y + 1 + vshift,
-			bounds.dimensions.x - 2, bounds.dimensions.y - 2,
-			context->theme.CORNER_RADIUS);
+		nvgRect(nvg, bounds.position.x + 1, bounds.position.y + 1 + vshift,
+			bounds.dimensions.x - 2, bounds.dimensions.y - 2);
 		nvgFillColor(nvg, *backgroundColor);
 		nvgFill(nvg);
 	}
@@ -2637,9 +2641,8 @@ void MenuHeader::draw(AlloyContext* context) {
 			context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
 			context->theme.DARK);
 		nvgFillPaint(nvg, hightlightPaint);
-		nvgRoundedRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff + vshift,
-			bounds.dimensions.x, bounds.dimensions.y,
-			context->theme.CORNER_RADIUS);
+		nvgRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff + vshift,
+			bounds.dimensions.x, bounds.dimensions.y);
 		nvgFill(nvg);
 	}
 

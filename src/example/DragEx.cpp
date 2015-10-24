@@ -59,7 +59,7 @@ bool DragEx::init(Composite& rootNode) {
 			//Get current location, including drag offset.
 			box2px box = label->getBounds();
 			box.position = aly::clamp(box.position, bounds.position,bounds.position + bounds.dimensions - box.dimensions);
-			label->setPosition(CoordPX(box.position));
+			label->position=CoordPX(box.position);
 			//Reset drag offset now that we changed position.
 			label->setDragOffset(pixel2(0, 0));
 			//Repack component.

@@ -678,8 +678,8 @@ namespace aly {
 		selectionBox = SelectionBoxPtr(new SelectionBox(label + "_box", options));
 		selectionBox->setDetached(true);
 		selectionBox->setVisible(false);
-		selectionBox->setPosition(CoordPercent(0.0f, 0.0f));
-		selectionBox->setDimensions(CoordPercent(1.0f, 0.8f));
+		selectionBox->position=CoordPercent(0.0f, 0.0f);
+		selectionBox->dimensions=CoordPercent(1.0f, 0.8f);
 		selectionBox->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 		selectionBox->borderColor = MakeColor(
@@ -794,8 +794,8 @@ namespace aly {
 		sliderHandle = std::shared_ptr<SliderHandle>(
 			new SliderHandle("Scroll Handle"));
 
-		sliderHandle->setPosition(CoordPercent(0.0, 0.0));
-		sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
+		sliderHandle->position=CoordPercent(0.0, 0.0);
+		sliderHandle->dimensions=CoordPX(handleSize, handleSize);
 		sliderHandle->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT);
 		sliderHandle->setDragEnabled(true);
@@ -805,8 +805,8 @@ namespace aly {
 				AlloyApplicationContext()->theme.HIGHLIGHT,
 				AlloyApplicationContext()->theme.HIGHLIGHT));
 
-		sliderTrack->setPosition(CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize));
-		sliderTrack->setDimensions(CoordPerPX(1.0f, 0.0f, 0.0f, handleSize));
+		sliderTrack->position=CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize);
+		sliderTrack->dimensions=CoordPerPX(1.0f, 0.0f, 0.0f, handleSize);
 
 		sliderTrack->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
@@ -967,8 +967,8 @@ namespace aly {
 		sliderHandle = std::shared_ptr<SliderHandle>(
 			new SliderHandle("Scroll Handle"));
 
-		sliderHandle->setPosition(CoordPercent(0.0, 0.0));
-		sliderHandle->setDimensions(CoordPX(handleSize, handleSize));
+		sliderHandle->position=CoordPercent(0.0, 0.0);
+		sliderHandle->dimensions=CoordPX(handleSize, handleSize);
 		sliderHandle->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT);
 		sliderHandle->setDragEnabled(true);
@@ -978,8 +978,8 @@ namespace aly {
 				AlloyApplicationContext()->theme.HIGHLIGHT,
 				AlloyApplicationContext()->theme.HIGHLIGHT));
 
-		sliderTrack->setPosition(CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2.0f));
-		sliderTrack->setDimensions(CoordPerPX(0.0f, 0.8f, handleSize, -4.0f));
+		sliderTrack->position=CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2.0f);
+		sliderTrack->dimensions=CoordPerPX(0.0f, 0.8f, handleSize, -4.0f);
 
 		sliderTrack->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
@@ -1135,8 +1135,8 @@ namespace aly {
 					AlloyApplicationContext().get()));
 		}
 		colorLabel->glyph = checkerboard;
-		colorLabel->setPosition(CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f));
-		colorLabel->setDimensions(CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f));
+		colorLabel->position=CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f);
+		colorLabel->dimensions=CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f);
 		colorLabel->backgroundColor = MakeColor(COLOR_BLACK);
 		colorLabel->foregroundColor = MakeColor(255, 128, 32, 255);
 		colorLabel->borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
@@ -1747,13 +1747,13 @@ namespace aly {
 		arrowIcon->label =
 			(expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
 		if (expanded) {
-			contentRegion->setDimensions(
+			contentRegion->dimensions=
 				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
-					(float)expandHeight));
+					(float)expandHeight);
 		}
 		else {
-			contentRegion->setDimensions(
-				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f));
+			contentRegion->dimensions=
+				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f);
 		}
 	}
 	FileSelector::FileSelector(const std::string& name, const AUnit2D& pos,
@@ -2203,7 +2203,7 @@ namespace aly {
 				}
 				for (std::shared_ptr<ListEntry> entry : listEntries) {
 					if (entry->parent == nullptr) {
-						entry->setDimensions(CoordPX(maxDim));
+						entry->dimensions=CoordPX(maxDim);
 						add(entry);
 					}
 					if (entry->isSelected()) {
