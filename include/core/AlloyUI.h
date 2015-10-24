@@ -177,7 +177,7 @@ public:
 	virtual void draw(AlloyContext* context);
 	virtual void update(CursorLocator* cursorLocator);
 	virtual void drawDebug(AlloyContext* context);
-	bool isVisible();
+	bool isVisible() const ;
 	virtual ~Region();
 };
 struct ScrollHandle: public Region {
@@ -536,9 +536,14 @@ class MenuHeader : public Composite {
 protected:
 	std::shared_ptr<Menu> menu;
 	AColor textColor;
+	AColor textAltColor;
 	AUnit1D fontSize;
+	AColor backgroundAltColor;
 public:
 	void setMenuVisible(bool vis);
+	bool isMenuVisible() const {
+		return menu->isVisible();
+	}
 	MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,
 		const AUnit2D& dimensions);
 	virtual void draw(AlloyContext* context) override;
@@ -547,6 +552,7 @@ public:
 struct MenuBar : public Composite {
 protected:
 	std::list<std::shared_ptr<MenuHeader>> headers;
+	bool active;
 public:
 	void add(const std::shared_ptr<Menu>& menu);
 	MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions);

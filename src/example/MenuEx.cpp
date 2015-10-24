@@ -29,18 +29,35 @@ bool MenuEx::init(Composite& rootNode) {
 	MenuBarPtr menuBar = MenuBarPtr(new MenuBar("Menu Bar",CoordPX(0,0),CoordPercent(1.0f,1.0f)));
 	MenuPtr fileMenu = MenuPtr(new Menu("File"));
 	MenuPtr editMenu = MenuPtr(new Menu("Edit"));
-	MenuPtr viewMenu = MenuPtr(new Menu("View"));
-	MenuPtr projectMenu = MenuPtr(new Menu("Project"));
+	MenuPtr actionMenu = MenuPtr(new Menu("Action"));
+	MenuPtr helpMenu = MenuPtr(new Menu("Help"));
+
 	fileMenu->addItem("New")->onSelect = [=] {std::cout << "File:New" << std::endl;};
 	fileMenu->addItem("Open")->onSelect = [=] {std::cout << "File:Open" << std::endl;};
 	fileMenu->addItem("Save")->onSelect = [=] {std::cout << "File:Save" << std::endl;};
 	fileMenu->addItem("Close")->onSelect = [=] {std::cout << "File:Close" << std::endl;};
 	fileMenu->addItem("Exit")->onSelect = [=] {std::cout << "File:Exit" << std::endl;};
 
+	editMenu->addItem("Cut")->onSelect = [=] {std::cout << "Edit:Cut" << std::endl;};
+	editMenu->addItem("Copy")->onSelect = [=] {std::cout << "Edit:Copy" << std::endl;};
+	editMenu->addItem("Paste")->onSelect = [=] {std::cout << "Edit:Paste" << std::endl;};
+	editMenu->addItem("Undo")->onSelect = [=] {std::cout << "Edit:Undo" << std::endl;};
+	editMenu->addItem("Redo")->onSelect = [=] {std::cout << "Edit:Redo" << std::endl;};
+
+	actionMenu->addItem("Eat")->onSelect = [=] {std::cout << "Action:Eat" << std::endl;};
+	actionMenu->addItem("Sleep")->onSelect = [=] {std::cout << "Action:Sleep" << std::endl;};
+	actionMenu->addItem("Run")->onSelect = [=] {std::cout << "Action:Run" << std::endl;};
+	actionMenu->addItem("Jump")->onSelect = [=] {std::cout << "Action:Jump" << std::endl;};
+	actionMenu->addItem("Squat")->onSelect = [=] {std::cout << "Action:Squat" << std::endl;};
+
+	helpMenu->addItem("How did I get here?")->onSelect = [=] {std::cout << "How did I get here?" << std::endl;};
+	helpMenu->addItem("Where am I going?")->onSelect = [=] {std::cout << "Where am I going?" << std::endl;};
+	helpMenu->addItem("What day is it?")->onSelect = [=] {std::cout << "What day is it?" << std::endl;};
+
 	menuBar->add(fileMenu);
 	menuBar->add(editMenu);
-	menuBar->add(viewMenu);
-	menuBar->add(projectMenu);
+	menuBar->add(actionMenu);
+	menuBar->add(helpMenu);
 
 	CompositePtr north = MakeComposite("North Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0), Color(128, 16, 32), COLOR_NONE, UnitPX(0));
 	north->add(menuBar);

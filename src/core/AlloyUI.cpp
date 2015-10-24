@@ -35,7 +35,7 @@ const RGBA DEBUG_ON_TOP_DOWN_COLOR = RGBA(220, 220, 0, 255);
 const RGBA DEBUG_ON_TOP_HOVER_COLOR = RGBA(180, 180, 0, 255);
 const float Composite::scrollBarSize = 15.0f;
 const float TextField::PADDING = 2;
-bool Region::isVisible() {
+bool Region::isVisible() const {
 	if (!visible)
 		return false;
 	if (parent != nullptr) {
@@ -1992,9 +1992,11 @@ void SelectionBox::draw(AlloyContext* context) {
 					entryHeight);
 			nvgFillColor(nvg, context->theme.NEUTRAL);
 			nvgFill(nvg);
+			nvgFillColor(nvg, *textAltColor);
 		}
-		nvgFillColor(nvg, *textColor);
-
+		else {
+			nvgFillColor(nvg, *textColor);
+		}
 		pushScissor(nvg, sbounds);
 		nvgText(nvg,
 				bounds.position.x + offset.x + lineWidth + TextField::PADDING,
@@ -2409,11 +2411,11 @@ void Menu::fireEvent(int selectedIndex) {
 }
 Menu::Menu(const std::string& name,
 	const std::vector<std::shared_ptr<MenuItem>>& labels) :
-	MenuItem(name, CoordPerPX(0.0f, 0.0f, 1.0f, 0.0f), CoordPerPX(0.0f,0.8f,150.0f,0.0f)), options(labels) {
+	MenuItem(name, CoordPerPX(0.0f, 0.0f, 0.0f, 0.0f), CoordPerPX(0.0f,0.8f,150.0f,0.0f)), options(labels) {
 	setDetached(true);
 	setVisible(false);
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
-	borderColor=MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	borderColor=MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	borderWidth = UnitPX(1.0f);
 	textColor= MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
 	textAltColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
@@ -2566,25 +2568,55 @@ MenuBar::MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D
 	this->setOrientation(Orientation::Horizontal);
 	this->cellSpacing.x = 2;
 	this->cellPadding.x = 2;
+	active = false;
 	this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 
 }
 void MenuHeader::setMenuVisible(bool vis) {
-	menu->setVisible(vis);
-	if (vis) {
-		AlloyApplicationContext()->setOnTopRegion(menu.get());
+	bool wasVis = menu->isVisible();
+	if (!wasVis) {
+		menu->setVisible(vis);
+		if (vis) {
+			AlloyApplicationContext()->setOnTopRegion(menu.get());
+		}
 	}
+	else {
+		menu->setVisible(vis);
+		if (!vis) {
+			AlloyApplicationContext()->removeOnTopRegion(menu.get());
+		}
+	}
+	
 }
 void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 	MenuHeaderPtr header=MenuHeaderPtr(new MenuHeader(menu,CoordPerPX(0.0f,1.0f,0.0f,-30.0f),CoordPX(100,30)));
 	headers.push_back(header);
 	Composite::add(header);
+	/*
 	header->onMouseDown = [=](AlloyContext* context, const InputEvent& e) {
 		for (MenuHeaderPtr header : headers) {
 			header->setMenuVisible(false);
 			
 		}
 		header->setMenuVisible(true);
+		active = true;
+		return true;
+	};
+	*/
+	header->onMouseOver = [=](AlloyContext* context, const InputEvent& e) {
+		//if (active) {
+		if (!header->isMenuVisible()) {
+			for (MenuHeaderPtr h : headers) {
+				if (header.get() != h.get()) {
+					h->setMenuVisible(false);
+				}
+				else {
+					h->setMenuVisible(true);
+				}
+			}
+			context->requestPack();
+		}
+		//}
 		return true;
 	};
 }
@@ -2595,16 +2627,19 @@ MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit
 
 }
 MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): Composite(menu->name,position,dimensions),menu(menu) {
-	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
-	textColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
-	borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+	backgroundAltColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
+	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+	textAltColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);
+	textColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+	borderColor = MakeColor(COLOR_NONE);
+	borderWidth = UnitPX(0.0f);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
 	Composite::add(menu);
 }
 
 void MenuHeader::draw(AlloyContext* context) {
-	bool hover = context->isMouseOver(this);
+	bool hover = context->isMouseOver(this)||menu->isVisible();
 	bool down = context->isMouseDown(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
@@ -2620,7 +2655,7 @@ void MenuHeader::draw(AlloyContext* context) {
 		nvgBeginPath(nvg);
 		nvgRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff+ vshift,
 			bounds.dimensions.x, bounds.dimensions.y);
-		nvgFillColor(nvg, *backgroundColor);
+		nvgFillColor(nvg, *backgroundAltColor);
 		nvgFill(nvg);
 
 	}
@@ -2632,24 +2667,17 @@ void MenuHeader::draw(AlloyContext* context) {
 		nvgFill(nvg);
 	}
 
-	if (hover) {
 
-		nvgBeginPath(nvg);
-		NVGpaint hightlightPaint = nvgBoxGradient(nvg, bounds.position.x + xoff,
-			bounds.position.y + yoff + vshift, bounds.dimensions.x,
-			bounds.dimensions.y, context->theme.CORNER_RADIUS, 4,
-			context->theme.HIGHLIGHT.toSemiTransparent(0.0f),
-			context->theme.DARK);
-		nvgFillPaint(nvg, hightlightPaint);
-		nvgRect(nvg, bounds.position.x + xoff, bounds.position.y + yoff + vshift,
-			bounds.dimensions.x, bounds.dimensions.y);
-		nvgFill(nvg);
-	}
 
 	float th = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,
 		context->pixelRatio);
 	nvgFontSize(nvg, th);
-	nvgFillColor(nvg, *textColor);
+	if (hover) {
+		nvgFillColor(nvg, *textAltColor);
+	}
+	else {
+		nvgFillColor(nvg, *textColor);
+	}
 	nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 	float tw = nvgTextBounds(nvg, 0, 0, name.c_str(), nullptr, nullptr);
 	this->aspectRatio = (tw + 10.0f) / (th + 10.0f);
