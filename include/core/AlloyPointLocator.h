@@ -113,24 +113,24 @@ public:
 	float3i closestPointExact(float3i query) const;
 	void findNearest(float3 query, float maxDisatnce, std::vector<float3i>& pts) const;
 };
-template <class VectorOfVectorsType, typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> struct KdTreeVectorAdaptor
+template <class VectorOfVectorsType, typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> struct KdTreeVectorAdapter
 {
-	typedef KdTreeVectorAdaptor<VectorOfVectorsType, T, C, Distance> self_t;
+	typedef KdTreeVectorAdapter<VectorOfVectorsType, T, C, Distance> self_t;
 	typedef typename Distance::template traits<T, self_t>::distance_t metric_t;
-	typedef nanoflann::KDTreeSingleIndexAdaptor< metric_t, self_t, C, IndexType>  index_t;
+	typedef nanoflann::KDTreeSingleIndexAdapter< metric_t, self_t, C, IndexType>  index_t;
 	index_t* index; //! The kd-tree index for the user to call its methods as usual with any other FLANN index.
 	vec<T, C> minPt;
 	vec<T, C> maxPt;
-	KdTreeVectorAdaptor(const VectorOfVectorsType &mat, const int leaf_max_size = 16) : m_data(mat)
+	KdTreeVectorAdapter(const VectorOfVectorsType &mat, const int leaf_max_size = 16) : m_data(mat)
 	{
 		assert(mat.size() != 0 && mat[0].size() != 0);
-		index = new index_t(C, *this, nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
+		index = new index_t(C, *this, nanoflann::KDTreeSingleIndexAdapterParams(leaf_max_size));
 		minPt = mat.min();
 		maxPt = mat.max();
 		index->buildIndex();
 	}
 
-	~KdTreeVectorAdaptor() {
+	~KdTreeVectorAdapter() {
 		delete index;
 	}
 	const VectorOfVectorsType &m_data;
@@ -177,11 +177,11 @@ template <class VectorOfVectorsType, typename T = double, int C = -1, class Dist
 		}
 		return true;
 	}
-}; // end of KdTreeVectorAdaptor
-typedef KdTreeVectorAdaptor<Vector4f, float, 4, nanoflann::metric_L2, size_t> FLANNLocator4f;
-typedef KdTreeVectorAdaptor<Vector3f, float, 3, nanoflann::metric_L2, size_t> FLANNLocator3f;
-typedef KdTreeVectorAdaptor<Vector2f, float, 2, nanoflann::metric_L2, size_t> FLANNLocator2f;
-typedef KdTreeVectorAdaptor<Vector1f, float, 1, nanoflann::metric_L2, size_t> FLANNLocator1f;
+}; // end of KdTreeVectorAdapter
+typedef KdTreeVectorAdapter<Vector4f, float, 4, nanoflann::metric_L2, size_t> FLANNLocator4f;
+typedef KdTreeVectorAdapter<Vector3f, float, 3, nanoflann::metric_L2, size_t> FLANNLocator3f;
+typedef KdTreeVectorAdapter<Vector2f, float, 2, nanoflann::metric_L2, size_t> FLANNLocator2f;
+typedef KdTreeVectorAdapter<Vector1f, float, 1, nanoflann::metric_L2, size_t> FLANNLocator1f;
 
 }
 #endif
