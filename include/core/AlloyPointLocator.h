@@ -117,7 +117,7 @@ template <class VectorOfVectorsType, typename T = double, int C = -1, class Dist
 {
 	typedef KdTreeVectorAdapter<VectorOfVectorsType, T, C, Distance> self_t;
 	typedef typename Distance::template traits<T, self_t>::distance_t metric_t;
-	typedef nanoflann::KDTreeSingleIndexAdapter< metric_t, self_t, C, IndexType>  index_t;
+	typedef nanoflann::KDTreeSingleIndexAdaptor< metric_t, self_t, C, IndexType>  index_t;
 	index_t* index; //! The kd-tree index for the user to call its methods as usual with any other FLANN index.
 	vec<T, C> minPt;
 	vec<T, C> maxPt;
