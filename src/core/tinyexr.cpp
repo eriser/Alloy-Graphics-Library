@@ -7842,7 +7842,7 @@ return (out - outStart) * 8 + lc;
                                                                                \
       lc -= 8;                                                                 \
                                                                                \
-      unsigned char cs = (c >> lc);                                            \
+      unsigned char cs =(unsigned char) (c >> lc);                             \
                                                                                \
       if (out + cs > oe)                                                       \
         return false;                                                          \
@@ -8065,7 +8065,7 @@ const char *ptr = compressed + 20;
 
 	hufClearDecTable(&hdec.at(0));
 
-	hufUnpackEncTable(&ptr, nCompressed - (ptr - compressed), im, iM,
+	hufUnpackEncTable(&ptr, (int)(nCompressed - (ptr - compressed)), im, iM,
 			&freq.at(0));
 
 	{
@@ -8280,7 +8280,7 @@ ptr += sizeof(int);
 
 std::vector<unsigned short> tmpBuffer(tmpBufSize);
 hufUncompress(reinterpret_cast<const char *>(ptr), length, &tmpBuffer.at(0),
-		tmpBufSize);
+		(int)tmpBufSize);
 
 //
 // Wavelet decoding
@@ -8321,7 +8321,7 @@ for (size_t i = 0; i < channelData.size(); ++i) {
 // Expand the pixel data to their original range
 //
 
-applyLut(lut, &tmpBuffer.at(0), tmpBufSize);
+applyLut(lut, &tmpBuffer.at(0),(int) tmpBufSize);
 
 // @todo { Xdr }
 
@@ -8531,7 +8531,7 @@ for (;;) {
 
 		ReadChannelInfo(channels, data);
 
-		numChannels = channels.size();
+		numChannels = (int)channels.size();
 
 		if (numChannels < 1) {
 			// if (err) {
@@ -8788,7 +8788,7 @@ for (;;) {
 
 		ReadChannelInfo(channels, data);
 
-		numChannels = channels.size();
+		numChannels = (int)channels.size();
 
 		if (numChannels < 1) {
 			if (err) {
@@ -9056,7 +9056,7 @@ for (int y = 0; y < numBlocks; y++) {
 	// Allocate original data size.
 		std::vector<unsigned char> outBuf(dataWidth * numLines * pixelDataSize);
 
-		unsigned long dstLen = outBuf.size();
+		unsigned long dstLen = (unsigned long)outBuf.size();
 		DecompressZip(reinterpret_cast<unsigned char *>(&outBuf.at(0)), dstLen,
 				dataPtr + 8, dataLen);
 
@@ -9519,7 +9519,7 @@ int numScanlineBlocks = 16; // 1 for no compress & ZIPS, 16 for ZIP compression.
 
 	WriteChannelInfo(data, channels);
 	WriteAttributeToMemory(memory, "channels", "chlist", &data.at(0),
-			data.size()); // +1 = null
+			(int)data.size()); // +1 = null
 }
 {
 	int compressionType = 3; // ZIP compression
@@ -9751,17 +9751,17 @@ for (int i = 0; i < numBlocks; i++) {
 		}
 	}
 
-	std::vector<unsigned char> block(miniz::mz_compressBound(buf.size()));
-	unsigned long long outSize = block.size();
+	std::vector<unsigned char> block(miniz::mz_compressBound(::miniz::mz_ulong(buf.size())));
+	unsigned long long outSize = (unsigned long long)block.size();
 
 	CompressZip(&block.at(0), outSize,
-			reinterpret_cast<const unsigned char *>(&buf.at(0)), buf.size());
+			reinterpret_cast<const unsigned char *>(&buf.at(0)), (unsigned long)buf.size());
 
 	// 4 byte: scan line
 	// 4 byte: data size
 	// ~     : pixel data(compressed)
 	std::vector<unsigned char> header(8);
-	unsigned int dataLen = outSize; // truncate
+	unsigned int dataLen = (unsigned int)outSize; // truncate
 	memcpy(&header.at(0), &startY, sizeof(int));
 	memcpy(&header.at(4), &dataLen, sizeof(unsigned int));
 
@@ -9960,7 +9960,7 @@ for (;;) {
 
 		ReadChannelInfo(channels, data);
 
-		numChannels = channels.size();
+		numChannels = (int)channels.size();
 
 		if (numChannels < 1) {
 			if (err) {
@@ -10079,10 +10079,10 @@ for (int y = 0; y < numBlocks; y++) {
 
 	// decode pixel offset table.
 	{
-		unsigned long dstLen = pixelOffsetTable.size() * sizeof(int);
+		unsigned long dstLen = (unsigned long )(pixelOffsetTable.size() * sizeof(int));
 		DecompressZip(
 				reinterpret_cast<unsigned char *>(&pixelOffsetTable.at(0)),
-				dstLen, dataPtr + 28, packedOffsetTableSize);
+				dstLen, dataPtr + 28, (unsigned long)packedOffsetTableSize);
 
 		assert(dstLen == pixelOffsetTable.size() * sizeof(int));
 		for (int i = 0; i < dataWidth; i++) {
@@ -10094,10 +10094,10 @@ for (int y = 0; y < numBlocks; y++) {
 
 	// decode sample data.
 	{
-		unsigned long dstLen = unpackedSampleDataSize;
+		unsigned long dstLen = (unsigned long)unpackedSampleDataSize;
 		DecompressZip(reinterpret_cast<unsigned char *>(&sampleData.at(0)),
 				dstLen, dataPtr + 28 + packedOffsetTableSize,
-				packedSampleDataSize);
+			(unsigned long)packedSampleDataSize);
 		assert(dstLen == (unsigned long )unpackedSampleDataSize);
 	}
 
@@ -10125,7 +10125,7 @@ for (int y = 0; y < numBlocks; y++) {
 	assert(
 			(size_t )(pixelOffsetTable[dataWidth - 1] * sampleSize)
 					== sampleData.size());
-	int samplesPerLine = sampleData.size() / sampleSize;
+	int samplesPerLine = (int)(sampleData.size() / sampleSize);
 
 	//
 	// Alloc memory
@@ -10591,7 +10591,7 @@ for (;;) {
 
 		ReadChannelInfo(channels, data);
 
-		numChannels = channels.size();
+		numChannels =(int) channels.size();
 
 		if (numChannels < 1) {
 			if (err) {
