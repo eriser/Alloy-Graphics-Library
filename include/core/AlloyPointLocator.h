@@ -37,9 +37,6 @@ template<class T,int C> struct xvec : public vec<T,C> {
 		xvec(const xvec<T,C>& pt):vec<T, C>(pt),index(pt.index) {
 
 		}
-		T operator[](size_t n) const {
-			return (&x)[n];
-		}
 		xvec(const vec<T,C>& pos, int index):vec<T, C>(pos),index(index) {
 		}
 		double distance(const xvec<T,C> &node) const {
@@ -311,7 +308,7 @@ public:
 	void closest(const Array<T, C>& pt, T maxDistance, std::vector<std::pair<size_t, T>>& matches) const {
 		matches.clear();
 		nanoflann::SearchParams params;
-		const size_t nMatches = locator.index->radiusSearch(pt.data(), maxDistance*maxDistance, matches, params);
+		locator.index->radiusSearch(pt.data(), maxDistance*maxDistance, matches, params);
 		for (std::pair<size_t, T>& pr : matches) {
 			pr.second = std::sqrt(pr.second);
 		}
@@ -365,7 +362,7 @@ public:
 	void closest(const vec<T, C>& pt, T maxDistance, std::vector<std::pair<size_t, T>>& matches) const {
 		matches.clear();
 		nanoflann::SearchParams params;
-		const size_t nMatches = locator.index->radiusSearch(&pt[0], maxDistance*maxDistance, matches, params);
+		locator.index->radiusSearch(&pt[0], maxDistance*maxDistance, matches, params);
 		for (std::pair<size_t, T>& pr : matches) {
 			pr.second = std::sqrt(pr.second);
 		}

@@ -70,6 +70,9 @@ template<class T> struct vec<T, 1> {
 	explicit vec(T s = (T) 0) :
 			x(s) {
 	}
+	inline size_t size() const {
+		return 1;
+	}
 	template<class U> explicit vec(const vec<U, 1> & r) :
 			x(T(r.x)) {
 	}
@@ -118,6 +121,9 @@ template<class T> struct vec<T, 2> {
 	explicit vec(T s = (T) 0) :
 			x(s), y(s) {
 	}
+	inline size_t size() const {
+		return 2;
+	}
 	template<class U> explicit vec(const vec<U, 2> & r) :
 			x(T(r.x)), y(T(r.y)) {
 	}
@@ -161,6 +167,9 @@ template<class T> struct vec<T, 3> {
 	}
 	explicit vec(T s = (T) 0) :
 			x(s), y(s), z(s) {
+	}
+	inline size_t size() const {
+		return 3;
 	}
 	template<class U> explicit vec(const vec<U, 3> & r) :
 			x(T(r.x)), y(T(r.y)), z(T(r.z)) {
@@ -207,6 +216,9 @@ template<class T> struct vec<T, 4> {
 	}
 	explicit vec(T s = (T) 0) :
 			x(s), y(s), z(s), w(s) {
+	}
+	inline size_t size() const {
+		return 4;
 	}
 	template<class Archive> void serialize(Archive & archive) {
 		archive(CEREAL_NVP(x), CEREAL_NVP(y), CEREAL_NVP(z), CEREAL_NVP(w));

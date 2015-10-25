@@ -41,7 +41,7 @@ template<class T, int C> struct Array: public std::array<T, C> {
 			v = val;
 		}
 	}
-	Array():array<T,C>() {
+	Array():std::array<T,C>() {
 
 	}
 	Array(const T& val)  {
