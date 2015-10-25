@@ -10,6 +10,9 @@
     <Filter Include="thirdparty">
       <UniqueIdentifier>{953a8390-a595-44d1-a5c1-71a51ced5d3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\libkdtree">
+      <UniqueIdentifier>{5ea90006-fc9d-4e2e-a60a-62f062376fe7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\core\AlloyAnimator.cpp">
@@ -118,6 +121,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyPointLocator.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -261,6 +267,27 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyMeshPrimitives.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\libkdtree\allocator.h">
+      <Filter>include\libkdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\libkdtree\function.h">
+      <Filter>include\libkdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\libkdtree\iterator.h">
+      <Filter>include\libkdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\libkdtree\node.h">
+      <Filter>include\libkdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\libkdtree\region.h">
+      <Filter>include\libkdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\libkdtree\kdtree.h">
+      <Filter>include\libkdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyPointLocator.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

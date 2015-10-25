@@ -36,6 +36,7 @@
     <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp" />
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp" />
     <ClCompile Include="..\..\src\core\AlloyPLY.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyPointLocator.cpp" />
     <ClCompile Include="..\..\src\core\AlloySimulation.cpp" />
     <ClCompile Include="..\..\src\core\AlloySparseMatrix.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUI.cpp" />
@@ -78,6 +79,7 @@
     <ClInclude Include="..\..\include\core\AlloyMeshPrimitives.h" />
     <ClInclude Include="..\..\include\core\AlloyNumber.h" />
     <ClInclude Include="..\..\include\core\AlloyPLY.h" />
+    <ClInclude Include="..\..\include\core\AlloyPointLocator.h" />
     <ClInclude Include="..\..\include\core\AlloySimulation.h" />
     <ClInclude Include="..\..\include\core\AlloySparseMatrix.h" />
     <ClInclude Include="..\..\include\core\AlloySparseSolve.h" />
@@ -94,6 +96,12 @@
     <ClInclude Include="..\..\include\core\GLShader.h" />
     <ClInclude Include="..\..\include\core\GLTexture.h" />
     <ClInclude Include="..\..\include\core\ImageProcessing.h" />
+    <ClInclude Include="..\..\include\core\libkdtree\allocator.h" />
+    <ClInclude Include="..\..\include\core\libkdtree\function.h" />
+    <ClInclude Include="..\..\include\core\libkdtree\iterator.h" />
+    <ClInclude Include="..\..\include\core\libkdtree\kdtree.h" />
+    <ClInclude Include="..\..\include\core\libkdtree\node.h" />
+    <ClInclude Include="..\..\include\core\libkdtree\region.h" />
     <ClInclude Include="..\..\include\core\nanovg.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl.h" />
     <ClInclude Include="..\..\include\core\nanovg_gl_utils.h" />

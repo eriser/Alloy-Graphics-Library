@@ -47,4 +47,5 @@
 #include "CommonShaders.h"
 #include "ImageProcessing.h"
 #include "AlloyMeshPrimitives.h"
+#include "AlloyPointLocator.h"
 #endif /* ALLOY_H_ */
