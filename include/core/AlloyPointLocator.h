@@ -28,50 +28,47 @@
 #include "nanoflann.h"
 
 namespace aly {
-struct float2i : public float2{
-		typedef float value_type;
-		int64_t index;
-		float2i():float2(), index(-1) {
+	bool SANITY_CHECK_LOCATOR();
+template<class T,int C> struct xvec : public vec<T,C> {
+		typedef T value_type;
+		int index;
+		xvec():vec<T,C>(), index(-1) {
 		}
-		float2i(const float2i& pt):float2(pt),index(pt.index) {
+		xvec(const xvec<T,C>& pt):vec<T, C>(pt),index(pt.index) {
 
 		}
-		float operator[](size_t n) const {
+		T operator[](size_t n) const {
 			return (&x)[n];
 		}
-		float2i(const float2& pos, int64_t index):float2(pos) {
-			this->index = index;
+		xvec(const vec<T,C>& pos, int index):vec<T, C>(pos),index(index) {
 		}
-		double distance(const float2i &node) const {
-			return std::max(std::abs(x - node.x), std::abs(y - node.y));
+		double distance(const xvec<T,C> &node) const {
+			vec<T, C> diff = (*this) - node;
+			return aly::max(diff);
+		}
+		bool operator ==(const xvec<T, C> & r) const {
+			return (index==r.index);
+		}
+		bool operator !=(const xvec<T, C> & r) const {
+			return (index != r.index);
 		}
 	};
-struct float3i : public float3 {
-	typedef float value_type;
-	int64_t index;
-	float3i() :float3(),index(-1) {
-	}
-	float3i(const float3i& pt) :float3(pt), index(pt.index) {
 
-	}
-	float operator[](size_t n) const {
-		return (&x)[n];
-	}
-	float3i(const float3& pos, int64_t index) :float3(pos) {
-		this->index = index;
-	}
-	double distance(const float3i &node) const {
-		return std::max(std::abs(z-node.z),std::max(std::abs(x - node.x), std::abs(y - node.y)));
-	}
-};
-class KDTreeLocator2f {
+typedef xvec<float, 2> float2i;
+typedef xvec<float, 3> float3i;
+typedef xvec<float, 4> float4i;
+
+typedef xvec<double, 2> double2i;
+typedef xvec<double, 3> double3i;
+typedef xvec<double, 4> double4i;
+
+template<class T, int C> class Locator {
 protected:
-	libkdtree::KDTree<2, float2i> locator;
-	int64_t indexCount = 0;
+	libkdtree::KDTree<C, xvec<T,C> > locator;
+	int indexCount = 0;
 public:
-	static const float2i NO_POINT_FOUND;
-	KDTreeLocator2f() {
-
+	static const xvec<T, C> NO_POINT_FOUND;
+	Locator() {
 	}
 	void clear() {
 		indexCount = 0;
@@ -80,40 +77,78 @@ public:
 	size_t size() const {
 		return locator.size();
 	}
-	void insert(const float2i& pt);
-	int64_t insert(const float2& pt);
-	void insert(const std::vector<float2>& pts);
-	void insert(const std::vector<float2i>& ptsi);
-	float2i closestPoint(float2 query, float maxDistance) const;
-	float2i closestPoint(float2 query) const;
-	float2i closestPointExact(float2i query) const;
-	void findNearest(float2 query, float maxDisatnce, std::vector<float2i>& pts) const;
+	void insert(const xvec<T, C>& pt) {
+		indexCount = std::max(indexCount, (int)(pt.index + 1));
+		locator.insert(pt);
+	}
+	int insert(const vec<T,C>& pt) {
+		xvec<T, C> pti(pt, indexCount++);
+		locator.insert(pti);
+		return pti.index;
+	}
+	void insert(const std::vector<vec<T, C>>& pts) {
+		std::vector<xvec<T, C>> ptsi;
+		ptsi.reserve(pts.size());
+		for (vec<T, C> pt : pts) {
+			xvec<T, C> pti(pt, indexCount++);
+			ptsi.push_back(pti);
+		}
+		locator.insert(ptsi.begin(), ptsi.end());
+	}
+	void insert(const std::vector<xvec<T, C>>& ptsi) {
+		for (xvec<T, C> pt : ptsi) {
+			indexCount = std::max(indexCount, (pt.index + 1));
+		}
+		locator.insert(ptsi.begin(), ptsi.end());
+	}
+	xvec<T, C> closestPoint(vec<T, C> pt, T maxDistance) const {
+		xvec<T, C> query(pt, -1);
+		auto result = locator.find_nearest(query, maxDistance);
+		if (result.first != locator.end()) {
+			return *(result.first);
+		}
+		else {
+			return NO_POINT_FOUND;
+		}
+	}
+	xvec<T, C> closestPointExact(xvec<T, C> query) const {
+		auto result = locator.find_exact(query);
+		if (result != locator.end()) {
+			return *(result);
+		}
+		else {
+			return NO_POINT_FOUND;
+		}
+	}
+	xvec<T, C> closestPoint(vec<T, C> pt) const {
+		xvec<T, C> query(pt, -1);
+		auto result = locator.find_nearest(query);
+		if (result.first != locator.end()) {
+			return *(result.first);
+		}
+		else {
+			return NO_POINT_FOUND;
+		}
+	}
+	void findNearest(vec<T, C> pt, T maxDistance, std::vector<xvec<T, C>>& pts) const {
+		xvec<T, C> query(pt, -1);
+		pts.clear();
+		locator.find_within_range(query, maxDistance, std::back_insert_iterator<std::vector<xvec<T, C>> >(pts));
+		std::sort(pts.begin(), pts.end(), [=](const xvec<T, C>& a, const xvec<T, C>& b) {
+			return (distanceSqr(pt, a) < distanceSqr(pt, b));
+		});
+	}
 };
-class KDTreeLocator3f {
-protected:
-	libkdtree::KDTree<3, float3i> locator;
-	int64_t indexCount = 0;
-public:
-	static const float3i NO_POINT_FOUND;
-	KDTreeLocator3f() {
+template <class T, int C> const xvec<T, C> Locator<T,C>::NO_POINT_FOUND = xvec<T, C>(vec<T, C>(std::numeric_limits<T>::max()), -1);
 
-	}
-	void insert(const float3i& pt);
-	int64_t insert(const float3& pt);
-	void insert(const std::vector<float3>& pts);
-	void insert(const std::vector<float3i>& ptsi);
-	void clear() {
-		indexCount = 0;
-		locator.clear();
-	}
-	size_t size() const {
-		return locator.size();
-	}
-	float3i closestPoint(float3 query, float maxDistance) const;
-	float3i closestPoint(float3 query) const;
-	float3i closestPointExact(float3i query) const;
-	void findNearest(float3 query, float maxDisatnce, std::vector<float3i>& pts) const;
-};
+typedef Locator<float, 2> Locator2f;
+typedef Locator<float, 3> Locator3f;
+typedef Locator<float, 4> Locator4f;
+
+typedef Locator<double, 2> Locator2d;
+typedef Locator<double, 3> Locator3d;
+typedef Locator<double, 4> Locator4d;
+
 template <class VectorOfVectorsType, typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> struct KdTreeVectorAdapter
 {
 	typedef KdTreeVectorAdapter<VectorOfVectorsType, T, C, Distance> self_t;
@@ -239,7 +274,18 @@ template <typename T = float, int C = -1, class Distance = nanoflann::metric_L2,
 		return false;
 	}
 }; // end of KdTreeArrayAdapter
-
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+	std::basic_ostream<C, R> & ss, const xvec<T, 2> & v) {
+	return ss << "(" << v.x << ", " << v.y << ": "<<v.index<< ")";
+}
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+	std::basic_ostream<C, R> & ss, const xvec<T, 3> & v) {
+	return ss << "(" << v.x << ", " << v.y <<", "<< v.z << ": " << v.index << ")";
+}
+template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
+	std::basic_ostream<C, R> & ss, const xvec<T, 4> & v) {
+	return ss << "(" << v.x << ", " << v.y << ", " << v.z << ", "<< v.w << ": " << v.index << ")";
+}
 typedef KdTreeVectorAdapter<Vector4f, float, 4, nanoflann::metric_L2, size_t> FLANNLocator4f;
 typedef KdTreeVectorAdapter<Vector3f, float, 3, nanoflann::metric_L2, size_t> FLANNLocator3f;
 typedef KdTreeVectorAdapter<Vector2f, float, 2, nanoflann::metric_L2, size_t> FLANNLocator2f;

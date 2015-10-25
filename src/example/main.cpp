@@ -18,7 +18,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#include "Alloy.h"
 #include "../../include/example/UnitsEx.h"
 #include "../../include/example/CompositeEx.h"
 #include "../../include/example/EventsEx.h"
@@ -46,7 +46,7 @@
 #include "../../include/example/ColorSpaceEx.h"
 #include "../../include/example/MeshPrimitivesEx.h"
 #include "../../include/example/MenuEx.h"
-#include "AlloyFileUtil.h"
+
 #include <cstring>
 #ifndef EXAMPLE_NAME
 #define EXAMPLE_NAME ""
@@ -88,7 +88,6 @@ typedef std::unique_ptr<Example> ExamplePtr;
 
 int main(int argc, char *argv[]) {
 	const int N = 27;
-
 	ExamplePtr apps[N] = { MAKE_EXAMPLE(UnitsEx), MAKE_EXAMPLE(CompositeEx),
 			MAKE_EXAMPLE(EventsEx), MAKE_EXAMPLE(DragEx), MAKE_EXAMPLE(TweenEx),
 			MAKE_EXAMPLE(ImageEx), MAKE_EXAMPLE(ControlsEx), MAKE_EXAMPLE(
@@ -177,6 +176,7 @@ int main(int argc, char *argv[]) {
 				}
 			}
 		}
+		//SANITY_CHECK_LOCATOR();
 		//SANITY_CHECK_ANY();
 		//SANITY_CHECK_SVD();
 		//SANITY_CHECK_ALGO();
