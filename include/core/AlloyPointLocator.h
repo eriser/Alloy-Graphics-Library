@@ -101,7 +101,7 @@ public:
 		}
 		locator.insert(ptsi.begin(), ptsi.end());
 	}
-	xvec<T, C> closestPoint(vec<T, C> pt, T maxDistance) const {
+	xvec<T, C> closest(vec<T, C> pt, T maxDistance) const {
 		xvec<T, C> query(pt, -1);
 		auto result = locator.find_nearest(query, maxDistance);
 		if (result.first != locator.end()) {
@@ -110,7 +110,7 @@ public:
 			return NO_POINT_FOUND;
 		}
 	}
-	xvec<T, C> closestPointExact(xvec<T, C> query) const {
+	xvec<T, C> closestExact(xvec<T, C> query) const {
 		auto result = locator.find_exact(query);
 		if (result != locator.end()) {
 			return *(result);
@@ -118,7 +118,7 @@ public:
 			return NO_POINT_FOUND;
 		}
 	}
-	xvec<T, C> closestPoint(vec<T, C> pt) const {
+	xvec<T, C> closest(vec<T, C> pt) const {
 		xvec<T, C> query(pt, -1);
 		auto result = locator.find_nearest(query);
 		if (result.first != locator.end()) {
@@ -127,7 +127,7 @@ public:
 			return NO_POINT_FOUND;
 		}
 	}
-	void findNearest(vec<T, C> pt, T maxDistance,
+	void closest(vec<T, C> pt, T maxDistance,
 			std::vector<xvec<T, C>>& pts) const {
 		xvec<T, C> query(pt, -1);
 		pts.clear();
@@ -149,7 +149,7 @@ public:
 				});
 
 	}
-	void findNearest(vec<T, C> pt, T maxDistance,
+	void closest(vec<T, C> pt, T maxDistance,
 			std::vector<std::pair<xvec<T, C>, T>>& pts) const {
 		xvec<T, C> query(pt, -1);
 		pts.clear();
