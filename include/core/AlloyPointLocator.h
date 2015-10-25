@@ -63,13 +63,13 @@ struct float3i : public float3 {
 		return std::max(std::abs(z-node.z),std::max(std::abs(x - node.x), std::abs(y - node.y)));
 	}
 };
-class PointLocator2f {
+class KDTreeLocator2f {
 protected:
 	libkdtree::KDTree<2, float2i> locator;
 	int64_t indexCount = 0;
 public:
 	static const float2i NO_POINT_FOUND;
-	PointLocator2f() {
+	KDTreeLocator2f() {
 
 	}
 	void clear() {
@@ -88,13 +88,13 @@ public:
 	float2i closestPointExact(float2i query) const;
 	void findNearest(float2 query, float maxDisatnce, std::vector<float2i>& pts) const;
 };
-class PointLocator3f {
+class KDTreeLocator3f {
 protected:
 	libkdtree::KDTree<3, float3i> locator;
 	int64_t indexCount = 0;
 public:
 	static const float3i NO_POINT_FOUND;
-	PointLocator3f() {
+	KDTreeLocator3f() {
 
 	}
 	void insert(const float3i& pt);
