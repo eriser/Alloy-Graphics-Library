@@ -24,6 +24,7 @@ namespace aly {
 	const float2i PointLocator2D::NO_POINT_FOUND = float2i(float2(std::numeric_limits<float>::max()), -1);
 	const float3i PointLocator3D::NO_POINT_FOUND = float3i(float3(std::numeric_limits<float>::max()), -1);
 	void PointLocator2D::insert(const float2i& pt) {
+		indexCount = std::max(indexCount,(int64_t)(pt.index + 1));
 		locator.insert(pt);
 	}
 	int64_t PointLocator2D::insert(const float2& pt) {
@@ -41,6 +42,9 @@ namespace aly {
 		locator.insert(ptsi.begin(), ptsi.end());
 	}
 	void PointLocator2D::insert(const std::vector<float2i>& ptsi) {
+		for (float2i pt : ptsi) {
+			indexCount = std::max(indexCount, (int64_t)(pt.index + 1));
+		}
 		locator.insert(ptsi.begin(), ptsi.end());
 	}
 	float2i PointLocator2D::closestPoint(float2 pt, float maxDistance) const {
@@ -82,6 +86,7 @@ namespace aly {
 	}
 
 	void PointLocator3D::insert(const float3i& pt) {
+		indexCount = std::max(indexCount, (int64_t)(pt.index + 1));
 		locator.insert(pt);
 	}
 	int64_t PointLocator3D::insert(const float3& pt) {
@@ -99,6 +104,9 @@ namespace aly {
 		locator.insert(ptsi.begin(), ptsi.end());
 	}
 	void PointLocator3D::insert(const std::vector<float3i>& ptsi) {
+		for (float3i pt : ptsi) {
+			indexCount = std::max(indexCount, (int64_t)(pt.index + 1));
+		}
 		locator.insert(ptsi.begin(), ptsi.end());
 	}
 	float3i PointLocator3D::closestPoint(float3 pt, float maxDistance) const {

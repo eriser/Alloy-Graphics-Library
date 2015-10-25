@@ -63,7 +63,7 @@ struct float3i : public float3 {
 class PointLocator2D {
 protected:
 	libkdtree::KDTree<2, float2i> locator;
-	size_t indexCount = 0;
+	int64_t indexCount = 0;
 public:
 	static const float2i NO_POINT_FOUND;
 	PointLocator2D() {
@@ -72,6 +72,9 @@ public:
 	void clear() {
 		indexCount = 0;
 		locator.clear();
+	}
+	size_t size() const {
+		return locator.size();
 	}
 	void insert(const float2i& pt);
 	int64_t insert(const float2& pt);
@@ -98,6 +101,9 @@ public:
 	void clear() {
 		indexCount = 0;
 		locator.clear();
+	}
+	size_t size() const {
+		return locator.size();
 	}
 	float3i closestPoint(float3 query, float maxDistance) const;
 	float3i closestPoint(float3 query) const;
