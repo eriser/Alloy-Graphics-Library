@@ -36,7 +36,6 @@
     <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp" />
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp" />
     <ClCompile Include="..\..\src\core\AlloyPLY.cpp" />
-    <ClCompile Include="..\..\src\core\AlloyPointLocator.cpp" />
     <ClCompile Include="..\..\src\core\AlloySimulation.cpp" />
     <ClCompile Include="..\..\src\core\AlloySparseMatrix.cpp" />
     <ClCompile Include="..\..\src\core\AlloyUI.cpp" />

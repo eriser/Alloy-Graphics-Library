@@ -123,9 +123,6 @@
     <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\AlloyPointLocator.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h">
@@ -287,13 +284,13 @@
     <ClInclude Include="..\..\include\core\libkdtree\kdtree.h">
       <Filter>include\libkdtree</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\core\AlloyPointLocator.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\core\nanoflann.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyArray.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyPointLocator.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

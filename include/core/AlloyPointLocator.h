@@ -151,13 +151,6 @@ public:
 };
 template <class T, int C> const xvec<T, C> Locator<T,C>::NO_POINT_FOUND = xvec<T, C>(vec<T, C>(std::numeric_limits<T>::max()), -1);
 
-typedef Locator<float, 2> Locator2f;
-typedef Locator<float, 3> Locator3f;
-typedef Locator<float, 4> Locator4f;
-
-typedef Locator<double, 2> Locator2d;
-typedef Locator<double, 3> Locator3d;
-typedef Locator<double, 4> Locator4d;
 
 template <typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> 
 struct KdTreeVectorAdapter
@@ -404,13 +397,21 @@ public:
 		}
 	}
 };
+
+typedef Locator<float, 2> Locator2f;
+typedef Locator<float, 3> Locator3f;
+typedef Locator<float, 4> Locator4f;
+
+typedef Locator<double, 2> Locator2d;
+typedef Locator<double, 3> Locator3d;
+typedef Locator<double, 4> Locator4d;
+
 typedef MatcherVec<float, 2> Matcher2f;
 typedef MatcherVec<float, 3> Matcher3f;
 typedef MatcherVec<float, 4> Matcher4f;
 typedef Matcher<float, 256> Matcher256f;
 typedef Matcher<float, 512> Matcher512f;
 typedef Matcher<float, 1024> Matcher1024f;
-
 
 typedef MatcherVec<double, 2> Matcher2d;
 typedef MatcherVec<double, 3> Matcher3d;
