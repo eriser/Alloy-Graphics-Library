@@ -63,21 +63,21 @@ namespace aly {
 			locator.insert(samples);
 			float2 q = float2(pivot.x + 1E-3f, pivot.y - 1E-3f);
 			float2i qi = float2i(q, 0);
-			std::cout << "Query: " << qi << std::endl;
+			std::cout << "[Locator2f] Query: " << qi << std::endl;
 			float2i hit0 = locator.closestPoint(qi);
-			std::cout << "Closest: " << hit0 << std::endl;
+			std::cout << "[Locator2f] Closest: " << hit0 << std::endl;
 			float2i hit1 = locator.closestPoint(q);
-			std::cout << "Closest: " << hit1 << std::endl;
+			std::cout << "[Locator2f] Closest: " << hit1 << std::endl;
 			float2i hit2 = locator.closestPoint(q, 0.1f);
-			std::cout << "Closest in radius: " << hit2 << std::endl;
+			std::cout << "[Locator2f] Closest in radius: " << hit2 << std::endl;
 			float2i hit3a = locator.closestPointExact(float2i(pivot, 0));
 			float2i hit3b = locator.closestPointExact(qi);
-			std::cout << "Closest exact: " << hit3a << " " << hit3b << std::endl;
+			std::cout << "[Locator2f] Closest exact: " << hit3a << " " << hit3b << std::endl;
 			std::vector<float2i> hits;
 			locator.findNearest(q, 0.05f, hits);
-			std::cout << "Nearest in radius: " << std::endl;
+			std::cout << "[Locator2f] Nearest in radius: " << std::endl;
 			for (int k = 0;k < hits.size();k++) {
-				std::cout << k << ") " << hits[k] << distance(hits[k], pivot)<< std::endl;
+				std::cout << k << ") " << hits[k] << " "<<distance(hits[k], pivot)<< std::endl;
 			}
 		}
 		{
@@ -95,19 +95,19 @@ namespace aly {
 			locator.insert(samples);
 			float3 q = float3(pivot.x + 1E-3f, pivot.y - 1E-3f,pivot.z+0.005f);
 			float3i qi = float3i(q, 0);
-			std::cout << "Query: " << qi << std::endl;
+			std::cout << "[Locator3f] Query: " << qi << std::endl;
 			float3i hit0 = locator.closestPoint(qi);
-			std::cout << "Closest: " << hit0 << std::endl;
+			std::cout << "[Locator3f] Closest: " << hit0 << std::endl;
 			float3i hit1 = locator.closestPoint(q);
-			std::cout << "Closest: " << hit1 << std::endl;
+			std::cout << "[Locator3f] Closest: " << hit1 << std::endl;
 			float3i hit2 = locator.closestPoint(q, 0.1f);
-			std::cout << "Closest in radius: " << hit2 << std::endl;
+			std::cout << "[Locator3f] Closest in radius: " << hit2 << std::endl;
 			float3i hit3a = locator.closestPointExact(float3i(pivot, 0));
 			float3i hit3b = locator.closestPointExact(qi);
-			std::cout << "Closest exact: " << hit3a << " " << hit3b << std::endl;
+			std::cout << "[Locator3f] Closest exact: " << hit3a << " " << hit3b << std::endl;
 			std::vector<float3i> hits;
 			locator.findNearest(q, 0.05f, hits);
-			std::cout << "Nearest in radius: \n" << std::endl;
+			std::cout << "[Locator3f] Nearest in radius: " << std::endl;
 			for (int k = 0;k < hits.size();k++) {
 				std::cout << k << ") " << hits[k] <<" "<<distance(hits[k],pivot)<< std::endl;
 			}
@@ -142,16 +142,43 @@ namespace aly {
 			locator.closest(pivot,0.238f,hits);
 			locator.closest(pivot, 0.238f, hitPair);
 
-			std::cout << "Nearest in radius: \n" << std::endl;
+			std::cout << "[Matcher<>] Nearest in radius:" << std::endl;
 			for (int k = 0;k < hits.size();k++) {
 				std::cout << k << ") " << hitPair[k].first << " " << hitPair[k].second <<" "<<distance(pivot,samples[hitPair[k].first])<< std::endl;
 			}
 
 			locator.closest(pivot, 10, hits);
 			locator.closest(pivot, 10, hitPair);
-			std::cout << "Nearest: \n" << std::endl;
+			std::cout << "[Matcher<>] Nearest:" << std::endl;
 			for (int k = 0;k < hitPair.size();k++) {
 				std::cout << k << ") " << hitPair[k].first<<" "<< hitPair[k].second <<" "<< distance(pivot, samples[hitPair[k].first]) << std::endl;
+			}
+		}
+		{
+			int N = 10000;
+			Vector3f samples(N);
+			for (int n = 0;n < N;n++) {
+				samples[n] = float3(RandomUniform(0.0f, 1.0f), RandomUniform(0.0f, 1.0f), RandomUniform(0.0f, 1.0f));
+			}
+			float3 pivot(0.5f, 0.2f, 0.4f);
+			std::sort(samples.begin(), samples.end(), [=](const float3& a, const float3& b) {
+				return (distanceSqr(a, pivot) < distanceSqr(b, pivot));
+			});
+			Matcher3f locator(samples);
+			std::vector<size_t> hits;
+			std::vector<std::pair<size_t, float>> hitPair;
+			locator.closest(pivot, 0.05f, hits);
+			locator.closest(pivot, 0.05f, hitPair);
+			std::cout << "[Matcher3f] Nearest in radius:" << std::endl;
+			for (int k = 0;k < hits.size();k++) {
+				std::cout << k << ") " << hitPair[k].first << " " << hitPair[k].second << " " << distance(pivot, samples[hitPair[k].first]) << std::endl;
+			}
+
+			locator.closest(pivot, 10, hits);
+			locator.closest(pivot, 10, hitPair);
+			std::cout << "[Matcher3f] Nearest:" << std::endl;
+			for (int k = 0;k < hitPair.size();k++) {
+				std::cout << k << ") " << hitPair[k].first << " " << hitPair[k].second << " " << distance(pivot, samples[hitPair[k].first]) << std::endl;
 			}
 		}
 		return true;

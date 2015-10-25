@@ -73,10 +73,10 @@ template<class T> struct vec<T, 1> {
 	template<class U> explicit vec(const vec<U, 1> & r) :
 			x(T(r.x)) {
 	}
-	const T & operator [](int i) const {
+	const T & operator [](size_t i) const {
 		return x;
 	}
-	T & operator [](int i) {
+	T & operator [](size_t i) {
 		return x;
 	}
 	operator T() const {
@@ -122,10 +122,10 @@ template<class T> struct vec<T, 2> {
 			x(T(r.x)), y(T(r.y)) {
 	}
 
-	const T & operator [](int i) const {
+	const T & operator [](size_t i) const {
 		return (&x)[i];
 	}
-	T & operator [](int i) {
+	T & operator [](size_t i) {
 		return (&x)[i];
 	}
 	vec<T, 3> xyz() const;
@@ -165,10 +165,10 @@ template<class T> struct vec<T, 3> {
 	template<class U> explicit vec(const vec<U, 3> & r) :
 			x(T(r.x)), y(T(r.y)), z(T(r.z)) {
 	}
-	const T & operator [](int i) const {
+	const T & operator [](size_t i) const {
 		return (&x)[i];
 	}
-	T & operator [](int i) {
+	T & operator [](size_t i) {
 		return (&x)[i];
 	}
 	vec<T, 2> xy() const {
@@ -215,10 +215,10 @@ template<class T> struct vec<T, 4> {
 			x(T(r.x)), y(T(r.y)), z(T(r.z)), w(T(r.w)) {
 	}
 
-	const T & operator [](int i) const {
+	const T & operator [](size_t i) const {
 		return (&x)[i];
 	}
-	T & operator [](int i) {
+	T & operator [](size_t i) {
 		return (&x)[i];
 	}
 	vec<T, 3> xyz() const {
@@ -350,13 +350,13 @@ template<class T, int M> struct matrix<T, M, 2> {
 	vec<T, 2> row(int i) const {
 		return {x[i], y[i]};
 	}
-	const C & operator [](int j) const {
+	const C & operator [](size_t j) const {
 		return (&x)[j];
 	}
 	const T & operator ()(int i, int j) const {
 		return (*this)[j][i];
 	}
-	C & operator [](int j) {
+	C & operator [](size_t j) {
 		return (&x)[j];
 	}
 	T & operator ()(int i, int j) {
@@ -407,13 +407,13 @@ template<class T, int M> struct matrix<T, M, 3> {
 	vec<T, 3> row(int i) const {
 		return {x[i], y[i], z[i]};
 	}
-	const C & operator [](int j) const {
+	const C & operator [](size_t j) const {
 		return (&x)[j];
 	}
 	const T & operator ()(int i, int j) const {
 		return (*this)[j][i];
 	}
-	C & operator [](int j) {
+	C & operator [](size_t j) {
 		return (&x)[j];
 	}
 	T & operator ()(int i, int j) {
@@ -465,13 +465,13 @@ template<class T, int M> struct matrix<T, M, 4> {
 	vec<T, 4> row(int i) const {
 		return {x[i], y[i], z[i], w[i]};
 	}
-	const C & operator [](int j) const {
+	const C & operator [](size_t j) const {
 		return (&x)[j];
 	}
 	const T & operator ()(int i, int j) const {
 		return (*this)[j][i];
 	}
-	C & operator [](int j) {
+	C & operator [](size_t j) {
 		return (&x)[j];
 	}
 	T & operator ()(int i, int j) {

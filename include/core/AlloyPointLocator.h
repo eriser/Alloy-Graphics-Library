@@ -159,9 +159,11 @@ typedef Locator<double, 2> Locator2d;
 typedef Locator<double, 3> Locator3d;
 typedef Locator<double, 4> Locator4d;
 
-template <class VectorOfVectorsType, typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> struct KdTreeVectorAdapter
+template <typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> 
+struct KdTreeVectorAdapter
 {
-	typedef KdTreeVectorAdapter<VectorOfVectorsType, T, C, Distance> self_t;
+	typedef Vector<T, C> VectorOfVectorsType;
+	typedef KdTreeVectorAdapter< T, C, Distance> self_t;
 	typedef typename Distance::template traits<T, self_t>::distance_t metric_t;
 	typedef nanoflann::KDTreeSingleIndexAdaptor< metric_t, self_t, C, IndexType>  index_t;
 	index_t* index; //! The kd-tree index for the user to call its methods as usual with any other FLANN index.
@@ -296,11 +298,7 @@ template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
 	std::basic_ostream<C, R> & ss, const xvec<T, 4> & v) {
 	return ss << "(" << v.x << ", " << v.y << ", " << v.z << ", "<< v.w << ": " << v.index << ")";
 }
-typedef KdTreeVectorAdapter<Vector4f, float, 4, nanoflann::metric_L2, size_t> FLANNLocator4f;
-typedef KdTreeVectorAdapter<Vector3f, float, 3, nanoflann::metric_L2, size_t> FLANNLocator3f;
-typedef KdTreeVectorAdapter<Vector2f, float, 2, nanoflann::metric_L2, size_t> FLANNLocator2f;
-typedef KdTreeVectorAdapter<Vector1f, float, 1, nanoflann::metric_L2, size_t> FLANNLocator1f;
-
+//FLANN Matcher does not allow the insertion of points! All data must be provided upfront.
 template<class T, int C> class Matcher {
 protected:
 	KdTreeArrayAdapter<T, C, nanoflann::metric_L2, size_t> locator;
@@ -352,6 +350,74 @@ public:
 		}
 	}
 };
+
+
+//FLANN Matcher does not allow the insertion of points! All data must be provided upfront.
+template<class T, int C> class MatcherVec {
+protected:
+	KdTreeVectorAdapter<T, C, nanoflann::metric_L2, size_t> locator;
+public:
+	MatcherVec(const Vector<T,C>& data,int maxDepth = 16) :locator(data, maxDepth) {
+	}
+	void closest(const vec<T, C>& pt, T maxDistance, std::vector<size_t>& matches) const {
+		std::vector<std::pair<size_t, T> >   ret_matches;
+		nanoflann::SearchParams params;
+		const size_t nMatches = locator.index->radiusSearch(&pt[0], maxDistance*maxDistance, ret_matches, params);
+		matches.clear();
+		matches.reserve(nMatches);
+		for (size_t i = 0;i < nMatches;i++) {
+			matches.push_back(ret_matches[i].first);
+		}
+	}
+	void closest(const vec<T, C>& pt, T maxDistance, std::vector<std::pair<size_t, T>>& matches) const {
+		matches.clear();
+		nanoflann::SearchParams params;
+		const size_t nMatches = locator.index->radiusSearch(&pt[0], maxDistance*maxDistance, matches, params);
+		for (std::pair<size_t, T>& pr : matches) {
+			pr.second = std::sqrt(pr.second);
+		}
+	}
+	void closest(const vec<T, C>& pt, int kNN, std::vector<size_t>& matches) const {
+		size_t maxIdx = std::numeric_limits<size_t>::max();
+		std::vector<size_t>   ret_index(kNN, maxIdx);
+		std::vector<T> out_dist_sqr(kNN);
+		locator.index->knnSearch(&pt[0], kNN, ret_index.data(), out_dist_sqr.data());
+		matches.clear();
+		matches.reserve(kNN);
+		for (size_t i = 0;i <kNN;i++) {
+			if (ret_index[i] != maxIdx) {
+				matches.push_back(ret_index[i]);
+			}
+		}
+	}
+	void closest(const vec<T, C>& pt, int kNN, std::vector<std::pair<size_t, T>>& matches) const {
+		size_t maxIdx = std::numeric_limits<size_t>::max();
+		std::vector<size_t>   ret_index(kNN, maxIdx);
+		std::vector<T> out_dist_sqr(kNN);
+		locator.index->knnSearch(&pt[0], kNN, ret_index.data(), out_dist_sqr.data());
+		matches.clear();
+		matches.reserve(kNN);
+		for (size_t i = 0;i <kNN;i++) {
+			if (ret_index[i] != maxIdx) {
+				matches.push_back(std::pair<size_t, T>(ret_index[i], std::sqrt(out_dist_sqr[i])));
+			}
+		}
+	}
+};
+typedef MatcherVec<float, 2> Matcher2f;
+typedef MatcherVec<float, 3> Matcher3f;
+typedef MatcherVec<float, 4> Matcher4f;
+typedef Matcher<float, 256> Matcher256f;
+typedef Matcher<float, 512> Matcher512f;
+typedef Matcher<float, 1024> Matcher1024f;
+
+
+typedef MatcherVec<double, 2> Matcher2d;
+typedef MatcherVec<double, 3> Matcher3d;
+typedef MatcherVec<double, 4> Matcher4d;
+typedef Matcher<double, 256> Matcher256d;
+typedef Matcher<double, 512> Matcher512d;
+typedef Matcher<double, 1024> Matcher1024d;
 
 }
 #endif
