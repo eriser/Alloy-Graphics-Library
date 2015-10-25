@@ -86,6 +86,26 @@ template<class T> struct ExampleT: public Example {
 typedef std::unique_ptr<Example> ExamplePtr;
 #define MAKE_EXAMPLE(NAME) ExamplePtr(new ExampleT<NAME>(#NAME))
 
+bool SANITY_CHECK() {
+	bool ret = true;
+	ret&=SANITY_CHECK_LOCATOR();
+	//SANITY_CHECK_ANY();
+	//SANITY_CHECK_SVD();
+	//SANITY_CHECK_ALGO();
+	//SANITY_CHECK_IMAGE();
+	//SANITY_CHECK_UI();
+	//SANITY_CHECK_CEREAL();
+	//SANITY_CHECK_KDTREE();
+	//SANITY_CHECK_PYRAMID();
+	//SANITY_CHECK_SPARSE_SOLVE();
+	//SANITY_CHECK_DENSE_SOLVE();
+	//SANITY_CHECK_DENSE_MATRIX();
+	//SANITY_CHECK_IMAGE_PROCESSING();
+	//SANITY_CHECK_IMAGE_IO();
+	//SANITY_CHECK_ROBUST_SOLVE();
+	//SANITY_CHECK_SUBDIVIDE();
+	return ret;
+}
 int main(int argc, char *argv[]) {
 	const int N = 27;
 	ExamplePtr apps[N] = { MAKE_EXAMPLE(UnitsEx), MAKE_EXAMPLE(CompositeEx),
@@ -111,7 +131,7 @@ int main(int argc, char *argv[]) {
 				exampleIndex = n;
 				break;
 			}
-		}
+		} 
 		if (exampleIndex >= 0) {
 			apps[exampleIndex]->getApplication()->run(1);
 		} else {
@@ -123,7 +143,10 @@ int main(int argc, char *argv[]) {
 							(argc > 2) ?
 									RemoveTrailingSlash(argv[2]) :
 									GetDesktopDirectory();
-					if (index == -1) {
+					if (index == -2) {
+						SANITY_CHECK();
+						return 0;
+					} else if (index == -1) {
 						for (index = 0; index < N; index++) {
 							ExamplePtr& ex = apps[index];
 							std::string screenShot = MakeString() << dir
@@ -148,6 +171,9 @@ int main(int argc, char *argv[]) {
 				std::cout << "Usage: " << argv[0]
 						<< " [example index] [output directory]\nAlloy Graphics Library Examples:"
 						<< std::endl;
+				std::cout << "[" << -2
+					<< "] Sanity Check"
+					<< std::endl;
 				std::cout << "[" << -1
 						<< "] Generate screenshots for all examples"
 						<< std::endl;
@@ -158,7 +184,9 @@ int main(int argc, char *argv[]) {
 				std::cout << ">> Enter Example Number: ";
 				int index = -1;
 				std::cin >> index;
-				if (index == -1) {
+				if (index == -2) {
+					SANITY_CHECK();
+				} else if (index == -1) {
 					std::string dir = GetDesktopDirectory();
 					for (index = 0; index < N; index++) {
 						ExamplePtr& ex = apps[index];
@@ -176,22 +204,8 @@ int main(int argc, char *argv[]) {
 				}
 			}
 		}
-		//SANITY_CHECK_LOCATOR();
-		//SANITY_CHECK_ANY();
-		//SANITY_CHECK_SVD();
-		//SANITY_CHECK_ALGO();
-		//SANITY_CHECK_IMAGE();
-		//SANITY_CHECK_UI();
-		//SANITY_CHECK_CEREAL();
-		//SANITY_CHECK_KDTREE();
-		//SANITY_CHECK_PYRAMID();
-		//SANITY_CHECK_SPARSE_SOLVE();
-		//SANITY_CHECK_DENSE_SOLVE();
-		//SANITY_CHECK_DENSE_MATRIX();
-		//SANITY_CHECK_IMAGE_PROCESSING();
-		//SANITY_CHECK_IMAGE_IO();
-		//SANITY_CHECK_ROBUST_SOLVE();
-		//SANITY_CHECK_SUBDIVIDE();
+
+		
 		return 0;
 	} catch (std::exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
