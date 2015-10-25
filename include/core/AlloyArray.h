@@ -340,7 +340,7 @@ template<class T, int C> double dot(const Array<T, C>& a,
 	size_t sz = a.size();
 #pragma omp parallel for reduction(+:ans)
 	for (int i = 0; i < (int) sz; i++) {
-		ans += dot(a[i],b[i]);
+		ans += a[i]*b[i];
 	}
 	return ans;
 }
@@ -350,7 +350,7 @@ template<class T, int C> T lengthSqr(const Array<T, C>& a) {
 	size_t sz = a.size();
 #pragma omp parallel for reduction(+:ans)
 	for (int i = 0; i < (int) sz; i++) {
-		ans += dot(a[i], a[i]);
+		ans += a[i]* a[i];
 	}
 	return ans;
 }
