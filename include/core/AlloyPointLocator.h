@@ -64,7 +64,8 @@ typedef xvec<double, 4> double4i;
 
 template<class T, int C> class Locator {
 protected:
-	libkdtree::KDTree<C, xvec<T, C> > locator;
+	typedef libkdtree::KDTree<C, xvec<T, C> > LocatorType;
+	LocatorType locator;
 	int indexCount = 0;
 public:
 	static const xvec<T, C> NO_POINT_FOUND;
@@ -80,6 +81,18 @@ public:
 	void insert(const xvec<T, C>& pt) {
 		indexCount = std::max(indexCount, (int) (pt.index + 1));
 		locator.insert(pt);
+	}
+	void erase(const xvec<T, C>& pt) {
+		locator.erase(pt);
+	}
+	void eraseExact(const xvec<T, C>& pt) {
+		locator.erase_exact(pt);
+	}
+	void erase(const vec<T, C>& pt) {
+		locator.erase(xvec<T,C>(pt,-1));
+	}
+	void erase(const std::vector<xvec<T, C>>& pts) {
+		locator.erase(pts.begin(), pts.end());
 	}
 	int insert(const vec<T, C>& pt) {
 		xvec<T, C> pti(pt, indexCount++);
@@ -127,6 +140,7 @@ public:
 			return NO_POINT_FOUND;
 		}
 	}
+
 	void closest(vec<T, C> pt, T maxDistance,
 			std::vector<xvec<T, C>>& pts) const {
 		xvec<T, C> query(pt, -1);
@@ -358,7 +372,7 @@ public:
 	}
 	void closest(const Array<T, C>& pt, int kNN,
 			std::vector<size_t>& matches) const {
-		std::vector<size_t> ret_index(kNN,NO_POINT_FOUND);
+		std::vector<size_t> ret_index(kNN, NO_POINT_FOUND);
 		std::vector<T> out_dist_sqr(kNN);
 		locator.index->knnSearch(pt.data(), kNN, ret_index.data(),
 				out_dist_sqr.data());
@@ -382,7 +396,7 @@ public:
 		nanoflann::SearchParams params;
 		const size_t nMatches = locator.index->radiusSearch(pt.data(),
 				maxDistance * maxDistance, ret_matches, params);
-		if(nMatches>0){
+		if (nMatches > 0) {
 			return ret_matches[0].first;
 		} else {
 			return NO_POINT_FOUND;
@@ -390,7 +404,7 @@ public:
 	}
 	void closest(const Array<T, C>& pt, int kNN,
 			std::vector<std::pair<size_t, T>>& matches) const {
-		std::vector<size_t> ret_index(kNN,NO_POINT_FOUND);
+		std::vector<size_t> ret_index(kNN, NO_POINT_FOUND);
 		std::vector<T> out_dist_sqr(kNN);
 		locator.index->knnSearch(pt.data(), kNN, ret_index.data(),
 				out_dist_sqr.data());
@@ -405,7 +419,8 @@ public:
 		}
 	}
 };
-template<class T,int C> const size_t Matcher<T,C>::NO_POINT_FOUND = std::numeric_limits<size_t>::max();
+template<class T, int C> const size_t Matcher<T, C>::NO_POINT_FOUND =
+		std::numeric_limits<size_t>::max();
 //FLANN Matcher does not allow the insertion of points! All data must be provided up front.
 template<class T, int C> class MatcherVec {
 protected:
@@ -446,14 +461,14 @@ public:
 		matches.clear();
 		matches.reserve(kNN);
 		for (size_t i = 0; i < kNN; i++) {
-			if (ret_index[i] !=NO_POINT_FOUND) {
+			if (ret_index[i] != NO_POINT_FOUND) {
 				matches.push_back(ret_index[i]);
 			}
 		}
 	}
 	void closest(const vec<T, C>& pt, int kNN,
 			std::vector<std::pair<size_t, T>>& matches) const {
-		std::vector<size_t> ret_index(kNN,NO_POINT_FOUND);
+		std::vector<size_t> ret_index(kNN, NO_POINT_FOUND);
 		std::vector<T> out_dist_sqr(kNN);
 		locator.index->knnSearch(&pt[0], kNN, ret_index.data(),
 				out_dist_sqr.data());
@@ -479,14 +494,15 @@ public:
 		nanoflann::SearchParams params;
 		const size_t nMatches = locator.index->radiusSearch(&pt[0],
 				maxDistance * maxDistance, ret_matches, params);
-		if(nMatches>0){
+		if (nMatches > 0) {
 			return ret_matches[0].first;
 		} else {
 			return NO_POINT_FOUND;
 		}
 	}
 };
-template<class T,int C> const size_t MatcherVec<T,C>::NO_POINT_FOUND = std::numeric_limits<size_t>::max();
+template<class T, int C> const size_t MatcherVec<T, C>::NO_POINT_FOUND =
+		std::numeric_limits<size_t>::max();
 
 typedef Locator<float, 2> Locator2f;
 typedef Locator<float, 3> Locator3f;

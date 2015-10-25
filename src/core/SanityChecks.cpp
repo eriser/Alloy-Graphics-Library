@@ -83,6 +83,12 @@ bool SANITY_CHECK_LOCATOR() {
 			std::cout << k << ") " << hits[k] << " " << distance(hits[k], q)
 					<< std::endl;
 		}
+
+		std::cout<<"Locator size "<<locator.size()<<std::endl;
+		locator.erase(float2i(samples[10],9));
+		locator.erase(samples[8]);
+		locator.eraseExact(hits[0]);
+		std::cout<<"Locator size after erase "<<locator.size()<<std::endl;
 	}
 	{
 		int N = 10000;
