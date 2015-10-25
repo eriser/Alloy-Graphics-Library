@@ -80,7 +80,7 @@ bool SANITY_CHECK_LOCATOR() {
 		locator.findNearest(q, 0.05f, hits);
 		std::cout << "[Locator2f] Nearest in radius: " << std::endl;
 		for (int k = 0; k < (int) hits.size(); k++) {
-			std::cout << k << ") " << hits[k] << " " << distance(hits[k], pivot)
+			std::cout << k << ") " << hits[k] << " " << distance(hits[k], q)
 					<< std::endl;
 		}
 	}
@@ -113,10 +113,13 @@ bool SANITY_CHECK_LOCATOR() {
 		std::cout << "[Locator3f] Closest exact: " << hit3a << " " << hit3b
 				<< std::endl;
 		std::vector<float3i> hits;
+		std::vector<std::pair<float3i, float>> hitPair;
 		locator.findNearest(q, 0.05f, hits);
+		locator.findNearest(q, 0.05f, hitPair);
 		std::cout << "[Locator3f] Nearest in radius: " << std::endl;
-		for (int k = 0; k < (int) hits.size(); k++) {
-			std::cout << k << ") " << hits[k] << " " << distance(hits[k], pivot)
+		for (int k = 0; k < (int) hitPair.size(); k++) {
+			std::cout << k << ") " << hitPair[k].first << " "
+					<< hitPair[k].second << " " << distance(hitPair[k].first,q)
 					<< std::endl;
 		}
 	}
@@ -146,12 +149,12 @@ bool SANITY_CHECK_LOCATOR() {
 					return (distanceSqr(a, pivot) < distanceSqr(b, pivot));
 				});
 
-		Matcher<float, C> locator(samples);
+		Matcher<float, C> matcher(samples);
 		std::vector<size_t> hits;
 		std::vector<std::pair<size_t, float>> hitPair;
-		locator.closest(pivot, 0.238f, hits);
-		locator.closest(pivot, 0.238f, hitPair);
-
+		matcher.closest(pivot, 0.238f, hits);
+		matcher.closest(pivot, 0.238f, hitPair);
+		matcher.closest(pivot,0.238f);
 		std::cout << "[Matcher<>] Nearest in radius:" << std::endl;
 		for (int k = 0; k < (int) hits.size(); k++) {
 			std::cout << k << ") " << hitPair[k].first << " "
@@ -159,8 +162,9 @@ bool SANITY_CHECK_LOCATOR() {
 					<< distance(pivot, samples[hitPair[k].first]) << std::endl;
 		}
 
-		locator.closest(pivot, 10, hits);
-		locator.closest(pivot, 10, hitPair);
+		matcher.closest(pivot, 10, hits);
+		matcher.closest(pivot, 10, hitPair);
+		matcher.closest(pivot);
 		std::cout << "[Matcher<>] Nearest:" << std::endl;
 		for (int k = 0; k < (int) hitPair.size(); k++) {
 			std::cout << k << ") " << hitPair[k].first << " "
@@ -180,11 +184,12 @@ bool SANITY_CHECK_LOCATOR() {
 				[=](const float3& a, const float3& b) {
 					return (distanceSqr(a, pivot) < distanceSqr(b, pivot));
 				});
-		Matcher3f locator(samples);
+		Matcher3f matcher(samples);
 		std::vector<size_t> hits;
 		std::vector<std::pair<size_t, float>> hitPair;
-		locator.closest(pivot, 0.05f, hits);
-		locator.closest(pivot, 0.05f, hitPair);
+		matcher.closest(pivot, 0.05f, hits);
+		matcher.closest(pivot, 0.05f, hitPair);
+		matcher.closest(pivot,0.05f);
 		std::cout << "[Matcher3f] Nearest in radius:" << std::endl;
 		for (int k = 0; k < (int) hits.size(); k++) {
 			std::cout << k << ") " << hitPair[k].first << " "
@@ -192,8 +197,9 @@ bool SANITY_CHECK_LOCATOR() {
 					<< distance(pivot, samples[hitPair[k].first]) << std::endl;
 		}
 
-		locator.closest(pivot, 10, hits);
-		locator.closest(pivot, 10, hitPair);
+		matcher.closest(pivot, 10, hits);
+		matcher.closest(pivot, 10, hitPair);
+		matcher.closest(pivot);
 		std::cout << "[Matcher3f] Nearest:" << std::endl;
 		for (int k = 0; k < (int) hitPair.size(); k++) {
 			std::cout << k << ") " << hitPair[k].first << " "
