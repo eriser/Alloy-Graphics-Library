@@ -32,6 +32,7 @@
 #include "AlloyDenseMatrix.h"
 #include "AlloyMeshIntersector.h"
 #include "AlloyPointLocator.h"
+#include "AlloyArray.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
 #include "cereal/archives/binary.hpp"
@@ -76,7 +77,7 @@ namespace aly {
 			locator.findNearest(q, 0.05f, hits);
 			std::cout << "Nearest in radius: " << std::endl;
 			for (int k = 0;k < hits.size();k++) {
-				std::cout << k << ") " << hits[k] << std::endl;
+				std::cout << k << ") " << hits[k] << distance(hits[k], pivot)<< std::endl;
 			}
 		}
 		{
@@ -106,9 +107,46 @@ namespace aly {
 			std::cout << "Closest exact: " << hit3a << " " << hit3b << std::endl;
 			std::vector<float3i> hits;
 			locator.findNearest(q, 0.05f, hits);
-			std::cout << "Nearest in radius: " << std::endl;
+			std::cout << "Nearest in radius: \n" << std::endl;
 			for (int k = 0;k < hits.size();k++) {
-				std::cout << k << ") " << hits[k] << std::endl;
+				std::cout << k << ") " << hits[k] <<" "<<distance(hits[k],pivot)<< std::endl;
+			}
+		}
+		{
+			int N = 10000;
+			const int C = 64;
+			float scale = 1.0f / std::sqrt((float)C);
+			std::vector<Array<float,C>> samples(N);
+			for (int n = 0;n < N;n++) {
+				for (int c = 0;c < C;c++) {
+					samples[n][c] = RandomUniform(0.0f, 1.0f)*scale;
+				}
+			}
+			Array<float, C> pivot;
+			for (int c = 0;c < C;c++) {
+				pivot[c]= RandomUniform(0.49f, 0.51f)*scale;
+			}
+			
+			std::sort(samples.begin(), samples.end(), [=](const Array<float, C>& a, const Array<float, C>& b) {
+				return (distanceSqr(a, pivot) < distanceSqr(b, pivot));
+			});
+			
+			Matcher<float,C> locator(samples);
+			std::vector<size_t> hits;
+			std::vector<std::pair<size_t,float>> hitPair;
+			locator.closest(pivot,0.238f,hits);
+			locator.closest(pivot, 0.238f, hitPair);
+
+			std::cout << "Nearest in radius: \n" << std::endl;
+			for (int k = 0;k < hits.size();k++) {
+				std::cout << k << ") " << hitPair[k].first << " " << hitPair[k].second <<" "<<distance(pivot,samples[hitPair[k].first])<< std::endl;
+			}
+
+			locator.closest(pivot, 10, hits);
+			locator.closest(pivot, 10, hitPair);
+			std::cout << "Nearest: \n" << std::endl;
+			for (int k = 0;k < hitPair.size();k++) {
+				std::cout << k << ") " << hitPair[k].first<<" "<< hitPair[k].second <<" "<< distance(pivot, samples[hitPair[k].first]) << std::endl;
 			}
 		}
 		return true;

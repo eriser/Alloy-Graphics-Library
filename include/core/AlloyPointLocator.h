@@ -133,10 +133,20 @@ public:
 	void findNearest(vec<T, C> pt, T maxDistance, std::vector<xvec<T, C>>& pts) const {
 		xvec<T, C> query(pt, -1);
 		pts.clear();
-		locator.find_within_range(query, maxDistance, std::back_insert_iterator<std::vector<xvec<T, C>> >(pts));
+		std::vector<xvec<T, C>> tmp;
+		locator.find_within_range(query, maxDistance, std::back_insert_iterator<std::vector<xvec<T, C>> >(tmp));
+		T distSqr = maxDistance*maxDistance;
+		pts.clear();
+		pts.reserve(tmp.size());
+		for (xvec<T, C>& val : tmp) {
+			if (distanceSqr(pt, val) <= distSqr) {
+				pts.push_back(val);
+			}
+		}
 		std::sort(pts.begin(), pts.end(), [=](const xvec<T, C>& a, const xvec<T, C>& b) {
 			return (distanceSqr(pt, a) < distanceSqr(pt, b));
 		});
+		
 	}
 };
 template <class T, int C> const xvec<T, C> Locator<T,C>::NO_POINT_FOUND = xvec<T, C>(vec<T, C>(std::numeric_limits<T>::max()), -1);
@@ -202,7 +212,7 @@ template <class VectorOfVectorsType, typename T = double, int C = -1, class Dist
 		return s;
 	}
 	// Returns the dim'th component of the idx'th point in the class:
-	inline T kdtree_get_pt(const size_t idx, int dim) const {
+	inline T kdtree_get_pt(const size_t idx, size_t dim) const {
 		return m_data[idx][dim];
 	}
 	template <class BBOX>
@@ -266,7 +276,7 @@ template <typename T = float, int C = -1, class Distance = nanoflann::metric_L2,
 		return s;
 	}
 	// Returns the dim'th component of the idx'th point in the class:
-	inline T kdtree_get_pt(const size_t idx, int dim) const {
+	inline T kdtree_get_pt(const size_t idx, size_t dim) const {
 		return m_data[idx][dim];
 	}
 	template <class BBOX>
@@ -291,11 +301,57 @@ typedef KdTreeVectorAdapter<Vector3f, float, 3, nanoflann::metric_L2, size_t> FL
 typedef KdTreeVectorAdapter<Vector2f, float, 2, nanoflann::metric_L2, size_t> FLANNLocator2f;
 typedef KdTreeVectorAdapter<Vector1f, float, 1, nanoflann::metric_L2, size_t> FLANNLocator1f;
 
-typedef KdTreeArrayAdapter<float, 32, nanoflann::metric_L2, size_t> FLANNLocator32f;
-typedef KdTreeArrayAdapter<float, 64, nanoflann::metric_L2, size_t> FLANNLocator64f;
-typedef KdTreeArrayAdapter<float, 128, nanoflann::metric_L2, size_t> FLANNLocator128f;
-typedef KdTreeArrayAdapter<float, 256, nanoflann::metric_L2, size_t> FLANNLocator256f;
-typedef KdTreeArrayAdapter<float, 512, nanoflann::metric_L2, size_t> FLANNLocator512f;
+template<class T, int C> class Matcher {
+protected:
+	KdTreeArrayAdapter<T, C, nanoflann::metric_L2, size_t> locator;
+public:
+	Matcher(const std::vector<Array<T,C>>& data,int maxDepth=16):locator(data,maxDepth) {
+	}
+	void closest(const Array<T, C>& pt, T maxDistance,std::vector<size_t>& matches) const {
+		std::vector<std::pair<size_t, T> >   ret_matches;
+		nanoflann::SearchParams params;
+		const size_t nMatches = locator.index->radiusSearch(pt.data(), maxDistance*maxDistance, ret_matches, params);
+		matches.clear();
+		matches.reserve(nMatches);
+		for (size_t i = 0;i < nMatches;i++) {
+			matches.push_back(ret_matches[i].first);
+		}
+	}
+	void closest(const Array<T, C>& pt, T maxDistance, std::vector<std::pair<size_t, T>>& matches) const {
+		matches.clear();
+		nanoflann::SearchParams params;
+		const size_t nMatches = locator.index->radiusSearch(pt.data(), maxDistance*maxDistance, matches, params);
+		for (std::pair<size_t, T>& pr : matches) {
+			pr.second = std::sqrt(pr.second);
+		}
+	}
+	void closest(const Array<T, C>& pt, int kNN, std::vector<size_t>& matches) const {
+		size_t maxIdx = std::numeric_limits<size_t>::max();
+		std::vector<size_t>   ret_index(kNN, maxIdx);
+		std::vector<T> out_dist_sqr(kNN);
+		locator.index->knnSearch(pt.data(), kNN, ret_index.data(), out_dist_sqr.data());
+		matches.clear();
+		matches.reserve(kNN);
+		for (size_t i = 0;i <kNN;i++) {
+			if (ret_index[i] != maxIdx) {
+				matches.push_back(ret_index[i]);
+			}
+		}
+	}
+	void closest(const Array<T, C>& pt, int kNN, std::vector<std::pair<size_t,T>>& matches) const {
+		size_t maxIdx = std::numeric_limits<size_t>::max();
+		std::vector<size_t>   ret_index(kNN, maxIdx);
+		std::vector<T> out_dist_sqr(kNN);
+		locator.index->knnSearch(pt.data(), kNN, ret_index.data(), out_dist_sqr.data());
+		matches.clear();
+		matches.reserve(kNN);
+		for (size_t i = 0;i <kNN;i++) {
+			if (ret_index[i] != maxIdx) {
+				matches.push_back(std::pair<size_t,T>(ret_index[i], std::sqrt(out_dist_sqr[i])));
+			}
+		}
+	}
+};
 
 }
 #endif

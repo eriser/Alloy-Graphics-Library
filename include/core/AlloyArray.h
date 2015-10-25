@@ -26,8 +26,7 @@
 #include "cereal/types/string.hpp"
 namespace aly {
 template<class T, int C> struct Array: public std::array<T, C> {
-	Array() {
-	}
+
 	template<class Archive>
 	void save(Archive & archive) const {
 		archive(cereal::make_nvp(MakeString() << "array" << C, *this));
@@ -36,6 +35,17 @@ template<class T, int C> struct Array: public std::array<T, C> {
 	template<class Archive>
 	void load(Archive & archive) {
 		archive(cereal::make_nvp(MakeString() << "array" << C, *this));
+	}
+	void set(const T& val) {
+		for (float& v : *this) {
+			v = val;
+		}
+	}
+	Array():array<T,C>() {
+
+	}
+	Array(const T& val)  {
+		set(val);
 	}
 };
 
@@ -48,7 +58,7 @@ template<class T, int C> void Transform(Array<T, C>& im1, Array<T, C>& im2,
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (size_t offset = 0; offset < sz; offset++) {
-		func(im1.data[offset], im2.data[offset]);
+		func(im1[offset], im2[offset]);
 	}
 }
 template<class T, int C> void Transform(Array<T, C>& im1,
@@ -56,7 +66,7 @@ template<class T, int C> void Transform(Array<T, C>& im1,
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (int offset = 0; offset < (int) sz; offset++) {
-		func(im1.data[offset]);
+		func(im1[offset]);
 	}
 }
 template<class T, int C> void Transform(Array<T, C>& im1,
@@ -68,7 +78,7 @@ template<class T, int C> void Transform(Array<T, C>& im1,
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (int offset = 0; offset < (int) sz; offset++) {
-		func(im1.data[offset], im2.data[offset]);
+		func(im1[offset], im2[offset]);
 	}
 }
 template<class T, int C> void Transform(Array<T, C>& im1,
@@ -81,8 +91,8 @@ template<class T, int C> void Transform(Array<T, C>& im1,
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (int offset = 0; offset < (int) sz; offset++) {
-		func(im1.data[offset], im2.data[offset], im3.data[offset],
-				im4.data[offset]);
+		func(im1[offset], im2[offset], im3[offset],
+				im4[offset]);
 	}
 }
 template<class T, int C> void Transform(Array<T, C>& im1,
@@ -95,7 +105,7 @@ template<class T, int C> void Transform(Array<T, C>& im1,
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (int offset = 0; offset < (int) sz; offset++) {
-		func(im1.data[offset], im2.data[offset], im3.data[offset]);
+		func(im1[offset], im2[offset], im3[offset]);
 	}
 }
 template<class T, int C> void Transform(Array<T, C>& im1, Array<T, C>& im2,
@@ -107,13 +117,13 @@ template<class T, int C> void Transform(Array<T, C>& im1, Array<T, C>& im2,
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (size_t offset = 0; offset < sz; offset++) {
-		func(offset, im1.data[offset], im2.data[offset]);
+		func(offset, im1[offset], im2[offset]);
 	}
 }
 template<class T, class L, class R, int C> std::basic_ostream<L, R> & operator <<(
 		std::basic_ostream<L, R> & ss, const Array<T, C> & A) {
 	size_t index = 0;
-	for (const T& val : A.data) {
+	for (const T& val : A) {
 		ss << std::setw(5) << index++ << ": " << val << std::endl;
 	}
 	return ss;
@@ -353,6 +363,18 @@ template<class T, int C> T lengthSqr(const Array<T, C>& a) {
 		ans += a[i]* a[i];
 	}
 	return ans;
+}
+template<class T, int C> T distanceSqr(const Array<T, C>& a, const Array<T, C>& b) {
+	T ans(0);
+	size_t sz = a.size();
+#pragma omp parallel for reduction(+:ans)
+	for (int i = 0; i < (int)sz; i++) {
+		ans += (a[i] - b[i])*(a[i] - b[i]);
+	}
+	return ans;
+}
+template<class T, int C> T distance(const Array<T, C>& a, const Array<T, C>& b) {
+	return std::sqrt(distanceSqr(a,b));
 }
 template<class T, int C> T max(const Array<T, C>& a) {
 	size_t sz = a.size();
