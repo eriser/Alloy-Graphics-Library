@@ -32,6 +32,7 @@
 #include "cereal/types/string.hpp"
 namespace aly {
 bool SANITY_CHECK_LINALG();
+
 template<class T, int C> struct Vector {
 public:
 	std::vector<vec<T, C>> data;
@@ -77,7 +78,7 @@ public:
 
 	template<class Archive>
 	void load(Archive & archive) {
-		archive(cereal::make_nvp(MakeString() << "vector" << C,data));
+		archive(cereal::make_nvp(MakeString() << "vector" << C, data));
 	}
 
 	void set(const T& val) {
@@ -114,7 +115,8 @@ public:
 			f(offset, data[offset]);
 		}
 	}
-	Vector(size_t sz) :data(sz) {
+	Vector(size_t sz) :
+			data(sz) {
 	}
 	Vector(const Vector<T, C>& img) :
 			Vector(img.size()) {
@@ -123,10 +125,10 @@ public:
 	Vector<T, C>& operator=(const Vector<T, C>& rhs) {
 		if (this == &rhs)
 			return *this;
-		if(rhs.size()>0){
-                    this->set(rhs.data);
+		if (rhs.size() > 0) {
+			this->set(rhs.data);
 		} else {
-		    this->clear();
+			this->clear();
 		}
 		return *this;
 	}
@@ -177,11 +179,17 @@ public:
 		data.assign(data.size(), vec<T, C>((T) 0));
 	}
 	const vec<T, C>& operator[](const size_t i) const {
-		if(i>=data.size())throw std::runtime_error(MakeString()<<"Vector index out of bounds "<<i<<"/"<<data.size());
+		if (i >= data.size())
+			throw std::runtime_error(
+					MakeString() << "Vector index out of bounds " << i << "/"
+							<< data.size());
 		return data[i];
 	}
 	vec<T, C>& operator[](const size_t i) {
-		if(i>=data.size())throw std::runtime_error(MakeString()<<"Vector index out of bounds "<<i<<"/"<<data.size());
+		if (i >= data.size())
+			throw std::runtime_error(
+					MakeString() << "Vector index out of bounds " << i << "/"
+							<< data.size());
 		return data[i];
 	}
 	inline void clear() {
@@ -336,16 +344,16 @@ template<class T, int C> void Transform(Vector<T, C>& im1,
 		func(im1.data[offset], im2.data[offset]);
 	}
 }
-template<class T, int C> void Transform(
-		Vector<T, C>& im1,
-		const Vector<T, C>& im2,
-		const Vector<T, C>& im3,
+template<class T, int C> void Transform(Vector<T, C>& im1,
+		const Vector<T, C>& im2, const Vector<T, C>& im3,
 		const Vector<T, C>& im4,
-		const std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,const vec<T, C>&)>& func) {
+		const std::function<
+				void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,
+						const vec<T, C>&)>& func) {
 	if (im1.size() != im2.size())
 		throw std::runtime_error(
 				MakeString() << "Vector dimensions do not match. " << im1.size()
-								<< "!=" << im2.size());
+						<< "!=" << im2.size());
 	size_t sz = im1.size();
 #pragma omp parallel for
 	for (int offset = 0; offset < (int) sz; offset++) {
@@ -415,12 +423,13 @@ template<class T, int C> void ScaleAdd(Vector<T, C>& out,
 		const Vector<T, C>& in2, const vec<T, C>& scalar3,
 		const Vector<T, C>& in3) {
 	out.resize(in1.size());
-	std::function<void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&, const vec<T, C>&)> f =
-			[=](vec<T, C>& out,
-					const vec<T, C>& val1,
-					const vec<T, C>& val2,
-					const vec<T, C>& val3) {
-				out = val1+scalar2*val2+scalar3 * val3;};
+	std::function<
+			void(vec<T, C>&, const vec<T, C>&, const vec<T, C>&,
+					const vec<T, C>&)> f = [=](vec<T, C>& out,
+			const vec<T, C>& val1,
+			const vec<T, C>& val2,
+			const vec<T, C>& val3) {
+		out = val1+scalar2*val2+scalar3 * val3;};
 	Transform(out, in1, in2, in3, f);
 }
 template<class T, int C> void ScaleSubtract(Vector<T, C>& out,

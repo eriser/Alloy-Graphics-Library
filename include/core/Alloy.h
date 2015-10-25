@@ -29,6 +29,7 @@
 #include "AlloyMath.h"
 #include "AlloyNumber.h"
 #include "AlloyImage.h"
+#include "AlloyArray.h"
 #include "AlloyDrawUtil.h"
 #include "AlloyUI.h"
 #include "AlloyWidget.h"
@@ -48,4 +49,5 @@
 #include "ImageProcessing.h"
 #include "AlloyMeshPrimitives.h"
 #include "AlloyPointLocator.h"
+
 #endif /* ALLOY_H_ */
