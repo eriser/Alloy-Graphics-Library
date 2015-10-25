@@ -79,6 +79,19 @@ template<class T, int C> struct Array: public std::array<T, C> {
 			return tmp[C / 2];
 		}
 	}
+	T stdDev() const {
+		if (C < 2) {
+			return T(0);
+		}
+		T avg = mean();
+		double var(0.0);
+		for (const T& val : *this) {
+			double e = (double)(val - avg);
+			var += e * e;
+		}
+		var = var / (double)(C - 1);
+		return T(std::sqrt(var));
+	}
 };
 
 template<class T, int C> void Transform(Array<T, C>& im1, Array<T, C>& im2,
