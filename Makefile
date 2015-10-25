@@ -39,8 +39,4 @@ all :
 	make -j8 alloy
 	$(RM) src/example/main.o
 	make -j8 examples
-	#for ex in $(EXAMPLES); do \
-	#	$(RM) src/example/main.o; \
-	#	make -j8 EXAMPLE=$$ex example; \
-	#done
 default : all
