@@ -126,7 +126,11 @@ namespace aly {
 			for (int c = 0;c < C;c++) {
 				pivot[c]= RandomUniform(0.49f, 0.51f)*scale;
 			}
-			
+			float avg = pivot.mean();
+			float med = pivot.median();
+			float mn = pivot.min();
+			float mx=pivot.max();
+			std::cout<<"Pivot mean: " << avg << " median: " << med << " min: " <<mn<< " max: " << mx << std::endl;
 			std::sort(samples.begin(), samples.end(), [=](const Array<float, C>& a, const Array<float, C>& b) {
 				return (distanceSqr(a, pivot) < distanceSqr(b, pivot));
 			});

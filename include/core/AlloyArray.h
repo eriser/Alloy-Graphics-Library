@@ -47,6 +47,38 @@ template<class T, int C> struct Array: public std::array<T, C> {
 	Array(const T& val)  {
 		set(val);
 	}
+	T max() const {
+		T tmp(std::numeric_limits<T>::min());
+		for (int i = 0; i < C; i++) {
+			if ((*this)[i] > tmp)
+				tmp = (*this)[i];
+		}
+		return tmp;
+	}
+	T min() const {
+		T tmp(std::numeric_limits<T>::max());
+		for (int i = 0; i < C; i++) {
+			if ((*this)[i] < tmp)
+				tmp = (*this)[i];
+		}
+		return tmp;
+	}
+	T mean() const {
+		T tmp(0);
+		for (int i = 0; i < C; i++) {
+			tmp += (*this)[i];
+		}
+		return tmp/T(C);
+	}
+	T median() const {
+		std::vector<T> tmp(this->begin(),this->end());
+		std::sort(tmp.begin(), tmp.end());
+		if (C% 2 == 0) {
+			return T(((double)tmp[C / 2]+ (double)tmp[C / 2 - 1])* 0.5f);
+		} else {
+			return tmp[C / 2];
+		}
+	}
 };
 
 template<class T, int C> void Transform(Array<T, C>& im1, Array<T, C>& im2,
@@ -370,6 +402,15 @@ template<class T, int C> T distanceSqr(const Array<T, C>& a, const Array<T, C>& 
 #pragma omp parallel for reduction(+:ans)
 	for (int i = 0; i < (int)sz; i++) {
 		ans += (a[i] - b[i])*(a[i] - b[i]);
+	}
+	return ans;
+}
+template<class T, int C> T distanceL1(const Array<T, C>& a, const Array<T, C>& b) {
+	T ans(0);
+	size_t sz = a.size();
+#pragma omp parallel for reduction(+:ans)
+	for (int i = 0; i < (int)sz; i++) {
+		ans += std::abs(a[i] - b[i]);
 	}
 	return ans;
 }
