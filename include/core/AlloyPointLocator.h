@@ -124,7 +124,7 @@ template <class VectorOfVectorsType, typename T = double, int C = -1, class Dist
 	KdTreeVectorAdapter(const VectorOfVectorsType &mat, const int leaf_max_size = 16) : m_data(mat)
 	{
 		assert(mat.size() != 0 && mat[0].size() != 0);
-		index = new index_t(C, *this, nanoflann::KDTreeSingleIndexAdapterParams(leaf_max_size));
+		index = new index_t(C, *this, nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
 		minPt = mat.min();
 		maxPt = mat.max();
 		index->buildIndex();
@@ -171,7 +171,7 @@ template <class VectorOfVectorsType, typename T = double, int C = -1, class Dist
 	}
 	template <class BBOX>
 	bool kdtree_get_bbox(BBOX & bb) const {
-		for (int c = 0;c < C:c++) {
+		for (int c = 0;c < C;c++) {
 			bb[c].low = minPt[c];
 			bb[c].high = maxPt[c];
 		}
