@@ -23,6 +23,9 @@
 #define ALLOYPOINTLOCATOR_H_
 #include "libkdtree/kdtree.h"
 #include "AlloyMath.h"
+#include "AlloyVector.h"
+#include "nanoflann.h"
+
 namespace aly {
 struct float2i : public float2{
 		typedef float value_type;
@@ -60,13 +63,13 @@ struct float3i : public float3 {
 		return std::max(std::abs(z-node.z),std::max(std::abs(x - node.x), std::abs(y - node.y)));
 	}
 };
-class PointLocator2D {
+class PointLocator2f {
 protected:
 	libkdtree::KDTree<2, float2i> locator;
 	int64_t indexCount = 0;
 public:
 	static const float2i NO_POINT_FOUND;
-	PointLocator2D() {
+	PointLocator2f() {
 
 	}
 	void clear() {
@@ -85,13 +88,13 @@ public:
 	float2i closestPointExact(float2i query) const;
 	void findNearest(float2 query, float maxDisatnce, std::vector<float2i>& pts) const;
 };
-class PointLocator3D {
+class PointLocator3f {
 protected:
 	libkdtree::KDTree<3, float3i> locator;
 	int64_t indexCount = 0;
 public:
 	static const float3i NO_POINT_FOUND;
-	PointLocator3D() {
+	PointLocator3f() {
 
 	}
 	void insert(const float3i& pt);
@@ -110,5 +113,75 @@ public:
 	float3i closestPointExact(float3i query) const;
 	void findNearest(float3 query, float maxDisatnce, std::vector<float3i>& pts) const;
 };
+template <class VectorOfVectorsType, typename T = double, int C = -1, class Distance = nanoflann::metric_L2, typename IndexType = size_t> struct KdTreeVectorAdaptor
+{
+	typedef KdTreeVectorAdaptor<VectorOfVectorsType, T, C, Distance> self_t;
+	typedef typename Distance::template traits<T, self_t>::distance_t metric_t;
+	typedef nanoflann::KDTreeSingleIndexAdaptor< metric_t, self_t, C, IndexType>  index_t;
+	index_t* index; //! The kd-tree index for the user to call its methods as usual with any other FLANN index.
+	vec<T, C> minPt;
+	vec<T, C> maxPt;
+	KdTreeVectorAdaptor(const VectorOfVectorsType &mat, const int leaf_max_size = 16) : m_data(mat)
+	{
+		assert(mat.size() != 0 && mat[0].size() != 0);
+		index = new index_t(C, *this, nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
+		minPt = mat.min();
+		maxPt = mat.max();
+		index->buildIndex();
+	}
+
+	~KdTreeVectorAdaptor() {
+		delete index;
+	}
+	const VectorOfVectorsType &m_data;
+	/** Query for the \a num_closest closest points to a given point (entered as query_point[0:dim-1]).
+	*  Note that this is a short-cut method for index->findNeighbors().
+	*  The user can also call index->... methods as desired.
+	* \note nChecks_IGNORED is ignored but kept for compatibility with the original FLANN interface.
+	*/
+	inline void query(const T *query_point, const size_t num_closest, IndexType *out_indices, T *out_distances_sq, const int nChecks_IGNORED = 10) const
+	{
+		nanoflann::KNNResultSet<typename VectorOfVectorsType::Scalar, IndexType> resultSet(num_closest);
+		resultSet.init(out_indices, out_distances_sq);
+		index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+	}
+	const self_t & derived() const {
+		return *this;
+	}
+	self_t & derived() {
+		return *this;
+	}
+	// Must return the number of data points
+	inline size_t kdtree_get_point_count() const {
+		return m_data.size();
+	}
+	// Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
+	inline T kdtree_distance(const T *p1, const size_t idx_p2, size_t size) const
+	{
+		T s = 0;
+		for (size_t i = 0; i<size; i++) {
+			const T d = p1[i] - m_data[idx_p2][i];
+			s += d*d;
+		}
+		return s;
+	}
+	// Returns the dim'th component of the idx'th point in the class:
+	inline T kdtree_get_pt(const size_t idx, int dim) const {
+		return m_data[idx][dim];
+	}
+	template <class BBOX>
+	bool kdtree_get_bbox(BBOX & bb) const {
+		for (int c = 0;c < C:c++) {
+			bb[c].low = minPt[c];
+			bb[c].high = maxPt[c];
+		}
+		return true;
+	}
+}; // end of KdTreeVectorAdaptor
+typedef KdTreeVectorAdaptor<Vector4f, float, 4, nanoflann::metric_L2, size_t> FLANNLocator4f;
+typedef KdTreeVectorAdaptor<Vector3f, float, 3, nanoflann::metric_L2, size_t> FLANNLocator3f;
+typedef KdTreeVectorAdaptor<Vector2f, float, 2, nanoflann::metric_L2, size_t> FLANNLocator2f;
+typedef KdTreeVectorAdaptor<Vector1f, float, 1, nanoflann::metric_L2, size_t> FLANNLocator1f;
+
 }
 #endif
