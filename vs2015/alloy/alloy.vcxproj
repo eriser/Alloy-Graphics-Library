@@ -62,6 +62,7 @@
     <ClInclude Include="..\..\include\core\AlloyAnimator.h" />
     <ClInclude Include="..\..\include\core\AlloyAny.h" />
     <ClInclude Include="..\..\include\core\AlloyApplication.h" />
+    <ClInclude Include="..\..\include\core\AlloyArray.h" />
     <ClInclude Include="..\..\include\core\AlloyCamera.h" />
     <ClInclude Include="..\..\include\core\AlloyCommon.h" />
     <ClInclude Include="..\..\include\core\AlloyContext.h" />
