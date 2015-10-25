@@ -290,5 +290,8 @@
     <ClInclude Include="..\..\include\core\AlloyPointLocator.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\core\nanoflann.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
