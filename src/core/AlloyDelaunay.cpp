@@ -149,7 +149,7 @@ namespace aly {
 			Skipping over any tagged edges.
 			All edges are arranged in clockwise order.
 			*/
-			for (j = 0; j < edges.size(); j++) {
+			for (j = 0; j < (int)edges.size(); j++) {
 				if (edges[j].x < 0 || edges[j].y < 0)
 					continue;
 				triangles.push_back(int3(edges[j].x, edges[j].y, i ));
@@ -178,7 +178,6 @@ namespace aly {
 		}
 		std::vector<int3>	cTriangles;
 		Triangulate(tmp, cTriangles);
-		int counter = 0;
 		for (int3& triangle : cTriangles) {
 			if (triangle.x < N &&
 				triangle.y < N &&
