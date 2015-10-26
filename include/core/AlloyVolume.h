@@ -41,12 +41,6 @@ public:
 	typedef typename std::vector<ValueType>::iterator iterator;
 	typedef typename std::vector<ValueType>::const_iterator const_iterator;
 	typedef typename std::vector<ValueType>::reverse_iterator reverse_iterator;
-	iterator begin() const {
-		return data.begin();
-	}
-	iterator end() const {
-		return data.end();
-	}
 	iterator begin() {
 		return data.begin();
 	}

@@ -180,6 +180,13 @@ public:
 	bool isVisible() const ;
 	virtual ~Region();
 };
+class Draw : public Region {
+public:
+	std::function<void(const AlloyContext* context,const box2px& bounds)> onDraw;
+	Draw(const std::string& name, const AUnit2D& pos, const AUnit2D& dims,const std::function<void(const AlloyContext* context, const box2px& bounds)>& func=nullptr):Region(name,pos,dims),onDraw(func) {
+	}
+	virtual void draw(AlloyContext* context) override;
+};
 struct ScrollHandle: public Region {
 public:
 	const Orientation orientation;
@@ -683,5 +690,6 @@ typedef std::shared_ptr<MenuItem> MenuItemPtr;
 typedef std::shared_ptr<Menu> MenuPtr;
 typedef std::shared_ptr<MenuHeader> MenuHeaderPtr;
 typedef std::shared_ptr<MenuBar> MenuBarPtr;
+typedef std::shared_ptr<Draw> DrawPtr;
 }
 #endif /* ALLOYUI_H_ */

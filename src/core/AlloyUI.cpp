@@ -243,6 +243,11 @@ box2px Region::getCursorBounds(bool includeOffset) const {
 
 	return box;
 }
+void Draw::draw(AlloyContext* context) {
+	if (onDraw) {
+		onDraw(context, getBounds());
+	}
+}
 void Composite::putLast(const std::shared_ptr<Region>& region) {
 	size_t idx = 0;
 	size_t pivot = children.size() - 1;

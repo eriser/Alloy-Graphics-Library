@@ -108,6 +108,15 @@ public:
 		}
 		locator.insert(ptsi.begin(), ptsi.end());
 	}
+	void insert(const Vector<T, C>& pts) {
+		insert(pts.data);
+	}
+	Locator(const std::vector<vec<T, C>>& data) {
+		insert(data);
+	}
+	Locator(const Vector<T, C>& data) {
+		insert(data.data);
+	}
 	void insert(const std::vector<xvec<T, C>>& ptsi) {
 		for (xvec<T, C> pt : ptsi) {
 			indexCount = std::max(indexCount, (pt.index + 1));
