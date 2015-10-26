@@ -70,7 +70,6 @@ namespace aly {
 	void Triangulate(std::vector<float2>& pxyz, std::vector<int3>& triangles) {
 		int nv = (int)pxyz.size();
 		std::vector<int2> edges;
-		bool status = 0;
 		bool inside;
 		int i, j, k;
 		float xp, yp, x1, y1, x2, y2, x3, y3, xc, yc, r;
@@ -103,11 +102,11 @@ namespace aly {
 		pxyz.push_back(float2(xmid + scale * dmax, ymid - dmax));
 		triangles.push_back(int3( nv, nv + 1, nv + 2 ));
 		complete.push_back(false);
-		for (i = 0; i < pxyz.size(); i++) {
+		for (i = 0; i < (int)pxyz.size(); i++) {
 			xp = pxyz[i].x;
 			yp = pxyz[i].y;
 			edges.clear();
-			for (j = 0; j < triangles.size(); j++) {
+			for (j = 0; j < (int)triangles.size(); j++) {
 				if (complete[j])
 					continue;
 				x1 = pxyz[triangles[j].x].x;
@@ -132,8 +131,8 @@ namespace aly {
 			Note: if all triangles are specified anticlockwise then all
 			interior edges are opposite pointing in direction.
 			*/
-			for (j = 0; j < edges.size() - 1; j++) {
-				for (k = j + 1; k < edges.size(); k++) {
+			for (j = 0; j < (int)edges.size() - 1; j++) {
+				for (k = j + 1; k < (int)edges.size(); k++) {
 					if ((edges[j].x == edges[k].y) && (edges[j].y == edges[k].x)) {
 						edges[j] = int2(-1, -1 );
 						edges[k] = int2(-1, -1 );
