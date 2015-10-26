@@ -111,12 +111,8 @@ void Application::draw() {
 	glViewport(0, 0, context->width(), context->height());
 	drawUI();
 	if (context->isDebugEnabled()) {
-		glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		drawDebugUI();
-	} else {
-		glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
-
 }
 void Application::drawUI() {
 	if (context->dirtyUI) {

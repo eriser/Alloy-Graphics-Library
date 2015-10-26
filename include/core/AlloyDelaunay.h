@@ -18,27 +18,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#ifndef LOCATOR_EX_H_
-#define LOCATOR_EX_H_
-
-#include "AlloyApplication.h"
+#ifndef ALLOYDELAUNAY_H
+#define ALLOYDELAUNAY_H
+#include "AlloyMath.h"
 #include "AlloyVector.h"
-#include "AlloyPointLocator.h"
-class LocatorEx: public aly::Application {
-protected:
-	std::vector<std::pair<size_t, float>> kNN;
-	std::vector < aly::float2i> nearest;
-	aly::float2i closest;
-	aly::float2 cursor;
-	aly::Vector2f samples;
-	aly::DrawPtr drawRegion;
-	std::vector<aly::uint3> delaunayTriangles;
-	std::unique_ptr<aly::Locator2f> locator;
-	std::unique_ptr<aly::Matcher2f> matcher;
-public:
-	LocatorEx();
-	bool init(aly::Composite& rootNode);
-};
-
-#endif 
+#include <iostream>
+namespace aly {
+	void Triangulate(std::vector<float2>& pxyz, std::vector<uint3>& v);
+	bool CircumCircle(float, float, float, float, float, float, float, float, float&, float&, float&);
+	void MakeDelaunay(const std::vector<float2>& vertexes, std::vector<uint3>& output);
+	inline void MakeDelaunay(const Vector2f& vertexes, std::vector<uint3>& output) {
+		MakeDelaunay(vertexes.data, output);
+	}
+}
+#endif

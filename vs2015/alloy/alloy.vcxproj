@@ -25,6 +25,7 @@
     <ClCompile Include="..\..\src\core\AlloyCamera.cpp" />
     <ClCompile Include="..\..\src\core\AlloyContext.cpp" />
     <ClCompile Include="..\..\src\core\AlloyCursorLocator.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyDelaunay.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDenseMatrix.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDenseSolve.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDrawUtil.cpp" />
@@ -66,6 +67,7 @@
     <ClInclude Include="..\..\include\core\AlloyCommon.h" />
     <ClInclude Include="..\..\include\core\AlloyContext.h" />
     <ClInclude Include="..\..\include\core\AlloyCursorLocator.h" />
+    <ClInclude Include="..\..\include\core\AlloyDelaunay.h" />
     <ClInclude Include="..\..\include\core\AlloyDenseMatrix.h" />
     <ClInclude Include="..\..\include\core\AlloyDenseSolve.h" />
     <ClInclude Include="..\..\include\core\AlloyDrawUtil.h" />

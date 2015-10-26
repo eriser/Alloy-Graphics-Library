@@ -123,6 +123,9 @@
     <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyDelaunay.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h">
@@ -291,6 +294,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyPointLocator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyDelaunay.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

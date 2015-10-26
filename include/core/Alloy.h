@@ -49,5 +49,5 @@
 #include "ImageProcessing.h"
 #include "AlloyMeshPrimitives.h"
 #include "AlloyPointLocator.h"
-
+#include "AlloyDelaunay.h"
 #endif /* ALLOY_H_ */
