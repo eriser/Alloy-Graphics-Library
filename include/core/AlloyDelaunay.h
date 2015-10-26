@@ -30,5 +30,8 @@ namespace aly {
 	inline void MakeDelaunay(const Vector2f& vertexes, std::vector<uint3>& output) {
 		MakeDelaunay(vertexes.data, output);
 	}
+	inline void MakeDelaunay(const Vector2f& vertexes, Vector3ui& output) {
+		MakeDelaunay(vertexes.data, output.data);
+	}
 }
 #endif
