@@ -24,7 +24,7 @@
 using namespace aly;
 MeshPrimitivesEx::MeshPrimitivesEx() :
 		Application(800, 600, "Mesh Primitives Example"), phongShader(1), imageShader(
-				ImageShader::Filter::FXAA) {
+				ImageShader::Filter::FXAA),mesh(nullptr) {
 }
 bool MeshPrimitivesEx::init(Composite& rootNode) {
 

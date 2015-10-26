@@ -46,7 +46,7 @@ namespace tinyobj {
 
 struct vertex_index {
 	int v_idx, vt_idx, vn_idx;
-	vertex_index() {
+	vertex_index():v_idx(0),vt_idx(0),vn_idx(0) {
 	}
 	;
 	vertex_index(int idx) :
@@ -59,7 +59,7 @@ struct vertex_index {
 	;
 };
 // for std::map
-static inline bool operator<(const vertex_index &a, const vertex_index &b) {
+inline bool operator<(const vertex_index &a, const vertex_index &b) {
 	if (a.v_idx != b.v_idx)
 		return (a.v_idx < b.v_idx);
 	if (a.vn_idx != b.vn_idx)
