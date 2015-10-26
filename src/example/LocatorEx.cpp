@@ -18,19 +18,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 #include "Alloy.h"
 #include "../../include/example/LocatorEx.h"
-#include "AlloyPointLocator.h"
 using namespace aly;
 LocatorEx::LocatorEx() :
-	Application(600, 600, "Point Locator Example") {
+	Application(800, 800, "Point Locator Example") {
 }
 bool LocatorEx::init(Composite& rootNode) {
-	const int N = 250;
+	const int N = 300;
 	const int K = 5;
 	const float SEARCH_RADIUS = 0.2f;
-	drawRegion= DrawPtr(new Draw("Draw Region", CoordPerPX(0.5f, 0.5f, -300, -300), CoordPX(600, 600)));
+	drawRegion= DrawPtr(new Draw("Draw Region", CoordPerPX(0.5f, 0.5f, -400, -400), CoordPX(800, 800)));
 	rootNode.add(drawRegion);
 	samples.resize(N);
 	for (int n = 0; n < N; n++) {
@@ -90,6 +88,7 @@ bool LocatorEx::init(Composite& rootNode) {
 		matcher->closest(pt, K, kNN);
 		return true;
 	};
+
 	return true;
 }
 
