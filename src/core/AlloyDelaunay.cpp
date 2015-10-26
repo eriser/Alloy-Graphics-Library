@@ -18,6 +18,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+
+//Re-implementation of Paul Bourke's incremental Delanauy construction algorithm.
+//http://paulbourke.net/papers/triangulate/cpp.zip
 #include "AlloyDelaunay.h"
 #include <algorithm>
 namespace aly {
