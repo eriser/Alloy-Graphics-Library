@@ -437,7 +437,7 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 	e.scancode = scancode;
 	e.mods = mods;
 	e.cursor = context->cursorPosition;
-	if (key == GLFW_KEY_F12 && e.action == GLFW_PRESS) {
+	if (key == GLFW_KEY_F11 && e.action == GLFW_PRESS) {
 		for (int i = 0; i < 1000; i++) {
 			std::string screenShot = MakeString() << GetDesktopDirectory()
 					<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(4)<<std::setfill('0')<<i<<".png";
