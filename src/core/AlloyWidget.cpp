@@ -688,7 +688,7 @@ namespace aly {
 		selectionBox->textColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT_TEXT);
 		selectionBox->textAltColor = MakeColor(
-			AlloyApplicationContext()->theme.DARK_TEXT);
+			AlloyApplicationContext()->theme.LIGHT_TEXT);
 		arrowLabel->setAspectRatio(1.0f);
 		arrowLabel->setOrigin(Origin::TopRight);
 		arrowLabel->setAspectRule(AspectRule::FixedHeight);
@@ -866,17 +866,17 @@ namespace aly {
 			pixel2(xoff, sliderHandle->getBoundsDimensionsY()),
 			pixel2(0.0f, 0.0f));
 		sliderPosition = value;
-		this->value.setValue(value);
+		this->value.setValue(clamp(value, minValue.toDouble(), maxValue.toDouble()));
 	}
 	void HorizontalSlider::update() {
 		double interp = (sliderHandle->getBoundsPositionX()
 			- sliderTrack->getBoundsPositionX())
 			/ (double)(sliderTrack->getBoundsDimensionsX()
 				- sliderHandle->getBoundsDimensionsX());
-		float val = (float)((1.0 - interp) * minValue.toDouble()
+		double val = (double)((1.0 - interp) * minValue.toDouble()
 			+ interp * maxValue.toDouble());
 		sliderPosition = val;
-		value.setValue(val);
+		value.setValue(clamp(val, minValue.toDouble(), maxValue.toDouble()));
 	}
 	bool HorizontalSlider::onMouseDown(AlloyContext* context, Region* region,
 		const InputEvent& event) {
@@ -1040,17 +1040,17 @@ namespace aly {
 			pixel2(sliderHandle->getBoundsDimensionsX(), yoff),
 			pixel2(0.0f, 0.0f));
 		sliderPosition = value;
-		this->value.setValue(value);
+		this->value.setValue(clamp(value, minValue.toDouble(), maxValue.toDouble()));
 	}
 	void VerticalSlider::update() {
 		double interp = (sliderHandle->getBoundsPositionY()
 			- sliderTrack->getBoundsPositionY())
 			/ (double)(sliderTrack->getBoundsDimensionsY()
 				- sliderHandle->getBoundsDimensionsY());
-		float val = (float)(interp * minValue.toDouble()
+		double val = (double)(interp * minValue.toDouble()
 			+ (1.0 - interp) * maxValue.toDouble());
 		sliderPosition = val;
-		value.setValue(val);
+		value.setValue(clamp(val,minValue.toDouble(),maxValue.toDouble()));
 	}
 	bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 		const InputEvent& event) {
