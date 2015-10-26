@@ -161,27 +161,27 @@ namespace aly {
 		if (vertexes.size() < 3) {
 			return;
 		}
-		std::vector<int3>	cTriangles;
-		std::vector<float2>	cVtxOutput;
-		int vertCount = (int)vertexes.size();
-		std::vector<std::pair<float2, int>> pVertMap(vertCount);
+		int N = (int)vertexes.size();
+		std::vector<std::pair<float2, int>> vertPairs(N);
 		int index = 0;
 		for (const float2& vert : vertexes) {
-			pVertMap[index] = std::pair<float2, int>(vert, index);
+			vertPairs[index] = std::pair<float2, int>(vert, index);
 			index++;
 		}
-		std::sort(pVertMap.begin(), pVertMap.end());
+		std::sort(vertPairs.begin(), vertPairs.end());
 		std::vector<float2> tmp;
-		for (std::pair<float2, int>& pr : pVertMap) {
+		tmp.reserve(vertPairs.size());
+		for (std::pair<float2, int>& pr : vertPairs) {
 			tmp.push_back(pr.first);
 		}
+		std::vector<int3>	cTriangles;
 		Triangulate(tmp, cTriangles);
 		int counter = 0;
 		for (int3& triangle : cTriangles) {
-			if (triangle.x < vertCount &&
-				triangle.y < vertCount &&
-				triangle.z < vertCount) {
-				output.push_back(uint3((uint32_t)pVertMap[triangle.x].second, (uint32_t)pVertMap[triangle.y].second, pVertMap[triangle.z].second));
+			if (triangle.x < N &&
+				triangle.y < N &&
+				triangle.z < N) {
+				output.push_back(uint3((uint32_t)vertPairs[triangle.x].second, (uint32_t)vertPairs[triangle.y].second, vertPairs[triangle.z].second));
 			}
 		}
 	}
