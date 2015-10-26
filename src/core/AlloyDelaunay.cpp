@@ -19,7 +19,7 @@
 * THE SOFTWARE.
 */
 
-//Re-implementation of Paul Bourke's incremental Delanauy construction algorithm.
+//Re-implementation of Paul Bourke's incremental Delaunay construction algorithm.
 //http://paulbourke.net/papers/triangulate/cpp.zip
 #include "AlloyDelaunay.h"
 #include <algorithm>
