@@ -50,6 +50,7 @@ in vec4 vp;
 in vec4 center;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
+out vec4 FragColor;
 void main(void) {
 	float radius=length(uv);
 	if(radius>1.0){
@@ -61,7 +62,7 @@ void main(void) {
 		float cr=sqrt(r*r-rxy*rxy);
 		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 		vec3 norm=normalize(vec3(pos.x-center.x,pos.y-center.y,cr));
-		gl_FragColor=vec4(-norm,d);
+		FragColor=vec4(-norm,d);
 		gl_FragDepth=d;
 	}
 }
@@ -200,6 +201,7 @@ in vec2 uv;
 in vec4 vp;
 in vec4 color;
 in vec4 center;
+out vec4 FragColor;
 uniform sampler2D matcapTexture;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
@@ -214,7 +216,7 @@ void main(void) {
 		float cr=sqrt(r*r-rxy*rxy);
 		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 		vec3 norm=normalize(vec3(pos.x-center.x,pos.y-center.y,cr));
-		gl_FragColor=color*texture(matcapTexture,-0.5*norm.xy+0.5);
+		FragColor=color*texture(matcapTexture,-0.5*norm.xy+0.5);
 		gl_FragDepth=d;
 	}
 }
@@ -413,6 +415,7 @@ uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
 flat in int vertId;
 uniform int objectId;
+out vec4 FragColor;
 void main(void) {
 	float radius=length(uv);
 	if(radius>1.0){
@@ -424,7 +427,7 @@ void main(void) {
 		float cr=sqrt(r*r-rxy*rxy);
 		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1+ objectId);
-		gl_FragColor = rgba;
+		FragColor = rgba;
 		gl_FragDepth=d;
 	}
 }
@@ -608,6 +611,7 @@ SelectionShader::SelectionShader(bool onScreen,const std::shared_ptr<AlloyContex
 		uniform ivec2 depthBufferSize;
 		uniform sampler2D depthImage;
 		uniform sampler2D faceImage;
+		out vec4 FragColor;
 		void main() {
 			ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 			vec4 rgba=texelFetch(depthImage, pos, 0);
@@ -620,7 +624,7 @@ SelectionShader::SelectionShader(bool onScreen,const std::shared_ptr<AlloyContex
 				rgba=vec4(0.0,0.0,0.0,1.0);
 			}
 			gl_FragDepth=rgba.w;
-			gl_FragColor=rgba;
+			FragColor=rgba;
 		}
 )");
 }
@@ -649,6 +653,7 @@ layout(location = 1) in vec2 vt;
 		 in vec2 uv;
 		 uniform float sourceAlpha;
 		 uniform float targetAlpha;
+out vec4 FragColor;
 		 void main() {
 		 vec4 srcColor=texture(sourceImage,uv);
          vec4 srcDepth=texture(sourceDepth,uv);
@@ -658,17 +663,17 @@ layout(location = 1) in vec2 vt;
          tarColor.w=tarColor.w*targetAlpha;
 		 gl_FragDepth=min(srcDepth.w,tarDepth.w);
 			if(tarDepth.w>=1.0&&srcDepth.w>=1.0){
-				gl_FragColor=vec4(0,0,0,0);
+				FragColor=vec4(0,0,0,0);
 			} else if(tarDepth.w>0&&srcDepth.w<=0){
-			   gl_FragColor=tarColor;
+			   FragColor=tarColor;
 			} else if(tarDepth.w<=0&&srcDepth.w>0){
-			   gl_FragColor=srcColor;
+			   FragColor=srcColor;
 			} else if(srcDepth.w==tarDepth.w){
-				gl_FragColor=mix(srcColor,tarColor,srcColor.w/(srcColor.w+tarColor.w));
+				FragColor=mix(srcColor,tarColor,srcColor.w/(srcColor.w+tarColor.w));
 			} else if(srcDepth.w<tarDepth.w){
-			   gl_FragColor=mix(tarColor,srcColor,srcColor.w);
+			   FragColor=mix(tarColor,srcColor,srcColor.w);
 			}  else {
-				gl_FragColor=mix(srcColor,tarColor,tarColor.w);
+				FragColor=mix(srcColor,tarColor,tarColor.w);
 			}
 		 })");
 }
@@ -692,12 +697,12 @@ gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			R"(
 #version 330
 in vec2 uv;
+out vec4 FragColor;
 uniform ivec2 depthBufferSize;
 const float PI=3.1415926535;
 uniform vec4 tint;
 uniform sampler2D matcapTexture;
 uniform sampler2D textureImage;
-
 void main() {
 ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
@@ -708,7 +713,7 @@ if(rgba.w<1.0){
 } else {
  rgba=vec4(0.0,0.0,0.0,0.0);
 }
-gl_FragColor=rgba;
+FragColor=rgba;
 })");
 
 }
@@ -735,6 +740,7 @@ TextureMeshShader::TextureMeshShader(bool onScreen,
     uniform vec4 texBounds;
 	uniform sampler2D textureImage;
 	uniform sampler2D depthBuffer;
+out vec4 FragColor;
 	void main() {
 	ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 	vec4 rgba=texelFetch(depthBuffer, pos,0);//Do not interpolate depth buffer!
@@ -743,7 +749,7 @@ TextureMeshShader::TextureMeshShader(bool onScreen,
 		  pix.y=1.0-pix.y;
     	  vec4 c=texture(textureImage,pix);
           if(c.w>0){
-              gl_FragColor=c;
+              FragColor=c;
               gl_FragDepth=rgba.w;
           } else {
             discard;
@@ -759,8 +765,8 @@ ImageShader::ImageShader( const Filter& filter,bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
 	if (filter == Filter::NONE) {
-		initialize( { },
-				R"(
+		initialize({},
+			R"(
 		 #version 330
 		 layout(location = 0) in vec3 vp; 
 layout(location = 1) in vec2 vt; 
@@ -773,15 +779,16 @@ layout(location = 1) in vec2 vt;
 		vec2 pos=vp.xy*bounds.zw+bounds.xy;
 	    gl_Position = vec4(2*pos.x/viewport.z-1.0,1.0-2*pos.y/viewport.w,0,1);
 			})",
-				R"(
+			R"(
 		 #version 330
 		 in vec2 uv;
+		 out vec4 FragColor;
 		 uniform sampler2D textureImage;
 		 uniform float alpha;
 		 void main() {
 		 vec4 rgba=texture(textureImage,uv);
          rgba.w=rgba.w*alpha;
-		 gl_FragColor=rgba;
+		 FragColor=rgba;
 		 })");
 	} else if (filter == Filter::SMALL_BLUR) {
 		initialize( { },
@@ -792,6 +799,7 @@ layout(location = 1) in vec2 vt;
 			 uniform vec4 bounds;
 			 uniform vec4 viewport;
 			uniform int flip;
+			
 			out vec2 uv;
 					 void main() {
 			if(flip!=0)uv=vec2(vt.x,1.0-vt.y); else uv=vt;
@@ -801,6 +809,7 @@ layout(location = 1) in vec2 vt;
 				R"(
 					 #version 330
 			in vec2 uv;
+			out vec4 FragColor;
 			 uniform sampler2D textureImage;
 			 void main() {
                 vec4 colors[9];
@@ -815,7 +824,7 @@ layout(location = 1) in vec2 vt;
 				rgba+=weights[6]*textureOffset(textureImage,uv, ivec2(-1, 1));
 				rgba+=weights[7]*textureOffset(textureImage,uv, ivec2( 0, 1));
 				rgba+=weights[8]*textureOffset(textureImage,uv, ivec2( 1, 1));
-				gl_FragColor=rgba/16.0;
+				FragColor=rgba/16.0;
 			 })");
 	} else if (filter == Filter::LARGE_BLUR) {
 		initialize( { },
@@ -837,6 +846,7 @@ layout(location = 1) in vec2 vt;
 			 in vec2 uv;
 			 uniform vec4 bounds;
 			 uniform sampler2D textureImage;
+			out vec4 FragColor;
 			 void main() {
                 vec4 colors[9];
 				const float weights[25]=float[25](
@@ -884,7 +894,7 @@ sum+=256.0;
 					}
 				}
 
-																gl_FragColor=rgba/sum;
+																FragColor=rgba/sum;
 			 })");
 	} else if (filter == Filter::MEDIUM_BLUR) {
 		initialize( { },
@@ -906,6 +916,7 @@ sum+=256.0;
 			 in vec2 uv;
 			 uniform vec4 bounds;
 			 uniform sampler2D textureImage;
+out vec4 FragColor;
 			 void main() {
                 vec4 colors[9];
 				const float weights[25]=float[25](
@@ -944,7 +955,7 @@ sum+=256.0;
 						rgba+=weights[22]*textureOffset(textureImage,uv, ivec2( 0, 2));
 						rgba+=weights[23]*textureOffset(textureImage,uv, ivec2( 1, 2));
 						rgba+=weights[24]*textureOffset(textureImage,uv, ivec2( 2, 2));
-				gl_FragColor=rgba/256.0;
+				FragColor=rgba/256.0;
 			 })");
 	} else if (filter == Filter::FXAA) {
 		initialize( { },
@@ -969,7 +980,7 @@ void main() {
 				R"(
 #version 330
 uniform sampler2D tex0; // 0
-
+out vec4 FragColor;
 uniform vec4 bounds;
 uniform float FXAA_SPAN_MAX = 8.0;
 uniform float FXAA_REDUCE_MUL = 1.0/8.0;
@@ -1038,7 +1049,7 @@ vec4 PostFX(sampler2D tex, float time)
     
 void main() 
 { 
-  gl_FragColor = PostFX(tex0, 0.0);
+  FragColor = PostFX(tex0, 0.0);
 })");
 	}
 }
@@ -1305,9 +1316,10 @@ FaceIdShader::FaceIdShader(bool onScreen,
 	#version 330
 	flat in int vertId;
 	uniform int objectId;
+	out vec4 FragColor;
 	void main() {
 		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1+ objectId);
-		gl_FragColor = rgba;
+		FragColor = rgba;
 }
 	)",
 			R"(	#version 330
@@ -1405,8 +1417,8 @@ if(IS_QUAD!=0){
 		EndPrimitive();
 	}
 })");
-	particleIdShader.initialize( { },
-			R"(
+particleIdShader.initialize({},
+	R"(
 			#version 330 core
 			#extension GL_ARB_separate_shader_objects : enable
 			layout(location = 0) in vec3 vp;
@@ -1424,7 +1436,7 @@ if(IS_QUAD!=0){
 				vs_out.vertId=int(gl_VertexID)+vertIdOffset;
 			}
 		)",
-			R"(
+	R"(
 #version 330 core
 in vec2 uv;
 in vec4 vp;
@@ -1433,6 +1445,7 @@ uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
 flat in int vertId;
 uniform int objectId;
+out vec4 FragColor;
 void main(void) {
 	float radius=length(uv);
 	if(radius>1.0){
@@ -1444,7 +1457,7 @@ void main(void) {
 		float cr=sqrt(r*r-rxy*rxy);
 		float d=(-pos.z-cr-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 		vec4 rgba = vec4(uint(vertId) & uint(0x00000FFF), ((uint(vertId) & uint(0x00FFF000)) >> uint(12)), ((uint(vertId) & uint(0xFF000000) ) >> uint(24)), 1+ objectId);
-		gl_FragColor = rgba;
+		FragColor = rgba;
 		gl_FragDepth=d;
 	}
 }
@@ -1455,6 +1468,7 @@ void main(void) {
 	out vec2 uv;
 	out vec4 vp;
     out vec4 center;
+out vec4 FragColor;
 	layout(points) in;
 	layout(triangle_strip, max_vertices = 4) out;
 	in VS_OUT {
@@ -1501,14 +1515,14 @@ void main(void) {
 DepthAndNormalShader::DepthAndNormalShader(bool onScreen,
 		const std::shared_ptr<AlloyContext>& context) :
 		GLShader(onScreen, context) {
-	initialize( { },
-			R"(	#version 330
+	initialize({},
+		R"(	#version 330
 				layout(location = 3) in vec3 vp0;
 				layout(location = 4) in vec3 vp1;
 				layout(location = 5) in vec3 vp2;
 				layout(location = 6) in vec3 vp3;
 
-													layout(location = 7) in vec3 vn0;
+															layout(location = 7) in vec3 vn0;
 				layout(location = 8) in vec3 vn1;
 				layout(location = 9) in vec3 vn2;
 				layout(location = 10) in vec3 vn3;
@@ -1533,14 +1547,15 @@ DepthAndNormalShader::DepthAndNormalShader(bool onScreen,
 					vs_out.n2=vn2;
 					vs_out.n3=vn3;
 				})",
-			R"(	#version 330
+		R"(	#version 330
 					in vec3 normal;
 					in vec3 vert;
 					uniform float MIN_DEPTH;
 					uniform float MAX_DEPTH;
+					out vec4 FragColor;
 					void main() {
 						vec3 normalized_normal = normalize(normal);
-						gl_FragColor = vec4(normalized_normal.xyz,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+						FragColor = vec4(normalized_normal.xyz,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 					}
 					)",
 			R"(	#version 330
@@ -1801,8 +1816,9 @@ ColorVertexShader::ColorVertexShader(bool onScreen,
 				})",
 			R"(	#version 330
                     in vec4 color;
+					out vec4 FragColor;
 					void main() {
-						gl_FragColor = color;
+						FragColor = color;
 					}
 					)",
 			R"(	#version 330
@@ -2006,8 +2022,9 @@ DepthAndTextureShader::DepthAndTextureShader(bool onScreen,
 					in vec2 tex;
 					uniform float MIN_DEPTH;
 					uniform float MAX_DEPTH;
+					out vec4 FragColor;
 					void main() {
-						gl_FragColor = vec4(tex.x,tex.y,0.0,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
+						FragColor = vec4(tex.x,tex.y,0.0,(-vert.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH));
 					}
 					)",
 			R"(	#version 330
@@ -2182,6 +2199,7 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(bool onScreen,
 			R"(	#version 330
 				in vec3 v0, v1, v2, v3;
 				in vec3 normal, vert;
+				out vec4 FragColor;
 				uniform float DISTANCE_TOL;
 				//uniform mat4 ProjMat, ViewMat, ModelMat,ViewModelMat,NormalMat; 
 				uniform int IS_QUAD;
@@ -2247,9 +2265,9 @@ EdgeDepthAndNormalShader::EdgeDepthAndNormalShader(bool onScreen,
                      }
 					}
 				if (minDist <DISTANCE_TOL){
-					gl_FragColor = vec4(outNorm,minDist);
+					FragColor = vec4(outNorm,minDist);
 				} else {
-					gl_FragColor = vec4(outNorm,minDist);
+					FragColor = vec4(outNorm,minDist);
 				}
 				})",
 			R"(	#version 330
@@ -2402,6 +2420,7 @@ EdgeEffectsShader::EdgeEffectsShader(bool onScreen,
 				uniform sampler2D textureImage;
 				uniform ivec2 depthBufferSize;
 				const int SCALE=2;
+				out vec4 FragColor;
 				void main() {
 				ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 				vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
@@ -2430,7 +2449,7 @@ EdgeEffectsShader::EdgeEffectsShader(bool onScreen,
 				}
 				rgba=vec4(0.0,1.0-sqrt(minDistance)/KERNEL_SIZE,0.0,1.0);
 				} 
-				gl_FragColor=rgba;
+				FragColor=rgba;
 				}
 )");
 }
@@ -2462,6 +2481,7 @@ OutlineShader::OutlineShader(
 			uniform int KERNEL_SIZE;
 			uniform float LINE_WIDTH;
 			uniform sampler2D textureImage;
+			out vec4 FragColor;
 			uniform vec4 innerColor,outerColor,edgeColor;
 			void main() {
 				float inside;
@@ -2498,7 +2518,7 @@ OutlineShader::OutlineShader(
 					inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,sqrt(minDistance)*2.0f);	
 					rgba=mix(edgeColor,outerColor,inside);
 				}
-				gl_FragColor=rgba;
+				FragColor=rgba;
 			}
 )");
 
@@ -2528,6 +2548,7 @@ in vec2 uv;
 uniform ivec2 imageSize;
 uniform int KERNEL_SIZE;
 uniform sampler2D textureImage;
+out vec4 FragColor;
 uniform vec4 innerColor,outerColor,edgeColor;
 float w=0;
 void main() {
@@ -2565,7 +2586,7 @@ w=sqrt(minDistance)/KERNEL_SIZE;
 //if(w>0.99999)discard;
 rgba=mix(edgeColor,outerColor,w);
 }
-gl_FragColor=rgba;
+FragColor=rgba;
 })");
 }
 
@@ -2591,6 +2612,7 @@ in vec2 uv;
 const float PI=3.1415926535;
 uniform sampler2D textureImage;
 uniform ivec2 depthBufferSize;
+out vec4 FragColor;
 void main() {
 ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
@@ -2602,7 +2624,7 @@ rgba=vec4(-rgba.x*0.5+0.5,-rgba.y*0.5+0.5,-rgba.z,1.0);
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
-gl_FragColor=rgba;
+FragColor=rgba;
 })");
 }
 
@@ -2630,6 +2652,7 @@ uniform sampler2D textureImage;
 uniform float zMin;
 uniform float zMax;
 uniform ivec2 depthBufferSize;
+out vec4 FragColor;
 void main() {
 ivec2 pos=ivec2(uv.x*depthBufferSize.x,uv.y*depthBufferSize.y);
 vec4 rgba=texelFetch(textureImage, pos,0);//Do not interpolate depth buffer!
@@ -2643,7 +2666,7 @@ if(rgba.w<1.0){
 } else {
 rgba=vec4(0.0,0.0,0.0,1.0);
 }
-gl_FragColor=rgba;
+FragColor=rgba;
 })");
 }
 
@@ -2709,6 +2732,7 @@ ivec2 toCamera(vec4 pt){
 					<< R"(
 
 uniform vec3 u_kernel[KERNEL_SIZE];
+out vec4 FragColor;
 void main(void)
 {
    const float CAP_MIN_DISTANCE=0.001f;
@@ -2720,7 +2744,7 @@ void main(void)
 	vec4 rgba=texelFetch(textureImage, pos,0);
 	gl_FragDepth=rgba.w;
     if(length(rgba.xyz)==0.0){
-		gl_FragColor = vec4( 0,0,0,0);
+		FragColor = vec4( 0,0,0,0);
         return; 
     }
 	vec4 posProj = toWorld(v_texCoord,rgba);	
@@ -2743,7 +2767,7 @@ void main(void)
 		}
 	}
 	occlusion = 1.0 - occlusion / float(KERNEL_SIZE);
-	gl_FragColor = vec4(occlusion,occlusion,occlusion, 1.0);
+	FragColor = vec4(occlusion,occlusion,occlusion, 1.0);
 
 									})");
 
@@ -2776,6 +2800,7 @@ uniform vec2 focalLength;
 uniform float MIN_DEPTH;
 uniform float MAX_DEPTH;
 uniform ivec2 depthBufferSize;
+out vec4 FragColor;
 const int MAX_LIGHTS=)"
 					<< N << R"(;
 uniform vec3 lightPositions[)" << N
@@ -2831,7 +2856,7 @@ void main() {
 	}
     outColor=outColor/lsum;
     outColor.w=1.0;
-	gl_FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
+	FragColor=clamp(outColor,vec4(0.0,0.0,0.0,0.0),vec4(1.0,1.0,1.0,1.0));
 	gl_FragDepth=rgba.w;
 })");
 
@@ -2871,6 +2896,7 @@ WireframeShader::WireframeShader(bool onScreen,
 				uniform float LINE_WIDTH;
 				uniform int IS_QUAD;
 				uniform int IS_SOLID;
+out vec4 FragColor;
 				void main() {
 				  vec3 line, vec, proj;
 				  float dists[4];
@@ -2904,7 +2930,7 @@ WireframeShader::WireframeShader(bool onScreen,
                      }
 				  }
 				float inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,minDist);	
-				gl_FragColor=mix(edgeColor,faceColor,inside);
+				FragColor=mix(edgeColor,faceColor,inside);
 				gl_FragDepth=(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
 				if(IS_SOLID==0&&inside>0.5f){
 					discard;
@@ -3086,6 +3112,7 @@ LineDistanceShader::LineDistanceShader(bool onScreen,
 				uniform float LINE_WIDTH;
 				uniform int IS_QUAD;
 				uniform int IS_SOLID;
+out vec4 FragColor;
 				void main() {
 				  vec3 line, vec, proj;
 				  float dists[4];
@@ -3120,7 +3147,7 @@ LineDistanceShader::LineDistanceShader(bool onScreen,
 				  }
 				float inside=smoothstep(LINE_WIDTH,2*LINE_WIDTH,minDist);	
 				float d=(-pos.z-MIN_DEPTH)/(MAX_DEPTH-MIN_DEPTH);
-				gl_FragColor=vec4(normalize(normal),d);
+				FragColor=vec4(normalize(normal),d);
 				gl_FragDepth=d;
 				if(IS_SOLID==0&&inside>0.5f){
 					discard;

@@ -38,6 +38,9 @@
 #define _CRT_SECURE_NO_WARNINGS // suppress warnings about fopen()
 #endif
 namespace aly {
+#if defined(__APPLE__)&&defined(__MACH__)
+	#define ALY_APPLE
+#endif
 #if defined(WIN32) || defined(_WIN32)
 #define ALY_PATH_SEPARATOR std::string("\\")
 #define ALY_WINDOWS

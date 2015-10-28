@@ -107,6 +107,7 @@ void GLShader::initialize(
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mVertexShaderHandle, sizeof(message), NULL, message);
 		context->end();
+		std::cout << "--- Vertex Shader Code ---\n" <<pVertexShaderString << std::endl;
 		throw std::runtime_error(
 				MakeString() << "Unable to compile vertex shader ...\n"
 						<< message);
@@ -119,6 +120,7 @@ void GLShader::initialize(
 	if (lStatus != GL_TRUE) {
 		glGetInfoLogARB(mFragmentShaderHandle, sizeof(message), NULL, message);
 		context->end();
+		std::cout << "--- Fragment Shader Code ---\n" << pFragmentShaderString << std::endl;
 		throw std::runtime_error(
 				MakeString() << "Unable to compile fragment shader ...\n"
 						<< message);
@@ -133,6 +135,7 @@ void GLShader::initialize(
 			glGetInfoLogARB(mGeometryShaderHandle, sizeof(message), NULL,
 					message);
 			context->end();
+			std::cout << "--- Geometry Shader Code ---\n" << pGeometryShaderString << std::endl;
 			throw std::runtime_error(
 					MakeString() << "Unable to compile geometry shader ...\n"
 							<< message);

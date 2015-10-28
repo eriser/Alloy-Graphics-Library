@@ -452,9 +452,15 @@ namespace aly {
 		FileType type =
 			IsDirectory(fileLocation) ? FileType::Directory : FileType::File;
 		size_t fileSize = attrib.st_size;
+#ifdef ALY_APPLE
+		std::time_t creationTime = attrib.st_ctimespec.tv_sec;
+		std::time_t accessTime = attrib.st_atimespec.tv_sec;
+		std::time_t modifiedTime = attrib.st_mtimespec.tv_sec;
+#else
 		std::time_t creationTime = attrib.st_ctim.tv_sec;
 		std::time_t accessTime = attrib.st_atim.tv_sec;
 		std::time_t modifiedTime = attrib.st_mtim.tv_sec;
+#endif
 		bool readOnly = attrib.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 		return FileDescription(fileLocation, type, fileSize, readOnly, creationTime,
 			accessTime, modifiedTime);
@@ -483,9 +489,15 @@ namespace aly {
 					struct stat attrib;
 					stat(fileLocation.c_str(), &attrib);
 					size_t fileSize = attrib.st_size;
+#ifdef ALY_APPLE
+					std::time_t creationTime = attrib.st_ctimespec.tv_sec;
+					std::time_t accessTime = attrib.st_atimespec.tv_sec;
+					std::time_t modifiedTime = attrib.st_mtimespec.tv_sec;
+#else
 					std::time_t creationTime = attrib.st_ctim.tv_sec;
 					std::time_t accessTime = attrib.st_atim.tv_sec;
 					std::time_t modifiedTime = attrib.st_mtim.tv_sec;
+#endif
 					bool readOnly = attrib.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 					files.push_back(
 						FileDescription(fileLocation, type, fileSize, readOnly,
