@@ -495,6 +495,9 @@ public:
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::function<void()> onSelect;
+	virtual bool isMenu() const {
+		return false;
+	}
 	MenuItem(const std::string& name);
 	MenuItem(const std::string& name, const AUnit2D& position,
 		const AUnit2D& dimensions);
@@ -512,6 +515,9 @@ protected:
 	std::vector<std::shared_ptr<MenuItem>> options;
 	void fireEvent(int selectedIndex);
 public:
+	virtual bool isMenu() const override {
+		return true;
+	}
 	void setMaxDisplayEntries(int mx) {
 		maxDisplayEntries = mx;
 	}

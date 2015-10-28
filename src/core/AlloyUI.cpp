@@ -2308,7 +2308,7 @@ void Menu::draw(AlloyContext* context) {
 		selectedIndex = newSelectedIndex;
 	}
 	offset = pixel2(0, 0);
-
+	const std::string rightArrow = CodePointToUTF8(0xf0da);
 	for (index = selectionOffset; index < N; index++) {
 		MenuItemPtr& label = options[index];
 		if (index == selectedIndex) {
@@ -2324,13 +2324,23 @@ void Menu::draw(AlloyContext* context) {
 		else {
 			nvgFillColor(nvg, *textColor);
 		}
-
 		pushScissor(nvg, sbounds);
 		nvgText(nvg,
 			bounds.position.x + offset.x + lineWidth + TextField::PADDING,
 			bounds.position.y + entryHeight / 2 + offset.y, label->name.c_str(),
 			nullptr);
 		popScissor(nvg);
+		if (label->isMenu()) {
+			nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
+			nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_MIDDLE);
+			nvgText(nvg,
+				bounds.position.x +bounds.dimensions.x -  lineWidth - TextField::PADDING+offset.x,
+				bounds.position.y + entryHeight / 2 + offset.y, rightArrow.c_str(),
+				nullptr);
+			nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+			nvgFontFaceId(nvg, context->getFontHandle(FontType::Normal));
+		}
+		//Right carret 0xf0da
 		offset.y += entryHeight;
 	}
 

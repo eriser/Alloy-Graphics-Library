@@ -38,7 +38,7 @@
 #define _CRT_SECURE_NO_WARNINGS // suppress warnings about fopen()
 #endif
 namespace aly {
-#if defined(__APPLE__)&&defined(__MACH__)
+#if defined(__APPLE__) && defined(__MACH__)
 	#define ALY_APPLE
 #endif
 #if defined(WIN32) || defined(_WIN32)

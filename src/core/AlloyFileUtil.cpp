@@ -624,7 +624,6 @@ namespace aly {
 	bool MakeDirectory(const std::string& dir) {
 		return (CreateDirectory(ToWString(dir).c_str(), NULL))?true:false;
 	}
-
 	std::time_t FileTimeToTime(const FILETIME& ft) {
 		ULARGE_INTEGER ull;
 		ull.LowPart = ft.dwLowDateTime;
