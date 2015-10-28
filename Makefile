@@ -3,13 +3,20 @@ SRC := $(wildcard src/core/*.cpp)
 OBJS := $(patsubst %.cpp,%.o,$(wildcard src/core/*.cpp))
 DS := $(patsubst %.cpp,%.d,$(wildcard src/core/*.cpp src/example/*.cpp))
 EXOBJS := $(patsubst %.cpp,%.o,$(wildcard src/example/*.cpp))
+#Must use at least gcc/g++ 4.8 for C++11 support. Some systems call it gcc48 or gcc-48
+#Standard compiler version on MacOS is 4.2.1 (no good)
 CXX = g++
 CC = gcc
-INC = -Iinclude/core/ -Iinclude/example/
+INC = -Iinclude/core/ -Iinclude/example/ -I/usr/local/include/ -I/usr/include/
 CXXFLAGS:= -std=c++0x -DGL_GLEXT_PROTOTYPES=1 -O3 -Wall -c -fmessage-length=0 -MMD -MP -fopenmp $(INC)
 override CXXFLAGS:= -DEXAMPLE_NAME=$(EXAMPLE) $(CXXFLAGS)
 LDLIBS =-L./ -L/usr/lib/ -L/usr/local/lib/ -L/usr/lib/x86_64-linux-gnu/
-LIBS =-lalloy -lglfw -lgomp -lGL -lXext -lGLU -lGLEW -lXi -lXrandr -lX11 -lXxf86vm -lXinerama -lXcursor -lXdamage -ldrm -lpthread -lfreetype -lm -lrt -ldl -lstdc++
+#Pacakge dependencies are freetype, glfw 3.x, and glew, which are avaiable through apt-get and brew.
+#Ubuntu may also require GLU, GLX, Xrandr, Xxf86vm, Xinerama, and Xi to build glfw from source.
+#Other dependencies are standard on Ubuntu and MacOS.
+#Some systems will use -lglfw3 
+#For MacOS, remove -ldrm and -lrt
+LIBS =-lalloy -lglfw -lgomp -lGL -lrt -ldrm -lXext -lGLU -lGLEW -lXi -lXrandr -lX11 -lXxf86vm -lXinerama -lXcursor -lXdamage -lpthread -lfreetype -lm -ldl -lstdc++
 RM=rm -f
 
 EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx ControlsEx \
