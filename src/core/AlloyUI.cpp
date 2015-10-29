@@ -2236,28 +2236,21 @@ box2px Menu::getBounds(bool includeBounds) const {
 		(maxDisplayEntries > 0) ?
 		std::min(maxDisplayEntries, (int)options.size()) :
 		(int)options.size();
-	float entryHeight = std::min(context->height() / (float)elements,
-		bounds.dimensions.y);
+	float entryHeight = fontSize.toPixels(bounds.dimensions.y, context->dpmm.y,context->pixelRatio);
 	float boxHeight = (elements)* entryHeight;
-	float parentHeight =
-		(parent != nullptr) ? parent->getBoundsDimensionsY() : 0.0f;
-	float yOffset = std::min(bounds.position.y + boxHeight + parentHeight,
-		(float)context->height()) - boxHeight;
+	float yOffset = std::min(bounds.position.y + boxHeight,(float)context->height()) - boxHeight;
 	box2px bbox;
-
 	bbox.position = pixel2(bounds.position.x, yOffset);
 	bbox.dimensions = pixel2(bounds.dimensions.x, boxHeight);
 	return bbox;
 }
 void Menu::draw(AlloyContext* context) {
-
 	context->setDragObject(this);
 	NVGcontext* nvg = context->nvgContext;
 	box2px bounds = getBounds();
 	box2px sbounds = bounds;
 	sbounds.position.x += TextField::PADDING;
 	sbounds.dimensions.x -= 2 * TextField::PADDING;
-
 	pixel lineWidth = borderWidth.toPixels(bounds.dimensions.y, context->dpmm.y,
 		context->pixelRatio);
 	int elements =
@@ -2296,15 +2289,29 @@ void Menu::draw(AlloyContext* context) {
 		N = std::min(selectionOffset + maxDisplayEntries, (int)options.size());
 	}
 	int newSelectedIndex = -1;
+	std::shared_ptr<MenuItem> selected;
 	for (index = selectionOffset; index < N; index++) {
+		std::shared_ptr<MenuItem> current = options[index];
 		if (context->isMouseContainedIn(bounds.position + offset,
 			pixel2(bounds.dimensions.x, entryHeight))) {
 			newSelectedIndex = index;
-			break;
-		}
+			if (current->isMenu()) {
+				selected = current;
+				if (!current->isVisible()) {
+					current->position = CoordPX(offset.x + bounds.dimensions.x, offset.y);
+					current->setVisible(true);
+					lastSelected = current;
+					context->requestPack();
+				}
+			}
+		} 
 		offset.y += entryHeight;
 	}
+
 	if (newSelectedIndex >= 0) {
+		if (lastSelected.get() != nullptr&&selected.get() != lastSelected.get()) {
+			lastSelected->setVisible(false);
+		}
 		selectedIndex = newSelectedIndex;
 	}
 	offset = pixel2(0, 0);
@@ -2404,7 +2411,17 @@ void Menu::draw(AlloyContext* context) {
 			}
 		}
 	}
-
+	for (std::shared_ptr<Region>& region : children) {
+		if (region->isVisible()) {
+			region->draw(context);
+		}
+	}
+}
+void Menu::addItem(const std::shared_ptr<MenuItem>& selection) {
+	options.push_back(selection);
+	if (selection->isMenu()) {
+		Composite::add(selection);
+	}
 }
 void Menu::setSelectedIndex(int index) {
 	selectedIndex = index;
@@ -2414,7 +2431,6 @@ void Menu::setSelectedIndex(int index) {
 	}
 	else {
 		label = options[selectedIndex];
-
 	}
 }
 void Menu::fireEvent(int selectedIndex) {
@@ -2424,9 +2440,20 @@ void Menu::fireEvent(int selectedIndex) {
 		}
 	}
 }
+void Menu::setVisible(bool visible) {
+	if (!visible) {
+		setSelectedIndex(-1);
+		for (MenuItemPtr& item : options) {
+			if (item->isMenu()) {
+				item->setVisible(false);
+			}
+		}
+	}
+	Composite::setVisible(visible);
+}
 Menu::Menu(const std::string& name,
 	const std::vector<std::shared_ptr<MenuItem>>& labels) :
-	MenuItem(name, CoordPerPX(0.0f, 0.0f, 0.0f, 0.0f), CoordPerPX(0.0f,0.8f,150.0f,0.0f)), options(labels) {
+	MenuItem(name, CoordPerPX(0.0f, 0.0f, 0.0f, 0.0f), CoordPerPX(0.0f,0.0f,150.0f,0.0f)), options(labels) {
 	setDetached(true);
 	setVisible(false);
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
@@ -2442,58 +2469,10 @@ Menu::Menu(const std::string& name,
 	onEvent =
 		[this](AlloyContext* context, const InputEvent& event) {
 		if (context->isOnTop(this) && this->isVisible()) {
-			if (event.type == InputType::Key&&event.isDown()) {
-				if (event.key == GLFW_KEY_UP) {
-					if (selectedIndex<0) {
-						this->setSelectedIndex((int)options.size() - 1);
-					}
-					else {
-						this->setSelectedIndex(std::max(0, selectedIndex - 1));
-					}
-					if (maxDisplayEntries >= 0 && selectedIndex>0 && (selectedIndex<selectionOffset || selectedIndex >= selectionOffset + maxDisplayEntries)) {
-						selectionOffset = std::max(0, selectedIndex + 1 - maxDisplayEntries);
-					}
-					return true;
-				}
-				else if (event.key == GLFW_KEY_DOWN) {
-					if (selectedIndex<0) {
-						this->setSelectedIndex(0);
-					}
-					else {
-						this->setSelectedIndex(std::min((int)options.size() - 1, selectedIndex + 1));
-					}
-					if (maxDisplayEntries >= 0 && selectedIndex>0 && (selectedIndex<selectionOffset || selectedIndex >= selectionOffset + maxDisplayEntries)) {
-						selectionOffset = std::max(0, selectedIndex + 1 - maxDisplayEntries);
-					}
-					return true;
-				}
-				else if (event.key == GLFW_KEY_PAGE_UP) {
-					if (maxDisplayEntries>0) {
-						selectionOffset = 0;
-						scrollingUp = false;
-						return true;
-					}
-				}
-				else if (event.key == GLFW_KEY_PAGE_DOWN) {
-					if (maxDisplayEntries>0) {
-						selectionOffset = (int)options.size() - maxDisplayEntries;
-						scrollingDown = false;
-						return true;
-					}
-				}
-				else if (event.key == GLFW_KEY_ESCAPE) {
-					setSelectedIndex(-1);
-					AlloyApplicationContext()->removeOnTopRegion(this);
-					this->setVisible(false);
-				}
-				else if (event.key == GLFW_KEY_ENTER) {
-					fireEvent(selectedIndex);
-				}
-			}
-			else if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_LEFT) {
+			if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_LEFT) {
 				if (AlloyApplicationContext()->isMouseOver(this)) {
 					fireEvent(selectedIndex);
-					return true;
+					return false;
 				}
 				else {
 					setSelectedIndex(-1);
@@ -2505,22 +2484,6 @@ Menu::Menu(const std::string& name,
 				setSelectedIndex(-1);
 				AlloyApplicationContext()->removeOnTopRegion(this);
 				this->setVisible(false);
-			}
-			else if (event.type == InputType::Scroll) {
-				if (maxDisplayEntries >= 0) {
-					if ((int)options.size()>maxDisplayEntries) {
-						if (downTimer.get() != nullptr) {
-							scrollingDown = false;
-							downTimer.reset();
-						}
-						if (upTimer.get() != nullptr) {
-							scrollingUp = false;
-							upTimer.reset();
-						}
-						selectionOffset = aly::clamp(selectionOffset - (int)event.scroll.y, 0, (int)options.size() - maxDisplayEntries);
-						return true;
-					}
-				}
 			}
 			else if (event.type == InputType::Cursor && (int)options.size()>maxDisplayEntries) {
 				box2px bounds = this->getBounds();
@@ -2573,6 +2536,11 @@ Menu::Menu(const std::string& name,
 					}
 				}
 			}
+			else if (event.type == InputType::Cursor) {
+				if (!context->isMouseOver(this)) {
+					setSelectedIndex(-1);
+				}
+			}
 		}
 
 		return false;
@@ -2605,6 +2573,7 @@ void MenuHeader::setMenuVisible(bool vis) {
 }
 void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 	MenuHeaderPtr header=MenuHeaderPtr(new MenuHeader(menu,CoordPerPX(0.0f,1.0f,0.0f,-30.0f),CoordPX(100,30)));
+	
 	headers.push_back(header);
 	Composite::add(header);
 	/*
@@ -2635,12 +2604,12 @@ void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 		return true;
 	};
 }
-MenuItem::MenuItem(const std::string& name) :Region(name) {
+MenuItem::MenuItem(const std::string& name) :Composite(name) {
 
 }
-MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) : Region(name,position,dimensions) {
-
+MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) : Composite(name,position,dimensions) {
 }
+
 MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): Composite(menu->name,position,dimensions),menu(menu) {
 	backgroundAltColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
@@ -2650,6 +2619,7 @@ MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& positio
 	borderWidth = UnitPX(0.0f);
 	fontSize = UnitPerPX(1.0f, -10);
 	this->aspectRule = AspectRule::FixedHeight;
+	menu->position = CoordPX(0.0f, 30.0f);
 	Composite::add(menu);
 }
 

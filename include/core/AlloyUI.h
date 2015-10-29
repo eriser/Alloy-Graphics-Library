@@ -164,7 +164,7 @@ public:
 	pixel getBoundsDimensionsY(bool includeOffset = true) const {
 		return getBounds(includeOffset).dimensions.y;
 	}
-	void setVisible(bool vis);
+	virtual void setVisible(bool vis);
 	Region* parent = nullptr;
 	Region(
 			const std::string& name = MakeString() << "r" << std::setw(8)
@@ -488,10 +488,11 @@ public:
 			const std::vector<std::string>& options =
 					std::vector<std::string>());
 };
-class MenuItem : public Region {
+class MenuItem : public Composite {
 public:
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
+	AUnit1D fontSize = UnitPX(24.0f);
 	AColor textColor = MakeColor(COLOR_WHITE);
 	AColor textAltColor = MakeColor(COLOR_BLACK);
 	std::function<void()> onSelect;
@@ -513,11 +514,13 @@ protected:
 	std::shared_ptr<Timer> downTimer, upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
 	std::vector<std::shared_ptr<MenuItem>> options;
+	std::shared_ptr<MenuItem> lastSelected;
 	void fireEvent(int selectedIndex);
 public:
 	virtual bool isMenu() const override {
 		return true;
 	}
+	virtual void setVisible(bool visible) override;
 	void setMaxDisplayEntries(int mx) {
 		maxDisplayEntries = mx;
 	}
@@ -538,9 +541,7 @@ public:
 		options.push_back(item);
 		return item;
 	}
-	void addItem(const std::shared_ptr<MenuItem>& selection) {
-		options.push_back(selection);
-	}
+	void addItem(const std::shared_ptr<MenuItem>& selection);
 	Menu(const std::string& name,
 		const std::vector<std::shared_ptr<MenuItem>>& options =
 		std::vector<std::shared_ptr<MenuItem>>());

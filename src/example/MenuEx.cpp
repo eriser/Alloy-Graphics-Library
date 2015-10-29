@@ -37,9 +37,15 @@ bool MenuEx::init(Composite& rootNode) {
 	newMenu->addItem("Car")->onSelect = [=] {std::cout << "New:Car" << std::endl;};
 	newMenu->addItem("Bike")->onSelect = [=] {std::cout << "New:Bike" << std::endl;};
 
+	MenuPtr importMenu = MenuPtr(new Menu("Import"));
+	importMenu->addItem("Coffee")->onSelect = [=] {std::cout << "Import:Coffee" << std::endl;};
+	importMenu->addItem("Booze")->onSelect = [=] {std::cout << "Import:Booze" << std::endl;};
+	importMenu->addItem("Umbrellas")->onSelect = [=] {std::cout << "Import:Umbrellas" << std::endl;};
+
 	fileMenu->addItem(newMenu);
 	fileMenu->addItem("Open")->onSelect = [=] {std::cout << "File:Open" << std::endl;};
 	fileMenu->addItem("Save")->onSelect = [=] {std::cout << "File:Save" << std::endl;};
+	fileMenu->addItem(importMenu);
 	fileMenu->addItem("Close")->onSelect = [=] {std::cout << "File:Close" << std::endl;};
 	fileMenu->addItem("Exit")->onSelect = [=] {std::cout << "File:Exit" << std::endl;};
 
@@ -55,9 +61,9 @@ bool MenuEx::init(Composite& rootNode) {
 	actionMenu->addItem("Jump")->onSelect = [=] {std::cout << "Action:Jump" << std::endl;};
 	actionMenu->addItem("Squat")->onSelect = [=] {std::cout << "Action:Squat" << std::endl;};
 
-	helpMenu->addItem("How did I get here?")->onSelect = [=] {std::cout << "How did I get here?" << std::endl;};
-	helpMenu->addItem("Where am I going?")->onSelect = [=] {std::cout << "Where am I going?" << std::endl;};
-	helpMenu->addItem("What day is it?")->onSelect = [=] {std::cout << "What day is it?" << std::endl;};
+	helpMenu->addItem("How did I get here?")->onSelect = [=] {std::cout << "Help:How did I get here?" << std::endl;};
+	helpMenu->addItem("Where am I going?")->onSelect = [=] {std::cout << "Help:Where am I going?" << std::endl;};
+	helpMenu->addItem("What day is it?")->onSelect = [=] {std::cout << "Help:What day is it?" << std::endl;};
 
 	menuBar->add(fileMenu);
 	menuBar->add(editMenu);
