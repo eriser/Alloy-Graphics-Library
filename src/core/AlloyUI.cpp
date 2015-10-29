@@ -2300,7 +2300,7 @@ void Menu::draw(AlloyContext* context) {
 				if (!current->isVisible()) {
 					current->position = CoordPX(offset.x + bounds.dimensions.x, offset.y);
 					current->setVisible(true);
-					lastSelected = current;
+					
 					context->requestPack();
 				}
 			}
@@ -2311,9 +2311,12 @@ void Menu::draw(AlloyContext* context) {
 	if (newSelectedIndex >= 0) {
 		if (lastSelected.get() != nullptr&&selected.get() != lastSelected.get()) {
 			lastSelected->setVisible(false);
+			lastSelected = nullptr;
 		}
 		selectedIndex = newSelectedIndex;
 	}
+	if(selected.get()!=nullptr)lastSelected = selected;
+
 	offset = pixel2(0, 0);
 	const std::string rightArrow = CodePointToUTF8(0xf0da);
 	for (index = selectionOffset; index < N; index++) {
@@ -2443,6 +2446,7 @@ void Menu::fireEvent(int selectedIndex) {
 void Menu::setVisible(bool visible) {
 	if (!visible) {
 		setSelectedIndex(-1);
+		lastSelected = nullptr;
 		for (MenuItemPtr& item : options) {
 			if (item->isMenu()) {
 				item->setVisible(false);
