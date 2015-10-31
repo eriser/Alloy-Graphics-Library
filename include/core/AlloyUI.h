@@ -570,7 +570,7 @@ public:
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~MenuHeader() {}
 };
-struct MenuBar : public MenuItem {
+class MenuBar : public MenuItem {
 protected:
 	std::list<std::shared_ptr<MenuHeader>> headers;
 	std::shared_ptr<Composite> barRegion;
