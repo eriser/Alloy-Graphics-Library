@@ -489,6 +489,11 @@ public:
 					std::vector<std::string>());
 };
 class MenuItem : public Composite {
+protected:
+	std::shared_ptr<MenuItem> currentVisible;
+	std::shared_ptr<MenuItem> currentSelected;
+	std::shared_ptr<Timer> showTimer, hideTimer;
+	const int MENU_DISPLAY_DELAY = 500;
 public:
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
@@ -502,6 +507,8 @@ public:
 	MenuItem(const std::string& name);
 	MenuItem(const std::string& name, const AUnit2D& position,
 		const AUnit2D& dimensions);
+
+	virtual void setVisibleItem(const std::shared_ptr<MenuItem>& item, bool visible);
 };
 
 class Menu : public MenuItem {
@@ -514,7 +521,7 @@ protected:
 	std::shared_ptr<Timer> downTimer, upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
 	std::vector<std::shared_ptr<MenuItem>> options;
-	std::shared_ptr<MenuItem> lastSelected;
+
 	void fireEvent(int selectedIndex);
 public:
 	virtual bool isMenu() const override {
@@ -546,12 +553,9 @@ public:
 		const std::vector<std::shared_ptr<MenuItem>>& options =
 		std::vector<std::shared_ptr<MenuItem>>());
 };
-class MenuHeader : public Composite {
+class MenuHeader : public MenuItem {
 protected:
 	std::shared_ptr<Menu> menu;
-	AColor textColor;
-	AColor textAltColor;
-	AUnit1D fontSize;
 	AColor backgroundAltColor;
 public:
 	void setMenuVisible(bool vis);
@@ -563,9 +567,10 @@ public:
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~MenuHeader() {}
 };
-struct MenuBar : public Composite {
+struct MenuBar : public MenuItem {
 protected:
 	std::list<std::shared_ptr<MenuHeader>> headers;
+	virtual void setVisibleItem(const std::shared_ptr<MenuItem>& item, bool visible) override;
 	bool active;
 public:
 	void add(const std::shared_ptr<Menu>& menu);

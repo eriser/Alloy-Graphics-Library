@@ -33,9 +33,9 @@ bool MenuEx::init(Composite& rootNode) {
 	MenuPtr helpMenu = MenuPtr(new Menu("Help"));
 
 	MenuPtr newMenu = MenuPtr(new Menu("New"));
-	newMenu->addItem("House")->onSelect = [=] {std::cout << "New:House" << std::endl;};
-	newMenu->addItem("Car")->onSelect = [=] {std::cout << "New:Car" << std::endl;};
-	newMenu->addItem("Bike")->onSelect = [=] {std::cout << "New:Bike" << std::endl;};
+	newMenu->addItem("House")->onSelect = [=]() {std::cout << "New:House" << std::endl;};
+	newMenu->addItem("Car")->onSelect = [=]() {std::cout << "New:Car" << std::endl;};
+	newMenu->addItem("Bike")->onSelect = [=]() {std::cout << "New:Bike" << std::endl;};
 
 	MenuPtr importMenu = MenuPtr(new Menu("Import"));
 	importMenu->addItem("Coffee")->onSelect = [=] {std::cout << "Import:Coffee" << std::endl;};
@@ -43,31 +43,75 @@ bool MenuEx::init(Composite& rootNode) {
 	importMenu->addItem("Umbrellas")->onSelect = [=] {std::cout << "Import:Umbrellas" << std::endl;};
 
 	fileMenu->addItem(newMenu);
-	fileMenu->addItem("Open")->onSelect = [=] {std::cout << "File:Open" << std::endl;};
-	fileMenu->addItem("Save")->onSelect = [=] {std::cout << "File:Save" << std::endl;};
+	fileMenu->addItem("Open")->onSelect = [=]() {std::cout << "File:Open" << std::endl;};
+	fileMenu->addItem("Save")->onSelect = [=]() {std::cout << "File:Save" << std::endl;};
 	fileMenu->addItem(importMenu);
-	fileMenu->addItem("Close")->onSelect = [=] {std::cout << "File:Close" << std::endl;};
-	fileMenu->addItem("Exit")->onSelect = [=] {std::cout << "File:Exit" << std::endl;};
+	fileMenu->addItem("Close")->onSelect = [=]() {std::cout << "File:Close" << std::endl;};
+	fileMenu->addItem("Exit")->onSelect = [=]() {std::cout << "File:Exit" << std::endl;};
 
-	editMenu->addItem("Cut")->onSelect = [=] {std::cout << "Edit:Cut" << std::endl;};
-	editMenu->addItem("Copy")->onSelect = [=] {std::cout << "Edit:Copy" << std::endl;};
-	editMenu->addItem("Paste")->onSelect = [=] {std::cout << "Edit:Paste" << std::endl;};
-	editMenu->addItem("Undo")->onSelect = [=] {std::cout << "Edit:Undo" << std::endl;};
-	editMenu->addItem("Redo")->onSelect = [=] {std::cout << "Edit:Redo" << std::endl;};
+	editMenu->addItem("Cut")->onSelect = [=]() {std::cout << "Edit:Cut" << std::endl;};
+	editMenu->addItem("Copy")->onSelect = [=]() {std::cout << "Edit:Copy" << std::endl;};
+	editMenu->addItem("Paste")->onSelect = [=]() {std::cout << "Edit:Paste" << std::endl;};
+	editMenu->addItem("Undo")->onSelect = [=]() {std::cout << "Edit:Undo" << std::endl;};
+	editMenu->addItem("Redo")->onSelect = [=]() {std::cout << "Edit:Redo" << std::endl;};
 
-	actionMenu->addItem("Eat")->onSelect = [=] {std::cout << "Action:Eat" << std::endl;};
-	actionMenu->addItem("Sleep")->onSelect = [=] {std::cout << "Action:Sleep" << std::endl;};
-	actionMenu->addItem("Run")->onSelect = [=] {std::cout << "Action:Run" << std::endl;};
-	actionMenu->addItem("Jump")->onSelect = [=] {std::cout << "Action:Jump" << std::endl;};
-	actionMenu->addItem("Squat")->onSelect = [=] {std::cout << "Action:Squat" << std::endl;};
+	actionMenu->addItem("Eat")->onSelect = [=]() {std::cout << "Action:Eat" << std::endl;};
+	actionMenu->addItem("Sleep")->onSelect = [=]() {std::cout << "Action:Sleep" << std::endl;};
+	actionMenu->addItem("Run")->onSelect = [=]() {std::cout << "Action:Run" << std::endl;};
+	actionMenu->addItem("Jump")->onSelect = [=]() {std::cout << "Action:Jump" << std::endl;};
+	actionMenu->addItem("Squat")->onSelect = [=]() {std::cout << "Action:Squat" << std::endl;};
 
-	helpMenu->addItem("How did I get here?")->onSelect = [=] {std::cout << "Help:How did I get here?" << std::endl;};
-	helpMenu->addItem("Where am I going?")->onSelect = [=] {std::cout << "Help:Where am I going?" << std::endl;};
-	helpMenu->addItem("What day is it?")->onSelect = [=] {std::cout << "Help:What day is it?" << std::endl;};
+
+	MenuPtr bigMenu = MenuPtr(new Menu("Big Menu"));
+	MenuPtr subMenu1 = MenuPtr(new Menu("Submenu 1"));
+	subMenu1->addItem("Item 1");
+	subMenu1->addItem("Item 2");
+	subMenu1->addItem("Item 3");
+
+	MenuPtr subsubMenu1 = MenuPtr(new Menu("Subsubmenu 1"));
+	subsubMenu1->addItem("Item 1");
+	subsubMenu1->addItem("Item 2");
+	subsubMenu1->addItem("Item 3");
+
+	MenuPtr subsubMenu2 = MenuPtr(new Menu("Subsubmenu 2"));
+	subsubMenu2->addItem("Item 1");
+	subsubMenu2->addItem("Item 2");
+	subsubMenu2->addItem("Item 3");
+
+	MenuPtr subsubMenu3 = MenuPtr(new Menu("Subsubmenu 3"));
+	subsubMenu3->addItem("Item 1");
+	subsubMenu3->addItem("Item 2");
+	subsubMenu3->addItem("Item 3");
+
+	MenuPtr subMenu2 = MenuPtr(new Menu("Submenu 2"));
+	subMenu2->addItem("Item 1");
+	subMenu2->addItem("Item 2");
+	subMenu2->addItem(subsubMenu1);
+	subMenu2->addItem(subsubMenu2);
+	subMenu2->addItem(subsubMenu3);
+	subMenu2->addItem("Item 3");
+
+	MenuPtr subMenu3 = MenuPtr(new Menu("Submenu 3"));
+	subMenu3->addItem("Item 1");
+	subMenu3->addItem("Item 2");
+	subMenu3->addItem("Item 3");
+	
+	bigMenu->addItem("Item 1");
+	bigMenu->addItem("Item 2");
+	bigMenu->addItem(subMenu1);
+	bigMenu->addItem(subMenu2);
+	bigMenu->addItem(subMenu3);
+	bigMenu->addItem("Item 3");
+	bigMenu->addItem("Item 4");
+
+	helpMenu->addItem("How did I get here?")->onSelect = [=](){std::cout << "Help:How did I get here?" << std::endl;};
+	helpMenu->addItem("Where am I going?")->onSelect = [=]() {std::cout << "Help:Where am I going?" << std::endl;};
+	helpMenu->addItem("What day is it?")->onSelect = [=]() {std::cout << "Help:What day is it?" << std::endl;};
 
 	menuBar->add(fileMenu);
 	menuBar->add(editMenu);
 	menuBar->add(actionMenu);
+	menuBar->add(bigMenu);
 	menuBar->add(helpMenu);
 
 	CompositePtr north = MakeComposite("North Composite", CoordPX(0, 0), CoordPercent(1.0, 1.0), Color(128, 16, 32), COLOR_NONE, UnitPX(0));

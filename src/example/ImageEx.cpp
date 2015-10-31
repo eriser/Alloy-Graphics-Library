@@ -35,7 +35,7 @@ bool ImageEx::init(Composite& rootNode) {
 	//so region z-ordering has no effect.
 	ImageRGBAf img;
 	ReadImageFromFile(getFullPath("images/sfsunset.png"),img);
-	texImage.load(img);
+	texImage.load(img,true);
 	drawRegion=MakeRegion("sfsunset", CoordPX(5.0f, 260.0f), CoordPX(250, 250), COLOR_NONE, Color(200, 200, 200, 255),UnitPX(1.0f));
 	drawRegion->setAspectRatio(img.width / (float)img.height);
 	drawRegion->setAspectRule(AspectRule::FixedHeight);

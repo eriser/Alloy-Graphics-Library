@@ -2299,9 +2299,7 @@ void Menu::draw(AlloyContext* context) {
 				selected = current;
 				if (!current->isVisible()) {
 					current->position = CoordPX(offset.x + bounds.dimensions.x, offset.y);
-					current->setVisible(true);
-					
-					context->requestPack();
+					setVisibleItem(current, true);					
 				}
 			}
 		} 
@@ -2309,14 +2307,12 @@ void Menu::draw(AlloyContext* context) {
 	}
 
 	if (newSelectedIndex >= 0) {
-		if (lastSelected.get() != nullptr&&selected.get() != lastSelected.get()) {
-			lastSelected->setVisible(false);
-			lastSelected = nullptr;
+		if (selected.get() ==nullptr&&currentVisible.get()!=nullptr) {
+			setVisibleItem(currentVisible, false);
 		}
 		selectedIndex = newSelectedIndex;
 	}
-	if(selected.get()!=nullptr)lastSelected = selected;
-
+	
 	offset = pixel2(0, 0);
 	const std::string rightArrow = CodePointToUTF8(0xf0da);
 	for (index = selectionOffset; index < N; index++) {
@@ -2420,6 +2416,39 @@ void Menu::draw(AlloyContext* context) {
 		}
 	}
 }
+void MenuItem::setVisibleItem(const std::shared_ptr<MenuItem>& item, bool visible) {
+	if (visible&&!item->isVisible()) {
+		if (currentSelected.get() != item.get()) {
+			showTimer = std::shared_ptr<Timer>(new Timer([=] {
+				if (currentSelected.get() == item.get()) {
+					item->setVisible(visible);
+					if (currentVisible.get() != nullptr&&currentVisible.get() != item.get()) {
+						currentVisible->setVisible(false);
+					}
+					currentVisible = item;
+					AlloyApplicationContext()->requestPack();
+				}
+			}, nullptr, 500, 30));
+			currentSelected = item;
+			showTimer->execute();
+		}
+	} 
+	if (!visible&&item->isVisible()) {
+		showTimer.reset();
+		if (hideTimer.get() == nullptr || hideTimer->isComplete()) {
+			hideTimer = std::shared_ptr<Timer>(new Timer([=] {
+				if (currentVisible.get() != nullptr&&item.get()==currentVisible.get()) {
+					item->setVisible(visible);
+					if (currentVisible.get() == currentSelected.get()) {
+						currentSelected = nullptr;
+					}
+					currentVisible = nullptr;
+				}
+			}, nullptr, 500, 30));
+			hideTimer->execute();
+		}
+	}
+}
 void Menu::addItem(const std::shared_ptr<MenuItem>& selection) {
 	options.push_back(selection);
 	if (selection->isMenu()) {
@@ -2445,8 +2474,9 @@ void Menu::fireEvent(int selectedIndex) {
 }
 void Menu::setVisible(bool visible) {
 	if (!visible) {
+		currentVisible = nullptr;
 		setSelectedIndex(-1);
-		lastSelected = nullptr;
+		currentSelected = nullptr;
 		for (MenuItemPtr& item : options) {
 			if (item->isMenu()) {
 				item->setVisible(false);
@@ -2509,7 +2539,7 @@ Menu::Menu(const std::string& name,
 								std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 								deltaT = std::max(30.0, 0.75*deltaT);
 							}
-						}, nullptr, 500, 30));
+						}, nullptr, MENU_DISPLAY_DELAY, 30));
 						downTimer->execute();
 					}
 				}
@@ -2529,7 +2559,7 @@ Menu::Menu(const std::string& name,
 								std::this_thread::sleep_for(std::chrono::milliseconds((long)deltaT));
 								deltaT = std::max(30.0, 0.75*deltaT);
 							}
-						}, nullptr, 500, 30));
+						}, nullptr, MENU_DISPLAY_DELAY, 30));
 						upTimer->execute();
 					}
 				}
@@ -2551,7 +2581,7 @@ Menu::Menu(const std::string& name,
 	};
 	Application::addListener(this);
 }
-MenuBar::MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) :Composite(name,position,dimensions){
+MenuBar::MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) :MenuItem(name,position,dimensions){
 	this->setOrientation(Orientation::Horizontal);
 	this->cellSpacing.x = 2;
 	this->cellPadding.x = 2;
@@ -2573,8 +2603,42 @@ void MenuHeader::setMenuVisible(bool vis) {
 			AlloyApplicationContext()->removeOnTopRegion(menu.get());
 		}
 	}
-	
 }
+
+void MenuBar::setVisibleItem(const std::shared_ptr<MenuItem>& item, bool visible) {
+	if (visible&&!item->isVisible()) {
+		if (currentSelected.get() != item.get()) {
+			showTimer = std::shared_ptr<Timer>(new Timer([=] {
+				if (currentSelected.get() == item.get()) {
+					item->setVisible(visible);
+					AlloyApplicationContext()->setOnTopRegion(item.get());
+					if (currentVisible.get() != nullptr&&currentVisible.get() != item.get()) {
+						currentVisible->setVisible(false);
+						AlloyApplicationContext()->removeOnTopRegion(currentVisible.get());
+					}
+					currentVisible = item;
+					AlloyApplicationContext()->requestPack();
+				}
+			}, nullptr, MENU_DISPLAY_DELAY, 30));
+			currentSelected = item;
+			showTimer->execute();
+		}
+	}
+	if (!visible&&item->isVisible()) {
+		showTimer.reset();
+		if (hideTimer.get() == nullptr || hideTimer->isComplete()) {
+			hideTimer = std::shared_ptr<Timer>(new Timer([=] {
+				if (currentVisible.get() != nullptr&&item.get() == currentVisible.get()) {
+					item->setVisible(visible);
+					currentVisible = nullptr;
+					
+				}
+			}, nullptr, MENU_DISPLAY_DELAY, 30));
+			hideTimer->execute();
+		}
+	}
+}
+
 void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 	MenuHeaderPtr header=MenuHeaderPtr(new MenuHeader(menu,CoordPerPX(0.0f,1.0f,0.0f,-30.0f),CoordPX(100,30)));
 	
@@ -2592,19 +2656,7 @@ void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 	};
 	*/
 	header->onMouseOver = [=](AlloyContext* context, const InputEvent& e) {
-		//if (active) {
-		if (!header->isMenuVisible()) {
-			for (MenuHeaderPtr h : headers) {
-				if (header.get() != h.get()) {
-					h->setMenuVisible(false);
-				}
-				else {
-					h->setMenuVisible(true);
-				}
-			}
-			context->requestPack();
-		}
-		//}
+		setVisibleItem(menu, true);
 		return true;
 	};
 }
@@ -2614,7 +2666,7 @@ MenuItem::MenuItem(const std::string& name) :Composite(name) {
 MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) : Composite(name,position,dimensions) {
 }
 
-MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): Composite(menu->name,position,dimensions),menu(menu) {
+MenuHeader::MenuHeader(const std::shared_ptr<Menu>& menu, const AUnit2D& position,const AUnit2D& dimensions): MenuItem(menu->name,position,dimensions),menu(menu) {
 	backgroundAltColor = MakeColor(AlloyApplicationContext()->theme.HIGHLIGHT);
 	backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 	textAltColor = MakeColor(AlloyApplicationContext()->theme.DARK_TEXT);

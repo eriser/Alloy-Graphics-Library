@@ -235,10 +235,8 @@ public:
 		CHECK_GL_ERROR();
 		if (mipmap) {
 			glBindTexture( GL_TEXTURE_2D, textureId);
-			gluBuild2DMipmaps(GL_TEXTURE_2D, internalFormat, textureImage.width,
-					textureImage.height, internalFormat, dataType,
-					&textureImage[0]);
-
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,textureImage.width, textureImage.height, 0,externalFormat, dataType, &textureImage[0]);
+			glGenerateMipmap(GL_TEXTURE_2D); 
 		} else {
 			if (multisample) {
 				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, textureId);
@@ -248,7 +246,6 @@ public:
 				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
 						textureImage.width, textureImage.height, 0,
 						externalFormat, dataType, &textureImage[0]);
-				//glBuf(GL_TEXTURE_2D,0, externalFormat, dataType,&textureImage[0],STATIC_DRAW);
 			} else {
 				glBindTexture( GL_TEXTURE_2D, textureId);
 				glTexImage2D( GL_TEXTURE_2D, 0, internalFormat,
