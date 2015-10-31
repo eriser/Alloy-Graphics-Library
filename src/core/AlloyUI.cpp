@@ -2543,6 +2543,7 @@ namespace aly {
 	}
 	void Menu::addItem(const std::shared_ptr<MenuItem>& selection) {
 		options.push_back(selection);
+		selection->menuBar=menuBar;
 		if (selection->isMenu()) {
 			Composite::add(selection);
 		}
@@ -2557,12 +2558,14 @@ namespace aly {
 			label = options[selectedIndex];
 		}
 	}
-	void Menu::fireEvent(int selectedIndex) {
+	bool Menu::fireEvent(int selectedIndex) {
 		if (selectedIndex >= 0) {
 			if (options[selectedIndex]->onSelect) {
 				options[selectedIndex]->onSelect();
+				return true;
 			}
 		}
+		return false;
 	}
 	void MenuItem::setVisible(bool visible) {
 		if (!visible) {
@@ -2601,7 +2604,11 @@ namespace aly {
 		}
 		MenuItem::setVisible(visible);
 	}
-
+	void MenuBar::hideMenus(){
+		for(MenuHeaderPtr header:headers){
+			AlloyApplicationContext()->removeOnTopRegion(header->menu.get());
+		}
+	}
 	Menu::Menu(const std::string& name,float menuWidth,const std::vector<std::shared_ptr<MenuItem>>& labels) :
 		MenuItem(name, CoordPerPX(0.0f, 0.0f, 0.0f, 0.0f), CoordPerPX(0.0f, 0.0f, menuWidth, 0.0f)), options(labels) {
 		setDetached(true);
@@ -2623,8 +2630,11 @@ namespace aly {
 			if (context->isOnTop(this)&&this->isVisible()) {
 				if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_LEFT) {
 					if (getSelectedIndex()>=0) {
-						fireEvent(selectedIndex);
-						return true;
+						if(fireEvent(selectedIndex)){
+							if(menuBar!=nullptr){
+								menuBar->hideMenus();
+							}
+						}
 					}
 					else {
 						setSelectedIndex(-1);
@@ -2709,9 +2719,9 @@ namespace aly {
 	}
 	void MenuBar::add(const std::shared_ptr<Menu>& menu) {
 		MenuHeaderPtr header = MenuHeaderPtr(new MenuHeader(menu, CoordPerPX(0.0f, 1.0f, 0.0f, -30.0f), CoordPX(100, 30)));
-
 		menu->position = CoordPX(0.0f, 30.0f);
 		menu->setDetached(true);
+		menu->menuBar=this;
 		Composite::add(menu);
 
 		headers.push_back(header);

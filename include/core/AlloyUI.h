@@ -488,6 +488,7 @@ public:
 			const std::vector<std::string>& options =
 					std::vector<std::string>());
 };
+class MenuBar;
 class MenuItem : public Composite {
 protected:
 
@@ -498,6 +499,7 @@ protected:
 	std::shared_ptr<Timer> showTimer;
 	const int MENU_DISPLAY_DELAY = 250;
 public:
+	MenuBar* menuBar=nullptr;
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
 	AUnit1D fontSize = UnitPX(24.0f);
@@ -525,7 +527,7 @@ protected:
 	std::shared_ptr<Timer> downTimer, upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
 	std::vector<std::shared_ptr<MenuItem>> options;
-	void fireEvent(int selectedIndex);
+	bool fireEvent(int selectedIndex);
 public:
 	virtual bool isMenu() const override {
 		return true;
@@ -557,10 +559,9 @@ public:
 		std::vector<std::shared_ptr<MenuItem>>());
 };
 class MenuHeader : public MenuItem {
-protected:
-	std::shared_ptr<Menu> menu;
-	AColor backgroundAltColor;
 public:
+	AColor backgroundAltColor;
+	std::shared_ptr<Menu> menu;
 	bool isMenuVisible() const {
 		return menu->isVisible();
 	}
@@ -577,6 +578,7 @@ protected:
 	bool active;
 public:
 	void add(const std::shared_ptr<Menu>& menu);
+	void hideMenus();
 	MenuBar(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions);
 };
 struct FileField: public TextField {
