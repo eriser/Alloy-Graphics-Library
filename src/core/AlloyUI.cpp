@@ -2717,7 +2717,9 @@ namespace aly {
 		headers.push_back(header);
 		barRegion->add(header);
 		header->onMouseOver = [=](AlloyContext* context, const InputEvent& e) {
-			setVisibleItem(menu);
+			if(currentVisible.get()!=nullptr){
+				setVisibleItem(menu);
+			}
 			return true;
 		};
 		header->onMouseDown = [=](AlloyContext* context, const InputEvent& e) {

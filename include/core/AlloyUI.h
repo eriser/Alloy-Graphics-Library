@@ -496,7 +496,7 @@ protected:
 	std::shared_ptr<MenuItem> requestedSelected;
 	std::shared_ptr<MenuItem> currentVisible;
 	std::shared_ptr<Timer> showTimer;
-	const int MENU_DISPLAY_DELAY = 300;
+	const int MENU_DISPLAY_DELAY = 250;
 public:
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
