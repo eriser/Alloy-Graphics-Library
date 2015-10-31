@@ -31,7 +31,6 @@ bool MenuEx::init(Composite& rootNode) {
 	MenuPtr editMenu = MenuPtr(new Menu("Edit"));
 	MenuPtr actionMenu = MenuPtr(new Menu("Action"));
 	MenuPtr helpMenu = MenuPtr(new Menu("Help"));
-
 	MenuPtr newMenu = MenuPtr(new Menu("New"));
 	newMenu->addItem("House")->onSelect = [=]() {std::cout << "New:House" << std::endl;};
 	newMenu->addItem("Car")->onSelect = [=]() {std::cout << "New:Car" << std::endl;};

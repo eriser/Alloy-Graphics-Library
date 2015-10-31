@@ -61,8 +61,10 @@ Worker::~Worker() {
 void Worker::cancel(bool block) {
 	if (block) {
 		if (workerThread.joinable()) {
-			requestCancel = true;
-			workerThread.join();
+			if (!requestCancel) {
+				requestCancel = true;
+				workerThread.join();
+			}
 		}
 	} else {
 		requestCancel = true;

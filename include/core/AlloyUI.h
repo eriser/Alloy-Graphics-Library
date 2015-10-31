@@ -490,10 +490,13 @@ public:
 };
 class MenuItem : public Composite {
 protected:
-	std::shared_ptr<MenuItem> currentVisible;
+
+	std::mutex showLock;
 	std::shared_ptr<MenuItem> currentSelected;
-	std::shared_ptr<Timer> showTimer, hideTimer;
-	const int MENU_DISPLAY_DELAY = 500;
+	std::shared_ptr<MenuItem> requestedSelected;
+	std::shared_ptr<MenuItem> currentVisible;
+	std::shared_ptr<Timer> showTimer;
+	const int MENU_DISPLAY_DELAY = 300;
 public:
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;
@@ -504,11 +507,12 @@ public:
 	virtual bool isMenu() const {
 		return false;
 	}
+	virtual void setVisible(bool visible) override;
 	MenuItem(const std::string& name);
 	MenuItem(const std::string& name, const AUnit2D& position,
 		const AUnit2D& dimensions);
 
-	virtual void setVisibleItem(const std::shared_ptr<MenuItem>& item, bool visible);
+	virtual void setVisibleItem(const std::shared_ptr<MenuItem>& item,bool forceShow=false);
 };
 
 class Menu : public MenuItem {
@@ -521,7 +525,6 @@ protected:
 	std::shared_ptr<Timer> downTimer, upTimer;
 	std::shared_ptr<AwesomeGlyph> downArrow, upArrow;
 	std::vector<std::shared_ptr<MenuItem>> options;
-
 	void fireEvent(int selectedIndex);
 public:
 	virtual bool isMenu() const override {
@@ -549,7 +552,7 @@ public:
 		return item;
 	}
 	void addItem(const std::shared_ptr<MenuItem>& selection);
-	Menu(const std::string& name,
+	Menu(const std::string& name,float menuWidth=150.0f,
 		const std::vector<std::shared_ptr<MenuItem>>& options =
 		std::vector<std::shared_ptr<MenuItem>>());
 };
@@ -558,7 +561,6 @@ protected:
 	std::shared_ptr<Menu> menu;
 	AColor backgroundAltColor;
 public:
-	void setMenuVisible(bool vis);
 	bool isMenuVisible() const {
 		return menu->isVisible();
 	}
@@ -570,7 +572,8 @@ public:
 struct MenuBar : public MenuItem {
 protected:
 	std::list<std::shared_ptr<MenuHeader>> headers;
-	virtual void setVisibleItem(const std::shared_ptr<MenuItem>& item, bool visible) override;
+	std::shared_ptr<Composite> barRegion;
+	virtual void setVisibleItem(const std::shared_ptr<MenuItem>& item, bool forceShow = false) override;
 	bool active;
 public:
 	void add(const std::shared_ptr<Menu>& menu);
