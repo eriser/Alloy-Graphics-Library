@@ -2488,9 +2488,14 @@ namespace aly {
 						item->setVisible(true);
 						currentVisible = item;
 					}
+					if (item.get() == requestedSelected.get()) {
+						requestedSelected = nullptr;
+					}
 					AlloyApplicationContext()->requestPack();
 				}, [=]() {
-					requestedSelected = nullptr;
+					if (item.get() == requestedSelected.get()) {
+						requestedSelected = nullptr;
+					}
 				}, MENU_DISPLAY_DELAY, 30));
 				requestedSelected = item;
 				showTimer->execute();
