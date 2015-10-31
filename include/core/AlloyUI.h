@@ -499,6 +499,7 @@ protected:
 	std::shared_ptr<Timer> showTimer;
 	const int MENU_DISPLAY_DELAY = 250;
 public:
+	MenuItem* getSelectedItem();
 	MenuBar* menuBar=nullptr;
 	FontStyle fontStyle = FontStyle::Normal;
 	FontType fontType = FontType::Normal;

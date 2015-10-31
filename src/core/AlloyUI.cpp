@@ -2543,7 +2543,6 @@ namespace aly {
 	}
 	void Menu::addItem(const std::shared_ptr<MenuItem>& selection) {
 		options.push_back(selection);
-		selection->menuBar=menuBar;
 		if (selection->isMenu()) {
 			Composite::add(selection);
 		}
@@ -2637,8 +2636,13 @@ namespace aly {
 						}
 					}
 					else {
-						setSelectedIndex(-1);
-						AlloyApplicationContext()->removeOnTopRegion(this);
+						if (menuBar != nullptr) {
+							MenuItem* selected = getSelectedItem();
+							if (selected == nullptr||!selected->isMenu()) {
+								setSelectedIndex(-1);
+								AlloyApplicationContext()->removeOnTopRegion(this);
+							}
+						}
 					}
 				}
 				else if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_RIGHT) {
@@ -2739,6 +2743,20 @@ namespace aly {
 	}
 	MenuItem::MenuItem(const std::string& name) :Composite(name) {
 
+	}
+
+	MenuItem* MenuItem::getSelectedItem() {
+		if (isMenu()) {
+			if (currentSelected.get() != nullptr) {
+				return currentSelected.get();
+			}
+			else if(currentVisible.get() != nullptr) {
+				return currentVisible->getSelectedItem();
+			}
+			return nullptr;
+		} else {
+			return nullptr;
+		}
 	}
 	MenuItem::MenuItem(const std::string& name, const AUnit2D& position, const AUnit2D& dimensions) : Composite(name, position, dimensions) {
 	}
