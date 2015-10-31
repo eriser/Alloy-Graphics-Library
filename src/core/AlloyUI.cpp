@@ -2519,14 +2519,23 @@ namespace aly {
 			else {
 				showTimer = std::shared_ptr<Timer>(new Timer([=] {
 					std::lock_guard<std::mutex> lockMe(showLock);
-					if (currentVisible.get() != nullptr&&currentVisible.get() != item.get()) {
-						AlloyApplicationContext()->removeOnTopRegion(currentVisible.get());
+					if (currentSelected.get() == item.get()) {
+						if (currentVisible.get() != nullptr&&currentVisible.get() != item.get()) {
+							AlloyApplicationContext()->removeOnTopRegion(currentVisible.get());
+						}
+						AlloyApplicationContext()->setOnTopRegion(item.get());
+						item->setVisible(true);
+						currentVisible = item;
+						AlloyApplicationContext()->requestPack();
 					}
-					AlloyApplicationContext()->setOnTopRegion(item.get());
-					item->setVisible(true);
-					currentVisible = item;
-					AlloyApplicationContext()->requestPack();
-				}, nullptr, MENU_DISPLAY_DELAY, 30));
+					if (item.get() == requestedSelected.get()) {
+						requestedSelected = nullptr;
+					}
+				}, [=]() {
+					if (item.get() == requestedSelected.get()) {
+						requestedSelected = nullptr;
+					}
+				}, MENU_DISPLAY_DELAY, 30));
 				requestedSelected = item;
 				showTimer->execute();
 			}
@@ -2575,7 +2584,6 @@ namespace aly {
 			}
 		}
 		else if (!isVisible()) {
-			showTimer.reset();
 			currentVisible = nullptr;
 			currentSelected = nullptr;
 			requestedSelected = nullptr;
@@ -2612,22 +2620,20 @@ namespace aly {
 		};
 		onEvent =
 			[this](AlloyContext* context, const InputEvent& event) {
-			if (context->isOnTop(this) && this->isVisible()) {
+			if (context->isOnTop(this)&&this->isVisible()) {
 				if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_LEFT) {
-					if (AlloyApplicationContext()->isMouseOver(this)) {
+					if (getSelectedIndex()>=0) {
 						fireEvent(selectedIndex);
-						return false;
+						return true;
 					}
 					else {
 						setSelectedIndex(-1);
 						AlloyApplicationContext()->removeOnTopRegion(this);
-						this->setVisible(false);
 					}
 				}
 				else if (event.type == InputType::MouseButton&&event.isDown() && event.button == GLFW_MOUSE_BUTTON_RIGHT) {
 					setSelectedIndex(-1);
 					AlloyApplicationContext()->removeOnTopRegion(this);
-					this->setVisible(false);
 				}
 				else if (event.type == InputType::Cursor && (int)options.size() > maxDisplayEntries) {
 					box2px bounds = this->getBounds();

@@ -63,45 +63,45 @@ bool MenuEx::init(Composite& rootNode) {
 
 	MenuPtr bigMenu = MenuPtr(new Menu("Big Menu"));
 	MenuPtr subMenu1 = MenuPtr(new Menu("Submenu 1"));
-	subMenu1->addItem("Item 1");
-	subMenu1->addItem("Item 2");
-	subMenu1->addItem("Item 3");
+	subMenu1->addItem("Item 1")->onSelect = [=]() {std::cout << "subMenu1:Item 1" << std::endl;};
+	subMenu1->addItem("Item 2")->onSelect = [=]() {std::cout << "subMenu1:Item 2" << std::endl;};
+	subMenu1->addItem("Item 3")->onSelect = [=]() {std::cout << "subMenu1:Item 3" << std::endl;};
 
 	MenuPtr subsubMenu1 = MenuPtr(new Menu("Subsubmenu 1"));
-	subsubMenu1->addItem("Item 1");
-	subsubMenu1->addItem("Item 2");
-	subsubMenu1->addItem("Item 3");
+	subsubMenu1->addItem("Item 1")->onSelect = [=]() {std::cout << "subsubMenu1:Item 1" << std::endl;};
+	subsubMenu1->addItem("Item 2")->onSelect = [=]() {std::cout << "subsubMenu1:Item 2" << std::endl;};
+	subsubMenu1->addItem("Item 3")->onSelect = [=]() {std::cout << "subsubMenu1:Item 3" << std::endl;};
 
 	MenuPtr subsubMenu2 = MenuPtr(new Menu("Subsubmenu 2"));
-	subsubMenu2->addItem("Item 1");
-	subsubMenu2->addItem("Item 2");
-	subsubMenu2->addItem("Item 3");
+	subsubMenu2->addItem("Item 1")->onSelect = [=]() {std::cout << "subsubMenu2:Item 1" << std::endl;};
+	subsubMenu2->addItem("Item 2")->onSelect = [=]() {std::cout << "subsubMenu2:Item 2" << std::endl;};
+	subsubMenu2->addItem("Item 3")->onSelect = [=]() {std::cout << "subsubMenu2:Item 3" << std::endl;};
 
 	MenuPtr subsubMenu3 = MenuPtr(new Menu("Subsubmenu 3"));
-	subsubMenu3->addItem("Item 1");
-	subsubMenu3->addItem("Item 2");
-	subsubMenu3->addItem("Item 3");
+	subsubMenu3->addItem("Item 1")->onSelect = [=]() {std::cout << "subsubMenu3:Item 1" << std::endl;};
+	subsubMenu3->addItem("Item 2")->onSelect = [=]() {std::cout << "subsubMenu3:Item 2" << std::endl;};
+	subsubMenu3->addItem("Item 3")->onSelect = [=]() {std::cout << "subsubMenu3:Item 3" << std::endl;};
 
 	MenuPtr subMenu2 = MenuPtr(new Menu("Submenu 2"));
-	subMenu2->addItem("Item 1");
-	subMenu2->addItem("Item 2");
+	subMenu2->addItem("Item 1")->onSelect = [=]() {std::cout << "subMenu2:Item 1" << std::endl;};
+	subMenu2->addItem("Item 2")->onSelect = [=]() {std::cout << "subMenu2:Item 2" << std::endl;};
 	subMenu2->addItem(subsubMenu1);
 	subMenu2->addItem(subsubMenu2);
 	subMenu2->addItem(subsubMenu3);
-	subMenu2->addItem("Item 3");
+	subMenu2->addItem("Item 3")->onSelect = [=]() {std::cout << "subMenu2:Item 3" << std::endl;};
 
 	MenuPtr subMenu3 = MenuPtr(new Menu("Submenu 3"));
-	subMenu3->addItem("Item 1");
-	subMenu3->addItem("Item 2");
-	subMenu3->addItem("Item 3");
+	subMenu3->addItem("Item 1")->onSelect = [=]() {std::cout << "subMenu3:Item 1" << std::endl;};
+	subMenu3->addItem("Item 2")->onSelect = [=]() {std::cout << "subMenu3:Item 2" << std::endl;};
+	subMenu3->addItem("Item 3")->onSelect = [=]() {std::cout << "subMenu3:Item 3" << std::endl;};
 	
-	bigMenu->addItem("Item 1");
-	bigMenu->addItem("Item 2");
+	bigMenu->addItem("Item 1")->onSelect = [=]() {std::cout << "bigMenu:Item 1" << std::endl;};
+	bigMenu->addItem("Item 2")->onSelect = [=]() {std::cout << "bigMenu:Item 2" << std::endl;};
 	bigMenu->addItem(subMenu1);
 	bigMenu->addItem(subMenu2);
 	bigMenu->addItem(subMenu3);
-	bigMenu->addItem("Item 3");
-	bigMenu->addItem("Item 4");
+	bigMenu->addItem("Item 3")->onSelect = [=]() {std::cout << "bigMenu:Item 3" << std::endl;};
+	bigMenu->addItem("Item 4")->onSelect = [=]() {std::cout << "bigMenu:Item 4" << std::endl;};
 
 	helpMenu->addItem("How did I get here?")->onSelect = [=](){std::cout << "Help:How did I get here?" << std::endl;};
 	helpMenu->addItem("Where am I going?")->onSelect = [=]() {std::cout << "Help:Where am I going?" << std::endl;};
