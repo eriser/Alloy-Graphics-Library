@@ -2746,7 +2746,7 @@ namespace aly {
 
 	void MenuHeader::draw(AlloyContext* context) {
 		bool hover = context->isMouseOver(this) || menu->isVisible();
-		bool down = context->isMouseDown(this);
+		bool down = context->isLeftMouseButtonDown();
 		NVGcontext* nvg = context->nvgContext;
 		box2px bounds = getBounds();
 		menu->position = CoordPX(bounds.position.x, bounds.position.y + bounds.dimensions.y);
@@ -2754,8 +2754,8 @@ namespace aly {
 		int xoff = 0;
 		int yoff = 0;
 		int vshift = 5;
-		if (down) {
-			xoff = 2;
+		if (down&&hover) {
+			xoff = 0;
 			yoff = 2;
 		}
 		if (hover) {
