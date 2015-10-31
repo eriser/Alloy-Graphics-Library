@@ -43,6 +43,5 @@ clean :
 all : 
 	clear
 	make -j8 alloy
-	$(RM) src/example/main.o
 	make -j8 examples
 default : all
