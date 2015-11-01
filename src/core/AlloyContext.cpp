@@ -470,7 +470,7 @@ namespace aly {
 		const pixel2& dims) const {
 		return ((box2px(pos, dims)).contains(cursorPosition));
 	}
-	bool AlloyContext::isMouseOver(Region* region, bool includeParent) {
+	bool AlloyContext::isMouseOver(Region* region, bool includeParent) const {
 		if (includeParent) {
 			return (mouseOverRegion == region || (mouseOverRegion != nullptr&&mouseOverRegion->hasParent(region)));
 		}
@@ -478,7 +478,7 @@ namespace aly {
 			return (mouseOverRegion == region);
 		}
 	}
-	bool AlloyContext::isMouseDown(Region* region, bool includeParent) {
+	bool AlloyContext::isMouseDown(Region* region, bool includeParent) const {
 		if (includeParent) {
 			return (mouseDownRegion == region || (mouseDownRegion != nullptr&&mouseDownRegion->hasParent(region)));
 		}

@@ -2706,7 +2706,8 @@ namespace aly {
 		cursorPosition.x = -1;
 		cursorPosition.y = -1;
 		onEvent = [this](const AlloyContext* context, const InputEvent& e) {
-			if (context->isMouseContainedIn(this)) {
+			Graph* region=this;
+			if (context->isMouseOver(region)) {
 				cursorPosition=e.cursor;
 				glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			}
@@ -2791,7 +2792,7 @@ namespace aly {
 				last = last * gbounds.dimensions + gbounds.position;
 				nvgBeginPath(nvg);
 				nvgMoveTo(nvg, last.x, last.y);
-				for (int i = 1; i < points.size(); i++)
+				for (int i = 1; i < (int)points.size(); i++)
 				{
 					float2 pt = points[i];
 					pt = (pt - graphBounds.position) / graphBounds.dimensions;
@@ -2835,7 +2836,7 @@ namespace aly {
 		
 		if (cursorPosition.x >= 0) {
 			float minDist = 1E30f;
-			float bestY;
+			float bestY=0;
 			GraphDataPtr closestCurve;
 			for (GraphDataPtr& curve : curves) {
 				float y = curve->interpolate(gpos.x);
@@ -2914,7 +2915,7 @@ namespace aly {
 		float y = 0;
 		int startX = 0;
 		int endX = (int)points.size() - 1;
-		for (int i = 1;i < points.size();i++) {
+		for (int i = 1;i <(int) points.size();i++) {
 			if (x < points[i].x) {
 				startX = i-1;
 				break;

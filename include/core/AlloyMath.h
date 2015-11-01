@@ -1656,7 +1656,6 @@ template<class T,int C> double LineSearch(
 	double fx2;
 	vec<T, C> a = minValue;
 	vec<T, C> b = maxValue;
-	double fa, fb;
 	x1 = b - lambda * (b - a);
 	x2 = a + lambda * (b - a);
 	fx1 = scoreFunc(x1);
@@ -1664,7 +1663,6 @@ template<class T,int C> double LineSearch(
 	while (lengthL1(b - a) >= tolerance) {
 		if (fx1 > fx2) {
 			a = x1;
-			fa = fx1;
 			if (lengthL1(b - a) < tolerance) break;
 			x1 = x2;
 			fx1 = fx2;
@@ -1673,7 +1671,6 @@ template<class T,int C> double LineSearch(
 		}
 		else {
 			b = x2;
-			fb = fx2;
 			if (lengthL1(b - a) < tolerance) break;
 			x2 = x1;
 			fx2 = fx1;
@@ -1700,7 +1697,6 @@ template<class T> double LineSearch(
 	double fx2;
 	T a = minValue;
 	T b = maxValue;
-	double fa, fb;
 	x1 = b - lambda * (b - a);
 	x2 = a + lambda * (b - a);
 	fx1 = scoreFunc(x1);
@@ -1708,7 +1704,6 @@ template<class T> double LineSearch(
 	while (b - a >= tolerance) {
 		if (fx1 > fx2) {
 			a = x1;
-			fa = fx1;
 			if (b - a < tolerance) break;
 			x1 = x2;
 			fx1 = fx2;
@@ -1717,7 +1712,6 @@ template<class T> double LineSearch(
 		}
 		else {
 			b = x2;
-			fb = fx2;
 			if (b - a < tolerance) break;
 			x2 = x1;
 			fx2 = fx1;

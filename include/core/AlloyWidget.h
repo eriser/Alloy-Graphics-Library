@@ -540,8 +540,8 @@ public:
 			const std::string& workingDirectory = GetCurrentWorkingDirectory());
 };
 struct GraphData {
-	Color color;
 	std::string name;
+	Color color;
 	std::vector<float2> points;
 	static const float NO_INTERSECT;
 	GraphData(const std::string& name = "", Color color = Color(200, 64, 64)):name(name),color(color) {

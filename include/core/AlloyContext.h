@@ -250,8 +250,8 @@ public:
 	pixel2 getCursorDownPosition() const;
 	bool fireListeners(const InputEvent& event);
 	void setDragObject(Region* region);
-	bool isMouseOver(Region* region, bool includeParent = false);
-	bool isMouseDown(Region* region, bool includeParent = false);
+	bool isMouseOver(Region* region, bool includeParent = false) const;
+	bool isMouseDown(Region* region, bool includeParent = false) const;
 	bool isFocused(Region* region);
 	inline void setMouseDownObject(Region* region) {
 		mouseDownRegion = region;
@@ -275,7 +275,7 @@ public:
 		return rightMouseButton;
 	}
 
-	inline bool isMouseDown() {
+	inline bool isMouseDown() const {
 		return (mouseDownRegion != nullptr);
 	}
 	bool isOnTop(Region* region) const;

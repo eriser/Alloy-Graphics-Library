@@ -48,7 +48,6 @@ namespace aly {
 bool SANITY_CHECK_LOCATOR() {
 
 	{
-
 		int N = 1000;
 		std::vector<float2> samples(N);
 		for (int n = 0; n < N; n++) {
