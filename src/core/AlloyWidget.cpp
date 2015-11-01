@@ -2948,7 +2948,7 @@ namespace aly {
 		cellPadding = pixel2(5, 5);
 		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
 		//titleRegion->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
-		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-40.0f,0.0f)));
+		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f,0.0f),CoordPerPX(1.0f,1.0f,0.0f,0.0f)));
 		label->textColor =MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		titleRegion->add(label);
 
@@ -2960,19 +2960,26 @@ namespace aly {
 		Composite::add(contentRegion);
 		label->onMouseDown=[this](AlloyContext* context, const InputEvent& e) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				dynamic_cast<Composite*>(this->parent)->putLast(this);
 				this->setDragEnabled(true);
+				this->setClampDragToParentBounds(false);
 				context->setDragObject(this);
 			}
-			return true;
+			return false;
 		};
-	
 		titleRegion->onMouseUp= [this](AlloyContext* context, const InputEvent& e) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 				this->setDragEnabled(false);
+				context->requestPack();
 			}
-			return true;
+			return false;
 		};
+		onEvent = [this](AlloyContext* context, const InputEvent& e) {
+			if (e.type==InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown()&&context->isMouseOver(this, true)) {
+				dynamic_cast<Composite*>(this->parent)->putLast(this);
+			}
+			return false;
+		};
+		Application::addListener(this);
 	}
 }
 

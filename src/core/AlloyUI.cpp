@@ -608,6 +608,8 @@ namespace aly {
 
 			verticalScrollTrack->dimensions =
 				CoordPerPX(0.0f, 1.0f, scrollBarSize, nudge);
+			verticalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
+				pixelRatio);
 			verticalScrollHandle->dimensions =
 				CoordPerPX(1.0f, 0.0f, 0.0f,
 					std::max(scrollBarSize,
@@ -615,14 +617,15 @@ namespace aly {
 							* bounds.dimensions.y)
 						/ scrollExtent.y));
 
-			verticalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
-				pixelRatio);
+	
 			verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),
 				verticalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
 				true);
 
 			horizontalScrollTrack->dimensions =
 				CoordPerPX(1.0f, 0.0f, nudge, scrollBarSize);
+			horizontalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
+				pixelRatio);
 			horizontalScrollHandle->dimensions =
 				CoordPerPX(0.0f, 1.0f,
 					std::max(scrollBarSize,
@@ -630,8 +633,7 @@ namespace aly {
 							* bounds.dimensions.x)
 						/ scrollExtent.x), 0.0f);
 
-			horizontalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
-				pixelRatio);
+
 			horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(),
 				horizontalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
 				true);
