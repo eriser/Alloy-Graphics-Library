@@ -31,19 +31,16 @@ bool GraphEx::init(Composite& rootNode) {
 	int N = 5;
 	float delta = 0.001f;
 
-	GraphPtr graphRegion = GraphPtr(new Graph("Curves", CoordPerPX(0.5f, 0.0f, -300.0f, 10.0f), CoordPX(600, 400)));
-	float optimized1;
-	std::function<double(const float& value)> scoreFunc1 = [=](const float& val) {
-		return (double)(val- 3.0f)*(val - 3.0f);
-	};
+	GraphPtr graphRegion = GraphPtr(new Graph("Graph Example", CoordPerPX(0.5f, 0.0f, -300.0f, 10.0f), CoordPX(600, 400)));
 	for (int n = 0;n < N;n++) {
-		float startX = RandomUniform(0.0f, 1.0f);
-		float endX = RandomUniform(1.0f, 4.0f);
-		float freq = RandomUniform(1.0f, 10.0f);
+		float startX = RandomUniform(-1.0f, 1.0f);
+		float endX = RandomUniform(3.0f, 4.0f);
+		float freq = RandomUniform(0.25f, 1.0f);
+		float amp = RandomUniform(0.25f, 1.0f);
 		float phase = RandomUniform(0.0f, ALY_PI);
 		GraphDataPtr graph = GraphDataPtr(new GraphData(MakeString() << "Curve " << n + 1, HSVtoColor(HSV(n / (float)(N - 1), 0.7f, 0.8f))));
 		for (float x = startX;x <= endX;x += delta) {
-			float y = std::sin(2.0f*ALY_PI*freq*x + phase);
+			float y = amp*std::sin(2.0f*ALY_PI*freq*x + phase);
 			graph->points.push_back(float2(x, y));
 		}
 		graphRegion->add(graph);

@@ -2698,11 +2698,134 @@ namespace aly {
 	}
 	Graph::Graph(const std::string& name, const AUnit2D& pos, const AUnit2D& dims) :Region(name, pos, dims)
 	{
-		graphBounds = box2f(float2(0.0f), float2(0.0f));
+		graphBounds = box2f(float2(0.0f), float2(-1.0f));
+		backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+		setRoundCorners(true);
+		xAxisLabel = "x";
+		yAxisLabel = "y=f(x)";
+		xCursorPosition = -1;
+		yCursorPosition = -1;
+		onEvent = [this](const AlloyContext* context, const InputEvent& e) {
+			if (context->isMouseContainedIn(this)) {
+				xCursorPosition = e.cursor.x;
+				yCursorPosition = e.cursor.y;
+			}
+			else {
+				xCursorPosition = -1;
+				yCursorPosition = -1;
+			}
+			return false;
+		};
+		Application::addListener(this);
 	}
 	void Graph::draw(AlloyContext* context) {
-		box2px bounds = getBounds();
-
+		Region::draw(context);
+		box2px rbounds = getBounds();
+		NVGcontext* nvg = context->nvgContext;
+		box2px gbounds = rbounds;
+		gbounds.position = pixel2(rbounds.position.x + GRAPH_PADDING, rbounds.position.y + GRAPH_PADDING);
+		gbounds.dimensions = pixel2(rbounds.dimensions.x - GRAPH_PADDING * 2, rbounds.dimensions.y - GRAPH_PADDING * 2);
+		if (graphBounds.dimensions.x < 0 || graphBounds.dimensions.y < 0) {
+			updateGraphBounds();
+		}
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg,gbounds.position.x - 2,gbounds.position.y - 2,gbounds.dimensions.x + 4,gbounds.dimensions.y + 4,context->theme.CORNER_RADIUS);
+		nvgFillColor(nvg, context->theme.HIGHLIGHT);
+		nvgFill(nvg);
+		//Draw vertical line for x=0
+		if (graphBounds.position.x < 0 && graphBounds.position.x + graphBounds.dimensions.x > 0)
+		{
+			float xpos = -graphBounds.position.x / graphBounds.dimensions.x;
+			nvgBeginPath(nvg);
+			nvgMoveTo(nvg, xpos * gbounds.dimensions.x + gbounds.position.x,gbounds.position.y);
+			nvgLineTo(nvg, xpos * gbounds.dimensions.x + gbounds.position.x,gbounds.position.y + gbounds.dimensions.y);
+			nvgStrokeWidth(nvg, 2.0f);
+			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.75f));
+			nvgStroke(nvg);
+		}
+		//Draw horizontal line for y=0
+		if (graphBounds.position.y < 0 && graphBounds.position.y + graphBounds.dimensions.y > 0)
+		{
+			float ypos = -graphBounds.position.y / graphBounds.dimensions.y;
+			nvgBeginPath(nvg);
+			nvgMoveTo(nvg, gbounds.position.x, ypos * gbounds.dimensions.y + gbounds.position.y);
+			nvgLineTo(nvg, gbounds.position.x + gbounds.dimensions.x, ypos * gbounds.dimensions.y + gbounds.position.y);
+			nvgStrokeWidth(nvg, 2.0f);
+			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.75f));
+			nvgStroke(nvg);
+		}
+		for (GraphDataPtr& curve : curves)
+		{
+			std::vector<float2> points = curve->points;
+			if (points.size() > 1 && graphBounds.dimensions.x > 0.0f&& graphBounds.dimensions.y > 0.0f)
+			{
+				NVGcontext* nvg = context->nvgContext;
+				float2 last = points[0];
+				last = (last - graphBounds.position) / graphBounds.dimensions;
+				last.y = 1.0f - last.y;
+				last = last * gbounds.dimensions + gbounds.position;
+				nvgBeginPath(nvg);
+				nvgMoveTo(nvg, last.x, last.y);
+				for (int i = 1; i < points.size(); i++)
+				{
+					float2 pt = points[i];
+					pt = (pt - graphBounds.position) / graphBounds.dimensions;
+					pt.y = 1.0f - pt.y;
+					pt = pt * gbounds.dimensions + gbounds.position;
+					nvgLineTo(nvg, pt.x, pt.y);
+					last = pt;
+				}
+				nvgStrokeWidth(nvg, 2.0f);
+				nvgStrokeColor(nvg, curve->color);
+				nvgStroke(nvg);
+			}
+		}
+		if (xCursorPosition >gbounds.position.x&&xCursorPosition<gbounds.position.x+ gbounds.dimensions.x)
+		{
+			nvgBeginPath(nvg);
+			nvgMoveTo(nvg, xCursorPosition,gbounds.position.y);
+			nvgLineTo(nvg, xCursorPosition,gbounds.position.y + gbounds.dimensions.y);
+			nvgStrokeWidth(nvg, 2.0f);
+			nvgStrokeColor(nvg, Color(200, 100, 100, 128));
+			nvgStroke(nvg);
+		}
+		if (yCursorPosition >gbounds.position.y&&yCursorPosition<gbounds.position.y + gbounds.dimensions.y)
+		{
+			nvgBeginPath(nvg);
+			nvgMoveTo(nvg, gbounds.position.x,yCursorPosition);
+			nvgLineTo(nvg, gbounds.position.x + gbounds.dimensions.x,yCursorPosition);
+			nvgStrokeWidth(nvg, 2.0f);
+			nvgStrokeColor(nvg, Color(200, 100, 100, 128));
+			nvgStroke(nvg);
+		}
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+		nvgFontSize(nvg, 18.0f);
+		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		drawText(nvg,rbounds.position + float2(rbounds.dimensions.x / 2, 2.0f),name,FontStyle::Outline,context->theme.LIGHT_TEXT,context->theme.DARK);
+		nvgFontSize(nvg, 16.0f);
+		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
+		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_BOTTOM);
+		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x / 2,rbounds.dimensions.y - 4.0f),xAxisLabel,FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
+		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		nvgSave(nvg);
+		pixel2 center =rbounds.position + float2(2.0f, rbounds.dimensions.y * 0.5f);
+		nvgTranslate(nvg, center.x, center.y);
+		nvgRotate(nvg, -ALY_PI * 0.5f);
+		drawText(nvg,pixel2(0, 2),yAxisLabel,FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+		nvgRestore(nvg);
+		nvgFontSize(nvg, 12.0f);
+		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
+		drawText(nvg,rbounds.position + float2(GRAPH_PADDING, GRAPH_PADDING),MakeString() << std::setprecision(2)<< (graphBounds.position.y + graphBounds.dimensions.y),FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
+		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
+		drawText(nvg,rbounds.position+ float2(GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING),MakeString() << std::setprecision(2) << graphBounds.position.y,FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
+		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
+		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x - GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING + 2),MakeString() << std::setprecision(2)<< (graphBounds.position.x + graphBounds.dimensions.x),FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+		nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+		drawText(nvg,rbounds.position+ float2(GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING + 2),MakeString() << std::setprecision(2) << graphBounds.position.x,	FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+		/*
+		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_BOTTOM);
+		drawText(nvg,xCursorPosition,yCursorPosition, MakeString() <<"("<< std::setprecision(2) << , FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+		*/
 	}
 	void Graph::add(const GraphDataPtr& curve) {
 		curves.push_back(curve);
@@ -2716,9 +2839,9 @@ namespace aly {
 		float2 minPt(std::numeric_limits<float>::max());
 		float2 maxPt(std::numeric_limits<float>::min());
 		for (GraphDataPtr& curve : curves) {
-			if (curve->points.size() > 0) {
-				minPt = aly::min(curve->points.front(), minPt);
-				maxPt = aly::max(curve->points.back(), maxPt);
+			for(float2& pt:curve->points){
+				minPt = aly::min(pt, minPt);
+				maxPt = aly::max(pt, maxPt);
 			}
 		}
 		graphBounds = box2f(minPt, maxPt - minPt);

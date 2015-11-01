@@ -554,6 +554,9 @@ class Graph : public Region{
 protected:
 	std::vector<GraphDataPtr> curves;
 	box2f graphBounds;
+	float xCursorPosition;
+	float yCursorPosition;
+	const float GRAPH_PADDING = 24.0f;
 public:
 	std::string xAxisLabel;
 	std::string yAxisLabel;

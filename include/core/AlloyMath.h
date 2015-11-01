@@ -1640,7 +1640,7 @@ template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,
 	M(2, 3) = -eyePosition3D[2];
 	return transpose(matrix2) * M;
 }
-template<class T,int C> double lineSearch(
+template<class T,int C> double LineSearch(
 	vec<T,C>& value, 
 	const vec<T, C>& minValue, 
 	const vec<T, C>& maxValue,
@@ -1684,7 +1684,7 @@ template<class T,int C> double lineSearch(
 	value = a;
 	return scoreFunc(a);
 }
-template<class T> double lineSearch(
+template<class T> double LineSearch(
 	T& value,
 	const T& minValue,
 	const T& maxValue,

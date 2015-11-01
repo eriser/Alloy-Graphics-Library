@@ -816,14 +816,14 @@ bool SANITY_CHECK_MATH() {
 		std::function<double(const float& value)> scoreFunc1 = [=](const float& val) {
 			return (double)(val - 3.0f)*(val - 3.0f);
 		};
-		double err = lineSearch(optimized1, -1.0f, 5.0f, scoreFunc1);
+		double err = LineSearch(optimized1, -1.0f, 5.0f, scoreFunc1);
 		std::cout << "Min " << optimized1 << " Error " << err << std::endl;
 		float2 optimized2;
 		std::function<double(const float2& value)> scoreFunc2 = [=](const float2& val) {
 			return (double)((val.x - 3.0f)*(val.x - 3.0f) + (val.y - 5.0f)*(val.y - 5.0f));
 		};
 		float2 dir = normalize(float2(7.0f, 4.0f));
-		err = lineSearch(optimized2, float2(3.0f, 5.0f) - 2.0f*dir, float2(3.0f, 5.0f) + 3.0f*dir, scoreFunc2);
+		err = LineSearch(optimized2, float2(3.0f, 5.0f) - 2.0f*dir, float2(3.0f, 5.0f) + 3.0f*dir, scoreFunc2);
 		std::cout << "Min " << optimized2 << " Error " << err << std::endl;
 		float4 pt(0.1f, 5.3f, 2.4f, 6.7f);
 		float4x4 M1(1.0f);
