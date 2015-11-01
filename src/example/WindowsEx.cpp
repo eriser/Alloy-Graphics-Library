@@ -34,6 +34,7 @@ bool WindowsEx::init(Composite& rootNode) {
 	WindowPtr window2 = WindowPtr(new Window(imageRegion2));
 	rootNode.add(window1);
 	rootNode.add(window2);
+	//Good idea to enable this. What happens if window gets resized? Will things disappear?
 	rootNode.setScrollEnabled(true);
 	//getContext()->setDebug(true);
 	return true;

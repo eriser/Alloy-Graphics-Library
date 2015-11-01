@@ -868,6 +868,11 @@ bool SANITY_CHECK_MATH() {
 		float4x4 RZ = MakeRotationZ(0.5f);
 		float4x4 R = MakeRotation(normalize(float3(1, 1, 0)),
 				0.3333f * ALY_PI_2);
+		float3 out1=Transform(R, float3(1, 2, 3));
+		float4 out2 = Transform(SubMatrix(R), float4(1, 2, 3,0));
+
+		out2 = Transform(R, float4(1, 2, 3,0));
+		out1 = Transform(SubMatrix(R), float3(1, 2, 3));
 		float angle = Angle(float3(0.1f, 0.6f, 0.2f), float3(0, 0, 0),
 				SubMatrix(R) * float3(0.1f, 0.6f, 0.2f));
 		v = aly::max(v, pt.xyz());

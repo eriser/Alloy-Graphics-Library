@@ -1578,6 +1578,9 @@ template<class T, int M> struct box {
 		return aly::clamp(pt, parent.position,
 				parent.position + parent.dimensions - dimensions);
 	}
+	inline vec<T, M> clamp(const vec<T, M>& pt) {
+		return aly::clamp(pt, position,position + dimensions);
+	}
 };
 template<class C, class R, class T, int M> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const box<T, M> & v) {
@@ -1639,6 +1642,22 @@ template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,
 	M(1, 3) = -eyePosition3D[1];
 	M(2, 3) = -eyePosition3D[2];
 	return transpose(matrix2) * M;
+}
+
+template<class T> vec<T, 3> Transform(const matrix<T, 4, 4>& M, const vec<T, 3>& v) {
+	vec<T, 4> out = M*vec<T, 4>(v, 1.0f);
+	return out.xyz() / out.w;
+}
+template<class T> vec<T, 4> Transform(const matrix<T, 3, 3>& M, const vec<T, 4>& v) {
+	vec<T, 3> out = M*v.xyz();
+	return vec<T,4>(out,v.w);
+}
+template<class T> vec<T, 3> Transform(const matrix<T, 3, 3>& M, const vec<T, 3>& v) {
+	return M*v;
+}
+template<class T> vec<T, 4> Transform(const matrix<T, 4, 4>& M, const vec<T, 4>& v) {
+	vec<T, 4> out = M*v;
+	return (out/out.w);
 }
 template<class T,int C> double LineSearch(
 	vec<T,C>& value, 

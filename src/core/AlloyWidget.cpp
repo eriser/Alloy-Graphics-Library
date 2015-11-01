@@ -2972,7 +2972,8 @@ namespace aly {
 				dynamic_cast<Composite*>(this->parent)->putLast(this);
 			}
 			else if(dragging&&e.type == InputType::Cursor) {
-				this->setDragOffset(e.cursor,cursorDownPosition);
+				box2px pbounds = parent->getBounds();
+				this->setDragOffset(pbounds.clamp(e.cursor),cursorDownPosition);
 				this->pack();
 			} else if (e.type == InputType::MouseButton&&e.isUp()) {
 				context->requestPack();
