@@ -1640,6 +1640,94 @@ template<class T> matrix<T, 4, 4> lookAtMatrix(vec<T, 3> eyePosition3D,
 	M(2, 3) = -eyePosition3D[2];
 	return transpose(matrix2) * M;
 }
+template<class T,int C> double lineSearch(
+	vec<T,C>& value, 
+	const vec<T, C>& minValue, 
+	const vec<T, C>& maxValue,
+	const std::function<double(const vec<T,C>& value)>& scoreFunc,
+	double err= 1E-5) {
+	const T tolerance=T(err*lengthL1(maxValue-minValue));
+	const T sqrt5= T(2.236067977499789696);
+	const T lambda= T( 0.5 * (sqrt5 - 1.0));
+	const T mu=T(0.5 * (3.0 - sqrt5));
+	vec<T, C> x1;
+	vec<T, C> x2;
+	double fx1;
+	double fx2;
+	vec<T, C> a = minValue;
+	vec<T, C> b = maxValue;
+	double fa, fb;
+	x1 = b - lambda * (b - a);
+	x2 = a + lambda * (b - a);
+	fx1 = scoreFunc(x1);
+	fx2 = scoreFunc(x2);
+	while (lengthL1(b - a) >= tolerance) {
+		if (fx1 > fx2) {
+			a = x1;
+			fa = fx1;
+			if (lengthL1(b - a) < tolerance) break;
+			x1 = x2;
+			fx1 = fx2;
+			x2 = b - mu * (b - a);
+			fx2 = scoreFunc(x2);
+		}
+		else {
+			b = x2;
+			fb = fx2;
+			if (lengthL1(b - a) < tolerance) break;
+			x2 = x1;
+			fx2 = fx1;
+			x1 = a + mu * (b - a);
+			fx1 = scoreFunc(x1);
+		}
+	}
+	value = a;
+	return scoreFunc(a);
+}
+template<class T> double lineSearch(
+	T& value,
+	const T& minValue,
+	const T& maxValue,
+	const std::function<double(const T& value)>& scoreFunc,
+	double err = 1E-5) {
+	const T tolerance = T(err*(maxValue - minValue));
+	const T sqrt5 = T(2.236067977499789696);
+	const T lambda = T(0.5 * (sqrt5 - 1.0));
+	const T mu = T(0.5 * (3.0 - sqrt5));
+	T x1;
+	T x2;
+	double fx1;
+	double fx2;
+	T a = minValue;
+	T b = maxValue;
+	double fa, fb;
+	x1 = b - lambda * (b - a);
+	x2 = a + lambda * (b - a);
+	fx1 = scoreFunc(x1);
+	fx2 = scoreFunc(x2);
+	while (b - a >= tolerance) {
+		if (fx1 > fx2) {
+			a = x1;
+			fa = fx1;
+			if (b - a < tolerance) break;
+			x1 = x2;
+			fx1 = fx2;
+			x2 = b - mu * (b - a);
+			fx2 = scoreFunc(x2);
+		}
+		else {
+			b = x2;
+			fb = fx2;
+			if (b - a < tolerance) break;
+			x2 = x1;
+			fx2 = fx1;
+			x1 = a + mu * (b - a);
+			fx1 = scoreFunc(x1);
+		}
+	}
+	value = a;
+	return scoreFunc(a);
+}
 /////////////////////////
 // Convenience aliases //
 /////////////////////////

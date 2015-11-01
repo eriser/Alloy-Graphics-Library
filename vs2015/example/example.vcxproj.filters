@@ -88,6 +88,9 @@
     <ClCompile Include="..\..\src\example\LocatorEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\example\GraphEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\UnitsEx.h">
@@ -175,6 +178,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\example\LocatorEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\GraphEx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

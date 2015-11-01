@@ -26,6 +26,7 @@
     <ClCompile Include="..\..\src\example\DragEx.cpp" />
     <ClCompile Include="..\..\src\example\EventsEx.cpp" />
     <ClCompile Include="..\..\src\example\ExpandEx.cpp" />
+    <ClCompile Include="..\..\src\example\GraphEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageProcessingEx.cpp" />
     <ClCompile Include="..\..\src\example\KdTreeEx.cpp" />
@@ -57,6 +58,7 @@
     <ClInclude Include="..\..\include\example\DragEx.h" />
     <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\ExpandEx.h" />
+    <ClInclude Include="..\..\include\example\GraphEx.h" />
     <ClInclude Include="..\..\include\example\ImageEx.h" />
     <ClInclude Include="..\..\include\example\ImageProcessingEx.h" />
     <ClInclude Include="..\..\include\example\KdTreeEx.h" />

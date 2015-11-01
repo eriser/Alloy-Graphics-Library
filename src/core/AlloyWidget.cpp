@@ -2696,6 +2696,56 @@ namespace aly {
 	CompositePtr ExpandBar::add(Region* region, pixel expandHeight, bool expanded) {
 		return add(std::shared_ptr<Region>(region), expandHeight, expanded);
 	}
+	Graph::Graph(const std::string& name, const AUnit2D& pos, const AUnit2D& dims):Region(name,pos,dims) 
+	{
 
+	}
+	void Graph::draw(AlloyContext* context) {
+
+	}
+	void Graph::add(const GraphDataPtr& curve) {
+		curves.push_back(curve);
+	}
+	std::shared_ptr<GraphData> Graph::add(const GraphData& curve) {
+		std::shared_ptr<GraphData> curvePtr = std::shared_ptr<GraphData>(new GraphData(curve));
+		curves.push_back(curvePtr);
+		return curvePtr;
+	}
+	const float GraphData::NO_INTERSECT = std::numeric_limits<float>::max();
+	float GraphData::interpolate(float x) const {
+		if (points.size() < 2) {
+			return NO_INTERSECT;
+		}
+		if (x<points.front().x || x>points.back().x) {
+			return NO_INTERSECT;
+		}
+		float y = 0;
+		int startX = 0;
+		int endX = (int)points.size()-1;
+		for (int i = 0;i < points.size();i++) {
+			if (x >= points[i].x) {
+				startX = i;
+				break;
+			}
+		}
+		for (int i = (int)points.size()-1;i >=0 ;i++) {
+			if (x <= points[i].x) {
+				endX = i;
+				break;
+			}
+		}
+		if (startX == endX) {
+			return points[startX].y;
+		}
+		else if(endX-startX>0){
+			float diff = (points[endX].x - points[startX].x);
+			if (diff < 1E-10f) {
+				return 0.5f*(points[endX].y + points[startX].y);
+			} else {
+				return points[startX].y + (x - points[startX].x) * (points[endX].y - points[startX].y) / diff;
+			}
+		}
+		return y;
+	}
 }
 
