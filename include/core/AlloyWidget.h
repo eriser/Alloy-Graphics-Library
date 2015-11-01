@@ -574,6 +574,8 @@ public:
 class Window : public Composite {
 protected:
 	bool maximized;
+	bool dragging;
+	pixel2 cursorDownPosition;
 	CompositePtr titleRegion;
 	RegionPtr contentRegion;
 public:
