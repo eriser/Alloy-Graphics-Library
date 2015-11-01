@@ -37,10 +37,11 @@ bool GraphEx::init(Composite& rootNode) {
 		float endX = RandomUniform(3.0f, 4.0f);
 		float freq = RandomUniform(0.25f, 1.0f);
 		float amp = RandomUniform(0.25f, 1.0f);
+		float yOffset = RandomUniform(-0.5f, 0.5f);
 		float phase = RandomUniform(0.0f, ALY_PI);
 		GraphDataPtr graph = GraphDataPtr(new GraphData(MakeString() << "Curve " << n + 1, HSVtoColor(HSV(n / (float)(N - 1), 0.7f, 0.8f))));
 		for (float x = startX;x <= endX;x += delta) {
-			float y = amp*std::sin(2.0f*ALY_PI*freq*x + phase);
+			float y = amp*std::sin(2.0f*ALY_PI*freq*x + phase)+ yOffset;
 			graph->points.push_back(float2(x, y));
 		}
 		graphRegion->add(graph);

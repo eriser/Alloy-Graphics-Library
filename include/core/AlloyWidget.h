@@ -544,7 +544,7 @@ struct GraphData {
 	std::string name;
 	std::vector<float2> points;
 	static const float NO_INTERSECT;
-	GraphData(const std::string& name = "", Color color = Color(255, 255, 255)):name(name),color(color) {
+	GraphData(const std::string& name = "", Color color = Color(200, 64, 64)):name(name),color(color) {
 
 	}
 	float interpolate(float x) const ;
@@ -554,8 +554,7 @@ class Graph : public Region{
 protected:
 	std::vector<GraphDataPtr> curves;
 	box2f graphBounds;
-	float xCursorPosition;
-	float yCursorPosition;
+	float2 cursorPosition;
 	const float GRAPH_PADDING = 24.0f;
 public:
 	std::string xAxisLabel;

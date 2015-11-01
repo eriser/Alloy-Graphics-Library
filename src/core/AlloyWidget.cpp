@@ -2703,16 +2703,16 @@ namespace aly {
 		setRoundCorners(true);
 		xAxisLabel = "x";
 		yAxisLabel = "y=f(x)";
-		xCursorPosition = -1;
-		yCursorPosition = -1;
+		cursorPosition.x = -1;
+		cursorPosition.y = -1;
 		onEvent = [this](const AlloyContext* context, const InputEvent& e) {
 			if (context->isMouseContainedIn(this)) {
-				xCursorPosition = e.cursor.x;
-				yCursorPosition = e.cursor.y;
+				cursorPosition=e.cursor;
+				glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			}
 			else {
-				xCursorPosition = -1;
-				yCursorPosition = -1;
+				cursorPosition=float2(-1,-1);
+				glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 			return false;
 		};
@@ -2723,6 +2723,10 @@ namespace aly {
 		box2px rbounds = getBounds();
 		NVGcontext* nvg = context->nvgContext;
 		box2px gbounds = rbounds;
+		const float LARGE_TEXT = 18.0f;
+		const float MEDIUM_TEXT = 16.0f;
+		const float SMALL_TEXT = 12.0f;
+		float2 gpos(-1, -1);
 		gbounds.position = pixel2(rbounds.position.x + GRAPH_PADDING, rbounds.position.y + GRAPH_PADDING);
 		gbounds.dimensions = pixel2(rbounds.dimensions.x - GRAPH_PADDING * 2, rbounds.dimensions.y - GRAPH_PADDING * 2);
 		if (graphBounds.dimensions.x < 0 || graphBounds.dimensions.y < 0) {
@@ -2754,6 +2758,27 @@ namespace aly {
 			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.75f));
 			nvgStroke(nvg);
 		}
+		if (gbounds.contains(cursorPosition))
+		{
+			gpos = (cursorPosition - gbounds.position) / gbounds.dimensions;
+			gpos.y = 1 - gpos.y;
+			gpos = gpos*graphBounds.dimensions + graphBounds.position;
+			
+			nvgBeginPath(nvg);
+			nvgMoveTo(nvg, cursorPosition.x,gbounds.position.y);
+			nvgLineTo(nvg, cursorPosition.x,gbounds.position.y + gbounds.dimensions.y);
+			nvgStrokeWidth(nvg, 1.0f);
+			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.25f));
+			nvgStroke(nvg);
+			
+			nvgBeginPath(nvg);
+			nvgMoveTo(nvg, gbounds.position.x,cursorPosition.y);
+			nvgLineTo(nvg, gbounds.position.x + gbounds.dimensions.x,cursorPosition.y);
+			nvgStrokeWidth(nvg, 1.0f);
+			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.25f));
+			nvgStroke(nvg);
+
+		}
 		for (GraphDataPtr& curve : curves)
 		{
 			std::vector<float2> points = curve->points;
@@ -2780,40 +2805,25 @@ namespace aly {
 				nvgStroke(nvg);
 			}
 		}
-		if (xCursorPosition >gbounds.position.x&&xCursorPosition<gbounds.position.x+ gbounds.dimensions.x)
-		{
-			nvgBeginPath(nvg);
-			nvgMoveTo(nvg, xCursorPosition,gbounds.position.y);
-			nvgLineTo(nvg, xCursorPosition,gbounds.position.y + gbounds.dimensions.y);
-			nvgStrokeWidth(nvg, 2.0f);
-			nvgStrokeColor(nvg, Color(200, 100, 100, 128));
-			nvgStroke(nvg);
-		}
-		if (yCursorPosition >gbounds.position.y&&yCursorPosition<gbounds.position.y + gbounds.dimensions.y)
-		{
-			nvgBeginPath(nvg);
-			nvgMoveTo(nvg, gbounds.position.x,yCursorPosition);
-			nvgLineTo(nvg, gbounds.position.x + gbounds.dimensions.x,yCursorPosition);
-			nvgStrokeWidth(nvg, 2.0f);
-			nvgStrokeColor(nvg, Color(200, 100, 100, 128));
-			nvgStroke(nvg);
-		}
+
+		
+
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-		nvgFontSize(nvg, 18.0f);
+		nvgFontSize(nvg, LARGE_TEXT);
 		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-		drawText(nvg,rbounds.position + float2(rbounds.dimensions.x / 2, 2.0f),name,FontStyle::Outline,context->theme.LIGHT_TEXT,context->theme.DARK);
-		nvgFontSize(nvg, 16.0f);
+		drawText(nvg,rbounds.position + float2(rbounds.dimensions.x / 2, 2.0f),name,FontStyle::Outline,context->theme.HIGHLIGHT,context->theme.DARK);
+		nvgFontSize(nvg, MEDIUM_TEXT);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_BOTTOM);
-		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x / 2,rbounds.dimensions.y - 4.0f),xAxisLabel,FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
+		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x / 2,rbounds.dimensions.y - 4.0f),xAxisLabel,FontStyle::Outline,context->theme.HIGHLIGHT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
 		nvgSave(nvg);
 		pixel2 center =rbounds.position + float2(2.0f, rbounds.dimensions.y * 0.5f);
 		nvgTranslate(nvg, center.x, center.y);
 		nvgRotate(nvg, -ALY_PI * 0.5f);
-		drawText(nvg,pixel2(0, 2),yAxisLabel,FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+		drawText(nvg,pixel2(0, 2),yAxisLabel,FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
 		nvgRestore(nvg);
-		nvgFontSize(nvg, 12.0f);
+		nvgFontSize(nvg,SMALL_TEXT);
 		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
 		drawText(nvg,rbounds.position + float2(GRAPH_PADDING, GRAPH_PADDING),MakeString() << std::setprecision(2)<< (graphBounds.position.y + graphBounds.dimensions.y),FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
@@ -2822,10 +2832,56 @@ namespace aly {
 		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x - GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING + 2),MakeString() << std::setprecision(2)<< (graphBounds.position.x + graphBounds.dimensions.x),FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 		drawText(nvg,rbounds.position+ float2(GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING + 2),MakeString() << std::setprecision(2) << graphBounds.position.x,	FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
-		/*
-		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_BOTTOM);
-		drawText(nvg,xCursorPosition,yCursorPosition, MakeString() <<"("<< std::setprecision(2) << , FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
-		*/
+		
+		if (cursorPosition.x >= 0) {
+			float minDist = 1E30f;
+			float bestY;
+			GraphDataPtr closestCurve;
+			for (GraphDataPtr& curve : curves) {
+				float y = curve->interpolate(gpos.x);
+				if (y != GraphData::NO_INTERSECT) {
+					if (std::abs(y - gpos.y) < minDist) {
+						minDist = std::abs(y - gpos.y);
+						bestY = y;
+						closestCurve = curve;
+					}
+				}
+			}
+			if (closestCurve.get() != nullptr) {
+				nvgBeginPath(nvg);
+				nvgStrokeWidth(nvg, 2.0f);
+				nvgFillColor(nvg, closestCurve->color);
+				nvgStrokeColor(nvg, context->theme.LIGHT_TEXT);
+				float2 pt(gpos.x, bestY);
+				pt = (pt - graphBounds.position) / graphBounds.dimensions;
+				pt.y = 1.0f - pt.y;
+				pt = pt * gbounds.dimensions + gbounds.position;
+				nvgCircle(nvg, pt.x, pt.y, 4);
+				nvgFill(nvg);
+				nvgStroke(nvg);
+
+
+				nvgBeginPath(nvg);
+				nvgFillColor(nvg, context->theme.DARK);
+				nvgCircle(nvg, cursorPosition.x, cursorPosition.y, 2);
+				nvgFill(nvg);
+
+				nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_MIDDLE);
+				nvgFontSize(nvg, MEDIUM_TEXT);
+				drawText(nvg, float2(pt.x - 8, pt.y), closestCurve->name, FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
+				nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+				drawText(nvg, float2(pt.x+8,pt.y), 
+					MakeString()<<"("<<std::setprecision(2)<<gpos.x<<", "<< std::setprecision(2) << bestY<<")", FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
+
+			}
+			else {
+
+				nvgBeginPath(nvg);
+				nvgFillColor(nvg, context->theme.DARK);
+				nvgCircle(nvg, cursorPosition.x, cursorPosition.y, 2);
+				nvgFill(nvg);
+			}
+		}
 	}
 	void Graph::add(const GraphDataPtr& curve) {
 		curves.push_back(curve);
@@ -2858,15 +2914,15 @@ namespace aly {
 		float y = 0;
 		int startX = 0;
 		int endX = (int)points.size() - 1;
-		for (int i = 0;i < points.size();i++) {
-			if (x >= points[i].x) {
-				startX = i;
+		for (int i = 1;i < points.size();i++) {
+			if (x < points[i].x) {
+				startX = i-1;
 				break;
 			}
 		}
-		for (int i = (int)points.size() - 1;i >= 0;i++) {
-			if (x <= points[i].x) {
-				endX = i;
+		for (int i = (int)points.size() - 2;i >= 0;i--) {
+			if (x > points[i].x) {
+				endX = i+1;
 				break;
 			}
 		}
@@ -2879,10 +2935,11 @@ namespace aly {
 				return 0.5f*(points[endX].y + points[startX].y);
 			}
 			else {
-				return points[startX].y + (x - points[startX].x) * (points[endX].y - points[startX].y) / diff;
+				y=points[startX].y + (x - points[startX].x) * (points[endX].y - points[startX].y) / diff;
+				return y;
 			}
 		}
-		return y;
+		return NO_INTERSECT;
 	}
 }
 
