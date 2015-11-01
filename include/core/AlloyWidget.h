@@ -553,6 +553,7 @@ typedef std::shared_ptr<GraphData> GraphDataPtr;
 class Graph : public Region{
 protected:
 	std::vector<GraphDataPtr> curves;
+	box2f graphBounds;
 public:
 	std::string xAxisLabel;
 	std::string yAxisLabel;
@@ -560,6 +561,10 @@ public:
 	std::shared_ptr<GraphData> add(const GraphData& curve);
 	void clear() {
 		curves.clear();
+	}
+	box2f updateGraphBounds();
+	void setGraphBounds(const box2f& r) {
+		graphBounds = r;
 	}
 	Graph(const std::string& name,const AUnit2D& pos, const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;

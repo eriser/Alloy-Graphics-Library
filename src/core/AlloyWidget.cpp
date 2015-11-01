@@ -678,8 +678,8 @@ namespace aly {
 		selectionBox = SelectionBoxPtr(new SelectionBox(label + "_box", options));
 		selectionBox->setDetached(true);
 		selectionBox->setVisible(false);
-		selectionBox->position=CoordPercent(0.0f, 0.0f);
-		selectionBox->dimensions=CoordPercent(1.0f, 0.8f);
+		selectionBox->position = CoordPercent(0.0f, 0.0f);
+		selectionBox->dimensions = CoordPercent(1.0f, 0.8f);
 		selectionBox->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
 		selectionBox->borderColor = MakeColor(
@@ -794,8 +794,8 @@ namespace aly {
 		sliderHandle = std::shared_ptr<SliderHandle>(
 			new SliderHandle("Scroll Handle"));
 
-		sliderHandle->position=CoordPercent(0.0, 0.0);
-		sliderHandle->dimensions=CoordPX(handleSize, handleSize);
+		sliderHandle->position = CoordPercent(0.0, 0.0);
+		sliderHandle->dimensions = CoordPX(handleSize, handleSize);
 		sliderHandle->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT);
 		sliderHandle->setDragEnabled(true);
@@ -805,8 +805,8 @@ namespace aly {
 				AlloyApplicationContext()->theme.HIGHLIGHT,
 				AlloyApplicationContext()->theme.HIGHLIGHT));
 
-		sliderTrack->position=CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize);
-		sliderTrack->dimensions=CoordPerPX(1.0f, 0.0f, 0.0f, handleSize);
+		sliderTrack->position = CoordPerPX(0.0f, 1.0f, 0.0f, -handleSize);
+		sliderTrack->dimensions = CoordPerPX(1.0f, 0.0f, 0.0f, handleSize);
 
 		sliderTrack->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
@@ -967,8 +967,8 @@ namespace aly {
 		sliderHandle = std::shared_ptr<SliderHandle>(
 			new SliderHandle("Scroll Handle"));
 
-		sliderHandle->position=CoordPercent(0.0, 0.0);
-		sliderHandle->dimensions=CoordPX(handleSize, handleSize);
+		sliderHandle->position = CoordPercent(0.0, 0.0);
+		sliderHandle->dimensions = CoordPX(handleSize, handleSize);
 		sliderHandle->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.LIGHT);
 		sliderHandle->setDragEnabled(true);
@@ -978,8 +978,8 @@ namespace aly {
 				AlloyApplicationContext()->theme.HIGHLIGHT,
 				AlloyApplicationContext()->theme.HIGHLIGHT));
 
-		sliderTrack->position=CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2.0f);
-		sliderTrack->dimensions=CoordPerPX(0.0f, 0.8f, handleSize, -4.0f);
+		sliderTrack->position = CoordPerPX(0.5f, 0.1f, -handleSize * 0.5f, 2.0f);
+		sliderTrack->dimensions = CoordPerPX(0.0f, 0.8f, handleSize, -4.0f);
 
 		sliderTrack->backgroundColor = MakeColor(
 			AlloyApplicationContext()->theme.DARK);
@@ -1050,7 +1050,7 @@ namespace aly {
 		double val = (double)(interp * minValue.toDouble()
 			+ (1.0 - interp) * maxValue.toDouble());
 		sliderPosition = val;
-		value.setValue(clamp(val,minValue.toDouble(),maxValue.toDouble()));
+		value.setValue(clamp(val, minValue.toDouble(), maxValue.toDouble()));
 	}
 	bool VerticalSlider::onMouseDown(AlloyContext* context, Region* region,
 		const InputEvent& event) {
@@ -1135,8 +1135,8 @@ namespace aly {
 					AlloyApplicationContext().get()));
 		}
 		colorLabel->glyph = checkerboard;
-		colorLabel->position=CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f);
-		colorLabel->dimensions=CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f);
+		colorLabel->position = CoordPerPX(1.0f, 0.0f, -4.0f, 4.0f);
+		colorLabel->dimensions = CoordPerPX(0.0f, 1.0f, 0.0f, -8.0f);
 		colorLabel->backgroundColor = MakeColor(COLOR_BLACK);
 		colorLabel->foregroundColor = MakeColor(255, 128, 32, 255);
 		colorLabel->borderColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
@@ -1747,12 +1747,12 @@ namespace aly {
 		arrowIcon->label =
 			(expanded) ? CodePointToUTF8(0xf056) : CodePointToUTF8(0xf055);
 		if (expanded) {
-			contentRegion->dimensions=
+			contentRegion->dimensions =
 				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize,
 					(float)expandHeight);
 		}
 		else {
-			contentRegion->dimensions=
+			contentRegion->dimensions =
 				CoordPerPX(1.0f, 0.0f, -Composite::scrollBarSize, 0.0f);
 		}
 	}
@@ -1890,7 +1890,7 @@ namespace aly {
 		fileDialog->setValue(workingDirectory);
 	}
 	ListEntry::ListEntry(ListBox* listBox, const std::string& name, float entryHeight) :
-		Region(name), dialog(listBox) ,entryHeight(entryHeight){
+		Region(name), dialog(listBox), entryHeight(entryHeight) {
 		this->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 		this->borderColor = MakeColor(COLOR_NONE);
 		this->selected = false;
@@ -1909,20 +1909,20 @@ namespace aly {
 		nvgFontSize(nvg, th);
 		nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-		float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr) ;
+		float tw = nvgTextBounds(nvg, 0, 0, label.c_str(), nullptr, nullptr);
 		if (iconCodeString.size() > 0) {
 			nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-			tw+= nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr,
+			tw += nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr,
 				nullptr) + 3 * context->theme.SPACING.x;
 		}
 		else {
-			tw+= 2 * context->theme.SPACING.x;
+			tw += 2 * context->theme.SPACING.x;
 		}
 		position = CoordPX(0.0f, 0.0f);
-		dimensions = CoordPX(tw  , entryHeight);
+		dimensions = CoordPX(tw, entryHeight);
 	}
 	void ListEntry::setIcon(int icon) {
-		this->iconCodeString=CodePointToUTF8(icon);
+		this->iconCodeString = CodePointToUTF8(icon);
 		float th = entryHeight - 2 * TextField::PADDING;
 		fontSize = UnitPX(th);
 		AlloyContext* context = AlloyApplicationContext().get();
@@ -1988,8 +1988,8 @@ namespace aly {
 		}
 		return false;
 	}
-	FileEntry::FileEntry(FileDialog* dialog, const std::string& name,float fontHeight) :
-		ListEntry(dialog->directoryList.get(), name, fontHeight),fileDescription(){
+	FileEntry::FileEntry(FileDialog* dialog, const std::string& name, float fontHeight) :
+		ListEntry(dialog->directoryList.get(), name, fontHeight), fileDescription() {
 	}
 	void FileEntry::setValue(const FileDescription& description) {
 		this->fileDescription = description;
@@ -2051,7 +2051,7 @@ namespace aly {
 		nvgFontSize(nvg, th);
 		nvgTextAlign(nvg, NVG_ALIGN_MIDDLE | NVG_ALIGN_LEFT);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-		float iw = (iconCodeString.size()>0)?nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr,	nullptr)+ AlloyApplicationContext()->theme.SPACING.x :0;
+		float iw = (iconCodeString.size() > 0) ? nvgTextBounds(nvg, 0, 0, iconCodeString.c_str(), nullptr, nullptr) + AlloyApplicationContext()->theme.SPACING.x : 0;
 		pixel2 offset(0, 0);
 
 		if (selected) {
@@ -2077,12 +2077,12 @@ namespace aly {
 		pushScissor(nvg, labelBounds);
 		if (iconCodeString.size() > 0) {
 			nvgFontFaceId(nvg, context->getFontHandle(FontType::Icon));
-			nvgText(nvg,AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
+			nvgText(nvg, AlloyApplicationContext()->theme.SPACING.x + bounds.position.x
 				+ xoff, bounds.position.y + bounds.dimensions.y / 2 + yoff,
 				iconCodeString.c_str(), nullptr);
 		}
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
-		nvgText(nvg,AlloyApplicationContext()->theme.SPACING.x + bounds.position.x+ iw + xoff,bounds.position.y + bounds.dimensions.y / 2 + yoff, label.c_str(),nullptr);
+		nvgText(nvg, AlloyApplicationContext()->theme.SPACING.x + bounds.position.x + iw + xoff, bounds.position.y + bounds.dimensions.y / 2 + yoff, label.c_str(), nullptr);
 		popScissor(nvg);
 	}
 
@@ -2192,27 +2192,27 @@ namespace aly {
 		}
 	}
 	void ListBox::update() {
-			clear();
+		clear();
+		lastSelected.clear();
+		AlloyApplicationContext()->addDeferredTask([this]() {
 			lastSelected.clear();
-			AlloyApplicationContext()->addDeferredTask([this]() {
-				lastSelected.clear();
-				AlloyContext* context = AlloyApplicationContext().get();
-				pixel2 maxDim = pixel2(this->getBoundsDimensionsX(), 0.0f);
-				for (std::shared_ptr<ListEntry> entry : listEntries) {
-					maxDim = aly::max(entry->dimensions.toPixels(context->getScreenSize(), context->dpmm, context->pixelRatio), maxDim);
+			AlloyContext* context = AlloyApplicationContext().get();
+			pixel2 maxDim = pixel2(this->getBoundsDimensionsX(), 0.0f);
+			for (std::shared_ptr<ListEntry> entry : listEntries) {
+				maxDim = aly::max(entry->dimensions.toPixels(context->getScreenSize(), context->dpmm, context->pixelRatio), maxDim);
+			}
+			for (std::shared_ptr<ListEntry> entry : listEntries) {
+				if (entry->parent == nullptr) {
+					entry->dimensions = CoordPX(maxDim);
+					add(entry);
 				}
-				for (std::shared_ptr<ListEntry> entry : listEntries) {
-					if (entry->parent == nullptr) {
-						entry->dimensions=CoordPX(maxDim);
-						add(entry);
-					}
-					if (entry->isSelected()) {
-						lastSelected.push_back(entry.get());
-					}
+				if (entry->isSelected()) {
+					lastSelected.push_back(entry.get());
 				}
-				AlloyApplicationContext()->requestPack();
-			});
-	
+			}
+			AlloyApplicationContext()->requestPack();
+		});
+
 	}
 	ListBox::ListBox(const std::string& name, const AUnit2D& pos,
 		const AUnit2D& dims) :
@@ -2696,11 +2696,12 @@ namespace aly {
 	CompositePtr ExpandBar::add(Region* region, pixel expandHeight, bool expanded) {
 		return add(std::shared_ptr<Region>(region), expandHeight, expanded);
 	}
-	Graph::Graph(const std::string& name, const AUnit2D& pos, const AUnit2D& dims):Region(name,pos,dims) 
+	Graph::Graph(const std::string& name, const AUnit2D& pos, const AUnit2D& dims) :Region(name, pos, dims)
 	{
-
+		graphBounds = box2f(float2(0.0f), float2(0.0f));
 	}
 	void Graph::draw(AlloyContext* context) {
+		box2px bounds = getBounds();
 
 	}
 	void Graph::add(const GraphDataPtr& curve) {
@@ -2710,6 +2711,18 @@ namespace aly {
 		std::shared_ptr<GraphData> curvePtr = std::shared_ptr<GraphData>(new GraphData(curve));
 		curves.push_back(curvePtr);
 		return curvePtr;
+	}
+	box2f Graph::updateGraphBounds() {
+		float2 minPt(std::numeric_limits<float>::max());
+		float2 maxPt(std::numeric_limits<float>::min());
+		for (GraphDataPtr& curve : curves) {
+			if (curve->points.size() > 0) {
+				minPt = aly::min(curve->points.front(), minPt);
+				maxPt = aly::max(curve->points.back(), maxPt);
+			}
+		}
+		graphBounds = box2f(minPt, maxPt - minPt);
+		return graphBounds;
 	}
 	const float GraphData::NO_INTERSECT = std::numeric_limits<float>::max();
 	float GraphData::interpolate(float x) const {
@@ -2721,14 +2734,14 @@ namespace aly {
 		}
 		float y = 0;
 		int startX = 0;
-		int endX = (int)points.size()-1;
+		int endX = (int)points.size() - 1;
 		for (int i = 0;i < points.size();i++) {
 			if (x >= points[i].x) {
 				startX = i;
 				break;
 			}
 		}
-		for (int i = (int)points.size()-1;i >=0 ;i++) {
+		for (int i = (int)points.size() - 1;i >= 0;i++) {
 			if (x <= points[i].x) {
 				endX = i;
 				break;
@@ -2737,11 +2750,12 @@ namespace aly {
 		if (startX == endX) {
 			return points[startX].y;
 		}
-		else if(endX-startX>0){
+		else if (endX - startX > 0) {
 			float diff = (points[endX].x - points[startX].x);
 			if (diff < 1E-10f) {
 				return 0.5f*(points[endX].y + points[startX].y);
-			} else {
+			}
+			else {
 				return points[startX].y + (x - points[startX].x) * (points[endX].y - points[startX].y) / diff;
 			}
 		}
