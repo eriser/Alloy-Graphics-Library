@@ -1875,13 +1875,46 @@ namespace aly {
 		return region;
 	}
 	std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+		const std::shared_ptr<AwesomeGlyph>& glyph, const std::string& name,const AUnit2D& position,
+		const AUnit2D& dimensions, const Color& bgColor, const Color& fgColor,
+		const Color& borderColor, const AUnit1D& borderWidth) {
+		std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
+			new GlyphRegion(name));
+		region->glyph = glyph;
+		region->position = position;
+		region->dimensions = dimensions;
+		region->backgroundColor = MakeColor(bgColor);
+		region->foregroundColor = MakeColor(fgColor);
+		region->borderColor = MakeColor(borderColor);
+		region->borderWidth = borderWidth;
+		region->setAspectRule(AspectRule::FixedHeight);
+		region->setAspectRatio(glyph->width / (float)glyph->height);
+		return region;
+	}
+	std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+		const std::shared_ptr<ImageGlyph>& glyph,const std::string& name, const AUnit2D& position,
+		const AUnit2D& dimensions, const AspectRule& aspectRatio,
+		const Color& bgColor, const Color& fgColor, const Color& borderColor,
+		const AUnit1D& borderWidth) {
+		std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(new GlyphRegion(name));
+		region->glyph = glyph;
+		region->position = position;
+		region->dimensions = dimensions;
+		region->backgroundColor = MakeColor(bgColor);
+		region->foregroundColor = MakeColor(fgColor);
+		region->borderColor = MakeColor(borderColor);
+		region->borderWidth = borderWidth;
+		region->setAspectRule(aspectRatio);
+		region->setAspectRatio(glyph->width / (float)glyph->height);
+		return region;
+	}
+	std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<ImageGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const AspectRule& aspectRatio,
 		const Color& bgColor, const Color& fgColor, const Color& borderColor,
 		const AUnit1D& borderWidth) {
 		std::shared_ptr<GlyphRegion> region = std::shared_ptr<GlyphRegion>(
-			(glyph->name.length() > 0) ?
-			new GlyphRegion(glyph->name) : new GlyphRegion());
+			new GlyphRegion(glyph->name));
 		region->glyph = glyph;
 		region->position = position;
 		region->dimensions = dimensions;

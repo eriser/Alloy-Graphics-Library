@@ -49,6 +49,7 @@
     <ClCompile Include="..\..\src\example\PoissonInpaintEx.cpp" />
     <ClCompile Include="..\..\src\example\TweenEx.cpp" />
     <ClCompile Include="..\..\src\example\UnitsEx.cpp" />
+    <ClCompile Include="..\..\src\example\WindowsEx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\ColorSpaceEx.h" />
@@ -81,6 +82,7 @@
     <ClInclude Include="..\..\include\example\stb_image_write.h" />
     <ClInclude Include="..\..\include\example\TweenEx.h" />
     <ClInclude Include="..\..\include\example\UnitsEx.h" />
+    <ClInclude Include="..\..\include\example\WindowsEx.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\alloy\alloy.vcxproj">

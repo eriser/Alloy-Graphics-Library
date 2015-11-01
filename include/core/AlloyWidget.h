@@ -571,6 +571,17 @@ public:
 	Graph(const std::string& name,const AUnit2D& pos, const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
+class Window : public Composite {
+protected:
+	bool maximized;
+	CompositePtr titleRegion;
+	RegionPtr contentRegion;
+public:
+	void setMaximize(bool max) {
+		maximized = max;
+	}
+	Window(const RegionPtr& content);
+};
 typedef std::shared_ptr<TextButton> TextButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;
 typedef std::shared_ptr<VerticalSlider> VSliderPtr;
@@ -592,7 +603,7 @@ typedef std::shared_ptr<IconButton> IconButtonPtr;
 typedef std::shared_ptr<ListBox> ListBoxPtr;
 typedef std::shared_ptr<ListEntry> ListEntryPtr;
 typedef std::shared_ptr<Graph> GraphPtr;
-
+typedef std::shared_ptr<Window> WindowPtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

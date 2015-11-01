@@ -617,11 +617,26 @@ std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const Color& borderColor = COLOR_NONE, const AUnit1D& borderWidth =
 				UnitPX(2));
 std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+	const std::shared_ptr<ImageGlyph>& glyph, const std::string& name,
+	const AUnit2D& position,
+	const AUnit2D& dimensions, const AspectRule& aspectRatio =
+	AspectRule::Unspecified, const Color& bgColor = COLOR_NONE,
+	const Color& fgColor = COLOR_NONE,
+	const Color& borderColor = COLOR_NONE, const AUnit1D& borderWidth =
+	UnitPX(2));
+std::shared_ptr<GlyphRegion> MakeGlyphRegion(
 		const std::shared_ptr<AwesomeGlyph>& glyph, const AUnit2D& position,
 		const AUnit2D& dimensions, const Color& bgColor = COLOR_NONE,
 		const Color& fgColor = COLOR_NONE,
 		const Color& borderColor = COLOR_NONE, const AUnit1D& borderWidth =
 				UnitPX(2));
+std::shared_ptr<GlyphRegion> MakeGlyphRegion(
+	const std::shared_ptr<AwesomeGlyph>& glyph, const std::string& name,
+	const AUnit2D& position,
+	const AUnit2D& dimensions, const Color& bgColor = COLOR_NONE,
+	const Color& fgColor = COLOR_NONE,
+	const Color& borderColor = COLOR_NONE, const AUnit1D& borderWidth =
+	UnitPX(2));
 std::shared_ptr<TextLabel> MakeTextLabel(const std::string& name,
 		const AUnit2D& position, const AUnit2D& dimensions,
 		const FontType& fontType, const AUnit1D& fontSize = UnitPT(14.0f),

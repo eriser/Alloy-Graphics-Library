@@ -516,6 +516,32 @@ struct UnitPerPX {
 				<< value.second.toString() << "}";
 	}
 };
+struct UnitExtPX {
+	std::pair<AUnit1D, UnitPX> value;
+	std::string type() const {
+		return "UnitExtPX";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	UnitExtPX(const AUnit1D& unit, float x) :
+		value(unit, UnitPX(x)) {
+	}
+	UnitExtPX(const AUnit1D& unit, double x) :
+		value(unit, UnitPX(x)) {
+	}
+	UnitExtPX(const AUnit1D& unit, int x) :
+		value(unit, UnitPX(x)) {
+	}
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
+	}
+};
 struct UnitPerPT {
 	std::pair<UnitPercent, UnitPT> value;
 	std::string type() const {
@@ -534,6 +560,27 @@ struct UnitPerPT {
 	std::string toString() const {
 		return MakeString() << "{" << value.first.toString() << ","
 				<< value.second.toString() << "}";
+	}
+};
+struct UnitExtPT {
+	std::pair<AUnit1D, UnitPT> value;
+	std::string type() const {
+		return "UnitExtPT";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	UnitExtPT(const AUnit1D& unit, float x) :
+		value(unit, UnitPT(x)) {
+	}
+
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
 	}
 };
 struct UnitPerMM {
@@ -556,6 +603,27 @@ struct UnitPerMM {
 				<< value.second.toString() << "}";
 	}
 };
+struct UnitExtMM {
+	std::pair<AUnit1D, UnitMM> value;
+	std::string type() const {
+		return "UnitExtMM";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	UnitExtMM(const AUnit1D& unit, float x) :
+		value(unit, UnitMM(x)) {
+	}
+
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
+	}
+};
 struct UnitPerIN {
 	std::pair<UnitPercent, UnitIN> value;
 	std::string type() const {
@@ -574,6 +642,27 @@ struct UnitPerIN {
 	std::string toString() const {
 		return MakeString() << "{" << value.first.toString() << ","
 				<< value.second.toString() << "}";
+	}
+};
+struct UnitExtIN {
+	std::pair<AUnit1D, UnitIN> value;
+	std::string type() const {
+		return "UnitExtIN";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	UnitExtIN(const AUnit1D& unit, float x) :
+		value(unit, UnitIN(x)) {
+	}
+
+	pixel toPixels(pixel screenSize, double dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
 	}
 };
 struct UnitTween: public AUnit1D::Interface, Tweenable {
@@ -765,6 +854,32 @@ struct CoordPerPX {
 				<< value.second.toString() << "}";
 	}
 };
+struct CoordExtPX {
+	std::pair<AUnit2D, CoordPX> value;
+	std::string type() const {
+		return "CoordExtPX";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	CoordExtPX(const AUnit2D& coord, int x, int y) :
+		value(coord, CoordPX(x, y)) {
+	}
+	CoordExtPX(const AUnit2D& coord, float x, float y) :
+		value(coord, CoordPX(x, y)) {
+	}
+	CoordExtPX(const AUnit2D& coord, double x, double y) :
+		value(coord, CoordPX(x, y)) {
+	}
+	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
+	}
+};
 struct CoordPerPT {
 	std::pair<CoordPercent, CoordPT> value;
 	std::string type() const {
@@ -783,6 +898,26 @@ struct CoordPerPT {
 	std::string toString() const {
 		return MakeString() << "{" << value.first.toString() << ","
 				<< value.second.toString() << "}";
+	}
+};
+struct CoordExtPT {
+	std::pair<AUnit2D, CoordPT> value;
+	std::string type() const {
+		return "CoordExtPT";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	CoordExtPT(const AUnit2D& coord, float x, float y) :
+		value(coord, CoordPT(x, y)) {
+	}
+	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
 	}
 };
 struct CoordPerMM {
@@ -805,6 +940,26 @@ struct CoordPerMM {
 				<< value.second.toString() << "}";
 	}
 };
+struct CoordExtMM {
+	std::pair<AUnit2D, CoordMM> value;
+	std::string type() const {
+		return "CoordExtMM";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	CoordExtMM(const AUnit2D& coord, float x, float y) :
+		value(coord, CoordMM(x, y)) {
+	}
+	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
+	}
+};
 struct CoordPerIN {
 	std::pair<CoordPercent, CoordIN> value;
 	std::string type() const {
@@ -823,6 +978,26 @@ struct CoordPerIN {
 	std::string toString() const {
 		return MakeString() << "{" << value.first.toString() << ","
 				<< value.second.toString() << "}";
+	}
+};
+struct CoordExtIN {
+	std::pair<AUnit2D, CoordIN> value;
+	std::string type() const {
+		return "CoordExtIN";
+	}
+	template<class Archive> void serialize(Archive& archive) {
+		archive(cereal::make_nvp(type(), value));
+	}
+	CoordExtIN(const AUnit2D& coord, float x, float y) :
+		value(coord, CoordIN(x, y)) {
+	}
+	pixel2 toPixels(pixel2 screenSize, double2 dpmm, double pixelRatio) const {
+		return value.first.toPixels(screenSize, dpmm, pixelRatio)
+			+ value.second.toPixels(screenSize, dpmm, pixelRatio);
+	}
+	std::string toString() const {
+		return MakeString() << "{" << value.first.toString() << ","
+			<< value.second.toString() << "}";
 	}
 };
 struct CoordTween: public Tweenable, AUnit2D::Interface {

@@ -2942,5 +2942,37 @@ namespace aly {
 		}
 		return NO_INTERSECT;
 	}
+	Window::Window(const RegionPtr& content):
+		Composite(content->name,content->position,content->dimensions),contentRegion(content) {
+		cellSpacing = pixel2(2, 2);
+		cellPadding = pixel2(5, 5);
+		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
+		//titleRegion->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
+		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f,0.0f),CoordPerPX(1.0f,1.0f,-40.0f,0.0f)));
+		label->textColor =MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+		titleRegion->add(label);
+
+		contentRegion->position = CoordPX(cellPadding.x, 30.0f+ cellSpacing.y);
+		contentRegion->dimensions = CoordPerPX(1.0f, 1.0f,-2.0f*cellPadding.x,-30.0f - cellPadding.y-cellSpacing.y);
+		backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
+		setRoundCorners(true);
+		Composite::add(titleRegion);
+		Composite::add(contentRegion);
+		label->onMouseDown=[this](AlloyContext* context, const InputEvent& e) {
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				dynamic_cast<Composite*>(this->parent)->putLast(this);
+				this->setDragEnabled(true);
+				context->setDragObject(this);
+			}
+			return true;
+		};
+	
+		titleRegion->onMouseUp= [this](AlloyContext* context, const InputEvent& e) {
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				this->setDragEnabled(false);
+			}
+			return true;
+		};
+	}
 }
 

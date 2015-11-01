@@ -22,7 +22,7 @@ EXAMPLES:=UnitsEx CompositeEx EventsEx TweenEx ImageEx DragEx ControlsEx \
  DialogsEx ExpandEx MeshMatcapEx MeshWireframeEx MeshTextureEx MeshVertexColorEx \
  MeshParticleEx MeshDepthEx MeshPhongEx LaplaceFillEx PoissonBlendEx \
  PoissonInpaintEx MeshSubdivideEx ImageProcessingEx MeshPickerEx KdTreeEx MeshSmoothEx \
- ColorSpaceEx MeshPrimitivesEx MenuEx LocatorEx GraphEx
+ ColorSpaceEx MeshPrimitivesEx MenuEx LocatorEx GraphEx WindowsEx
 
 alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)
