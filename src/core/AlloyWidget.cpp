@@ -488,6 +488,9 @@ namespace aly {
 		this->aspectRatio = 1.0f;
 		this->aspectRule = AspectRule::FixedHeight;
 	}
+	void IconButton::setIcon(int iconCode) {
+		iconCodeString = CodePointToUTF8(iconCode);
+	}
 	void IconButton::draw(AlloyContext* context) {
 		bool hover = context->isMouseOver(this);
 		bool down = context->isMouseDown(this);
@@ -2942,8 +2945,19 @@ namespace aly {
 		}
 		return NO_INTERSECT;
 	}
-	Window::Window(const RegionPtr& content):
-		Composite(content->name,content->position,content->dimensions),contentRegion(content) {
+	void Window::setMaximize(bool max) {
+		maximized = max;
+		if (this->maximized) {
+			maximizeIcon->setIcon(0xf066);
+		}
+		else {
+			maximizeIcon->setIcon(0xf065);
+		}
+	}
+	void Window::draw(AlloyContext* context) {
+		Composite::draw(context);
+	}
+	Window::Window(const RegionPtr& content):Composite(content->name,content->position,content->dimensions),contentRegion(content),maximized(false),winPos(WindowPosition::Center){
 		cellSpacing = pixel2(2, 2);
 		cellPadding = pixel2(5, 5);
 		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
@@ -2967,8 +2981,10 @@ namespace aly {
 			}
 			return false;
 		};
+
 		onEvent = [this](AlloyContext* context, const InputEvent& e) {
-			if (e.type==InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown()&&context->isMouseOver(this, true)) {
+			bool over = context->isMouseOver(this, true);
+			if (e.type==InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown()&&over) {
 				dynamic_cast<Composite*>(this->parent)->putLast(this);
 			}
 			else if(dragging&&e.type == InputType::Cursor) {
@@ -2978,9 +2994,66 @@ namespace aly {
 			} else if (e.type == InputType::MouseButton&&e.isUp()) {
 				context->requestPack();
 				dragging = false;
+			} 
+			if (e.type == InputType::Cursor) {
+				box2px bounds = getBounds();
+				winPos = WindowPosition::Center;
+				if (e.cursor.x <= bounds.position.x + cellPadding.x
+					&&e.cursor.x>=bounds.position.x-cellPadding.x) {
+					if (e.cursor.y <= bounds.position.y + cellPadding.y
+						&&e.cursor.y >= bounds.position.y - cellPadding.y) {
+						winPos = WindowPosition::TopLeft;
+					}
+					else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y
+						&&e.cursor.y <= bounds.position.y + bounds.dimensions.y + cellPadding.y) {
+						winPos = WindowPosition::BottomLeft;
+					}
+					else {
+						winPos = WindowPosition::Left;
+					}
+				}
+				else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - cellPadding.x
+						&&e.cursor.x <= bounds.position.x + bounds.dimensions.x + cellPadding.x) {
+					if (e.cursor.y <= bounds.position.y + cellPadding.y
+						&&e.cursor.y >= bounds.position.y - cellPadding.y) {
+						winPos = WindowPosition::TopRight;
+					}
+					else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y
+						&&e.cursor.y <= bounds.position.y + bounds.dimensions.y + cellPadding.y) {
+						winPos = WindowPosition::BottomRight;
+					}
+					else {
+						winPos = WindowPosition::Right;
+					}
+				}
+				else if (e.cursor.y <= bounds.position.y + cellPadding.y
+						&&e.cursor.y >= bounds.position.y - cellPadding.y) {
+					winPos = WindowPosition::Top;
+				}
+				else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y
+						&&e.cursor.y <= bounds.position.y + bounds.dimensions.y + cellPadding.y) {
+					winPos = WindowPosition::Bottom;
+				}
 			}
 			return false;
 		};
+		maximizeIcon = IconButtonPtr(new IconButton(0xf0fe, CoordPerPX(1.0f, 0.0f,-24.0f,0.0f),CoordPX(24.0f,24.0f)));
+		maximizeIcon->borderWidth = UnitPX(0.0f);
+		maximizeIcon->borderColor = MakeColor(COLOR_NONE);
+		maximizeIcon->foregroundColor=MakeColor(COLOR_NONE);
+		maximizeIcon->iconColor= MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+		titleRegion->add(maximizeIcon);
+		maximizeIcon->onMouseDown =
+			[this](AlloyContext* context, const InputEvent& event) {
+			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
+				setMaximize(!this->maximized);
+
+				return true;
+			}
+			return false;
+		};
+		
+		setMaximize(false);
 		Application::addListener(this);
 	}
 }

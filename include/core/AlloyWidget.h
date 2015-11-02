@@ -66,6 +66,7 @@ public:
 	AColor iconColor;
 	IconButton(int iconCode, const AUnit2D& position, const AUnit2D& dimensions,
 			IconType iconType = IconType::SQUARE);
+	void setIcon(int iconCode);
 	virtual void draw(AlloyContext* context) override;
 	virtual inline ~IconButton() {
 	}
@@ -571,18 +572,20 @@ public:
 	Graph(const std::string& name,const AUnit2D& pos, const AUnit2D& dims);
 	virtual void draw(AlloyContext* context) override;
 };
+
 class Window : public Composite {
 protected:
 	bool maximized;
 	bool dragging;
 	pixel2 cursorDownPosition;
 	CompositePtr titleRegion;
-	RegionPtr contentRegion;
+	RegionPtr contentRegion;	
+	WindowPosition winPos;
+	std::shared_ptr<IconButton> maximizeIcon;
 public:
-	void setMaximize(bool max) {
-		maximized = max;
-	}
+	void setMaximize(bool max);
 	Window(const RegionPtr& content);
+	virtual void draw(AlloyContext* context) override;
 };
 typedef std::shared_ptr<TextButton> TextButtonPtr;
 typedef std::shared_ptr<HorizontalSlider> HSliderPtr;

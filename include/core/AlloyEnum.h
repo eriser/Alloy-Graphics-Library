@@ -72,11 +72,25 @@ enum class FontType {
 	Bold = 1,
 	Italic = 2,
 	Icon = 3,
-	Code = 4,
-	CodeBold = 5,
-	CodeItalic = 6,
-	CodeBoldItalic = 7
+	Entypo =4,
+	Code = 5,
+	CodeBold = 6,
+	CodeItalic = 7,
+	CodeBoldItalic = 8
 };
+const int ALY_NUMBER_OF_FONTS = 9;
+enum WindowPosition {
+	Center=0, 
+	Top=1, 
+	Bottom=2, 
+	Left=3, 
+	Right=4, 
+	BottomLeft=5, 
+	BottomRight=6, 
+	TopLeft=7, 
+	TopRight=8
+};
+
 enum class FontStyle {
 	Normal = 0, Shadow = 1, Glow = 2, Outline = 3
 };
@@ -87,6 +101,30 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 		return ss << "Image";
 	case GlyphType::Awesome:
 		return ss << "Awesome";
+	}
+	return ss;
+}
+template<class C, class R> std::basic_ostream<C, R> & operator <<(
+	std::basic_ostream<C, R> & ss, const WindowPosition& type) {
+	switch (type) {
+	case WindowPosition::Center:
+		return ss << "Center";
+	case WindowPosition::Top:
+		return ss << "Top";
+	case WindowPosition::Bottom:
+		return ss << "Bottom";
+	case WindowPosition::Left:
+		return ss << "Left";
+	case WindowPosition::Right:
+		return ss << "Right";
+		case WindowPosition::TopLeft:
+		return ss << "Top Left";
+	case WindowPosition::BottomLeft:
+		return ss << "Bottom Left";
+	case WindowPosition::TopRight:
+		return ss << "Top Right";
+	case WindowPosition::BottomRight:
+		return ss << "Bottom Right";
 	}
 	return ss;
 }
@@ -138,7 +176,9 @@ template<class C, class R> std::basic_ostream<C, R> & operator <<(
 	case FontType::Italic:
 		return ss << "Italic";
 	case FontType::Icon:
-		return ss << "Icon";
+		return ss << "Awesome Icons";
+	case FontType::Entypo:
+		return ss << "Entypo Icons";
 	}
 	return ss;
 }

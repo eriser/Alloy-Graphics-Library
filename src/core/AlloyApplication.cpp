@@ -44,7 +44,7 @@ void Application::initInternal() {
 			"fonts/Hack-Italic.ttf");
 	context->loadFont(FontType::CodeBoldItalic, "sans-bold-italic",
 			"fonts/Hack-BoldItalic.ttf");
-
+	context->loadFont(FontType::Entypo, "entypo", "fonts/entypo.ttf");
 	context->loadFont(FontType::Icon, "icons", "fonts/fontawesome.ttf");
 	glfwSetWindowUserPointer(context->window, this);
 	glfwSetWindowRefreshCallback(context->window,
@@ -102,7 +102,6 @@ Application::Application(int w, int h, const std::string& title,
 	initInternal();
 }
 void Application::draw() {
-
 	glClearColor(0.0, 0.0, 0.0, 10);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -117,7 +116,6 @@ void Application::draw() {
 void Application::drawUI() {
 	if (context->dirtyUI) {
 		uiFrameBuffer->begin();
-
 		glViewport(0, context->screenSize.y - context->height(),
 				context->width(), context->height());
 		NVGcontext* nvg = context->nvgContext;

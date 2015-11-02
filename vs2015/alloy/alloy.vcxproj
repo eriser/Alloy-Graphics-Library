@@ -55,6 +55,8 @@
     <ClCompile Include="..\..\src\core\sha1.cpp" />
     <ClCompile Include="..\..\src\core\sha2.cpp" />
     <ClCompile Include="..\..\src\core\tinyexr.cpp" />
+    <ClCompile Include="..\..\src\core\tinyspline.cpp" />
+    <ClCompile Include="..\..\src\core\tinysplinecpp.cpp" />
     <ClCompile Include="..\..\src\core\tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +116,8 @@
     <ClInclude Include="..\..\include\core\stb_image_write.h" />
     <ClInclude Include="..\..\include\core\stb_truetype.h" />
     <ClInclude Include="..\..\include\core\tinyexr.h" />
+    <ClInclude Include="..\..\include\core\tinyspline.h" />
+    <ClInclude Include="..\..\include\core\tinysplinecpp.h" />
     <ClInclude Include="..\..\include\core\tiny_obj_loader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -176,7 +176,7 @@ private:
 	std::thread::id threadId;
 	std::mutex taskLock;
 	std::list<std::string> assetDirectories;
-	std::shared_ptr<Font> fonts[8];
+	std::shared_ptr<Font> fonts[ALY_NUMBER_OF_FONTS];
 	std::list<GLFWwindow*> windowHistory;
 	bool dirtyLayout = false;
 	bool dirtyUI = true;
