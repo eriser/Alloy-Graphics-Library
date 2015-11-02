@@ -169,8 +169,25 @@ struct EventHandler {
 			const InputEvent& event)=0;
 	virtual ~EventHandler();
 };
+struct Cursor {
+	static const Cursor None,Normal, Horizontal, Vertical, Position, Hand, SlantUp, SlantDown,TextInsert;
+	std::string codeString;
+	FontType fontType;
+	float fontSize;
+	float angle;
+	int align;
+	Cursor(int code, float fontSize,int align= NVG_ALIGN_TOP | NVG_ALIGN_LEFT, const FontType& fontType = FontType::Icon, float angle = 0.0f) :
+		codeString(CodePointToUTF8(code)),
+		fontType(fontType),
+		fontSize(fontSize),
+		angle(angle),
+		align(align){
+	}
+	void draw(AlloyContext* context) const;
+};
 struct Composite;
 struct Region;
+
 class AlloyContext {
 private:
 	std::thread::id threadId;
@@ -199,6 +216,7 @@ private:
 	Region* mouseDownRegion = nullptr;
 	Region* mouseFocusRegion = nullptr;
 	Region* onTopRegion = nullptr;
+	const Cursor* cursor = nullptr;
 	std::list<EventHandler*> listeners;
 	std::shared_ptr<Composite> glassPanel;
 	std::list<std::function<void()>> deferredTasks;
@@ -222,6 +240,12 @@ public:
 	bool isOffScreenRender() const;
 	void clearEvents(Region* region);
 	void setOffScreenVisible(bool vis);
+	void setCursor(const Cursor* cursor) {
+		this->cursor = cursor;
+	}
+	const Cursor* getCursor() const {
+		return cursor;
+	}
 	static inline std::shared_ptr<AlloyContext>& getDefaultContext() {
 		return defaultContext;
 	}

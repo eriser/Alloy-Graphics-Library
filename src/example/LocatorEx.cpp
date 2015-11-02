@@ -111,7 +111,6 @@ bool LocatorEx::init(Composite& rootNode) {
 		matcher->closest(pt, K, kNN);
 		return true;
 	};
-	glfwSetInputMode(getContext()->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	return true;
 }
 

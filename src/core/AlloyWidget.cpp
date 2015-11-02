@@ -2709,14 +2709,12 @@ namespace aly {
 		cursorPosition.x = -1;
 		cursorPosition.y = -1;
 		onEvent = [this](const AlloyContext* context, const InputEvent& e) {
-			Graph* region=this;
+			Graph* region = this;
 			if (context->isMouseOver(region)) {
-				cursorPosition=e.cursor;
-				glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				cursorPosition = e.cursor;
 			}
 			else {
-				cursorPosition=float2(-1,-1);
-				glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				cursorPosition = float2(-1, -1);
 			}
 			return false;
 		};
@@ -2737,7 +2735,7 @@ namespace aly {
 			updateGraphBounds();
 		}
 		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg,gbounds.position.x - 2,gbounds.position.y - 2,gbounds.dimensions.x + 4,gbounds.dimensions.y + 4,context->theme.CORNER_RADIUS);
+		nvgRoundedRect(nvg, gbounds.position.x - 2, gbounds.position.y - 2, gbounds.dimensions.x + 4, gbounds.dimensions.y + 4, context->theme.CORNER_RADIUS);
 		nvgFillColor(nvg, context->theme.HIGHLIGHT);
 		nvgFill(nvg);
 		//Draw vertical line for x=0
@@ -2745,8 +2743,8 @@ namespace aly {
 		{
 			float xpos = -graphBounds.position.x / graphBounds.dimensions.x;
 			nvgBeginPath(nvg);
-			nvgMoveTo(nvg, xpos * gbounds.dimensions.x + gbounds.position.x,gbounds.position.y);
-			nvgLineTo(nvg, xpos * gbounds.dimensions.x + gbounds.position.x,gbounds.position.y + gbounds.dimensions.y);
+			nvgMoveTo(nvg, xpos * gbounds.dimensions.x + gbounds.position.x, gbounds.position.y);
+			nvgLineTo(nvg, xpos * gbounds.dimensions.x + gbounds.position.x, gbounds.position.y + gbounds.dimensions.y);
 			nvgStrokeWidth(nvg, 2.0f);
 			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.75f));
 			nvgStroke(nvg);
@@ -2767,17 +2765,17 @@ namespace aly {
 			gpos = (cursorPosition - gbounds.position) / gbounds.dimensions;
 			gpos.y = 1 - gpos.y;
 			gpos = gpos*graphBounds.dimensions + graphBounds.position;
-			
+
 			nvgBeginPath(nvg);
-			nvgMoveTo(nvg, cursorPosition.x,gbounds.position.y);
-			nvgLineTo(nvg, cursorPosition.x,gbounds.position.y + gbounds.dimensions.y);
+			nvgMoveTo(nvg, cursorPosition.x, gbounds.position.y);
+			nvgLineTo(nvg, cursorPosition.x, gbounds.position.y + gbounds.dimensions.y);
 			nvgStrokeWidth(nvg, 1.0f);
 			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.25f));
 			nvgStroke(nvg);
-			
+
 			nvgBeginPath(nvg);
-			nvgMoveTo(nvg, gbounds.position.x,cursorPosition.y);
-			nvgLineTo(nvg, gbounds.position.x + gbounds.dimensions.x,cursorPosition.y);
+			nvgMoveTo(nvg, gbounds.position.x, cursorPosition.y);
+			nvgLineTo(nvg, gbounds.position.x + gbounds.dimensions.x, cursorPosition.y);
 			nvgStrokeWidth(nvg, 1.0f);
 			nvgStrokeColor(nvg, context->theme.DARK.toSemiTransparent(0.25f));
 			nvgStroke(nvg);
@@ -2810,36 +2808,36 @@ namespace aly {
 			}
 		}
 
-		
+
 
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		nvgFontSize(nvg, LARGE_TEXT);
 		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-		drawText(nvg,rbounds.position + float2(rbounds.dimensions.x / 2, 2.0f),name,FontStyle::Outline,context->theme.HIGHLIGHT,context->theme.DARK);
+		drawText(nvg, rbounds.position + float2(rbounds.dimensions.x / 2, 2.0f), name, FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
 		nvgFontSize(nvg, MEDIUM_TEXT);
 		nvgFontFaceId(nvg, context->getFontHandle(FontType::Bold));
 		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_BOTTOM);
-		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x / 2,rbounds.dimensions.y - 4.0f),xAxisLabel,FontStyle::Outline,context->theme.HIGHLIGHT, context->theme.DARK);
+		drawText(nvg, rbounds.position + float2(rbounds.dimensions.x / 2, rbounds.dimensions.y - 4.0f), xAxisLabel, FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
 		nvgSave(nvg);
-		pixel2 center =rbounds.position + float2(2.0f, rbounds.dimensions.y * 0.5f);
+		pixel2 center = rbounds.position + float2(2.0f, rbounds.dimensions.y * 0.5f);
 		nvgTranslate(nvg, center.x, center.y);
 		nvgRotate(nvg, -ALY_PI * 0.5f);
-		drawText(nvg,pixel2(0, 2),yAxisLabel,FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
+		drawText(nvg, pixel2(0, 2), yAxisLabel, FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
 		nvgRestore(nvg);
-		nvgFontSize(nvg,SMALL_TEXT);
+		nvgFontSize(nvg, SMALL_TEXT);
 		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
-		drawText(nvg,rbounds.position + float2(GRAPH_PADDING, GRAPH_PADDING),MakeString() << std::setprecision(2)<< (graphBounds.position.y + graphBounds.dimensions.y),FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
+		drawText(nvg, rbounds.position + float2(GRAPH_PADDING, GRAPH_PADDING), MakeString() << std::setprecision(2) << (graphBounds.position.y + graphBounds.dimensions.y), FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
-		drawText(nvg,rbounds.position+ float2(GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING),MakeString() << std::setprecision(2) << graphBounds.position.y,FontStyle::Outline,context->theme.LIGHT_TEXT, context->theme.DARK);
+		drawText(nvg, rbounds.position + float2(GRAPH_PADDING, rbounds.dimensions.y - GRAPH_PADDING), MakeString() << std::setprecision(2) << graphBounds.position.y, FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
-		drawText(nvg,rbounds.position+ float2(rbounds.dimensions.x - GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING + 2),MakeString() << std::setprecision(2)<< (graphBounds.position.x + graphBounds.dimensions.x),FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+		drawText(nvg, rbounds.position + float2(rbounds.dimensions.x - GRAPH_PADDING, rbounds.dimensions.y - GRAPH_PADDING + 2), MakeString() << std::setprecision(2) << (graphBounds.position.x + graphBounds.dimensions.x), FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
 		nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-		drawText(nvg,rbounds.position+ float2(GRAPH_PADDING,rbounds.dimensions.y - GRAPH_PADDING + 2),MakeString() << std::setprecision(2) << graphBounds.position.x,	FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
-		
+		drawText(nvg, rbounds.position + float2(GRAPH_PADDING, rbounds.dimensions.y - GRAPH_PADDING + 2), MakeString() << std::setprecision(2) << graphBounds.position.x, FontStyle::Outline, context->theme.LIGHT_TEXT, context->theme.DARK);
+
 		if (cursorPosition.x >= 0) {
 			float minDist = 1E30f;
-			float bestY=0;
+			float bestY = 0;
 			GraphDataPtr closestCurve;
 			for (GraphDataPtr& curve : curves) {
 				float y = curve->interpolate(gpos.x);
@@ -2874,8 +2872,8 @@ namespace aly {
 				nvgFontSize(nvg, MEDIUM_TEXT);
 				drawText(nvg, float2(pt.x - 8, pt.y), closestCurve->name, FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
 				nvgTextAlign(nvg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-				drawText(nvg, float2(pt.x+8,pt.y), 
-					MakeString()<<"("<<std::setprecision(2)<<gpos.x<<", "<< std::setprecision(2) << bestY<<")", FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
+				drawText(nvg, float2(pt.x + 8, pt.y),
+					MakeString() << "(" << std::setprecision(2) << gpos.x << ", " << std::setprecision(2) << bestY << ")", FontStyle::Outline, context->theme.HIGHLIGHT, context->theme.DARK);
 
 			}
 			else {
@@ -2899,7 +2897,7 @@ namespace aly {
 		float2 minPt(std::numeric_limits<float>::max());
 		float2 maxPt(std::numeric_limits<float>::min());
 		for (GraphDataPtr& curve : curves) {
-			for(float2& pt:curve->points){
+			for (float2& pt : curve->points) {
 				minPt = aly::min(pt, minPt);
 				maxPt = aly::max(pt, maxPt);
 			}
@@ -2918,15 +2916,15 @@ namespace aly {
 		float y = 0;
 		int startX = 0;
 		int endX = (int)points.size() - 1;
-		for (int i = 1;i <(int) points.size();i++) {
+		for (int i = 1;i < (int)points.size();i++) {
 			if (x < points[i].x) {
-				startX = i-1;
+				startX = i - 1;
 				break;
 			}
 		}
 		for (int i = (int)points.size() - 2;i >= 0;i--) {
 			if (x > points[i].x) {
-				endX = i+1;
+				endX = i + 1;
 				break;
 			}
 		}
@@ -2939,7 +2937,7 @@ namespace aly {
 				return 0.5f*(points[endX].y + points[startX].y);
 			}
 			else {
-				y=points[startX].y + (x - points[startX].x) * (points[endX].y - points[startX].y) / diff;
+				y = points[startX].y + (x - points[startX].x) * (points[endX].y - points[startX].y) / diff;
 				return y;
 			}
 		}
@@ -2956,24 +2954,43 @@ namespace aly {
 	}
 	void WindowPane::draw(AlloyContext* context) {
 		Composite::draw(context);
+		if (context->getCursor() == nullptr) {
+			switch (winPos) {
+			case WindowPosition::Center:
+				//context->setCursor(&Cursor::Normal);break;
+				break;
+			case WindowPosition::Top:
+			case WindowPosition::Bottom:
+				context->setCursor(&Cursor::Vertical);break;
+			case WindowPosition::Left:
+			case WindowPosition::Right:
+				context->setCursor(&Cursor::Horizontal);break;
+			case WindowPosition::TopLeft:
+			case WindowPosition::BottomRight:
+				context->setCursor(&Cursor::SlantDown);break;
+			case WindowPosition::BottomLeft:
+			case WindowPosition::TopRight:
+				context->setCursor(&Cursor::SlantUp);break;
+			}
+		}
 	}
-	WindowPane::WindowPane(const RegionPtr& content):Composite(content->name,content->position,content->dimensions),contentRegion(content),maximized(false),dragging(false),winPos(WindowPosition::Center){
+	WindowPane::WindowPane(const RegionPtr& content) :Composite(content->name, content->position, content->dimensions), contentRegion(content), maximized(false), dragging(false), winPos(WindowPosition::Center) {
 		cellSpacing = pixel2(2, 2);
 		cellPadding = pixel2(5, 5);
 		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
 		//titleRegion->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
-		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f,0.0f),CoordPerPX(1.0f,1.0f,0.0f,0.0f)));
-		label->textColor =MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 1.0f, 0.0f, 0.0f)));
+		label->textColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		titleRegion->add(label);
 
-		contentRegion->position = CoordPX(cellPadding.x, 30.0f+ cellSpacing.y);
-		contentRegion->dimensions = CoordPerPX(1.0f, 1.0f,-2.0f*cellPadding.x,-30.0f - cellPadding.y-cellSpacing.y);
+		contentRegion->position = CoordPX(cellPadding.x, 30.0f + cellSpacing.y);
+		contentRegion->dimensions = CoordPerPX(1.0f, 1.0f, -2.0f*cellPadding.x, -30.0f - cellPadding.y - cellSpacing.y);
 		backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 		setRoundCorners(true);
 		Composite::add(titleRegion);
 		Composite::add(contentRegion);
 		this->setClampDragToParentBounds(false);
-		label->onMouseDown=[this](AlloyContext* context, const InputEvent& e) {
+		label->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 				cursorDownPosition = e.cursor - this->getBoundsPosition();
 				dragging = true;
@@ -2983,64 +3000,63 @@ namespace aly {
 
 		onEvent = [this](AlloyContext* context, const InputEvent& e) {
 			bool over = context->isMouseOver(this, true);
-			if (e.type==InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown()&&over) {
+			if (e.type == InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown() && over) {
 				dynamic_cast<Composite*>(this->parent)->putLast(this);
 			}
-			else if(dragging&&e.type == InputType::Cursor) {
+			else if (dragging&&e.type == InputType::Cursor) {
 				box2px pbounds = parent->getBounds();
-				this->setDragOffset(pbounds.clamp(e.cursor),cursorDownPosition);
+				this->setDragOffset(pbounds.clamp(e.cursor), cursorDownPosition);
 				this->pack();
-			} else if (e.type == InputType::MouseButton&&e.isUp()) {
+			}
+			else if (e.type == InputType::MouseButton&&e.isUp()) {
 				context->requestPack();
 				dragging = false;
-			} 
+			}
 			if (e.type == InputType::Cursor) {
-				box2px bounds = getBounds();
-				winPos = WindowPosition::Center;
-				if (e.cursor.x <= bounds.position.x + cellPadding.x
-					&&e.cursor.x>=bounds.position.x-cellPadding.x) {
-					if (e.cursor.y <= bounds.position.y + cellPadding.y
-						&&e.cursor.y >= bounds.position.y - cellPadding.y) {
-						winPos = WindowPosition::TopLeft;
+				if (over) {
+					box2px bounds = getBounds();
+					winPos = WindowPosition::Center;
+					if (e.cursor.x <= bounds.position.x + 2 * cellPadding.x) {
+						if (e.cursor.y <= bounds.position.y + 2 * cellPadding.y) {
+							winPos = WindowPosition::TopLeft;
+						}
+						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
+							winPos = WindowPosition::BottomLeft;
+						}
+						else {
+							winPos = WindowPosition::Left;
+						}
 					}
-					else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y
-						&&e.cursor.y <= bounds.position.y + bounds.dimensions.y + cellPadding.y) {
-						winPos = WindowPosition::BottomLeft;
+					else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - 2 * cellPadding.x) {
+						if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
+							winPos = WindowPosition::TopRight;
+						}
+						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
+							winPos = WindowPosition::BottomRight;
+						}
+						else {
+							winPos = WindowPosition::Right;
+						}
 					}
-					else {
-						winPos = WindowPosition::Left;
+					else if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
+						winPos = WindowPosition::Top;
 					}
+					else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2.0f*cellPadding.y) {
+						winPos = WindowPosition::Bottom;
+					}
+
 				}
-				else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - cellPadding.x
-						&&e.cursor.x <= bounds.position.x + bounds.dimensions.x + cellPadding.x) {
-					if (e.cursor.y <= bounds.position.y + cellPadding.y
-						&&e.cursor.y >= bounds.position.y - cellPadding.y) {
-						winPos = WindowPosition::TopRight;
-					}
-					else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y
-						&&e.cursor.y <= bounds.position.y + bounds.dimensions.y + cellPadding.y) {
-						winPos = WindowPosition::BottomRight;
-					}
-					else {
-						winPos = WindowPosition::Right;
-					}
-				}
-				else if (e.cursor.y <= bounds.position.y + cellPadding.y
-						&&e.cursor.y >= bounds.position.y - cellPadding.y) {
-					winPos = WindowPosition::Top;
-				}
-				else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y
-						&&e.cursor.y <= bounds.position.y + bounds.dimensions.y + cellPadding.y) {
-					winPos = WindowPosition::Bottom;
+				else {
+					winPos = WindowPosition::Center;
 				}
 			}
 			return false;
 		};
-		maximizeIcon = IconButtonPtr(new IconButton(0xf0fe, CoordPerPX(1.0f, 0.0f,-24.0f,0.0f),CoordPX(24.0f,24.0f)));
+		maximizeIcon = IconButtonPtr(new IconButton(0xf0fe, CoordPerPX(1.0f, 0.0f, -24.0f, 0.0f), CoordPX(24.0f, 24.0f)));
 		maximizeIcon->borderWidth = UnitPX(0.0f);
 		maximizeIcon->borderColor = MakeColor(COLOR_NONE);
-		maximizeIcon->foregroundColor=MakeColor(COLOR_NONE);
-		maximizeIcon->iconColor= MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
+		maximizeIcon->foregroundColor = MakeColor(COLOR_NONE);
+		maximizeIcon->iconColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		titleRegion->add(maximizeIcon);
 		maximizeIcon->onMouseDown =
 			[this](AlloyContext* context, const InputEvent& event) {
@@ -3051,7 +3067,7 @@ namespace aly {
 			}
 			return false;
 		};
-		
+
 		setMaximize(false);
 		Application::addListener(this);
 	}

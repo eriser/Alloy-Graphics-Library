@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <chrono>
+
 int printOglError(const char *file, int line) {
 
 	GLenum glErr;
@@ -47,7 +48,33 @@ int printOglError(const char *file, int line) {
 	return retCode;
 }
 namespace aly {
+
 	std::shared_ptr<AlloyContext> AlloyContext::defaultContext;
+	const Cursor Cursor::Normal(0xf245, 24.0f);
+	const Cursor Cursor::None(0xf245, 0.0f);
+	const Cursor Cursor::Hand(0xf25a, 24.0f);
+	const Cursor Cursor::Horizontal(0xf07e, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	const Cursor Cursor::Vertical(0xf07d, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	const Cursor Cursor::Position(0xf047, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+	const Cursor Cursor::TextInsert(0xf246, 24.0f);
+	const Cursor Cursor::SlantDown(0xf07d, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER, FontType::Icon, -ALY_PI_4);
+	const Cursor Cursor::SlantUp(0xf07d, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER,FontType::Icon, ALY_PI_4);
+	void Cursor::draw(AlloyContext* context) const {
+		pixel2 cursor = context->cursorPosition;
+		if (fontSize>0.0f&&context->hasFocus&&cursor.x >= 0 && cursor.y >= 0 && cursor.x < context->width()&&cursor.y < context->height()) {
+			NVGcontext* nvg = context->nvgContext;
+			nvgTextAlign(nvg, align);
+			nvgSave(nvg);
+			nvgFontFaceId(nvg, context->getFontHandle(fontType));
+			nvgFontSize(nvg, fontSize);
+			nvgFillColor(nvg, Color(255, 255, 255));
+			float tw = nvgTextBounds(nvg, 0, 0, codeString.c_str(), 0, 0);
+			nvgTranslate(nvg, cursor.x ,cursor.y );
+			nvgRotate(nvg, angle);
+			nvgText(nvg, 0, 0, codeString.c_str(), nullptr);
+			nvgRestore(nvg);
+		}
+	}
 	Font::Font(const std::string& name, const std::string& file,
 		AlloyContext* context) :
 		nvg(context->nvgContext), handle(0), name(name), file(file) {
@@ -431,6 +458,7 @@ namespace aly {
 		lastAnimateTime = std::chrono::steady_clock::now();
 		lastCursorTime = std::chrono::steady_clock::now();
 		lastUpdateTime = std::chrono::steady_clock::now();
+		cursor = &Cursor::Normal;
 	}
 	void AlloyContext::addDeferredTask(const std::function<void()>& func,bool block) {
 		std::lock_guard<std::mutex> guard(taskLock);

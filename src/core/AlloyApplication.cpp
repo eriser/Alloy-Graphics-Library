@@ -102,6 +102,7 @@ Application::Application(int w, int h, const std::string& title,
 	initInternal();
 }
 void Application::draw() {
+	glfwSetInputMode(context->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glClearColor(0.0, 0.0, 0.0, 10);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -112,9 +113,17 @@ void Application::draw() {
 	if (context->isDebugEnabled()) {
 		drawDebugUI();
 	}
+	const Cursor* cursor = context->getCursor();
+	if (!cursor) {
+		cursor = &Cursor::Normal;
+	}
+	nvgBeginFrame(context->nvgContext, context->width(), context->height(), (float)context->pixelRatio);
+	cursor->draw(context.get());
+	nvgEndFrame(context->nvgContext);
 }
 void Application::drawUI() {
 	if (context->dirtyUI) {
+		context->setCursor(nullptr);
 		uiFrameBuffer->begin();
 		glViewport(0, context->screenSize.y - context->height(),
 				context->width(), context->height());
@@ -132,9 +141,14 @@ void Application::drawUI() {
 			if (onTop->isVisible())
 				onTop->draw(context.get());
 		}
+		const Cursor* cursor = context->getCursor();
+		if (!cursor) {
+			cursor = &Cursor::Normal;
+		}
 		nvgEndFrame(nvg);
 		uiFrameBuffer->end();
 		context->dirtyUI = false;
+
 	}
 	imageShader->draw(uiFrameBuffer->getTexture(), pixel2(0, 0),
 			pixel2(context->screenSize));

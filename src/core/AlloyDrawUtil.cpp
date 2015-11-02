@@ -22,6 +22,7 @@
 #include "nanovg.h"
 namespace aly {
 std::list<NVGscissorBounds> NVG_SCISSOR_STACK;
+
 int pushScissor(NVGcontext* ctx, float x, float y, float w, float h) {
 	NVGscissorBounds sb = nvgCurrentScissor(ctx);
 	NVG_SCISSOR_STACK.push_back(sb);
@@ -49,6 +50,7 @@ int popScissor(NVGcontext* ctx) {
 	}
 	return (int) NVG_SCISSOR_STACK.size();
 }
+
 
 float drawText(NVGcontext* nvg, float x, float y, const char* txt,
 		const FontStyle& style, const Color& foreground,
