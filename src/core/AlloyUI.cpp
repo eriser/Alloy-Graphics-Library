@@ -209,6 +209,12 @@ namespace aly {
 			dragOffset = bounds.clamp(cursor - delta, pbounds) - d;
 		}
 	}
+	void Region::clampDragOffset() {
+		if (clampToParentBounds){
+			box2px pbounds = parent->getBounds();
+			dragOffset = bounds.clamp(bounds.position + dragOffset, pbounds) - bounds.position;
+		}
+	}
 	bool Region::addDragOffset(const pixel2& delta) {
 		pixel2 oldOffset = dragOffset;
 		box2px bounds = getBounds();
@@ -599,45 +605,27 @@ namespace aly {
 					offset.y - cellSpacing.y + cellPadding.y);
 		}
 
-		if (verticalScrollTrack.get() != nullptr) {
+		if (verticalScrollTrack.get() != nullptr||horizontalScrollTrack.get()!=nullptr) {
 			bool  showY = scrollExtent.y > bounds.dimensions.y || alwaysShowVerticalScrollBar;
 			bool  showX = scrollExtent.x > bounds.dimensions.x || alwaysShowHorizontalScrollBar;
-			float nudge =
-				(showX&&showY) ?
-				-scrollBarSize : 0;
+			float nudge =(showX&&showY) ?-scrollBarSize : 0;
+			
+			verticalScrollTrack->dimensions =CoordPerPX(0.0f, 1.0f, scrollBarSize, nudge);
+			verticalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,pixelRatio);
+			horizontalScrollTrack->dimensions =CoordPerPX(1.0f, 0.0f, nudge, scrollBarSize);
+			horizontalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,pixelRatio);
 
-			verticalScrollTrack->dimensions =
-				CoordPerPX(0.0f, 1.0f, scrollBarSize, nudge);
-			verticalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
-				pixelRatio);
-			verticalScrollHandle->dimensions =
-				CoordPerPX(1.0f, 0.0f, 0.0f,
-					std::max(scrollBarSize,
-						(verticalScrollTrack->getBoundsDimensionsY()
-							* bounds.dimensions.y)
-						/ scrollExtent.y));
+			verticalScrollHandle->dimensions =CoordPX(scrollBarSize,std::max(scrollBarSize,(verticalScrollTrack->getBoundsDimensionsY()* bounds.dimensions.y)/ scrollExtent.y));
+			verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),verticalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,true);
+			verticalScrollHandle->clampDragOffset();
+			verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(), verticalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio, true);
+			this->scrollPosition.y = (this->verticalScrollHandle->getBoundsPositionY() - this->verticalScrollTrack->getBoundsPositionY()) /std::max(1.0f, (float)this->verticalScrollTrack->getBoundsDimensionsY() - (float)this->verticalScrollHandle->getBoundsDimensionsY());
 
-	
-			verticalScrollHandle->pack(verticalScrollTrack->getBoundsPosition(),
-				verticalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
-				true);
-
-			horizontalScrollTrack->dimensions =
-				CoordPerPX(1.0f, 0.0f, nudge, scrollBarSize);
-			horizontalScrollTrack->pack(bounds.position, bounds.dimensions, dpmm,
-				pixelRatio);
-			horizontalScrollHandle->dimensions =
-				CoordPerPX(0.0f, 1.0f,
-					std::max(scrollBarSize,
-						(horizontalScrollTrack->getBoundsDimensionsX()
-							* bounds.dimensions.x)
-						/ scrollExtent.x), 0.0f);
-
-
-			horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(),
-				horizontalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,
-				true);
-
+			horizontalScrollHandle->dimensions =CoordPX(std::max(scrollBarSize,(horizontalScrollTrack->getBoundsDimensionsX()* bounds.dimensions.x)/ scrollExtent.x), scrollBarSize);
+			horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(),horizontalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio,true);
+			horizontalScrollHandle->clampDragOffset();
+			horizontalScrollHandle->pack(horizontalScrollTrack->getBoundsPosition(), horizontalScrollTrack->getBoundsDimensions(), dpmm, pixelRatio, true);
+			this->scrollPosition.x =(this->horizontalScrollHandle->getBoundsPositionX()- this->horizontalScrollTrack->getBoundsPositionX())/ std::max(1.0f,(float) this->horizontalScrollTrack->getBoundsDimensionsX()- (float) this->horizontalScrollHandle->getBoundsDimensionsX());
 		}
 		for (std::shared_ptr<Region>& region : children) {
 			if (region->onPack)

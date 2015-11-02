@@ -76,6 +76,7 @@ public:
 	void setDragOffset(const pixel2& offset) {
 		dragOffset = offset;
 	}
+	void clampDragOffset();
 	inline void setRoundCorners(bool round) {
 		this->roundCorners = round;
 	}

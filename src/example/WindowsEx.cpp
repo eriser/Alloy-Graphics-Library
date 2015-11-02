@@ -36,6 +36,8 @@ bool WindowsEx::init(Composite& rootNode) {
 	rootNode.add(window2);
 	//Good idea to enable this. What happens if window gets resized? Will things disappear?
 	rootNode.setScrollEnabled(true);
+	rootNode.setAlwaysShowVerticalScrollBar(true);
+	rootNode.setAlwaysShowHorizontalScrollBar(true);
 	//getContext()->setDebug(true);
 	return true;
 }
