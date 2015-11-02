@@ -1,6 +1,6 @@
 
-SRC := $(wildcard src/core/*.cpp)
-OBJS := $(patsubst %.cpp,%.o,$(wildcard src/core/*.cpp))
+SRC := $(wildcard src/core/*.cpp,src/core/*.c)
+OBJS := $(patsubst %.cpp,%.o,$(wildcard src/core/*.cpp)) $(patsubst %.c,%.o,$(wildcard src/core/*.c))
 DS := $(patsubst %.cpp,%.d,$(wildcard src/core/*.cpp src/example/*.cpp))
 EXOBJS := $(patsubst %.cpp,%.o,$(wildcard src/example/*.cpp))
 #Must use at least gcc/g++ 4.8 for C++11 support. Some systems call it gcc48 or gcc-48
@@ -9,6 +9,7 @@ CXX = g++
 CC = gcc
 INC = -Iinclude/core/ -Iinclude/example/ -I/usr/local/include/ -I/usr/include/
 CXXFLAGS:= -std=c++0x -DGL_GLEXT_PROTOTYPES=1 -O3 -Wall -c -fmessage-length=0 -MMD -MP -fopenmp $(INC)
+CFLAGS:= -DGL_GLEXT_PROTOTYPES=1 -O3 -Wall -c -fmessage-length=0 -MMD -MP -fopenmp $(INC)
 override CXXFLAGS:= -DEXAMPLE_NAME=$(EXAMPLE) $(CXXFLAGS)
 LDLIBS =-L./ -L/usr/lib/ -L/usr/local/lib/ -L/usr/lib/x86_64-linux-gnu/
 #Pacakge dependencies are glfw 3.x, and glew, which are avaiable through apt-get and brew.

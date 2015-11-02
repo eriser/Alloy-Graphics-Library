@@ -26,7 +26,6 @@ SOFTWARE.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 /********************************************************
 *                                                       *
 * System dependent configuration                        *
@@ -907,7 +906,7 @@ int ts_fequals(const float x, const float y)
     }
 }
 
-char* ts_enum_str(const tsError err) {
+const char* ts_enum_str(const tsError err) {
     if (err == TS_MALLOC)
         return "malloc failed";
     else if (err == TS_OVER_UNDERFLOW)
@@ -924,3 +923,4 @@ char* ts_enum_str(const tsError err) {
         return "input == output";
     return "unkown error";
 }
+

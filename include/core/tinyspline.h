@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include <stddef.h>
 
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -360,7 +359,7 @@ int ts_fequals(const float x, const float y);
 /**
  * Returns the error message associated to \err.
  */
-char* ts_enum_str(const tsError err);
+const char* ts_enum_str(const tsError err);
 
 
 #ifdef	__cplusplus

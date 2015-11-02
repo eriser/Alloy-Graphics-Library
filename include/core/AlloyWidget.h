@@ -573,18 +573,18 @@ public:
 	virtual void draw(AlloyContext* context) override;
 };
 
-class Window : public Composite {
+class WindowPane : public Composite {
 protected:
-	bool maximized;
-	bool dragging;
 	pixel2 cursorDownPosition;
 	CompositePtr titleRegion;
 	RegionPtr contentRegion;	
+	bool maximized;
+	bool dragging;
 	WindowPosition winPos;
 	std::shared_ptr<IconButton> maximizeIcon;
 public:
 	void setMaximize(bool max);
-	Window(const RegionPtr& content);
+	WindowPane(const RegionPtr& content);
 	virtual void draw(AlloyContext* context) override;
 };
 typedef std::shared_ptr<TextButton> TextButtonPtr;
@@ -608,7 +608,7 @@ typedef std::shared_ptr<IconButton> IconButtonPtr;
 typedef std::shared_ptr<ListBox> ListBoxPtr;
 typedef std::shared_ptr<ListEntry> ListEntryPtr;
 typedef std::shared_ptr<Graph> GraphPtr;
-typedef std::shared_ptr<Window> WindowPtr;
+typedef std::shared_ptr<WindowPane> WindowPanePtr;
 }
 
 #endif /* ALLOYWIDGET_H_ */

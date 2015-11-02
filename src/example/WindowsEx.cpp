@@ -29,9 +29,9 @@ bool WindowsEx::init(Composite& rootNode) {
 	float aspect = 1920 / 1080.0f;
 	GlyphRegionPtr imageRegion1 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfmarket.png")), "Market St.",CoordPX(5.0f, 5.0f), CoordPX(aspect*250.0f, 250.0f), AspectRule::Unspecified, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
 
-	WindowPtr window1 = WindowPtr(new Window(imageRegion1));
+	WindowPanePtr window1 = WindowPanePtr(new WindowPane(imageRegion1));
 	GlyphRegionPtr imageRegion2 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfsunset.png")), "Presidio Heights", CoordPX(5.0f, 300.0f), CoordPX(aspect * 250.0f, 250.0f), AspectRule::Unspecified, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
-	WindowPtr window2 = WindowPtr(new Window(imageRegion2));
+	WindowPanePtr window2 = WindowPanePtr(new WindowPane(imageRegion2));
 	rootNode.add(window1);
 	rootNode.add(window2);
 	//Good idea to enable this. What happens if window gets resized? Will things disappear?

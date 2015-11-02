@@ -2945,7 +2945,7 @@ namespace aly {
 		}
 		return NO_INTERSECT;
 	}
-	void Window::setMaximize(bool max) {
+	void WindowPane::setMaximize(bool max) {
 		maximized = max;
 		if (this->maximized) {
 			maximizeIcon->setIcon(0xf066);
@@ -2954,15 +2954,14 @@ namespace aly {
 			maximizeIcon->setIcon(0xf065);
 		}
 	}
-	void Window::draw(AlloyContext* context) {
+	void WindowPane::draw(AlloyContext* context) {
 		Composite::draw(context);
 	}
-	Window::Window(const RegionPtr& content):Composite(content->name,content->position,content->dimensions),contentRegion(content),maximized(false),winPos(WindowPosition::Center){
+	WindowPane::WindowPane(const RegionPtr& content):Composite(content->name,content->position,content->dimensions),contentRegion(content),maximized(false),dragging(false),winPos(WindowPosition::Center){
 		cellSpacing = pixel2(2, 2);
 		cellPadding = pixel2(5, 5);
 		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
 		//titleRegion->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
-		dragging = false;
 		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f,0.0f),CoordPerPX(1.0f,1.0f,0.0f,0.0f)));
 		label->textColor =MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		titleRegion->add(label);
