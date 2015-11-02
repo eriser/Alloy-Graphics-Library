@@ -29,9 +29,6 @@ alloy : $(OBJS)
 	ar ru liballoy.a $(OBJS)
 	ranlib liballoy.a
 
-example : $(EXOBJS)
-	$(CXX) $(LDLIBS) -o $(EXAMPLE) $(EXOBJS) $(LIBS)
-
 examples : $(EXOBJS)
 	$(CXX) $(LDLIBS) -o AlloyExamples $(EXOBJS) $(LIBS)
 		
