@@ -126,10 +126,10 @@
     <ClCompile Include="..\..\src\core\AlloyDelaunay.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\tinyspline.cpp">
+    <ClCompile Include="..\..\src\core\tinysplinecpp.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\tinysplinecpp.cpp">
+    <ClCompile Include="..\..\src\core\tinyspline.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

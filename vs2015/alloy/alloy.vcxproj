@@ -55,7 +55,7 @@
     <ClCompile Include="..\..\src\core\sha1.cpp" />
     <ClCompile Include="..\..\src\core\sha2.cpp" />
     <ClCompile Include="..\..\src\core\tinyexr.cpp" />
-    <ClCompile Include="..\..\src\core\tinyspline.cpp" />
+    <ClCompile Include="..\..\src\core\tinyspline.c" />
     <ClCompile Include="..\..\src\core\tinysplinecpp.cpp" />
     <ClCompile Include="..\..\src\core\tiny_obj_loader.cpp" />
   </ItemGroup>
