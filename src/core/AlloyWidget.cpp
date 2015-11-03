@@ -2953,7 +2953,9 @@ namespace aly {
 		}
 	}
 	void WindowPane::draw(AlloyContext* context) {
+		pushScissor(context->nvgContext, getBounds());
 		Composite::draw(context);
+		popScissor(context->nvgContext);
 		if(windowInitialBounds.dimensions.x<0|| windowInitialBounds.dimensions.y<0){
 			windowInitialBounds = getBounds(false);
 			windowInitialBounds.position -= this->getDragOffset();
@@ -2978,17 +2980,19 @@ namespace aly {
 			}
 		}
 	}
-	WindowPane::WindowPane(const RegionPtr& content) :Composite(content->name, content->position, content->dimensions), contentRegion(content), maximized(false), dragging(false), resizing(false), winPos(WindowPosition::Center) {
+	WindowPane::WindowPane(const RegionPtr& content) :Composite(content->name, content->position, content->dimensions), maximized(false), dragging(false), resizing(false), winPos(WindowPosition::Center) {
 		cellSpacing = pixel2(2, 2);
-		cellPadding = pixel2(5, 5);
-		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
+		cellPadding = pixel2(8, 8);
+		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f)));
 		//titleRegion->backgroundColor = MakeColor(AlloyApplicationContext()->theme.LIGHT);
 		TextLabelPtr label = TextLabelPtr(new TextLabel(content->name, CoordPX(0.0f, 0.0f), CoordPerPX(1.0f, 1.0f, 0.0f, 0.0f)));
 		label->textColor = MakeColor(AlloyApplicationContext()->theme.LIGHT_TEXT);
 		titleRegion->add(label);
-
-		contentRegion->position = CoordPX(cellPadding.x, 30.0f + cellSpacing.y);
-		contentRegion->dimensions = CoordPerPX(1.0f, 1.0f, -2.0f*cellPadding.x, -30.0f - cellPadding.y - cellSpacing.y);
+		contentRegion = CompositePtr(new Composite("Content", CoordPX(cellPadding.x, 30.0f + cellSpacing.y+cellPadding.y), CoordPerPX(1.0f, 1.0f, -2.0f*cellPadding.x, -30.0f - 2*cellPadding.y - cellSpacing.y)));
+		contentRegion->setScrollEnabled(true);
+		contentRegion->add(content);
+		content->position = CoordPX(0.0f, 0.0f);
+		content->dimensions = CoordPercent(1.0f, 1.0f);
 		backgroundColor = MakeColor(AlloyApplicationContext()->theme.DARK);
 		setRoundCorners(true);
 		Composite::add(titleRegion);
@@ -3025,32 +3029,32 @@ namespace aly {
 					if (over) {
 						box2px bounds = getBounds();
 						winPos = WindowPosition::Center;
-						if (e.cursor.x <= bounds.position.x + 2 * cellPadding.x) {
-							if (e.cursor.y <= bounds.position.y + 2 * cellPadding.y) {
+						if (e.cursor.x <= bounds.position.x + cellPadding.x) {
+							if (e.cursor.y <= bounds.position.y + cellPadding.y) {
 								winPos = WindowPosition::TopLeft;
 							}
-							else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
+							else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y) {
 								winPos = WindowPosition::BottomLeft;
 							}
 							else {
 								winPos = WindowPosition::Left;
 							}
 						}
-						else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - 2 * cellPadding.x) {
-							if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
+						else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - cellPadding.x) {
+							if (e.cursor.y <= bounds.position.y + cellPadding.y) {
 								winPos = WindowPosition::TopRight;
 							}
-							else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
+							else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y) {
 								winPos = WindowPosition::BottomRight;
 							}
 							else {
 								winPos = WindowPosition::Right;
 							}
 						}
-						else if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
+						else if (e.cursor.y <= bounds.position.y + cellPadding.y) {
 							winPos = WindowPosition::Top;
 						}
-						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2.0f*cellPadding.y) {
+						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - cellPadding.y) {
 							winPos = WindowPosition::Bottom;
 						}
 					}
@@ -3071,34 +3075,35 @@ namespace aly {
 			if (resizing&&e.type == InputType::Cursor) {
 				float2 minPt = windowInitialBounds.min();
 				float2 maxPt = windowInitialBounds.max();
+				pixel2 cursor=box2px(pixel2(0.0f,0.0f),pixel2(context->width()-1.0f,context->height()-1.0f)).clamp(e.cursor);
 				switch (winPos) {
 				case WindowPosition::Top:
-					minPt.y += e.cursor.y - cursorDownPosition.y;
+					minPt.y += cursor.y - cursorDownPosition.y;
 					break;
 				case WindowPosition::Bottom:
-					maxPt.y += e.cursor.y - cursorDownPosition.y;
+					maxPt.y += cursor.y - cursorDownPosition.y;
 					break;
 				case WindowPosition::Left:
-					minPt.x += e.cursor.x - cursorDownPosition.x;
+					minPt.x += cursor.x - cursorDownPosition.x;
 					break;
 				case WindowPosition::Right:
-					maxPt.x += e.cursor.x - cursorDownPosition.x;
+					maxPt.x += cursor.x - cursorDownPosition.x;
 					break;
 				case WindowPosition::TopLeft:
-					minPt.x += e.cursor.x - cursorDownPosition.x;
-					minPt.y += e.cursor.y - cursorDownPosition.y;
+					minPt.x += cursor.x - cursorDownPosition.x;
+					minPt.y += cursor.y - cursorDownPosition.y;
 					break;
 				case WindowPosition::BottomRight:
-					maxPt.x += e.cursor.x - cursorDownPosition.x;
-					maxPt.y += e.cursor.y - cursorDownPosition.y;
+					maxPt.x += cursor.x - cursorDownPosition.x;
+					maxPt.y += cursor.y - cursorDownPosition.y;
 					break;
 				case WindowPosition::BottomLeft:
-					minPt.x += e.cursor.x - cursorDownPosition.x;
-					maxPt.y += e.cursor.y - cursorDownPosition.y;
+					minPt.x += cursor.x - cursorDownPosition.x;
+					maxPt.y += cursor.y - cursorDownPosition.y;
 					break;
 				case WindowPosition::TopRight:
-					maxPt.x += e.cursor.x - cursorDownPosition.x;
-					minPt.y += e.cursor.y - cursorDownPosition.y;
+					maxPt.x += cursor.x - cursorDownPosition.x;
+					minPt.y += cursor.y - cursorDownPosition.y;
 
 					break;
 				case WindowPosition::Center:
@@ -3127,8 +3132,9 @@ namespace aly {
 					windowInitialBounds = getBounds(false);
 					windowInitialBounds.position -= this->getDragOffset();
 					box2px pbounds = parent->getBounds();
-					this->position = CoordPX(-this->getDragOffset());
-					this->dimensions = CoordPX(pbounds.dimensions);
+					this->setDragOffset(pixel2(0.0f, 0.0f));
+					this->position = CoordPX(0.0f,0.0f);
+					this->dimensions = CoordPercent(1.0f,1.0f);
 					dynamic_cast<Composite*>(this->parent)->resetScrollPosition();
 					context->requestPack();
 				}

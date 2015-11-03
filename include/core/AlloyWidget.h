@@ -578,7 +578,7 @@ protected:
 	pixel2 cursorDownPosition;
 	box2px windowInitialBounds;
 	CompositePtr titleRegion;
-	RegionPtr contentRegion;	
+	CompositePtr contentRegion;	
 	bool maximized;
 	bool dragging;
 	bool resizing;
