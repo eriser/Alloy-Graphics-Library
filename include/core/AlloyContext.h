@@ -170,7 +170,7 @@ struct EventHandler {
 	virtual ~EventHandler();
 };
 struct Cursor {
-	static const Cursor None,Normal, Horizontal, Vertical, Position, Hand, SlantUp, SlantDown,TextInsert;
+	static const Cursor Normal, Horizontal, Vertical, Position, Hand, SlantUp, SlantDown,TextInsert;
 	std::string codeString;
 	FontType fontType;
 	float fontSize;
