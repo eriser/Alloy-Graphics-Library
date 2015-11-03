@@ -241,6 +241,7 @@ public:
 		alwaysShowHorizontalScrollBar = show;
 		scrollEnabled |= show;
 	}
+	void resetScrollPosition();
 	static const float scrollBarSize;
 	typedef std::vector<ValueType>::iterator iterator;
 	typedef std::vector<ValueType>::const_iterator const_iterator;

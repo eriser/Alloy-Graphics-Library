@@ -70,7 +70,23 @@ namespace aly {
 			float tw = nvgTextBounds(nvg, 0, 0, codeString.c_str(), 0, 0);
 			nvgTranslate(nvg, cursor.x ,cursor.y );
 			nvgRotate(nvg, angle);
-			nvgText(nvg, 0, 0, codeString.c_str(), nullptr);
+			const float shift = 1.0f;
+			const char* txt=codeString.c_str();
+			nvgFillColor(nvg, Color(0,0,0));
+			nvgText(nvg,  + shift, 0, txt, nullptr);
+			nvgText(nvg,  - shift, 0, txt, nullptr);
+			nvgText(nvg, 0,  + shift, txt, nullptr);
+			nvgText(nvg, 0,  - shift, txt, nullptr);
+			nvgText(nvg,  + shift,  - shift, txt, nullptr);
+			nvgText(nvg,  + shift,  + shift, txt, nullptr);
+			nvgText(nvg,  + shift,  - shift, txt, nullptr);
+			nvgText(nvg,  + shift,  + shift, txt, nullptr);
+			nvgText(nvg,  - shift,  - shift, txt, nullptr);
+			nvgText(nvg,  - shift,  + shift, txt, nullptr);
+			nvgText(nvg,  - shift,  - shift, txt, nullptr);
+			nvgText(nvg,  - shift,  + shift, txt, nullptr);
+			nvgFillColor(nvg, Color(255, 255, 255));
+			nvgText(nvg, 0, 0, txt, nullptr);
 			nvgRestore(nvg);
 		}
 	}

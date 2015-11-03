@@ -2954,6 +2954,10 @@ namespace aly {
 	}
 	void WindowPane::draw(AlloyContext* context) {
 		Composite::draw(context);
+		if(windowInitialBounds.dimensions.x<0|| windowInitialBounds.dimensions.y<0){
+			windowInitialBounds = getBounds(false);
+			windowInitialBounds.position -= this->getDragOffset();
+		}
 		if (context->getCursor() == nullptr) {
 			switch (winPos) {
 			case WindowPosition::Center:
@@ -2974,7 +2978,7 @@ namespace aly {
 			}
 		}
 	}
-	WindowPane::WindowPane(const RegionPtr& content) :Composite(content->name, content->position, content->dimensions), contentRegion(content), maximized(false), dragging(false), winPos(WindowPosition::Center) {
+	WindowPane::WindowPane(const RegionPtr& content) :Composite(content->name, content->position, content->dimensions), contentRegion(content), maximized(false), dragging(false), resizing(false), winPos(WindowPosition::Center) {
 		cellSpacing = pixel2(2, 2);
 		cellPadding = pixel2(5, 5);
 		titleRegion = CompositePtr(new Composite("Title", CoordPX(cellPadding.x, cellPadding.y), CoordPerPX(1.0f, 0.0f, -2.0f*cellPadding.x, 30.0f - cellPadding.y)));
@@ -2991,7 +2995,7 @@ namespace aly {
 		Composite::add(contentRegion);
 		this->setClampDragToParentBounds(false);
 		label->onMouseDown = [this](AlloyContext* context, const InputEvent& e) {
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT&&!resizing) {
 				cursorDownPosition = e.cursor - this->getBoundsPosition();
 				dragging = true;
 			}
@@ -3003,55 +3007,112 @@ namespace aly {
 			if (e.type == InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown() && over) {
 				dynamic_cast<Composite*>(this->parent)->putLast(this);
 			}
-			else if (dragging&&e.type == InputType::Cursor) {
+			else if (dragging&&e.type == InputType::Cursor&&!resizing) {
 				box2px pbounds = parent->getBounds();
 				this->setDragOffset(pbounds.clamp(e.cursor), cursorDownPosition);
+				setMaximize(false);
 				this->pack();
 			}
 			else if (e.type == InputType::MouseButton&&e.isUp()) {
 				context->requestPack();
 				dragging = false;
 			}
+			if (!context->isLeftMouseButtonDown()) {
+				resizing = false;
+			}
 			if (e.type == InputType::Cursor) {
-				if (over) {
-					box2px bounds = getBounds();
-					winPos = WindowPosition::Center;
-					if (e.cursor.x <= bounds.position.x + 2 * cellPadding.x) {
-						if (e.cursor.y <= bounds.position.y + 2 * cellPadding.y) {
-							winPos = WindowPosition::TopLeft;
+				if (!resizing) {
+					if (over) {
+						box2px bounds = getBounds();
+						winPos = WindowPosition::Center;
+						if (e.cursor.x <= bounds.position.x + 2 * cellPadding.x) {
+							if (e.cursor.y <= bounds.position.y + 2 * cellPadding.y) {
+								winPos = WindowPosition::TopLeft;
+							}
+							else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
+								winPos = WindowPosition::BottomLeft;
+							}
+							else {
+								winPos = WindowPosition::Left;
+							}
 						}
-						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
-							winPos = WindowPosition::BottomLeft;
+						else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - 2 * cellPadding.x) {
+							if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
+								winPos = WindowPosition::TopRight;
+							}
+							else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
+								winPos = WindowPosition::BottomRight;
+							}
+							else {
+								winPos = WindowPosition::Right;
+							}
 						}
-						else {
-							winPos = WindowPosition::Left;
+						else if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
+							winPos = WindowPosition::Top;
+						}
+						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2.0f*cellPadding.y) {
+							winPos = WindowPosition::Bottom;
 						}
 					}
-					else if (e.cursor.x >= bounds.position.x + bounds.dimensions.x - 2 * cellPadding.x) {
-						if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
-							winPos = WindowPosition::TopRight;
-						}
-						else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2 * cellPadding.y) {
-							winPos = WindowPosition::BottomRight;
-						}
-						else {
-							winPos = WindowPosition::Right;
-						}
+					else {
+						winPos = WindowPosition::Center;
 					}
-					else if (e.cursor.y <= bounds.position.y + 2.0f*cellPadding.y) {
-						winPos = WindowPosition::Top;
-					}
-					else if (e.cursor.y >= bounds.position.y + bounds.dimensions.y - 2.0f*cellPadding.y) {
-						winPos = WindowPosition::Bottom;
-					}
+				}
+			}
+			if (over&&e.type == InputType::MouseButton&&e.button == GLFW_MOUSE_BUTTON_LEFT&&e.isDown() && winPos != WindowPosition::Center) {
+				if (!resizing) {
+					cursorDownPosition = e.cursor;
+					windowInitialBounds = getBounds(false);
+					windowInitialBounds.position -= this->getDragOffset();
+				}
+				resizing = true;
 
+			}
+			if (resizing&&e.type == InputType::Cursor) {
+				float2 minPt = windowInitialBounds.min();
+				float2 maxPt = windowInitialBounds.max();
+				switch (winPos) {
+				case WindowPosition::Top:
+					minPt.y += e.cursor.y - cursorDownPosition.y;
+					break;
+				case WindowPosition::Bottom:
+					maxPt.y += e.cursor.y - cursorDownPosition.y;
+					break;
+				case WindowPosition::Left:
+					minPt.x += e.cursor.x - cursorDownPosition.x;
+					break;
+				case WindowPosition::Right:
+					maxPt.x += e.cursor.x - cursorDownPosition.x;
+					break;
+				case WindowPosition::TopLeft:
+					minPt.x += e.cursor.x - cursorDownPosition.x;
+					minPt.y += e.cursor.y - cursorDownPosition.y;
+					break;
+				case WindowPosition::BottomRight:
+					maxPt.x += e.cursor.x - cursorDownPosition.x;
+					maxPt.y += e.cursor.y - cursorDownPosition.y;
+					break;
+				case WindowPosition::BottomLeft:
+					minPt.x += e.cursor.x - cursorDownPosition.x;
+					maxPt.y += e.cursor.y - cursorDownPosition.y;
+					break;
+				case WindowPosition::TopRight:
+					maxPt.x += e.cursor.x - cursorDownPosition.x;
+					minPt.y += e.cursor.y - cursorDownPosition.y;
+
+					break;
+				case WindowPosition::Center:
+					break;
 				}
-				else {
-					winPos = WindowPosition::Center;
-				}
+
+				setMaximize(false);
+				this->position = CoordPX(aly::min(minPt,maxPt));
+				this->dimensions = CoordPX(aly::max(maxPt - minPt,float2(50,50)));
+				context->requestPack();
 			}
 			return false;
 		};
+		windowInitialBounds.dimensions = float2(-1, -1);
 		maximizeIcon = IconButtonPtr(new IconButton(0xf0fe, CoordPerPX(1.0f, 0.0f, -24.0f, 0.0f), CoordPX(24.0f, 24.0f)));
 		maximizeIcon->borderWidth = UnitPX(0.0f);
 		maximizeIcon->borderColor = MakeColor(COLOR_NONE);
@@ -3062,7 +3123,20 @@ namespace aly {
 			[this](AlloyContext* context, const InputEvent& event) {
 			if (event.button == GLFW_MOUSE_BUTTON_LEFT) {
 				setMaximize(!this->maximized);
-
+				if (maximized) {
+					windowInitialBounds = getBounds(false);
+					windowInitialBounds.position -= this->getDragOffset();
+					box2px pbounds = parent->getBounds();
+					this->position = CoordPX(-this->getDragOffset());
+					this->dimensions = CoordPX(pbounds.dimensions);
+					dynamic_cast<Composite*>(this->parent)->resetScrollPosition();
+					context->requestPack();
+				}
+				else {
+					this->position = CoordPX(windowInitialBounds.position);
+					this->dimensions = CoordPX(windowInitialBounds.dimensions);
+					context->requestPack();
+				}
 				return true;
 			}
 			return false;

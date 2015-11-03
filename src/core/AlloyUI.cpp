@@ -485,6 +485,14 @@ namespace aly {
 		}
 		return false;
 	}
+	void Composite::resetScrollPosition() {
+		if (verticalScrollHandle.get() != nullptr) {
+			verticalScrollHandle->setDragOffset(pixel2(0, 0));
+		}
+		if (horizontalScrollHandle.get() != nullptr) {
+			horizontalScrollHandle->setDragOffset(pixel2(0, 0));
+		}
+	}
 	void Composite::pack(const pixel2& pos, const pixel2& dims, const double2& dpmm,
 		double pixelRatio, bool clamp) {
 		Region::pack(pos, dims, dpmm, pixelRatio);
