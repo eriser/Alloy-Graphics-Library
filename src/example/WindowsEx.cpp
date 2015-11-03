@@ -23,7 +23,7 @@
 #include "../../include/example/WindowsEx.h"
 using namespace aly;
 WindowsEx::WindowsEx() :
-		Application(800, 600, "Windows Example") {
+		Application(800, 600, "Window Pane Example") {
 }
 bool WindowsEx::init(Composite& rootNode) {
 	GlyphRegionPtr imageRegion1 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfmarket.png")), "Market St.",CoordPX(5.0f, 5.0f), CoordPX(400,265), AspectRule::FixedWidth, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
