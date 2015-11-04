@@ -395,6 +395,12 @@ void Application::getScreenShot(ImageRGBA& img) {
 	img.resize(w, h);
 	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, img.ptr());
 }
+void Application::getScreenShot(ImageRGB& img) {
+	int w = 0, h = 0;
+	glfwGetWindowSize(context->window, &w, &h);
+	img.resize(w, h);
+	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, img.ptr());
+}
 ImageRGBA Application::getScreenShot() {
 
 	int w = 0, h = 0;

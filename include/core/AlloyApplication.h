@@ -142,6 +142,7 @@ public:
 	void onCursorEnter(int enter);
 	void fireEvent(const InputEvent& event);
 	void getScreenShot(ImageRGBA& img);
+	void getScreenShot(ImageRGB& img);
 	ImageRGBA getScreenShot();
 	InputEvent getLastInputEvent() {
 		return inputEvent;
