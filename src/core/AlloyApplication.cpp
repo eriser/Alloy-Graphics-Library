@@ -389,18 +389,18 @@ void Application::onWindowFocus(int focused) {
 		context->hasFocus = false;
 	}
 }
-void Application::getScreenShot(ImageRGB& img) {
+void Application::getScreenShot(ImageRGBA& img) {
 	int w = 0, h = 0;
 	glfwGetWindowSize(context->window, &w, &h);
 	img.resize(w, h);
-	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, img.ptr());
+	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, img.ptr());
 }
-ImageRGB Application::getScreenShot() {
+ImageRGBA Application::getScreenShot() {
 
 	int w = 0, h = 0;
 	glfwGetWindowSize(context->window, &w, &h);
-	ImageRGB img(w, h);
-	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, img.ptr());
+	ImageRGBA img(w, h);
+	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, img.ptr());
 	return img;
 }
 void Application::onCursorEnter(int enter) {
@@ -460,7 +460,7 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 					<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(4)<<std::setfill('0')<<i<<".png";
 			if(!FileExists(screenShot)) {
 				std::cout<<"Saving "<<screenShot<<std::endl;
-				ImageRGB img;
+				ImageRGBA img;
 				getScreenShot(img);
 				FlipVertical(img);
 				WriteImageToFile(screenShot,img);
@@ -496,7 +496,7 @@ void Application::runOnce(const std::string& fileName) {
 	close();
 	run(0);
 	glfwSwapBuffers(context->window);
-	ImageRGB img;
+	ImageRGBA img;
 	getScreenShot(img);
 	FlipVertical(img);
 	WriteImageToFile(fileName, img);

@@ -51,7 +51,7 @@ void ConvertImage(const Image2f& in, ImageRGBAf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
-	int N = (int)out.size();
+	int N = (int) out.size();
 #pragma omp parallel for
 	for (int i = 0; i < N; i++) {
 		float2 val = in[i];
@@ -237,8 +237,11 @@ void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB) {
 void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	std::string ext = GetFileExtension(file);
 	if (ext == "png") {
-		if (!stbi_write_png(file.c_str(), image.width, image.height, 3,
-				image.data.data(), 3 * image.width)) {
+		ImageRGBA tmp;
+		ConvertImage(image, tmp);
+		//Work around for malloc() error on linux.
+		if (!stbi_write_png(file.c_str(), tmp.width, tmp.height, 4,
+				tmp.data.data(), 4 * tmp.width)) {
 			throw std::runtime_error(
 					MakeString() << "Could not write " << file);
 		}
@@ -361,7 +364,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBAf& img) {
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float4& val : img.data) {
-				val[c] = ptr[exrImage.num_channels-1-c][index++];
+				val[c] = ptr[exrImage.num_channels - 1 - c][index++];
 			}
 		}
 		FreeEXRImage(&exrImage);
@@ -421,7 +424,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBf& img) {
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (float3& val : img.data) {
-				val[c] = ptr[exrImage.num_channels-1-c][index++];
+				val[c] = ptr[exrImage.num_channels - 1 - c][index++];
 			}
 		}
 		FreeEXRImage(&exrImage);
@@ -527,7 +530,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (const float4& val : img.data) {
-				array[img.channels-1-c][index++] = val[c];
+				array[img.channels - 1 - c][index++] = val[c];
 			}
 		}
 		for (int c = 0; c < img.channels; c++) {
@@ -648,7 +651,7 @@ void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 		for (int c = 0; c < img.channels; c++) {
 			size_t index = 0;
 			for (const float3& val : img.data) {
-				array[img.channels-1-c][index++] = val[c];
+				array[img.channels - 1 - c][index++] = val[c];
 			}
 		}
 		for (int c = 0; c < img.channels; c++) {
