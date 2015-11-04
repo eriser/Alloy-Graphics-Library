@@ -3131,7 +3131,6 @@ namespace aly {
 				if (maximized) {
 					windowInitialBounds = getBounds(false);
 					windowInitialBounds.position -= this->getDragOffset();
-					box2px pbounds = parent->getBounds();
 					this->setDragOffset(pixel2(0.0f, 0.0f));
 					this->position = CoordPX(0.0f,0.0f);
 					this->dimensions = CoordPercent(1.0f,1.0f);
