@@ -117,7 +117,8 @@ void Application::draw() {
 	if (!cursor) {
 		cursor = &Cursor::Normal;
 	}
-	nvgBeginFrame(context->nvgContext, context->width(), context->height(), (float)context->pixelRatio);
+	nvgBeginFrame(context->nvgContext, context->width(), context->height(),
+			(float) context->pixelRatio);
 	cursor->draw(context.get());
 	nvgEndFrame(context->nvgContext);
 }
@@ -388,10 +389,18 @@ void Application::onWindowFocus(int focused) {
 		context->hasFocus = false;
 	}
 }
+void Application::getScreenShot(ImageRGB& img) {
+	int w = 0, h = 0;
+	glfwGetWindowSize(context->window, &w, &h);
+	img.resize(w, h);
+	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, img.ptr());
+}
 ImageRGB Application::getScreenShot() {
-	ImageRGB img(context->width(), context->height());
-	glReadPixels(0, 0, img.width, img.height, GL_RGB, GL_UNSIGNED_BYTE,
-			img.ptr());
+
+	int w = 0, h = 0;
+	glfwGetWindowSize(context->window, &w, &h);
+	ImageRGB img(w, h);
+	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, img.ptr());
 	return img;
 }
 void Application::onCursorEnter(int enter) {
@@ -451,7 +460,8 @@ void Application::onKey(int key, int scancode, int action, int mods) {
 					<< ALY_PATH_SEPARATOR<<"screenshot"<<std::setw(4)<<std::setfill('0')<<i<<".png";
 			if(!FileExists(screenShot)) {
 				std::cout<<"Saving "<<screenShot<<std::endl;
-				ImageRGB img=getScreenShot();
+				ImageRGB img;
+				getScreenShot(img);
 				FlipVertical(img);
 				WriteImageToFile(screenShot,img);
 				break;
@@ -486,7 +496,8 @@ void Application::runOnce(const std::string& fileName) {
 	close();
 	run(0);
 	glfwSwapBuffers(context->window);
-	ImageRGB img = getScreenShot();
+	ImageRGB img;
+	getScreenShot(img);
 	FlipVertical(img);
 	WriteImageToFile(fileName, img);
 }

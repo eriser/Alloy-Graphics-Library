@@ -141,6 +141,7 @@ public:
 	void onScroll(double xoffset, double yoffset);
 	void onCursorEnter(int enter);
 	void fireEvent(const InputEvent& event);
+	void getScreenShot(ImageRGB& img);
 	ImageRGB getScreenShot();
 	InputEvent getLastInputEvent() {
 		return inputEvent;

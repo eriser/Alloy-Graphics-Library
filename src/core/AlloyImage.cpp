@@ -238,7 +238,7 @@ void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	std::string ext = GetFileExtension(file);
 	if (ext == "png") {
 		if (!stbi_write_png(file.c_str(), image.width, image.height, 3,
-				image.ptr(), 3 * image.width)) {
+				image.data.data(), 3 * image.width)) {
 			throw std::runtime_error(
 					MakeString() << "Could not write " << file);
 		}
