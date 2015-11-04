@@ -99,9 +99,6 @@
     <ClCompile Include="..\..\src\core\AlloyMath.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\AlloyMeshIntersector.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\core\AlloyDenseSolve.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -130,6 +127,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\core\tinyspline.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyIntersector.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,9 +245,6 @@
     <ClInclude Include="..\..\include\core\AlloyPLY.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\core\AlloyMeshIntersector.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyDenseSolve.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -299,9 +296,6 @@
     <ClInclude Include="..\..\include\core\AlloyArray.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\core\AlloyPointLocator.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\core\AlloyDelaunay.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -309,6 +303,12 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\tinysplinecpp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyIntersector.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyLocator.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

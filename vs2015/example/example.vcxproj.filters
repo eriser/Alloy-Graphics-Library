@@ -70,9 +70,6 @@
     <ClCompile Include="..\..\src\example\MeshPickerEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\example\KdTreeEx.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\example\MeshSmoothEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -91,7 +88,10 @@
     <ClCompile Include="..\..\src\example\GraphEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\example\WindowsEx.cpp">
+    <ClCompile Include="..\..\src\example\WindowPaneEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\example\IntersectorEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -165,9 +165,6 @@
     <ClInclude Include="..\..\include\example\MeshPickerEx.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\example\KdTreeEx.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\example\MeshSmoothEx.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -186,7 +183,10 @@
     <ClInclude Include="..\..\include\example\GraphEx.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\example\WindowsEx.h">
+    <ClInclude Include="..\..\include\example\WindowPaneEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\example\IntersectorEx.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
