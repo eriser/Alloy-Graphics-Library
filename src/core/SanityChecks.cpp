@@ -33,6 +33,7 @@
 #include "AlloySparseMatrix.h"
 #include "AlloyDenseMatrix.h"
 #include "AlloyArray.h"
+#include "AlloySpline.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
 #include "cereal/archives/binary.hpp"
@@ -44,7 +45,11 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 namespace aly {
-
+bool SANITY_CHECK_BSPLINE() {
+	BSpline2f spline(100);
+	spline.build();
+	spline.convertToBeziers();
+}
 bool SANITY_CHECK_LOCATOR() {
 
 	{

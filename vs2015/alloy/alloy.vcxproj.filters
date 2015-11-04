@@ -311,5 +311,8 @@
     <ClInclude Include="..\..\include\core\AlloyLocator.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloySpline.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
