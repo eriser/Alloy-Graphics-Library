@@ -29,7 +29,7 @@
     <ClCompile Include="..\..\src\example\GraphEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageEx.cpp" />
     <ClCompile Include="..\..\src\example\ImageProcessingEx.cpp" />
-    <ClCompile Include="..\..\src\example\KdTreeEx.cpp" />
+    <ClCompile Include="..\..\src\example\IntersectorEx.cpp" />
     <ClCompile Include="..\..\src\example\LaplaceFillEx.cpp" />
     <ClCompile Include="..\..\src\example\LocatorEx.cpp" />
     <ClCompile Include="..\..\src\example\main.cpp" />
@@ -49,7 +49,7 @@
     <ClCompile Include="..\..\src\example\PoissonInpaintEx.cpp" />
     <ClCompile Include="..\..\src\example\TweenEx.cpp" />
     <ClCompile Include="..\..\src\example\UnitsEx.cpp" />
-    <ClCompile Include="..\..\src\example\WindowsEx.cpp" />
+    <ClCompile Include="..\..\src\example\WindowPaneEx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\example\ColorSpaceEx.h" />
@@ -62,7 +62,7 @@
     <ClInclude Include="..\..\include\example\GraphEx.h" />
     <ClInclude Include="..\..\include\example\ImageEx.h" />
     <ClInclude Include="..\..\include\example\ImageProcessingEx.h" />
-    <ClInclude Include="..\..\include\example\KdTreeEx.h" />
+    <ClInclude Include="..\..\include\example\IntersectorEx.h" />
     <ClInclude Include="..\..\include\example\LaplaceFillEx.h" />
     <ClInclude Include="..\..\include\example\LocatorEx.h" />
     <ClInclude Include="..\..\include\example\MenuEx.h" />
@@ -82,7 +82,7 @@
     <ClInclude Include="..\..\include\example\stb_image_write.h" />
     <ClInclude Include="..\..\include\example\TweenEx.h" />
     <ClInclude Include="..\..\include\example\UnitsEx.h" />
-    <ClInclude Include="..\..\include\example\WindowsEx.h" />
+    <ClInclude Include="..\..\include\example\WindowPaneEx.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\alloy\alloy.vcxproj">

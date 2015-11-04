@@ -31,9 +31,9 @@
     <ClCompile Include="..\..\src\core\AlloyDrawUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyFileUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyImage.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyIntersector.cpp" />
     <ClCompile Include="..\..\src\core\AlloyMath.cpp" />
     <ClCompile Include="..\..\src\core\AlloyMesh.cpp" />
-    <ClCompile Include="..\..\src\core\AlloyMeshIntersector.cpp" />
     <ClCompile Include="..\..\src\core\AlloyMeshPrimitives.cpp" />
     <ClCompile Include="..\..\src\core\AlloyNumber.cpp" />
     <ClCompile Include="..\..\src\core\AlloyPLY.cpp" />
@@ -77,13 +77,13 @@
     <ClInclude Include="..\..\include\core\AlloyFilesystem.h" />
     <ClInclude Include="..\..\include\core\AlloyFileUtil.h" />
     <ClInclude Include="..\..\include\core\AlloyImage.h" />
+    <ClInclude Include="..\..\include\core\AlloyIntersector.h" />
+    <ClInclude Include="..\..\include\core\AlloyLocator.h" />
     <ClInclude Include="..\..\include\core\AlloyMath.h" />
     <ClInclude Include="..\..\include\core\AlloyMesh.h" />
-    <ClInclude Include="..\..\include\core\AlloyMeshIntersector.h" />
     <ClInclude Include="..\..\include\core\AlloyMeshPrimitives.h" />
     <ClInclude Include="..\..\include\core\AlloyNumber.h" />
     <ClInclude Include="..\..\include\core\AlloyPLY.h" />
-    <ClInclude Include="..\..\include\core\AlloyPointLocator.h" />
     <ClInclude Include="..\..\include\core\AlloySimulation.h" />
     <ClInclude Include="..\..\include\core\AlloySparseMatrix.h" />
     <ClInclude Include="..\..\include\core\AlloySparseSolve.h" />
