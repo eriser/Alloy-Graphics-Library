@@ -67,7 +67,6 @@ namespace aly {
 			nvgFontFaceId(nvg, context->getFontHandle(fontType));
 			nvgFontSize(nvg, fontSize);
 			nvgFillColor(nvg, Color(255, 255, 255));
-			float tw = nvgTextBounds(nvg, 0, 0, codeString.c_str(), 0, 0);
 			nvgTranslate(nvg, cursor.x ,cursor.y );
 			nvgRotate(nvg, angle);
 			const float shift = 1.0f;
