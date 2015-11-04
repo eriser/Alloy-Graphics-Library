@@ -89,7 +89,7 @@ public:
 		locator.erase_exact(pt);
 	}
 	void erase(const vec<T, C>& pt) {
-		locator.erase(xvec<T,C>(pt,-1));
+		locator.erase(xvec<T, C>(pt, -1));
 	}
 	void erase(const std::vector<xvec<T, C>>& pts) {
 		locator.erase(pts.begin(), pts.end());
@@ -198,6 +198,7 @@ public:
 template<class T, int C> const xvec<T, C> Locator<T, C>::NO_POINT_FOUND = xvec<
 		T, C>(vec<T, C>(std::numeric_limits<T>::max()), -1);
 
+namespace detail {
 template<typename T = double, int C = -1, class Distance = nanoflann::metric_L2,
 		typename IndexType = size_t>
 struct KdTreeVectorAdapter {
@@ -333,6 +334,7 @@ template<typename T = float, int C = -1, class Distance = nanoflann::metric_L2,
 		return false;
 	}
 };
+}
 // end of KdTreeArrayAdapter
 template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
 		std::basic_ostream<C, R> & ss, const xvec<T, 2> & v) {
@@ -351,7 +353,7 @@ template<class C, class R, class T> std::basic_ostream<C, R> & operator <<(
 //FLANN Matcher does not allow the insertion of points! All data must be provided up front.
 template<class T, int C> class Matcher {
 protected:
-	KdTreeArrayAdapter<T, C, nanoflann::metric_L2, size_t> locator;
+	detail::KdTreeArrayAdapter<T, C, nanoflann::metric_L2, size_t> locator;
 public:
 	static const size_t NO_POINT_FOUND;
 	Matcher(const std::vector<Array<T, C>>& data, int maxDepth = 16) :
@@ -433,7 +435,7 @@ template<class T, int C> const size_t Matcher<T, C>::NO_POINT_FOUND =
 //FLANN Matcher does not allow the insertion of points! All data must be provided up front.
 template<class T, int C> class MatcherVec {
 protected:
-	KdTreeVectorAdapter<T, C, nanoflann::metric_L2, size_t> locator;
+	detail::KdTreeVectorAdapter<T, C, nanoflann::metric_L2, size_t> locator;
 public:
 	static const size_t NO_POINT_FOUND;
 	MatcherVec(const Vector<T, C>& data, int maxDepth = 16) :

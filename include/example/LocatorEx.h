@@ -22,9 +22,9 @@
 #ifndef LOCATOR_EX_H_
 #define LOCATOR_EX_H_
 
+#include <AlloyLocator.h>
 #include "AlloyApplication.h"
 #include "AlloyVector.h"
-#include "AlloyPointLocator.h"
 class LocatorEx: public aly::Application {
 protected:
 	std::vector<std::pair<size_t, float>> kNN;

@@ -55,7 +55,7 @@
 
  */
 
-#include "AlloyMeshIntersector.h"
+#include <AlloyIntersector.h>
 #include "AlloyMesh.h"
 
 #include <list>
@@ -890,7 +890,7 @@ double KDTriangle::distance(const float3& p, float3& lastIntersect) const {
 	lastIntersect = pts[0] + kEdge0 * (float) fS + kEdge1 * (float) fT;
 	return std::sqrt(fSqrDistance);
 }
-void KDTree::build(const Mesh& mesh, int maxDepth) {
+void Intersector::build(const Mesh& mesh, int maxDepth) {
 	root = std::shared_ptr<KDBox>(new KDBox());
 	uint64_t id = 0;
 	KDTriangle* tri;
@@ -933,7 +933,7 @@ void KDTree::build(const Mesh& mesh, int maxDepth) {
 	root->update();
 	buildTree(maxDepth);
 }
-void KDTree::buildTree(int maxDepth) {
+void Intersector::buildTree(int maxDepth) {
 	std::list<KDBox*> boxes;
 	boxes.push_back(root.get());
 	int sz;
@@ -996,7 +996,7 @@ void KDTree::buildTree(int maxDepth) {
 
 	}
 }
-int KDTree::splitPosition(std::vector<KDBox*>& children,
+int Intersector::splitPosition(std::vector<KDBox*>& children,
 		std::vector<KDBoxEdge>& edges, KDBox* box) {
 	int nAbove = 0;
 	int nBelow = 0;
@@ -1097,7 +1097,7 @@ int KDTree::splitPosition(std::vector<KDBox*>& children,
 	} while (bestSplit == -1 && retry > 0);
 	return bestSplit;
 }
-double KDTree::intersectRayDistance(const float3& p1, const float3& v,
+double Intersector::intersectRayDistance(const float3& p1, const float3& v,
 		float3& lastPoint, KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");
@@ -1137,7 +1137,7 @@ double KDTree::intersectRayDistance(const float3& p1, const float3& v,
 		return mind;
 	}
 }
-double KDTree::intersectSegmentDistance(const float3& p1, const float3& p2,
+double Intersector::intersectSegmentDistance(const float3& p1, const float3& p2,
 		float3& lastPoint, KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");
@@ -1176,7 +1176,7 @@ double KDTree::intersectSegmentDistance(const float3& p1, const float3& p2,
 		return mind;
 	}
 }
-double KDTree::closestPointSignedDistance(const float3& r, float3& lastPoint,
+double Intersector::closestPointSignedDistance(const float3& r, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
 	double d = closestPoint(r, lastPoint, lastTriangle);
 	if (d >= 0) {
@@ -1188,7 +1188,7 @@ double KDTree::closestPointSignedDistance(const float3& r, float3& lastPoint,
 		return NO_HIT_DISTANCE;
 	}
 }
-double KDTree::closestPoint(const float3& pt, const float& maxDistance,
+double Intersector::closestPoint(const float3& pt, const float& maxDistance,
 		float3& lastPoint, KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");
@@ -1225,7 +1225,7 @@ double KDTree::closestPoint(const float3& pt, const float& maxDistance,
 		return triangleDist;
 	}
 }
-double KDTree::closestPoint(const float3& pt, float3& lastPoint,
+double Intersector::closestPoint(const float3& pt, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");
@@ -1265,7 +1265,7 @@ double KDTree::closestPoint(const float3& pt, float3& lastPoint,
 	}
 }
 
-double KDTree::closestPointOutside(const float3& r, const float3& v,
+double Intersector::closestPointOutside(const float3& r, const float3& v,
 		float3& lastPoint, KDTriangle*& lastTriangle) const {
 	if (root->getChildren().size() == 0)
 		throw new std::runtime_error("KD-Tree has not been initialized.");

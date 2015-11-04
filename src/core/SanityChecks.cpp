@@ -19,6 +19,8 @@
  * THE SOFTWARE.
  */
 #include <AlloyCamera.h>
+#include <AlloyIntersector.h>
+#include <AlloyLocator.h>
 #include <AlloySparseSolve.h>
 #include "AlloyMath.h"
 #include "AlloyImage.h"
@@ -30,8 +32,6 @@
 #include "ImageProcessing.h"
 #include "AlloySparseMatrix.h"
 #include "AlloyDenseMatrix.h"
-#include "AlloyMeshIntersector.h"
-#include "AlloyPointLocator.h"
 #include "AlloyArray.h"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
@@ -407,7 +407,7 @@ bool SANITY_CHECK_ALGO() {
 bool SANITY_CHECK_KDTREE() {
 	Mesh mesh;
 	mesh.load(AlloyDefaultContext()->getFullPath("models/monkey.ply"));
-	KDTree kdTree(mesh, 6);
+	Intersector kdTree(mesh, 6);
 	Camera camera;
 	camera.setNearFarPlanes(0.1f, 2.0f);
 	camera.setZoom(0.75f);

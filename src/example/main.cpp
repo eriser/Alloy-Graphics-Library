@@ -41,15 +41,16 @@
 #include "../../include/example/PoissonInpaintEx.h"
 #include "../../include/example/ImageProcessingEx.h"
 #include "../../include/example/MeshPickerEx.h"
-#include "../../include/example/KdTreeEx.h"
 #include "../../include/example/MeshSmoothEx.h"
 #include "../../include/example/ColorSpaceEx.h"
 #include "../../include/example/MeshPrimitivesEx.h"
 #include "../../include/example/MenuEx.h"
 #include "../../include/example/LocatorEx.h"
 #include "../../include/example/GraphEx.h"
-#include "../../include/example/WindowsEx.h"
 #include <cstring>
+
+#include "../../include/example/IntersectorEx.h"
+#include "../../include/example/WindowPaneEx.h"
 #ifndef EXAMPLE_NAME
 #define EXAMPLE_NAME ""
 #endif
@@ -120,10 +121,10 @@ int main(int argc, char *argv[]) {
 			MAKE_EXAMPLE(MeshDepthEx), MAKE_EXAMPLE(MeshPhongEx), MAKE_EXAMPLE(
 					LaplaceFillEx), MAKE_EXAMPLE(PoissonBlendEx), MAKE_EXAMPLE(
 					PoissonInpaintEx), MAKE_EXAMPLE(ImageProcessingEx),
-			MAKE_EXAMPLE(MeshPickerEx), MAKE_EXAMPLE(KdTreeEx), MAKE_EXAMPLE(
+			MAKE_EXAMPLE(MeshPickerEx), MAKE_EXAMPLE(IntersectorEx), MAKE_EXAMPLE(
 					MeshSmoothEx), MAKE_EXAMPLE(ColorSpaceEx), MAKE_EXAMPLE(
 					MeshPrimitivesEx),MAKE_EXAMPLE(MenuEx),MAKE_EXAMPLE(LocatorEx),
-					MAKE_EXAMPLE(GraphEx),MAKE_EXAMPLE(WindowsEx)};
+					MAKE_EXAMPLE(GraphEx),MAKE_EXAMPLE(WindowPaneEx)};
 	try {
 		//Example name is specified in a makefile at compile time so 
 		//all example applications are compiled to seperate exe targets.

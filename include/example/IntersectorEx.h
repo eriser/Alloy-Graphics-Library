@@ -19,21 +19,26 @@
  * THE SOFTWARE.
  */
 
-#include "Alloy.h"
-#include "../../include/example/WindowsEx.h"
-using namespace aly;
-WindowsEx::WindowsEx() :
-		Application(800, 600, "Window Pane Example") {
-}
-bool WindowsEx::init(Composite& rootNode) {
-	GlyphRegionPtr imageRegion1 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfmarket.png")), "Market St.",CoordPX(5.0f, 5.0f), CoordPX(400,265), AspectRule::FixedWidth, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
-	WindowPanePtr window1 = WindowPanePtr(new WindowPane(imageRegion1));
-	GlyphRegionPtr imageRegion2 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfsunset.png")), "Presidio Heights", CoordPX(50.0f, 50.0f), CoordPX(400, 265), AspectRule::FixedWidth, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
-	WindowPanePtr window2 = WindowPanePtr(new WindowPane(imageRegion2));
-	rootNode.add(window1);
-	rootNode.add(window2);
-	//Good idea to enable this. What happens if window gets resized? Will things disappear?
-	rootNode.setScrollEnabled(true);
-	return true;
-}
+#ifndef KDTREE_EX_H_
+#define KDTREE_EX_H_
 
+#include <AlloyIntersector.h>
+#include "AlloyApplication.h"
+#include "CommonShaders.h"
+class IntersectorEx: public aly::Application {
+protected:
+	aly::RegionPtr renderRegion;
+	aly::GLFrameBuffer depthFrameBuffer;
+	aly::DepthAndNormalShader depthAndNormalShader;
+	aly::MatcapShader matcapShader;
+	aly::Intersector kdTree;
+	aly::Mesh mesh;
+	aly::Camera camera;
+	aly::WorkerTaskPtr workerTask;
+public:
+	IntersectorEx();
+	bool init(aly::Composite& rootNode);
+	void draw(aly::AlloyContext* context);
+};
+
+#endif 

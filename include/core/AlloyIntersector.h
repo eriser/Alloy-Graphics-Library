@@ -23,6 +23,9 @@
 #define ALLOYMESHKDTREE_H_
 #include "AlloyMath.h"
 
+//Mesh intersection implemented with a KD-tree of triangles.
+//The term "Intersector" is used to disambiguate this KD-tree from the one used for points.
+
 namespace aly {
 	bool SANITY_CHECK_KDTREE();
 	class Mesh;
@@ -185,7 +188,7 @@ namespace aly {
 		return (a.dist > b.dist);
 	}
 
-	class KDTree {
+	class Intersector {
 	protected:
 		std::shared_ptr<KDBox> root;
 		std::vector<std::shared_ptr<KDBox>> storage;
@@ -206,10 +209,10 @@ namespace aly {
 		}
 
 		void build(const Mesh& mesh, int maxDepth = 16);
-		KDTree(const Mesh& mesh, int maxDepth = 16) {
+		Intersector(const Mesh& mesh, int maxDepth = 16) {
 			build(mesh, maxDepth);
 		}
-		KDTree() {
+		Intersector() {
 		}
 		double intersectRayDistance(const float3& p1, const float3& v,
 			float3& lastPoint, KDTriangle*& lastTriangle) const;

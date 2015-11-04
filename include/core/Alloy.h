@@ -22,6 +22,8 @@
 #ifndef ALLOY_H_
 #define ALLOY_H_
 
+#include <AlloyIntersector.h>
+#include <AlloyLocator.h>
 #include "AlloyCamera.h"
 #include "AlloyAny.h"
 #include "AlloyFileUtil.h"
@@ -40,7 +42,6 @@
 #include "AlloyApplication.h"
 #include "AlloyWorker.h"
 #include "AlloyMesh.h"
-#include "AlloyMeshIntersector.h"
 #include "AlloySparseMatrix.h"
 #include "AlloyDenseMatrix.h"
 #include "AlloyDenseSolve.h"
@@ -48,6 +49,5 @@
 #include "CommonShaders.h"
 #include "ImageProcessing.h"
 #include "AlloyMeshPrimitives.h"
-#include "AlloyPointLocator.h"
 #include "AlloyDelaunay.h"
 #endif /* ALLOY_H_ */

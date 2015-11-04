@@ -19,14 +19,22 @@
  * THE SOFTWARE.
  */
 
-#ifndef WINDOWS_EX_H_
-#define WINDOWS_EX_H_
+#include "../../include/example/WindowPaneEx.h"
 
-#include "AlloyApplication.h"
-class WindowsEx: public aly::Application {
-public:
-	WindowsEx();
-	bool init(aly::Composite& rootNode);
-};
+#include "Alloy.h"
+using namespace aly;
+WindowPaneEx::WindowPaneEx() :
+		Application(800, 600, "Window Pane Example") {
+}
+bool WindowPaneEx::init(Composite& rootNode) {
+	GlyphRegionPtr imageRegion1 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfmarket.png")), "Market St.",CoordPX(5.0f, 5.0f), CoordPX(400,265), AspectRule::FixedWidth, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
+	WindowPanePtr window1 = WindowPanePtr(new WindowPane(imageRegion1));
+	GlyphRegionPtr imageRegion2 = MakeGlyphRegion(createImageGlyph(getFullPath("images/sfsunset.png")), "Presidio Heights", CoordPX(50.0f, 50.0f), CoordPX(400, 265), AspectRule::FixedWidth, COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
+	WindowPanePtr window2 = WindowPanePtr(new WindowPane(imageRegion2));
+	rootNode.add(window1);
+	rootNode.add(window2);
+	//Good idea to enable this. What happens if window gets resized? Will things disappear?
+	rootNode.setScrollEnabled(true);
+	return true;
+}
 
-#endif 

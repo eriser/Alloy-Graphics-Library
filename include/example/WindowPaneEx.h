@@ -19,26 +19,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef KDTREE_EX_H_
-#define KDTREE_EX_H_
+#ifndef WINDOWS_EX_H_
+#define WINDOWS_EX_H_
 
 #include "AlloyApplication.h"
-#include "CommonShaders.h"
-#include "AlloyMeshIntersector.h"
-class KdTreeEx: public aly::Application {
-protected:
-	aly::RegionPtr renderRegion;
-	aly::GLFrameBuffer depthFrameBuffer;
-	aly::DepthAndNormalShader depthAndNormalShader;
-	aly::MatcapShader matcapShader;
-	aly::KDTree kdTree;
-	aly::Mesh mesh;
-	aly::Camera camera;
-	aly::WorkerTaskPtr workerTask;
+class WindowPaneEx: public aly::Application {
 public:
-	KdTreeEx();
+	WindowPaneEx();
 	bool init(aly::Composite& rootNode);
-	void draw(aly::AlloyContext* context);
 };
 
 #endif 

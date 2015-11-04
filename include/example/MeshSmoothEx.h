@@ -22,9 +22,9 @@
 #ifndef MESHSMOOTH_EX_H_
 #define MESHSMOOTH_EX_H_
 
+#include <AlloyIntersector.h>
 #include "AlloyApplication.h"
 #include "CommonShaders.h"
-#include "AlloyMeshIntersector.h"
 class MeshSmoothEx: public aly::Application {
 protected:
 	aly::RegionPtr renderRegion;

@@ -19,13 +19,14 @@
  * THE SOFTWARE.
  */
 
+#include "../../include/example/IntersectorEx.h"
+
 #include "Alloy.h"
-#include "../../include/example/KdTreeEx.h"
 using namespace aly;
-KdTreeEx::KdTreeEx() :
-		Application(768, 512, "Kd-Tree Example"),matcapShader(getFullPath("images/JG_Gold.png")) {
+IntersectorEx::IntersectorEx() :
+		Application(768, 512, "Mesh Intersector Example"),matcapShader(getFullPath("images/JG_Gold.png")) {
 }
-bool KdTreeEx::init(Composite& rootNode) {
+bool IntersectorEx::init(Composite& rootNode) {
 	box3f renderBBox = box3f(float3(-0.5f, -0.5f, -0.5f),float3(1.0f, 1.0f, 1.0f));
 
 	mesh.load(getFullPath("models/monkey.obj"));
@@ -165,7 +166,7 @@ bool KdTreeEx::init(Composite& rootNode) {
 	workerTask->execute(isForcedClose());
 	return true;
 }
-void KdTreeEx::draw(AlloyContext* context){
+void IntersectorEx::draw(AlloyContext* context){
 	if (camera.isDirty()) {
 		//Compute depth and normals only when camera view changes.
 		depthAndNormalShader.draw(mesh, camera, depthFrameBuffer);
