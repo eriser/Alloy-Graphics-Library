@@ -26,7 +26,7 @@ namespace aly {
 	enum class SplineType {
 		Open = TS_OPENED,
 		Clamp = TS_CLAMPED,
-		None = TS_NONE,
+		NONE = TS_NONE,
 	};
 	bool SANITY_CHECK_BSPLINE();
 	template<int C> class BSpline : public Vector<float, C> {
@@ -82,7 +82,7 @@ namespace aly {
 			}
 			spline->split(u);
 		}
-		TsDeBoorNet& evaluate(const float u) const {
+		TsDeBoorNet evaluate(const float u) const {
 			if (spline.get() == nullptr) {
 				throw std::runtime_error("Spline not intialized. call build() first.");
 			}
@@ -95,17 +95,17 @@ namespace aly {
 			spline->toBeziers();
 		}
 		void build(const SplineType& type = SplineType::Open, int deg = 3) {
-			spline = std::unique_ptr<TsBSpline>(new TsBSpline(ptr(),data.size(),3));
+			spline = std::unique_ptr<TsBSpline>(new TsBSpline(this->ptr(),this->size(),3));
 			spline->setDeg(deg);
 			spline->setupKnots(static_cast<tsBSplineType>(type));
 		}
-		BSpline(size_t sz) :Vector(sz) {
+		BSpline(size_t sz) :Vector<float,C>(sz) {
 		}
-		BSpline() :Vector(){
+		BSpline() :Vector<float,C>(){
 		}
-		BSpline(const BSpline& spline) :Vector(spline.data) {
+		BSpline(const BSpline& spline) :Vector<float,C>(spline.data) {
 		}
-		BSpline(const Vector<float, C>& V,const SplineType& type, int deg) :Vector(V) {
+		BSpline(const Vector<float, C>& V,const SplineType& type, int deg) :Vector<float,C>(V) {
 			build(type, deg);
 		}
 	};
