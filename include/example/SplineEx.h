@@ -19,39 +19,17 @@
  * THE SOFTWARE.
  */
 
-#ifndef ALLOY_H_
-#define ALLOY_H_
+#ifndef SPLINE_EX_H_
+#define SPLINE_EX_H_
 
-#include <AlloyIntersector.h>
-#include <AlloyLocator.h>
-#include "AlloyCamera.h"
-#include "AlloyAny.h"
-#include "AlloyFileUtil.h"
-#include "AlloyImage.h"
-#include "AlloyMath.h"
-#include "AlloyNumber.h"
-#include "AlloyImage.h"
-#include "AlloyArray.h"
-#include "AlloyDrawUtil.h"
-#include "AlloyUI.h"
-#include "AlloyWidget.h"
-#include "GLShader.h"
-#include "GLTexture.h"
-#include "GLFrameBuffer.h"
-#include "AlloyContext.h"
 #include "AlloyApplication.h"
-#include "AlloyWorker.h"
-#include "AlloyMesh.h"
-#include "AlloySparseMatrix.h"
-#include "AlloyDenseMatrix.h"
-#include "AlloyDenseSolve.h"
-#include "AlloySparseSolve.h"
-#include "CommonShaders.h"
-#include "ImageProcessing.h"
-#include "AlloyMeshPrimitives.h"
-#include "AlloyDelaunay.h"
 #include "AlloySpline.h"
-#include "ImageProcessing.h"
-#include "AlloyIntersector.h"
-#include "AlloyLocator.h"
-#endif /* ALLOY_H_ */
+class SplineEx: public aly::Application {
+protected:
+	aly::BSpline2f spline;
+public:
+	SplineEx();
+	bool init(aly::Composite& rootNode);
+};
+
+#endif 

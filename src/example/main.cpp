@@ -47,10 +47,11 @@
 #include "../../include/example/MenuEx.h"
 #include "../../include/example/LocatorEx.h"
 #include "../../include/example/GraphEx.h"
-#include <cstring>
-
+#include "../../include/example/SplineEx.h"
 #include "../../include/example/IntersectorEx.h"
 #include "../../include/example/WindowPaneEx.h"
+#include <cstring>
+
 #ifndef EXAMPLE_NAME
 #define EXAMPLE_NAME ""
 #endif
@@ -110,7 +111,7 @@ bool SANITY_CHECK() {
 	return ret;
 }
 int main(int argc, char *argv[]) {
-	const int N =30;
+	const int N =31;
 	ExamplePtr apps[N] = { MAKE_EXAMPLE(UnitsEx), MAKE_EXAMPLE(CompositeEx),
 			MAKE_EXAMPLE(EventsEx), MAKE_EXAMPLE(DragEx), MAKE_EXAMPLE(TweenEx),
 			MAKE_EXAMPLE(ImageEx), MAKE_EXAMPLE(ControlsEx), MAKE_EXAMPLE(
@@ -124,7 +125,7 @@ int main(int argc, char *argv[]) {
 			MAKE_EXAMPLE(MeshPickerEx), MAKE_EXAMPLE(IntersectorEx), MAKE_EXAMPLE(
 					MeshSmoothEx), MAKE_EXAMPLE(ColorSpaceEx), MAKE_EXAMPLE(
 					MeshPrimitivesEx),MAKE_EXAMPLE(MenuEx),MAKE_EXAMPLE(LocatorEx),
-					MAKE_EXAMPLE(GraphEx),MAKE_EXAMPLE(WindowPaneEx)};
+					MAKE_EXAMPLE(GraphEx),MAKE_EXAMPLE(WindowPaneEx),MAKE_EXAMPLE(SplineEx)};
 	try {
 		//Example name is specified in a makefile at compile time so 
 		//all example applications are compiled to seperate exe targets.

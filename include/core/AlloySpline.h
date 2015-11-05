@@ -82,13 +82,11 @@ namespace aly {
 			}
 			spline->split(u);
 		}
-		vec<float,C> evaluate(const float u) const {
+		TsDeBoorNet& evaluate(const float u) const {
 			if (spline.get() == nullptr) {
 				throw std::runtime_error("Spline not intialized. call build() first.");
 			}
-			vec<float, C> v;
-			std::memcpy(&v[0], spline->evaluate(u).result,sizeof(vec<float,C>));
-			return v;
+			return spline->evaluate(u);
 		}
 		void convertToBeziers() {
 			if (spline.get() == nullptr) {
@@ -102,6 +100,10 @@ namespace aly {
 			spline->setupKnots(static_cast<tsBSplineType>(type));
 		}
 		BSpline(size_t sz) :Vector(sz) {
+		}
+		BSpline() :Vector(){
+		}
+		BSpline(const BSpline& spline) :Vector(spline.data) {
 		}
 		BSpline(const Vector<float, C>& V,const SplineType& type, int deg) :Vector(V) {
 			build(type, deg);
