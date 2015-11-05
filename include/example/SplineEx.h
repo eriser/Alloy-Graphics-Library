@@ -26,7 +26,7 @@
 #include "AlloySpline.h"
 class SplineEx: public aly::Application {
 protected:
-	aly::BSpline2f spline;
+	//aly::BSpline2f spline;
 public:
 	SplineEx();
 	bool init(aly::Composite& rootNode);

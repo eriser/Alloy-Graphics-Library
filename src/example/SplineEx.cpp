@@ -24,45 +24,63 @@
 
 using namespace aly;
 SplineEx::SplineEx() :
-		Application(800, 600, "Spline Example") {
+	Application(600, 600, "Spline Example") {
 }
 bool SplineEx::init(Composite& rootNode) {
-	spline.push_back(float2(-1.75, -1.0f));
-	spline.push_back(float2(-1.5, -0.5f));
-	spline.push_back(float2(-1.5, 0.0f));
-	spline.push_back(float2(-1.25, 0.5f));
-	spline.push_back(float2(-0.75, 0.75f));
-	spline.push_back(float2(0.0f, 0.5f));
-	spline.push_back(float2(0.5f, 0.0f));
-	spline.build(SplineType::Clamp, 3);
-	std::pair<float2, float2> range = std::pair<float2, float2>(float2(-2,-2),float2(2,2));
-	DrawPtr draw = DrawPtr(new Draw("B-Spline", CoordPX(0.0f, 0.0f), CoordPercent(1.0f, 1.0f)));
+	//SANITY_CHECK_BSPLINE();
+	Vector2f controlPt;
+	controlPt.push_back(float2(-1.75, -1.0f));
+	controlPt.push_back(float2(-1.5, -0.5f));
+	controlPt.push_back(float2(-1.5, 0.0f));
+	controlPt.push_back(float2(-1.25, 0.5f));
+	controlPt.push_back(float2(-0.75, 0.75f));
+	controlPt.push_back(float2(0.0f, 0.5f));
+	controlPt.push_back(float2(0.5f, 0.0f));
+	BSpline2f bspline(controlPt, SplineType::Clamp, 3);
+	int N = 100;
+	Vector2f pts(N+1);
+	for (int n = 0;n <= N;n++) {
+		pts[n] = bspline.evaluate(n / (float)N);
+	}
+	std::pair<float2, float2> range = pts.range();
+	DrawPtr draw = DrawPtr(new Draw("B-Spline", CoordPX(30.0f, 30.0f), CoordPerPX(1.0f, 1.0f,-60.0f,-60.0f)));
+	draw->setAspectRule(AspectRule::FixedHeight);
+	float2 dims = range.second - range.first;
+	dims =float2(std::max(dims.x, dims.y));
+	range.second = range.first + dims;
+	draw->setAspectRatio(1.0f);
 	draw->onDraw = [=](const AlloyContext* context, const box2px& bounds) {
-		
+
 		NVGcontext* nvg = context->nvgContext;
-		int N = 10;
-		nvgStrokeWidth(nvg, 2.0f);
-		nvgStrokeColor(nvg, Color(128, 128, 255));
-		for (int n = 0;n <= N;n++) {
-			float u = n /(float)N;
-			TsDeBoorNet net = spline.evaluate(u);
-			float* pts = net.points();
-			if (net.nPoints() > 0) {
-				float2 pt = float2(pts[0], pts[1]);
-				pt = (pt - range.first) / (range.second - range.first);
-				pt.y = 1.0f - pt.y;
-				pt = pt*bounds.dimensions + bounds.position;
-				nvgBeginPath(nvg);
-				nvgMoveTo(nvg, pt.x, pt.y);
-				for (int k = 1;k < net.nPoints();k++) {
-					pt = float2(pts[2 * k], pts[2 * k + 1]);
-					pt = (pt - range.first) / (range.second - range.first);
-					pt.y = 1.0f - pt.y;
-					pt = pt*bounds.dimensions + bounds.position;
-					nvgLineTo(nvg, pt.x, pt.y);
-				}
-				nvgStroke(nvg);
-			}
+		nvgStrokeWidth(nvg, 3.0f);
+		nvgStrokeColor(nvg, Color(64, 128, 255));
+		
+		float2 pt = pts[0];
+		pt = (pt - range.first) / (range.second - range.first);
+		pt.y = 1.0f - pt.y;
+		pt = pt*bounds.dimensions + bounds.position;
+		nvgLineCap(nvg, NVG_ROUND);
+		nvgBeginPath(nvg);
+		nvgMoveTo(nvg, pt.x, pt.y);
+		for (int n = 1;n < pts.size();n++) {
+			float2 pt = pts[n];
+			pt = (pt - range.first) / (range.second - range.first);
+			pt.y = 1.0f - pt.y;
+			pt = pt*bounds.dimensions + bounds.position;
+			nvgLineTo(nvg, pt.x, pt.y);
+			
+		}
+		nvgStroke(nvg);
+		nvgFillColor(nvg,Color(255, 255, 255));
+		for (int n = 0;n <controlPt.size();n++) {
+
+			nvgBeginPath(nvg);
+			float2 pt = controlPt[n];
+			pt = (pt - range.first) / (range.second - range.first);
+			pt.y = 1.0f - pt.y;
+			pt = pt*bounds.dimensions + bounds.position;
+			nvgCircle(nvg, pt.x, pt.y,6);
+			nvgFill(nvg);
 		}
 	};
 	rootNode.add(draw);
