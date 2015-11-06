@@ -35,9 +35,7 @@ protected:
 	std::pair<aly::float2, aly::float2> range;
 	aly::DrawPtr draw;
 	int selectedControlPoint = -1;
-	int selectedKnotPoint = -1;
 	int mouseDownControlPoint = -1;
-	int mouseDownKnotPoint = -1;
 	void update();
 public:
 	SplineEx();

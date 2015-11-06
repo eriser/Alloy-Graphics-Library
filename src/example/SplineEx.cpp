@@ -74,25 +74,18 @@ bool SplineEx::init(Composite& rootNode) {
 			
 		}
 		nvgStroke(nvg);
-		float r;
 		for (int n = 0;n <knotPoints.size();n++) {
-			if (n == selectedKnotPoint) {
-				nvgFillColor(nvg, Color(255, 128, 64));
-				r = 6;
-			}
-			else {
-				nvgFillColor(nvg, Color(255, 128, 64));
-				r = 4;
-			}
+			nvgFillColor(nvg, Color(255, 128, 64));
 			nvgBeginPath(nvg);
 			float2 pt = knotPoints[n];
 			pt = (pt - range.first) / (range.second - range.first);
 			pt.y = 1.0f - pt.y;
 			pt = pt*bounds.dimensions + bounds.position;
-			nvgCircle(nvg, pt.x, pt.y, r);
+			nvgCircle(nvg, pt.x, pt.y, 4);
 			nvgFill(nvg);
 		}
 		nvgStrokeWidth(nvg, 2.0f);
+		float r;
 		for (int n = 0;n <controlPoints.size();n++) {
 			if (n == selectedControlPoint) {
 				nvgFillColor(nvg, Color(255,255,255));
@@ -118,7 +111,6 @@ bool SplineEx::init(Composite& rootNode) {
 	};
 	draw->onMouseUp = [this](const AlloyContext* context, const InputEvent& e) {
 		mouseDownControlPoint = -1;
-		mouseDownKnotPoint = -1;
 		return false;
 	};
 	draw->onMouseOver=[this](const AlloyContext* context, const InputEvent& e) {
@@ -133,18 +125,7 @@ bool SplineEx::init(Composite& rootNode) {
 				break;
 			}
 		}
-		selectedKnotPoint = -1;
-		if (selectedControlPoint < 0) {
-			for (int n = 0;n < knotPoints.size();n++) {
-				float2 pt = (knotPoints[n] - range.first) / (range.second - range.first);
-				pt.y = 1.0f - pt.y;
-				pt = pt*bounds.dimensions + bounds.position;
-				if (distanceSqr(pt, e.cursor) < 36) {
-					selectedKnotPoint = n;
-					break;
-				}
-			}
-		}
+
 		if (context->isLeftMouseButtonDown()) {
 			if (mouseDownControlPoint >= 0) {
 				float2 pt = (e.cursor - bounds.position) / bounds.dimensions;
