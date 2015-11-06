@@ -30,7 +30,7 @@ void SplineEx::update() {
 	bspline.build(controlPoints, SplineType::Clamp, 3);
 	bspline.getKnots(knots);
 	knotPoints.resize(knots.size());
-	for (int n = 0;n < knots.size();n++) {
+	for (int n = 0;n < (int)knots.size();n++) {
 		knotPoints[n] = bspline.evaluate(knots[n].x);
 	}
 	int N = 100;
@@ -65,7 +65,7 @@ bool SplineEx::init(Composite& rootNode) {
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
 		nvgMoveTo(nvg, pt.x, pt.y);
-		for (int n = 1;n < curvePoints.size();n++) {
+		for (int n = 1;n < (int)curvePoints.size();n++) {
 			float2 pt = curvePoints[n];
 			pt = (pt - range.first) / (range.second - range.first);
 			pt.y = 1.0f - pt.y;
@@ -74,7 +74,7 @@ bool SplineEx::init(Composite& rootNode) {
 			
 		}
 		nvgStroke(nvg);
-		for (int n = 0;n <knotPoints.size();n++) {
+		for (int n = 0;n <(int)knotPoints.size();n++) {
 			nvgFillColor(nvg, Color(255, 128, 64));
 			nvgBeginPath(nvg);
 			float2 pt = knotPoints[n];
@@ -86,7 +86,7 @@ bool SplineEx::init(Composite& rootNode) {
 		}
 		nvgStrokeWidth(nvg, 2.0f);
 		float r;
-		for (int n = 0;n <controlPoints.size();n++) {
+		for (int n = 0;n <(int)controlPoints.size();n++) {
 			if (n == selectedControlPoint) {
 				nvgFillColor(nvg, Color(255,255,255));
 				r = 8;
@@ -116,7 +116,7 @@ bool SplineEx::init(Composite& rootNode) {
 	draw->onMouseOver=[this](const AlloyContext* context, const InputEvent& e) {
 		box2px bounds = draw->getBounds();
 		selectedControlPoint = -1;
-		for (int n = 0;n < controlPoints.size();n++) {
+		for (int n = 0;n <(int) controlPoints.size();n++) {
 			float2 pt = (controlPoints[n] - range.first) / (range.second - range.first);
 			pt.y = 1.0f - pt.y;
 			pt = pt*bounds.dimensions + bounds.position;

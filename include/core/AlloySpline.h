@@ -85,7 +85,8 @@ namespace aly {
 			if (n >= spline.nCtrlp()) {
 				throw std::runtime_error(MakeString() << "Control point index out of range " << n << "/" << spline.nCtrlp());
 			}
-			std::memcpy(&value[0], &spline.ctrlp()[C*n], sizeof(vec<float, C>));
+			vec<float, C> out;
+			std::memcpy(&out[0], &spline.ctrlp()[C*n], sizeof(vec<float, C>));
 		}
 		void getKnots(std::vector<float>& v) const {
 			v.resize(spline.nKnots());
