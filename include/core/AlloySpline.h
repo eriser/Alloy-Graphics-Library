@@ -102,7 +102,14 @@ namespace aly {
 		void convertToBeziers() {
 			spline.toBeziers();
 		}
-		BSpline(const Vector<float, C>& V,const SplineType& type, int deg):spline(deg,C,V.size(),static_cast<tsBSplineType>(type))  {
+		BSpline() {
+		}
+		void build(const Vector<float, C>& V, const SplineType& type, int deg) {
+			spline = TsBSpline(deg, C, V.size(), static_cast<tsBSplineType>(type));
+			std::memcpy(spline.ctrlp(), V.ptr(), V.size()*V.typeSize());
+			spline.setupKnots(static_cast<tsBSplineType>(type));
+		}
+		BSpline(const Vector<float, C>& V,const SplineType& type, int deg):spline(deg, C, V.size(), static_cast<tsBSplineType>(type)) {
 			std::memcpy(spline.ctrlp(), V.ptr(), V.size()*V.typeSize());
 			spline.setupKnots(static_cast<tsBSplineType>(type));
 		}

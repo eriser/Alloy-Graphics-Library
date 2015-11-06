@@ -26,44 +26,47 @@ using namespace aly;
 SplineEx::SplineEx() :
 	Application(600, 600, "Spline Example") {
 }
-bool SplineEx::init(Composite& rootNode) {
-	//SANITY_CHECK_BSPLINE();
-	Vector2f controlPt;
-	controlPt.push_back(float2(-1.75, -1.0f));
-	controlPt.push_back(float2(-1.5, -0.5f));
-	controlPt.push_back(float2(-1.5, 0.0f));
-	controlPt.push_back(float2(-1.25, 0.5f));
-	controlPt.push_back(float2(-0.75, 0.75f));
-	controlPt.push_back(float2(0.0f, 0.5f));
-	controlPt.push_back(float2(0.5f, 0.0f));
-	BSpline2f bspline(controlPt, SplineType::Clamp, 3);
-	int N = 100;
-	Vector2f pts(N+1);
-	for (int n = 0;n <= N;n++) {
-		pts[n] = bspline.evaluate(n / (float)N);
+void SplineEx::update() {
+	bspline.build(controlPoints, SplineType::Clamp, 3);
+	bspline.getKnots(knots);
+	knotPoints.resize(knots.size());
+	for (int n = 0;n < knots.size();n++) {
+		knotPoints[n] = bspline.evaluate(knots[n].x);
 	}
-	std::pair<float2, float2> range = pts.range();
-	DrawPtr draw = DrawPtr(new Draw("B-Spline", CoordPX(30.0f, 30.0f), CoordPerPX(1.0f, 1.0f,-60.0f,-60.0f)));
-	draw->setAspectRule(AspectRule::FixedHeight);
-	float2 dims = range.second - range.first;
-	dims =float2(std::max(dims.x, dims.y));
-	range.second = range.first + dims;
-	draw->setAspectRatio(1.0f);
-	draw->onDraw = [=](const AlloyContext* context, const box2px& bounds) {
+	int N = 100;
+	curvePoints.resize(N + 1);
+	for (int n = 0;n <= N;n++) {
+		curvePoints[n] = bspline.evaluate(n / (float)N);
+	}
 
+}
+bool SplineEx::init(Composite& rootNode) {
+	controlPoints.push_back(float2(-1.75, -1.0f));
+	controlPoints.push_back(float2(-1.5, -0.5f));
+	controlPoints.push_back(float2(-1.5, 0.0f));
+	controlPoints.push_back(float2(-1.25, 0.5f));
+	controlPoints.push_back(float2(-0.75, 0.75f));
+	controlPoints.push_back(float2(0.0f, 0.5f));
+	controlPoints.push_back(float2(0.5f, 0.0f));
+	range = std::pair<float2, float2>(float2(-2, -2), float2(1, 1));
+	update();
+	draw = DrawPtr(new Draw("B-Spline", CoordPX(0.0f,0.0f), CoordPercent(1.0f, 1.0f)));
+	draw->setAspectRule(AspectRule::FixedHeight);
+	draw->setAspectRatio(1.0f);
+
+	draw->onDraw = [this](const AlloyContext* context, const box2px& bounds) {
 		NVGcontext* nvg = context->nvgContext;
 		nvgStrokeWidth(nvg, 3.0f);
 		nvgStrokeColor(nvg, Color(64, 128, 255));
-		
-		float2 pt = pts[0];
+		float2 pt = curvePoints[0];
 		pt = (pt - range.first) / (range.second - range.first);
 		pt.y = 1.0f - pt.y;
 		pt = pt*bounds.dimensions + bounds.position;
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
 		nvgMoveTo(nvg, pt.x, pt.y);
-		for (int n = 1;n < pts.size();n++) {
-			float2 pt = pts[n];
+		for (int n = 1;n < curvePoints.size();n++) {
+			float2 pt = curvePoints[n];
 			pt = (pt - range.first) / (range.second - range.first);
 			pt.y = 1.0f - pt.y;
 			pt = pt*bounds.dimensions + bounds.position;
@@ -71,17 +74,87 @@ bool SplineEx::init(Composite& rootNode) {
 			
 		}
 		nvgStroke(nvg);
-		nvgFillColor(nvg,Color(255, 255, 255));
-		for (int n = 0;n <controlPt.size();n++) {
-
+		float r;
+		for (int n = 0;n <knotPoints.size();n++) {
+			if (n == selectedKnotPoint) {
+				nvgFillColor(nvg, Color(255, 128, 64));
+				r = 6;
+			}
+			else {
+				nvgFillColor(nvg, Color(255, 128, 64));
+				r = 4;
+			}
 			nvgBeginPath(nvg);
-			float2 pt = controlPt[n];
+			float2 pt = knotPoints[n];
 			pt = (pt - range.first) / (range.second - range.first);
 			pt.y = 1.0f - pt.y;
 			pt = pt*bounds.dimensions + bounds.position;
-			nvgCircle(nvg, pt.x, pt.y,6);
+			nvgCircle(nvg, pt.x, pt.y, r);
 			nvgFill(nvg);
 		}
+		nvgStrokeWidth(nvg, 2.0f);
+		for (int n = 0;n <controlPoints.size();n++) {
+			if (n == selectedControlPoint) {
+				nvgFillColor(nvg, Color(255,255,255));
+				r = 8;
+			} else {
+				nvgFillColor(nvg, Color(192,192,192));
+				r = 6;
+			}
+			nvgBeginPath(nvg);
+			float2 pt = controlPoints[n];
+			pt = (pt - range.first) / (range.second - range.first);
+			pt.y = 1.0f - pt.y;
+			pt = pt*bounds.dimensions + bounds.position;
+			nvgCircle(nvg, pt.x, pt.y,r);
+			nvgFill(nvg);
+		}
+	};
+	draw->onMouseDown = [this](const AlloyContext* context, const InputEvent& e) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			mouseDownControlPoint = selectedControlPoint;
+		}
+		return false;
+	};
+	draw->onMouseUp = [this](const AlloyContext* context, const InputEvent& e) {
+		mouseDownControlPoint = -1;
+		mouseDownKnotPoint = -1;
+		return false;
+	};
+	draw->onMouseOver=[this](const AlloyContext* context, const InputEvent& e) {
+		box2px bounds = draw->getBounds();
+		selectedControlPoint = -1;
+		for (int n = 0;n < controlPoints.size();n++) {
+			float2 pt = (controlPoints[n] - range.first) / (range.second - range.first);
+			pt.y = 1.0f - pt.y;
+			pt = pt*bounds.dimensions + bounds.position;
+			if (distanceSqr(pt, e.cursor) <36) {
+				selectedControlPoint = n;
+				break;
+			}
+		}
+		selectedKnotPoint = -1;
+		if (selectedControlPoint < 0) {
+			for (int n = 0;n < knotPoints.size();n++) {
+				float2 pt = (knotPoints[n] - range.first) / (range.second - range.first);
+				pt.y = 1.0f - pt.y;
+				pt = pt*bounds.dimensions + bounds.position;
+				if (distanceSqr(pt, e.cursor) < 36) {
+					selectedKnotPoint = n;
+					break;
+				}
+			}
+		}
+		if (context->isLeftMouseButtonDown()) {
+			if (mouseDownControlPoint >= 0) {
+				float2 pt = (e.cursor - bounds.position) / bounds.dimensions;
+				pt.y = 1.0f - pt.y;
+				pt = pt*(range.second - range.first) + range.first;
+				controlPoints[mouseDownControlPoint] = pt;
+				update();
+			}
+		}
+		return false;
 	};
 	rootNode.add(draw);
 	return true;
