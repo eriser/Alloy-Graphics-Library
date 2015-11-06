@@ -24,9 +24,19 @@
 
 #include "AlloyApplication.h"
 #include "AlloySpline.h"
+#include "AlloyVector.h"
 class SplineEx: public aly::Application {
 protected:
-	aly::BSpline2f spline;
+	aly::Vector2f controlPoints;
+	aly::Vector1f knots;
+	aly::Vector2f knotPoints;
+	aly::Vector2f curvePoints;
+	aly::BSpline2f bspline;
+	std::pair<aly::float2, aly::float2> range;
+	aly::DrawPtr draw;
+	int selectedControlPoint = -1;
+	int mouseDownControlPoint = -1;
+	void update();
 public:
 	SplineEx();
 	bool init(aly::Composite& rootNode);

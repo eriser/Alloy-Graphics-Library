@@ -177,7 +177,15 @@ float* TsBSpline::knots()
 {
     return bspline.knots;
 }
+const float* TsBSpline::ctrlp() const
+{
+	return bspline.ctrlp;
+}
 
+const float* TsBSpline::knots() const 
+{
+	return bspline.knots;
+}
 tsBSpline* TsBSpline::data()
 {
     return &bspline;

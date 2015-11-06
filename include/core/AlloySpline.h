@@ -26,87 +26,92 @@ namespace aly {
 	enum class SplineType {
 		Open = TS_OPENED,
 		Clamp = TS_CLAMPED,
-		NONE = TS_NONE,
+		Undefined = TS_NONE,
 	};
 	bool SANITY_CHECK_BSPLINE();
-	template<int C> class BSpline : public Vector<float, C> {
+	template<int C> class BSpline {
 	protected:
-		std::unique_ptr<TsBSpline> spline;
+		TsBSpline spline;
 	public:
-
 		size_t getDegree() const {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			return spline->deg();
+			return spline.deg();
 		}
 		size_t getOrder() const {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			return spline->order();
+			return spline.order();
 		}
 		size_t getDimension() const {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			return spline->dim();
+			return spline.dim();
 		}
 		size_t getNumControlPoints() const {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			return spline->nCtrlp();
+			return spline.nCtrlp();
 		}
 		size_t getNumKnots() const {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			return spline->nKnots();
+			return spline.nKnots();
 		}
 		void setBuckle(const float b) {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			spline->buckle(b);
+			spline.buckle(b);
 		}
-		void insertKnot(const size_t index, const float u) {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			spline->insertKnot(u, index);
+		void insertKnot(float u, size_t multiplicity) {
+			spline.insertKnot(u, multiplicity);
 		}
 		void splitAt(const float u) {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			spline->split(u);
+			spline.split(u);
 		}
-		TsDeBoorNet evaluate(const float u) const {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
+		vec<float,C> evaluate(const float u) const {
+			TsDeBoorNet net=spline.evaluate(u);
+			vec<float, C> out;
+			std::memcpy(&out[0], net.result(), sizeof(vec<float, C>));
+			return out;
+		}
+		float getKnot(size_t n) const {
+			if (n >= spline.nKnots()) {
+				throw std::runtime_error(MakeString()<<"Knot index out of range " << n << "/" << spline.nKnots());
 			}
-			return spline->evaluate(u);
+			return spline.knots()[n];
+		}
+		void setKnot(size_t n, float value) {
+			if (n >= spline.nKnots()) {
+				throw std::runtime_error(MakeString() << "Knot index out of range " << n << "/" << spline.nKnots());
+			}
+			spline.knots()[n]=value;
+		}
+		void setControlPoint(size_t n, vec<float,C> value) {
+			if (n >= spline.nCtrlp()) {
+				throw std::runtime_error(MakeString() << "Control point index out of range " << n << "/" << spline.nCtrlp());
+			}
+			std::memcpy(&spline.ctrlp()[C*n], &value[0], sizeof(vec<float, C>));
+		}
+		vec<float, C> getControlPoint(size_t n) const {
+			if (n >= spline.nCtrlp()) {
+				throw std::runtime_error(MakeString() << "Control point index out of range " << n << "/" << spline.nCtrlp());
+			}
+			std::memcpy(&value[0], &spline.ctrlp()[C*n], sizeof(vec<float, C>));
+		}
+		void getKnots(std::vector<float>& v) const {
+			v.resize(spline.nKnots());
+			std::memcpy(v.data(),spline.knots(),v.size()*sizeof(float));
+		}
+		void getKnots(Vector1f& v) const {
+			v.resize(spline.nKnots());
+			std::memcpy(v.ptr(), spline.knots(), v.size()*v.typeSize());
+		}
+		void getControlPoints(Vector<float,C>& v) const {
+			v.resize(spline.nCtrlp());
+			std::memcpy(v.ptr(), spline.ctrlp(),v.size()*v.typeSize());
 		}
 		void convertToBeziers() {
-			if (spline.get() == nullptr) {
-				throw std::runtime_error("Spline not intialized. call build() first.");
-			}
-			spline->toBeziers();
+			spline.toBeziers();
 		}
-		void build(const SplineType& type = SplineType::Open, int deg = 3) {
-			spline = std::unique_ptr<TsBSpline>(new TsBSpline(this->ptr(),this->size(),3));
-			spline->setDeg(deg);
-			spline->setupKnots(static_cast<tsBSplineType>(type));
+		BSpline() {
 		}
-		BSpline(size_t sz) :Vector<float,C>(sz) {
+		void build(const Vector<float, C>& V, const SplineType& type, int deg) {
+			spline = TsBSpline(deg, C, V.size(), static_cast<tsBSplineType>(type));
+			std::memcpy(spline.ctrlp(), V.ptr(), V.size()*V.typeSize());
+			spline.setupKnots(static_cast<tsBSplineType>(type));
 		}
-		BSpline() :Vector<float,C>(){
-		}
-		BSpline(const BSpline& spline) :Vector<float,C>(spline.data) {
-		}
-		BSpline(const Vector<float, C>& V,const SplineType& type, int deg) :Vector<float,C>(V) {
-			build(type, deg);
+		BSpline(const Vector<float, C>& V,const SplineType& type, int deg):spline(deg, C, V.size(), static_cast<tsBSplineType>(type)) {
+			std::memcpy(spline.ctrlp(), V.ptr(), V.size()*V.typeSize());
+			spline.setupKnots(static_cast<tsBSplineType>(type));
 		}
 	};
 	typedef BSpline<2> BSpline2f;

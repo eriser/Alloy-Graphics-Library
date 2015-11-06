@@ -66,6 +66,8 @@ public:
     size_t nKnots() const;
     float* ctrlp();
     float* knots();
+	const float* ctrlp() const;
+	const float* knots() const;
     tsBSpline* data();
     
     void setDeg(const size_t deg);
