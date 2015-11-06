@@ -46,9 +46,29 @@
 #endif
 namespace aly {
 bool SANITY_CHECK_BSPLINE() {
-	BSpline2f spline(100);
-	spline.build();
-	spline.convertToBeziers();
+	Vector2f controlPt;
+	controlPt.push_back(float2(-1.75, -1.0f));
+	controlPt.push_back(float2(-1.5, -0.5f));
+	controlPt.push_back(float2(-1.5, 0.0f));
+	controlPt.push_back(float2(-1.25, 0.5f));
+	controlPt.push_back(float2(-0.75, 0.75f));
+	controlPt.push_back(float2(0.0f, 0.5f));
+	controlPt.push_back(float2(0.5f, 0.0f));
+	BSpline2f bspline(controlPt, SplineType::Clamp, 3);
+
+	int N = 100;
+	Vector2f pts(N + 1);
+	Vector1f knots;
+	Vector2f controlPts;
+	bspline.getKnots(knots);
+	bspline.getControlPoints(controlPts);
+	std::cout << "Knots\n" << knots << std::endl;
+	std::cout << "Control Points\n" << controlPts << std::endl;
+	for (int n = 0;n <= N;n++) {
+		pts[n] = bspline.evaluate(n / (float)N);
+	}
+	std::cout << "Curve Points\n" << pts << std::endl;
+	return true;
 }
 bool SANITY_CHECK_LOCATOR() {
 
