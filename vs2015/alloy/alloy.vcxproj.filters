@@ -132,6 +132,9 @@
     <ClCompile Include="..\..\src\core\AlloyIntersector.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\AlloyDistanceField.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\core\Alloy.h">
@@ -312,6 +315,12 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\AlloySpline.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\AlloyDistanceField.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\BinaryMinHeap.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -28,6 +28,7 @@
     <ClCompile Include="..\..\src\core\AlloyDelaunay.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDenseMatrix.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDenseSolve.cpp" />
+    <ClCompile Include="..\..\src\core\AlloyDistanceField.cpp" />
     <ClCompile Include="..\..\src\core\AlloyDrawUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyFileUtil.cpp" />
     <ClCompile Include="..\..\src\core\AlloyImage.cpp" />
@@ -72,6 +73,7 @@
     <ClInclude Include="..\..\include\core\AlloyDelaunay.h" />
     <ClInclude Include="..\..\include\core\AlloyDenseMatrix.h" />
     <ClInclude Include="..\..\include\core\AlloyDenseSolve.h" />
+    <ClInclude Include="..\..\include\core\AlloyDistanceField.h" />
     <ClInclude Include="..\..\include\core\AlloyDrawUtil.h" />
     <ClInclude Include="..\..\include\core\AlloyEnum.h" />
     <ClInclude Include="..\..\include\core\AlloyFilesystem.h" />
@@ -94,6 +96,7 @@
     <ClInclude Include="..\..\include\core\AlloyVolume.h" />
     <ClInclude Include="..\..\include\core\AlloyWidget.h" />
     <ClInclude Include="..\..\include\core\AlloyWorker.h" />
+    <ClInclude Include="..\..\include\core\BinaryMinHeap.h" />
     <ClInclude Include="..\..\include\core\CommonShaders.h" />
     <ClInclude Include="..\..\include\core\fontstash.h" />
     <ClInclude Include="..\..\include\core\GLComponent.h" />
