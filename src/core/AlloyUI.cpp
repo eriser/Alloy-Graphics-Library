@@ -1377,8 +1377,12 @@ namespace aly {
 		float y = bounds.position.y;
 		float w = bounds.dimensions.x;
 		float h = bounds.dimensions.y;
+		if(hover){
+			context->setCursor(&Cursor::TextInsert);
+		}
 		if (backgroundColor->a > 0) {
 			if (hover) {
+
 				nvgBeginPath(nvg);
 				nvgRoundedRect(nvg, x, y, w, h, context->theme.CORNER_RADIUS);
 				nvgFillColor(nvg, *backgroundColor);

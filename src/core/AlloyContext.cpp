@@ -55,7 +55,7 @@ namespace aly {
 	const Cursor Cursor::Horizontal(0xf07e, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
 	const Cursor Cursor::Vertical(0xf07d, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
 	const Cursor Cursor::Position(0xf047, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
-	const Cursor Cursor::TextInsert(0xf246, 24.0f);
+	const Cursor Cursor::TextInsert(0xf246, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
 	const Cursor Cursor::SlantDown(0xf07d, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER, FontType::Icon, -ALY_PI_4);
 	const Cursor Cursor::SlantUp(0xf07d, 24.0f, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER,FontType::Icon, ALY_PI_4);
 	void Cursor::draw(AlloyContext* context) const {
