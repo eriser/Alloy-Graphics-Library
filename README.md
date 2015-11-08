@@ -37,6 +37,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - Mesh primitives for box, icosahedron, sphere, cylinder, torus, plane, cone, pyramid, frustum, capsule, tessellated sphere, grid, and asteroid.
 
 ## Future Work
+- Message pop-ups, number field. 
 - Active contour segmentation
 - Iso-contour / Iso-surface
 - Visual programming UI
