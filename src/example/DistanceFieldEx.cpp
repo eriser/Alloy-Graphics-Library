@@ -27,12 +27,10 @@ DistanceFieldEx::DistanceFieldEx() :
 		Application(800, 600, "Distance Field Example") {
 }
 bool DistanceFieldEx::init(Composite& rootNode) {
-
 	//SANITY_CHECK_DISTANCE_FIELD();
 	int w = getContext()->width();
 	int h = getContext()->height();
 	GLFrameBuffer renderBuffer;
-
 	//Render text to image
 	NVGcontext* nvg = getContext()->nvgContext;
 	renderBuffer.initialize(w, h);
@@ -49,12 +47,13 @@ bool DistanceFieldEx::init(Composite& rootNode) {
 	FlipVertical(img);
 	Image1f gray, distField;
 	ConvertImage(img, gray);
-
-	//Make boundary of letter gray==0
+	//Make boundary == 0, outside == 0.5 inside == -0.5
 	gray -= float1(0.5f);
 	const float maxDistance = 40.0f;
 	DistanceField2f df;
+	//Solve distance field out to +/- 40 pixels
 	df.solve(gray, distField, maxDistance);
+	//Normalize distance field range so it can be rendered as gray scale image.
 	distField = (distField + float1(maxDistance)) / float1(2.0f * maxDistance);
 	GlyphRegionPtr imageRegion = MakeGlyphRegion(createImageGlyph(distField),
 			CoordPX(0.0f, 0.0f), CoordPercent(1.0f,1.0f), AspectRule::FixedHeight,
