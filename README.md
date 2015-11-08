@@ -1,7 +1,7 @@
 Alloy
 ========
 
-Alloy is yet another graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast development, tweaking, and visualization on windows and linux platforms (unsure about mac, buy me a mac and I'll make sure it works ^_^).
+Alloy is yet another graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast prototyping and visualization on windows and linux platforms (unsure about mac, buy me a mac and I'll make sure it works ^_^).
 
 ## Contents
 - Anti-aliased 2D graphics drawing (NanoVG).
@@ -33,6 +33,13 @@ Alloy is yet another graphics library written in C++11. As mundane as that sound
 - Cross-Platform file system IO.
 - NURB curves, B-Splines, and Beziers (tinyspline).
 - Mesh primitives for box, icosahedron, sphere, cylinder, torus, plane, cone, pyramid, frustum, capsule, tessellated sphere, grid, and asteroid.
+
+## Future Work
+- Active contour segmentation
+- Anisotropic diffusion image filter
+- KAZE features
+- DAISY features
+- Spring Level Sets
 
 ## Dependencies
 GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
