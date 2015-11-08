@@ -492,8 +492,8 @@ namespace aly {
 		distVol.resize(rows, cols);
 		distVol.set(float1(DISTANCE_UNDEFINED));
 
-		static const int neighborsX[6] = { 1, 0, -1, 0, 0, 0 };
-		static const int neighborsY[6] = { 0, 1, 0, -1, 0, 0 };
+		static const int neighborsX[4] = { 1, 0, -1, 0};
+		static const int neighborsY[4] = { 0, 1, 0, -1};
 		std::list<PixelIndex> voxelList;
 		PixelIndex* he = nullptr;
 
@@ -600,7 +600,7 @@ namespace aly {
 					if (labelVol(i, j) != ALIVE) {
 						continue;
 					}
-					for (koff = 0; koff < 6; koff++) {
+					for (koff = 0; koff < 4; koff++) {
 						ni = i + neighborsX[koff];
 						nj = j + neighborsY[koff];
 						if (nj < 0 || nj >= cols || ni < 0
@@ -665,7 +665,7 @@ namespace aly {
 				}
 				distVol(i, j).x = (he->value);
 				labelVol(i, j) = ALIVE;
-				for (koff = 0; koff < 6; koff++) {
+				for (koff = 0; koff < 4; koff++) {
 					ni = i + neighborsX[koff];
 					nj = j + neighborsY[koff];
 					if (nj < 0 || nj >= cols || ni < 0 || ni >= rows) {
