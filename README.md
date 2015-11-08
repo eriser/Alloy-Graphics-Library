@@ -44,7 +44,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - DAISY features
 - Spring Level Sets
 - Force directed graph
-- One Euro Filter
+- "One Euro" filter
 - 2D physics (box2D)
 
 ## Dependencies
