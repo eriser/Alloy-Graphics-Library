@@ -1,7 +1,7 @@
-Alloy
+Alloy Graphics Library
 ========
 
-Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast prototyping and visualization on windows and linux platforms (unsure about mac, buy me a mac and I'll make sure it works ^_^).
+Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast prototyping and visualization on windows and linux platforms.
 
 ## Contents
 - Anti-aliased 2D graphics drawing (NanoVG).
@@ -47,13 +47,13 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - 2D physics (box2D)
 
 ## Dependencies
-GLFW 3.1+ and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
+GLFW 3.1+ and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux (unsure about mac, buy me a mac and I'll make sure it works ^_^).
 
 ## License
 Alloy is <B>BSD licensed</B> and only uses libraries that also have a permissive license for commercial and academic use.
 
 
-Generic Units Example
+Absolute/Relative Positioning Example
 -------------------------
 ![UnitsEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0000.png)
 
