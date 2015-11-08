@@ -26,6 +26,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - Arbitrary mouse cursors.
 - Common shaders for deferred rendering in OpenGL 3.3 and higher.
 - Distance Field 2D/3D (fast-marching method).
+- Delaunay Triangulation.
 - Point Kd-Tree 2D/3D (libkdtree).
 - Approximate Nearest Neighbors in N-dimensions (nanoflann).
 - Mesh Kd-Tree (ray-intersection and closest point).
