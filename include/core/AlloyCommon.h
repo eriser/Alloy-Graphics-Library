@@ -21,6 +21,7 @@
 
 #ifndef ALLOYCOMMON_H_
 #define ALLOYCOMMON_H_
+#include "tinyformat.h"
 #include <iostream>
 #include <string>
 #include <sstream>
