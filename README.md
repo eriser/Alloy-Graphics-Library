@@ -37,11 +37,14 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 
 ## Future Work
 - Active contour segmentation
+- Visual programming UI
 - Anisotropic image diffusion
 - Gradient Vector Flow
 - KAZE features
 - DAISY features
 - Spring Level Sets
+- Force directed graph
+- 2D physics (box2D)
 
 ## Dependencies
 GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
