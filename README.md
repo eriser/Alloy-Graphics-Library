@@ -1,12 +1,14 @@
 Alloy
 ========
 
-Alloy is yet another graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast prototyping, interaction, and visualization.
+Alloy is yet another graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast prototyping, tweaking, and visualization.
 
 
-Dependencies: GLFW and GLEW. Source code for all other libraries is included in source code and cross-compiles on windows and linux.
+# Dependencies
+GLFW and GLEW. Source code for all other libraries is included in repository and cross-compiles on windows and linux.
 
-License: Alloy is BSD licensed and only uses libraries that also have a permissive licensed for commercial or academic use.
+# License
+Alloy is <B>BSD licensed</B> and only uses libraries that also have a permissive licensed for commercial or academic use.
 
 
 Generic Units Example
@@ -89,7 +91,7 @@ Poisson Fill Example
 -------------------------
 ![PoissonInpaintEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0019.png)
 
-Image Processing Filters Example
+Image Filter Example
 -------------------------
 ![ImageProcessingEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0020.png)
 
