@@ -22,7 +22,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - The "Any" class to enable methods with arbitrary left-hand return types.
 - Perspective and orthographic cameras with methods to transform from world to screen or vice versa.
 - "Awesome font" icons.
-- Windows screenshot (F11).
+- Window screenshot (F11).
 - Arbitrary mouse cursors.
 - Common shaders for deferred rendering in OpenGL 3.3 and higher.
 - Distance Field 2D/3D (fast-marching method).
