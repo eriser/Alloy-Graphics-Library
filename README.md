@@ -32,6 +32,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - SHA1, SHA-256, SHA-384, SHA-512.
 - Cross-Platform file system IO.
 - NURB curves, B-Splines, and Beziers (tinyspline).
+- Catmull-Clark and Loop mesh sub-division.
 - Mesh primitives for box, icosahedron, sphere, cylinder, torus, plane, cone, pyramid, frustum, capsule, tessellated sphere, grid, and asteroid.
 
 ## Future Work
