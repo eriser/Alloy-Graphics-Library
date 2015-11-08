@@ -24,6 +24,7 @@
 #include "AlloyMath.h"
 #include "AlloyVolume.h"
 namespace aly {
+	bool SANITY_CHECK_DISTANCE_FIELD();
 	class DistanceField3f {
 		typedef Indexable<float, 3> VoxelIndex;
 		typedef vec<int, 3> Coord;
@@ -31,11 +32,11 @@ namespace aly {
 		static const ubyte1 ALIVE;
 		static const ubyte1 NARROW_BAND;
 		static const ubyte1 FAR_AWAY;
-		BinaryMinHeap<float, 3> heap;
+
 		float march(float Nv, float Sv, float Ev, float Wv, float Fv, float Bv, int Nl, int Sl, int El, int Wl, int Fl, int Bl);
 	public:
-		DistanceField3f(const vec<size_t, 3>& dims) :heap(dims) {}
-		DistanceField3f(int rows, int cols, int slices) :DistanceField3f(vec<size_t, 3>(rows, cols, slices)) {}
+		static const float DISTANCE_UNDEFINED;
+		DistanceField3f()  {}
 		void solve(const Volume1f& vol, Volume1f& out,float maxDistance=2.5f);
 	};
 } /* namespace imagesci */

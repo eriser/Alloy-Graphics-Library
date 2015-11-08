@@ -1179,12 +1179,25 @@ double Intersector::intersectSegmentDistance(const float3& p1, const float3& p2,
 double Intersector::closestPointSignedDistance(const float3& r, float3& lastPoint,
 		KDTriangle*& lastTriangle) const {
 	double d = closestPoint(r, lastPoint, lastTriangle);
-	if (d >= 0) {
+	if (d >= 0&& d!=NO_HIT_DISTANCE) {
 		float3 norm = lastTriangle->getNormal();
 		float3 center = lastTriangle->getCentroid();
 		float3 diff = r - center;
 		return sign(dot(diff, norm)) * d;
 	} else {
+		return NO_HIT_DISTANCE;
+	}
+}
+double Intersector::closestPointSignedDistance(const float3& r,const float& maxDistance, float3& lastPoint,
+	KDTriangle*& lastTriangle) const {
+	double d = closestPoint(r, maxDistance, lastPoint, lastTriangle);
+	if (d >= 0&&d!= NO_HIT_DISTANCE) {
+		float3 norm = lastTriangle->getNormal();
+		float3 center = lastTriangle->getCentroid();
+		float3 diff = r - center;
+		return sign(dot(diff, norm)) * d;
+	}
+	else {
 		return NO_HIT_DISTANCE;
 	}
 }

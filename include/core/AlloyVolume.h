@@ -174,7 +174,7 @@ namespace aly {
 			return *this;
 		}
 		int3 dimensions() const {
-			return int2(rows, cols, slices);
+			return int3(rows, cols, slices);
 		}
 
 		size_t size() const {
@@ -805,16 +805,22 @@ namespace aly {
 		std::stringstream sstr;
 		sstr << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 		sstr << "<!-- MIPAV header file -->\n";
-		sstr
-			<< "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"4\">\n";
+		if (img.channels > 1) {
+			sstr << "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"4\">\n";
+		}
+		else {
+			sstr << "<image xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" nDimensions=\"3\">\n";
+		}
 		sstr << "	<Dataset-attributes>\n";
-		sstr << "		<Volume-offset>0</Volume-offset>\n";
+		sstr << "		<Image-offset>0</Image-offset>\n";
 		sstr << "		<Data-type>" << typeName << "</Data-type>\n";
 		sstr << "		<Endianess>Little</Endianess>\n";
 		sstr << "		<Extents>" << img.rows << "</Extents>\n";
 		sstr << "		<Extents>" << img.cols << "</Extents>\n";
 		sstr << "		<Extents>" << img.slices << "</Extents>\n";
-		sstr << "		<Extents>" << img.channels << "</Extents>\n";
+		if (img.channels > 1) {
+			sstr << "		<Extents>" << img.channels << "</Extents>\n";
+		}
 		sstr << "		<Resolutions>\n";
 		sstr << "			<Resolution>1.0</Resolution>\n";
 		sstr << "			<Resolution>1.0</Resolution>\n";
@@ -860,28 +866,34 @@ namespace aly {
 	typedef Volume<int, 1, ImageType::INT> VolumeAi;
 	typedef Volume<float, 1, ImageType::FLOAT> VolumeAf;
 
-	typedef Volume<uint8_t, 4, ImageType::UBYTE> Volume4b;
+	typedef Volume<int8_t, 4, ImageType::BYTE> Volume4b;
+	typedef Volume<uint8_t, 4, ImageType::UBYTE> Volume4ub;
 	typedef Volume<uint16_t, 4, ImageType::USHORT> Volume4us;
 	typedef Volume<int16_t, 4, ImageType::SHORT> Volume4s;
 	typedef Volume<int, 4, ImageType::INT> Volume4i;
 	typedef Volume<uint32_t, 4, ImageType::UINT> Volume4ui;
 	typedef Volume<float, 4, ImageType::FLOAT> Volume4f;
 
-	typedef Volume<uint8_t, 3, ImageType::UBYTE> Volume3b;
+	typedef Volume<int8_t, 3, ImageType::BYTE> Volume3b;
+	typedef Volume<uint8_t, 3, ImageType::UBYTE> Volume3ub;
 	typedef Volume<uint16_t, 3, ImageType::USHORT> Volume3us;
 	typedef Volume<int16_t, 3, ImageType::SHORT> Volume3s;
 	typedef Volume<int, 3, ImageType::INT> Volume3i;
 	typedef Volume<uint32_t, 3, ImageType::UINT> Volume3ui;
 	typedef Volume<float, 3, ImageType::FLOAT> Volume3f;
 
-	typedef Volume<uint8_t, 2, ImageType::UBYTE> Volume2b;
+
+	typedef Volume<int8_t, 2, ImageType::BYTE> Volume2b;
+	typedef Volume<uint8_t, 2, ImageType::UBYTE> Volume2ub;
 	typedef Volume<uint16_t, 2, ImageType::USHORT> Volume2us;
 	typedef Volume<int16_t, 2, ImageType::SHORT> Volume2s;
 	typedef Volume<int, 2, ImageType::INT> Volume2i;
 	typedef Volume<uint32_t, 2, ImageType::UINT> Volume2ui;
 	typedef Volume<float, 2, ImageType::FLOAT> Volume2f;
 
-	typedef Volume<uint8_t, 1, ImageType::UBYTE> Volume1b;
+
+	typedef Volume<int8_t, 1, ImageType::BYTE> Volume1b;
+	typedef Volume<uint8_t, 1, ImageType::UBYTE> Volume1ub;
 	typedef Volume<uint16_t, 1, ImageType::USHORT> Volume1us;
 	typedef Volume<int16_t, 1, ImageType::SHORT> Volume1s;
 

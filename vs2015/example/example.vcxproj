@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\src\example\CompositeEx.cpp" />
     <ClCompile Include="..\..\src\example\ControlsEx.cpp" />
     <ClCompile Include="..\..\src\example\DialogsEx.cpp" />
+    <ClCompile Include="..\..\src\example\DistanceFieldEx.cpp" />
     <ClCompile Include="..\..\src\example\DragEx.cpp" />
     <ClCompile Include="..\..\src\example\EventsEx.cpp" />
     <ClCompile Include="..\..\src\example\ExpandEx.cpp" />
@@ -57,6 +58,7 @@
     <ClInclude Include="..\..\include\example\CompositeEx.h" />
     <ClInclude Include="..\..\include\example\ControlsEx.h" />
     <ClInclude Include="..\..\include\example\DialogsEx.h" />
+    <ClInclude Include="..\..\include\example\DistanceFieldEx.h" />
     <ClInclude Include="..\..\include\example\DragEx.h" />
     <ClInclude Include="..\..\include\example\EventsEx.h" />
     <ClInclude Include="..\..\include\example\ExpandEx.h" />

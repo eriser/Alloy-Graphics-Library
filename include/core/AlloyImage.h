@@ -898,28 +898,33 @@ typedef Image<uint8_t, 1, ImageType::UBYTE> ImageA;
 typedef Image<int, 1, ImageType::INT> ImageAi;
 typedef Image<float, 1, ImageType::FLOAT> ImageAf;
 
-typedef Image<uint8_t, 4, ImageType::UBYTE> Image4b;
+typedef Image<int8_t, 4, ImageType::BYTE> Image4b;
+typedef Image<uint8_t, 4, ImageType::UBYTE> Image4ub;
 typedef Image<uint16_t, 4, ImageType::USHORT> Image4us;
 typedef Image<int16_t, 4, ImageType::SHORT> Image4s;
 typedef Image<int, 4, ImageType::INT> Image4i;
 typedef Image<uint32_t, 4, ImageType::UINT> Image4ui;
 typedef Image<float, 4, ImageType::FLOAT> Image4f;
 
-typedef Image<uint8_t, 3, ImageType::UBYTE> Image3b;
+typedef Image<int8_t, 3, ImageType::BYTE> Image3b;
+typedef Image<uint8_t, 3, ImageType::UBYTE> Image3ub;
 typedef Image<uint16_t, 3, ImageType::USHORT> Image3us;
 typedef Image<int16_t, 3, ImageType::SHORT> Image3s;
 typedef Image<int, 3, ImageType::INT> Image3i;
 typedef Image<uint32_t, 3, ImageType::UINT> Image3ui;
 typedef Image<float, 3, ImageType::FLOAT> Image3f;
 
-typedef Image<uint8_t, 2, ImageType::UBYTE> Image2b;
+typedef Image<int8_t, 2, ImageType::BYTE> Image2b;
+typedef Image<uint8_t, 2, ImageType::UBYTE> Image2ub;
 typedef Image<uint16_t, 2, ImageType::USHORT> Image2us;
 typedef Image<int16_t, 2, ImageType::SHORT> Image2s;
 typedef Image<int, 2, ImageType::INT> Image2i;
 typedef Image<uint32_t, 2, ImageType::UINT> Image2ui;
 typedef Image<float, 2, ImageType::FLOAT> Image2f;
 
-typedef Image<uint8_t, 1, ImageType::UBYTE> Image1b;
+
+typedef Image<int8_t, 1, ImageType::BYTE> Image1b;
+typedef Image<uint8_t, 1, ImageType::UBYTE> Image1ub;
 typedef Image<uint16_t, 1, ImageType::USHORT> Image1us;
 typedef Image<int16_t, 1, ImageType::SHORT> Image1s;
 
@@ -933,8 +938,8 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img);
 void WriteImageToFile(const std::string& file, const ImageRGBf& img);
 
 void WriteImageToFile(const std::string& file, const Image1f& img);
-void WriteImageToFile(const std::string& file, const Image1b& img);
-void ReadImageFromFile(const std::string& file, Image1b& img);
+void WriteImageToFile(const std::string& file, const Image1ub& img);
+void ReadImageFromFile(const std::string& file, Image1ub& img);
 void ReadImageFromFile(const std::string& file, Image1f& img);
 
 void ReadImageFromFile(const std::string& file, ImageRGBA& img);
@@ -1183,8 +1188,8 @@ template<class T, int C, ImageType I> void Tile(
 		}
 	}
 }
-void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB = true);
-void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB = true);
+void ConvertImage(const ImageRGBAf& in, Image1ub& out, bool sRGB = true);
+void ConvertImage(const ImageRGBf& in, Image1ub& out, bool sRGB = true);
 void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB = true);
 void ConvertImage(const ImageRGBA& in, Image1f& out, bool sRGB = true);
 

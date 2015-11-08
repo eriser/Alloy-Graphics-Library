@@ -224,6 +224,7 @@ namespace aly {
 			KDTriangle*& lastTriangle) const;
 		double closestPoint(const float3& pt,const float& maxDistance, float3& lastPoint,
 			KDTriangle*& lastTriangle) const;
+		double closestPointSignedDistance(const float3& r, const float& maxDistance, float3& lastPoint, KDTriangle*& lastTriangle) const;
 		double closestPointOutside(const float3& r, const float3& v,
 			float3& lastPoint, KDTriangle*& lastTriangle) const;
 
@@ -255,7 +256,6 @@ namespace aly {
 			KDTriangle* lastTriangle;
 			return closestPointOutside(r, v, lastPoint, lastTriangle);
 		}
-
 		double intersectRayDistance(const float3& p1, const float3& v) const {
 			float3 lastPoint;
 			KDTriangle* lastTriangle;
@@ -270,6 +270,11 @@ namespace aly {
 			float3 lastPoint;
 			KDTriangle* lastTriangle;
 			return closestPointSignedDistance(r, lastPoint, lastTriangle);
+		}
+		double closestPointSignedDistance(const float3& r, const float& maxDistance) const {
+			float3 lastPoint;
+			KDTriangle* lastTriangle;
+			return closestPointSignedDistance(r, maxDistance, lastPoint, lastTriangle);
 		}
 		double closestPoint(const float3& pt,const float& maxDistance) const{
 			float3 lastPoint;

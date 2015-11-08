@@ -70,7 +70,7 @@ void ConvertImage(const Image1f& in, ImageRGBf& out) {
 		out[i] = float3(lum, lum, lum);
 	}
 }
-void ConvertImage(const Image1b& in, ImageRGBAf& out) {
+void ConvertImage(const Image1ub& in, ImageRGBAf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
@@ -81,7 +81,7 @@ void ConvertImage(const Image1b& in, ImageRGBAf& out) {
 		out[i] = float4(lum, lum, lum, 1.0f);
 	}
 }
-void ConvertImage(const Image1b& in, ImageRGBf& out) {
+void ConvertImage(const Image1ub& in, ImageRGBf& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
@@ -92,7 +92,7 @@ void ConvertImage(const Image1b& in, ImageRGBf& out) {
 		out[i] = float3(lum, lum, lum);
 	}
 }
-void ConvertImage(const Image1b& in, ImageRGBA& out) {
+void ConvertImage(const Image1ub& in, ImageRGBA& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
@@ -103,7 +103,7 @@ void ConvertImage(const Image1b& in, ImageRGBA& out) {
 		out[i] = RGBA(lum, lum, lum, 255);
 	}
 }
-void ConvertImage(const Image1b& in, ImageRGB& out) {
+void ConvertImage(const Image1ub& in, ImageRGB& out) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
@@ -182,7 +182,7 @@ void ConvertImage(const ImageRGB& in, Image1f& out, bool sRGB) {
 		}
 	}
 }
-void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB) {
+void ConvertImage(const ImageRGBAf& in, Image1ub& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
@@ -208,7 +208,7 @@ void ConvertImage(const ImageRGBAf& in, Image1b& out, bool sRGB) {
 		}
 	}
 }
-void ConvertImage(const ImageRGBf& in, Image1b& out, bool sRGB) {
+void ConvertImage(const ImageRGBf& in, Image1ub& out, bool sRGB) {
 	out.resize(in.width, in.height);
 	out.id = in.id;
 	out.setPosition(in.position());
@@ -249,7 +249,7 @@ void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 		throw std::runtime_error(MakeString() << "Could not write " << file);
 	}
 }
-void WriteImageToFile(const std::string& file, const Image1b& image) {
+void WriteImageToFile(const std::string& file, const Image1ub& image) {
 	std::string ext = GetFileExtension(file);
 	if (ext == "png") {
 		if (!stbi_write_png(file.c_str(), image.width, image.height, 1,
@@ -293,7 +293,7 @@ void ReadImageFromFile(const std::string& file, ImageRGBA& image) {
 	image.set(img);
 	stbi_image_free(img);
 }
-void ReadImageFromFile(const std::string& file, Image1b& image) {
+void ReadImageFromFile(const std::string& file, Image1ub& image) {
 	std::string ext = GetFileExtension(file);
 	if (ext != "png" && ext != "tga" && ext != "bmp" && ext != "psd"
 			&& ext != "gif" && ext != "jpg") {
@@ -496,7 +496,7 @@ void ReadImageFromFile(const std::string& file, Image1f& img) {
 		img.set(data);
 		stbi_image_free(data);
 	} else {
-		Image1b rgb;
+		Image1ub rgb;
 		ReadImageFromFile(file, rgb);
 		img.resize(rgb.width, rgb.height);
 		img.id = rgb.id;
@@ -618,7 +618,7 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 					MakeString() << "Could not write " << file);
 		}
 	} else {
-		Image1b rgb;
+		Image1ub rgb;
 		rgb.resize(img.width, img.height);
 		rgb.id = img.id;
 		rgb.setPosition(img.position());

@@ -26,6 +26,7 @@ namespace aly {
 	const ubyte1 DistanceField3f::ALIVE = ubyte1((uint8_t)1);
 	const ubyte1 DistanceField3f::NARROW_BAND = ubyte1((uint8_t)2);
 	const ubyte1 DistanceField3f::FAR_AWAY = ubyte1((uint8_t)3);
+	const float DistanceField3f::DISTANCE_UNDEFINED=std::numeric_limits<float>::max();
 	/*
 		Sethian, J. A. (1999). Level set methods and fast marching methods: evolving interfaces 
 		in computational geometry, fluid mechanics, computer vision, and materials science (Vol. 3). 
@@ -94,6 +95,9 @@ namespace aly {
 		const int rows = vol.rows;
 		const int cols = vol.cols;
 		const int slices = vol.slices;
+		BinaryMinHeap<float, 3> heap(vol.dimensions());
+		distVol.resize(rows, cols, slices);
+		distVol.set(float1(DISTANCE_UNDEFINED));
 		int LX, HX, LY, HY, LZ, HZ;
 		short NSFlag, WEFlag, FBFlag;
 		int koff;
@@ -106,6 +110,7 @@ namespace aly {
 		std::list<VoxelIndex> voxelList;
 		VoxelIndex* he = nullptr;
 		float Nv = 0, Sv = 0, Wv = 0, Ev = 0, Fv = 0, Bv = 0, Cv = 0;
+		int8_t Ns = 0, Ss = 0, Ws = 0, Es = 0, Fs = 0, Bs = 0, Cs = 0;
 		ubyte1 Nl = 0;
 		ubyte1 Sl = 0;
 		ubyte1 Wl = 0;
@@ -113,98 +118,107 @@ namespace aly {
 		ubyte1 Fl = 0;
 		ubyte1 Bl = 0;
 		ubyte1 Cl = 0;
-		Volume1b labelVol(rows, cols, slices);
+		Volume1ub labelVol(rows, cols, slices);
+		Volume1b signVol(rows, cols, slices);
 		labelVol.set(FAR_AWAY);
-		int countAlive = 0;
+		size_t countAlive = 0;
 		for (int k = 0;k < slices;k++) {
 			for (int j = 0;j < cols;j++) {
 				for (int i = 0;i < rows;i++) {
-					if (vol(i, j, k).x == 0) {
+					Cv = vol(i, j, k).x;
+					
+					if (Cv == 0) {
+						signVol(i, j, k).x =0;
 						distVol(i, j, k).x = 0;
 						labelVol(i, j, k) = ALIVE;
 						countAlive++;
 					}
 					else {
-						LX = (i == 0) ? 1 : 0;
-						HX = (i == (rows - 1)) ? 1 : 0;
+						if (Cv != DISTANCE_UNDEFINED) {
+							signVol(i, j, k).x = (int8_t)aly::sign(Cv);
+							LX = (i == 0) ? 1 : 0;
+							HX = (i == (rows - 1)) ? 1 : 0;
 
-						LY = (j == 0) ? 1 : 0;
-						HY = (j == (cols - 1)) ? 1 : 0;
+							LY = (j == 0) ? 1 : 0;
+							HY = (j == (cols - 1)) ? 1 : 0;
 
-						LZ = (k == 0) ? 1 : 0;
-						HZ = (k == (slices - 1)) ? 1 : 0;
+							LZ = (k == 0) ? 1 : 0;
+							HZ = (k == (slices - 1)) ? 1 : 0;
 
-						NSFlag = 0;
-						WEFlag = 0;
-						FBFlag = 0;
+							NSFlag = 0;
+							WEFlag = 0;
+							FBFlag = 0;
 
-						Nv = vol(i, j - 1 + LY, k);
-						Sv = vol(i, j + 1 - HY, k);
-						Wv = vol(i - 1 + LX, j, k);
-						Ev = vol(i + 1 - HX, j, k);
-						Fv = vol(i, j, k + 1 - HZ);
-						Bv = vol(i, j, k - 1 + LZ);
-						Cv = vol(i, j, k);
-						if (Nv * Cv < 0) {
-							NSFlag = 1;
-							s = Nv;
-						}
-						if (Sv * Cv < 0) {
-							if (NSFlag == 0) {
+							Nv = vol(i, j - 1 + LY, k).x;
+							Sv = vol(i, j + 1 - HY, k).x;
+							Wv = vol(i - 1 + LX, j, k).x;
+							Ev = vol(i + 1 - HX, j, k).x;
+							Fv = vol(i, j, k + 1 - HZ).x;
+							Bv = vol(i, j, k - 1 + LZ).x;
+							if (Nv * Cv < 0&&Nv!=DISTANCE_UNDEFINED) {
 								NSFlag = 1;
-								s = Sv;
+								s = Nv;
 							}
-							else {
-								s = (std::abs(Nv) > std::abs(Sv)) ? Nv : Sv;
+							if (Sv * Cv < 0 &&Sv != DISTANCE_UNDEFINED) {
+								if (NSFlag == 0) {
+									NSFlag = 1;
+									s = Sv;
+								}
+								else {
+									s = (std::abs(Nv) > std::abs(Sv)) ? Nv : Sv;
+								}
 							}
-						}
-						if (Wv * Cv < 0) {
-							WEFlag = 1;
-							t = Wv;
-						}
-						if (Ev * Cv < 0) {
-							if (WEFlag == 0) {
+							if (Wv * Cv < 0 && Wv != DISTANCE_UNDEFINED) {
 								WEFlag = 1;
-								t = Ev;
+								t = Wv;
 							}
-							else {
-								t = (std::abs(Ev) > std::abs(Wv)) ? Ev : Wv;
+							if (Ev * Cv < 0 && Ev != DISTANCE_UNDEFINED) {
+								if (WEFlag == 0) {
+									WEFlag = 1;
+									t = Ev;
+								}
+								else {
+									t = (std::abs(Ev) > std::abs(Wv)) ? Ev : Wv;
+								}
 							}
-						}
-						if (Fv * Cv < 0) {
-							FBFlag = 1;
-							w = Fv;
-						}
-						if (Bv * Cv < 0) {
-							if (FBFlag == 0) {
+							if (Fv * Cv < 0 && Fv != DISTANCE_UNDEFINED) {
 								FBFlag = 1;
-								w = Bv;
+								w = Fv;
+							}
+							if (Bv * Cv < 0 && Bv != DISTANCE_UNDEFINED) {
+								if (FBFlag == 0) {
+									FBFlag = 1;
+									w = Bv;
+								}
+								else {
+									w = (std::abs(Fv) > std::abs(Bv)) ? Fv : Bv;
+								}
+							}
+							float result = 0;
+							if (NSFlag != 0) {
+								s = Cv / (Cv - s);
+								result += 1.0f / (s * s);
+							}
+							if (WEFlag != 0) {
+								t = Cv / (Cv - t);
+								result += 1.0f / (t * t);
+							}
+							if (FBFlag != 0) {
+								w = Cv / (Cv - w);
+								result += 1.0f / (w * w);
+							}
+							if (result == 0) {
+								distVol(i, j, k).x = 0;
 							}
 							else {
-								w = (std::abs(Fv) > std::abs(Bv)) ? Fv : Bv;
+								countAlive++;
+								labelVol(i, j, k) = ALIVE;
+								result = std::sqrt(result);
+								distVol(i, j, k).x = (float)(1.0 / result);
 							}
-						}
-						float result = 0;
-						if (NSFlag != 0) {
-							s = Cv / (Cv - s);
-							result += 1.0f / (s * s);
-						}
-						if (WEFlag != 0) {
-							t = Cv / (Cv - t);
-							result += 1.0f / (t * t);
-						}
-						if (FBFlag != 0) {
-							w = Cv / (Cv - w);
-							result += 1.0f / (w * w);
-						}
-						if (result == 0) {
-							distVol(i, j, k).x = 0;
 						}
 						else {
-							countAlive++;
-							labelVol(i, j, k) = ALIVE;
-							result = std::sqrt(result);
-							distVol(i, j, k).x = (float)(1.0 / result);
+							signVol(i, j, k).x = 0;
 						}
 					}
 				}
@@ -233,57 +247,69 @@ namespace aly {
 						labelVol(ni, nj, nk) = NARROW_BAND;
 						if (nj > 0) {
 							Nv = distVol(ni, nj - 1, nk).x;
+							Ns = signVol(ni, nj - 1, nk).x;
 							Nl = labelVol(ni, nj - 1, nk);
 						}
 						else {
+							Ns = 0;
 							Nl = 0;
 						}
 						/* Neighbour to the south */
 						if (nj < cols - 1) {
 							Sv = distVol(ni, nj + 1, nk).x;
+							Ss = signVol(ni, nj + 1, nk).x;
 							Sl = labelVol(ni, nj + 1, nk);
 						}
 						else {
+							Ss = 0;
 							Sl = 0;
 						}
 						/* Neighbour to the east */
 						if (nk < slices - 1) {
 							Ev = distVol(ni, nj, nk + 1).x;
+							Es = signVol(ni, nj, nk + 1).x;
 							El = labelVol(ni, nj, nk + 1);
 						}
 						else {
+							Es = 0;
 							El = 0;
 						}
 						/* Neighbour to the west */
 						if (nk > 0) {
 							Wv = distVol(ni, nj, nk - 1).x;
+							Ws = signVol(ni, nj, nk - 1).x;
 							Wl = labelVol(ni, nj, nk - 1);
 						}
 						else {
+							Ws = 0;
 							Wl = 0;
 						}
 						/* Neighbour to the front */
 						if (ni < rows - 1) {
 							Fv = distVol(ni + 1, nj, nk).x;
+							Es = signVol(ni + 1, nj, nk).x;
 							Fl = labelVol(ni + 1, nj, nk);
 						}
 						else {
+							Fs = 0;
 							Fl = 0;
 						}
 						/* Neighbour to the back */
 						if (ni > 0) {
 							Bv = distVol(ni - 1, nj, nk).x;
+							Bs = signVol(ni - 1, nj, nk).x;
 							Bl = labelVol(ni - 1, nj, nk);
 						}
 						else {
+							Bs = 0;
 							Bl = 0;
 						}
 						/*
 						 * Update the value of this to-be-updated NarrowBand
 						 * point
 						 */
-						newvalue = march(Nv, Sv, Ev, Wv, Fv, Bv, Nl, Sl, El, Wl, Fl,
-							Bl);
+						signVol(ni, nj, nk).x = aly::sign(Ns + Ss + Bs + Fs + Es + Ws);
+						newvalue = march(Nv, Sv, Ev, Wv, Fv, Bv, Nl, Sl, El, Wl, Fl,Bl);
 						distVol(ni, nj, nk).x = (float)(newvalue);
 						voxelList.push_back(VoxelIndex(Coord(ni, nj, nk), (float)newvalue));
 						heap.add(&voxelList.back());
@@ -320,56 +346,69 @@ namespace aly {
 				}
 				if (nj > 0) {
 					Nv = distVol(ni, nj - 1, nk).x;
+					Ns = signVol(ni, nj - 1, nk).x;
 					Nl = labelVol(ni, nj - 1, nk);
 				}
 				else {
+					Ns = 0;
 					Nl = 0;
 				}
 
 				/* Neighbour to the south */
 				if (nj < cols - 1) {
 					Sv = distVol(ni, nj + 1, nk).x;
+					Ss = signVol(ni, nj + 1, nk).x;
 					Sl = labelVol(ni, nj + 1, nk);
 				}
 				else {
+					Ss = 0;
 					Sl = 0;
 				}
 
 				/* Neighbour to the east */
 				if (nk < slices - 1) {
 					Ev = distVol(ni, nj, nk + 1).x;
+					Es = signVol(ni, nj, nk + 1).x;
 					El = labelVol(ni, nj, nk + 1);
 				}
 				else {
+					Es = 0;
 					El = 0;
 				}
 
 				/* Neighbour to the west */
 				if (nk > 0) {
 					Wv = distVol(ni, nj, nk - 1).x;
+					Ws = signVol(ni, nj, nk - 1).x;
 					Wl = labelVol(ni, nj, nk - 1);
 				}
 				else {
+					Ws = 0;
 					Wl = 0;
 				}
 
 				/* Neighbour to the front */
 				if (ni < rows - 1) {
 					Fv = distVol(ni + 1, nj, nk).x;
+					Fs = signVol(ni + 1, nj, nk).x;
 					Fl = labelVol(ni + 1, nj, nk);
 				}
 				else {
+					Fs = 0;
 					Fl = 0;
 				}
 
 				/* Neighbour to the back */
 				if (ni > 0) {
 					Bv = distVol(ni - 1, nj, nk).x;
+					Bs = signVol(ni - 1, nj, nk).x;
 					Bl = labelVol(ni - 1, nj, nk);
 				}
 				else {
+					Bs = 0;
 					Bl = 0;
 				}
+				signVol(ni, nj, nk).x = aly::sign(Ns + Ss + Bs + Fs + Es + Ws);
 				newvalue = march(Nv, Sv, Ev, Wv, Fv, Bv, Nl, Sl, El, Wl, Fl, Bl);
 				voxelList.push_back(VoxelIndex(Coord(ni, nj, nk), (float)newvalue));
 				VoxelIndex* vox = &voxelList.back();
@@ -386,12 +425,14 @@ namespace aly {
 		for (int k = 0;k < slices;k++) {
 			for (int j = 0;j < cols;j++) {
 				for (int i = 0;i < rows;i++) {
-					if (labelVol(i, j, k).x != ALIVE) {
-						distVol(i, j, k) = (float)(maxDistance);
+					int8_t s=signVol(i, j, k).x;
+					if (labelVol(i, j, k)!=ALIVE) {
+						distVol(i, j, k).x = maxDistance*aly::sign(vol(i,j,k).x);
 					}
-					if (vol(i, j, k).x < 0) {
-						distVol(i, j, k) = (-distVol(i, j, k));
+					else {
+						distVol(i, j, k).x *= s;
 					}
+
 				}
 			}
 		}

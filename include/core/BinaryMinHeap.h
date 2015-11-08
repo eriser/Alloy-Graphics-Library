@@ -36,7 +36,7 @@ namespace aly {
 	};
 template<class T, int C> class BinaryMinHeap {
 protected:
-	vec<size_t, C> dimensions;
+	vec<int, C> dimensions;
 	std::vector<Indexable<T, C> *> heapArray;
 	std::vector<size_t> backPointers;
 	size_t currentSize;
@@ -50,7 +50,7 @@ protected:
 		}
 	}
 public:
-	BinaryMinHeap(const vec<size_t,C>& dims):dimensions(dims),currentSize(0) {
+	BinaryMinHeap(const vec<int,C>& dims):dimensions(dims),currentSize(0) {
 		size_t sz = 1;
 		for (int c = 0;c < C;c++) {
 			sz *= dims[c];
@@ -184,6 +184,10 @@ protected:
 		heapArray.resize(heapArray.size()*2,nullptr);
 	}
 };
+typedef BinaryMinHeap<float, 2> BinaryMinHeap2f;
+typedef BinaryMinHeap<float, 3> BinaryMinHeap3f;
+typedef BinaryMinHeap<double, 2> BinaryMinHeap2d;
+typedef BinaryMinHeap<double, 3> BinaryMinHeap3d;
 
 };
 #endif
