@@ -70,7 +70,7 @@ Drag and Drop Example
 -------------------------
 ![DragEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0003.png)
 
-Animation Tween Example
+Tween Animation Example
 -------------------------
 ![TweenEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0004.png)
 
@@ -138,7 +138,7 @@ Image Filter Example
 -------------------------
 ![ImageProcessingEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0020.png)
 
-Mesh Object/Face Picker Example
+Object/Face Picker Example
 -------------------------
 ![MeshPickerEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0021.png)
 
