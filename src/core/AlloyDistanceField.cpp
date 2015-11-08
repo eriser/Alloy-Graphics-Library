@@ -27,6 +27,11 @@ namespace aly {
 	const ubyte1 DistanceField3f::NARROW_BAND = ubyte1((uint8_t)2);
 	const ubyte1 DistanceField3f::FAR_AWAY = ubyte1((uint8_t)3);
 	const float DistanceField3f::DISTANCE_UNDEFINED = std::numeric_limits<float>::max();
+
+	const ubyte1 DistanceField2f::ALIVE = ubyte1((uint8_t)1);
+	const ubyte1 DistanceField2f::NARROW_BAND = ubyte1((uint8_t)2);
+	const ubyte1 DistanceField2f::FAR_AWAY = ubyte1((uint8_t)3);
+	const float DistanceField2f::DISTANCE_UNDEFINED = std::numeric_limits<float>::max();
 	/*
 		Sethian, J. A. (1999). Level set methods and fast marching methods: evolving interfaces
 		in computational geometry, fluid mechanics, computer vision, and materials science (Vol. 3).
@@ -301,7 +306,7 @@ namespace aly {
 							/* Neighbour to the front */
 							if (ni < rows - 1) {
 								Fv = distVol(ni + 1, nj, nk).x;
-								Es = signVol(ni + 1, nj, nk).x;
+								Fs = signVol(ni + 1, nj, nk).x;
 								Fl = labelVol(ni + 1, nj, nk);
 							}
 							else {
@@ -450,6 +455,331 @@ namespace aly {
 					}
 
 				}
+			}
+		}
+		heap.clear();
+	}
+
+
+	float DistanceField2f::march(float Nv, float Sv, float Fv, float Bv, int Nl, int Sl, int Fl, int Bl) {
+		float s, s2; /* s = a + b +c; s2 = a*a + b*b +c*c */
+		float tmp;
+		int count;
+		s = 0;
+		s2 = 0;
+		count = 0;
+		if (Nl == ALIVE && Sl == ALIVE) {
+			tmp = std::min(Nv, Sv);
+			s += tmp;
+			s2 += tmp * tmp;
+			count++;
+		}
+		else if (Nl == ALIVE) {
+			s += Nv;
+			s2 += Nv * Nv;
+			count++;
+		}
+		else if (Sl == ALIVE) {
+			s += Sv;
+			s2 += Sv * Sv;
+			count++;
+		}
+		if (Fl == ALIVE && Bl == ALIVE) {
+			tmp = std::min(Fv, Bv);
+			s += tmp;
+			s2 += tmp * tmp;
+			count++;
+		}
+		else if (Fl == ALIVE) {
+			s += Fv;
+			s2 += Fv * Fv;
+			count++;
+		}
+		else if (Bl == ALIVE) {
+			s += Bv;
+			s2 += Bv * Bv;
+			count++;
+		}
+		tmp = (s + std::sqrt((s * s - count * (s2 - 1.0f)))) / count;
+		return tmp;
+	}
+	void DistanceField2f::solve(const Image1f& vol, Image1f& distVol, float maxDistance) {
+		const int rows = vol.width;
+		const int cols = vol.height;
+		BinaryMinHeap<float, 2> heap(vol.dimensions());
+		distVol.resize(rows, cols);
+		distVol.set(float1(DISTANCE_UNDEFINED));
+
+		static const int neighborsX[6] = { 1, 0, -1, 0, 0, 0 };
+		static const int neighborsY[6] = { 0, 1, 0, -1, 0, 0 };
+		std::list<PixelIndex> voxelList;
+		PixelIndex* he = nullptr;
+
+		Image1ub labelVol(rows, cols);
+		Image1b signVol(rows, cols);
+		labelVol.set(FAR_AWAY);
+		size_t countAlive = 0;
+#pragma omp parallel for
+		for (int j = 0;j < cols;j++) {
+			int LX, HX, LY, HY;
+			short NSFlag, WEFlag;
+			float s = 0, t = 0, w = 0;
+			float Nv = 0, Sv = 0, Wv = 0, Ev = 0, Cv = 0;
+			int8_t Ns = 0, Ss = 0, Ws = 0, Es = 0, Cs = 0;
+			ubyte1 Nl = 0;
+			ubyte1 Sl = 0;
+			ubyte1 Wl = 0;
+			ubyte1 El = 0;
+			ubyte1 Cl = 0;
+			for (int i = 0;i < rows;i++) {
+				Cv = vol(i, j).x;
+				if (Cv == 0) {
+					signVol(i, j).x = 0;
+					distVol(i, j).x = 0;
+					labelVol(i, j) = ALIVE;
+#pragma omp atomic
+					countAlive++;
+				}
+				else {
+					if (Cv != DISTANCE_UNDEFINED) {
+						signVol(i, j).x = (int8_t)aly::sign(Cv);
+						LX = (i == 0) ? 1 : 0;
+						HX = (i == (rows - 1)) ? 1 : 0;
+
+						LY = (j == 0) ? 1 : 0;
+						HY = (j == (cols - 1)) ? 1 : 0;
+
+						NSFlag = 0;
+						WEFlag = 0;
+
+						Nv = vol(i, j - 1 + LY).x;
+						Sv = vol(i, j + 1 - HY).x;
+						Wv = vol(i - 1 + LX, j).x;
+						Ev = vol(i + 1 - HX, j).x;
+						if (Nv * Cv < 0 && Nv != DISTANCE_UNDEFINED) {
+							NSFlag = 1;
+							s = Nv;
+						}
+						if (Sv * Cv < 0 && Sv != DISTANCE_UNDEFINED) {
+							if (NSFlag == 0) {
+								NSFlag = 1;
+								s = Sv;
+							}
+							else {
+								s = (std::abs(Nv) > std::abs(Sv)) ? Nv : Sv;
+							}
+						}
+						if (Wv * Cv < 0 && Wv != DISTANCE_UNDEFINED) {
+							WEFlag = 1;
+							t = Wv;
+						}
+						if (Ev * Cv < 0 && Ev != DISTANCE_UNDEFINED) {
+							if (WEFlag == 0) {
+								WEFlag = 1;
+								t = Ev;
+							}
+							else {
+								t = (std::abs(Ev) > std::abs(Wv)) ? Ev : Wv;
+							}
+						}
+						float result = 0;
+						if (NSFlag != 0) {
+							s = Cv / (Cv - s);
+							result += 1.0f / (s * s);
+						}
+						if (WEFlag != 0) {
+							t = Cv / (Cv - t);
+							result += 1.0f / (t * t);
+						}
+						if (result == 0) {
+							distVol(i, j).x = 0;
+						}
+						else {
+#pragma omp atomic
+							countAlive++;
+							labelVol(i, j) = ALIVE;
+							result = std::sqrt(result);
+							distVol(i, j).x = (float)(1.0 / result);
+						}
+					}
+					else {
+						signVol(i, j).x = 0;
+					}
+				}
+			}
+		}
+		heap.reserve(countAlive);
+		{
+			int koff;
+			int nj, ni;
+			float newvalue;
+			float s = 0, t = 0, w = 0;
+			float Nv = 0, Sv = 0, Bv = 0, Fv = 0, Cv = 0;
+			int8_t Ns = 0, Ss = 0, Fs = 0, Bs = 0, Cs = 0;
+			ubyte1 Nl = 0;
+			ubyte1 Sl = 0;
+			ubyte1 Bl = 0;
+			ubyte1 Fl = 0;
+			ubyte1 Cl = 0;
+			/* Initialize NarrowBand Heap */
+			for (int j = 0;j < cols;j++) {
+				for (int i = 0;i < rows;i++) {
+					if (labelVol(i, j) != ALIVE) {
+						continue;
+					}
+					for (koff = 0; koff < 6; koff++) {
+						ni = i + neighborsX[koff];
+						nj = j + neighborsY[koff];
+						if (nj < 0 || nj >= cols || ni < 0
+							|| ni >= rows) {
+							continue; /* Out of computational Boundary */
+						}
+						if (labelVol(ni, nj) != FAR_AWAY) {
+							continue;
+						}
+						labelVol(ni, nj) = NARROW_BAND;
+						if (nj > 0) {
+							Nv = distVol(ni, nj - 1).x;
+							Ns = signVol(ni, nj - 1).x;
+							Nl = labelVol(ni, nj - 1);
+						}
+						else {
+							Ns = 0;
+							Nl = 0;
+						}
+						/* Neighbour to the south */
+						if (nj < cols - 1) {
+							Sv = distVol(ni, nj + 1).x;
+							Ss = signVol(ni, nj + 1).x;
+							Sl = labelVol(ni, nj + 1);
+						}
+						else {
+							Ss = 0;
+							Sl = 0;
+						}
+						/* Neighbour to the front */
+						if (ni < rows - 1) {
+							Fv = distVol(ni + 1, nj).x;
+							Fs = signVol(ni + 1, nj).x;
+							Fl = labelVol(ni + 1, nj);
+						}
+						else {
+							Fs = 0;
+							Fl = 0;
+						}
+						/* Neighbour to the back */
+						if (ni > 0) {
+							Bv = distVol(ni - 1, nj).x;
+							Bs = signVol(ni - 1, nj).x;
+							Bl = labelVol(ni - 1, nj);
+						}
+						else {
+							Bs = 0;
+							Bl = 0;
+						}
+						/*
+						* Update the value of this to-be-updated NarrowBand
+						* point
+						*/
+						signVol(ni, nj).x = aly::sign(Ns + Ss + Bs + Fs);
+						newvalue = march(Nv, Sv, Fv, Bv, Nl, Sl, Fl, Bl);
+						distVol(ni, nj).x = (float)(newvalue);
+						voxelList.push_back(PixelIndex(Coord(ni, nj), (float)newvalue));
+						heap.add(&voxelList.back());
+					}
+				}
+			}
+			/*
+			* Begin Fast Marching to get the unsigned distance function inwords and
+			* outwards simultaneously since points inside and outside the contour
+			* won't interfere with each other
+			*/
+			while (!heap.isEmpty()) { /* There are still points not yet accepted */
+				int i, j;
+				he = heap.remove();
+				i = he->index[0];
+				j = he->index[1];
+				if (he->value > maxDistance) {
+					break;
+				}
+				distVol(i, j).x = (he->value);
+				labelVol(i, j) = ALIVE;
+				for (koff = 0; koff < 6; koff++) {
+					ni = i + neighborsX[koff];
+					nj = j + neighborsY[koff];
+					if (nj < 0 || nj >= cols || ni < 0 || ni >= rows) {
+						continue; /* Out of boundary */
+					}
+					if (labelVol(ni, nj) == ALIVE) {
+						continue; /* Don't change ALIVE neighbour */
+					}
+					if (nj > 0) {
+						Nv = distVol(ni, nj - 1).x;
+						Ns = signVol(ni, nj - 1).x;
+						Nl = labelVol(ni, nj - 1);
+					}
+					else {
+						Ns = 0;
+						Nl = 0;
+					}
+
+					/* Neighbour to the south */
+					if (nj < cols - 1) {
+						Sv = distVol(ni, nj + 1).x;
+						Ss = signVol(ni, nj + 1).x;
+						Sl = labelVol(ni, nj + 1);
+					}
+					else {
+						Ss = 0;
+						Sl = 0;
+					}
+
+					/* Neighbour to the front */
+					if (ni < rows - 1) {
+						Fv = distVol(ni + 1, nj).x;
+						Fs = signVol(ni + 1, nj).x;
+						Fl = labelVol(ni + 1, nj);
+					}
+					else {
+						Fs = 0;
+						Fl = 0;
+					}
+
+					/* Neighbour to the back */
+					if (ni > 0) {
+						Bv = distVol(ni - 1, nj).x;
+						Bs = signVol(ni - 1, nj).x;
+						Bl = labelVol(ni - 1, nj);
+					}
+					else {
+						Bs = 0;
+						Bl = 0;
+					}
+					signVol(ni, nj).x = aly::sign(Ns + Ss + Bs + Fs);
+					newvalue = march(Nv, Sv, Fv, Bv, Nl, Sl, Fl, Bl);
+					voxelList.push_back(PixelIndex(Coord(ni, nj), (float)newvalue));
+					PixelIndex* vox = &voxelList.back();
+					if (labelVol(ni, nj) == NARROW_BAND) {
+						heap.change(Coord(ni, nj), vox);
+					}
+					else {
+						heap.add(vox);
+						labelVol(ni, nj) = NARROW_BAND;
+					}
+				}
+			}
+		}
+#pragma omp parallel for
+		for (int j = 0;j < cols;j++) {
+			for (int i = 0;i < rows;i++) {
+				int8_t s = signVol(i, j).x;
+				if (labelVol(i, j) != ALIVE) {
+					distVol(i, j).x = maxDistance*aly::sign(vol(i, j).x);
+				}
+				else {
+					distVol(i, j).x *= s;
+				}
+
 			}
 		}
 		heap.clear();

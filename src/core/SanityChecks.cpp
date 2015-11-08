@@ -440,7 +440,9 @@ namespace aly {
 		bbox.position = center - float3(0.5f*maxDim);
 		bbox.dimensions = float3(maxDim);
 		Volume1f vol(64, 64, 64);
+		Image1f img(64, 64);
 		Volume1f distVol;
+		Image1f distImg;
 		float voxelSize = maxDim / vol.rows;
 		float maxDistance = 3.0f *voxelSize;
 #pragma omp parallel for
@@ -458,13 +460,25 @@ namespace aly {
 					else {
 						vol(i, j, k).x = DistanceField3f::DISTANCE_UNDEFINED;
 					}
+					if (k == vol.slices / 2) {
+						if (d != NO_HIT_DISTANCE) {
+							img(i, j).x = (float)d / voxelSize;
+						}
+						else {
+							img(i, j).x = DistanceField3f::DISTANCE_UNDEFINED;
+						}
+					}
 				}
 			}
 		}
-		vol.writeToXML("closest.xml");
-		DistanceField3f df;
-		df.solve(vol, distVol,10.0f);
-		distVol.writeToXML("distance_field.xml");
+		vol.writeToXML("vol_closest.xml");
+		DistanceField3f df3;
+		df3.solve(vol, distVol,10.0f);
+		distVol.writeToXML("vol_df.xml");
+		img.writeToXML("img_closest.xml");
+		DistanceField2f df2;
+		df2.solve(img, distImg, 10.0f);
+		distImg.writeToXML("img_df.xml");
 		return true;
 	}
 	bool SANITY_CHECK_KDTREE() {
