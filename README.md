@@ -38,8 +38,10 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 
 ## Future Work
 - Active contour segmentation
+- Iso-contour / Iso-surface
 - Visual programming UI
-- Anisotropic image diffusion
+- Image processing for anisotropic image diffusion, Mumford-Shah, Rudin-Osher-Fatemi, Chan-Esedolgu-Nikolova
+- Automatic UV generation (OpenNL)
 - Gradient Vector Flow
 - KAZE features
 - DAISY features
