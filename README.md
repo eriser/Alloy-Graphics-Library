@@ -36,7 +36,7 @@ Alloy is yet another graphics library written in C++11. As mundane as that sound
 GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
 
 ## License
-Alloy is <B>BSD licensed</B> and only uses libraries that also have a permissive license for commercial or academic use.
+Alloy is <B>BSD licensed</B> and only uses libraries that also have a permissive license for commercial and academic use.
 
 
 Generic Units Example
