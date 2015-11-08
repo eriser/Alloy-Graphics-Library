@@ -486,10 +486,10 @@ namespace aly {
 		return tmp;
 	}
 	void DistanceField2f::solve(const Image1f& vol, Image1f& distVol, float maxDistance) {
-		const int rows = vol.width;
-		const int cols = vol.height;
+		const int width = vol.width;
+		const int height = vol.height;
 		BinaryMinHeap<float, 2> heap(vol.dimensions());
-		distVol.resize(rows, cols);
+		distVol.resize(width, height);
 		distVol.set(float1(DISTANCE_UNDEFINED));
 
 		static const int neighborsX[4] = { 1, 0, -1, 0};
@@ -497,17 +497,17 @@ namespace aly {
 		std::list<PixelIndex> voxelList;
 		PixelIndex* he = nullptr;
 
-		Image1ub labelVol(rows, cols);
-		Image1b signVol(rows, cols);
+		Image1ub labelVol(width, height);
+		Image1b signVol(width, height);
 		labelVol.set(FAR_AWAY);
 		size_t countAlive = 0;
 #pragma omp parallel for
-		for (int j = 0;j < cols;j++) {
+		for (int j = 0;j < height;j++) {
 			int LX, HX, LY, HY;
 			short NSFlag, WEFlag;
 			float s=0,t=0;
 			float JMv = 0, JPv = 0, IMv = 0, IPv = 0, Cv = 0;
-			for (int i = 0;i < rows;i++) {
+			for (int i = 0;i < width;i++) {
 				Cv = vol(i, j).x;
 				if (Cv == 0) {
 					signVol(i, j).x = 0;
@@ -520,10 +520,10 @@ namespace aly {
 					if (Cv != DISTANCE_UNDEFINED) {
 						signVol(i, j).x = (int8_t)aly::sign(Cv);
 						LX = (i == 0) ? 1 : 0;
-						HX = (i == (rows - 1)) ? 1 : 0;
+						HX = (i == (width - 1)) ? 1 : 0;
 
 						LY = (j == 0) ? 1 : 0;
-						HY = (j == (cols - 1)) ? 1 : 0;
+						HY = (j == (height - 1)) ? 1 : 0;
 
 						NSFlag = 0;
 						WEFlag = 0;
@@ -595,16 +595,16 @@ namespace aly {
 			ubyte1 JPl = 0;
 			ubyte1 IMl = 0;
 			ubyte1 IPl = 0;
-			for (int j = 0;j < cols;j++) {
-				for (int i = 0;i < rows;i++) {
+			for (int j = 0;j < height;j++) {
+				for (int i = 0;i < width;i++) {
 					if (labelVol(i, j) != ALIVE) {
 						continue;
 					}
 					for (koff = 0; koff < 4; koff++) {
 						ni = i + neighborsX[koff];
 						nj = j + neighborsY[koff];
-						if (nj < 0 || nj >= cols || ni < 0
-							|| ni >= rows) {
+						if (nj < 0 || nj >= height || ni < 0
+							|| ni >= width) {
 							continue;
 						}
 						if (labelVol(ni, nj) != FAR_AWAY) {
@@ -620,7 +620,7 @@ namespace aly {
 							JMs = 0;
 							JMl = 0;
 						}
-						if (nj < cols - 1) {
+						if (nj < height - 1) {
 							JPv = distVol(ni, nj + 1).x;
 							JPs = signVol(ni, nj + 1).x;
 							JPl = labelVol(ni, nj + 1);
@@ -629,7 +629,7 @@ namespace aly {
 							JPs = 0;
 							JPl = 0;
 						}
-						if (ni < rows - 1) {
+						if (ni < width - 1) {
 							IPv = distVol(ni + 1, nj).x;
 							IMs = signVol(ni + 1, nj).x;
 							IPl = labelVol(ni + 1, nj);
@@ -668,7 +668,7 @@ namespace aly {
 				for (koff = 0; koff < 4; koff++) {
 					ni = i + neighborsX[koff];
 					nj = j + neighborsY[koff];
-					if (nj < 0 || nj >= cols || ni < 0 || ni >= rows) {
+					if (nj < 0 || nj >= height || ni < 0 || ni >= width) {
 						continue; /* Out of boundary */
 					}
 					if (labelVol(ni, nj) == ALIVE) {
@@ -685,7 +685,7 @@ namespace aly {
 					}
 
 					/* Neighbour to the south */
-					if (nj < cols - 1) {
+					if (nj < height - 1) {
 						JPv = distVol(ni, nj + 1).x;
 						JPs = signVol(ni, nj + 1).x;
 						JPl = labelVol(ni, nj + 1);
@@ -696,7 +696,7 @@ namespace aly {
 					}
 
 					/* Neighbour to the front */
-					if (ni < rows - 1) {
+					if (ni < width - 1) {
 						IPv = distVol(ni + 1, nj).x;
 						IMs = signVol(ni + 1, nj).x;
 						IPl = labelVol(ni + 1, nj);
@@ -731,8 +731,8 @@ namespace aly {
 			}
 		}
 #pragma omp parallel for
-		for (int j = 0;j < cols;j++) {
-			for (int i = 0;i < rows;i++) {
+		for (int j = 0;j < height;j++) {
+			for (int i = 0;i < width;i++) {
 				int8_t s = signVol(i, j).x;
 				if (labelVol(i, j) != ALIVE) {
 					distVol(i, j).x = maxDistance*aly::sign(vol(i, j).x);

@@ -54,4 +54,5 @@
 #include "ImageProcessing.h"
 #include "AlloyIntersector.h"
 #include "AlloyLocator.h"
+#include "AlloyDistanceField.h"
 #endif /* ALLOY_H_ */

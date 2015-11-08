@@ -51,7 +51,6 @@ int popScissor(NVGcontext* ctx) {
 	return (int) NVG_SCISSOR_STACK.size();
 }
 
-
 float drawText(NVGcontext* nvg, float x, float y, const char* txt,
 		const FontStyle& style, const Color& foreground,
 		const Color& background, const char* end) {
@@ -74,7 +73,9 @@ float drawText(NVGcontext* nvg, float x, float y, const char* txt,
 	} else if (style == FontStyle::Shadow) {
 		nvgText(nvg, x, y + shift, txt, nullptr);
 	} else if (style == FontStyle::Glow) {
-		throw std::runtime_error("Not supported yet");
+		nvgFontBlur(nvg, 4.0f);
+		nvgText(nvg, x, y, txt, nullptr);
+		nvgFontBlur(nvg, 0.0f);
 	}
 	nvgFillColor(nvg, foreground);
 	ret = nvgText(nvg, x, y, txt, nullptr);
