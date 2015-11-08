@@ -236,7 +236,9 @@ void ConvertImage(const ImageRGBf& in, Image1ub& out, bool sRGB) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "png") {
+	if (ext == "xml") {
+		WriteImageToRawFile(file, image);
+	} else if (ext == "png") {
 		ImageRGBA tmp;
 		ConvertImage(image, tmp);
 		//Work around for malloc() error on linux.
@@ -251,7 +253,9 @@ void WriteImageToFile(const std::string& file, const ImageRGB& image) {
 }
 void WriteImageToFile(const std::string& file, const Image1ub& image) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "png") {
+	if (ext == "xml") {
+		WriteImageToRawFile(file, image);
+	} else if (ext == "png") {
 		if (!stbi_write_png(file.c_str(), image.width, image.height, 1,
 				image.ptr(), image.width)) {
 			throw std::runtime_error(
@@ -263,7 +267,9 @@ void WriteImageToFile(const std::string& file, const Image1ub& image) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGBA& image) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "png") {
+	if (ext == "xml") {
+		WriteImageToRawFile(file, image);
+	} else if (ext == "png") {
 		if (!stbi_write_png(file.c_str(), image.width, image.height, 4,
 				image.ptr(), 4 * image.width)) {
 			throw std::runtime_error(
@@ -510,7 +516,9 @@ void ReadImageFromFile(const std::string& file, Image1f& img) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "exr") {
+	if (ext == "xml") {
+		WriteImageToRawFile(file, img);
+	} else if (ext == "exr") {
 		const char* err;
 		EXRImage exrImage;
 		InitEXRImage(&exrImage);
@@ -575,7 +583,9 @@ void WriteImageToFile(const std::string& file, const ImageRGBAf& img) {
 }
 void WriteImageToFile(const std::string& file, const Image1f& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "exr") {
+	if (ext == "xml") {
+		WriteImageToRawFile(file, img);
+	} else if (ext == "exr") {
 		const char* err;
 		EXRImage exrImage;
 		InitEXRImage(&exrImage);
@@ -631,7 +641,9 @@ void WriteImageToFile(const std::string& file, const Image1f& img) {
 }
 void WriteImageToFile(const std::string& file, const ImageRGBf& img) {
 	std::string ext = GetFileExtension(file);
-	if (ext == "exr") {
+	if (ext == "xml") {
+		WriteImageToRawFile(file, img);
+	} else if (ext == "exr") {
 		const char* err;
 		EXRImage exrImage;
 		InitEXRImage(&exrImage);
