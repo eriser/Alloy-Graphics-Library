@@ -1179,7 +1179,7 @@ namespace aly {
 		colorSelectionPanel = MakeComposite("Color Selection Panel",
 			CoordPerPX(0.5f, 0.5, 0.0f, 0.0f),
 			CoordPX(18 + 300.0f + (60 + AlloyApplicationContext()->theme.SPACING.x)
-				* 5, 18 + 300.0f), COLOR_NONE);
+				* 5, 22 + 300.0f), COLOR_NONE);
 		colorSelectionPanel->setVisible(false);
 		colorSelectionPanel->setOrigin(Origin::MiddleCenter);
 

@@ -109,14 +109,14 @@ public:
 	const int channels;
 	const ImageType type;
 	std::string updateHashCode(size_t MAX_SAMPLES = 0, HashMethod method =
-			HashMethod::SHA256);
+		HashMethod::SHA256);
 	std::string getHashCode() {
 		return hashCode;
 	}
 	template<class Archive> void serialize(Archive & archive) {
 		archive(cereal::make_nvp(MakeString() << type << channels, id),
-				CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(x),
-				CEREAL_NVP(y), CEREAL_NVP(hashCode));
+			CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(x),
+			CEREAL_NVP(y), CEREAL_NVP(hashCode));
 	}
 
 	void writeToXML(const std::string& fileName) const {
@@ -162,35 +162,35 @@ public:
 	}
 
 	Image(int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			x(x), y(y), data(w * h), width(w), height(h), id(id), channels(C), type(
-					I) {
+		x(x), y(y), data(w * h), width(w), height(h), id(id), channels(C), type(
+			I) {
 	}
 	Image(int w, int h, int2 pos, uint64_t id = 0) :
-			x(pos.x), y(pos.y), data(w * h), width(w), height(h), id(id), channels(
-					C), type(I) {
+		x(pos.x), y(pos.y), data(w * h), width(w), height(h), id(id), channels(
+			C), type(I) {
 	}
 	Image(T* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			Image(w, h, x, y, id) {
+		Image(w, h, x, y, id) {
 		set(ptr);
 	}
 	Image(vec<T, C>* ptr, int w, int h, int x = 0, int y = 0, uint64_t id = 0) :
-			Image(w, h, x, y, id) {
+		Image(w, h, x, y, id) {
 		set(ptr);
 	}
 	Image(int w, int h, vec<T, C>* ptr) :
-			Image(w, h, 0, 0, 0) {
+		Image(w, h, 0, 0, 0) {
 		set(ptr);
 	}
 	Image(std::vector<vec<T, C>>& ref, int w, int h, int x = 0, int y = 0,
-			uint64_t id = 0) :
-			x(x), y(y), data(ref), width(w), height(h), id(id), channels(C), type(
-					I) {
+		uint64_t id = 0) :
+		x(x), y(y), data(ref), width(w), height(h), id(id), channels(C), type(
+			I) {
 	}
 	Image() :
-			x(0), y(0), width(0), height(0), id(0), channels(C), type(I) {
+		x(0), y(0), width(0), height(0), id(0), channels(C), type(I) {
 	}
 	Image(const Image<T, C, I>& img) :
-			Image(img.width, img.height, img.x, img.y, img.id) {
+		Image(img.width, img.height, img.x, img.y, img.id) {
 		set(img.data);
 	}
 
@@ -222,7 +222,7 @@ public:
 		return data.size();
 	}
 	size_t typeSize() const {
-		return sizeof(vec<T, C> );
+		return sizeof(vec<T, C>);
 	}
 	void resize(int w, int h) {
 		data.resize(w * h);
@@ -257,7 +257,7 @@ public:
 		return &(data.front()[0]);
 	}
 	void setZero() {
-		data.assign(data.size(), vec<T, C>((T) 0));
+		data.assign(data.size(), vec<T, C>((T)0));
 	}
 	const vec<T, C>& operator[](const size_t i) const {
 		return data[i];
@@ -270,14 +270,14 @@ public:
 	}
 	vec<T, C>& operator()(const int2 ij) {
 		return data[clamp(ij.x, 0, width - 1)
-				+ clamp(ij.y, 0, height - 1) * width];
+			+ clamp(ij.y, 0, height - 1) * width];
 	}
 	const vec<T, C>& operator()(int i, int j) const {
 		return data[clamp(i, 0, width - 1) + clamp(j, 0, height - 1) * width];
 	}
 	const vec<T, C>& operator()(const int2 ij) const {
 		return data[clamp(ij.x, 0, width - 1)
-				+ clamp(ij.y, 0, height - 1) * width];
+			+ clamp(ij.y, 0, height - 1) * width];
 	}
 
 	vec<float, C> operator()(float x, float y) {
@@ -290,7 +290,7 @@ public:
 		float dx = x - i;
 		float dy = y - j;
 		return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
-				+ (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
+			+ (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
 	}
 	vec<float, C> operator()(float x, float y) const {
 		int i = static_cast<int>(std::floor(x));
@@ -302,7 +302,43 @@ public:
 		float dx = x - i;
 		float dy = y - j;
 		return ((rgb00 * (1.0f - dx) + rgb10 * dx) * (1.0f - dy)
-				+ (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
+			+ (rgb01 * (1.0f - dx) + rgb11 * dx) * dy);
+	}
+	matrix<float, C, 2> gradient(float x, float y) const {
+		vec<float, C> v21 = vec<float, C>(operator()(x + 1, y));
+		vec<float, C> v12 = vec<float, C>(operator()(x, y + 1));
+		vec<float, C> v10 = vec<float, C>(operator()(x, y - 1));
+		vec<float, C> v01 = vec<float, C>(operator()(x - 1, y));
+		vec<float, C> dx = ((v21 - v01) * 0.5f);
+		vec<float, C> dy = ((v12 - v10) * 0.5f);
+		matrix<float, C, 2> G;
+		G.x = dx;
+		G.y = dy;
+		return G;
+	}
+	matrix<double, C, 2> gradient(double x, double y) const {
+		vec<double, C> v21 = vec<double, C>(operator()(x + 1, y));
+		vec<double, C> v12 = vec<double, C>(operator()(x, y + 1));
+		vec<double, C> v10 = vec<double, C>(operator()(x, y - 1));
+		vec<double, C> v01 = vec<double, C>(operator()(x - 1, y));
+		vec<double, C> dx = ((v21 - v01) * 0.5);
+		vec<double, C> dy = ((v12 - v10) * 0.5);
+		matrix<double, C, 2> G;
+		G.x = dx;
+		G.y = dy;
+		return G;
+	}
+	matrix<T, C, 2> gradient(int x, int y) const {
+		vec<T, C> v21 = operator()(x + 1, y);
+		vec<T, C> v12 = operator()(x, y + 1);
+		vec<T, C> v10 = operator()(x, y - 1);
+		vec<T, C> v01 = operator()(x - 1, y);
+		vec<T, C> dx = ((v21 - v01) * T(0.5));
+		vec<T, C> dy = ((v12 - v10) * T(0.5));
+		matrix<T, C, 2> G;
+		G.x = dx;
+		G.y = dy;
+		return G;
 	}
 	vec<double, C> operator()(double x, double y) {
 		int i = static_cast<int>(std::floor(x));
