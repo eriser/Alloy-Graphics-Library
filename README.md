@@ -100,7 +100,7 @@ Mesh Subdivision Example
 
 Mesh Texture Example
 -------------------------
-![MeshTextureEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot00012.png)
+![MeshTextureEx](https://github.com/bclucas/Alloy-Graphics-Library/blob/master/screenshots/screenshot0012.png)
 
 Mesh with Per Vertex Color Example
 -------------------------
