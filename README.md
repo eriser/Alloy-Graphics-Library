@@ -4,10 +4,10 @@ Alloy
 Alloy is yet another graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast prototyping, tweaking, and visualization.
 
 
-# Dependencies
-GLFW and GLEW. Source code for all other libraries is included in repository and cross-compiles on windows and linux.
+## Dependencies
+GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
 
-# License
+## License
 Alloy is <B>BSD licensed</B> and only uses libraries that also have a permissive licensed for commercial or academic use.
 
 
