@@ -21,6 +21,7 @@
 
 #include "AlloyDistanceField.h"
 #include "BinaryMinHeap.h"
+#include <list>
 using namespace std;
 namespace aly {
 	const ubyte1 DistanceField3f::ALIVE = ubyte1((uint8_t)1);
@@ -120,14 +121,6 @@ namespace aly {
 			short NSFlag, WEFlag, FBFlag;
 			float s = 0, t = 0, w = 0;
 			float Nv = 0, Sv = 0, Wv = 0, Ev = 0, Fv = 0, Bv = 0, Cv = 0;
-			int8_t Ns = 0, Ss = 0, Ws = 0, Es = 0, Fs = 0, Bs = 0, Cs = 0;
-			ubyte1 Nl = 0;
-			ubyte1 Sl = 0;
-			ubyte1 Wl = 0;
-			ubyte1 El = 0;
-			ubyte1 Fl = 0;
-			ubyte1 Bl = 0;
-			ubyte1 Cl = 0;
 			for (int j = 0;j < cols;j++) {
 				for (int i = 0;i < rows;i++) {
 					Cv = vol(i, j, k).x;
@@ -235,16 +228,14 @@ namespace aly {
 			int koff;
 			int nj, nk, ni;
 			float newvalue;
-			float s = 0, t = 0, w = 0;
-			float Nv = 0, Sv = 0, Wv = 0, Ev = 0, Fv = 0, Bv = 0, Cv = 0;
-			int8_t Ns = 0, Ss = 0, Ws = 0, Es = 0, Fs = 0, Bs = 0, Cs = 0;
+			float Nv = 0, Sv = 0, Wv = 0, Ev = 0, Fv = 0, Bv = 0;
+			int8_t Ns = 0, Ss = 0, Ws = 0, Es = 0, Fs = 0, Bs = 0;
 			ubyte1 Nl = 0;
 			ubyte1 Sl = 0;
 			ubyte1 Wl = 0;
 			ubyte1 El = 0;
 			ubyte1 Fl = 0;
 			ubyte1 Bl = 0;
-			ubyte1 Cl = 0;
 			/* Initialize NarrowBand Heap */
 			for (int k = 0;k < slices;k++) {
 				for (int j = 0;j < cols;j++) {
@@ -523,14 +514,8 @@ namespace aly {
 		for (int j = 0;j < cols;j++) {
 			int LX, HX, LY, HY;
 			short NSFlag, WEFlag;
-			float s = 0, t = 0, w = 0;
+			float s=0,t=0;
 			float Nv = 0, Sv = 0, Wv = 0, Ev = 0, Cv = 0;
-			int8_t Ns = 0, Ss = 0, Ws = 0, Es = 0, Cs = 0;
-			ubyte1 Nl = 0;
-			ubyte1 Sl = 0;
-			ubyte1 Wl = 0;
-			ubyte1 El = 0;
-			ubyte1 Cl = 0;
 			for (int i = 0;i < rows;i++) {
 				Cv = vol(i, j).x;
 				if (Cv == 0) {
@@ -613,14 +598,12 @@ namespace aly {
 			int koff;
 			int nj, ni;
 			float newvalue;
-			float s = 0, t = 0, w = 0;
-			float Nv = 0, Sv = 0, Bv = 0, Fv = 0, Cv = 0;
-			int8_t Ns = 0, Ss = 0, Fs = 0, Bs = 0, Cs = 0;
+			float Nv = 0, Sv = 0, Bv = 0, Fv = 0;
+			int8_t Ns = 0, Ss = 0, Fs = 0, Bs = 0;
 			ubyte1 Nl = 0;
 			ubyte1 Sl = 0;
 			ubyte1 Bl = 0;
 			ubyte1 Fl = 0;
-			ubyte1 Cl = 0;
 			/* Initialize NarrowBand Heap */
 			for (int j = 0;j < cols;j++) {
 				for (int i = 0;i < rows;i++) {

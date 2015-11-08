@@ -86,7 +86,7 @@ public:
 	}
 	void change(const vec<int,C>& pos,T value) {
 		size_t index = getPointer(pos);
-		Indexable* v = heapArray[index];
+		Indexable<T,C>* v = heapArray[index];
 		if (value<v->value) {
 			v->value=value;
 			percolateUp(index);

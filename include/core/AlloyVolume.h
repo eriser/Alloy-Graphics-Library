@@ -71,6 +71,7 @@ namespace aly {
 		int slices;
 		uint64_t id;
 		const int channels = C;
+
 		const ImageType type = I;
 		int3 position() const {
 			return int3(x, y, z);
@@ -137,11 +138,11 @@ namespace aly {
 
 		Volume(int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
-			x(x), y(y), z(z), rows(r), cols(c), slices(s), id(id), data(r * c * s) {
+				 x(x), y(y), z(z), data(r * c * s) ,rows(r), cols(c), slices(s), id(id){
 		}
 		Volume(int r, int c, int s, int3 pos,
 			uint64_t id = 0) :
-			x(pos.x), y(pos.y), z(pos.z), rows(r), cols(c), slices(s), id(id), data(r * c * s) {
+			x(pos.x), y(pos.y), z(pos.z), data(r * c * s) , rows(r), cols(c), slices(s), id(id){
 		}
 		Volume(T* ptr, int r, int c, int s, int x = 0, int y = 0, int z = 0,
 			uint64_t id = 0) :
@@ -155,7 +156,7 @@ namespace aly {
 		}
 		Volume(std::vector<vec<T, C>>& ref, int r, int c, int s, int x = 0, int y =
 			0, int z = 0, uint64_t id = 0) :
-			x(x), y(y), z(z), rows(r), cols(c), slices(s), id(id), data(ref) {
+			x(x), y(y), z(z), data(ref) , rows(r), cols(c), slices(s), id(id){
 		}
 		Volume() :
 			x(0), y(0), z(0), rows(0), cols(0), slices(0), id(0) {
