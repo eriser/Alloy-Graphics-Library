@@ -47,7 +47,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - 2D physics (box2D)
 
 ## Dependencies
-GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
+GLFW 3.1+ and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
 
 ## License
 Alloy is <B>BSD licensed</B> and only uses libraries that also have a permissive license for commercial and academic use.

@@ -28,8 +28,8 @@ UnitsEx::UnitsEx() :
 bool UnitsEx::init(Composite& rootNode) {
 	rootNode.add(MakeTextLabel("{10% from left edge and 10% from top edge}", CoordPercent(0.1f, 0.1f), CoordPX(400, 30), FontType::Normal, UnitPT(16.0f)));
 	rootNode.add(MakeTextLabel("{5 pixels from left edge and 200 pixels from top edge}", CoordPX(5,200), CoordPX(400, 30), FontType::Normal, UnitPT(16.0f)));
-	rootNode.add(MakeTextLabel("{100% from left edge minus 550 pixels and 250 from top edge}", CoordPerPX(1.0f, 0.0f, -550, 250), CoordPX(550, 30), FontType::Normal, UnitPT(16.0f),COLOR_WHITE,HorizontalAlignment::Right,VerticalAlignment::Top));
-	TextLabelPtr label1 =MakeTextLabel("{Centered and 300 pixel from top}", CoordPerPX(0.5,0,0,300), CoordPX(300, 30), FontType::Normal, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Top);
+	rootNode.add(MakeTextLabel("{100% from left edge minus 550 pixels and 250 pixels from top edge}", CoordPerPX(1.0f, 0.0f, -550, 250), CoordPX(550, 30), FontType::Normal, UnitPT(16.0f),COLOR_WHITE,HorizontalAlignment::Right,VerticalAlignment::Top));
+	TextLabelPtr label1 =MakeTextLabel("{Centered and 300 pixels from top}", CoordPerPX(0.5,0,0,300), CoordPX(300, 30), FontType::Normal, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Top);
 	label1->setOrigin(Origin::TopCenter);
 	rootNode.add(label1);
 	TextLabelPtr label2 = MakeTextLabel("{Centered and text aligned bottom}", CoordPercent(0.5, 1.0), CoordPX(300, 30), FontType::Normal, UnitPT(16.0f), COLOR_WHITE, HorizontalAlignment::Center, VerticalAlignment::Top);
