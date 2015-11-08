@@ -4,19 +4,20 @@ Alloy
 Alloy is yet another graphics library written in C++11. As mundane as that sounds, this API provides an extensive collection of UI components and engineering reference implementations of common computer vision and computer graphics algorithms for fast development, tweaking, and visualization on windows and linux platforms (unsure about mac, buy me a mac and I'll make sure it works ^_^).
 
 ## Contents
-- Anti-aliased 2D graphics drawing with NanoVG.
-- OpenGL core 3.3 and higher support.
+- Anti-aliased 2D graphics drawing (NanoVG).
+- Truetype fonts (stb_truetype).
+- OpenGL core 3.3 and higher support. Legacy OpenGL will not run, but you won't need it!
 - Generic handling of absolute/relative coordinates in pixels, pt, dp, and mm.
 - Tweenable positions, dimensions, font sizes, and colors.
 - UI components: Region, Composite, Border Layout, Vertical Layout, Horizontal Layout, Scroll Bars, Draw 2D Region, Text Button, Icon Button, Text Icon Button, Text Field, Selection Box, Drop Down Box, Menu Bar, Vertical Slider, Horizontal Slider, Color Selection, File Dialog, File Field, File Button, List Box, Window Pane, Graph Plot, Progress Bar, Expand Region, Toggle Box, Check Box, Glass Pane.
-- Worker, Timer, Recurrent Worker.
-- Vector types and operations from one to four dimensions.
-- Quaternions and operations.
+- Worker, timer, and recurrent worker.
+- Vector types from one to four dimensions.
+- Quaternions.
 - Color space support for RGBA, HSV, CieLAB, XYZ, Gray, and look-up tables.
 - Sparse Matrix, Dense Matrix, Dense Vector, Array, Image, and Volume data structures.
-- Data structure serialization to json, binary, and xml.
-- Image IO for PNG, JPEG, TIFF, HDR, PSD, BMP, GIF, PNM, PIC, TGA, EXR, and XML (Mipav's encoding).
-- Mesh IO for PLY and OBJ.
+- Data structure serialization to json, binary, and xml (cereal).
+- Image IO (stb_image and tinyexr) for PNG, JPEG, TIFF, HDR, PSD, BMP, GIF, PNM, PIC, TGA, EXR, and XML (Mipav's encoding).
+- Mesh IO for PLY and OBJ (tinyobj).
 - Dense and sparse matrix solvers including SVD, QR, LU, CG, and BiCGstab.
 - The "Any" class to enable methods with arbitrary left-hand return types.
 - Perspective and orthographic cameras with methods to transform from world to screen or vice versa.
@@ -25,13 +26,14 @@ Alloy is yet another graphics library written in C++11. As mundane as that sound
 - Arbitrary mouse cursors.
 - Common shaders for deferred rendering in OpenGL 3.3 and higher.
 - Distance Field 2D/3D (fast-marching method).
-- Point Kd-Tree 2D/3D
-- Approximate Nearest Neighbors (N-dimensions)
-- Mesh Kd-Tree (ray-intersection and closest point)
-- SHA1, SHA-256, SHA-384, SHA-512
+- Point Kd-Tree 2D/3D (libkdtree).
+- Approximate Nearest Neighbors in N-dimensions (nanoflann).
+- Mesh Kd-Tree (ray-intersection and closest point).
+- SHA1, SHA-256, SHA-384, SHA-512.
 - Cross-Platform file system IO.
-- NURB curves, B-Splines, and Beziers
-- Mesh primitives: box, icosahedron, sphere, cylinder, torus, plane, cone, pyramid, frustum, capsule, tessellated sphere, grid, and asteroid.
+- NURB curves, B-Splines, and Beziers (tinyspline).
+- Mesh primitives for box, icosahedron, sphere, cylinder, torus, plane, cone, pyramid, frustum, capsule, tessellated sphere, grid, and asteroid.
+- 
 ## Dependencies
 GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
 
