@@ -33,7 +33,7 @@ Alloy is yet another graphics library written in C++11. As mundane as that sound
 - Cross-Platform file system IO.
 - NURB curves, B-Splines, and Beziers (tinyspline).
 - Mesh primitives for box, icosahedron, sphere, cylinder, torus, plane, cone, pyramid, frustum, capsule, tessellated sphere, grid, and asteroid.
-- 
+
 ## Dependencies
 GLFW and GLEW. Source code for all other libraries is included in the repository and cross-compiles on windows and linux.
 
