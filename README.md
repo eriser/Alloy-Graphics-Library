@@ -7,7 +7,7 @@ Alloy is yet another 2D/3D graphics library written in C++11. As mundane as that
 - Anti-aliased 2D graphics drawing (NanoVG).
 - Truetype fonts (stb_truetype).
 - OpenGL core 3.3 and higher support. Legacy OpenGL will not run, but you won't need it!
-- Generic handling of absolute/relative coordinates in pixels, pt, dp, and mm.
+- Generic handling of absolute/relative coordinates in pixels, dp, in, and mm.
 - Tweenable positions, dimensions, font sizes, and colors.
 - UI components: Region, Composite, Border Layout, Vertical Layout, Horizontal Layout, Scroll Bars, Draw 2D Region, Text Button, Icon Button, Text Icon Button, Text Field, Selection Box, Drop Down Box, Menu Bar, Vertical Slider, Horizontal Slider, Color Selection, File Dialog, File Field, File Button, List Box, Window Pane, Graph Plot, Progress Bar, Expand Region, Toggle Box, Check Box, Glass Pane.
 - Worker, timer, and recurrent worker.
