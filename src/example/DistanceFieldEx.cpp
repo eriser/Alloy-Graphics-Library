@@ -55,7 +55,7 @@ bool DistanceFieldEx::init(Composite& rootNode) {
 	//Solve distance field out to +/- 40 pixels
 	df.solve(gray, distField, maxDistance);
 	IsoContour isoContour;
-	isoContour.solve(distField);
+	isoContour.solve(distField, 0.0f, TopologyRule2D::Unconstrained);
 	curvePoints=isoContour.getPoints();
 	curveIndexes = isoContour.getIndexes();
 	//Normalize distance field range so it can be rendered as gray scale image.
@@ -72,13 +72,14 @@ bool DistanceFieldEx::init(Composite& rootNode) {
 		nvgStrokeColor(nvg, Color( 255,128,64));
 		nvgLineCap(nvg, NVG_ROUND);
 		nvgBeginPath(nvg);
-		for (int n = 0;n < (int)curveIndexes.size();n+=2) {
-			float2 pt = curvePoints[curveIndexes[n]];
+		for (int n = 0;n < (int)curveIndexes.size();n++) {
+			uint2 e = curveIndexes[n];
+			float2 pt = curvePoints[e.x];
 			pt.x = pt.x / (float)w;
 			pt.y = pt.y / (float)h;
 			pt = pt*bounds.dimensions + bounds.position;
 			nvgMoveTo(nvg, pt.x, pt.y);
-			pt = curvePoints[curveIndexes[n+1]];
+			pt = curvePoints[e.y];
 			pt.x = pt.x / (float)w;
 			pt.y = pt.y / (float)h;
 			pt = pt*bounds.dimensions + bounds.position;

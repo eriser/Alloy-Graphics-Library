@@ -37,7 +37,7 @@ namespace aly {
 	void IsoContour::solve(const Image1f& levelset, float isoLevel, const TopologyRule2D& topoRule,const Winding& winding){
 		rows = levelset.width;
 		cols = levelset.height;
-		isoLevel = isoLevel;
+		this->isoLevel = isoLevel;
 		rule = topoRule;
 		img = &levelset;
 		vertCount = 0;
@@ -55,17 +55,15 @@ namespace aly {
 		// Generate iso-surface from list of triangles
 		indexes.resize(edges.size() * 2);
 		points.resize(splits.size());
-		int index = 0;
+		uint32_t index = 0;
 		if (winding == Winding::Clockwise) {
 			for (EdgePtr edge : edges) {
-				indexes[index++] = edge->x;
-				indexes[index++] = edge->y;
+				indexes[index++] = uint2(edge->x, edge->y);
 			}
 		}
 		else if (winding == Winding::CounterClockwise) {
 			for (EdgePtr edge : edges) {
-				indexes[index++] = edge->y;
-				indexes[index++] = edge->x;
+				indexes[index++]= uint2(edge->y,edge->x);
 			}
 		}
 		index = 0;
@@ -159,6 +157,13 @@ namespace aly {
 			processSquare2(x, y, splits, edges);
 		}
 	}
+	/*
+	* Geometric Tools, LLC Copyright (c) 1998-2010 Distributed under the Boost
+	* Software License, Version 1.0. http://www.boost.org/LICENSE_1_0.txt
+	* http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
+	*
+	* File Version: 4.10.0 (2009/11/18)
+	*/
 	void IsoContour::processSquare1(int i, int j, std::map<uint64_t, EdgeSplitPtr>& splits, std::list<EdgePtr>& edges) {
 		float iF00 = getValue(i, j);
 		float iF10 = getValue(i + 1, j);

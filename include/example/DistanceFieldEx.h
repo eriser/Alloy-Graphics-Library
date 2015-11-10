@@ -27,7 +27,7 @@
 class DistanceFieldEx: public aly::Application {
 protected:
 	aly::Vector2f curvePoints;
-	aly::Vector1ui curveIndexes;
+	aly::Vector2ui curveIndexes;
 	int w, h;
 public:
 	DistanceFieldEx();

@@ -66,9 +66,9 @@ namespace aly {
 
 	class IsoContour {
 	protected:
-		int vertCount = 0;
+		uint32_t vertCount = 0;
 		Vector2f points;
-		Vector1ui indexes;
+		Vector2ui indexes;
 		const int a2fVertex1Offset[4][2] = { { 0, 0 },{ 1, 0 },{ 1, 1 },{ 0, 1 } };
 		const int a2fVertex2Offset[4][2] = { { 1, 0 },{ 1, 1 },{ 0, 1 },{ 0, 0 } };
 		const int afSquareValue4[16][4] = {
@@ -124,19 +124,19 @@ namespace aly {
 		void processSquare(int x, int y, std::map<uint64_t, EdgeSplitPtr>& splits, std::list<EdgePtr>& edges);
 		bool orient(const Image1f& img,const EdgeSplit& split1,const EdgeSplit& split2,Edge& edge);
 	public:
-		IsoContour(bool nudgeLevelSet=true):nudgeLevelSet(nudgeLevelSet){
+		IsoContour(bool nudgeLevelSet=true,float levelSetTolerance=1E-3f):nudgeLevelSet(nudgeLevelSet), LEVEL_SET_TOLERANCE(levelSetTolerance){
 
 		}
 		inline const Vector2f& getPoints() const {
 			return points;
 		}
-		inline const Vector1ui& getIndexes() const {
+		inline const Vector2ui& getIndexes() const {
 			return indexes;
 		}
 		inline Vector2f getPoints() {
 			return points;
 		}
-		inline Vector1ui getIndexes() {
+		inline Vector2ui getIndexes() {
 			return indexes;
 		}
 		virtual ~IsoContour() {}
