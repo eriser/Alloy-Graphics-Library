@@ -23,7 +23,12 @@
 #define DISTANCEFIELD_EX_H_
 
 #include "AlloyApplication.h"
+#include "AlloyVector.h"
 class DistanceFieldEx: public aly::Application {
+protected:
+	aly::Vector2f curvePoints;
+	aly::Vector1ui curveIndexes;
+	int w, h;
 public:
 	DistanceFieldEx();
 	bool init(aly::Composite& rootNode);

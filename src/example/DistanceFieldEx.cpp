@@ -22,14 +22,15 @@
 #include "Alloy.h"
 #include "../../include/example/DistanceFieldEx.h"
 #include "AlloyDistanceField.h"
+#include "AlloyIsoContour.h"
 using namespace aly;
 DistanceFieldEx::DistanceFieldEx() :
 		Application(800, 600, "Distance Field Example") {
 }
 bool DistanceFieldEx::init(Composite& rootNode) {
 	//SANITY_CHECK_DISTANCE_FIELD();
-	int w = getContext()->width();
-	int h = getContext()->height();
+	w = getContext()->width();
+	h = getContext()->height();
 	GLFrameBuffer renderBuffer;
 	//Render text to image
 	NVGcontext* nvg = getContext()->nvgContext;
@@ -53,14 +54,39 @@ bool DistanceFieldEx::init(Composite& rootNode) {
 	DistanceField2f df;
 	//Solve distance field out to +/- 40 pixels
 	df.solve(gray, distField, maxDistance);
+	IsoContour isoContour;
+	isoContour.solve(distField);
+	curvePoints=isoContour.getPoints();
+	curveIndexes = isoContour.getIndexes();
 	//Normalize distance field range so it can be rendered as gray scale image.
 	distField = (distField + float1(maxDistance)) / float1(2.0f * maxDistance);
 	GlyphRegionPtr imageRegion = MakeGlyphRegion(createImageGlyph(distField),
 			CoordPX(0.0f, 0.0f), CoordPercent(1.0f,1.0f), AspectRule::FixedHeight,
 			COLOR_NONE, COLOR_NONE, Color(200, 200, 200, 255), UnitPX(1.0f));
 	rootNode.add(imageRegion);
-
-
+	DrawPtr draw = DrawPtr(new Draw("Iso-Contour", CoordPX(0.0f, 0.0f), CoordPercent(1.0f, 1.0f)));
+	draw->setAspectRule(AspectRule::FixedHeight);
+	draw->onDraw = [this](const AlloyContext* context, const box2px& bounds) {
+		NVGcontext* nvg = context->nvgContext;
+		nvgStrokeWidth(nvg, 4.0f);
+		nvgStrokeColor(nvg, Color( 255,128,64));
+		nvgLineCap(nvg, NVG_ROUND);
+		nvgBeginPath(nvg);
+		for (int n = 0;n < (int)curveIndexes.size();n+=2) {
+			float2 pt = curvePoints[curveIndexes[n]];
+			pt.x = pt.x / (float)w;
+			pt.y = pt.y / (float)h;
+			pt = pt*bounds.dimensions + bounds.position;
+			nvgMoveTo(nvg, pt.x, pt.y);
+			pt = curvePoints[curveIndexes[n+1]];
+			pt.x = pt.x / (float)w;
+			pt.y = pt.y / (float)h;
+			pt = pt*bounds.dimensions + bounds.position;
+			nvgLineTo(nvg, pt.x, pt.y);
+		}
+		nvgStroke(nvg);
+	};
+	rootNode.add(draw);
 	return true;
 }
 
